@@ -616,6 +616,17 @@
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintTop_toBottomOf="@+id/buttons_layout_hint" />
 
+            <Button
+                android:id="@+id/apply_handheld_controls_preset"
+                android:layout_width="match_parent"
+                android:layout_height="38dp"
+                android:layout_marginHorizontal="9dp"
+                android:layout_marginVertical="4dp"
+                android:text="@string/pref_handheld_controls_preset"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@+id/show_key_mappings" />
+
             <!-- Virtual Keyboard settings -->
             <androidx.constraintlayout.widget.Group
                 android:id="@+id/virtual_keyboard_config_group"
@@ -642,7 +653,7 @@
                 android:text="@string/PREF_VIRTUAL_KEYBOARD_OPTIONS"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toBottomOf="@+id/show_key_mappings" />
+                app:layout_constraintTop_toBottomOf="@+id/apply_handheld_controls_preset" />
 
             <!-- Key shape type -->
             <TextView

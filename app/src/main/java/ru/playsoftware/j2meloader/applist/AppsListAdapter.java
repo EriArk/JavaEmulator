@@ -22,9 +22,13 @@ import android.text.TextUtils;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.BaseAdapter;
 import android.widget.Filter;
 import android.widget.Filterable;
+import android.widget.FrameLayout;
+import android.widget.LinearLayout;
+
+import androidx.annotation.NonNull;
+import androidx.recyclerview.widget.RecyclerView;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -32,54 +36,65 @@ import java.util.List;
 import ru.playsoftware.j2meloader.R;
 import ru.playsoftware.j2meloader.databinding.ListRowJarBinding;
 
-public class AppsListAdapter extends BaseAdapter implements Filterable {
+public class AppsListAdapter extends RecyclerView.Adapter<AppsListAdapter.ViewHolder> implements Filterable {
+	public static final int MODE_GALLERY = 0;
+	public static final int MODE_LIST = 1;
+	public static final int MODE_GRID = 2;
 
+	interface Listener {
+		void onAppClicked(AppItem item);
+		void onAppFocused(AppItem item);
+		void onAppActionsRequested(View anchor, AppItem item);
+	}
+
+	private final Listener listener;
 	private List<AppItem> list = new ArrayList<>();
 	private List<AppItem> filteredList = new ArrayList<>();
 	private final AppFilter appFilter = new AppFilter();
 	private CharSequence filterConstraint;
+	private int displayMode = MODE_GALLERY;
 
-	@Override
-	public int getCount() {
-		return filteredList.size();
+	public AppsListAdapter(Listener listener) {
+		this.listener = listener;
 	}
 
 	@Override
+	public int getItemCount() {
+		return filteredList.size();
+	}
+
 	public AppItem getItem(int position) {
 		return filteredList.get(position);
 	}
 
+	public AppItem getFirstItem() {
+		return filteredList.isEmpty() ? null : filteredList.get(0);
+	}
+
+	public void setDisplayMode(int displayMode) {
+		if (this.displayMode == displayMode) {
+			return;
+		}
+		this.displayMode = displayMode;
+		notifyDataSetChanged();
+	}
+
+	public int getDisplayMode() {
+		return displayMode;
+	}
+
+	@NonNull
 	@Override
-	public long getItemId(int position) {
-		return position;
+	public ViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
+		ListRowJarBinding binding = ListRowJarBinding.inflate(
+				LayoutInflater.from(parent.getContext()), parent, false);
+		return new ViewHolder(binding);
 	}
 
 	@Override
-	public View getView(int position, View view, ViewGroup parent) {
-		ViewHolder holder;
-		if (view == null) {
-			ListRowJarBinding binding = ListRowJarBinding.inflate(
-					LayoutInflater.from(parent.getContext()), parent, false);
-			view = binding.getRoot();
-			holder = new ViewHolder(binding);
-			view.setTag(holder);
-		} else {
-			holder = (ViewHolder) view.getTag();
-		}
-
+	public void onBindViewHolder(@NonNull ViewHolder holder, int position) {
 		AppItem item = filteredList.get(position);
-		Drawable icon = Drawable.createFromPath(item.getImagePathExt());
-		if (icon != null) {
-			icon.setFilterBitmap(false);
-			holder.binding.icon.setImageDrawable(icon);
-		} else {
-			holder.binding.icon.setImageResource(R.mipmap.ic_launcher);
-		}
-		holder.binding.name.setText(item.getTitle());
-		holder.binding.author.setText(item.getAuthor());
-		holder.binding.appVersion.setText(item.getVersion());
-
-		return view;
+		holder.bind(item, displayMode, listener);
 	}
 
 	public void setItems(List<AppItem> items) {
@@ -92,13 +107,108 @@ public class AppsListAdapter extends BaseAdapter implements Filterable {
 		return appFilter;
 	}
 
-	private static class ViewHolder {
-		ListRowJarBinding binding;
+	static class ViewHolder extends RecyclerView.ViewHolder {
+		private final ListRowJarBinding binding;
 
-		// todo неясно, может быть здесь стоит binding очищать на этапе
-		// ondestroy/ondestroyview где используется этот класс
 		private ViewHolder(ListRowJarBinding binding) {
+			super(binding.getRoot());
 			this.binding = binding;
+		}
+
+		private void bind(AppItem item, int displayMode, Listener listener) {
+			applyMode(displayMode);
+			Drawable cover = Drawable.createFromPath(item.getCoverPathExt());
+			if (cover != null) {
+				cover.setFilterBitmap(false);
+				binding.cover.setVisibility(View.VISIBLE);
+				binding.cover.setImageDrawable(cover);
+			} else {
+				binding.cover.setImageDrawable(null);
+				binding.cover.setVisibility(View.GONE);
+			}
+			Drawable icon = Drawable.createFromPath(item.getImagePathExt());
+			if (icon != null) {
+				icon.setFilterBitmap(false);
+				binding.icon.setImageDrawable(icon);
+			} else {
+				binding.icon.setImageResource(R.mipmap.ic_launcher);
+			}
+			binding.name.setText(item.getTitle());
+			binding.author.setText(item.getAuthor() == null ? "" : item.getAuthor());
+			binding.appVersion.setText(item.getVersion() == null ? "" : item.getVersion());
+			binding.getRoot().setOnClickListener(v -> listener.onAppClicked(item));
+			binding.getRoot().setOnLongClickListener(v -> {
+				listener.onAppActionsRequested(v, item);
+				return true;
+			});
+			binding.getRoot().setOnFocusChangeListener((v, hasFocus) -> {
+				if (hasFocus) {
+					listener.onAppFocused(item);
+				}
+			});
+		}
+
+		private void applyMode(int mode) {
+			LinearLayout root = binding.rowRoot;
+			FrameLayout art = binding.artContainer;
+			LinearLayout text = binding.textColumn;
+			int pad = dp(8);
+			root.setPadding(pad, pad, pad, pad);
+			ViewGroup.MarginLayoutParams itemLp = getMarginLayoutParams(root);
+			itemLp.setMargins(dp(5), dp(5), dp(5), dp(5));
+			root.setLayoutParams(itemLp);
+			if (mode == MODE_LIST) {
+				root.setOrientation(LinearLayout.HORIZONTAL);
+				LinearLayout.LayoutParams artLp = new LinearLayout.LayoutParams(dp(64), dp(64));
+				artLp.setMargins(0, 0, dp(12), 0);
+				art.setLayoutParams(artLp);
+				LinearLayout.LayoutParams textLp = new LinearLayout.LayoutParams(0,
+						ViewGroup.LayoutParams.WRAP_CONTENT, 1);
+				textLp.setMargins(0, 0, 0, 0);
+				text.setLayoutParams(textLp);
+				binding.icon.setLayoutParams(centerIconParams(dp(44)));
+				binding.name.setMaxLines(1);
+			} else {
+				root.setOrientation(LinearLayout.VERTICAL);
+				int artHeight = mode == MODE_GALLERY ? dp(164) : dp(112);
+				LinearLayout.LayoutParams artLp = new LinearLayout.LayoutParams(
+						ViewGroup.LayoutParams.MATCH_PARENT, artHeight);
+				artLp.setMargins(0, 0, 0, 0);
+				art.setLayoutParams(artLp);
+				LinearLayout.LayoutParams textLp = new LinearLayout.LayoutParams(
+						ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT);
+				textLp.setMargins(0, dp(8), 0, 0);
+				text.setLayoutParams(textLp);
+				binding.icon.setLayoutParams(cornerIconParams(dp(44)));
+				binding.name.setMaxLines(2);
+			}
+		}
+
+		private ViewGroup.MarginLayoutParams getMarginLayoutParams(View view) {
+			ViewGroup.LayoutParams lp = view.getLayoutParams();
+			if (lp instanceof ViewGroup.MarginLayoutParams) {
+				return (ViewGroup.MarginLayoutParams) lp;
+			}
+			return new RecyclerView.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT,
+					ViewGroup.LayoutParams.WRAP_CONTENT);
+		}
+
+		private FrameLayout.LayoutParams centerIconParams(int size) {
+			FrameLayout.LayoutParams lp = new FrameLayout.LayoutParams(size, size);
+			lp.gravity = android.view.Gravity.CENTER;
+			return lp;
+		}
+
+		private FrameLayout.LayoutParams cornerIconParams(int size) {
+			FrameLayout.LayoutParams lp = new FrameLayout.LayoutParams(size, size);
+			lp.gravity = android.view.Gravity.BOTTOM | android.view.Gravity.START;
+			lp.setMargins(dp(8), dp(8), dp(8), dp(8));
+			return lp;
+		}
+
+		private int dp(int value) {
+			float density = binding.getRoot().getResources().getDisplayMetrics().density;
+			return Math.round(value * density);
 		}
 	}
 
@@ -112,9 +222,12 @@ public class AppsListAdapter extends BaseAdapter implements Filterable {
 				results.values = list;
 			} else {
 				ArrayList<AppItem> resultList = new ArrayList<>();
+				String needle = constraint.toString().toLowerCase();
 				for (AppItem item : list) {
-					if (item.getTitle().toLowerCase().contains(constraint)
-							|| item.getAuthor().toLowerCase().contains(constraint)) {
+					String title = item.getTitle() == null ? "" : item.getTitle();
+					String author = item.getAuthor() == null ? "" : item.getAuthor();
+					if (title.toLowerCase().contains(needle)
+							|| author.toLowerCase().contains(needle)) {
 						resultList.add(item);
 					}
 				}
@@ -131,8 +244,9 @@ public class AppsListAdapter extends BaseAdapter implements Filterable {
 				//noinspection unchecked
 				filteredList = (List<AppItem>) results.values;
 				notifyDataSetChanged();
+				listener.onAppFocused(getFirstItem());
 			} else {
-				notifyDataSetInvalidated();
+				notifyDataSetChanged();
 			}
 		}
 	}

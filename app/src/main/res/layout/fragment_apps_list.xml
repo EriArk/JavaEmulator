@@ -1,23 +1,142 @@
 <?xml version="1.0" encoding="utf-8"?>
 <FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:orientation="vertical">
+    android:background="?android:colorBackground">
 
-    <ListView
-        android:id="@android:id/list"
+    <LinearLayout
+        android:id="@+id/library_root"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content" />
+        android:layout_height="match_parent"
+        android:orientation="vertical">
 
-    <TextView
-        android:id="@android:id/empty"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_gravity="center_horizontal"
-        android:layout_marginTop="10dp"
-        android:text="@string/no_data_for_display"
-        android:textSize="18sp" />
+        <LinearLayout
+            android:id="@+id/library_header"
+            android:layout_width="match_parent"
+            android:layout_height="56dp"
+            android:gravity="center_vertical"
+            android:orientation="horizontal"
+            android:paddingHorizontal="12dp">
+
+            <TextView
+                android:id="@+id/library_title"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:text="@string/library_title"
+                android:textColor="?attr/textColorPrimary"
+                android:textSize="20sp"
+                android:textStyle="bold" />
+
+            <Button
+                android:id="@+id/view_mode_gallery"
+                android:layout_width="wrap_content"
+                android:layout_height="38dp"
+                android:text="@string/view_mode_gallery" />
+
+            <Button
+                android:id="@+id/view_mode_list"
+                android:layout_width="wrap_content"
+                android:layout_height="38dp"
+                android:layout_marginStart="6dp"
+                android:text="@string/view_mode_list" />
+
+            <Button
+                android:id="@+id/view_mode_grid"
+                android:layout_width="wrap_content"
+                android:layout_height="38dp"
+                android:layout_marginStart="6dp"
+                android:text="@string/view_mode_grid" />
+        </LinearLayout>
+
+        <LinearLayout
+            android:id="@+id/library_content"
+            android:layout_width="match_parent"
+            android:layout_height="0dp"
+            android:layout_weight="1"
+            android:orientation="horizontal">
+
+            <FrameLayout
+                android:layout_width="0dp"
+                android:layout_height="match_parent"
+                android:layout_weight="1">
+
+                <androidx.recyclerview.widget.RecyclerView
+                    android:id="@+id/apps_recycler"
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:clipToPadding="false"
+                    android:padding="8dp"
+                    tools:listitem="@layout/list_row_jar" />
+
+                <TextView
+                    android:id="@android:id/empty"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_gravity="center"
+                    android:text="@string/no_data_for_display"
+                    android:textColor="?attr/textColorSecondary"
+                    android:textSize="18sp" />
+            </FrameLayout>
+
+            <LinearLayout
+                android:id="@+id/detail_panel"
+                android:layout_width="340dp"
+                android:layout_height="match_parent"
+                android:background="@color/config_card"
+                android:orientation="vertical"
+                android:padding="14dp"
+                android:visibility="gone"
+                tools:visibility="visible">
+
+                <ImageView
+                    android:id="@+id/detail_cover"
+                    android:layout_width="match_parent"
+                    android:layout_height="0dp"
+                    android:layout_weight="1"
+                    android:background="@drawable/bg_art_fallback"
+                    android:scaleType="centerCrop"
+                    tools:src="@drawable/bg_art_fallback" />
+
+                <TextView
+                    android:id="@+id/detail_title"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="12dp"
+                    android:maxLines="2"
+                    android:textColor="?attr/textColorPrimary"
+                    android:textSize="22sp"
+                    android:textStyle="bold"
+                    tools:text="Stalker" />
+
+                <TextView
+                    android:id="@+id/detail_meta"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="4dp"
+                    android:maxLines="2"
+                    android:textColor="?attr/textColorSecondary"
+                    android:textSize="13sp"
+                    tools:text="Vendor • 1.0" />
+
+                <Button
+                    android:id="@+id/detail_play"
+                    android:layout_width="match_parent"
+                    android:layout_height="42dp"
+                    android:layout_marginTop="14dp"
+                    android:text="@string/play" />
+
+                <Button
+                    android:id="@+id/detail_settings"
+                    android:layout_width="match_parent"
+                    android:layout_height="42dp"
+                    android:layout_marginTop="8dp"
+                    android:text="@string/action_settings" />
+            </LinearLayout>
+        </LinearLayout>
+    </LinearLayout>
 
     <com.google.android.material.floatingactionbutton.FloatingActionButton
         android:id="@+id/floating_action_button"

@@ -17,6 +17,7 @@
 package ru.woesss.j2me.installer;
 
 import android.app.Application;
+import android.graphics.BitmapFactory;
 import android.net.Uri;
 import android.util.Log;
 
@@ -40,6 +41,7 @@ import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Locale;
 import java.util.jar.JarFile;
 
 import io.reactivex.Single;
@@ -313,6 +315,18 @@ public class AppInstaller {
 				iconFile.delete();
 			}
 		}
+		String cover = findCoverEntry(resJar, icon);
+		File coverFile = new File(tmpDir, Config.MIDLET_COVER_FILE);
+		if (cover != null) {
+			try {
+				ZipUtils.unzipEntry(resJar, cover, coverFile);
+			} catch (IOException e) {
+				Log.w(TAG, "Can't unzip cover: " + cover, e);
+				cover = null;
+				//noinspection ResultOfMethodCallIgnored
+				coverFile.delete();
+			}
+		}
 		newDesc.writeTo(new File(tmpDir, Config.MIDLET_MANIFEST_FILE));
 		FileUtils.deleteDirectory(targetDir);
 		if (!tmpDir.renameTo(targetDir)) {
@@ -323,6 +337,9 @@ public class AppInstaller {
 		AppItem app = new AppItem(appDirName, name, vendor, newDesc.getVersion());
 		if (icon != null) {
 			app.setImagePathExt(Config.MIDLET_ICON_FILE);
+		}
+		if (cover != null) {
+			app.setCoverPathExt(Config.MIDLET_COVER_FILE);
 		}
 		if (currentApp != null) {
 			app.setId(currentApp.getId());
@@ -350,6 +367,81 @@ public class AppInstaller {
 		clearCache();
 		deleteTemp();
 		emitter.onSuccess(STATUS_SUCCESS);
+	}
+
+	private String findCoverEntry(File jar, String iconPath) {
+		String best = null;
+		int bestScore = 0;
+		try (ZipFile zip = new ZipFile(jar)) {
+			List<FileHeader> headers = zip.getFileHeaders();
+			for (FileHeader header : headers) {
+				if (header.isDirectory()) {
+					continue;
+				}
+				String name = header.getFileName();
+				String lower = name.toLowerCase(Locale.US);
+				if (!isImageFile(lower)) {
+					continue;
+				}
+				if (iconPath != null && lower.equals(iconPath.toLowerCase(Locale.US))) {
+					continue;
+				}
+				BitmapFactory.Options options = new BitmapFactory.Options();
+				options.inJustDecodeBounds = true;
+				try (InputStream stream = zip.getInputStream(header)) {
+					BitmapFactory.decodeStream(stream, null, options);
+				} catch (Exception ignored) {
+					continue;
+				}
+				if (options.outWidth <= 0 || options.outHeight <= 0) {
+					continue;
+				}
+				int score = scoreCoverCandidate(lower, options.outWidth, options.outHeight);
+				if (score > bestScore) {
+					bestScore = score;
+					best = name;
+				}
+			}
+		} catch (Exception e) {
+			Log.w(TAG, "Can't scan cover art", e);
+		}
+		return bestScore > 0 ? best : null;
+	}
+
+	private boolean isImageFile(String lowerName) {
+		return lowerName.endsWith(".png")
+				|| lowerName.endsWith(".jpg")
+				|| lowerName.endsWith(".jpeg");
+	}
+
+	private int scoreCoverCandidate(String name, int width, int height) {
+		int area = width * height;
+		if (area < 4096) {
+			return -1000;
+		}
+		int score = area / 1024;
+		float ratio = width / (float) height;
+		if (ratio >= 1.45f && ratio <= 2.6f) {
+			score += 180;
+		} else if (ratio >= 0.65f && ratio <= 0.85f && height >= 180) {
+			score += 70;
+		}
+		if (name.contains("title") || name.contains("splash")
+				|| name.contains("cover") || name.contains("loading")) {
+			score += 140;
+		}
+		if (name.contains("menu/background") || name.contains("background")) {
+			score += 120;
+		}
+		if (name.contains("logo")) {
+			score += 50;
+		}
+		if (name.contains("font") || name.contains("sprite") || name.contains("button")
+				|| name.contains("tile") || name.contains("level") || name.contains("digit")
+				|| name.contains("icon")) {
+			score -= 180;
+		}
+		return score;
 	}
 
 	private Descriptor loadManifest(File jar) throws IOException {

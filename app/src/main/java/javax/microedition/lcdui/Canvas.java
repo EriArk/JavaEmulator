@@ -36,6 +36,7 @@ import android.util.DisplayMetrics;
 import android.util.Log;
 import android.util.TypedValue;
 import android.view.Gravity;
+import android.view.InputDevice;
 import android.view.KeyEvent;
 import android.view.MotionEvent;
 import android.view.Surface;
@@ -119,6 +120,7 @@ public abstract class Canvas extends Displayable {
 	public static final int GAME_D = 12;
 
 	private static final float FULLSCREEN_HEIGHT_RATIO = 0.85f;
+	private static final float GAMEPAD_AXIS_DEADZONE = 0.35f;
 
 	private static boolean filter;
 	private static boolean touchInput;
@@ -545,6 +547,7 @@ public abstract class Canvas extends Displayable {
 			innerView.getHolder().addCallback(callback);
 			innerView.setOnTouchListener(callback);
 			innerView.setOnKeyListener(callback);
+			innerView.setOnGenericMotionListener(callback);
 			innerView.setFocusableInTouchMode(true);
 			layout.addView(innerView);
 			innerView.requestFocus();
@@ -988,9 +991,14 @@ public abstract class Canvas extends Displayable {
 		}
 	}
 
-	private class ViewCallbacks implements View.OnTouchListener, SurfaceHolder.Callback, View.OnKeyListener {
+	private class ViewCallbacks implements View.OnTouchListener, SurfaceHolder.Callback, View.OnKeyListener,
+			View.OnGenericMotionListener {
 		private final View mView;
 		OverlayView overlayView;
+		private boolean joystickLeft;
+		private boolean joystickRight;
+		private boolean joystickUp;
+		private boolean joystickDown;
 
 		public ViewCallbacks(View view) {
 			mView = view;
@@ -1046,6 +1054,93 @@ public abstract class Canvas extends Displayable {
 				postKeyReleased(midpKeyCode);
 			}
 			return true;
+		}
+
+		@Override
+		public boolean onGenericMotion(View v, MotionEvent event) {
+			if (event.getAction() != MotionEvent.ACTION_MOVE
+					|| !isFromSource(event, InputDevice.SOURCE_JOYSTICK)) {
+				return false;
+			}
+			float x = getCenteredAxis(event, MotionEvent.AXIS_X);
+			float y = getCenteredAxis(event, MotionEvent.AXIS_Y);
+			float hatX = getCenteredAxis(event, MotionEvent.AXIS_HAT_X);
+			float hatY = getCenteredAxis(event, MotionEvent.AXIS_HAT_Y);
+			if (x == 0) {
+				x = hatX;
+			}
+			if (y == 0) {
+				y = hatY;
+			}
+			boolean handled = false;
+			handled |= updateJoystickInput(KeyMapper.INPUT_STICK_LEFT, x < -GAMEPAD_AXIS_DEADZONE);
+			handled |= updateJoystickInput(KeyMapper.INPUT_STICK_RIGHT, x > GAMEPAD_AXIS_DEADZONE);
+			handled |= updateJoystickInput(KeyMapper.INPUT_STICK_UP, y < -GAMEPAD_AXIS_DEADZONE);
+			handled |= updateJoystickInput(KeyMapper.INPUT_STICK_DOWN, y > GAMEPAD_AXIS_DEADZONE);
+			return handled;
+		}
+
+		private boolean updateJoystickInput(int inputCode, boolean pressed) {
+			boolean current;
+			switch (inputCode) {
+				case KeyMapper.INPUT_STICK_LEFT:
+					current = joystickLeft;
+					break;
+				case KeyMapper.INPUT_STICK_RIGHT:
+					current = joystickRight;
+					break;
+				case KeyMapper.INPUT_STICK_UP:
+					current = joystickUp;
+					break;
+				case KeyMapper.INPUT_STICK_DOWN:
+					current = joystickDown;
+					break;
+				default:
+					return false;
+			}
+			if (current == pressed) {
+				return false;
+			}
+			int keyCode = KeyMapper.convertInputCode(inputCode);
+			if (keyCode == 0) {
+				return false;
+			}
+			if (pressed) {
+				if (overlay == null || !overlay.keyPressed(keyCode)) {
+					postKeyPressed(keyCode);
+				}
+			} else {
+				if (overlay == null || !overlay.keyReleased(keyCode)) {
+					postKeyReleased(keyCode);
+				}
+			}
+			switch (inputCode) {
+				case KeyMapper.INPUT_STICK_LEFT:
+					joystickLeft = pressed;
+					break;
+				case KeyMapper.INPUT_STICK_RIGHT:
+					joystickRight = pressed;
+					break;
+				case KeyMapper.INPUT_STICK_UP:
+					joystickUp = pressed;
+					break;
+				case KeyMapper.INPUT_STICK_DOWN:
+					joystickDown = pressed;
+					break;
+			}
+			return true;
+		}
+
+		private boolean isFromSource(MotionEvent event, int source) {
+			return (event.getSource() & source) == source;
+		}
+
+		private float getCenteredAxis(MotionEvent event, int axis) {
+			InputDevice device = event.getDevice();
+			InputDevice.MotionRange range = device == null ? null : device.getMotionRange(axis, event.getSource());
+			float value = event.getAxisValue(axis);
+			float flat = range == null ? GAMEPAD_AXIS_DEADZONE : range.getFlat();
+			return Math.abs(value) > flat ? value : 0;
 		}
 
 		@Override

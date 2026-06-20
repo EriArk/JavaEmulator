@@ -30,6 +30,7 @@ public class AppItem {
 	@PrimaryKey(autoGenerate = true)
 	private int id;
 	private String imagePath;
+	private String coverPath;
 	private String title;
 	private final String author;
 	private final String version;
@@ -70,6 +71,14 @@ public class AppItem {
 		this.imagePath = imagePath;
 	}
 
+	public String getCoverPath() {
+		return coverPath;
+	}
+
+	public void setCoverPath(String coverPath) {
+		this.coverPath = coverPath;
+	}
+
 	public String getAuthor() {
 		return author;
 	}
@@ -94,6 +103,20 @@ public class AppItem {
 			return null;
 		}
 		return Config.getAppDir() + imagePath;
+	}
+
+	public void setCoverPathExt(String coverPath) {
+		if (coverPath.length() > 0 && coverPath.charAt(0) != '/') {
+			coverPath = "/" + coverPath;
+		}
+		this.coverPath = path + coverPath;
+	}
+
+	public String getCoverPathExt() {
+		if (coverPath == null) {
+			return null;
+		}
+		return Config.getAppDir() + coverPath;
 	}
 
 	public String getAuthorExt(Context context) {

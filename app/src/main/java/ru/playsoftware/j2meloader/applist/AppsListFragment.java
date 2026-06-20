@@ -29,6 +29,7 @@ import android.content.ActivityNotFoundException;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.content.res.Configuration;
 import android.database.sqlite.SQLiteDiskIOException;
 import android.graphics.Bitmap;
 import android.graphics.Canvas;
@@ -39,18 +40,15 @@ import android.net.Uri;
 import android.os.Bundle;
 import android.os.Environment;
 import android.util.Log;
-import android.view.ContextMenu;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.EditText;
 import android.widget.LinearLayout;
-import android.widget.ListView;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -59,15 +57,19 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.content.res.AppCompatResources;
+import androidx.appcompat.widget.PopupMenu;
 import androidx.appcompat.widget.SearchView;
 import androidx.core.content.pm.ShortcutInfoCompat;
 import androidx.core.content.pm.ShortcutManagerCompat;
 import androidx.core.graphics.drawable.IconCompat;
 import androidx.core.widget.TextViewCompat;
+import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentActivity;
-import androidx.fragment.app.ListFragment;
 import androidx.lifecycle.ViewModelProvider;
 import androidx.preference.PreferenceManager;
+import androidx.recyclerview.widget.GridLayoutManager;
+import androidx.recyclerview.widget.LinearLayoutManager;
+import androidx.recyclerview.widget.RecyclerView;
 
 import java.io.File;
 import java.io.IOException;
@@ -94,15 +96,18 @@ import ru.playsoftware.j2meloader.util.FileUtils;
 import ru.playsoftware.j2meloader.util.LogUtils;
 import ru.woesss.j2me.installer.InstallerDialog;
 
-public class AppsListFragment extends ListFragment {
+public class AppsListFragment extends Fragment implements AppsListAdapter.Listener {
 	private static final String TAG = AppsListFragment.class.getSimpleName();
-	private final AppsListAdapter adapter = new AppsListAdapter();
+	private static final String PREF_LIBRARY_VIEW_MODE = "pref_library_view_mode";
+
 	private Uri appUri;
 	private SharedPreferences preferences;
 	private AppRepository appRepository;
+	private AppsListAdapter adapter;
 	private Disposable searchViewDisposable;
+	private AppItem selectedItem;
 
-	FragmentAppsListBinding binding;
+	private FragmentAppsListBinding binding;
 
 	private final ActivityResultLauncher<String> openFileLauncher = registerForActivityResult(
 			FileUtils.getFilePicker(),
@@ -123,6 +128,8 @@ public class AppsListFragment extends ListFragment {
 		appUri = args.getParcelable(KEY_APP_URI);
 		args.remove(KEY_APP_URI);
 		preferences = PreferenceManager.getDefaultSharedPreferences(requireActivity());
+		adapter = new AppsListAdapter(this);
+		adapter.setDisplayMode(preferences.getInt(PREF_LIBRARY_VIEW_MODE, AppsListAdapter.MODE_GALLERY));
 		AppListModel appListModel = new ViewModelProvider(requireActivity()).get(AppListModel.class);
 		appRepository = appListModel.getAppRepository();
 		appRepository.observeErrors(this, this::alertDbError);
@@ -130,7 +137,7 @@ public class AppsListFragment extends ListFragment {
 	}
 
 	@Override
-	public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
+	public View onCreateView(@NonNull LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
 		binding = FragmentAppsListBinding.inflate(inflater, container, false);
 		return binding.getRoot();
 	}
@@ -138,24 +145,80 @@ public class AppsListFragment extends ListFragment {
 	@Override
 	public void onViewCreated(@NonNull View view, Bundle savedInstanceState) {
 		super.onViewCreated(view, savedInstanceState);
-		registerForContextMenu(getListView());
 		setHasOptionsMenu(true);
-		setListAdapter(adapter);
-		binding.floatingActionButton.setOnClickListener(v -> {
-			String path = preferences.getString(PREF_LAST_PATH, null);
-			if (path == null) {
-				File dir = Environment.getExternalStorageDirectory();
-				if (dir.canRead()) {
-					path = dir.getAbsolutePath();
-				}
-			}
-			try {
-				openFileLauncher.launch(path);
-			} catch (ActivityNotFoundException e) {
-				Toast.makeText(getContext(), R.string.error_no_picker, Toast.LENGTH_SHORT).show();
-				e.printStackTrace();
+		binding.appsRecycler.setAdapter(adapter);
+		binding.appsRecycler.setItemAnimator(null);
+		binding.appsRecycler.setHasFixedSize(false);
+		adapter.registerAdapterDataObserver(new RecyclerView.AdapterDataObserver() {
+			@Override
+			public void onChanged() {
+				updateEmptyState();
 			}
 		});
+		binding.viewModeGallery.setOnClickListener(v -> setDisplayMode(AppsListAdapter.MODE_GALLERY));
+		binding.viewModeList.setOnClickListener(v -> setDisplayMode(AppsListAdapter.MODE_LIST));
+		binding.viewModeGrid.setOnClickListener(v -> setDisplayMode(AppsListAdapter.MODE_GRID));
+		binding.detailPlay.setOnClickListener(v -> {
+			if (selectedItem != null) {
+				startApp(selectedItem, false);
+			}
+		});
+		binding.detailSettings.setOnClickListener(v -> {
+			if (selectedItem != null) {
+				startApp(selectedItem, true);
+			}
+		});
+		binding.floatingActionButton.setOnClickListener(v -> openLastDirectory());
+		applyDisplayMode();
+		updateDetail(adapter.getFirstItem());
+	}
+
+	private void openLastDirectory() {
+		String path = preferences.getString(PREF_LAST_PATH, null);
+		if (path == null) {
+			File dir = Environment.getExternalStorageDirectory();
+			if (dir.canRead()) {
+				path = dir.getAbsolutePath();
+			}
+		}
+		try {
+			openFileLauncher.launch(path);
+		} catch (ActivityNotFoundException e) {
+			Toast.makeText(getContext(), R.string.error_no_picker, Toast.LENGTH_SHORT).show();
+			e.printStackTrace();
+		}
+	}
+
+	private void setDisplayMode(int mode) {
+		adapter.setDisplayMode(mode);
+		preferences.edit().putInt(PREF_LIBRARY_VIEW_MODE, mode).apply();
+		applyDisplayMode();
+	}
+
+	private void applyDisplayMode() {
+		int mode = adapter.getDisplayMode();
+		int orientation = getResources().getConfiguration().orientation;
+		if (mode == AppsListAdapter.MODE_LIST) {
+			binding.appsRecycler.setLayoutManager(new LinearLayoutManager(requireContext()));
+		} else {
+			int span;
+			if (mode == AppsListAdapter.MODE_GALLERY) {
+				span = orientation == Configuration.ORIENTATION_LANDSCAPE ? 2 : 1;
+			} else {
+				span = orientation == Configuration.ORIENTATION_LANDSCAPE ? 3 : 2;
+			}
+			binding.appsRecycler.setLayoutManager(new GridLayoutManager(requireContext(), span));
+		}
+		binding.viewModeGallery.setSelected(mode == AppsListAdapter.MODE_GALLERY);
+		binding.viewModeList.setSelected(mode == AppsListAdapter.MODE_LIST);
+		binding.viewModeGrid.setSelected(mode == AppsListAdapter.MODE_GRID);
+		updateDetail(selectedItem == null ? adapter.getFirstItem() : selectedItem);
+	}
+
+	@Override
+	public void onConfigurationChanged(@NonNull Configuration newConfig) {
+		super.onConfigurationChanged(newConfig);
+		applyDisplayMode();
 	}
 
 	private void alertDbError(Throwable throwable) {
@@ -182,8 +245,7 @@ public class AppsListFragment extends ListFragment {
 		InstallerDialog.newInstance(uri).show(getParentFragmentManager(), "installer");
 	}
 
-	private void alertRename(final int id) {
-		AppItem item = adapter.getItem(id);
+	private void alertRename(AppItem item) {
 		FragmentActivity activity = requireActivity();
 		EditText editText = new EditText(activity);
 		editText.setText(item.getTitle());
@@ -226,48 +288,52 @@ public class AppsListFragment extends ListFragment {
 	}
 
 	@Override
-	public void onListItemClick(@NonNull ListView l, @NonNull View v, int position, long id) {
-		AppItem item = adapter.getItem(position);
-		Config.startApp(requireActivity(), item.getTitle(), item.getPathExt(), false);
+	public void onAppClicked(AppItem item) {
+		startApp(item, false);
 	}
 
 	@Override
-	public void onCreateContextMenu(@NonNull ContextMenu menu, @NonNull View v,
-									ContextMenu.ContextMenuInfo menuInfo) {
-		super.onCreateContextMenu(menu, v, menuInfo);
-		MenuInflater inflater = requireActivity().getMenuInflater();
-		inflater.inflate(R.menu.context_main, menu);
+	public void onAppFocused(AppItem item) {
+		updateDetail(item);
+	}
+
+	@Override
+	public void onAppActionsRequested(View anchor, AppItem item) {
+		showActions(anchor, item);
+	}
+
+	private void startApp(AppItem item, boolean showSettings) {
+		Config.startApp(requireActivity(), item.getTitle(), item.getPathExt(), showSettings);
+	}
+
+	private void showActions(View anchor, AppItem appItem) {
+		PopupMenu popup = new PopupMenu(requireContext(), anchor);
+		popup.inflate(R.menu.context_main);
+		Menu menu = popup.getMenu();
 		if (!ShortcutManagerCompat.isRequestPinShortcutSupported(requireContext())) {
 			menu.findItem(R.id.action_context_shortcut).setVisible(false);
 		}
-		AdapterView.AdapterContextMenuInfo info = (AdapterView.AdapterContextMenuInfo) menuInfo;
-		int index = info.position;
-		AppItem appItem = adapter.getItem(index);
 		if (!new File(appItem.getPathExt() + Config.MIDLET_RES_FILE).exists()) {
 			menu.findItem(R.id.action_context_reinstall).setVisible(false);
 		}
-	}
-
-	@Override
-	public boolean onContextItemSelected(MenuItem item) {
-		AdapterView.AdapterContextMenuInfo info = (AdapterView.AdapterContextMenuInfo) item.getMenuInfo();
-		int index = info.position;
-		AppItem appItem = adapter.getItem(index);
-		int itemId = item.getItemId();
-		if (itemId == R.id.action_context_shortcut) {
-			requestAddShortcut(appItem);
-		} else if (itemId == R.id.action_context_rename) {
-			alertRename(index);
-		} else if (itemId == R.id.action_context_settings) {
-			Config.startApp(requireActivity(), appItem.getTitle(), appItem.getPathExt(), true);
-		} else if (itemId == R.id.action_context_reinstall) {
-			InstallerDialog.newInstance(appItem.getId()).show(getParentFragmentManager(), "installer");
-		} else if (itemId == R.id.action_context_delete) {
-			alertDelete(appItem);
-		} else {
-			return super.onContextItemSelected(item);
-		}
-		return true;
+		popup.setOnMenuItemClickListener(item -> {
+			int itemId = item.getItemId();
+			if (itemId == R.id.action_context_shortcut) {
+				requestAddShortcut(appItem);
+			} else if (itemId == R.id.action_context_rename) {
+				alertRename(appItem);
+			} else if (itemId == R.id.action_context_settings) {
+				startApp(appItem, true);
+			} else if (itemId == R.id.action_context_reinstall) {
+				InstallerDialog.newInstance(appItem.getId()).show(getParentFragmentManager(), "installer");
+			} else if (itemId == R.id.action_context_delete) {
+				alertDelete(appItem);
+			} else {
+				return false;
+			}
+			return true;
+		});
+		popup.show();
 	}
 
 	private void requestAddShortcut(AppItem appItem) {
@@ -391,6 +457,43 @@ public class AppsListFragment extends ListFragment {
 			InstallerDialog.newInstance(appUri).show(getParentFragmentManager(), "installer");
 			appUri = null;
 		}
+		updateDetail(adapter.getFirstItem());
+		updateEmptyState();
+	}
+
+	private void updateEmptyState() {
+		if (binding == null) {
+			return;
+		}
+		boolean empty = adapter.getItemCount() == 0;
+		binding.empty.setVisibility(empty ? View.VISIBLE : View.GONE);
+		binding.appsRecycler.setVisibility(empty ? View.GONE : View.VISIBLE);
+	}
+
+	private void updateDetail(AppItem item) {
+		if (binding == null) {
+			return;
+		}
+		selectedItem = item;
+		boolean landscape = getResources().getConfiguration().orientation == Configuration.ORIENTATION_LANDSCAPE;
+		binding.detailPanel.setVisibility(landscape && item != null ? View.VISIBLE : View.GONE);
+		if (item == null) {
+			return;
+		}
+		Drawable cover = Drawable.createFromPath(item.getCoverPathExt());
+		if (cover == null) {
+			cover = Drawable.createFromPath(item.getImagePathExt());
+		}
+		if (cover != null) {
+			cover.setFilterBitmap(false);
+			binding.detailCover.setImageDrawable(cover);
+		} else {
+			binding.detailCover.setImageResource(R.mipmap.ic_launcher);
+		}
+		binding.detailTitle.setText(item.getTitle());
+		String author = item.getAuthor() == null ? "" : item.getAuthor();
+		String version = item.getVersion() == null ? "" : item.getVersion();
+		binding.detailMeta.setText(author + "  " + version);
 	}
 
 	private static class SortAdapter extends ArrayAdapter<String> {

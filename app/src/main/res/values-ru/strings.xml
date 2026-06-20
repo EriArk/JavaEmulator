@@ -6,6 +6,11 @@
     <string name="help">Помощь</string>
     <string name="more">Подробнее</string>
     <string name="search">Поиск</string>
+    <string name="library_title">Java-игры</string>
+    <string name="play">Играть</string>
+    <string name="view_mode_gallery">Галерея</string>
+    <string name="view_mode_list">Список</string>
+    <string name="view_mode_grid">Сетка</string>
     <string name="licenses">Лицензии</string>
     <string name="profiles">Профили</string>
     <string name="save_log">Сохранить лог</string>
@@ -116,6 +121,8 @@
     <string name="pref_vk_type_phone">Телефонная</string>
     <string name="pref_vk_type_phone_arrows">Телефонная (стрелки)</string>
     <string name="PREF_LAYOUT">Раскладка</string>
+    <string name="pref_handheld_controls_preset">Пресет для портативки</string>
+    <string name="pref_handheld_controls_preset_applied">Пресет для портативки применен</string>
     <string name="PREF_SHADER_FILTER">Шейдер:</string>
     <string name="identity_filter">Быстрый (без фильтра)</string>
     <string name="shader_tuning">Настройка шейдера</string>

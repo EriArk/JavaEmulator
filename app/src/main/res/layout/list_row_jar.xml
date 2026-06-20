@@ -1,42 +1,64 @@
-<?xml version= "1.0" encoding = "utf-8" ?>
+<?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
-    android:layout_width="fill_parent"
+    android:id="@+id/row_root"
+    android:layout_width="match_parent"
     android:layout_height="wrap_content"
-    android:gravity="center_vertical"
-    android:orientation="horizontal"
-    android:padding="10dp">
+    android:background="@drawable/bg_game_card"
+    android:clickable="true"
+    android:focusable="true"
+    android:foreground="?attr/selectableItemBackground"
+    android:orientation="vertical"
+    android:padding="8dp">
 
-    <ImageView
-        android:id="@+id/icon"
-        android:layout_width="36dip"
-        android:layout_height="36dip"
-        android:layout_marginEnd="10dp"
-        android:layout_marginRight="10dp"
-        android:scaleType="centerCrop"
-        tools:src="@mipmap/ic_launcher" />
+    <FrameLayout
+        android:id="@+id/art_container"
+        android:layout_width="match_parent"
+        android:layout_height="128dp"
+        android:background="@drawable/bg_art_fallback">
+
+        <ImageView
+            android:id="@+id/cover"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:scaleType="centerCrop"
+            tools:src="@drawable/bg_art_fallback" />
+
+        <ImageView
+            android:id="@+id/icon"
+            android:layout_width="44dp"
+            android:layout_height="44dp"
+            android:layout_gravity="bottom|start"
+            android:layout_margin="8dp"
+            android:background="@drawable/bg_art_fallback"
+            android:padding="4dp"
+            android:scaleType="centerInside"
+            tools:src="@mipmap/ic_launcher" />
+    </FrameLayout>
 
     <LinearLayout
-        android:layout_width="0dp"
+        android:id="@+id/text_column"
+        android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_weight="1"
+        android:layout_marginTop="8dp"
         android:orientation="vertical">
 
         <TextView
             android:id="@+id/name"
-            android:layout_width="wrap_content"
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:textAppearance="?android:textAppearance"
+            android:ellipsize="end"
+            android:maxLines="2"
+            android:textColor="?attr/textColorPrimary"
             android:textSize="15sp"
             android:textStyle="bold"
             tools:text="Example MIDlet Name" />
 
-        <!-- Author and version app -->
         <LinearLayout
+            android:id="@+id/meta_row"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_gravity="bottom"
-            android:layout_marginTop="2dp"
+            android:layout_marginTop="3dp"
             android:orientation="horizontal">
 
             <TextView
@@ -45,21 +67,20 @@
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
                 android:layout_weight="1"
+                android:ellipsize="end"
                 android:maxLines="1"
-                android:textAppearance="?android:textAppearance"
-                android:textColor="?textColorSecondary"
+                android:textColor="?attr/textColorSecondary"
                 android:textSize="12sp"
-                tools:text="Example MIDlet Vendor Ltd." />
+                tools:text="Example Vendor" />
 
             <TextView
                 android:id="@+id/app_version"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:textAppearance="?android:textAppearance"
-                android:textColor="?textColorSecondary"
+                android:layout_marginStart="8dp"
+                android:textColor="?attr/textColorSecondary"
                 android:textSize="12sp"
-                tools:text="1.0.254" />
+                tools:text="1.0" />
         </LinearLayout>
     </LinearLayout>
-
 </LinearLayout>

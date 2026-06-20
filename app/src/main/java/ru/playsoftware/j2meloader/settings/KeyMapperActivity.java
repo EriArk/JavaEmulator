@@ -83,6 +83,12 @@ public class KeyMapperActivity extends BaseActivity implements View.OnClickListe
 			actionBar.setTitle(R.string.pref_map_keys);
 		}
 		params = ProfilesManager.loadConfig(new File(path));
+		if (params == null) {
+			Toast.makeText(this, "Error", Toast.LENGTH_SHORT).show();
+			finish();
+			return;
+		}
+		params.ensureKeyMappingProfiles();
 
 		virtualKeyboardMappingsList = new ArrayList<>();
 		addVirtualKeyboardMapping(binding.virtualKeyLeftSoft, Canvas.KEY_SOFT_LEFT);
@@ -115,14 +121,14 @@ public class KeyMapperActivity extends BaseActivity implements View.OnClickListe
 		}
 
 		if (savedInstanceState == null) {
-			SparseIntArray keyMap = params.keyMappings;
+			SparseIntArray keyMap = params.getActiveKeyMappings();
 			androidToMIDP = keyMap == null ? defaultKeyMap.clone() : keyMap.clone();
 		} else {
 			String save = savedInstanceState.getString(KEY_SAVE);
 			if (save == null) {
 				androidToMIDP = defaultKeyMap.clone();
 			} else if (save.isEmpty()) {
-				SparseIntArray keyMap = params.keyMappings;
+				SparseIntArray keyMap = params.getActiveKeyMappings();
 				androidToMIDP = keyMap == null ? defaultKeyMap.clone() : keyMap.clone();
 			} else {
 				androidToMIDP = new GsonBuilder()
@@ -154,7 +160,7 @@ public class KeyMapperActivity extends BaseActivity implements View.OnClickListe
 	@Override
 	protected void onSaveInstanceState(@NonNull Bundle outState) {
 		if (!equalMaps(androidToMIDP, defaultKeyMap)) {
-			if (!equalMaps(params.keyMappings, androidToMIDP)) {
+			if (!equalMaps(params.getActiveKeyMappings(), androidToMIDP)) {
 				String currMap = new GsonBuilder()
 						.registerTypeAdapter(SparseIntArray.class, new SparseIntArrayAdapter())
 						.create()
@@ -227,12 +233,12 @@ public class KeyMapperActivity extends BaseActivity implements View.OnClickListe
 
 	private void save() {
 		SparseIntArray newMap = androidToMIDP;
-		SparseIntArray oldMap = params.keyMappings;
+		SparseIntArray oldMap = params.getActiveKeyMappings();
 		if (equalMaps(newMap, defaultKeyMap)) {
 			newMap = null;
 		}
 		if (!equalMaps(oldMap, newMap)) {
-			params.keyMappings = newMap;
+			params.setActiveKeyMappings(newMap);
 			ProfilesManager.saveConfig(params);
 		}
 	}

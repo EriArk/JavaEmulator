@@ -1,15 +1,16 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <!--dark theme colors-->
-    <color name="primary">#262e37</color>
-    <color name="primary_dark">#20272f</color>
-    <color name="accent">#0099ff</color>
-    <color name="background">#20272f</color>
-    <color name="text_primary">#ffffff</color>
-    <color name="text_secondary">#dedede</color>
-    <color name="btn_bg_normal">#0099ff</color>
-    <color name="btn_bg_pressed">#005D8C</color>
-    <color name="config_card">#262e37</color>
+    <color name="primary">#20242C</color>
+    <color name="primary_dark">#15181E</color>
+    <color name="accent">#FFB62E</color>
+    <color name="background">#101218</color>
+    <color name="text_primary">#F4F7FB</color>
+    <color name="text_secondary">#B8C1CC</color>
+    <color name="btn_bg_normal">#2B6F68</color>
+    <color name="btn_bg_pressed">#FFB62E</color>
+    <color name="config_card">#181C23</color>
+    <color name="config_card_stroke">#2F3642</color>
 
     <color name="nnf_separator_color">@color/nnf_dark_separator_color</color>
 </resources>

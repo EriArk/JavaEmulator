@@ -81,6 +81,10 @@ public class AppUtils {
 				item.setImagePathExt(iconPath);
 			}
 		}
+		File cover = new File(appDir, Config.MIDLET_COVER_FILE);
+		if (cover.exists()) {
+			item.setCoverPathExt(Config.MIDLET_COVER_FILE);
+		}
 		return item;
 	}
 

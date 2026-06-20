@@ -179,6 +179,7 @@ public class ConfigActivity extends BaseActivity implements View.OnClickListener
 		binding.showFontSizePresets.setOnClickListener(this);
 		binding.selectScreenBackgroundColor.setOnClickListener(this);
 		binding.showKeyMappings.setOnClickListener(this);
+		binding.applyHandheldControlsPreset.setOnClickListener(this);
 		binding.updateKeyboardNotPressedButtonBackgroundColor.setOnClickListener(this);
 		binding.updateKeyboardNotPressedButtonLabelColor.setOnClickListener(this);
 		binding.updateKeyboardPressedButtonBackgroundColor.setOnClickListener(this);
@@ -816,7 +817,28 @@ public class ConfigActivity extends BaseActivity implements View.OnClickListener
 			Intent i = new Intent(getIntent().getAction(), Uri.parse(configDir.getPath()),
 					this, KeyMapperActivity.class);
 			startActivity(i);
+		} else if (id == R.id.apply_handheld_controls_preset) {
+			applyHandheldControlsPreset();
 		}
+	}
+
+	private void applyHandheldControlsPreset() {
+		binding.enableTouchInputToggle.setChecked(false);
+		binding.showVirtualKeyboardToggle.setChecked(false);
+		binding.virtualKeyboardConfigGroup.setVisibility(View.GONE);
+		binding.forceFullscreenToggle.setChecked(true);
+		binding.screenOrientationSelector.setSelection(3);
+		binding.scaleTypeSelector.setSelection(1);
+		binding.screenGravitySelector.setSelection(2);
+		binding.buttonsLayoutSelector.setSelection(0);
+		binding.buttonShapeSelector.setSelection(2);
+		binding.changeOpacitySeekbar.setProgress(96);
+		binding.keyboardNotPressedButtonBackgroundColorHex.setText("20242C");
+		binding.keyboardNotPressedButtonLabelColorHex.setText("E6EDF3");
+		binding.keyboardPressedButtonBackgroundColorHex.setText("FFB62E");
+		binding.keyboardPressedButtonLabelColorHex.setText("101218");
+		binding.keyboardOutlineColorHex.setText("3E4652");
+		Toast.makeText(this, R.string.pref_handheld_controls_preset_applied, Toast.LENGTH_SHORT).show();
 	}
 
 	private void showScreenPresets(View v) {

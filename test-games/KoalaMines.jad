@@ -1,0 +1,8 @@
+MIDlet-1: KoalaMines, KoalaMines.png, KoalaMines
+MIDlet-Jar-Size: 8086
+MIDlet-Jar-URL: KoalaMines.jar
+MIDlet-Name: KoalaMines
+MIDlet-Vendor: Unknown
+MIDlet-Version: 1.1
+MicroEdition-Configuration: CLDC-1.0
+MicroEdition-Profile: MIDP-1.0

@@ -23,6 +23,8 @@ import android.view.KeyEvent;
 
 import androidx.collection.SparseArrayCompat;
 
+import java.util.ArrayList;
+
 import ru.playsoftware.j2meloader.config.ProfileModel;
 
 import static javax.microedition.lcdui.Canvas.*;
@@ -31,6 +33,10 @@ public class KeyMapper {
 	public static final int KEY_OPTIONS_MENU = 0;
 	public static final int SE_KEY_SPECIAL_GAMING_A = -13;
 	public static final int SE_KEY_SPECIAL_GAMING_B = -14;
+	public static final int INPUT_STICK_UP = -1001;
+	public static final int INPUT_STICK_DOWN = -1002;
+	public static final int INPUT_STICK_LEFT = -1003;
+	public static final int INPUT_STICK_RIGHT = -1004;
 
 	private static final int DEFAULT_LAYOUT = 0;
 	private static final int SIEMENS_LAYOUT = 1;
@@ -158,6 +164,10 @@ public class KeyMapper {
 		return event.getUnicodeChar() & KeyCharacterMap.COMBINING_ACCENT_MASK;
 	}
 
+	public static int convertInputCode(int inputCode) {
+		return androidToMIDP.get(inputCode, 0);
+	}
+
 	public static int convertKeyCode(int keyCode) {
 		if (layoutType == DEFAULT_LAYOUT) {
 			return keyCode;
@@ -168,7 +178,8 @@ public class KeyMapper {
 	public static void setKeyMapping(ProfileModel params) {
 		layoutType = params.keyCodesLayout;
 		SparseIntArray map = getDefaultKeyMap();
-		SparseIntArray customKeyMap = params.keyMappings;
+		params.ensureKeyMappingProfiles();
+		SparseIntArray customKeyMap = params.getActiveKeyMappings();
 		if (customKeyMap != null) {
 			for (int i = 0, size = customKeyMap.size(); i < size; i++) {
 				map.put(customKeyMap.keyAt(i), customKeyMap.valueAt(i));
@@ -219,8 +230,68 @@ public class KeyMapper {
 		map.append(KeyEvent.KEYCODE_DPAD_DOWN, KEY_DOWN);
 		map.append(KeyEvent.KEYCODE_DPAD_LEFT, KEY_LEFT);
 		map.append(KeyEvent.KEYCODE_DPAD_RIGHT, KEY_RIGHT);
+		map.append(INPUT_STICK_UP, KEY_UP);
+		map.append(INPUT_STICK_DOWN, KEY_DOWN);
+		map.append(INPUT_STICK_LEFT, KEY_LEFT);
+		map.append(INPUT_STICK_RIGHT, KEY_RIGHT);
 		map.append(KeyEvent.KEYCODE_ENTER, KEY_FIRE);
+		map.append(KeyEvent.KEYCODE_NUMPAD_ENTER, KEY_FIRE);
+		map.append(KeyEvent.KEYCODE_BUTTON_A, KEY_FIRE);
+		map.append(KeyEvent.KEYCODE_BUTTON_B, KEY_SOFT_RIGHT);
+		map.append(KeyEvent.KEYCODE_BUTTON_X, KEY_SOFT_LEFT);
+		map.append(KeyEvent.KEYCODE_BUTTON_Y, KEY_NUM5);
+		map.append(KeyEvent.KEYCODE_BUTTON_L1, KEY_STAR);
+		map.append(KeyEvent.KEYCODE_BUTTON_R1, KEY_POUND);
+		map.append(KeyEvent.KEYCODE_BUTTON_L2, KEY_NUM7);
+		map.append(KeyEvent.KEYCODE_BUTTON_R2, KEY_NUM9);
+		map.append(KeyEvent.KEYCODE_BUTTON_SELECT, KEY_SOFT_LEFT);
+		map.append(KeyEvent.KEYCODE_BUTTON_START, KEY_SOFT_RIGHT);
+		map.append(KeyEvent.KEYCODE_BUTTON_THUMBL, KEY_NUM0);
+		map.append(KeyEvent.KEYCODE_BUTTON_THUMBR, KEY_FIRE);
 		map.append(KeyEvent.KEYCODE_DEL, KEY_CLEAR);
+		return map;
+	}
+
+	public static ArrayList<ProfileModel.KeyMappingProfile> createBuiltInProfiles() {
+		ArrayList<ProfileModel.KeyMappingProfile> profiles = new ArrayList<>();
+		profiles.add(new ProfileModel.KeyMappingProfile("Native arrows", null));
+		profiles.add(new ProfileModel.KeyMappingProfile("Numpad 2/4/6/8", getNumpadMovementKeyMap()));
+		profiles.add(new ProfileModel.KeyMappingProfile("Numpad diagonals", getNumpadDiagonalKeyMap()));
+		profiles.add(new ProfileModel.KeyMappingProfile("Action digits", getActionDigitsKeyMap()));
+		return profiles;
+	}
+
+	public static SparseIntArray getNumpadMovementKeyMap() {
+		SparseIntArray map = getDefaultKeyMap();
+		map.put(KeyEvent.KEYCODE_DPAD_UP, KEY_NUM2);
+		map.put(KeyEvent.KEYCODE_DPAD_LEFT, KEY_NUM4);
+		map.put(KeyEvent.KEYCODE_DPAD_RIGHT, KEY_NUM6);
+		map.put(KeyEvent.KEYCODE_DPAD_DOWN, KEY_NUM8);
+		map.put(INPUT_STICK_UP, KEY_NUM2);
+		map.put(INPUT_STICK_LEFT, KEY_NUM4);
+		map.put(INPUT_STICK_RIGHT, KEY_NUM6);
+		map.put(INPUT_STICK_DOWN, KEY_NUM8);
+		map.put(KeyEvent.KEYCODE_BUTTON_A, KEY_NUM5);
+		return map;
+	}
+
+	public static SparseIntArray getNumpadDiagonalKeyMap() {
+		SparseIntArray map = getNumpadMovementKeyMap();
+		map.put(KeyEvent.KEYCODE_BUTTON_L1, KEY_NUM1);
+		map.put(KeyEvent.KEYCODE_BUTTON_R1, KEY_NUM3);
+		map.put(KeyEvent.KEYCODE_BUTTON_L2, KEY_NUM7);
+		map.put(KeyEvent.KEYCODE_BUTTON_R2, KEY_NUM9);
+		return map;
+	}
+
+	public static SparseIntArray getActionDigitsKeyMap() {
+		SparseIntArray map = getDefaultKeyMap();
+		map.put(KeyEvent.KEYCODE_BUTTON_A, KEY_NUM5);
+		map.put(KeyEvent.KEYCODE_BUTTON_B, KEY_NUM0);
+		map.put(KeyEvent.KEYCODE_BUTTON_X, KEY_STAR);
+		map.put(KeyEvent.KEYCODE_BUTTON_Y, KEY_POUND);
+		map.put(KeyEvent.KEYCODE_BUTTON_L1, KEY_SOFT_LEFT);
+		map.put(KeyEvent.KEYCODE_BUTTON_R1, KEY_SOFT_RIGHT);
 		return map;
 	}
 }

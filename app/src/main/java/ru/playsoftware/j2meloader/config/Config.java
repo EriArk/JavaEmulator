@@ -42,6 +42,7 @@ public class Config {
 	public static final String FS_DIR = "/fs/";
 	public static final String MIDLET_CONFIG_FILE = "/config.json";
 	public static final String MIDLET_CONFIGS_DIR = "/configs/";
+	public static final String MIDLET_COVER_FILE = "/cover.png";
 	public static final String MIDLET_DATA_DIR = "/data/";
 	public static final String MIDLET_DEX_FILE = "/converted.dex";
 	public static final String MIDLET_ICON_FILE = "/icon.png";

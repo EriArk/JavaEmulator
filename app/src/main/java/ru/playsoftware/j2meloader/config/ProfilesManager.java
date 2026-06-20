@@ -142,6 +142,7 @@ public class ProfilesManager {
 		if (params == null) {
 			return null;
 		}
+		int loadedVersion = params.version;
 		switch (params.version) {
 			case 0:
 				if (params.hwAcceleration) {
@@ -166,6 +167,11 @@ public class ProfilesManager {
 				params.version = ProfileModel.VERSION;
 				ProfilesManager.saveConfig(params);
 				break;
+		}
+		params.ensureKeyMappingProfiles();
+		if (loadedVersion < ProfileModel.VERSION) {
+			params.version = ProfileModel.VERSION;
+			ProfilesManager.saveConfig(params);
 		}
 		return params;
 	}

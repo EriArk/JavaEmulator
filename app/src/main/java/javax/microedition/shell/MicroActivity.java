@@ -32,22 +32,27 @@ import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.IBinder;
+import android.os.SystemClock;
 import android.text.Editable;
 import android.text.InputType;
 import android.text.TextUtils;
 import android.text.method.DigitsKeyListener;
+import android.view.InputDevice;
 import android.util.TypedValue;
 import android.view.KeyEvent;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
+import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.WindowManager;
 import android.view.inputmethod.InputMethodManager;
 import android.widget.AdapterView.AdapterContextMenuInfo;
+import android.widget.Button;
 import android.widget.EditText;
 import android.widget.LinearLayout;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
@@ -63,6 +68,7 @@ import org.acra.ErrorReporter;
 
 import java.io.File;
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.LinkedHashMap;
 import java.util.Objects;
@@ -74,6 +80,7 @@ import javax.microedition.lcdui.Form;
 import javax.microedition.lcdui.List;
 import javax.microedition.lcdui.ViewHandler;
 import javax.microedition.lcdui.event.SimpleEvent;
+import javax.microedition.lcdui.keyboard.KeyMapper;
 import javax.microedition.lcdui.keyboard.VirtualKeyboard;
 import javax.microedition.location.LocationProviderImpl;
 import javax.microedition.util.ContextHolder;
@@ -83,6 +90,7 @@ import io.reactivex.disposables.Disposable;
 import ru.playsoftware.j2meloader.BuildConfig;
 import ru.playsoftware.j2meloader.R;
 import ru.playsoftware.j2meloader.config.Config;
+import ru.playsoftware.j2meloader.config.ProfileModel;
 import ru.playsoftware.j2meloader.databinding.ActivityMicroBinding;
 import ru.playsoftware.j2meloader.util.Constants;
 import ru.playsoftware.j2meloader.util.LogUtils;
@@ -92,6 +100,22 @@ public class MicroActivity extends AppCompatActivity {
 	private static final int ORIENTATION_AUTO = 1;
 	private static final int ORIENTATION_PORTRAIT = 2;
 	private static final int ORIENTATION_LANDSCAPE = 3;
+	private static final int QUICK_MAP_HOLD_MS = 350;
+	private static final float QUICK_MAP_AXIS_DEADZONE = 0.45f;
+
+	private static final int[] QUICK_MAP_TARGET_KEYS = {
+			Canvas.KEY_UP, Canvas.KEY_DOWN, Canvas.KEY_LEFT, Canvas.KEY_RIGHT, Canvas.KEY_FIRE,
+			Canvas.KEY_NUM1, Canvas.KEY_NUM2, Canvas.KEY_NUM3, Canvas.KEY_NUM4, Canvas.KEY_NUM5,
+			Canvas.KEY_NUM6, Canvas.KEY_NUM7, Canvas.KEY_NUM8, Canvas.KEY_NUM9, Canvas.KEY_NUM0,
+			Canvas.KEY_STAR, Canvas.KEY_POUND, Canvas.KEY_SOFT_LEFT, Canvas.KEY_SOFT_RIGHT,
+			KeyMapper.KEY_OPTIONS_MENU
+	};
+
+	private static final String[] QUICK_MAP_TARGET_LABELS = {
+			"UP", "DOWN", "LEFT", "RIGHT", "FIRE",
+			"1", "2", "3", "4", "5", "6", "7", "8", "9", "0",
+			"*", "#", "SOFT1", "SOFT2", "MENU"
+	};
 
 	private Displayable current;
 	private boolean visible;
@@ -102,6 +126,18 @@ public class MicroActivity extends AppCompatActivity {
 	private InputMethodManager inputMethodManager;
 	private int menuKey;
 	private String appPath;
+	private int quickMapTargetKey;
+	private String quickMapTargetLabel;
+	private int quickMapCapturedKeyUp = KeyEvent.KEYCODE_UNKNOWN;
+	private boolean selectQuickMapTracking;
+	private boolean selectQuickMapOpened;
+	private final Runnable openQuickMapRunnable = new Runnable() {
+		@Override
+		public void run() {
+			selectQuickMapOpened = true;
+			showQuickMapOverlay();
+		}
+	};
 
 	public ActivityMicroBinding binding;
 
@@ -182,6 +218,7 @@ public class MicroActivity extends AppCompatActivity {
 		}
 		setOrientation(orientation);
 		menuKey = microLoader.getMenuKeyCode();
+		setupQuickMapOverlay();
 		inputMethodManager = (InputMethodManager) getSystemService(INPUT_METHOD_SERVICE);
 
 		try {
@@ -212,6 +249,11 @@ public class MicroActivity extends AppCompatActivity {
 	public void onPause() {
 		visible = false;
 		hideSoftInput();
+		cancelQuickMapTrigger();
+		if (binding != null && binding.quickMapOverlay.getVisibility() == View.VISIBLE) {
+			binding.quickMapOverlay.setVisibility(View.GONE);
+			quickMapTargetKey = 0;
+		}
 		MidletThread.pauseApp();
 		super.onPause();
 	}
@@ -360,6 +402,9 @@ public class MicroActivity extends AppCompatActivity {
 
 	@Override
 	public boolean dispatchKeyEvent(KeyEvent event) {
+		if (handleQuickMapKeyEvent(event)) {
+			return true;
+		}
 		if (event.getKeyCode() == KeyEvent.KEYCODE_MENU)
 			if (current instanceof Canvas && binding.displayableContainer.dispatchKeyEvent(event)) {
 				return true;
@@ -374,6 +419,263 @@ public class MicroActivity extends AppCompatActivity {
 				return onKeyUp(event.getKeyCode(), event);
 			}
 		return super.dispatchKeyEvent(event);
+	}
+
+	@Override
+	public boolean dispatchGenericMotionEvent(MotionEvent event) {
+		if (isQuickMapVisible()) {
+			if (quickMapTargetKey != 0 && event.getAction() == MotionEvent.ACTION_MOVE
+					&& isFromSource(event, InputDevice.SOURCE_JOYSTICK)) {
+				int inputCode = getQuickMapStickInput(event);
+				if (inputCode != 0) {
+					saveQuickKeyMapping(inputCode);
+				}
+			}
+			return true;
+		}
+		return super.dispatchGenericMotionEvent(event);
+	}
+
+	private boolean handleQuickMapKeyEvent(KeyEvent event) {
+		if (binding == null || microLoader == null) {
+			return false;
+		}
+		int keyCode = event.getKeyCode();
+		if (event.getAction() == KeyEvent.ACTION_UP && keyCode == quickMapCapturedKeyUp) {
+			quickMapCapturedKeyUp = KeyEvent.KEYCODE_UNKNOWN;
+			return true;
+		}
+		if (isQuickMapVisible()) {
+			if (event.getAction() == KeyEvent.ACTION_DOWN && event.getRepeatCount() == 0) {
+				if (keyCode == KeyEvent.KEYCODE_BACK) {
+					hideQuickMapOverlay();
+					quickMapCapturedKeyUp = keyCode;
+					return true;
+				}
+				if (quickMapTargetKey != 0 && !isIgnoredQuickMapKey(keyCode)) {
+					quickMapCapturedKeyUp = keyCode;
+					saveQuickKeyMapping(keyCode);
+					return true;
+				}
+			}
+			return false;
+		}
+		if (keyCode != KeyEvent.KEYCODE_BUTTON_SELECT || binding.displayableContainer.getChildCount() == 0) {
+			return false;
+		}
+		if (event.getAction() == KeyEvent.ACTION_DOWN) {
+			if (event.getRepeatCount() == 0) {
+				selectQuickMapTracking = true;
+				selectQuickMapOpened = false;
+				binding.midletFrame.postDelayed(openQuickMapRunnable, QUICK_MAP_HOLD_MS);
+			}
+			return true;
+		}
+		if (event.getAction() == KeyEvent.ACTION_UP && selectQuickMapTracking) {
+			cancelQuickMapTrigger();
+			if (!selectQuickMapOpened) {
+				sendDeferredSelectPress();
+			}
+			return true;
+		}
+		return false;
+	}
+
+	private void setupQuickMapOverlay() {
+		binding.quickMapClose.setOnClickListener(v -> hideQuickMapOverlay());
+		binding.quickMapOverlay.setOnClickListener(v -> {
+		});
+		binding.quickMapPanel.setOnClickListener(v -> {
+		});
+		rebuildQuickMapProfiles();
+		rebuildQuickMapTargets();
+	}
+
+	private void rebuildQuickMapProfiles() {
+		binding.quickMapProfiles.removeAllViews();
+		ArrayList<ProfileModel.KeyMappingProfile> profiles = microLoader.getKeyMappingProfiles();
+		int active = microLoader.getActiveKeyMappingProfile();
+		for (int i = 0, size = profiles.size(); i < size; i++) {
+			ProfileModel.KeyMappingProfile profile = profiles.get(i);
+			final int index = i;
+			String name = profile.name == null ? "Profile " + (i + 1) : profile.name;
+			Button button = createQuickMapButton((i == active ? "* " : "") + name);
+			button.setOnClickListener(v -> {
+				microLoader.setActiveKeyMappingProfile(index);
+				menuKey = microLoader.getMenuKeyCode();
+				quickMapTargetKey = 0;
+				quickMapTargetLabel = null;
+				binding.quickMapHint.setText(R.string.quick_map_pick_target);
+				rebuildQuickMapProfiles();
+			});
+			binding.quickMapProfiles.addView(button);
+		}
+	}
+
+	private void rebuildQuickMapTargets() {
+		binding.quickMapTargets.removeAllViews();
+		for (int i = 0; i < QUICK_MAP_TARGET_KEYS.length; i++) {
+			final int targetKey = QUICK_MAP_TARGET_KEYS[i];
+			final String label = QUICK_MAP_TARGET_LABELS[i];
+			Button button = createQuickMapButton(label);
+			button.setOnClickListener(v -> {
+				quickMapTargetKey = targetKey;
+				quickMapTargetLabel = label;
+				binding.quickMapHint.setText(getString(R.string.quick_map_waiting, label));
+			});
+			binding.quickMapTargets.addView(button);
+		}
+	}
+
+	private Button createQuickMapButton(String label) {
+		Button button = new Button(this);
+		button.setAllCaps(false);
+		button.setSingleLine(true);
+		button.setText(label);
+		button.setFocusable(true);
+		button.setMinWidth(dp(56));
+		LinearLayout.LayoutParams lp = new LinearLayout.LayoutParams(
+				ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT);
+		lp.setMargins(0, 0, dp(8), 0);
+		button.setLayoutParams(lp);
+		return button;
+	}
+
+	private void showQuickMapOverlay() {
+		if (binding == null || binding.displayableContainer.getChildCount() == 0) {
+			return;
+		}
+		quickMapTargetKey = 0;
+		quickMapTargetLabel = null;
+		quickMapCapturedKeyUp = KeyEvent.KEYCODE_UNKNOWN;
+		binding.quickMapHint.setText(R.string.quick_map_pick_target);
+		rebuildQuickMapProfiles();
+		binding.quickMapOverlay.setVisibility(View.VISIBLE);
+		binding.quickMapOverlay.requestFocus();
+		showSystemUI();
+		MidletThread.pauseApp();
+	}
+
+	private void hideQuickMapOverlay() {
+		cancelQuickMapTrigger();
+		quickMapTargetKey = 0;
+		quickMapTargetLabel = null;
+		quickMapCapturedKeyUp = KeyEvent.KEYCODE_UNKNOWN;
+		binding.quickMapOverlay.setVisibility(View.GONE);
+		if (visible) {
+			MidletThread.resumeApp();
+		}
+		if (current instanceof Canvas) {
+			hideSystemUI();
+		}
+	}
+
+	private void cancelQuickMapTrigger() {
+		if (binding != null) {
+			binding.midletFrame.removeCallbacks(openQuickMapRunnable);
+		}
+		selectQuickMapTracking = false;
+	}
+
+	private void sendDeferredSelectPress() {
+		long now = SystemClock.uptimeMillis();
+		binding.displayableContainer.dispatchKeyEvent(new KeyEvent(now, now,
+				KeyEvent.ACTION_DOWN, KeyEvent.KEYCODE_BUTTON_SELECT, 0));
+		binding.displayableContainer.dispatchKeyEvent(new KeyEvent(now, SystemClock.uptimeMillis(),
+				KeyEvent.ACTION_UP, KeyEvent.KEYCODE_BUTTON_SELECT, 0));
+	}
+
+	private void saveQuickKeyMapping(int inputCode) {
+		String targetLabel = quickMapTargetLabel == null ? getMidpKeyLabel(quickMapTargetKey) : quickMapTargetLabel;
+		microLoader.saveQuickKeyMapping(inputCode, quickMapTargetKey);
+		menuKey = microLoader.getMenuKeyCode();
+		quickMapTargetKey = 0;
+		quickMapTargetLabel = null;
+		binding.quickMapHint.setText(R.string.quick_map_pick_target);
+		rebuildQuickMapProfiles();
+		Toast.makeText(this, getString(R.string.quick_map_saved,
+				targetLabel, getInputLabel(inputCode)), Toast.LENGTH_SHORT).show();
+	}
+
+	private boolean isQuickMapVisible() {
+		return binding != null && binding.quickMapOverlay.getVisibility() == View.VISIBLE;
+	}
+
+	private boolean isIgnoredQuickMapKey(int keyCode) {
+		return keyCode == KeyEvent.KEYCODE_HOME
+				|| keyCode == KeyEvent.KEYCODE_VOLUME_UP
+				|| keyCode == KeyEvent.KEYCODE_VOLUME_DOWN;
+	}
+
+	private int getQuickMapStickInput(MotionEvent event) {
+		float x = getCenteredAxis(event, MotionEvent.AXIS_X);
+		float y = getCenteredAxis(event, MotionEvent.AXIS_Y);
+		float hatX = getCenteredAxis(event, MotionEvent.AXIS_HAT_X);
+		float hatY = getCenteredAxis(event, MotionEvent.AXIS_HAT_Y);
+		if (x == 0) {
+			x = hatX;
+		}
+		if (y == 0) {
+			y = hatY;
+		}
+		if (x < -QUICK_MAP_AXIS_DEADZONE) {
+			return KeyMapper.INPUT_STICK_LEFT;
+		}
+		if (x > QUICK_MAP_AXIS_DEADZONE) {
+			return KeyMapper.INPUT_STICK_RIGHT;
+		}
+		if (y < -QUICK_MAP_AXIS_DEADZONE) {
+			return KeyMapper.INPUT_STICK_UP;
+		}
+		if (y > QUICK_MAP_AXIS_DEADZONE) {
+			return KeyMapper.INPUT_STICK_DOWN;
+		}
+		return 0;
+	}
+
+	private boolean isFromSource(MotionEvent event, int source) {
+		return (event.getSource() & source) == source;
+	}
+
+	private float getCenteredAxis(MotionEvent event, int axis) {
+		InputDevice device = event.getDevice();
+		if (device == null) {
+			return 0;
+		}
+		InputDevice.MotionRange range = device.getMotionRange(axis, event.getSource());
+		if (range == null) {
+			return 0;
+		}
+		float value = event.getAxisValue(axis);
+		return Math.abs(value) > Math.max(range.getFlat(), 0.15f) ? value : 0;
+	}
+
+	private String getInputLabel(int inputCode) {
+		switch (inputCode) {
+			case KeyMapper.INPUT_STICK_UP:
+				return "STICK_UP";
+			case KeyMapper.INPUT_STICK_DOWN:
+				return "STICK_DOWN";
+			case KeyMapper.INPUT_STICK_LEFT:
+				return "STICK_LEFT";
+			case KeyMapper.INPUT_STICK_RIGHT:
+				return "STICK_RIGHT";
+			default:
+				return KeyEvent.keyCodeToString(inputCode);
+		}
+	}
+
+	private String getMidpKeyLabel(int keyCode) {
+		for (int i = 0; i < QUICK_MAP_TARGET_KEYS.length; i++) {
+			if (QUICK_MAP_TARGET_KEYS[i] == keyCode) {
+				return QUICK_MAP_TARGET_LABELS[i];
+			}
+		}
+		return String.valueOf(keyCode);
+	}
+
+	private int dp(int value) {
+		return (int) (value * getResources().getDisplayMetrics().density + 0.5f);
 	}
 
 	@Override

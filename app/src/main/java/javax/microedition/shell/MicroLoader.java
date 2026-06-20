@@ -43,6 +43,7 @@ import java.math.BigInteger;
 import java.nio.charset.Charset;
 import java.security.MessageDigest;
 import java.text.SimpleDateFormat;
+import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.LinkedHashMap;
@@ -309,14 +310,52 @@ public class MicroLoader {
 	}
 
 	public int getMenuKeyCode() {
-		SparseIntArray mappings = params.keyMappings;
+		SparseIntArray mappings = params.getActiveKeyMappings();
 		if (mappings == null) {
-			return KeyEvent.KEYCODE_BACK;
+			mappings = KeyMapper.getDefaultKeyMap();
 		}
 		int i = mappings.indexOfValue(KeyMapper.KEY_OPTIONS_MENU);
 		if (i < 0) {
 			return KeyEvent.KEYCODE_BACK;
 		}
 		return mappings.keyAt(i);
+	}
+
+	ArrayList<ProfileModel.KeyMappingProfile> getKeyMappingProfiles() {
+		params.ensureKeyMappingProfiles();
+		return params.keyMappingProfiles;
+	}
+
+	int getActiveKeyMappingProfile() {
+		params.ensureKeyMappingProfiles();
+		return params.activeKeyMappingProfile;
+	}
+
+	void setActiveKeyMappingProfile(int index) {
+		params.setActiveKeyMappingProfile(index);
+		saveKeyMappingConfiguration();
+	}
+
+	void saveQuickKeyMapping(int inputCode, int midpKeyCode) {
+		params.ensureCustomKeyMappingProfile();
+		SparseIntArray map = params.getActiveKeyMappings();
+		if (map == null) {
+			map = KeyMapper.getDefaultKeyMap();
+		} else {
+			map = map.clone();
+		}
+		for (int i = map.size() - 1; i >= 0; i--) {
+			if (map.valueAt(i) == midpKeyCode) {
+				map.removeAt(i);
+			}
+		}
+		map.put(inputCode, midpKeyCode);
+		params.setActiveKeyMappings(map);
+		saveKeyMappingConfiguration();
+	}
+
+	private void saveKeyMappingConfiguration() {
+		ProfilesManager.saveConfig(params);
+		KeyMapper.setKeyMapping(params);
 	}
 }
