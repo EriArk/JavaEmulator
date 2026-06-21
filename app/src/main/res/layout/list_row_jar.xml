@@ -9,13 +9,14 @@
     android:focusable="true"
     android:foreground="?attr/selectableItemBackground"
     android:orientation="vertical"
-    android:padding="8dp">
+    android:padding="7dp">
 
     <FrameLayout
         android:id="@+id/art_container"
         android:layout_width="match_parent"
         android:layout_height="128dp"
-        android:background="@drawable/bg_art_fallback">
+        android:background="@drawable/bg_art_fallback"
+        android:padding="2dp">
 
         <ImageView
             android:id="@+id/cover"
@@ -26,11 +27,11 @@
 
         <ImageView
             android:id="@+id/icon"
-            android:layout_width="44dp"
-            android:layout_height="44dp"
+            android:layout_width="40dp"
+            android:layout_height="40dp"
             android:layout_gravity="bottom|start"
-            android:layout_margin="8dp"
-            android:background="@drawable/bg_art_fallback"
+            android:layout_margin="6dp"
+            android:background="@drawable/bg_phone_input"
             android:padding="4dp"
             android:scaleType="centerInside"
             tools:src="@mipmap/ic_launcher" />
@@ -40,7 +41,7 @@
         android:id="@+id/text_column"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_marginTop="8dp"
+        android:layout_marginTop="7dp"
         android:orientation="vertical">
 
         <TextView
@@ -48,9 +49,10 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:ellipsize="end"
+            android:fontFamily="monospace"
             android:maxLines="2"
-            android:textColor="?attr/textColorPrimary"
-            android:textSize="15sp"
+            android:textColor="@color/text_primary"
+            android:textSize="13sp"
             android:textStyle="bold"
             tools:text="Example MIDlet Name" />
 
@@ -68,9 +70,10 @@
                 android:layout_height="wrap_content"
                 android:layout_weight="1"
                 android:ellipsize="end"
+                android:fontFamily="monospace"
                 android:maxLines="1"
-                android:textColor="?attr/textColorSecondary"
-                android:textSize="12sp"
+                android:textColor="@color/text_secondary"
+                android:textSize="10sp"
                 tools:text="Example Vendor" />
 
             <TextView
@@ -78,8 +81,9 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_marginStart="8dp"
-                android:textColor="?attr/textColorSecondary"
-                android:textSize="12sp"
+                android:fontFamily="monospace"
+                android:textColor="@color/phone_cyan"
+                android:textSize="10sp"
                 tools:text="1.0" />
         </LinearLayout>
     </LinearLayout>

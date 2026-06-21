@@ -4,7 +4,7 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="?android:colorBackground">
+    android:background="@color/background">
 
     <LinearLayout
         android:id="@+id/library_root"
@@ -13,42 +13,57 @@
         android:orientation="vertical">
 
         <LinearLayout
-            android:id="@+id/library_header"
+            android:id="@+id/launcher_status_bar"
             android:layout_width="match_parent"
-            android:layout_height="56dp"
+            android:layout_height="34dp"
+            android:background="@drawable/bg_phone_status"
             android:gravity="center_vertical"
             android:orientation="horizontal"
             android:paddingHorizontal="12dp">
 
             <TextView
-                android:id="@+id/library_title"
+                android:id="@+id/launcher_title"
                 android:layout_width="0dp"
-                android:layout_height="wrap_content"
+                android:layout_height="match_parent"
                 android:layout_weight="1"
-                android:text="@string/library_title"
-                android:textColor="?attr/textColorPrimary"
-                android:textSize="20sp"
+                android:fontFamily="monospace"
+                android:gravity="center_vertical"
+                android:text="@string/launcher_title"
+                android:textColor="@color/text_primary"
+                android:textSize="18sp"
                 android:textStyle="bold" />
 
-            <Button
-                android:id="@+id/view_mode_gallery"
+            <TextView
+                android:id="@+id/library_count"
                 android:layout_width="wrap_content"
-                android:layout_height="38dp"
-                android:text="@string/view_mode_gallery" />
+                android:layout_height="match_parent"
+                android:fontFamily="monospace"
+                android:gravity="center"
+                android:textColor="@color/accent"
+                android:textSize="13sp"
+                tools:text="12 GAMES" />
 
-            <Button
-                android:id="@+id/view_mode_list"
+            <TextView
+                android:id="@+id/launcher_ready"
                 android:layout_width="wrap_content"
-                android:layout_height="38dp"
-                android:layout_marginStart="6dp"
-                android:text="@string/view_mode_list" />
+                android:layout_height="match_parent"
+                android:layout_marginStart="24dp"
+                android:fontFamily="monospace"
+                android:gravity="center"
+                android:text="@string/launcher_ready"
+                android:textColor="@color/phone_green"
+                android:textSize="13sp"
+                android:textStyle="bold" />
 
-            <Button
-                android:id="@+id/view_mode_grid"
-                android:layout_width="wrap_content"
-                android:layout_height="38dp"
-                android:layout_marginStart="6dp"
-                android:text="@string/view_mode_grid" />
+            <TextView
+                android:id="@+id/launcher_clock"
+                android:layout_width="72dp"
+                android:layout_height="match_parent"
+                android:fontFamily="monospace"
+                android:gravity="center_vertical|end"
+                android:textColor="@color/text_primary"
+                android:textSize="14sp"
+                tools:text="14:35" />
         </LinearLayout>
 
         <LinearLayout
@@ -56,45 +71,247 @@
             android:layout_width="match_parent"
             android:layout_height="0dp"
             android:layout_weight="1"
-            android:orientation="horizontal">
+            android:orientation="horizontal"
+            android:padding="8dp">
 
-            <FrameLayout
-                android:layout_width="0dp"
+            <LinearLayout
+                android:id="@+id/launcher_rail"
+                android:layout_width="132dp"
                 android:layout_height="match_parent"
-                android:layout_weight="1">
-
-                <androidx.recyclerview.widget.RecyclerView
-                    android:id="@+id/apps_recycler"
-                    android:layout_width="match_parent"
-                    android:layout_height="match_parent"
-                    android:clipToPadding="false"
-                    android:padding="8dp"
-                    tools:listitem="@layout/list_row_jar" />
+                android:background="@drawable/bg_phone_panel"
+                android:orientation="vertical"
+                android:padding="8dp">
 
                 <TextView
-                    android:id="@android:id/empty"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_gravity="center"
-                    android:text="@string/no_data_for_display"
-                    android:textColor="?attr/textColorSecondary"
-                    android:textSize="18sp" />
-            </FrameLayout>
+                    android:id="@+id/rail_library"
+                    android:layout_width="match_parent"
+                    android:layout_height="82dp"
+                    android:background="@drawable/bg_phone_rail_item"
+                    android:fontFamily="monospace"
+                    android:gravity="center"
+                    android:padding="6dp"
+                    android:text="@string/library_title"
+                    android:textColor="@color/accent"
+                    android:textSize="14sp"
+                    android:textStyle="bold" />
+
+                <TextView
+                    android:id="@+id/rail_add_game"
+                    android:layout_width="match_parent"
+                    android:layout_height="56dp"
+                    android:layout_marginTop="10dp"
+                    android:background="@drawable/bg_phone_rail_item"
+                    android:clickable="true"
+                    android:focusable="true"
+                    android:fontFamily="monospace"
+                    android:gravity="center"
+                    android:text="@string/launcher_add_game"
+                    android:textColor="@color/text_primary"
+                    android:textSize="12sp" />
+
+                <TextView
+                    android:id="@+id/rail_profiles"
+                    android:layout_width="match_parent"
+                    android:layout_height="56dp"
+                    android:layout_marginTop="10dp"
+                    android:background="@drawable/bg_phone_rail_item"
+                    android:clickable="true"
+                    android:focusable="true"
+                    android:fontFamily="monospace"
+                    android:gravity="center"
+                    android:text="@string/profiles"
+                    android:textColor="@color/text_secondary"
+                    android:textSize="12sp" />
+
+                <Space
+                    android:layout_width="match_parent"
+                    android:layout_height="0dp"
+                    android:layout_weight="1" />
+
+                <TextView
+                    android:id="@+id/rail_settings"
+                    android:layout_width="match_parent"
+                    android:layout_height="56dp"
+                    android:background="@drawable/bg_phone_rail_item"
+                    android:clickable="true"
+                    android:focusable="true"
+                    android:fontFamily="monospace"
+                    android:gravity="center"
+                    android:text="@string/action_settings"
+                    android:textColor="@color/text_secondary"
+                    android:textSize="12sp" />
+            </LinearLayout>
+
+            <LinearLayout
+                android:id="@+id/library_panel"
+                android:layout_width="0dp"
+                android:layout_height="match_parent"
+                android:layout_marginStart="8dp"
+                android:layout_weight="1"
+                android:background="@drawable/bg_phone_panel"
+                android:orientation="vertical"
+                android:padding="10dp">
+
+                <LinearLayout
+                    android:id="@+id/library_top_row"
+                    android:layout_width="match_parent"
+                    android:layout_height="42dp"
+                    android:gravity="center_vertical"
+                    android:orientation="horizontal">
+
+                    <TextView
+                        android:id="@+id/library_title"
+                        android:layout_width="0dp"
+                        android:layout_height="match_parent"
+                        android:layout_weight="1"
+                        android:fontFamily="monospace"
+                        android:gravity="center_vertical"
+                        android:text="@string/library_title"
+                        android:textColor="@color/text_primary"
+                        android:textSize="18sp"
+                        android:textStyle="bold" />
+
+                    <EditText
+                        android:id="@+id/library_search"
+                        android:layout_width="210dp"
+                        android:layout_height="34dp"
+                        android:background="@drawable/bg_phone_input"
+                        android:fontFamily="monospace"
+                        android:hint="@string/search"
+                        android:imeOptions="actionSearch"
+                        android:inputType="text"
+                        android:singleLine="true"
+                        android:textColor="@color/text_primary"
+                        android:textColorHint="@color/text_secondary"
+                        android:textSize="12sp" />
+
+                    <TextView
+                        android:id="@+id/library_sort"
+                        android:layout_width="96dp"
+                        android:layout_height="34dp"
+                        android:layout_marginStart="8dp"
+                        android:background="@drawable/bg_phone_mode"
+                        android:clickable="true"
+                        android:focusable="true"
+                        android:fontFamily="monospace"
+                        android:gravity="center"
+                        android:text="@string/pref_app_sort_title"
+                        android:textColor="@color/text_primary"
+                        android:textSize="11sp" />
+                </LinearLayout>
+
+                <LinearLayout
+                    android:id="@+id/library_mode_row"
+                    android:layout_width="match_parent"
+                    android:layout_height="38dp"
+                    android:gravity="center_vertical"
+                    android:orientation="horizontal">
+
+                    <TextView
+                        android:id="@+id/view_mode_gallery"
+                        android:layout_width="104dp"
+                        android:layout_height="32dp"
+                        android:background="@drawable/bg_phone_mode"
+                        android:clickable="true"
+                        android:focusable="true"
+                        android:fontFamily="monospace"
+                        android:gravity="center"
+                        android:text="@string/view_mode_gallery"
+                        android:textColor="@color/text_primary"
+                        android:textSize="12sp" />
+
+                    <TextView
+                        android:id="@+id/view_mode_list"
+                        android:layout_width="104dp"
+                        android:layout_height="32dp"
+                        android:layout_marginStart="8dp"
+                        android:background="@drawable/bg_phone_mode"
+                        android:clickable="true"
+                        android:focusable="true"
+                        android:fontFamily="monospace"
+                        android:gravity="center"
+                        android:text="@string/view_mode_list"
+                        android:textColor="@color/text_primary"
+                        android:textSize="12sp" />
+
+                    <TextView
+                        android:id="@+id/view_mode_grid"
+                        android:layout_width="104dp"
+                        android:layout_height="32dp"
+                        android:layout_marginStart="8dp"
+                        android:background="@drawable/bg_phone_mode"
+                        android:clickable="true"
+                        android:focusable="true"
+                        android:fontFamily="monospace"
+                        android:gravity="center"
+                        android:text="@string/view_mode_grid"
+                        android:textColor="@color/text_primary"
+                        android:textSize="12sp" />
+
+                    <TextView
+                        android:id="@+id/library_filter_hint"
+                        android:layout_width="0dp"
+                        android:layout_height="match_parent"
+                        android:layout_weight="1"
+                        android:fontFamily="monospace"
+                        android:gravity="center_vertical|end"
+                        android:text="@string/launcher_search_hint"
+                        android:textColor="@color/phone_cyan"
+                        android:textSize="11sp" />
+                </LinearLayout>
+
+                <FrameLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="0dp"
+                    android:layout_weight="1">
+
+                    <androidx.recyclerview.widget.RecyclerView
+                        android:id="@+id/apps_recycler"
+                        android:layout_width="match_parent"
+                        android:layout_height="match_parent"
+                        android:clipToPadding="false"
+                        android:paddingTop="4dp"
+                        android:paddingBottom="4dp"
+                        tools:listitem="@layout/list_row_jar" />
+
+                    <TextView
+                        android:id="@android:id/empty"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_gravity="center"
+                        android:fontFamily="monospace"
+                        android:text="@string/no_data_for_display"
+                        android:textColor="@color/text_secondary"
+                        android:textSize="16sp" />
+                </FrameLayout>
+            </LinearLayout>
 
             <LinearLayout
                 android:id="@+id/detail_panel"
-                android:layout_width="340dp"
+                android:layout_width="330dp"
                 android:layout_height="match_parent"
-                android:background="@color/config_card"
+                android:layout_marginStart="8dp"
+                android:background="@drawable/bg_phone_panel"
                 android:orientation="vertical"
-                android:padding="14dp"
-                android:visibility="gone"
+                android:padding="12dp"
                 tools:visibility="visible">
+
+                <TextView
+                    android:id="@+id/detail_section_title"
+                    android:layout_width="match_parent"
+                    android:layout_height="28dp"
+                    android:fontFamily="monospace"
+                    android:gravity="center_vertical"
+                    android:text="@string/launcher_detail_title"
+                    android:textColor="@color/phone_cyan"
+                    android:textSize="13sp"
+                    android:textStyle="bold" />
 
                 <ImageView
                     android:id="@+id/detail_cover"
                     android:layout_width="match_parent"
                     android:layout_height="0dp"
+                    android:layout_marginTop="6dp"
                     android:layout_weight="1"
                     android:background="@drawable/bg_art_fallback"
                     android:scaleType="centerCrop"
@@ -104,10 +321,12 @@
                     android:id="@+id/detail_title"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:layout_marginTop="12dp"
+                    android:layout_marginTop="10dp"
+                    android:ellipsize="end"
+                    android:fontFamily="monospace"
                     android:maxLines="2"
-                    android:textColor="?attr/textColorPrimary"
-                    android:textSize="22sp"
+                    android:textColor="@color/accent"
+                    android:textSize="17sp"
                     android:textStyle="bold"
                     tools:text="Stalker" />
 
@@ -116,25 +335,104 @@
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:layout_marginTop="4dp"
+                    android:ellipsize="end"
+                    android:fontFamily="monospace"
                     android:maxLines="2"
-                    android:textColor="?attr/textColorSecondary"
-                    android:textSize="13sp"
-                    tools:text="Vendor • 1.0" />
+                    android:textColor="@color/text_secondary"
+                    android:textSize="12sp"
+                    tools:text="Vendor  1.0" />
 
-                <Button
+                <TextView
                     android:id="@+id/detail_play"
                     android:layout_width="match_parent"
                     android:layout_height="42dp"
-                    android:layout_marginTop="14dp"
-                    android:text="@string/play" />
+                    android:layout_marginTop="12dp"
+                    android:background="@drawable/bg_phone_mode"
+                    android:clickable="true"
+                    android:focusable="true"
+                    android:fontFamily="monospace"
+                    android:gravity="center"
+                    android:text="@string/play"
+                    android:textColor="@color/accent"
+                    android:textSize="15sp"
+                    android:textStyle="bold" />
 
-                <Button
+                <TextView
                     android:id="@+id/detail_settings"
                     android:layout_width="match_parent"
-                    android:layout_height="42dp"
+                    android:layout_height="38dp"
                     android:layout_marginTop="8dp"
-                    android:text="@string/action_settings" />
+                    android:background="@drawable/bg_phone_mode"
+                    android:clickable="true"
+                    android:focusable="true"
+                    android:fontFamily="monospace"
+                    android:gravity="center"
+                    android:text="@string/action_settings"
+                    android:textColor="@color/text_primary"
+                    android:textSize="13sp" />
+
+                <TextView
+                    android:id="@+id/detail_compatibility"
+                    android:layout_width="match_parent"
+                    android:layout_height="36dp"
+                    android:layout_marginTop="8dp"
+                    android:background="@drawable/bg_phone_input"
+                    android:fontFamily="monospace"
+                    android:gravity="center_vertical"
+                    android:text="@string/launcher_compatibility"
+                    android:textColor="@color/phone_green"
+                    android:textSize="12sp" />
             </LinearLayout>
+        </LinearLayout>
+
+        <LinearLayout
+            android:id="@+id/launcher_softbar"
+            android:layout_width="match_parent"
+            android:layout_height="48dp"
+            android:background="@drawable/bg_phone_softbar"
+            android:gravity="center_vertical"
+            android:orientation="horizontal"
+            android:paddingHorizontal="18dp">
+
+            <TextView
+                android:layout_width="0dp"
+                android:layout_height="match_parent"
+                android:layout_weight="1"
+                android:fontFamily="monospace"
+                android:gravity="center_vertical"
+                android:text="@string/launcher_soft_select"
+                android:textColor="@color/text_primary"
+                android:textSize="13sp" />
+
+            <TextView
+                android:layout_width="0dp"
+                android:layout_height="match_parent"
+                android:layout_weight="1"
+                android:fontFamily="monospace"
+                android:gravity="center"
+                android:text="@string/launcher_soft_back"
+                android:textColor="@color/text_primary"
+                android:textSize="13sp" />
+
+            <TextView
+                android:layout_width="0dp"
+                android:layout_height="match_parent"
+                android:layout_weight="1"
+                android:fontFamily="monospace"
+                android:gravity="center"
+                android:text="@string/launcher_soft_favorite"
+                android:textColor="@color/text_primary"
+                android:textSize="13sp" />
+
+            <TextView
+                android:layout_width="0dp"
+                android:layout_height="match_parent"
+                android:layout_weight="1"
+                android:fontFamily="monospace"
+                android:gravity="center_vertical|end"
+                android:text="@string/launcher_soft_mode"
+                android:textColor="@color/text_primary"
+                android:textSize="13sp" />
         </LinearLayout>
     </LinearLayout>
 
@@ -144,5 +442,6 @@
         android:layout_height="wrap_content"
         android:layout_gravity="end|bottom"
         android:layout_margin="16dp"
+        android:visibility="gone"
         app:srcCompat="@drawable/ic_add_white" />
 </FrameLayout>

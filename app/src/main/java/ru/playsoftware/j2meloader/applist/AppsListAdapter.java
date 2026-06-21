@@ -152,25 +152,25 @@ public class AppsListAdapter extends RecyclerView.Adapter<AppsListAdapter.ViewHo
 			LinearLayout root = binding.rowRoot;
 			FrameLayout art = binding.artContainer;
 			LinearLayout text = binding.textColumn;
-			int pad = dp(8);
+			int pad = dp(7);
 			root.setPadding(pad, pad, pad, pad);
 			ViewGroup.MarginLayoutParams itemLp = getMarginLayoutParams(root);
-			itemLp.setMargins(dp(5), dp(5), dp(5), dp(5));
+			itemLp.setMargins(dp(4), dp(4), dp(4), dp(4));
 			root.setLayoutParams(itemLp);
 			if (mode == MODE_LIST) {
 				root.setOrientation(LinearLayout.HORIZONTAL);
-				LinearLayout.LayoutParams artLp = new LinearLayout.LayoutParams(dp(64), dp(64));
-				artLp.setMargins(0, 0, dp(12), 0);
+				LinearLayout.LayoutParams artLp = new LinearLayout.LayoutParams(dp(58), dp(58));
+				artLp.setMargins(0, 0, dp(10), 0);
 				art.setLayoutParams(artLp);
 				LinearLayout.LayoutParams textLp = new LinearLayout.LayoutParams(0,
 						ViewGroup.LayoutParams.WRAP_CONTENT, 1);
 				textLp.setMargins(0, 0, 0, 0);
 				text.setLayoutParams(textLp);
-				binding.icon.setLayoutParams(centerIconParams(dp(44)));
+				binding.icon.setLayoutParams(centerIconParams(dp(38)));
 				binding.name.setMaxLines(1);
 			} else {
 				root.setOrientation(LinearLayout.VERTICAL);
-				int artHeight = mode == MODE_GALLERY ? dp(164) : dp(112);
+				int artHeight = mode == MODE_GALLERY ? dp(118) : dp(86);
 				LinearLayout.LayoutParams artLp = new LinearLayout.LayoutParams(
 						ViewGroup.LayoutParams.MATCH_PARENT, artHeight);
 				artLp.setMargins(0, 0, 0, 0);
@@ -179,7 +179,7 @@ public class AppsListAdapter extends RecyclerView.Adapter<AppsListAdapter.ViewHo
 						ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT);
 				textLp.setMargins(0, dp(8), 0, 0);
 				text.setLayoutParams(textLp);
-				binding.icon.setLayoutParams(cornerIconParams(dp(44)));
+				binding.icon.setLayoutParams(cornerIconParams(mode == MODE_GALLERY ? dp(40) : dp(32)));
 				binding.name.setMaxLines(2);
 			}
 		}

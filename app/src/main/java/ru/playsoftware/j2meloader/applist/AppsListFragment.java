@@ -39,6 +39,8 @@ import android.graphics.drawable.Drawable;
 import android.net.Uri;
 import android.os.Bundle;
 import android.os.Environment;
+import android.text.Editable;
+import android.text.TextWatcher;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.Menu;
@@ -73,7 +75,10 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import java.io.File;
 import java.io.IOException;
+import java.text.SimpleDateFormat;
+import java.util.Date;
 import java.util.List;
+import java.util.Locale;
 import java.util.concurrent.TimeUnit;
 
 import io.reactivex.Observable;
@@ -158,6 +163,27 @@ public class AppsListFragment extends Fragment implements AppsListAdapter.Listen
 		binding.viewModeGallery.setOnClickListener(v -> setDisplayMode(AppsListAdapter.MODE_GALLERY));
 		binding.viewModeList.setOnClickListener(v -> setDisplayMode(AppsListAdapter.MODE_LIST));
 		binding.viewModeGrid.setOnClickListener(v -> setDisplayMode(AppsListAdapter.MODE_GRID));
+		binding.railLibrary.setSelected(true);
+		binding.librarySearch.addTextChangedListener(new TextWatcher() {
+			@Override
+			public void beforeTextChanged(CharSequence s, int start, int count, int after) {
+			}
+
+			@Override
+			public void onTextChanged(CharSequence s, int start, int before, int count) {
+				adapter.getFilter().filter(s);
+			}
+
+			@Override
+			public void afterTextChanged(Editable s) {
+			}
+		});
+		binding.librarySort.setOnClickListener(v -> showSortDialog());
+		binding.railAddGame.setOnClickListener(v -> openLastDirectory());
+		binding.railSettings.setOnClickListener(v ->
+				startActivity(new Intent(requireActivity(), SettingsActivity.class)));
+		binding.railProfiles.setOnClickListener(v ->
+				startActivity(new Intent(requireActivity(), ProfilesActivity.class)));
 		binding.detailPlay.setOnClickListener(v -> {
 			if (selectedItem != null) {
 				startApp(selectedItem, false);
@@ -169,6 +195,7 @@ public class AppsListFragment extends Fragment implements AppsListAdapter.Listen
 			}
 		});
 		binding.floatingActionButton.setOnClickListener(v -> openLastDirectory());
+		updateClock();
 		applyDisplayMode();
 		updateDetail(adapter.getFirstItem());
 	}
@@ -197,22 +224,23 @@ public class AppsListFragment extends Fragment implements AppsListAdapter.Listen
 
 	private void applyDisplayMode() {
 		int mode = adapter.getDisplayMode();
-		int orientation = getResources().getConfiguration().orientation;
 		if (mode == AppsListAdapter.MODE_LIST) {
 			binding.appsRecycler.setLayoutManager(new LinearLayoutManager(requireContext()));
 		} else {
-			int span;
-			if (mode == AppsListAdapter.MODE_GALLERY) {
-				span = orientation == Configuration.ORIENTATION_LANDSCAPE ? 2 : 1;
-			} else {
-				span = orientation == Configuration.ORIENTATION_LANDSCAPE ? 3 : 2;
-			}
-			binding.appsRecycler.setLayoutManager(new GridLayoutManager(requireContext(), span));
+			binding.appsRecycler.setLayoutManager(new GridLayoutManager(requireContext(), calculateSpanCount(mode)));
 		}
 		binding.viewModeGallery.setSelected(mode == AppsListAdapter.MODE_GALLERY);
 		binding.viewModeList.setSelected(mode == AppsListAdapter.MODE_LIST);
 		binding.viewModeGrid.setSelected(mode == AppsListAdapter.MODE_GRID);
 		updateDetail(selectedItem == null ? adapter.getFirstItem() : selectedItem);
+	}
+
+	private int calculateSpanCount(int mode) {
+		int screenWidthDp = getResources().getConfiguration().screenWidthDp;
+		int reserved = 132 + 330 + 32;
+		int available = Math.max(320, screenWidthDp - reserved);
+		int minCardWidth = mode == AppsListAdapter.MODE_GALLERY ? 150 : 112;
+		return Math.max(mode == AppsListAdapter.MODE_GALLERY ? 2 : 3, available / minCardWidth);
 	}
 
 	@Override
@@ -468,6 +496,7 @@ public class AppsListFragment extends Fragment implements AppsListAdapter.Listen
 		boolean empty = adapter.getItemCount() == 0;
 		binding.empty.setVisibility(empty ? View.VISIBLE : View.GONE);
 		binding.appsRecycler.setVisibility(empty ? View.GONE : View.VISIBLE);
+		binding.libraryCount.setText(getString(R.string.library_game_count, adapter.getItemCount()));
 	}
 
 	private void updateDetail(AppItem item) {
@@ -475,8 +504,7 @@ public class AppsListFragment extends Fragment implements AppsListAdapter.Listen
 			return;
 		}
 		selectedItem = item;
-		boolean landscape = getResources().getConfiguration().orientation == Configuration.ORIENTATION_LANDSCAPE;
-		binding.detailPanel.setVisibility(landscape && item != null ? View.VISIBLE : View.GONE);
+		binding.detailPanel.setVisibility(item != null ? View.VISIBLE : View.GONE);
 		if (item == null) {
 			return;
 		}
@@ -494,6 +522,10 @@ public class AppsListFragment extends Fragment implements AppsListAdapter.Listen
 		String author = item.getAuthor() == null ? "" : item.getAuthor();
 		String version = item.getVersion() == null ? "" : item.getVersion();
 		binding.detailMeta.setText(author + "  " + version);
+	}
+
+	private void updateClock() {
+		binding.launcherClock.setText(new SimpleDateFormat("HH:mm", Locale.US).format(new Date()));
 	}
 
 	private static class SortAdapter extends ArrayAdapter<String> {
