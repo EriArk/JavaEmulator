@@ -1,0 +1,93 @@
+<!doctype html>
+<html lang="ru">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>JavaEmulator UI Concepts</title>
+  <style>
+    :root {
+      color-scheme: dark;
+      --bg: #101218;
+      --panel: #171b22;
+      --text: #e6edf3;
+      --muted: #9aa4b2;
+      --accent: #ffb62e;
+      --line: #2d3541;
+    }
+    * {
+      box-sizing: border-box;
+    }
+    body {
+      margin: 0;
+      background: var(--bg);
+      color: var(--text);
+      font-family: Arial, sans-serif;
+    }
+    header {
+      position: sticky;
+      top: 0;
+      z-index: 2;
+      display: flex;
+      align-items: center;
+      gap: 16px;
+      min-height: 56px;
+      padding: 12px 20px;
+      background: #0c0e13;
+      border-bottom: 1px solid var(--line);
+    }
+    h1 {
+      margin: 0;
+      font-size: 20px;
+      letter-spacing: 0;
+    }
+    .hint {
+      color: var(--muted);
+      font-size: 13px;
+    }
+    main {
+      display: grid;
+      gap: 18px;
+      padding: 20px;
+    }
+    section {
+      background: var(--panel);
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      overflow: hidden;
+    }
+    h2 {
+      margin: 0;
+      padding: 12px 14px;
+      color: var(--accent);
+      font-size: 16px;
+      border-bottom: 1px solid var(--line);
+    }
+    img {
+      display: block;
+      width: 100%;
+      height: auto;
+      background: #000;
+    }
+  </style>
+</head>
+<body>
+  <header>
+    <h1>JavaEmulator UI Concepts</h1>
+    <div class="hint">Landscape-only concepts</div>
+  </header>
+  <main>
+    <section>
+      <h2>1. Beacon-like</h2>
+      <img src="concept-1-beacon-like.png" alt="Beacon-like UI concept">
+    </section>
+    <section>
+      <h2>2. Old Phone</h2>
+      <img src="concept-2-old-phone.png" alt="Old phone UI concept">
+    </section>
+    <section>
+      <h2>3. Retro-modern</h2>
+      <img src="concept-3-retro-modern.png" alt="Retro-modern UI concept">
+    </section>
+  </main>
+</body>
+</html>
