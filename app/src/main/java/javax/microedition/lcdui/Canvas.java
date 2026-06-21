@@ -1254,6 +1254,10 @@ public abstract class Canvas extends Displayable {
 								cX,
 								cY));
 					}
+					if (!touchInput && event.getActionMasked() == MotionEvent.ACTION_UP
+							&& virtualScreen.contains(x, y)) {
+						ContextHolder.getActivity().showQuickSettingsOverlay();
+					}
 					break;
 				case MotionEvent.ACTION_CANCEL:
 					if (overlay != null) {

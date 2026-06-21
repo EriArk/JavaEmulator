@@ -589,7 +589,8 @@ public class ConfigActivity extends BaseActivity implements View.OnClickListener
 		binding.virtualKeyboardConfigGroup.setVisibility(showVk ? View.VISIBLE : View.GONE);
 		binding.enableHapticFeedbackToggle.setChecked(params.vkFeedback);
 		binding.forceOpacityForOffscreenKeysToggle.setChecked(params.vkForceOpacity);
-		binding.enableTouchInputToggle.setChecked(params.touchInput);
+		binding.enableTouchInputToggle.setVisibility(View.GONE);
+		binding.enableTouchInputToggle.setChecked(false);
 		int fpsLimit = params.fpsLimit;
 		binding.fpsLimit.setText(fpsLimit > 0 ? Integer.toString(fpsLimit) : "");
 
@@ -666,7 +667,7 @@ public class ConfigActivity extends BaseActivity implements View.OnClickListener
 			params.showKeyboard = binding.showVirtualKeyboardToggle.isChecked();
 			params.vkFeedback = binding.enableHapticFeedbackToggle.isChecked();
 			params.vkForceOpacity = binding.forceOpacityForOffscreenKeysToggle.isChecked();
-			params.touchInput = binding.enableTouchInputToggle.isChecked();
+			params.touchInput = false;
 
 			params.keyCodesLayout = binding.buttonsLayoutSelector.getSelectedItemPosition();
 			params.vkButtonShape = binding.buttonShapeSelector.getSelectedItemPosition();

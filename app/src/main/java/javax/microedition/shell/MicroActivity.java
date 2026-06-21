@@ -31,6 +31,8 @@ import android.content.res.TypedArray;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
+import android.os.Handler;
+import android.os.Looper;
 import android.os.IBinder;
 import android.os.SystemClock;
 import android.text.Editable;
@@ -101,6 +103,7 @@ public class MicroActivity extends AppCompatActivity {
 	private static final int ORIENTATION_PORTRAIT = 2;
 	private static final int ORIENTATION_LANDSCAPE = 3;
 	private static final int QUICK_MAP_HOLD_MS = 350;
+	private static final int QUICK_SETTINGS_HIDE_MS = 5000;
 	private static final float QUICK_MAP_AXIS_DEADZONE = 0.45f;
 
 	private static final int[] QUICK_MAP_TARGET_KEYS = {
@@ -131,6 +134,13 @@ public class MicroActivity extends AppCompatActivity {
 	private int quickMapCapturedKeyUp = KeyEvent.KEYCODE_UNKNOWN;
 	private boolean selectQuickMapTracking;
 	private boolean selectQuickMapOpened;
+	private final Handler quickSettingsHandler = new Handler(Looper.getMainLooper());
+	private final Runnable hideQuickSettingsRunnable = new Runnable() {
+		@Override
+		public void run() {
+			hideQuickSettingsOverlay();
+		}
+	};
 	private final Runnable openQuickMapRunnable = new Runnable() {
 		@Override
 		public void run() {
@@ -218,6 +228,7 @@ public class MicroActivity extends AppCompatActivity {
 		}
 		setOrientation(orientation);
 		menuKey = microLoader.getMenuKeyCode();
+		setupQuickSettingsOverlay();
 		setupQuickMapOverlay();
 		inputMethodManager = (InputMethodManager) getSystemService(INPUT_METHOD_SERVICE);
 
@@ -250,6 +261,7 @@ public class MicroActivity extends AppCompatActivity {
 		visible = false;
 		hideSoftInput();
 		cancelQuickMapTrigger();
+		hideQuickSettingsOverlay();
 		if (binding != null && binding.quickMapOverlay.getVisibility() == View.VISIBLE) {
 			binding.quickMapOverlay.setVisibility(View.GONE);
 			quickMapTargetKey = 0;
@@ -489,6 +501,79 @@ public class MicroActivity extends AppCompatActivity {
 		});
 		rebuildQuickMapProfiles();
 		rebuildQuickMapTargets();
+	}
+
+	private void setupQuickSettingsOverlay() {
+		binding.quickSettingsSize.setOnClickListener(v -> {
+			microLoader.cycleScreenScaleRatio();
+			applyRuntimeDisplaySettings(false);
+		});
+		binding.quickSettingsOrientation.setOnClickListener(v -> {
+			microLoader.cycleOrientation();
+			applyRuntimeDisplaySettings(true);
+		});
+		binding.quickSettingsScaleType.setOnClickListener(v -> {
+			microLoader.cycleScreenScaleType();
+			applyRuntimeDisplaySettings(false);
+		});
+		updateQuickSettingsLabels();
+	}
+
+	public void showQuickSettingsOverlay() {
+		if (binding == null || microLoader == null || isQuickMapVisible()
+				|| binding.displayableContainer.getChildCount() == 0) {
+			return;
+		}
+		updateQuickSettingsLabels();
+		binding.quickSettingsOverlay.setVisibility(View.VISIBLE);
+		scheduleQuickSettingsHide();
+	}
+
+	private void hideQuickSettingsOverlay() {
+		if (binding == null) {
+			return;
+		}
+		quickSettingsHandler.removeCallbacks(hideQuickSettingsRunnable);
+		binding.quickSettingsOverlay.setVisibility(View.GONE);
+	}
+
+	private void scheduleQuickSettingsHide() {
+		quickSettingsHandler.removeCallbacks(hideQuickSettingsRunnable);
+		quickSettingsHandler.postDelayed(hideQuickSettingsRunnable, QUICK_SETTINGS_HIDE_MS);
+	}
+
+	private void applyRuntimeDisplaySettings(boolean updateOrientation) {
+		if (updateOrientation) {
+			setOrientation(microLoader.getOrientation());
+		}
+		if (current instanceof Canvas) {
+			((Canvas) current).updateSize();
+		}
+		updateQuickSettingsLabels();
+		scheduleQuickSettingsHide();
+	}
+
+	private void updateQuickSettingsLabels() {
+		if (binding == null || microLoader == null) {
+			return;
+		}
+		String[] orientationLabels = getResources().getStringArray(R.array.PREF_ORIENTATION_ENTRIES);
+		String[] scaleLabels = getResources().getStringArray(R.array.pref_scale_type_entries);
+		int orientation = clampIndex(microLoader.getOrientation(), orientationLabels.length);
+		int scaleType = clampIndex(microLoader.getScreenScaleType(), scaleLabels.length);
+		binding.quickSettingsSize.setText(getString(R.string.quick_settings_size)
+				+ "\n" + microLoader.getScreenScaleRatio() + "%");
+		binding.quickSettingsOrientation.setText(getString(R.string.quick_settings_orientation)
+				+ "\n" + orientationLabels[orientation]);
+		binding.quickSettingsScaleType.setText(getString(R.string.quick_settings_scale)
+				+ "\n" + scaleLabels[scaleType]);
+	}
+
+	private int clampIndex(int index, int size) {
+		if (index < 0 || index >= size) {
+			return 0;
+		}
+		return index;
 	}
 
 	private void rebuildQuickMapProfiles() {

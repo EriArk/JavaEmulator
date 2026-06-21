@@ -37,6 +37,53 @@
         android:layout_height="match_parent" />
 
     <FrameLayout
+        android:id="@+id/quick_settings_overlay"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:visibility="gone"
+        tools:visibility="visible">
+
+        <LinearLayout
+            android:id="@+id/quick_settings_panel"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="top|center_horizontal"
+            android:layout_margin="16dp"
+            android:background="@drawable/bg_quick_map_panel"
+            android:orientation="horizontal">
+
+            <Button
+                android:id="@+id/quick_settings_size"
+                android:layout_width="92dp"
+                android:layout_height="72dp"
+                android:drawableTop="@drawable/ic_quick_size"
+                android:gravity="center"
+                android:text="@string/quick_settings_size"
+                android:textSize="12sp" />
+
+            <Button
+                android:id="@+id/quick_settings_orientation"
+                android:layout_width="92dp"
+                android:layout_height="72dp"
+                android:layout_marginStart="8dp"
+                android:drawableTop="@drawable/ic_quick_orientation"
+                android:gravity="center"
+                android:text="@string/quick_settings_orientation"
+                android:textSize="12sp" />
+
+            <Button
+                android:id="@+id/quick_settings_scale_type"
+                android:layout_width="92dp"
+                android:layout_height="72dp"
+                android:layout_marginStart="8dp"
+                android:drawableTop="@drawable/ic_quick_scale"
+                android:gravity="center"
+                android:text="@string/quick_settings_scale"
+                android:textSize="12sp" />
+        </LinearLayout>
+    </FrameLayout>
+
+    <FrameLayout
         android:id="@+id/quick_map_overlay"
         android:layout_width="match_parent"
         android:layout_height="match_parent"

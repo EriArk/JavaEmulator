@@ -84,6 +84,7 @@ public class MicroLoader {
 	private final String workDir;
 	private final String appDirName;
 	private ProfileModel params;
+	private static final int[] QUICK_SCALE_RATIOS = {70, 85, 100};
 
 	MicroLoader(Context context, String appPath) {
 		this.context = context;
@@ -230,6 +231,32 @@ public class MicroLoader {
 		return params.orientation;
 	}
 
+	int getScreenScaleRatio() {
+		return params.screenScaleRatio;
+	}
+
+	int getScreenScaleType() {
+		return params.screenScaleType;
+	}
+
+	int cycleScreenScaleRatio() {
+		params.screenScaleRatio = nextValue(QUICK_SCALE_RATIOS, params.screenScaleRatio);
+		saveDisplayConfiguration();
+		return params.screenScaleRatio;
+	}
+
+	int cycleScreenScaleType() {
+		params.screenScaleType = (params.screenScaleType + 1) % 3;
+		saveDisplayConfiguration();
+		return params.screenScaleType;
+	}
+
+	int cycleOrientation() {
+		params.orientation = (params.orientation + 1) % 4;
+		saveDisplayConfiguration();
+		return params.orientation;
+	}
+
 	void setLimitFps(int fps) {
 		if (fps == -1) Canvas.setLimitFps(params.fpsLimit);
 		else Canvas.setLimitFps(fps);
@@ -280,7 +307,7 @@ public class MicroLoader {
 			Font.applySettings(params);
 
 			KeyMapper.setKeyMapping(params);
-			Canvas.setHasTouchInput(params.touchInput);
+			Canvas.setHasTouchInput(false);
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
@@ -357,5 +384,20 @@ public class MicroLoader {
 	private void saveKeyMappingConfiguration() {
 		ProfilesManager.saveConfig(params);
 		KeyMapper.setKeyMapping(params);
+	}
+
+	private void saveDisplayConfiguration() {
+		params.touchInput = false;
+		ProfilesManager.saveConfig(params);
+		Canvas.setScale(params.screenGravity, params.screenScaleType, params.screenScaleRatio);
+	}
+
+	private int nextValue(int[] values, int current) {
+		for (int value : values) {
+			if (current < value) {
+				return value;
+			}
+		}
+		return values[0];
 	}
 }
