@@ -1069,26 +1069,11 @@ public class MicroActivity extends AppCompatActivity {
 			binding.displayableContainer.removeAllViews();
 			ActionBar actionBar = Objects.requireNonNull(getSupportActionBar());
 			LinearLayout.LayoutParams layoutParams = (LinearLayout.LayoutParams) binding.toolbar.getLayoutParams();
-			int toolbarHeight = 0;
-			if (next instanceof Canvas) {
-				hideSystemUI();
-				if (!actionBarEnabled) {
-					actionBar.hide();
-				} else {
-					final String title = next.getTitle();
-					actionBar.setTitle(title == null ? appName : title);
-					toolbarHeight = (int) (getToolBarHeight() / 1.5);
-					layoutParams.height = toolbarHeight;
-				}
-			} else {
-				showSystemUI();
-				actionBar.show();
-				final String title = next != null ? next.getTitle() : null;
-				actionBar.setTitle(title == null ? appName : title);
-				toolbarHeight = getToolBarHeight();
-				layoutParams.height = toolbarHeight;
-			}
-			binding.overlayView.setLocation(0, toolbarHeight);
+			hideSystemUI();
+			actionBar.hide();
+			layoutParams.height = 0;
+			binding.toolbar.setVisibility(View.GONE);
+			binding.overlayView.setLocation(0, 0);
 			binding.toolbar.setLayoutParams(layoutParams);
 			invalidateOptionsMenu();
 			if (next != null) {

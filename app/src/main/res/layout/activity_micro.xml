@@ -56,9 +56,13 @@
                 android:id="@+id/quick_settings_size"
                 android:layout_width="76dp"
                 android:layout_height="72dp"
+                android:background="@drawable/bg_quick_setting_button"
                 android:drawableTop="@drawable/ic_quick_size"
+                android:fontFamily="monospace"
                 android:gravity="center"
                 android:text="@string/quick_settings_size"
+                android:textAllCaps="false"
+                android:textColor="@color/text_primary"
                 android:textSize="12sp" />
 
             <Button
@@ -66,9 +70,13 @@
                 android:layout_width="76dp"
                 android:layout_height="72dp"
                 android:layout_marginStart="6dp"
+                android:background="@drawable/bg_quick_setting_button"
                 android:drawableTop="@drawable/ic_quick_orientation"
+                android:fontFamily="monospace"
                 android:gravity="center"
                 android:text="@string/quick_settings_orientation"
+                android:textAllCaps="false"
+                android:textColor="@color/text_primary"
                 android:textSize="12sp" />
 
             <Button
@@ -76,9 +84,13 @@
                 android:layout_width="76dp"
                 android:layout_height="72dp"
                 android:layout_marginStart="6dp"
+                android:background="@drawable/bg_quick_setting_button"
                 android:drawableTop="@drawable/ic_quick_scale"
+                android:fontFamily="monospace"
                 android:gravity="center"
                 android:text="@string/quick_settings_scale"
+                android:textAllCaps="false"
+                android:textColor="@color/text_primary"
                 android:textSize="12sp" />
 
             <Button
@@ -86,9 +98,13 @@
                 android:layout_width="76dp"
                 android:layout_height="72dp"
                 android:layout_marginStart="6dp"
+                android:background="@drawable/bg_quick_setting_button"
                 android:drawableTop="@drawable/ic_quick_quality"
+                android:fontFamily="monospace"
                 android:gravity="center"
                 android:text="@string/quick_settings_look"
+                android:textAllCaps="false"
+                android:textColor="@color/text_primary"
                 android:textSize="12sp" />
         </LinearLayout>
     </FrameLayout>

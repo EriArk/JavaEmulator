@@ -118,7 +118,7 @@ public class AppsListAdapter extends RecyclerView.Adapter<AppsListAdapter.ViewHo
 		private void bind(AppItem item, int displayMode, Listener listener) {
 			applyMode(displayMode);
 			Drawable cover = Drawable.createFromPath(item.getCoverPathExt());
-			if (cover != null) {
+			if (displayMode == MODE_GALLERY && cover != null) {
 				cover.setFilterBitmap(false);
 				binding.cover.setVisibility(View.VISIBLE);
 				binding.cover.setImageDrawable(cover);
@@ -133,6 +133,7 @@ public class AppsListAdapter extends RecyclerView.Adapter<AppsListAdapter.ViewHo
 			} else {
 				binding.icon.setImageResource(R.mipmap.ic_launcher);
 			}
+			binding.icon.setVisibility(displayMode == MODE_GALLERY && cover != null ? View.GONE : View.VISIBLE);
 			binding.name.setText(item.getTitle());
 			binding.author.setText(item.getAuthor() == null ? "" : item.getAuthor());
 			binding.appVersion.setText(item.getVersion() == null ? "" : item.getVersion());
@@ -159,14 +160,14 @@ public class AppsListAdapter extends RecyclerView.Adapter<AppsListAdapter.ViewHo
 			root.setLayoutParams(itemLp);
 			if (mode == MODE_LIST) {
 				root.setOrientation(LinearLayout.HORIZONTAL);
-				LinearLayout.LayoutParams artLp = new LinearLayout.LayoutParams(dp(58), dp(58));
+				LinearLayout.LayoutParams artLp = new LinearLayout.LayoutParams(dp(72), dp(72));
 				artLp.setMargins(0, 0, dp(10), 0);
 				art.setLayoutParams(artLp);
 				LinearLayout.LayoutParams textLp = new LinearLayout.LayoutParams(0,
 						ViewGroup.LayoutParams.WRAP_CONTENT, 1);
 				textLp.setMargins(0, 0, 0, 0);
 				text.setLayoutParams(textLp);
-				binding.icon.setLayoutParams(centerIconParams(dp(38)));
+				binding.icon.setLayoutParams(centerIconParams(dp(56)));
 				binding.name.setMaxLines(1);
 			} else {
 				root.setOrientation(LinearLayout.VERTICAL);
@@ -179,7 +180,7 @@ public class AppsListAdapter extends RecyclerView.Adapter<AppsListAdapter.ViewHo
 						ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT);
 				textLp.setMargins(0, dp(8), 0, 0);
 				text.setLayoutParams(textLp);
-				binding.icon.setLayoutParams(cornerIconParams(mode == MODE_GALLERY ? dp(40) : dp(32)));
+				binding.icon.setLayoutParams(centerIconParams(mode == MODE_GALLERY ? dp(64) : dp(72)));
 				binding.name.setMaxLines(2);
 			}
 		}
@@ -196,13 +197,6 @@ public class AppsListAdapter extends RecyclerView.Adapter<AppsListAdapter.ViewHo
 		private FrameLayout.LayoutParams centerIconParams(int size) {
 			FrameLayout.LayoutParams lp = new FrameLayout.LayoutParams(size, size);
 			lp.gravity = android.view.Gravity.CENTER;
-			return lp;
-		}
-
-		private FrameLayout.LayoutParams cornerIconParams(int size) {
-			FrameLayout.LayoutParams lp = new FrameLayout.LayoutParams(size, size);
-			lp.gravity = android.view.Gravity.BOTTOM | android.view.Gravity.START;
-			lp.setMargins(dp(8), dp(8), dp(8), dp(8));
 			return lp;
 		}
 

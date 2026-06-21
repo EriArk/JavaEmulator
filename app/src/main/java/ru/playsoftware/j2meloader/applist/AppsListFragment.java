@@ -50,6 +50,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ArrayAdapter;
 import android.widget.EditText;
+import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -509,14 +510,20 @@ public class AppsListFragment extends Fragment implements AppsListAdapter.Listen
 			return;
 		}
 		Drawable cover = Drawable.createFromPath(item.getCoverPathExt());
-		if (cover == null) {
-			cover = Drawable.createFromPath(item.getImagePathExt());
-		}
 		if (cover != null) {
 			cover.setFilterBitmap(false);
+			binding.detailCover.setScaleType(ImageView.ScaleType.CENTER_CROP);
 			binding.detailCover.setImageDrawable(cover);
 		} else {
-			binding.detailCover.setImageResource(R.mipmap.ic_launcher);
+			Drawable icon = Drawable.createFromPath(item.getImagePathExt());
+			if (icon != null) {
+				icon.setFilterBitmap(false);
+				binding.detailCover.setScaleType(ImageView.ScaleType.CENTER_INSIDE);
+				binding.detailCover.setImageDrawable(icon);
+			} else {
+				binding.detailCover.setScaleType(ImageView.ScaleType.CENTER_INSIDE);
+				binding.detailCover.setImageResource(R.mipmap.ic_launcher);
+			}
 		}
 		binding.detailTitle.setText(item.getTitle());
 		String author = item.getAuthor() == null ? "" : item.getAuthor();

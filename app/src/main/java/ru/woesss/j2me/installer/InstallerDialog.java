@@ -19,7 +19,8 @@ package ru.woesss.j2me.installer;
 import android.annotation.SuppressLint;
 import android.app.Dialog;
 import android.content.Context;
-import android.content.DialogInterface;
+import android.graphics.Color;
+import android.graphics.drawable.ColorDrawable;
 import android.graphics.drawable.Drawable;
 import android.net.Uri;
 import android.os.Bundle;
@@ -110,14 +111,8 @@ public class InstallerDialog extends DialogFragment {
 	public Dialog onCreateDialog(@Nullable Bundle savedInstanceState) {
 		binding = DialogInstallerBinding.inflate(LayoutInflater.from(getContext()));
 		mDialog = new AlertDialog.Builder(requireActivity(), getTheme())
-				.setIcon(R.mipmap.ic_launcher)
 				.setView(binding.getRoot())
-				.setTitle("MIDlet installer")
-				.setMessage("")
 				.setCancelable(false)
-				.setPositiveButton(R.string.install, null)
-				.setNegativeButton(android.R.string.cancel, null)
-				.setNeutralButton(R.string.START_CMD, null)
 				.create();
 		return mDialog;
 	}
@@ -140,9 +135,15 @@ public class InstallerDialog extends DialogFragment {
 		if (installer != null) {
 			return;
 		}
-		btnOk = mDialog.getButton(DialogInterface.BUTTON_POSITIVE);
-		btnClose = mDialog.getButton(DialogInterface.BUTTON_NEGATIVE);
-		btnRun = mDialog.getButton(DialogInterface.BUTTON_NEUTRAL);
+		if (mDialog.getWindow() != null) {
+			mDialog.getWindow().setBackgroundDrawable(new ColorDrawable(Color.TRANSPARENT));
+		}
+		btnOk = binding.buttonInstall;
+		btnClose = binding.buttonClose;
+		btnRun = binding.buttonStart;
+		binding.installerTitle.setText("MIDlet installer");
+		binding.installerMessage.setText("");
+		binding.installerIcon.setImageResource(R.mipmap.ic_launcher);
 		hideButtons();
 		Bundle args = requireArguments();
 		Uri uri = args.getParcelable(ARG_URI);
@@ -218,7 +219,7 @@ public class InstallerDialog extends DialogFragment {
 	private void convert() {
 		Descriptor nd = installer.getNewDescriptor();
 		SpannableStringBuilder info = nd.getInfo(requireActivity());
-		mDialog.setMessage(info);
+		binding.installerMessage.setText(info);
 		binding.installationStatus.setText(R.string.converting_wait);
 		showProgress();
 		hideButtons();
@@ -234,7 +235,7 @@ public class InstallerDialog extends DialogFragment {
 		hideProgress();
 		mDialog.setCancelable(false);
 		mDialog.setCanceledOnTouchOutside(false);
-		mDialog.setMessage(message);
+		binding.installerMessage.setText(message);
 		btnOk.setOnClickListener(positive);
 		showButtons();
 	}
@@ -243,7 +244,7 @@ public class InstallerDialog extends DialogFragment {
 		hideProgress();
 		mDialog.setCancelable(false);
 		mDialog.setCanceledOnTouchOutside(false);
-		mDialog.setMessage(getString(R.string.install_jar_needed));
+		binding.installerMessage.setText(getString(R.string.install_jar_needed));
 		btnOk.setOnClickListener(positive);
 		showButtons();
 	}
@@ -257,7 +258,8 @@ public class InstallerDialog extends DialogFragment {
 			binding.installationStatus.setText(getString(R.string.install_done));
 			AppItem app = installer.getExistsApp();
 			Drawable drawable = Drawable.createFromPath(app.getImagePathExt());
-			if (drawable != null) mDialog.setIcon(drawable);
+			if (drawable != null) binding.installerIcon.setImageDrawable(drawable);
+			binding.installerTitle.setText(app.getTitle());
 			btnOk.setText(R.string.START_CMD);
 			btnOk.setOnClickListener(v -> {
 				Config.startApp(v.getContext(), app.getTitle(), app.getPathExt(), false);
@@ -315,11 +317,11 @@ public class InstallerDialog extends DialogFragment {
 			message.append('\n').append(getString(R.string.warn_install_from_net));
 		}
 		Drawable drawable = Drawable.createFromPath(installer.getIconPath());
-		if (drawable != null) mDialog.setIcon(drawable);
-		mDialog.setTitle(nd.getName());
+		if (drawable != null) binding.installerIcon.setImageDrawable(drawable);
+		binding.installerTitle.setText(nd.getName());
 		mDialog.setCancelable(false);
 		mDialog.setCanceledOnTouchOutside(false);
-		mDialog.setMessage(message);
+		binding.installerMessage.setText(message);
 		btnOk.setOnClickListener(v -> convert());
 		hideProgress();
 		showButtons();
