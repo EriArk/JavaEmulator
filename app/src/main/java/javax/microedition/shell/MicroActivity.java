@@ -516,6 +516,10 @@ public class MicroActivity extends AppCompatActivity {
 			microLoader.cycleScreenScaleType();
 			applyRuntimeDisplaySettings(false);
 		});
+		binding.quickSettingsQuality.setOnClickListener(v -> {
+			microLoader.cycleDisplayPreset();
+			applyRuntimeDisplaySettings(false);
+		});
 		updateQuickSettingsLabels();
 	}
 
@@ -547,7 +551,9 @@ public class MicroActivity extends AppCompatActivity {
 			setOrientation(microLoader.getOrientation());
 		}
 		if (current instanceof Canvas) {
-			((Canvas) current).updateSize();
+			Canvas canvas = (Canvas) current;
+			canvas.updateSize();
+			canvas.updateRenderingSettings();
 		}
 		updateQuickSettingsLabels();
 		scheduleQuickSettingsHide();
@@ -557,16 +563,20 @@ public class MicroActivity extends AppCompatActivity {
 		if (binding == null || microLoader == null) {
 			return;
 		}
-		String[] orientationLabels = getResources().getStringArray(R.array.PREF_ORIENTATION_ENTRIES);
-		String[] scaleLabels = getResources().getStringArray(R.array.pref_scale_type_entries);
+		String[] orientationLabels = {"Default", "Auto", "Port", "Land"};
+		String[] scaleLabels = {"1:1", "Fit", "Full"};
+		String[] presetLabels = getResources().getStringArray(R.array.quick_display_preset_entries);
 		int orientation = clampIndex(microLoader.getOrientation(), orientationLabels.length);
 		int scaleType = clampIndex(microLoader.getScreenScaleType(), scaleLabels.length);
+		int preset = clampIndex(microLoader.getDisplayPreset(), presetLabels.length);
 		binding.quickSettingsSize.setText(getString(R.string.quick_settings_size)
 				+ "\n" + microLoader.getScreenScaleRatio() + "%");
 		binding.quickSettingsOrientation.setText(getString(R.string.quick_settings_orientation)
 				+ "\n" + orientationLabels[orientation]);
 		binding.quickSettingsScaleType.setText(getString(R.string.quick_settings_scale)
 				+ "\n" + scaleLabels[scaleType]);
+		binding.quickSettingsQuality.setText(getString(R.string.quick_settings_look)
+				+ "\n" + presetLabels[preset]);
 	}
 
 	private int clampIndex(int index, int size) {

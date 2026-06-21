@@ -63,4 +63,10 @@
         <item>@string/pref_screen_gravity_right</item>
         <item>@string/pref_screen_gravity_bottom</item>
     </string-array>
+    <string-array name="quick_display_preset_entries">
+        <item>@string/quick_display_preset_pixel</item>
+        <item>@string/quick_display_preset_smooth</item>
+        <item>@string/quick_display_preset_sharp</item>
+        <item>@string/quick_display_preset_full</item>
+    </string-array>
 </resources>

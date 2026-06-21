@@ -44,6 +44,10 @@ public class CanvasWrapper {
 		textCenterOffset = ((descent + textAscent) / 2);
 	}
 
+	public void setFilterBitmap(boolean filterBitmap) {
+		imgPaint.setFilterBitmap(filterBitmap);
+	}
+
 	public void bind(Canvas canvas) {
 		this.canvas = canvas;
 	}

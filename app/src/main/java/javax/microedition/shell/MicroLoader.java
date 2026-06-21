@@ -85,6 +85,10 @@ public class MicroLoader {
 	private final String appDirName;
 	private ProfileModel params;
 	private static final int[] QUICK_SCALE_RATIOS = {70, 85, 100};
+	static final int DISPLAY_PRESET_PIXEL = 0;
+	static final int DISPLAY_PRESET_SMOOTH = 1;
+	static final int DISPLAY_PRESET_SHARP = 2;
+	static final int DISPLAY_PRESET_FULL = 3;
 
 	MicroLoader(Context context, String appPath) {
 		this.context = context;
@@ -251,6 +255,49 @@ public class MicroLoader {
 		return params.screenScaleType;
 	}
 
+	int getDisplayPreset() {
+		if (params.screenScaleType == 2) {
+			return DISPLAY_PRESET_FULL;
+		}
+		if (params.screenFilter) {
+			return DISPLAY_PRESET_SMOOTH;
+		}
+		if (params.screenScaleType == 0) {
+			return DISPLAY_PRESET_PIXEL;
+		}
+		return DISPLAY_PRESET_SHARP;
+	}
+
+	int cycleDisplayPreset() {
+		int preset = (getDisplayPreset() + 1) % 4;
+		applyDisplayPreset(preset);
+		return preset;
+	}
+
+	private void applyDisplayPreset(int preset) {
+		params.screenScaleRatio = 100;
+		switch (preset) {
+			case DISPLAY_PRESET_PIXEL:
+				params.screenScaleType = 0;
+				params.screenFilter = false;
+				break;
+			case DISPLAY_PRESET_SMOOTH:
+				params.screenScaleType = 1;
+				params.screenFilter = true;
+				break;
+			case DISPLAY_PRESET_FULL:
+				params.screenScaleType = 2;
+				params.screenFilter = true;
+				break;
+			case DISPLAY_PRESET_SHARP:
+			default:
+				params.screenScaleType = 1;
+				params.screenFilter = false;
+				break;
+		}
+		saveDisplayConfiguration();
+	}
+
 	int cycleOrientation() {
 		params.orientation = (params.orientation + 1) % 4;
 		saveDisplayConfiguration();
@@ -388,6 +435,7 @@ public class MicroLoader {
 		params.touchInput = false;
 		ProfilesManager.saveConfig(params);
 		Canvas.setScale(params.screenGravity, params.screenScaleType, params.screenScaleRatio);
+		Canvas.setFilterBitmap(params.screenFilter);
 	}
 
 	private int nextValue(int[] values, int current) {

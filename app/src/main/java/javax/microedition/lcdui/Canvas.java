@@ -201,6 +201,14 @@ public abstract class Canvas extends Displayable {
 		Canvas.filter = filter;
 	}
 
+	public void updateRenderingSettings() {
+		canvasWrapper.setFilterBitmap(filter);
+		if (renderer != null) {
+			renderer.updateFilter();
+		}
+		repaintInternal();
+	}
+
 	public static void setHasTouchInput(boolean touchInput) {
 		Canvas.touchInput = touchInput;
 	}
@@ -826,6 +834,17 @@ public abstract class Canvas extends Displayable {
 
 			// юнит текстуры
 			glUniform1i(program.uTextureUnit, 0);
+		}
+
+		public void updateFilter() {
+			if (!isStarted) {
+				return;
+			}
+			mView.queueEvent(() -> {
+				glBindTexture(GL_TEXTURE_2D, bgTextureId[0]);
+				glTexParameteri(GLES20.GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, filter ? GL_LINEAR : GL_NEAREST);
+				glTexParameteri(GLES20.GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, filter ? GL_LINEAR : GL_NEAREST);
+			});
 		}
 
 		public void updateSize(float gl, float gt, float gr, float gb, float th, float tw) {
