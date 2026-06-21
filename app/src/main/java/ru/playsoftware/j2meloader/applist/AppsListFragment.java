@@ -515,11 +515,10 @@ public class AppsListFragment extends Fragment implements AppsListAdapter.Listen
 			binding.detailCover.setScaleType(ImageView.ScaleType.CENTER_CROP);
 			binding.detailCover.setImageDrawable(cover);
 		} else {
-			Drawable icon = Drawable.createFromPath(item.getImagePathExt());
+			Bitmap icon = IconArtUtils.loadLargeIcon(item.getImagePathExt(), dp(210));
 			if (icon != null) {
-				icon.setFilterBitmap(false);
 				binding.detailCover.setScaleType(ImageView.ScaleType.CENTER_INSIDE);
-				binding.detailCover.setImageDrawable(icon);
+				binding.detailCover.setImageBitmap(icon);
 			} else {
 				binding.detailCover.setScaleType(ImageView.ScaleType.CENTER_INSIDE);
 				binding.detailCover.setImageResource(R.mipmap.ic_launcher);
@@ -529,6 +528,10 @@ public class AppsListFragment extends Fragment implements AppsListAdapter.Listen
 		String author = item.getAuthor() == null ? "" : item.getAuthor();
 		String version = item.getVersion() == null ? "" : item.getVersion();
 		binding.detailMeta.setText(author + "  " + version);
+	}
+
+	private int dp(int value) {
+		return Math.round(value * getResources().getDisplayMetrics().density);
 	}
 
 	private void updateClock() {

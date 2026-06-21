@@ -17,6 +17,7 @@
 
 package ru.playsoftware.j2meloader.applist;
 
+import android.graphics.Bitmap;
 import android.graphics.drawable.Drawable;
 import android.text.TextUtils;
 import android.view.LayoutInflater;
@@ -126,10 +127,9 @@ public class AppsListAdapter extends RecyclerView.Adapter<AppsListAdapter.ViewHo
 				binding.cover.setImageDrawable(null);
 				binding.cover.setVisibility(View.GONE);
 			}
-			Drawable icon = Drawable.createFromPath(item.getImagePathExt());
+			Bitmap icon = IconArtUtils.loadLargeIcon(item.getImagePathExt(), iconBitmapSize(displayMode));
 			if (icon != null) {
-				icon.setFilterBitmap(false);
-				binding.icon.setImageDrawable(icon);
+				binding.icon.setImageBitmap(icon);
 			} else {
 				binding.icon.setImageResource(R.mipmap.ic_launcher);
 			}
@@ -167,7 +167,8 @@ public class AppsListAdapter extends RecyclerView.Adapter<AppsListAdapter.ViewHo
 						ViewGroup.LayoutParams.WRAP_CONTENT, 1);
 				textLp.setMargins(0, 0, 0, 0);
 				text.setLayoutParams(textLp);
-				binding.icon.setLayoutParams(centerIconParams(dp(56)));
+				binding.icon.setPadding(dp(3), dp(3), dp(3), dp(3));
+				binding.icon.setLayoutParams(centerIconParams(dp(64)));
 				binding.name.setMaxLines(1);
 			} else {
 				root.setOrientation(LinearLayout.VERTICAL);
@@ -180,7 +181,8 @@ public class AppsListAdapter extends RecyclerView.Adapter<AppsListAdapter.ViewHo
 						ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT);
 				textLp.setMargins(0, dp(8), 0, 0);
 				text.setLayoutParams(textLp);
-				binding.icon.setLayoutParams(centerIconParams(mode == MODE_GALLERY ? dp(64) : dp(72)));
+				binding.icon.setPadding(dp(3), dp(3), dp(3), dp(3));
+				binding.icon.setLayoutParams(centerIconParams(mode == MODE_GALLERY ? dp(88) : dp(78)));
 				binding.name.setMaxLines(2);
 			}
 		}
@@ -198,6 +200,13 @@ public class AppsListAdapter extends RecyclerView.Adapter<AppsListAdapter.ViewHo
 			FrameLayout.LayoutParams lp = new FrameLayout.LayoutParams(size, size);
 			lp.gravity = android.view.Gravity.CENTER;
 			return lp;
+		}
+
+		private int iconBitmapSize(int mode) {
+			if (mode == MODE_LIST) {
+				return dp(58);
+			}
+			return mode == MODE_GALLERY ? dp(82) : dp(72);
 		}
 
 		private int dp(int value) {

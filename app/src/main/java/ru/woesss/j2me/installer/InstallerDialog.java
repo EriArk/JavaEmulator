@@ -19,6 +19,7 @@ package ru.woesss.j2me.installer;
 import android.annotation.SuppressLint;
 import android.app.Dialog;
 import android.content.Context;
+import android.graphics.Bitmap;
 import android.graphics.Color;
 import android.graphics.drawable.ColorDrawable;
 import android.graphics.drawable.Drawable;
@@ -45,6 +46,7 @@ import io.reactivex.schedulers.Schedulers;
 import ru.playsoftware.j2meloader.R;
 import ru.playsoftware.j2meloader.applist.AppItem;
 import ru.playsoftware.j2meloader.applist.AppListModel;
+import ru.playsoftware.j2meloader.applist.IconArtUtils;
 import ru.playsoftware.j2meloader.appsdb.AppRepository;
 import ru.playsoftware.j2meloader.config.Config;
 import ru.playsoftware.j2meloader.databinding.DialogInstallerBinding;
@@ -257,8 +259,7 @@ public class InstallerDialog extends DialogFragment {
 			binding.installationProgress.setVisibility(View.GONE);
 			binding.installationStatus.setText(getString(R.string.install_done));
 			AppItem app = installer.getExistsApp();
-			Drawable drawable = Drawable.createFromPath(app.getImagePathExt());
-			if (drawable != null) binding.installerIcon.setImageDrawable(drawable);
+			setInstallerIcon(app.getImagePathExt());
 			binding.installerTitle.setText(app.getTitle());
 			btnOk.setText(R.string.START_CMD);
 			btnOk.setOnClickListener(v -> {
@@ -316,8 +317,7 @@ public class InstallerDialog extends DialogFragment {
 		if (installer.getJar() == null) {
 			message.append('\n').append(getString(R.string.warn_install_from_net));
 		}
-		Drawable drawable = Drawable.createFromPath(installer.getIconPath());
-		if (drawable != null) binding.installerIcon.setImageDrawable(drawable);
+		setInstallerIcon(installer.getIconPath());
 		binding.installerTitle.setText(nd.getName());
 		mDialog.setCancelable(false);
 		mDialog.setCanceledOnTouchOutside(false);
@@ -325,6 +325,22 @@ public class InstallerDialog extends DialogFragment {
 		btnOk.setOnClickListener(v -> convert());
 		hideProgress();
 		showButtons();
+	}
+
+	private void setInstallerIcon(String path) {
+		Bitmap icon = IconArtUtils.loadLargeIcon(path, dp(56));
+		if (icon != null) {
+			binding.installerIcon.setImageBitmap(icon);
+			return;
+		}
+		Drawable drawable = Drawable.createFromPath(path);
+		if (drawable != null) {
+			binding.installerIcon.setImageDrawable(drawable);
+		}
+	}
+
+	private int dp(int value) {
+		return Math.round(value * getResources().getDisplayMetrics().density);
 	}
 
 	private void onError(Throwable e) {
