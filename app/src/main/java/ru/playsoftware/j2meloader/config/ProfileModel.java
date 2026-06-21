@@ -168,6 +168,15 @@ public class ProfileModel {
 	@SerializedName("SystemProperties")
 	public String systemProperties;
 
+	@SerializedName("CompatibilityTested")
+	public boolean compatibilityTested;
+
+	@SerializedName("CompatibilityProfile")
+	public String compatibilityProfile;
+
+	@SerializedName("CompatibilityScore")
+	public int compatibilityScore;
+
 	public static class KeyMappingProfile {
 		@SerializedName("Name")
 		public String name;

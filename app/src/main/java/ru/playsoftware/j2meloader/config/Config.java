@@ -129,9 +129,16 @@ public class Config {
 		File appDir = new File(path);
 		String workDir = appDir.getParentFile().getParent();
 		File file = new File(workDir + Config.MIDLET_CONFIGS_DIR + appDir.getName());
-		if (showSettings || !file.exists()) {
+		File config = new File(file, Config.MIDLET_CONFIG_FILE);
+		if (showSettings) {
 			Intent intent = new Intent(ACTION_EDIT, Uri.parse(path),
 					context, ConfigActivity.class);
+			intent.putExtra(KEY_MIDLET_NAME, name);
+			intent.putExtra(KEY_START_ARGUMENTS, arguments);
+			context.startActivity(intent);
+		} else if (!config.exists()) {
+			Intent intent = new Intent(Intent.ACTION_DEFAULT, Uri.parse(path),
+					context, CompatibilityTestActivity.class);
 			intent.putExtra(KEY_MIDLET_NAME, name);
 			intent.putExtra(KEY_START_ARGUMENTS, arguments);
 			context.startActivity(intent);
