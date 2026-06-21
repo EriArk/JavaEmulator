@@ -7,12 +7,18 @@
 package ru.playsoftware.j2meloader.config;
 
 import android.content.Context;
+import android.graphics.BitmapFactory;
 
 import java.io.File;
+import java.io.FileInputStream;
+import java.io.InputStream;
+import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.LinkedHashMap;
 import java.util.Locale;
 import java.util.Map;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipFile;
 
@@ -42,6 +48,8 @@ final class CompatibilityProfileTester {
 	private static final String PROFILE_MOTOROLA = "Motorola";
 	private static final String PROFILE_SIEMENS = "Siemens";
 	private static final String PROFILE_SAMSUNG = "Samsung";
+	private static final Pattern RESOLUTION_PATTERN = Pattern.compile(
+			"(?<!\\d)(128|176|208|240|320|352|360|480|640)[x*_ -](128|160|176|208|220|240|320|352|360|416|480|640)(?!\\d)");
 
 	private CompatibilityProfileTester() {
 	}
@@ -52,7 +60,8 @@ final class CompatibilityProfileTester {
 		sleepBriefly();
 
 		callback.onProgress(18, context.getString(R.string.compatibility_test_resources));
-		probe.resourceText = readResourceHints(appDir);
+		readResourceHints(appDir, probe);
+		probe.resourceText += '\n' + readDexHints(appDir);
 		sleepBriefly();
 
 		ArrayList<Candidate> candidates = createCandidates(probe);
@@ -77,6 +86,8 @@ final class CompatibilityProfileTester {
 		params.compatibilityProfile = best.name;
 		params.compatibilityScore = best.score;
 		params.compatibilityTested = true;
+		applyDisplayDefaults(params, probe);
+		params.showKeyboard = false;
 		params.touchInput = false;
 		ProfilesManager.saveConfig(params);
 		sleepBriefly();
@@ -93,6 +104,7 @@ final class CompatibilityProfileTester {
 				text.append(entry.getKey()).append(' ').append(entry.getValue()).append('\n');
 			}
 			probe.manifestText = text.toString().toLowerCase(Locale.US);
+			readResolutionHints(probe, probe.manifestText, 320);
 		} catch (Exception ignored) {
 			probe.attrs = new LinkedHashMap<>();
 			probe.manifestText = "";
@@ -100,10 +112,11 @@ final class CompatibilityProfileTester {
 		return probe;
 	}
 
-	private static String readResourceHints(File appDir) {
+	private static void readResourceHints(File appDir, Probe probe) {
 		File resJar = new File(appDir, Config.MIDLET_RES_FILE);
 		if (!resJar.exists()) {
-			return "";
+			probe.resourceText = "";
+			return;
 		}
 		StringBuilder text = new StringBuilder();
 		try (ZipFile zip = new ZipFile(resJar)) {
@@ -113,10 +126,42 @@ final class CompatibilityProfileTester {
 					break;
 				}
 				text.append(entry.getName()).append('\n');
+				String lower = entry.getName().toLowerCase(Locale.US);
+				if (isImageFile(lower)) {
+					BitmapFactory.Options options = new BitmapFactory.Options();
+					options.inJustDecodeBounds = true;
+					try (InputStream stream = zip.getInputStream(entry)) {
+						BitmapFactory.decodeStream(stream, null, options);
+						rememberScreenCandidate(probe, lower, options.outWidth, options.outHeight, 0);
+					} catch (Exception ignored) {
+					}
+				}
 			}
 		} catch (Exception ignored) {
 		}
-		return text.toString().toLowerCase(Locale.US);
+		probe.resourceText = text.toString().toLowerCase(Locale.US);
+		readResolutionHints(probe, probe.resourceText, 80);
+	}
+
+	private static String readDexHints(File appDir) {
+		File dex = new File(appDir, Config.MIDLET_DEX_FILE);
+		if (!dex.exists() || dex.length() <= 0 || dex.length() > 12 * 1024 * 1024) {
+			return "";
+		}
+		byte[] data = new byte[(int) dex.length()];
+		try (FileInputStream in = new FileInputStream(dex)) {
+			int offset = 0;
+			while (offset < data.length) {
+				int read = in.read(data, offset, data.length - offset);
+				if (read < 0) {
+					break;
+				}
+				offset += read;
+			}
+		} catch (Exception ignored) {
+			return "";
+		}
+		return new String(data, StandardCharsets.ISO_8859_1).toLowerCase(Locale.US);
 	}
 
 	private static ArrayList<Candidate> createCandidates(Probe probe) {
@@ -125,14 +170,14 @@ final class CompatibilityProfileTester {
 		ArrayList<Candidate> candidates = new ArrayList<>();
 		candidates.add(new Candidate(PROFILE_GENERIC, 24, baseProperties(
 				"J2ME-Loader/Auto", profile, configuration)));
-		candidates.add(new Candidate(PROFILE_NOKIA, 48, nokiaProperties(profile, configuration)));
-		candidates.add(new Candidate(PROFILE_SONY_ERICSSON, 44,
+		candidates.add(new Candidate(PROFILE_NOKIA, 28, nokiaProperties(profile, configuration)));
+		candidates.add(new Candidate(PROFILE_SONY_ERICSSON, 28,
 				sonyEricssonProperties(profile, configuration)));
-		candidates.add(new Candidate(PROFILE_MOTOROLA, 34,
+		candidates.add(new Candidate(PROFILE_MOTOROLA, 26,
 				baseProperties("Motorola V3x", profile, configuration)));
-		candidates.add(new Candidate(PROFILE_SIEMENS, 32,
+		candidates.add(new Candidate(PROFILE_SIEMENS, 26,
 				siemensProperties(profile, configuration)));
-		candidates.add(new Candidate(PROFILE_SAMSUNG, 32,
+		candidates.add(new Candidate(PROFILE_SAMSUNG, 26,
 				baseProperties("SAMSUNG-SGH-D900", profile, configuration)));
 		return candidates;
 	}
@@ -141,18 +186,22 @@ final class CompatibilityProfileTester {
 		String text = probe.manifestText + '\n' + probe.resourceText;
 		int score = 0;
 		if (PROFILE_NOKIA.equals(candidate.name)) {
-			score += scoreHints(text, "nokia", "s40", "series40", "series 40", "6233", "n73");
+			score += scoreHints(text, "nokia", "s40", "series40", "series 40", "6233", "n73",
+					"com/nokia", "com.nokia", "directgraphics");
 			if (hasAttrPrefix(probe, "Nokia-")) {
 				score += 80;
 			}
 		} else if (PROFILE_SONY_ERICSSON.equals(candidate.name)) {
-			score += scoreHints(text, "sony", "ericsson", "sonyericsson", "k800", "jp-8", "jp8");
+			score += scoreHints(text, "sony", "ericsson", "sonyericsson", "sony ericsson",
+					"k800", "jp-8", "jp8", "com/sonyericsson", "com.sonyericsson",
+					"com/semc", "com.semc");
 		} else if (PROFILE_MOTOROLA.equals(candidate.name)) {
-			score += scoreHints(text, "motorola", "moto", "v3", "v3x", "razr");
+			score += scoreHints(text, "motorola", "moto", "v3", "v3x", "razr",
+					"com/motorola", "com.motorola");
 		} else if (PROFILE_SIEMENS.equals(candidate.name)) {
-			score += scoreHints(text, "siemens", "s65", "cx65");
+			score += scoreHints(text, "siemens", "s65", "cx65", "com/siemens", "com.siemens");
 		} else if (PROFILE_SAMSUNG.equals(candidate.name)) {
-			score += scoreHints(text, "samsung", "sgh", "d900", "e250");
+			score += scoreHints(text, "samsung", "sgh", "d900", "e250", "com/samsung", "com.samsung");
 		}
 		if (text.contains("mascot") || text.contains(".m3g")) {
 			score += 6;
@@ -164,6 +213,89 @@ final class CompatibilityProfileTester {
 			score += 10;
 		}
 		return score;
+	}
+
+	private static boolean isImageFile(String lowerName) {
+		return lowerName.endsWith(".png")
+				|| lowerName.endsWith(".jpg")
+				|| lowerName.endsWith(".jpeg");
+	}
+
+	private static void readResolutionHints(Probe probe, String text, int bonus) {
+		Matcher matcher = RESOLUTION_PATTERN.matcher(text);
+		while (matcher.find()) {
+			try {
+				int width = Integer.parseInt(matcher.group(1));
+				int height = Integer.parseInt(matcher.group(2));
+				rememberScreenCandidate(probe, "declared-resolution", width, height, bonus);
+			} catch (NumberFormatException ignored) {
+			}
+		}
+	}
+
+	private static void rememberScreenCandidate(Probe probe, String name, int width, int height, int bonus) {
+		if (width < 96 || height < 96 || width > 640 || height > 640) {
+			return;
+		}
+		int score = scoreScreenCandidate(name, width, height) + bonus;
+		if (score > probe.screenScore) {
+			probe.screenScore = score;
+			probe.screenWidth = width;
+			probe.screenHeight = height;
+		}
+	}
+
+	private static int scoreScreenCandidate(String name, int width, int height) {
+		int area = width * height;
+		int score = area / 512;
+		if (isKnownJ2meResolution(width, height)) {
+			score += 180;
+		}
+		if (name.contains("splash") || name.contains("title") || name.contains("menu")
+				|| name.contains("background") || name.contains("loading")) {
+			score += 160;
+		}
+		if (name.contains("font") || name.contains("sprite") || name.contains("icon")
+				|| name.contains("button") || name.contains("tile") || name.contains("digit")
+				|| name.contains("logo")) {
+			score -= 180;
+		}
+		float ratio = width / (float) height;
+		if ((ratio >= 0.45f && ratio <= 0.85f) || (ratio >= 1.2f && ratio <= 2.2f)) {
+			score += 40;
+		}
+		return score;
+	}
+
+	private static boolean isKnownJ2meResolution(int width, int height) {
+		return matchesResolution(width, height, 128, 128)
+				|| matchesResolution(width, height, 128, 160)
+				|| matchesResolution(width, height, 176, 208)
+				|| matchesResolution(width, height, 176, 220)
+				|| matchesResolution(width, height, 208, 208)
+				|| matchesResolution(width, height, 240, 320)
+				|| matchesResolution(width, height, 320, 240)
+				|| matchesResolution(width, height, 352, 416)
+				|| matchesResolution(width, height, 360, 640);
+	}
+
+	private static boolean matchesResolution(int width, int height, int expectedWidth, int expectedHeight) {
+		return (width == expectedWidth && height == expectedHeight)
+				|| (width == expectedHeight && height == expectedWidth);
+	}
+
+	private static void applyDisplayDefaults(ProfileModel params, Probe probe) {
+		if (probe.screenWidth > 0 && probe.screenHeight > 0) {
+			params.screenWidth = probe.screenWidth;
+			params.screenHeight = probe.screenHeight;
+		}
+		params.screenScaleType = 1;
+		params.screenScaleRatio = 100;
+		params.screenGravity = 2;
+		params.forceFullscreen = true;
+		if (params.screenWidth > params.screenHeight) {
+			params.orientation = 3;
+		}
 	}
 
 	private static int scoreHints(String text, String... hints) {
@@ -281,5 +413,8 @@ final class CompatibilityProfileTester {
 		Map<String, String> attrs = new LinkedHashMap<>();
 		String manifestText = "";
 		String resourceText = "";
+		int screenWidth;
+		int screenHeight;
+		int screenScore;
 	}
 }

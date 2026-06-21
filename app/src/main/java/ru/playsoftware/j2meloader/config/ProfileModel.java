@@ -219,7 +219,7 @@ public class ProfileModel {
 		fontSizeLarge = 26;
 		fontAA = true;
 
-		showKeyboard = true;
+		showKeyboard = false;
 		touchInput = false;
 
 		vkButtonShape = VirtualKeyboard.ROUND_RECT_SHAPE;

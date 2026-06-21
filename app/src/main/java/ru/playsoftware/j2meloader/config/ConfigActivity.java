@@ -584,9 +584,10 @@ public class ConfigActivity extends BaseActivity implements View.OnClickListener
 		binding.fontSizeLarge.setText(Integer.toString(params.fontSizeLarge));
 		binding.showFontSizesInScaledPixelsToggle.setChecked(params.fontApplyDimensions);
 		binding.enableAntiAliasingToggle.setChecked(params.fontAA);
-		boolean showVk = params.showKeyboard;
-		binding.showVirtualKeyboardToggle.setChecked(showVk);
-		binding.virtualKeyboardConfigGroup.setVisibility(showVk ? View.VISIBLE : View.GONE);
+		boolean showVk = false;
+		binding.showVirtualKeyboardToggle.setChecked(false);
+		binding.showVirtualKeyboardToggle.setVisibility(View.GONE);
+		binding.virtualKeyboardConfigGroup.setVisibility(View.GONE);
 		binding.enableHapticFeedbackToggle.setChecked(params.vkFeedback);
 		binding.forceOpacityForOffscreenKeysToggle.setChecked(params.vkForceOpacity);
 		binding.enableTouchInputToggle.setVisibility(View.GONE);
@@ -664,7 +665,7 @@ public class ConfigActivity extends BaseActivity implements View.OnClickListener
 			}
 			params.fontApplyDimensions = binding.showFontSizesInScaledPixelsToggle.isChecked();
 			params.fontAA = binding.enableAntiAliasingToggle.isChecked();
-			params.showKeyboard = binding.showVirtualKeyboardToggle.isChecked();
+			params.showKeyboard = false;
 			params.vkFeedback = binding.enableHapticFeedbackToggle.isChecked();
 			params.vkForceOpacity = binding.forceOpacityForOffscreenKeysToggle.isChecked();
 			params.touchInput = false;

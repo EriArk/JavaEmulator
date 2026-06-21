@@ -265,11 +265,9 @@ public class MicroLoader {
 	void applyConfiguration() {
 		try {
 			// Apply configuration to the launching MIDlet
-			if (params.showKeyboard) {
-				ContextHolder.setVk(new VirtualKeyboard(params));
-			} else {
-				ContextHolder.setVk(null);
-			}
+			params.showKeyboard = false;
+			params.touchInput = false;
+			ContextHolder.setVk(null);
 			setProperties();
 
 			final String[] propLines = params.systemProperties.split("\n");

@@ -303,7 +303,7 @@ public class AppInstaller {
 		}
 		File resJar = new File(tmpDir, Config.MIDLET_RES_FILE);
 		FileUtils.copyFileUsingChannel(srcJar, resJar);
-		String icon = newDesc.getIcon();
+		String icon = findIconEntry(resJar, newDesc.getIcon());
 		File iconFile = new File(tmpDir, Config.MIDLET_ICON_FILE);
 		if (icon != null) {
 			try {
@@ -408,6 +408,44 @@ public class AppInstaller {
 		return bestScore > 0 ? best : null;
 	}
 
+	private String findIconEntry(File jar, String preferredIconPath) {
+		String best = null;
+		int bestScore = Integer.MIN_VALUE;
+		String preferred = preferredIconPath == null ? null : preferredIconPath.toLowerCase(Locale.US);
+		try (ZipFile zip = new ZipFile(jar)) {
+			List<FileHeader> headers = zip.getFileHeaders();
+			for (FileHeader header : headers) {
+				if (header.isDirectory()) {
+					continue;
+				}
+				String name = header.getFileName();
+				String lower = name.toLowerCase(Locale.US);
+				if (!isImageFile(lower)) {
+					continue;
+				}
+				BitmapFactory.Options options = new BitmapFactory.Options();
+				options.inJustDecodeBounds = true;
+				try (InputStream stream = zip.getInputStream(header)) {
+					BitmapFactory.decodeStream(stream, null, options);
+				} catch (Exception ignored) {
+					continue;
+				}
+				if (options.outWidth <= 0 || options.outHeight <= 0) {
+					continue;
+				}
+				boolean isPreferred = preferred != null && lower.equals(preferred);
+				int score = scoreIconCandidate(lower, options.outWidth, options.outHeight, isPreferred);
+				if (score > bestScore) {
+					bestScore = score;
+					best = name;
+				}
+			}
+		} catch (Exception e) {
+			Log.w(TAG, "Can't scan icon art", e);
+		}
+		return bestScore > 0 ? best : null;
+	}
+
 	private boolean isImageFile(String lowerName) {
 		return lowerName.endsWith(".png")
 				|| lowerName.endsWith(".jpg")
@@ -416,30 +454,69 @@ public class AppInstaller {
 
 	private int scoreCoverCandidate(String name, int width, int height) {
 		int area = width * height;
-		if (area < 4096) {
+		if (area < 12000 || (width <= 72 && height <= 72)) {
 			return -1000;
 		}
 		int score = area / 1024;
 		float ratio = width / (float) height;
 		if (ratio >= 1.45f && ratio <= 2.6f) {
-			score += 180;
-		} else if (ratio >= 0.65f && ratio <= 0.85f && height >= 180) {
+			score += 220;
+		} else if (ratio >= 0.55f && ratio <= 0.85f && height >= 160) {
 			score += 70;
+		} else if (ratio >= 0.9f && ratio <= 1.1f && area < 60000) {
+			score -= 80;
 		}
 		if (name.contains("title") || name.contains("splash")
 				|| name.contains("cover") || name.contains("loading")) {
-			score += 140;
+			score += 180;
 		}
 		if (name.contains("menu/background") || name.contains("background")) {
-			score += 120;
+			score += 160;
 		}
 		if (name.contains("logo")) {
-			score += 50;
+			score += 20;
 		}
 		if (name.contains("font") || name.contains("sprite") || name.contains("button")
 				|| name.contains("tile") || name.contains("level") || name.contains("digit")
-				|| name.contains("icon")) {
-			score -= 180;
+				|| name.contains("icon") || name.contains("arrow") || name.contains("cursor")
+				|| name.contains("hud") || name.contains("gui") || name.contains("soft")) {
+			score -= 260;
+		}
+		return score;
+	}
+
+	private int scoreIconCandidate(String name, int width, int height, boolean preferred) {
+		int area = width * height;
+		if (area < 576) {
+			return preferred ? -50 : -400;
+		}
+		if (width > 192 || height > 192) {
+			return -200;
+		}
+		float ratio = width / (float) height;
+		int score = Math.min(120, area / 32);
+		if (ratio >= 0.75f && ratio <= 1.33f) {
+			score += 140;
+		} else {
+			score -= 120;
+		}
+		if (preferred) {
+			score += width >= 32 && height >= 32 ? 180 : 20;
+		}
+		if (name.contains("icon")) {
+			score += 110;
+		}
+		if (name.contains("logo") || name.contains("midlet")) {
+			score += 70;
+		}
+		if (name.contains("splash") || name.contains("title") || name.contains("background")
+				|| name.contains("cover")) {
+			score -= 80;
+		}
+		if (name.contains("font") || name.contains("sprite") || name.contains("button")
+				|| name.contains("tile") || name.contains("digit") || name.contains("arrow")
+				|| name.contains("hud") || name.contains("gui") || name.contains("cursor")) {
+			score -= 220;
 		}
 		return score;
 	}
