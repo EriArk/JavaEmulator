@@ -43,6 +43,7 @@ import android.text.Editable;
 import android.text.TextWatcher;
 import android.util.Log;
 import android.view.LayoutInflater;
+import android.view.KeyEvent;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
@@ -56,6 +57,7 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import androidx.activity.result.ActivityResultLauncher;
+import androidx.activity.result.contract.ActivityResultContracts;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AlertDialog;
@@ -75,12 +77,16 @@ import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import java.io.File;
+import java.io.FileOutputStream;
+import java.io.InputStream;
 import java.io.IOException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.List;
 import java.util.Locale;
 import java.util.concurrent.TimeUnit;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 
 import io.reactivex.Observable;
 import io.reactivex.ObservableOnSubscribe;
@@ -100,6 +106,7 @@ import ru.playsoftware.j2meloader.util.AppUtils;
 import ru.playsoftware.j2meloader.util.Constants;
 import ru.playsoftware.j2meloader.util.FileUtils;
 import ru.playsoftware.j2meloader.util.LogUtils;
+import ru.playsoftware.j2meloader.catalog.GameFolderIndexer;
 import ru.woesss.j2me.installer.InstallerDialog;
 
 public class AppsListFragment extends Fragment implements AppsListAdapter.Listener {
@@ -112,12 +119,19 @@ public class AppsListFragment extends Fragment implements AppsListAdapter.Listen
 	private AppsListAdapter adapter;
 	private Disposable searchViewDisposable;
 	private AppItem selectedItem;
+	private AppItem artworkTarget;
+	private int category = AppsListAdapter.CATEGORY_LIBRARY;
 
 	private FragmentAppsListBinding binding;
 
 	private final ActivityResultLauncher<String> openFileLauncher = registerForActivityResult(
 			FileUtils.getFilePicker(),
 			this::onPickFileResult);
+	private final ActivityResultLauncher<Uri> openFolderLauncher = registerForActivityResult(
+			new ActivityResultContracts.OpenDocumentTree(), this::onPickFolderResult);
+	private final ActivityResultLauncher<String> artworkLauncher = registerForActivityResult(
+			new ActivityResultContracts.GetContent(), this::onArtworkPicked);
+	private final ExecutorService folderExecutor = Executors.newSingleThreadExecutor();
 
 	public static AppsListFragment newInstance(Uri data) {
 		AppsListFragment fragment = new AppsListFragment();
@@ -165,6 +179,9 @@ public class AppsListFragment extends Fragment implements AppsListAdapter.Listen
 		binding.viewModeList.setOnClickListener(v -> setDisplayMode(AppsListAdapter.MODE_LIST));
 		binding.viewModeGrid.setOnClickListener(v -> setDisplayMode(AppsListAdapter.MODE_GRID));
 		binding.railLibrary.setSelected(true);
+		binding.railLibrary.setOnClickListener(v -> setCategory(AppsListAdapter.CATEGORY_LIBRARY));
+		binding.railRecent.setOnClickListener(v -> setCategory(AppsListAdapter.CATEGORY_RECENT));
+		binding.railFavorites.setOnClickListener(v -> setCategory(AppsListAdapter.CATEGORY_FAVORITES));
 		binding.librarySearch.addTextChangedListener(new TextWatcher() {
 			@Override
 			public void beforeTextChanged(CharSequence s, int start, int count, int after) {
@@ -181,10 +198,9 @@ public class AppsListFragment extends Fragment implements AppsListAdapter.Listen
 		});
 		binding.librarySort.setOnClickListener(v -> showSortDialog());
 		binding.railAddGame.setOnClickListener(v -> openLastDirectory());
+		binding.railFolders.setOnClickListener(v -> openFolderLauncher.launch(null));
 		binding.railSettings.setOnClickListener(v ->
 				startActivity(new Intent(requireActivity(), SettingsActivity.class)));
-		binding.railProfiles.setOnClickListener(v ->
-				startActivity(new Intent(requireActivity(), ProfilesActivity.class)));
 		binding.detailPlay.setOnClickListener(v -> {
 			if (selectedItem != null) {
 				startApp(selectedItem, false);
@@ -195,6 +211,7 @@ public class AppsListFragment extends Fragment implements AppsListAdapter.Listen
 				startApp(selectedItem, true);
 			}
 		});
+		binding.detailFavorite.setOnClickListener(v -> toggleSelectedFavorite());
 		binding.floatingActionButton.setOnClickListener(v -> openLastDirectory());
 		updateClock();
 		applyDisplayMode();
@@ -221,6 +238,20 @@ public class AppsListFragment extends Fragment implements AppsListAdapter.Listen
 		adapter.setDisplayMode(mode);
 		preferences.edit().putInt(PREF_LIBRARY_VIEW_MODE, mode).apply();
 		applyDisplayMode();
+	}
+
+	private void setCategory(int category) {
+		this.category = category;
+		adapter.setCategory(category);
+		binding.railLibrary.setSelected(category == AppsListAdapter.CATEGORY_LIBRARY);
+		binding.railRecent.setSelected(category == AppsListAdapter.CATEGORY_RECENT);
+		binding.railFavorites.setSelected(category == AppsListAdapter.CATEGORY_FAVORITES);
+		int title = category == AppsListAdapter.CATEGORY_RECENT
+				? R.string.launcher_recent
+				: category == AppsListAdapter.CATEGORY_FAVORITES
+				? R.string.launcher_favorites : R.string.library_title;
+		binding.libraryTitle.setText(title);
+		updateDetail(adapter.getFirstItem());
 	}
 
 	private void applyDisplayMode() {
@@ -272,6 +303,51 @@ public class AppsListFragment extends Fragment implements AppsListAdapter.Listen
 				.putString(Constants.PREF_LAST_PATH, FilteredFilePickerFragment.getLastPath())
 				.apply();
 		InstallerDialog.newInstance(uri).show(getParentFragmentManager(), "installer");
+	}
+
+	private void onPickFolderResult(Uri uri) {
+		if (uri == null) {
+			return;
+		}
+		try {
+			requireContext().getContentResolver().takePersistableUriPermission(uri,
+					Intent.FLAG_GRANT_READ_URI_PERMISSION);
+		} catch (SecurityException ignored) {
+		}
+		java.util.Set<String> folders = new java.util.HashSet<>(preferences.getStringSet(
+				"pref_game_folders", java.util.Collections.emptySet()));
+		folders.add(uri.toString());
+		preferences.edit().putStringSet("pref_game_folders", folders).apply();
+		folderExecutor.execute(() -> {
+			List<AppItem> games = GameFolderIndexer.scan(requireContext().getApplicationContext(), uri);
+			appRepository.insert(games);
+			requireActivity().runOnUiThread(() -> Toast.makeText(requireContext(),
+					getString(R.string.folder_indexed, games.size()), Toast.LENGTH_SHORT).show());
+		});
+	}
+
+	private void onArtworkPicked(Uri uri) {
+		AppItem target = artworkTarget;
+		artworkTarget = null;
+		if (uri == null || target == null || !"ready".equals(target.getPreparationState())) {
+			return;
+		}
+		folderExecutor.execute(() -> {
+			File cover = new File(target.getPathExt(), Config.MIDLET_COVER_FILE);
+			try (InputStream input = requireContext().getContentResolver().openInputStream(uri);
+				 FileOutputStream output = new FileOutputStream(cover)) {
+				if (input == null) throw new IOException("Unable to open image");
+				byte[] buffer = new byte[32 * 1024];
+				int read;
+				while ((read = input.read(buffer)) != -1) output.write(buffer, 0, read);
+				target.setCoverPathExt(Config.MIDLET_COVER_FILE);
+				appRepository.update(target);
+				requireActivity().runOnUiThread(() -> updateDetail(target));
+			} catch (IOException e) {
+				requireActivity().runOnUiThread(() -> Toast.makeText(requireContext(),
+						R.string.error, Toast.LENGTH_SHORT).show());
+			}
+		});
 	}
 
 	private void alertRename(AppItem item) {
@@ -332,7 +408,37 @@ public class AppsListFragment extends Fragment implements AppsListAdapter.Listen
 	}
 
 	private void startApp(AppItem item, boolean showSettings) {
+		if (!"ready".equals(item.getPreparationState()) && item.getSourceUri() != null) {
+			InstallerDialog.newInstance(Uri.parse(item.getSourceUri()), true, false)
+					.show(getParentFragmentManager(), "installer");
+			return;
+		}
+		if (!showSettings) {
+			appRepository.recordLaunch(item);
+		}
 		Config.startApp(requireActivity(), item.getTitle(), item.getPathExt(), showSettings);
+	}
+
+	private void toggleSelectedFavorite() {
+		if (selectedItem == null) {
+			return;
+		}
+		appRepository.toggleFavorite(selectedItem);
+		updateDetail(selectedItem);
+	}
+
+	public boolean handleControllerKey(int keyCode) {
+		if (keyCode == KeyEvent.KEYCODE_BUTTON_Y) {
+			toggleSelectedFavorite();
+			return true;
+		}
+		if (keyCode == KeyEvent.KEYCODE_BUTTON_L1 || keyCode == KeyEvent.KEYCODE_BUTTON_R1) {
+			int direction = keyCode == KeyEvent.KEYCODE_BUTTON_R1 ? 1 : -1;
+			int next = (adapter.getDisplayMode() + direction + 3) % 3;
+			setDisplayMode(next);
+			return true;
+		}
+		return false;
 	}
 
 	private void showActions(View anchor, AppItem appItem) {
@@ -344,6 +450,7 @@ public class AppsListFragment extends Fragment implements AppsListAdapter.Listen
 		}
 		if (!new File(appItem.getPathExt() + Config.MIDLET_RES_FILE).exists()) {
 			menu.findItem(R.id.action_context_reinstall).setVisible(false);
+			menu.findItem(R.id.action_context_artwork).setVisible(false);
 		}
 		popup.setOnMenuItemClickListener(item -> {
 			int itemId = item.getItemId();
@@ -353,6 +460,9 @@ public class AppsListFragment extends Fragment implements AppsListAdapter.Listen
 				alertRename(appItem);
 			} else if (itemId == R.id.action_context_settings) {
 				startApp(appItem, true);
+			} else if (itemId == R.id.action_context_artwork) {
+				artworkTarget = appItem;
+				artworkLauncher.launch("image/*");
 			} else if (itemId == R.id.action_context_reinstall) {
 				InstallerDialog.newInstance(appItem.getId()).show(getParentFragmentManager(), "installer");
 			} else if (itemId == R.id.action_context_delete) {
@@ -483,7 +593,7 @@ public class AppsListFragment extends Fragment implements AppsListAdapter.Listen
 	private void onDbUpdated(List<AppItem> items) {
 		adapter.setItems(items);
 		if (appUri != null) {
-			InstallerDialog.newInstance(appUri).show(getParentFragmentManager(), "installer");
+			InstallerDialog.newInstance(appUri, true).show(getParentFragmentManager(), "installer");
 			appUri = null;
 		}
 		updateDetail(adapter.getFirstItem());
@@ -516,15 +626,13 @@ public class AppsListFragment extends Fragment implements AppsListAdapter.Listen
 			binding.detailCover.setImageDrawable(cover);
 		} else {
 			Bitmap icon = IconArtUtils.loadLargeIcon(item.getImagePathExt(), dp(210));
-			if (icon != null) {
-				binding.detailCover.setScaleType(ImageView.ScaleType.CENTER_INSIDE);
-				binding.detailCover.setImageBitmap(icon);
-			} else {
-				binding.detailCover.setScaleType(ImageView.ScaleType.CENTER_INSIDE);
-				binding.detailCover.setImageResource(R.mipmap.ic_launcher);
-			}
+			binding.detailCover.setScaleType(ImageView.ScaleType.CENTER_CROP);
+			binding.detailCover.setImageBitmap(IconArtUtils.createFallback(item.getTitle(),
+					dp(420), dp(260), icon));
 		}
 		binding.detailTitle.setText(item.getTitle());
+		binding.detailFavorite.setText(item.isFavorite()
+				? R.string.remove_favorite : R.string.add_favorite);
 		String author = item.getAuthor() == null ? "" : item.getAuthor();
 		String version = item.getVersion() == null ? "" : item.getVersion();
 		binding.detailMeta.setText(author + "  " + version);
@@ -582,6 +690,7 @@ public class AppsListFragment extends Fragment implements AppsListAdapter.Listen
 
 	@Override
 	public void onDestroy() {
+		folderExecutor.shutdownNow();
 		if (searchViewDisposable != null) {
 			searchViewDisposable.dispose();
 		}

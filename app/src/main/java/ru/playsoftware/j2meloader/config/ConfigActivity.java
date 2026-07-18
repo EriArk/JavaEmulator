@@ -93,6 +93,7 @@ public class ConfigActivity extends BaseActivity implements View.OnClickListener
 	private ArrayAdapter<ShaderInfo> spShaderAdapter;
 	private String workDir;
 	private boolean needShow;
+	private boolean expertVisible;
 
 	private ActivityConfigBinding binding;
 
@@ -160,6 +161,8 @@ public class ConfigActivity extends BaseActivity implements View.OnClickListener
 		binding = ActivityConfigBinding.inflate(getLayoutInflater());
 		View view = binding.getRoot();
 		setContentView(view);
+		setupExpertMode();
+		binding.fixGame.setOnClickListener(v -> showFixGame());
 		getSupportActionBar().setDisplayHomeAsUpEnabled(true);
 		display = getWindowManager().getDefaultDisplay();
 		fragmentManager = getSupportFragmentManager();
@@ -822,6 +825,79 @@ public class ConfigActivity extends BaseActivity implements View.OnClickListener
 		} else if (id == R.id.apply_handheld_controls_preset) {
 			applyHandheldControlsPreset();
 		}
+	}
+
+	private void setupExpertMode() {
+		View[] advanced = {
+				binding.selectScreenBackgroundColor, binding.screenBackgroundHexColor,
+				binding.scaleRatioHint, binding.scaleRatio,
+				binding.screenOrientationHint, binding.screenOrientationSelector,
+				binding.screenGravityHint, binding.screenGravitySelector,
+				binding.immediateProcessingToggle, binding.graphicalModeHint,
+				binding.graphicalModeSelector, binding.shaderRoot,
+				binding.parallelScreenRedrawingToggle, binding.forceFullscreenToggle,
+				binding.showFpsToggle, binding.fpsLimitHint, binding.fpsLimit,
+				binding.fontConfigRoot, binding.systemPropertiesConfigRoot
+		};
+		View.OnClickListener toggle = view -> {
+			expertVisible = !expertVisible;
+			for (View item : advanced) {
+				item.setVisibility(expertVisible ? View.VISIBLE : View.GONE);
+			}
+			binding.expertToggle.setText(expertVisible ? "Hide expert settings" : "Expert settings");
+		};
+		for (View item : advanced) {
+			item.setVisibility(View.GONE);
+		}
+		binding.expertToggle.setOnClickListener(toggle);
+	}
+
+	private void showFixGame() {
+		String[] symptoms = {
+				getString(R.string.fix_game_size), getString(R.string.fix_game_flicker),
+				getString(R.string.fix_game_crash), getString(R.string.fix_game_controls)
+		};
+		new AlertDialog.Builder(this)
+				.setTitle(R.string.fix_game_title)
+				.setItems(symptoms, (dialog, which) -> applyFix(which))
+				.setNegativeButton(android.R.string.cancel, null)
+				.show();
+	}
+
+	private void applyFix(int symptom) {
+		if (symptom == 3) {
+			Intent intent = new Intent(getIntent().getAction(), Uri.parse(configDir.getPath()),
+					this, KeyMapperActivity.class);
+			startActivity(intent);
+			return;
+		}
+		if (symptom == 0) {
+			params.screenScaleType = 1;
+			params.screenScaleRatio = 100;
+			params.screenKeepAspectRatio = true;
+			params.screenGravity = 2;
+			params.orientation = 3;
+		} else if (symptom == 1) {
+			params.graphicsMode = (params.graphicsMode + 1) % 3;
+			params.immediateMode = true;
+			params.parallelRedrawScreen = false;
+		} else {
+			params.graphicsMode = 0;
+			params.immediateMode = true;
+			params.parallelRedrawScreen = false;
+			params.screenWidth = 240;
+			params.screenHeight = 320;
+			params.screenScaleType = 1;
+			params.screenFilter = false;
+			params.systemProperties = ContextHolder.getAssetAsString("defaults/system.props");
+			params.compatibilityProfile = "Generic MIDP";
+			params.compatibilityConfidence = "safe fallback";
+		}
+		params.showKeyboard = false;
+		params.touchInput = false;
+		ProfilesManager.saveConfig(params);
+		loadParams(false);
+		Toast.makeText(this, R.string.fix_game_applied, Toast.LENGTH_LONG).show();
 	}
 
 	private void applyHandheldControlsPreset() {

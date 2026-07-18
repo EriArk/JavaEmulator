@@ -1,0 +1,12 @@
+<?xml version="1.0"?>
+<systemList>
+    <system>
+        <name>j2me</name>
+        <fullname>Java 2 Micro Edition (J2ME)</fullname>
+        <path>%ROMPATH%/j2me</path>
+        <extension>.jar .JAR .7z .7Z .zip .ZIP</extension>
+        <command label="AbyssME (Standalone)">%EMULATOR_ABYSSME% %ACTIVITY_CLEAR_TASK% %ACTIVITY_CLEAR_TOP% %DATA%=%ROMPROVIDER%</command>
+        <platform>j2me</platform>
+        <theme>j2me</theme>
+    </system>
+</systemList>

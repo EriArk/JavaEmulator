@@ -11,12 +11,24 @@
     <string name="more">More</string>
     <string name="search">Search</string>
     <string name="library_title">LIBRARY</string>
-    <string name="launcher_title">J2ME LAUNCHER</string>
+    <string name="launcher_title">ABYSSME</string>
     <string name="library_game_count">%1$d GAMES</string>
     <string name="launcher_ready">READY</string>
     <string name="launcher_all_games">ALL GAMES</string>
     <string name="launcher_add_game">ADD GAME</string>
     <string name="launcher_recent">RECENT</string>
+    <string name="launcher_favorites">FAVORITES</string>
+    <string name="launcher_folders">FOLDERS</string>
+    <string name="folder_indexed">Indexed %1$d games</string>
+    <string name="archive_choose_game">Choose a game from this archive</string>
+    <string name="fix_game_title">What is wrong?</string>
+    <string name="fix_game_size">Wrong size or cropped</string>
+    <string name="fix_game_flicker">Black screen or flicker</string>
+    <string name="fix_game_crash">Crash on launch</string>
+    <string name="fix_game_controls">Controls do not work</string>
+    <string name="fix_game_applied">Fix applied. Start the game to test it.</string>
+    <string name="add_favorite">Add favorite</string>
+    <string name="remove_favorite">Remove favorite</string>
     <string name="launcher_soft_select">A  SELECT</string>
     <string name="launcher_soft_back">B  BACK</string>
     <string name="launcher_soft_favorite">Y  FAVORITE</string>
@@ -31,10 +43,10 @@
     <string name="licenses">Licenses</string>
     <string name="profiles">Profiles</string>
     <string name="save_log">Save log</string>
-    <string name="about_message">This app allows you to launch J2ME apps and games on Android. It supports most 2D and 3D games (including Mascot Capsule 3D ones).&lt;BR></string>
+    <string name="about_message">A controller-first J2ME handheld emulator for Android 10 and newer.&lt;BR></string>
     <string name="help_message">&#8226; Enabling filtering in some cases can greatly reduce performance. Disable this option if game is too slow.&lt;BR>&#8226; Image flickering issues can be fixed by enabling the "Immediate processing mode" option.</string>
     <string name="about_email" translatable="false">&lt;BR>Email: &lt;a href="mailto:j2me.loader@mail.ru">j2me.loader@mail.ru&lt;/a></string>
-    <string name="about_github" translatable="false">&lt;BR>GitHub: &lt;a href="https://github.com/nikita36078/J2ME-Loader">github.com/nikita36078/J2ME-Loader&lt;/a></string>
+    <string name="about_github" translatable="false">&lt;BR>GitHub: &lt;a href="https://github.com/EriArk/JavaEmulator">github.com/EriArk/JavaEmulator&lt;/a></string>
     <string name="about_emugen_wiki" translatable="false">&lt;BR>EmuGen Wiki: &lt;a href="https://emulation.gametechwiki.com/index.php/J2ME_Loader">emulation.gametechwiki.com/index.php/J2ME_Loader&lt;/a></string>
     <string name="about_4pda" translatable="false">&lt;BR>4PDA: &lt;a href="https://4pda.to/forum/index.php?showtopic=824201">4pda.to/forum/index.php?showtopic=824201&lt;/a></string>
     <string name="about_xda" translatable="false">&lt;BR>XDA: &lt;a href="https://forum.xda-developers.com/android/apps-games/app-j2me-loader-t3777889">forum.xda-developers.com/android/apps-games/app-j2me-loader-t3777889&lt;/a></string>
@@ -53,6 +65,7 @@
     <string name="action_settings">Settings</string>
     <string name="action_context_delete">Delete</string>
     <string name="action_context_rename">Rename</string>
+    <string name="action_change_artwork">Change cover</string>
     <string name="retry">retry</string>
     <string name="err_missing_app">Application not found.\nPlease check storage device %savailability or re-create shortcut.</string>
     <string name="error_disk_io">Storage error: check disk space</string>
@@ -204,15 +217,18 @@
     <string name="quick_settings_orientation">Orient</string>
     <string name="quick_settings_scale">Scale</string>
     <string name="quick_settings_look">Look</string>
+    <string name="quick_settings_view">View</string>
+    <string name="quick_settings_screen">Screen</string>
+    <string name="quick_settings_controls">Controls</string>
     <string name="quick_display_preset_pixel">Pixel</string>
     <string name="quick_display_preset_smooth">Smooth</string>
     <string name="quick_display_preset_sharp">Sharp</string>
     <string name="quick_display_preset_full">Full</string>
-    <string name="compatibility_test_title">Testing compatibility</string>
-    <string name="compatibility_test_starting">Preparing compatibility test...</string>
+    <string name="compatibility_test_title">Preparing game</string>
+    <string name="compatibility_test_starting">Starting analysis...</string>
     <string name="compatibility_test_manifest">Reading MIDlet manifest</string>
     <string name="compatibility_test_resources">Scanning resources and API hints</string>
-    <string name="compatibility_test_profile">Testing %1$s profile</string>
+    <string name="compatibility_test_profile">Scoring %1$s compatibility</string>
     <string name="compatibility_test_save">Saving %1$s profile</string>
     <string name="compatibility_test_done">Selected %1$s. Launching...</string>
 

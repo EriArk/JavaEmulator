@@ -1,0 +1,8 @@
+<?xml version="1.0"?>
+<ruleList>
+    <emulator name="ABYSSME">
+        <rule type="androidpackage">
+            <entry>io.github.eriark.abyssme/.MainActivity</entry>
+        </rule>
+    </emulator>
+</ruleList>

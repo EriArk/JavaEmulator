@@ -1,134 +1,99 @@
 /*
- * Copyright 2017-2018 Nikita Shakarun
- *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
- *
- *     http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
+ * Copyright 2026
+ * Licensed under the Apache License, Version 2.0
  */
 
 package ru.playsoftware.j2meloader.settings;
 
-import android.content.ActivityNotFoundException;
 import android.content.Intent;
 import android.net.Uri;
-import android.os.Build;
 import android.os.Bundle;
-import android.provider.DocumentsContract;
-
-import com.nononsenseapps.filepicker.Utils;
-
-import java.io.File;
+import android.widget.Toast;
 
 import androidx.activity.result.ActivityResultLauncher;
-import androidx.annotation.RequiresApi;
-import androidx.appcompat.app.AlertDialog;
+import androidx.activity.result.contract.ActivityResultContracts;
+import androidx.lifecycle.ViewModelProvider;
 import androidx.preference.Preference;
 import androidx.preference.PreferenceFragmentCompat;
-import ru.playsoftware.j2meloader.R;
-import ru.playsoftware.j2meloader.config.Config;
-import ru.playsoftware.j2meloader.config.ProfilesActivity;
-import ru.playsoftware.j2meloader.util.FileUtils;
-import ru.playsoftware.j2meloader.util.PickDirResultContract;
 
-import static ru.playsoftware.j2meloader.util.Constants.PREF_ADD_CUTOUT_AREA;
-import static ru.playsoftware.j2meloader.util.Constants.PREF_EMULATOR_DIR;
+import java.io.IOException;
+import java.util.Collections;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Set;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+
+import ru.playsoftware.j2meloader.R;
+import ru.playsoftware.j2meloader.applist.AppItem;
+import ru.playsoftware.j2meloader.applist.AppListModel;
+import ru.playsoftware.j2meloader.catalog.GameFolderIndexer;
+import ru.playsoftware.j2meloader.config.ProfilesActivity;
+import ru.playsoftware.j2meloader.info.AboutDialogFragment;
+import ru.playsoftware.j2meloader.util.LogUtils;
 
 public class SettingsFragment extends PreferenceFragmentCompat {
-	private Preference prefFolder;
-	private final ActivityResultLauncher<String> openDirLauncher = registerForActivityResult(
-			new PickDirResultContract(),
-			this::onPickDirResult);
+	private final ExecutorService executor = Executors.newSingleThreadExecutor();
+	private Preference foldersPreference;
+	private final ActivityResultLauncher<Uri> folderLauncher = registerForActivityResult(
+			new ActivityResultContracts.OpenDocumentTree(), this::onFolderSelected);
 
 	@Override
-	public void onCreatePreferences(Bundle bundle, String s) {
-		addPreferencesFromResource(R.xml.preferences);
-		findPreference("pref_default_settings").setIntent(new Intent(requireActivity(), ProfilesActivity.class));
-		prefFolder = findPreference(PREF_EMULATOR_DIR);
-		prefFolder.setSummary(Config.getEmulatorDir());
-		prefFolder.setOnPreferenceClickListener(preference -> {
-			if (FileUtils.isExternalStorageLegacy()) {
-				openDirLauncher.launch(null);
-			} else {
-				openPicker();
+	public void onCreatePreferences(Bundle bundle, String rootKey) {
+		setPreferencesFromResource(R.xml.preferences, rootKey);
+		foldersPreference = findPreference("pref_game_folders");
+		foldersPreference.setOnPreferenceClickListener(preference -> {
+			folderLauncher.launch(null);
+			return true;
+		});
+		updateFolderSummary();
+		findPreference("pref_expert").setIntent(new Intent(requireActivity(), ProfilesActivity.class));
+		findPreference("pref_local_diagnostics").setOnPreferenceClickListener(preference -> {
+			try {
+				LogUtils.writeLog();
+				Toast.makeText(requireContext(), R.string.log_saved, Toast.LENGTH_SHORT).show();
+			} catch (IOException e) {
+				Toast.makeText(requireContext(), R.string.error, Toast.LENGTH_SHORT).show();
 			}
 			return true;
 		});
-		if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.P) {
-			findPreference(PREF_ADD_CUTOUT_AREA).setVisible(true);
+		findPreference("pref_about").setOnPreferenceClickListener(preference -> {
+			new AboutDialogFragment().show(getChildFragmentManager(), "about");
+			return true;
+		});
+	}
+
+	private void onFolderSelected(Uri uri) {
+		if (uri == null) return;
+		try {
+			requireContext().getContentResolver().takePersistableUriPermission(uri,
+					Intent.FLAG_GRANT_READ_URI_PERMISSION);
+		} catch (SecurityException ignored) {
 		}
-	}
-
-	@RequiresApi(api = Build.VERSION_CODES.LOLLIPOP)
-	private void openPicker() {
-		try {
-			startActivity(getFileManagerIntentOnDocumentProvider(Intent.ACTION_VIEW));
-			return;
-		} catch (ActivityNotFoundException ignored) {}
-
-		try {
-			startActivity(getFileManagerIntentOnDocumentProvider("android.provider.action.BROWSE"));
-			return;
-		} catch (ActivityNotFoundException ignored) {}
-
-		try {
-			// Just try to open the file manager, try the package name used on "normal" phones
-			startActivity(getFileManagerIntent("com.google.android.documentsui"));
-			return;
-		} catch (ActivityNotFoundException ignored) {}
-
-		try {
-			// Next, try the AOSP package name
-			startActivity(getFileManagerIntent("com.android.documentsui"));
-		} catch (ActivityNotFoundException ignored) {}
-	}
-
-	private Intent getFileManagerIntent(String packageName) {
-		// Fragile, but some phones don't expose the system file manager in any better way
-		Intent intent = new Intent(Intent.ACTION_MAIN);
-		intent.setClassName(packageName, "com.android.documentsui.files.FilesActivity");
-		intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
-		return intent;
-	}
-
-	@RequiresApi(api = Build.VERSION_CODES.LOLLIPOP)
-	private Intent getFileManagerIntentOnDocumentProvider(String action) {
-		String authority = requireContext().getPackageName() + ".documentProvider";
-		String root = new File(Config.getEmulatorDir()).getAbsolutePath();
-		Intent intent = new Intent(action);
-		intent.addCategory(Intent.CATEGORY_DEFAULT);
-		intent.setData(DocumentsContract.buildRootUri(authority, root));
-		intent.addFlags(Intent.FLAG_GRANT_PERSISTABLE_URI_PERMISSION
-				| Intent.FLAG_GRANT_PREFIX_URI_PERMISSION | Intent.FLAG_GRANT_WRITE_URI_PERMISSION);
-		return intent;
-	}
-
-	private void onPickDirResult(Uri uri) {
-		if (uri == null) {
-			return;
-		}
-		File file = Utils.getFileForUri(uri);
-		String path = file.getAbsolutePath();
-		if (!FileUtils.initWorkDir(file)) {
-			new AlertDialog.Builder(requireActivity())
-					.setTitle(R.string.error)
-					.setCancelable(false)
-					.setMessage(getString(R.string.create_apps_dir_failed, path))
-					.setNegativeButton(android.R.string.cancel, null)
-					.setPositiveButton(R.string.choose, (d, w) -> openDirLauncher.launch(null))
-					.show();
-			return;
-		}
+		Set<String> folders = new HashSet<>(getPreferenceManager().getSharedPreferences()
+				.getStringSet("pref_game_folders", Collections.emptySet()));
+		folders.add(uri.toString());
 		getPreferenceManager().getSharedPreferences().edit()
-				.putString(PREF_EMULATOR_DIR, path)
-				.apply();
-		prefFolder.setSummary(path);
+				.putStringSet("pref_game_folders", folders).apply();
+		updateFolderSummary();
+		AppListModel model = new ViewModelProvider(requireActivity()).get(AppListModel.class);
+		executor.execute(() -> {
+			List<AppItem> games = GameFolderIndexer.scan(requireContext().getApplicationContext(), uri);
+			model.getAppRepository().insert(games);
+			requireActivity().runOnUiThread(() -> Toast.makeText(requireContext(),
+					getString(R.string.folder_indexed, games.size()), Toast.LENGTH_SHORT).show());
+		});
+	}
+
+	private void updateFolderSummary() {
+		int count = getPreferenceManager().getSharedPreferences()
+				.getStringSet("pref_game_folders", Collections.emptySet()).size();
+		foldersPreference.setSummary(count == 0 ? "No folders selected" : count + " folder(s)");
+	}
+
+	@Override
+	public void onDestroy() {
+		executor.shutdownNow();
+		super.onDestroy();
 	}
 }

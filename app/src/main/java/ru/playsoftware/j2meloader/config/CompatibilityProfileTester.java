@@ -35,10 +35,14 @@ final class CompatibilityProfileTester {
 	static final class Result {
 		final String profileName;
 		final int score;
+		final String confidence;
+		final String reasons;
 
-		private Result(String profileName, int score) {
+		private Result(String profileName, int score, String confidence, String reasons) {
 			this.profileName = profileName;
 			this.score = score;
+			this.confidence = confidence;
+			this.reasons = reasons;
 		}
 	}
 
@@ -57,15 +61,14 @@ final class CompatibilityProfileTester {
 	static Result run(Context context, File appDir, ProfileModel params, Callback callback) {
 		callback.onProgress(5, context.getString(R.string.compatibility_test_manifest));
 		Probe probe = readProbe(appDir);
-		sleepBriefly();
 
 		callback.onProgress(18, context.getString(R.string.compatibility_test_resources));
 		readResourceHints(appDir, probe);
 		probe.resourceText += '\n' + readDexHints(appDir);
-		sleepBriefly();
 
 		ArrayList<Candidate> candidates = createCandidates(probe);
 		Candidate best = null;
+		Candidate second = null;
 		for (int i = 0, size = candidates.size(); i < size; i++) {
 			Candidate candidate = candidates.get(i);
 			int progress = 25 + (i * 55 / Math.max(1, size));
@@ -73,9 +76,11 @@ final class CompatibilityProfileTester {
 					context.getString(R.string.compatibility_test_profile, candidate.name));
 			candidate.score += scoreCandidate(candidate, probe);
 			if (best == null || candidate.score > best.score) {
+				second = best;
 				best = candidate;
+			} else if (second == null || candidate.score > second.score) {
+				second = candidate;
 			}
-			sleepBriefly();
 		}
 
 		if (best == null) {
@@ -85,13 +90,17 @@ final class CompatibilityProfileTester {
 		params.systemProperties = mergeProperties(params.systemProperties, best.properties);
 		params.compatibilityProfile = best.name;
 		params.compatibilityScore = best.score;
+		int margin = second == null ? best.score : best.score - second.score;
+		String confidence = margin >= 80 ? "high" : margin >= 30 ? "medium" : "low";
+		String reasons = buildReasons(probe);
+		params.compatibilityConfidence = confidence;
+		params.compatibilityReasons = reasons;
 		params.compatibilityTested = true;
 		applyDisplayDefaults(params, probe);
 		params.showKeyboard = false;
 		params.touchInput = false;
 		ProfilesManager.saveConfig(params);
-		sleepBriefly();
-		return new Result(best.name, best.score);
+		return new Result(best.name, best.score, confidence, reasons);
 	}
 
 	private static Probe readProbe(File appDir) {
@@ -293,9 +302,7 @@ final class CompatibilityProfileTester {
 		params.screenScaleRatio = 100;
 		params.screenGravity = 2;
 		params.forceFullscreen = true;
-		if (params.screenWidth > params.screenHeight) {
-			params.orientation = 3;
-		}
+		params.orientation = 3;
 	}
 
 	private static int scoreHints(String text, String... hints) {
@@ -389,12 +396,17 @@ final class CompatibilityProfileTester {
 		return value == null || value.trim().isEmpty() ? fallback : value.trim();
 	}
 
-	private static void sleepBriefly() {
-		try {
-			Thread.sleep(180);
-		} catch (InterruptedException e) {
-			Thread.currentThread().interrupt();
+	private static String buildReasons(Probe probe) {
+		ArrayList<String> reasons = new ArrayList<>();
+		if (probe.screenWidth > 0 && probe.screenHeight > 0) {
+			reasons.add("resources suggest " + probe.screenWidth + "x" + probe.screenHeight);
 		}
+		String hints = probe.manifestText + '\n' + probe.resourceText;
+		if (hints.contains("nokia")) reasons.add("Nokia APIs/resources detected");
+		if (hints.contains("sony") || hints.contains("jbed")) reasons.add("Sony Ericsson hints detected");
+		if (hints.contains("siemens")) reasons.add("Siemens APIs detected");
+		if (reasons.isEmpty()) reasons.add("standard MIDP metadata");
+		return android.text.TextUtils.join(", ", reasons);
 	}
 
 	private static final class Candidate {

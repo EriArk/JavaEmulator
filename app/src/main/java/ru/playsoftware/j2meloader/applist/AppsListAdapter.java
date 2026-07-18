@@ -32,6 +32,7 @@ import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 
 import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.List;
 
 import ru.playsoftware.j2meloader.R;
@@ -41,6 +42,9 @@ public class AppsListAdapter extends RecyclerView.Adapter<AppsListAdapter.ViewHo
 	public static final int MODE_GALLERY = 0;
 	public static final int MODE_LIST = 1;
 	public static final int MODE_GRID = 2;
+	public static final int CATEGORY_LIBRARY = 0;
+	public static final int CATEGORY_RECENT = 1;
+	public static final int CATEGORY_FAVORITES = 2;
 
 	interface Listener {
 		void onAppClicked(AppItem item);
@@ -54,6 +58,7 @@ public class AppsListAdapter extends RecyclerView.Adapter<AppsListAdapter.ViewHo
 	private final AppFilter appFilter = new AppFilter();
 	private CharSequence filterConstraint;
 	private int displayMode = MODE_GALLERY;
+	private int category = CATEGORY_LIBRARY;
 
 	public AppsListAdapter(Listener listener) {
 		this.listener = listener;
@@ -82,6 +87,11 @@ public class AppsListAdapter extends RecyclerView.Adapter<AppsListAdapter.ViewHo
 
 	public int getDisplayMode() {
 		return displayMode;
+	}
+
+	public void setCategory(int category) {
+		this.category = category;
+		appFilter.filter(filterConstraint);
 	}
 
 	@NonNull
@@ -118,22 +128,26 @@ public class AppsListAdapter extends RecyclerView.Adapter<AppsListAdapter.ViewHo
 
 		private void bind(AppItem item, int displayMode, Listener listener) {
 			applyMode(displayMode);
+			Bitmap icon = IconArtUtils.loadLargeIcon(item.getImagePathExt(), iconBitmapSize(displayMode));
 			Drawable cover = Drawable.createFromPath(item.getCoverPathExt());
 			if (displayMode == MODE_GALLERY && cover != null) {
 				cover.setFilterBitmap(false);
 				binding.cover.setVisibility(View.VISIBLE);
 				binding.cover.setImageDrawable(cover);
+			} else if (displayMode == MODE_GALLERY) {
+				binding.cover.setVisibility(View.VISIBLE);
+				binding.cover.setImageBitmap(IconArtUtils.createFallback(item.getTitle(),
+						dp(360), dp(200), icon));
 			} else {
 				binding.cover.setImageDrawable(null);
 				binding.cover.setVisibility(View.GONE);
 			}
-			Bitmap icon = IconArtUtils.loadLargeIcon(item.getImagePathExt(), iconBitmapSize(displayMode));
 			if (icon != null) {
 				binding.icon.setImageBitmap(icon);
 			} else {
 				binding.icon.setImageResource(R.mipmap.ic_launcher);
 			}
-			binding.icon.setVisibility(displayMode == MODE_GALLERY && cover != null ? View.GONE : View.VISIBLE);
+			binding.icon.setVisibility(displayMode == MODE_GALLERY ? View.GONE : View.VISIBLE);
 			binding.name.setText(item.getTitle());
 			binding.author.setText(item.getAuthor() == null ? "" : item.getAuthor());
 			binding.appVersion.setText(item.getVersion() == null ? "" : item.getVersion());
@@ -220,23 +234,30 @@ public class AppsListAdapter extends RecyclerView.Adapter<AppsListAdapter.ViewHo
 		@Override
 		protected FilterResults performFiltering(CharSequence constraint) {
 			FilterResults results = new FilterResults();
-			if (TextUtils.isEmpty(constraint)) {
-				results.count = list.size();
-				results.values = list;
-			} else {
-				ArrayList<AppItem> resultList = new ArrayList<>();
-				String needle = constraint.toString().toLowerCase();
-				for (AppItem item : list) {
+			ArrayList<AppItem> resultList = new ArrayList<>();
+			String needle = constraint == null ? "" : constraint.toString().toLowerCase();
+			for (AppItem item : list) {
+				if (category == CATEGORY_RECENT && item.getLastPlayedAt() == 0) {
+					continue;
+				}
+				if (category == CATEGORY_FAVORITES && !item.isFavorite()) {
+					continue;
+				}
+				if (!TextUtils.isEmpty(needle)) {
 					String title = item.getTitle() == null ? "" : item.getTitle();
 					String author = item.getAuthor() == null ? "" : item.getAuthor();
-					if (title.toLowerCase().contains(needle)
-							|| author.toLowerCase().contains(needle)) {
-						resultList.add(item);
+					if (!title.toLowerCase().contains(needle)
+							&& !author.toLowerCase().contains(needle)) {
+						continue;
 					}
 				}
-				results.count = resultList.size();
-				results.values = resultList;
+				resultList.add(item);
 			}
+			if (category == CATEGORY_RECENT) {
+				resultList.sort(Comparator.comparingLong(AppItem::getLastPlayedAt).reversed());
+			}
+			results.count = resultList.size();
+			results.values = resultList;
 			return results;
 		}
 

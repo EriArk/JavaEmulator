@@ -94,6 +94,7 @@ import ru.playsoftware.j2meloader.R;
 import ru.playsoftware.j2meloader.config.Config;
 import ru.playsoftware.j2meloader.config.ProfileModel;
 import ru.playsoftware.j2meloader.databinding.ActivityMicroBinding;
+import ru.playsoftware.j2meloader.diagnostics.LaunchDiagnostics;
 import ru.playsoftware.j2meloader.util.Constants;
 import ru.playsoftware.j2meloader.util.LogUtils;
 
@@ -183,6 +184,7 @@ public class MicroActivity extends AppCompatActivity {
 				return;
 			}
 			appPath = data.toString();
+			LaunchDiagnostics.record(this, "process_started", appName, appPath);
 		} else {
 			appName = getTitle().toString();
 			appPath = getApplicationInfo().dataDir + "/files/converted/midlet";
@@ -218,7 +220,7 @@ public class MicroActivity extends AppCompatActivity {
 		}
 		microLoader.applyConfiguration();
 		VirtualKeyboard vk = ContextHolder.getVk();
-		int orientation = microLoader.getOrientation();
+		int orientation = ORIENTATION_LANDSCAPE;
 		if (vk != null) {
 			vk.setView(binding.overlayView);
 			binding.overlayView.addLayer(vk);
@@ -226,7 +228,7 @@ public class MicroActivity extends AppCompatActivity {
 				orientation = ORIENTATION_PORTRAIT;
 			}
 		}
-		setOrientation(orientation);
+		setOrientation(ORIENTATION_LANDSCAPE);
 		menuKey = microLoader.getMenuKeyCode();
 		setupQuickSettingsOverlay();
 		setupQuickMapOverlay();
@@ -234,6 +236,7 @@ public class MicroActivity extends AppCompatActivity {
 
 		try {
 			loadMIDlet();
+			LaunchDiagnostics.record(this, "midlet_loaded", appName, null);
 		} catch (Exception e) {
 			e.printStackTrace();
 			showErrorDialog(e.toString());
@@ -288,21 +291,7 @@ public class MicroActivity extends AppCompatActivity {
 
 	@SuppressLint("SourceLockedOrientationActivity")
 	private void setOrientation(int orientation) {
-		switch (orientation) {
-			case ORIENTATION_AUTO:
-				setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_FULL_SENSOR);
-				break;
-			case ORIENTATION_PORTRAIT:
-				setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_SENSOR_PORTRAIT);
-				break;
-			case ORIENTATION_LANDSCAPE:
-				setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_SENSOR_LANDSCAPE);
-				break;
-			case ORIENTATION_DEFAULT:
-			default:
-				setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_UNSPECIFIED);
-				break;
-		}
+		setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_SENSOR_LANDSCAPE);
 	}
 
 	private void loadMIDlet() throws Exception {
@@ -504,23 +493,37 @@ public class MicroActivity extends AppCompatActivity {
 	}
 
 	private void setupQuickSettingsOverlay() {
-		binding.quickSettingsSize.setOnClickListener(v -> {
-			microLoader.cycleScreenScaleRatio();
-			applyRuntimeDisplaySettings(false);
-		});
-		binding.quickSettingsOrientation.setOnClickListener(v -> {
-			microLoader.cycleOrientation();
-			applyRuntimeDisplaySettings(true);
-		});
-		binding.quickSettingsScaleType.setOnClickListener(v -> {
-			microLoader.cycleScreenScaleType();
-			applyRuntimeDisplaySettings(false);
-		});
 		binding.quickSettingsQuality.setOnClickListener(v -> {
 			microLoader.cycleDisplayPreset();
 			applyRuntimeDisplaySettings(false);
 		});
+		binding.quickSettingsScreen.setOnClickListener(v -> {
+			boolean show = binding.quickScreenOptions.getVisibility() != View.VISIBLE;
+			binding.quickScreenOptions.setVisibility(show ? View.VISIBLE : View.GONE);
+			scheduleQuickSettingsHide();
+		});
+		binding.quickSettingsControls.setOnClickListener(v -> {
+			hideQuickSettingsOverlay();
+			showQuickMapOverlay();
+		});
+		binding.quickScreenAuto.setOnClickListener(v -> applyQuickScreen(0, 0));
+		binding.quickScreen176.setOnClickListener(v -> applyQuickScreen(176, 220));
+		binding.quickScreen240.setOnClickListener(v -> applyQuickScreen(240, 320));
+		binding.quickScreenLand.setOnClickListener(v -> applyQuickScreen(320, 240));
+		binding.quickScreenRotate.setOnClickListener(v -> applyQuickScreen(-1, -1));
 		updateQuickSettingsLabels();
+	}
+
+	private void applyQuickScreen(int width, int height) {
+		if (width == 0) {
+			microLoader.restoreDetectedScreenSize();
+		} else if (width < 0) {
+			microLoader.rotateScreen();
+		} else {
+			microLoader.setScreenSize(width, height);
+		}
+		binding.quickScreenOptions.setVisibility(View.GONE);
+		applyRuntimeDisplaySettings(false);
 	}
 
 	public void showQuickSettingsOverlay() {
@@ -538,6 +541,7 @@ public class MicroActivity extends AppCompatActivity {
 			return;
 		}
 		quickSettingsHandler.removeCallbacks(hideQuickSettingsRunnable);
+		binding.quickScreenOptions.setVisibility(View.GONE);
 		binding.quickSettingsOverlay.setVisibility(View.GONE);
 	}
 
@@ -563,20 +567,13 @@ public class MicroActivity extends AppCompatActivity {
 		if (binding == null || microLoader == null) {
 			return;
 		}
-		String[] orientationLabels = {"Default", "Auto", "Port", "Land"};
-		String[] scaleLabels = {"1:1", "Fit", "Full"};
 		String[] presetLabels = getResources().getStringArray(R.array.quick_display_preset_entries);
-		int orientation = clampIndex(microLoader.getOrientation(), orientationLabels.length);
-		int scaleType = clampIndex(microLoader.getScreenScaleType(), scaleLabels.length);
 		int preset = clampIndex(microLoader.getDisplayPreset(), presetLabels.length);
-		binding.quickSettingsSize.setText(getString(R.string.quick_settings_size)
-				+ "\n" + microLoader.getScreenScaleRatio() + "%");
-		binding.quickSettingsOrientation.setText(getString(R.string.quick_settings_orientation)
-				+ "\n" + orientationLabels[orientation]);
-		binding.quickSettingsScaleType.setText(getString(R.string.quick_settings_scale)
-				+ "\n" + scaleLabels[scaleType]);
-		binding.quickSettingsQuality.setText(getString(R.string.quick_settings_look)
+		binding.quickSettingsQuality.setText(getString(R.string.quick_settings_view)
 				+ "\n" + presetLabels[preset]);
+		binding.quickSettingsScreen.setText(getString(R.string.quick_settings_screen)
+				+ "\n" + microLoader.getScreenWidth() + "x" + microLoader.getScreenHeight());
+		binding.quickSettingsControls.setText(R.string.quick_settings_controls);
 	}
 
 	private int clampIndex(int index, int size) {
@@ -1084,6 +1081,9 @@ public class MicroActivity extends AppCompatActivity {
 
 	@Override
 	protected void onDestroy() {
+		if (isFinishing()) {
+			LaunchDiagnostics.record(this, "clean_exit", appName, null);
+		}
 		binding = null;
 		super.onDestroy();
 	}

@@ -84,6 +84,8 @@ public class MicroLoader {
 	private final String workDir;
 	private final String appDirName;
 	private ProfileModel params;
+	private int detectedScreenWidth;
+	private int detectedScreenHeight;
 	private static final int[] QUICK_SCALE_RATIOS = {70, 85, 100};
 	static final int DISPLAY_PRESET_PIXEL = 0;
 	static final int DISPLAY_PRESET_SMOOTH = 1;
@@ -106,6 +108,8 @@ public class MicroLoader {
 		if (params == null) {
 			return false;
 		}
+		detectedScreenWidth = params.screenWidth;
+		detectedScreenHeight = params.screenHeight;
 		Display.initDisplay();
 		Graphics3D.initGraphics3D();
 		File cacheDir = ContextHolder.getCacheDir();
@@ -275,7 +279,6 @@ public class MicroLoader {
 	}
 
 	private void applyDisplayPreset(int preset) {
-		params.screenScaleRatio = 100;
 		switch (preset) {
 			case DISPLAY_PRESET_PIXEL:
 				params.screenScaleType = 0;
@@ -296,6 +299,29 @@ public class MicroLoader {
 				break;
 		}
 		saveDisplayConfiguration();
+	}
+
+	int getScreenWidth() {
+		return params.screenWidth;
+	}
+
+	int getScreenHeight() {
+		return params.screenHeight;
+	}
+
+	void setScreenSize(int width, int height) {
+		params.screenWidth = width;
+		params.screenHeight = height;
+		Displayable.setVirtualSize(width, height);
+		saveDisplayConfiguration();
+	}
+
+	void rotateScreen() {
+		setScreenSize(params.screenHeight, params.screenWidth);
+	}
+
+	void restoreDetectedScreenSize() {
+		setScreenSize(detectedScreenWidth, detectedScreenHeight);
 	}
 
 	int cycleOrientation() {

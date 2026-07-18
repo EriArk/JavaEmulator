@@ -1,41 +1,119 @@
-# J2ME-Loader 
+# AbyssME
 
-[![Build Status](https://app.bitrise.io/app/d9254be52c74982a/status.svg?token=DIHxcpAPIg0VXSHpeXsHHA&branch=master)](https://app.bitrise.io/app/d9254be52c74982a)
-[![Crowdin](https://d322cqt584bo4o.cloudfront.net/j2me-loader/localized.svg)](https://crowdin.com/project/j2me-loader)
-[![GitHub release](https://img.shields.io/github/release/nikita36078/J2ME-Loader.svg)](https://github.com/nikita36078/J2ME-Loader/releases)
+**A controller-first J2ME emulator for Android handhelds.**
 
-J2ME-Loader is a J2ME emulator for Android. It supports most 2D and 3D games (including Mascot Capsule 3D ones). Emulator has a virtual keyboard, individual settings for each application, scaling support.
-This project is a fork of [J2meLoader](https://github.com/NaikSoftware/J2meLoader).  
-Special thanks to [woesss](https://github.com/woesss), the author of [JL-Mod](https://github.com/woesss/JL-Mod), for creating open-source Mascot Capsule implementation.
+AbyssME is an independent fork of
+[J2ME Loader](https://github.com/nikita36078/J2ME-Loader), focused on making
+old mobile Java games feel at home on modern landscape handhelds. It keeps the
+proven emulation core while replacing the setup-heavy workflow with a game
+library, automatic first-launch preparation, and fast per-game controller
+mapping.
 
-System requirements: Android 4.0+  
-[4PDA discussion](https://4pda.to/forum/index.php?showtopic=824201)  
-[XDA-Developers](https://forum.xda-developers.com/android/apps-games/app-j2me-loader-t3777889)  
-[EmuGen wiki](https://emulation.gametechwiki.com/index.php/J2ME_Loader)  
-[Discord](https://discord.gg/Ag4rcpz)  
-[Automated builds](https://install.appcenter.ms/users/nikita36078/apps/j2me-loader/distribution_groups/testers)
+> **Project status:** Beta. AbyssME is usable, but compatibility automation and
+> launcher integration still need testing across more games and devices.
 
-<a href="https://play.google.com/store/apps/details?id=ru.playsoftware.j2meloader">
-<img src="https://play.google.com/intl/en_us/badges/images/generic/en_badge_web_generic.png" height="75"></a>
-<a href="https://f-droid.org/app/ru.playsoftware.j2meloader">
-<img src="https://f-droid.org/badge/get-it-on.png" alt="Get it on F-Droid" height="75"></a>
+[Download the latest beta](https://github.com/EriArk/JavaEmulator/releases)
 
-## Compatibility
-[List of the tested Java Games (Touchscreen)](https://github.com/nikita36078/J2ME-Loader/wiki/List-of-Tested-Java-Games-(Touchscreen))  
-[List of the tested Java Games (Non Touchscreen)](https://github.com/nikita36078/J2ME-Loader/wiki/List-of-Tested-Java-Games-(Non-Touchscreen))  
-[List of the Java Games with Bugs](https://github.com/nikita36078/J2ME-Loader/wiki/List-of-Java-Games-with-Bugs)
+## Highlights
 
-## Tips
- - Enabling filtering in some cases can greatly reduce performance. Disable this option if game is too slow.
- - Image flickering issues can be fixed by enabling the "Immediate processing mode" option.
+- Controller-first landscape interface with Gallery, List, and Grid views
+- Recent games, favorites, folders, search, sorting, and local artwork
+- Automatic compatibility preparation the first time a game is launched
+- Per-game named control profiles and a quick mapping overlay
+- Live in-game controls for display preset and virtual screen size
+- Direct launching from ES-DE, Beacon, shortcuts, and other Android frontends
+- JAR, JAD, ZIP, and 7Z sources through Android's Storage Access Framework
+- Local-only library and diagnostics; no account, cloud service, or telemetry
 
-## Screenshots
+## Requirements
 
-<img src="/screenshots/screen.jpg" width="288" height="512"> <img src="/screenshots/screen2.jpg" width="288" height="512">
-<img src="/screenshots/screen3.jpg" width="288" height="512"> <img src="/screenshots/screen4.jpg" width="288" height="512">
-* For more screenshots check out the [wiki](https://emulation.gametechwiki.com/index.php/J2ME_Loader#Screenshots)
+- Android 10 or newer (API 29+)
+- A physical controller or Android gaming handheld is strongly recommended
+- Landscape display
+
+AbyssME intentionally does not provide an on-screen virtual keypad or a
+portrait launcher. The interface is designed around physical controls.
+
+## Install
+
+1. Open [Releases](https://github.com/EriArk/JavaEmulator/releases).
+2. Download the APK attached to the newest beta release.
+3. Allow installation from your browser or file manager when Android asks.
+4. Install the APK and open AbyssME.
+
+The release package is `io.github.eriark.abyssme`. Older J2ME Loader builds use
+a different package and can remain installed alongside AbyssME.
+
+## Quick Start
+
+1. Choose **Add game** for one file, or **Folders** to index a collection.
+2. Select a JAR, JAD, ZIP, or 7Z file using Android's file picker.
+3. Start the game. On first launch, AbyssME tests likely display and
+   compatibility settings, then saves the result for that game.
+4. Tap the game display to open quick **View**, **Screen**, and **Controls**
+   actions. The overlay closes automatically after a few seconds.
+5. Hold the physical **Select** button to open quick per-game key mapping.
+
+In the library, **Y** toggles the selected game as a favorite and **L1/R1**
+cycles Gallery, List, and Grid views.
+
+## External Launchers
+
+AbyssME accepts read-only `content://` game URIs through Android `ACTION_VIEW`.
+The first request indexes and prepares the game; later requests launch it
+directly. Exiting returns to the calling frontend.
+
+- Package: `io.github.eriark.abyssme`
+- Activity: `.MainActivity`
+- Action: `android.intent.action.VIEW`
+- Supported files: JAR, JAD, ZIP, 7Z
+
+Ready-to-copy ES-DE rules and Beacon setup details are in
+[Launcher integration](docs/LAUNCHER_INTEGRATION.md).
+
+## Compatibility and Fixes
+
+Automatic preparation is the default. If a title still has problems, open its
+settings and use **Fix game** to describe the symptom: wrong size/cropping,
+black screen/flicker, crash, or incorrect controls. The full expert settings
+remain available per game without cluttering the normal flow.
+
+Game behavior varies between phone releases. When possible, start with the
+original build made for a common 176x220, 240x320, or 320x240 device profile.
+
+## Build
+
+The project uses the Gradle wrapper and requires a local Android SDK and NDK.
+
+```shell
+./gradlew :app:testFdroidDebugUnitTest :app:lintFdroidDebug :app:assembleFdroidDebug
+```
+
+On Windows, use `gradlew.bat`. APK output is written under
+`app/build/outputs/apk/`.
+
+## Known Limitations
+
+- Beta builds have not yet been validated on every controller layout or Android
+  handheld.
+- Automatic phone-profile detection is heuristic and can choose the wrong
+  display size for unusual game releases.
+- Archives containing several JAR files require a one-time game selection.
+- Some vendor-specific J2ME APIs remain limited by the upstream emulation core.
+
+Please report reproducible problems through
+[GitHub Issues](https://github.com/EriArk/JavaEmulator/issues) and include the
+device model, Android version, game filename, and the symptom shown in AbyssME.
+Do not upload commercial game files.
+
+## Credits
+
+AbyssME is built on
+[J2ME Loader](https://github.com/nikita36078/J2ME-Loader) by Nikita Shakarun and
+its contributors. It also includes open-source Mascot Capsule work originating
+from [JL-Mod](https://github.com/woesss/JL-Mod) by woesss.
 
 ## License
-> Copyright 2017-2024 Nikita Shakarun.
-> Licensed under the [Apache License, Version 2.0.](http://www.apache.org/licenses/LICENSE-2.0)  
-> (See the [LICENSE](https://github.com/nikita36078/J2ME-Loader/blob/master/LICENSE) file for the whole license text.)
+
+Licensed under the [Apache License 2.0](LICENSE). See the repository history and
+source headers for individual copyright notices.

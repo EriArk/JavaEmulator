@@ -64,4 +64,7 @@ public interface AppItemDao {
 
 	@Query("SELECT * FROM apps WHERE id = :id")
 	AppItem get(int id);
+
+	@Query("SELECT * FROM apps WHERE sourceKey = :sourceKey LIMIT 1")
+	AppItem getBySourceKey(String sourceKey);
 }

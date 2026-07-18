@@ -10,11 +10,11 @@ android {
     namespace 'ru.playsoftware.j2meloader'
 
     defaultConfig {
-        applicationId "ru.playsoftware.j2meloader"
+        applicationId "io.github.eriark.abyssme"
         minSdk MIN_SDK
         targetSdk TARGET_SDK
         versionCode 101
-        versionName "1.8.2"
+        versionName "0.1.0-beta.1"
         resValue 'string', 'app_name', rootProject.name
         vectorDrawables.useSupportLibrary = true
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
@@ -32,7 +32,7 @@ android {
                 keystoreProps.load(new FileInputStream(rootProject.file("keystore.properties")))
                 keyAlias keystoreProps['keyAlias']
                 keyPassword keystoreProps['keyPassword']
-                storeFile file(keystoreProps['storeFile'])
+                storeFile rootProject.file(keystoreProps['storeFile'])
                 storePassword keystoreProps['storePassword']
             }
         }
@@ -118,7 +118,7 @@ android {
 
     applicationVariants.all {
         if (buildType.name == 'debug' && flavorName != 'midlet') {
-            resValue 'string', 'app_name', 'JL-Debug'
+            resValue 'string', 'app_name', 'AbyssME Debug'
         }
         def baseName = flavorName == 'midlet' ? "${midletArchivesBaseName}-" : "${rootProject.name}-"
         outputs.all {
@@ -169,6 +169,7 @@ dependencies {
     implementation 'com.google.android.material:material:1.9.0'
     implementation 'androidx.preference:preference:1.2.0'
     implementation 'androidx.multidex:multidex:2.0.1'
+    implementation 'androidx.documentfile:documentfile:1.0.1'
 
     // Networking && APIs
     implementation 'com.android.volley:volley:1.2.1'
@@ -178,6 +179,8 @@ dependencies {
     // Threads, Streams and Archives
     implementation 'io.reactivex.rxjava2:rxandroid:2.1.1'
     implementation 'net.lingala.zip4j:zip4j:2.10.0'
+    implementation 'org.apache.commons:commons-compress:1.26.2'
+    implementation 'org.tukaani:xz:1.9'
 
     // Audio/Video/Graphics
     implementation 'com.github.billthefarmer:mididriver:v1.21'

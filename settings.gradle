@@ -15,5 +15,5 @@ dependencyResolutionManagement {
         maven { url "https://jitpack.io" }
     }
 }
-rootProject.name = "J2ME Loader"
+rootProject.name = "AbyssME"
 include ':app', ':dexlib'

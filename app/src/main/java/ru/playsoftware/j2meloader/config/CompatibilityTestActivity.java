@@ -27,6 +27,7 @@ import javax.microedition.shell.MicroActivity;
 
 import ru.playsoftware.j2meloader.R;
 import ru.playsoftware.j2meloader.databinding.ActivityCompatibilityTestBinding;
+import ru.playsoftware.j2meloader.diagnostics.LaunchDiagnostics;
 import ru.playsoftware.j2meloader.util.FileUtils;
 
 public class CompatibilityTestActivity extends AppCompatActivity {
@@ -88,6 +89,8 @@ public class CompatibilityTestActivity extends AppCompatActivity {
 			updateProgress(0, getString(R.string.compatibility_test_starting));
 			CompatibilityProfileTester.Result result = CompatibilityProfileTester.run(
 					this, appDir, params, this::updateProgress);
+			LaunchDiagnostics.record(this, "profile_selected", appName,
+					result.profileName + ":" + result.confidence + ":" + result.reasons);
 			updateProgress(100, getString(R.string.compatibility_test_done, result.profileName));
 			runOnUiThread(() -> {
 				if (destroyed) {

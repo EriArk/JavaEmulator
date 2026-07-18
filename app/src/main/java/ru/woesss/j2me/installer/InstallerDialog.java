@@ -29,6 +29,7 @@ import android.text.SpannableStringBuilder;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.widget.Button;
+import android.widget.LinearLayout;
 import android.widget.Toast;
 
 import androidx.activity.result.ActivityResultLauncher;
@@ -56,6 +57,8 @@ import ru.woesss.j2me.jar.Descriptor;
 public class InstallerDialog extends DialogFragment {
 	private static final String ARG_URI = "InstallerDialog.uri";
 	private static final String ARG_ID = "InstallerDialog.id";
+	private static final String ARG_AUTO_START = "InstallerDialog.autoStart";
+	private static final String ARG_FINISH_HOST = "InstallerDialog.finishHost";
 	private final CompositeDisposable compositeDisposable = new CompositeDisposable();
 
 	private AppRepository appRepository;
@@ -76,9 +79,19 @@ public class InstallerDialog extends DialogFragment {
 	 * @return A new instance of fragment InstallerDialog.
 	 */
 	public static InstallerDialog newInstance(Uri uri) {
+		return newInstance(uri, false);
+	}
+
+	public static InstallerDialog newInstance(Uri uri, boolean autoStart) {
+		return newInstance(uri, autoStart, autoStart);
+	}
+
+	public static InstallerDialog newInstance(Uri uri, boolean autoStart, boolean finishHost) {
 		InstallerDialog fragment = new InstallerDialog();
 		Bundle args = new Bundle();
 		args.putParcelable(ARG_URI, uri);
+		args.putBoolean(ARG_AUTO_START, autoStart);
+		args.putBoolean(ARG_FINISH_HOST, finishHost);
 		fragment.setArguments(args);
 		fragment.setCancelable(false);
 		return fragment;
@@ -255,17 +268,21 @@ public class InstallerDialog extends DialogFragment {
 		if (!isAdded()) {
 			return;
 		}
+		if (status != AppInstaller.STATUS_ARCHIVE_CHOICE) {
+			binding.installerArchiveChoices.setVisibility(View.GONE);
+		}
 		if (status == AppInstaller.STATUS_SUCCESS) {
 			binding.installationProgress.setVisibility(View.GONE);
 			binding.installationStatus.setText(getString(R.string.install_done));
 			AppItem app = installer.getExistsApp();
 			setInstallerIcon(app.getImagePathExt());
 			binding.installerTitle.setText(app.getTitle());
+			if (isAutoStart()) {
+				launchAndDismiss(app);
+				return;
+			}
 			btnOk.setText(R.string.START_CMD);
-			btnOk.setOnClickListener(v -> {
-				Config.startApp(v.getContext(), app.getTitle(), app.getPathExt(), false);
-				dismiss();
-			});
+			btnOk.setOnClickListener(v -> launchAndDismiss(app));
 			btnClose.setText(R.string.close);
 			showButtons();
 			return;
@@ -281,12 +298,20 @@ public class InstallerDialog extends DialogFragment {
 				message = nd.getInfo(requireActivity());
 				break;
 			case AppInstaller.STATUS_OLDEST:
+				if (isAutoStart()) {
+					convert();
+					return;
+				}
 				message = new SpannableStringBuilder(getString(
 						R.string.reinstall_older,
 						nd.getVersion(),
 						installer.getCurrentVersion()));
 				break;
 			case AppInstaller.STATUS_EQUAL:
+				if (isAutoStart()) {
+					launchAndDismiss(installer.getExistsApp());
+					return;
+				}
 				message = new SpannableStringBuilder(getString(R.string.reinstall));
 				AppItem app = installer.getExistsApp();
 				btnRun.setVisibility(View.VISIBLE);
@@ -298,6 +323,10 @@ public class InstallerDialog extends DialogFragment {
 				});
 				break;
 			case AppInstaller.STATUS_NEWEST:
+				if (isAutoStart()) {
+					convert();
+					return;
+				}
 				message = new SpannableStringBuilder(getString(
 						R.string.reinstall_newest,
 						nd.getVersion(),
@@ -310,6 +339,9 @@ public class InstallerDialog extends DialogFragment {
 				return;
 			case AppInstaller.STATUS_NEED_JAD:
 				alertSelectJar(v -> openFileLauncher.launch(null));
+				return;
+			case AppInstaller.STATUS_ARCHIVE_CHOICE:
+				showArchiveChoices();
 				return;
 			default:
 				throw new IllegalStateException("Unexpected value: " + status);
@@ -325,6 +357,52 @@ public class InstallerDialog extends DialogFragment {
 		btnOk.setOnClickListener(v -> convert());
 		hideProgress();
 		showButtons();
+	}
+
+	private void showArchiveChoices() {
+		hideProgress();
+		hideButtons();
+		btnClose.setVisibility(View.VISIBLE);
+		binding.installerMessage.setText(R.string.archive_choose_game);
+		LinearLayout choices = binding.installerArchiveChoices;
+		choices.removeAllViews();
+		choices.setVisibility(View.VISIBLE);
+		for (String entry : installer.getArchiveEntries()) {
+			Button button = new Button(requireContext());
+			button.setText(new java.io.File(entry).getName());
+			button.setTextColor(getResources().getColor(R.color.text_primary));
+			button.setTextSize(12);
+			button.setAllCaps(false);
+			button.setBackgroundResource(R.drawable.bg_quick_setting_button);
+			LinearLayout.LayoutParams params = new LinearLayout.LayoutParams(dp(180), dp(52));
+			params.setMargins(dp(3), dp(3), dp(3), dp(3));
+			button.setLayoutParams(params);
+			button.setOnClickListener(v -> {
+				choices.setVisibility(View.GONE);
+				showProgress();
+				Disposable disposable = installer.selectArchiveEntry(entry)
+						.subscribeOn(Schedulers.computation())
+						.observeOn(AndroidSchedulers.mainThread())
+						.subscribe(this::onProgress, this::onError);
+				compositeDisposable.add(disposable);
+			});
+			choices.addView(button);
+		}
+	}
+
+	private boolean isAutoStart() {
+		return requireArguments().getBoolean(ARG_AUTO_START, false);
+	}
+
+	private void launchAndDismiss(AppItem app) {
+		if (app == null || !isAdded()) {
+			return;
+		}
+		Config.startApp(requireActivity(), app.getTitle(), app.getPathExt(), false);
+		dismissAllowingStateLoss();
+		if (requireArguments().getBoolean(ARG_FINISH_HOST, false)) {
+			requireActivity().finish();
+		}
 	}
 
 	private void setInstallerIcon(String path) {

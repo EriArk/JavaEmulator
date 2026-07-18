@@ -148,6 +148,21 @@ public class AppRepository implements SharedPreferences.OnSharedPreferenceChange
 		return appItemDao.get(id);
 	}
 
+	public AppItem getBySourceKey(String sourceKey) {
+		return appItemDao.getBySourceKey(sourceKey);
+	}
+
+	public void recordLaunch(AppItem item) {
+		item.setLastPlayedAt(System.currentTimeMillis());
+		item.setPlayCount(item.getPlayCount() + 1);
+		update(item);
+	}
+
+	public void toggleFavorite(AppItem item) {
+		item.setFavorite(!item.isFavorite());
+		update(item);
+	}
+
 	public void close() {
 		if (db != null) {
 			db.close();

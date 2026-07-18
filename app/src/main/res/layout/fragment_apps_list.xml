@@ -96,10 +96,38 @@
                     android:textStyle="bold" />
 
                 <TextView
+                    android:id="@+id/rail_recent"
+                    android:layout_width="match_parent"
+                    android:layout_height="48dp"
+                    android:layout_marginTop="8dp"
+                    android:background="@drawable/bg_phone_rail_item"
+                    android:clickable="true"
+                    android:focusable="true"
+                    android:fontFamily="monospace"
+                    android:gravity="center"
+                    android:text="@string/launcher_recent"
+                    android:textColor="@color/text_primary"
+                    android:textSize="12sp" />
+
+                <TextView
+                    android:id="@+id/rail_favorites"
+                    android:layout_width="match_parent"
+                    android:layout_height="48dp"
+                    android:layout_marginTop="8dp"
+                    android:background="@drawable/bg_phone_rail_item"
+                    android:clickable="true"
+                    android:focusable="true"
+                    android:fontFamily="monospace"
+                    android:gravity="center"
+                    android:text="@string/launcher_favorites"
+                    android:textColor="@color/text_primary"
+                    android:textSize="12sp" />
+
+                <TextView
                     android:id="@+id/rail_add_game"
                     android:layout_width="match_parent"
-                    android:layout_height="56dp"
-                    android:layout_marginTop="10dp"
+                    android:layout_height="48dp"
+                    android:layout_marginTop="8dp"
                     android:background="@drawable/bg_phone_rail_item"
                     android:clickable="true"
                     android:focusable="true"
@@ -110,17 +138,17 @@
                     android:textSize="12sp" />
 
                 <TextView
-                    android:id="@+id/rail_profiles"
+                    android:id="@+id/rail_folders"
                     android:layout_width="match_parent"
-                    android:layout_height="56dp"
-                    android:layout_marginTop="10dp"
+                    android:layout_height="48dp"
+                    android:layout_marginTop="8dp"
                     android:background="@drawable/bg_phone_rail_item"
                     android:clickable="true"
                     android:focusable="true"
                     android:fontFamily="monospace"
                     android:gravity="center"
-                    android:text="@string/profiles"
-                    android:textColor="@color/text_secondary"
+                    android:text="@string/launcher_folders"
+                    android:textColor="@color/text_primary"
                     android:textSize="12sp" />
 
                 <Space
@@ -368,6 +396,20 @@
                     android:fontFamily="monospace"
                     android:gravity="center"
                     android:text="@string/action_settings"
+                    android:textColor="@color/text_primary"
+                    android:textSize="13sp" />
+
+                <TextView
+                    android:id="@+id/detail_favorite"
+                    android:layout_width="match_parent"
+                    android:layout_height="38dp"
+                    android:layout_marginTop="8dp"
+                    android:background="@drawable/bg_phone_mode"
+                    android:clickable="true"
+                    android:focusable="true"
+                    android:fontFamily="monospace"
+                    android:gravity="center"
+                    android:text="@string/add_favorite"
                     android:textColor="@color/text_primary"
                     android:textSize="13sp" />
 

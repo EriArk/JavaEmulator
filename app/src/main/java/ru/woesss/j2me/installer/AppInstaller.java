@@ -27,6 +27,9 @@ import net.lingala.zip4j.ZipFile;
 import net.lingala.zip4j.io.inputstream.ZipInputStream;
 import net.lingala.zip4j.model.FileHeader;
 
+import org.apache.commons.compress.archivers.sevenz.SevenZArchiveEntry;
+import org.apache.commons.compress.archivers.sevenz.SevenZFile;
+
 import java.io.ByteArrayOutputStream;
 import java.io.DataInputStream;
 import java.io.File;
@@ -40,6 +43,7 @@ import java.net.HttpURLConnection;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.Arrays;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
 import java.util.jar.JarFile;
@@ -48,6 +52,7 @@ import io.reactivex.Single;
 import io.reactivex.SingleEmitter;
 import ru.playsoftware.j2meloader.applist.AppItem;
 import ru.playsoftware.j2meloader.appsdb.AppRepository;
+import ru.playsoftware.j2meloader.catalog.SourceIdentity;
 import ru.playsoftware.j2meloader.config.Config;
 import ru.playsoftware.j2meloader.util.ConverterException;
 import ru.playsoftware.j2meloader.util.FileUtils;
@@ -63,6 +68,7 @@ public class AppInstaller {
 	static final int STATUS_UNMATCHED = 3;
 	static final int STATUS_NEED_JAD = 4;
 	static final int STATUS_SUCCESS = 5;
+	static final int STATUS_ARCHIVE_CHOICE = 6;
 
 	private final int id;
 	private final Application context;
@@ -78,6 +84,9 @@ public class AppInstaller {
 	private File tmpDir;
 	private AppItem currentApp;
 	private File srcFile;
+	private File archiveSource;
+	private List<String> archiveEntries;
+	private String selectedArchiveEntry;
 
 	AppInstaller(String path, Uri uri, Application context, AppRepository appRepository) {
 		id = -1;
@@ -129,6 +138,17 @@ public class AppInstaller {
 		}
 
 		String name = srcFile.getName();
+		String lowerName = name.toLowerCase(Locale.US);
+		if (lowerName.endsWith(".zip") || lowerName.endsWith(".7z")) {
+			archiveSource = srcFile;
+			archiveEntries = listArchiveEntries(srcFile);
+			if (archiveEntries.size() > 1) {
+				emitter.onSuccess(STATUS_ARCHIVE_CHOICE);
+				return;
+			}
+			resolveArchive(srcFile, archiveEntries.get(0));
+			name = srcFile.getName();
+		}
 
 		if (name.toLowerCase().endsWith(".jad")) {
 			newDesc = new Descriptor(srcFile, true);
@@ -171,6 +191,109 @@ public class AppInstaller {
 			int result = checkDescriptor();
 			emitter.onSuccess(result);
 		});
+	}
+
+	List<String> getArchiveEntries() {
+		return archiveEntries == null ? java.util.Collections.emptyList() : archiveEntries;
+	}
+
+	Single<Integer> selectArchiveEntry(String entryName) {
+		return Single.create(emitter -> {
+			resolveArchive(archiveSource, entryName);
+			newDesc = loadManifest(srcJar);
+			emitter.onSuccess(checkDescriptor());
+		});
+	}
+
+	private List<String> listArchiveEntries(File archive) throws IOException, ConverterException {
+		ArrayList<String> entries = new ArrayList<>();
+		if (archive.getName().toLowerCase(Locale.US).endsWith(".zip")) {
+			try (ZipFile zip = new ZipFile(archive)) {
+				for (FileHeader header : zip.getFileHeaders()) {
+					if (!header.isDirectory() && header.getFileName().toLowerCase(Locale.US).endsWith(".jar")) {
+						entries.add(header.getFileName());
+					}
+				}
+			}
+		} else {
+			try (SevenZFile sevenZ = new SevenZFile(archive)) {
+				SevenZArchiveEntry entry;
+				while ((entry = sevenZ.getNextEntry()) != null) {
+					if (!entry.isDirectory() && entry.getName().toLowerCase(Locale.US).endsWith(".jar")) {
+						entries.add(entry.getName());
+					}
+				}
+			}
+		}
+		if (entries.isEmpty()) throw new ConverterException("Archive does not contain a JAR");
+		return entries;
+	}
+
+	private void resolveArchive(File archive, String entryName) throws IOException, ConverterException {
+		selectedArchiveEntry = entryName;
+		if (!cacheDir.exists() && !cacheDir.mkdirs()) {
+			throw new ConverterException("Can't create installer cache");
+		}
+		File output = new File(cacheDir, "archive-game.jar");
+		String lower = archive.getName().toLowerCase(Locale.US);
+		if (lower.endsWith(".zip")) {
+			FileHeader selected = null;
+			try (ZipFile zip = new ZipFile(archive)) {
+				for (FileHeader header : zip.getFileHeaders()) {
+					if (!header.isDirectory() && header.getFileName().equals(entryName)) {
+						selected = header;
+						break;
+					}
+				}
+				if (selected == null) throw new ConverterException("Archive does not contain a JAR");
+				if (selected.getUncompressedSize() > 64L * 1024 * 1024) {
+					throw new ConverterException("JAR in archive is too large");
+				}
+				try (InputStream input = zip.getInputStream(selected);
+					 OutputStream target = new FileOutputStream(output)) {
+					copyLimited(input, target);
+				}
+			}
+		} else {
+			try (SevenZFile sevenZ = new SevenZFile(archive)) {
+				SevenZArchiveEntry selected = null;
+				SevenZArchiveEntry entry;
+				while ((entry = sevenZ.getNextEntry()) != null) {
+					if (!entry.isDirectory() && entry.getName().equals(entryName)) {
+						selected = entry;
+						break;
+					}
+				}
+				if (selected == null) throw new ConverterException("Archive does not contain a JAR");
+				if (selected.getSize() > 64L * 1024 * 1024) {
+					throw new ConverterException("JAR in archive is too large");
+				}
+				try (OutputStream target = new FileOutputStream(output)) {
+					byte[] buffer = new byte[32 * 1024];
+					long total = 0;
+					int read;
+					while ((read = sevenZ.read(buffer)) > 0) {
+						total += read;
+						if (total > 64L * 1024 * 1024) throw new ConverterException("JAR is too large");
+						target.write(buffer, 0, read);
+					}
+				}
+			}
+		}
+		srcFile = output;
+		srcJar = output;
+	}
+
+	private void copyLimited(InputStream input, OutputStream output)
+			throws IOException, ConverterException {
+		byte[] buffer = new byte[32 * 1024];
+		long total = 0;
+		int read;
+		while ((read = input.read(buffer)) != -1) {
+			total += read;
+			if (total > 64L * 1024 * 1024) throw new ConverterException("JAR is too large");
+			output.write(buffer, 0, read);
+		}
 	}
 
 	private void parseKjx() throws ConverterException {
@@ -335,6 +458,11 @@ public class AppInstaller {
 		String name = newDesc.getName();
 		String vendor = newDesc.getVendor();
 		AppItem app = new AppItem(appDirName, name, vendor, newDesc.getVersion());
+		if (uri != null) {
+			app.setSourceUri(uri.toString());
+			app.setSourceKey(sourceKey());
+		}
+		app.setSourceHash(SourceIdentity.sha256(srcJar));
 		if (icon != null) {
 			app.setImagePathExt(Config.MIDLET_ICON_FILE);
 		}
@@ -343,7 +471,16 @@ public class AppInstaller {
 		}
 		if (currentApp != null) {
 			app.setId(currentApp.getId());
-			app.setTitle(currentApp.getTitle());
+			if (!"indexed".equals(currentApp.getPreparationState())) {
+				app.setTitle(currentApp.getTitle());
+			}
+			app.setFavorite(currentApp.isFavorite());
+			app.setLastPlayedAt(currentApp.getLastPlayedAt());
+			app.setPlayCount(currentApp.getPlayCount());
+			if (app.getSourceUri() == null) {
+				app.setSourceUri(currentApp.getSourceUri());
+				app.setSourceKey(currentApp.getSourceKey());
+			}
 			String path = currentApp.getPath();
 			if (!path.equals(appDirName)) {
 				File rms = new File(Config.getDataDir(), path);
@@ -557,14 +694,33 @@ public class AppInstaller {
 		// Remove invalid characters from app path
 		String name = newDesc.getName();
 		String vendor = newDesc.getVendor();
-		currentApp = appRepository.get(name, vendor);
+		String sourceKey = sourceKey();
+		currentApp = sourceKey == null ? null : appRepository.getBySourceKey(sourceKey);
 		if (currentApp == null) {
 			generatePathName(name.replaceAll(FileUtils.ILLEGAL_FILENAME_CHARS, "").trim());
 			return STATUS_NEW;
 		}
 		appDirName = currentApp.getPath();
 		targetDir = new File(Config.getAppDir(), appDirName);
-		return newDesc.compareVersion(currentApp.getVersion());
+		int versionStatus = newDesc.compareVersion(currentApp.getVersion());
+		if (versionStatus == STATUS_EQUAL && srcJar != null && currentApp.getSourceHash() != null) {
+			try {
+				if (!currentApp.getSourceHash().equals(SourceIdentity.sha256(srcJar))) {
+					return STATUS_NEWEST;
+				}
+			} catch (IOException e) {
+				Log.w(TAG, "Unable to compare source hash", e);
+			}
+		}
+		return versionStatus;
+	}
+
+	private String sourceKey() {
+		String key = SourceIdentity.key(uri);
+		if (key != null && selectedArchiveEntry != null) {
+			key += "#" + selectedArchiveEntry;
+		}
+		return key;
 	}
 
 	private void generatePathName(String name) {

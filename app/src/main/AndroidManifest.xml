@@ -7,7 +7,6 @@
     <uses-permission android:name="android.permission.POST_NOTIFICATIONS" />
     <uses-permission android:name="android.permission.RECORD_AUDIO" />
     <uses-permission android:name="android.permission.VIBRATE" />
-    <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
     <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION" />
     <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" />
     <uses-permission android:name="android.permission.INTERNET" />
@@ -35,8 +34,6 @@
         android:icon="@mipmap/ic_launcher"
         android:label="@string/app_name"
         android:largeHeap="true"
-        android:preserveLegacyExternalStorage="true"
-        android:requestLegacyExternalStorage="true"
         android:roundIcon="@mipmap/ic_launcher"
         android:supportsRtl="true"
         android:theme="@style/AppTheme"
@@ -65,6 +62,8 @@
                 <data android:mimeType="application/java-archive" />
                 <data android:mimeType="application/x-java-archive" />
                 <data android:mimeType="text/vnd.sun.j2me.app-descriptor" />
+                <data android:mimeType="application/zip" />
+                <data android:mimeType="application/x-7z-compressed" />
                 <data android:host="*" />
                 <data android:scheme="file" />
                 <data android:scheme="content" />
@@ -106,6 +105,10 @@
                 <data android:pathPattern=".*..*.JAD" />
                 <data android:pathPattern=".*..*..*.JAD" />
                 <data android:pathPattern=".*..*..*..*.JAD" />
+                <data android:pathPattern=".*.zip" />
+                <data android:pathPattern=".*.ZIP" />
+                <data android:pathPattern=".*.7z" />
+                <data android:pathPattern=".*.7Z" />
                 <data android:pathPattern=".*.kjx" />
                 <data android:pathPattern=".*..*.kjx" />
                 <data android:pathPattern=".*..*..*.kjx" />
@@ -119,6 +122,7 @@
         <activity
             android:name=".config.ConfigActivity"
             android:exported="true"
+            android:screenOrientation="landscape"
             android:windowSoftInputMode="stateHidden" />
         <activity
             android:name=".config.CompatibilityTestActivity"
@@ -132,19 +136,23 @@
             android:configChanges="orientation|screenSize|keyboardHidden|screenLayout|smallestScreenSize|uiMode"
             android:process=":midlet" />
         <activity android:name=".settings.SettingsActivity"
-            android:exported="false">
+            android:exported="false"
+            android:screenOrientation="landscape">
             <intent-filter>
                 <action android:name="android.intent.action.APPLICATION_PREFERENCES" />
 
                 <category android:name="android.intent.category.DEFAULT" />
             </intent-filter>
         </activity>
-        <activity android:name=".settings.KeyMapperActivity" android:exported="false" />
+        <activity android:name=".settings.KeyMapperActivity" android:exported="false"
+            android:screenOrientation="landscape" />
         <activity
             android:name=".filepicker.FilteredFilePickerActivity"
             android:exported="false"
+            android:screenOrientation="landscape"
             android:theme="@style/FilePickerTheme" />
-        <activity android:name=".config.ProfilesActivity" android:exported="false" />
+        <activity android:name=".config.ProfilesActivity" android:exported="false"
+            android:screenOrientation="landscape" />
 
         <provider
             android:name="androidx.core.content.FileProvider"

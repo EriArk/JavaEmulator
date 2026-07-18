@@ -19,23 +19,19 @@ package ru.playsoftware.j2meloader.config;
 
 import android.content.Context;
 import android.content.Intent;
-import android.content.SharedPreferences;
 import android.net.Uri;
-import android.os.Environment;
 
 import java.io.File;
 
 import javax.microedition.shell.MicroActivity;
 import javax.microedition.util.ContextHolder;
 
-import androidx.preference.PreferenceManager;
 
-import ru.playsoftware.j2meloader.BuildConfig;
 import ru.playsoftware.j2meloader.R;
+import ru.playsoftware.j2meloader.diagnostics.LaunchDiagnostics;
 
 import static ru.playsoftware.j2meloader.util.Constants.*;
 
-import ru.playsoftware.j2meloader.util.FileUtils;
 
 public class Config {
 	public static final String DEX_OPT_CACHE_DIR = "dex_opt";
@@ -59,30 +55,14 @@ public class Config {
 	private static String profilesDir;
 	private static String appDir;
 
-	private static final SharedPreferences.OnSharedPreferenceChangeListener sPrefListener =
-			(sharedPreferences, key) -> {
-				if (key.equals(PREF_EMULATOR_DIR)) {
-					initDirs(sharedPreferences.getString(key, emulatorDir));
-				}
-			};
-
 	static {
 		Context context = ContextHolder.getAppContext();
-		String appName = "J2ME-Loader";
-		if (!BuildConfig.FULL_EMULATOR) {
-			appName = context.getString(R.string.app_name);
-		}
-		SCREENSHOTS_DIR = Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_PICTURES)
-				+ "/" + appName;
-		SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(context);
-		String path = FileUtils.isExternalStorageLegacy() ?
-				preferences.getString(PREF_EMULATOR_DIR, null) :
-				context.getExternalFilesDir(null).getPath();
-		if (path == null) {
-			path = Environment.getExternalStorageDirectory() + "/" + appName;
-		}
+		File picturesDir = context.getExternalFilesDir(android.os.Environment.DIRECTORY_PICTURES);
+		SCREENSHOTS_DIR = new File(picturesDir == null ? context.getFilesDir() : picturesDir,
+				"AbyssME").getAbsolutePath();
+		File external = context.getExternalFilesDir(null);
+		String path = external == null ? context.getFilesDir().getAbsolutePath() : external.getAbsolutePath();
 		initDirs(path);
-		preferences.registerOnSharedPreferenceChangeListener(sPrefListener);
 	}
 
 	public static String getEmulatorDir() {
@@ -114,11 +94,7 @@ public class Config {
 	}
 
 	public static String getFsExternalDir() {
-		if (FileUtils.isExternalStorageLegacy()) {
-			return Environment.getExternalStorageDirectory().getPath() + "/";
-		} else {
-			return emulatorDir + FS_DIR + "e/";
-		}
+		return emulatorDir + FS_DIR + "e/";
 	}
 
 	public static void startApp(Context context, String name, String path, boolean showSettings) {
@@ -126,6 +102,8 @@ public class Config {
 	}
 
 	public static void startApp(Context context, String name, String path, boolean showSettings, String arguments) {
+		LaunchDiagnostics.record(context, showSettings ? "settings_requested" : "launch_requested",
+				name, path);
 		File appDir = new File(path);
 		String workDir = appDir.getParentFile().getParent();
 		File file = new File(workDir + Config.MIDLET_CONFIGS_DIR + appDir.getName());

@@ -176,6 +176,8 @@ public class ProfileModel {
 
 	@SerializedName("CompatibilityScore")
 	public int compatibilityScore;
+	public String compatibilityConfidence;
+	public String compatibilityReasons;
 
 	public static class KeyMappingProfile {
 		@SerializedName("Name")

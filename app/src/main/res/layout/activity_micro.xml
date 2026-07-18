@@ -53,59 +53,62 @@
             android:orientation="horizontal">
 
             <Button
-                android:id="@+id/quick_settings_size"
-                android:layout_width="76dp"
+                android:id="@+id/quick_settings_quality"
+                android:layout_width="92dp"
                 android:layout_height="72dp"
                 android:background="@drawable/bg_quick_setting_button"
-                android:drawableTop="@drawable/ic_quick_size"
+                android:drawableTop="@drawable/ic_quick_quality"
                 android:fontFamily="monospace"
                 android:gravity="center"
-                android:text="@string/quick_settings_size"
+                android:text="@string/quick_settings_view"
                 android:textAllCaps="false"
                 android:textColor="@color/text_primary"
                 android:textSize="12sp" />
 
             <Button
-                android:id="@+id/quick_settings_orientation"
-                android:layout_width="76dp"
+                android:id="@+id/quick_settings_screen"
+                android:layout_width="92dp"
+                android:layout_height="72dp"
+                android:layout_marginStart="6dp"
+                android:background="@drawable/bg_quick_setting_button"
+                android:drawableTop="@drawable/ic_quick_size"
+                android:fontFamily="monospace"
+                android:gravity="center"
+                android:text="@string/quick_settings_screen"
+                android:textAllCaps="false"
+                android:textColor="@color/text_primary"
+                android:textSize="12sp" />
+
+            <Button
+                android:id="@+id/quick_settings_controls"
+                android:layout_width="92dp"
                 android:layout_height="72dp"
                 android:layout_marginStart="6dp"
                 android:background="@drawable/bg_quick_setting_button"
                 android:drawableTop="@drawable/ic_quick_orientation"
                 android:fontFamily="monospace"
                 android:gravity="center"
-                android:text="@string/quick_settings_orientation"
+                android:text="@string/quick_settings_controls"
                 android:textAllCaps="false"
                 android:textColor="@color/text_primary"
                 android:textSize="12sp" />
+        </LinearLayout>
 
-            <Button
-                android:id="@+id/quick_settings_scale_type"
-                android:layout_width="76dp"
-                android:layout_height="72dp"
-                android:layout_marginStart="6dp"
-                android:background="@drawable/bg_quick_setting_button"
-                android:drawableTop="@drawable/ic_quick_scale"
-                android:fontFamily="monospace"
-                android:gravity="center"
-                android:text="@string/quick_settings_scale"
-                android:textAllCaps="false"
-                android:textColor="@color/text_primary"
-                android:textSize="12sp" />
+        <LinearLayout
+            android:id="@+id/quick_screen_options"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="top|center_horizontal"
+            android:layout_marginTop="104dp"
+            android:background="@drawable/bg_quick_map_panel"
+            android:orientation="horizontal"
+            android:visibility="gone">
 
-            <Button
-                android:id="@+id/quick_settings_quality"
-                android:layout_width="76dp"
-                android:layout_height="72dp"
-                android:layout_marginStart="6dp"
-                android:background="@drawable/bg_quick_setting_button"
-                android:drawableTop="@drawable/ic_quick_quality"
-                android:fontFamily="monospace"
-                android:gravity="center"
-                android:text="@string/quick_settings_look"
-                android:textAllCaps="false"
-                android:textColor="@color/text_primary"
-                android:textSize="12sp" />
+            <Button android:id="@+id/quick_screen_auto" style="@style/QuickOptionButton" android:text="Auto" />
+            <Button android:id="@+id/quick_screen_176" style="@style/QuickOptionButton" android:text="176x220" />
+            <Button android:id="@+id/quick_screen_240" style="@style/QuickOptionButton" android:text="240x320" />
+            <Button android:id="@+id/quick_screen_land" style="@style/QuickOptionButton" android:text="320x240" />
+            <Button android:id="@+id/quick_screen_rotate" style="@style/QuickOptionButton" android:text="Rotate" />
         </LinearLayout>
     </FrameLayout>
 

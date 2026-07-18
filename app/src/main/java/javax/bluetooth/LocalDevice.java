@@ -158,7 +158,8 @@ public class LocalDevice implements ActivityResultListener {
 	}
 
 	public String getBluetoothAddress() {
-		return androidToJavaAddress(DiscoveryAgent.adapter.getAddress());
+		// Android 10+ does not expose the local MAC address to ordinary apps.
+		return "000000000000";
 	}
 
 	public ServiceRecord getRecord(Connection notifier) {

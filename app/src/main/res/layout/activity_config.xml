@@ -13,6 +13,24 @@
         android:layout_height="wrap_content"
         android:orientation="vertical">
 
+        <Button
+            android:id="@+id/fix_game"
+            android:layout_width="match_parent"
+            android:layout_height="48dp"
+            android:layout_marginHorizontal="8dp"
+            android:layout_marginTop="8dp"
+            android:text="Fix game"
+            android:textAllCaps="false" />
+
+        <Button
+            android:id="@+id/expert_toggle"
+            android:layout_width="match_parent"
+            android:layout_height="48dp"
+            android:layout_marginHorizontal="8dp"
+            android:layout_marginVertical="4dp"
+            android:text="Expert settings"
+            android:textAllCaps="false" />
+
         <!-- Screen -->
         <androidx.constraintlayout.widget.ConstraintLayout
             android:id="@+id/screen_config_root"

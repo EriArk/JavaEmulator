@@ -135,9 +135,14 @@ public class AppUtils {
 		}
 		String[] appFolders = new File(Config.getAppDir()).list();
 		if (appFolders == null || appFolders.length == 0) {
-			// If db isn't empty
-			if (items.size() != 0) {
-				appRepository.deleteAll();
+			ArrayList<AppItem> missingPreparedApps = new ArrayList<>();
+			for (AppItem item : items) {
+				if ("ready".equals(item.getPreparationState())) {
+					missingPreparedApps.add(item);
+				}
+			}
+			if (!missingPreparedApps.isEmpty()) {
+				appRepository.delete(missingPreparedApps);
 			}
 			return;
 		}
@@ -146,6 +151,10 @@ public class AppUtils {
 		ListIterator<AppItem> iterator = items.listIterator(items.size());
 		while (iterator.hasPrevious()) {
 			AppItem item = iterator.previous();
+			if (!"ready".equals(item.getPreparationState())) {
+				iterator.remove();
+				continue;
+			}
 			if (appFoldersList.remove(item.getPath())) {
 				iterator.remove();
 			}

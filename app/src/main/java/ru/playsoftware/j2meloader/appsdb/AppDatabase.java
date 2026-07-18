@@ -19,22 +19,13 @@ package ru.playsoftware.j2meloader.appsdb;
 import android.content.Context;
 
 import androidx.room.Database;
-import androidx.room.migration.Migration;
 import androidx.room.Room;
 import androidx.room.RoomDatabase;
-import androidx.sqlite.db.SupportSQLiteDatabase;
 
 import ru.playsoftware.j2meloader.applist.AppItem;
 
-@Database(entities = {AppItem.class}, version = 2, exportSchema = false)
+@Database(entities = {AppItem.class}, version = 3, exportSchema = false)
 public abstract class AppDatabase extends RoomDatabase {
-
-	private static final Migration MIGRATION_1_2 = new Migration(1, 2) {
-		@Override
-		public void migrate(SupportSQLiteDatabase database) {
-			database.execSQL("ALTER TABLE apps ADD COLUMN coverPath TEXT");
-		}
-	};
 
 	public abstract AppItemDao appItemDao();
 
@@ -42,8 +33,8 @@ public abstract class AppDatabase extends RoomDatabase {
 		return Room.databaseBuilder(
 				context.getApplicationContext(),
 				AppDatabase.class,
-				dir + "/J2ME-apps.db")
-				.addMigrations(MIGRATION_1_2)
+				dir + "/abyssme.db")
+				.fallbackToDestructiveMigration()
 				.build();
 	}
 }

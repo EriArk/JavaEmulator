@@ -25,7 +25,10 @@ import androidx.room.PrimaryKey;
 import ru.playsoftware.j2meloader.R;
 import ru.playsoftware.j2meloader.config.Config;
 
-@Entity(tableName = "apps", indices = {@Index(value = {"path"}, unique = true)})
+@Entity(tableName = "apps", indices = {
+		@Index(value = {"path"}, unique = true),
+		@Index(value = {"sourceKey"}, unique = true)
+})
 public class AppItem {
 	@PrimaryKey(autoGenerate = true)
 	private int id;
@@ -35,6 +38,14 @@ public class AppItem {
 	private final String author;
 	private final String version;
 	private final String path;
+	private String sourceUri;
+	private String sourceKey;
+	private String sourceHash;
+	private boolean favorite;
+	private long lastPlayedAt;
+	private int playCount;
+	private String preparationState = "ready";
+	private String lastError;
 
 	public AppItem(String path, String title, String author, String version) {
 		this.path = path;
@@ -85,6 +96,70 @@ public class AppItem {
 
 	public String getVersion() {
 		return version;
+	}
+
+	public String getSourceUri() {
+		return sourceUri;
+	}
+
+	public void setSourceUri(String sourceUri) {
+		this.sourceUri = sourceUri;
+	}
+
+	public String getSourceKey() {
+		return sourceKey;
+	}
+
+	public void setSourceKey(String sourceKey) {
+		this.sourceKey = sourceKey;
+	}
+
+	public String getSourceHash() {
+		return sourceHash;
+	}
+
+	public void setSourceHash(String sourceHash) {
+		this.sourceHash = sourceHash;
+	}
+
+	public boolean isFavorite() {
+		return favorite;
+	}
+
+	public void setFavorite(boolean favorite) {
+		this.favorite = favorite;
+	}
+
+	public long getLastPlayedAt() {
+		return lastPlayedAt;
+	}
+
+	public void setLastPlayedAt(long lastPlayedAt) {
+		this.lastPlayedAt = lastPlayedAt;
+	}
+
+	public int getPlayCount() {
+		return playCount;
+	}
+
+	public void setPlayCount(int playCount) {
+		this.playCount = playCount;
+	}
+
+	public String getPreparationState() {
+		return preparationState;
+	}
+
+	public void setPreparationState(String preparationState) {
+		this.preparationState = preparationState;
+	}
+
+	public String getLastError() {
+		return lastError;
+	}
+
+	public void setLastError(String lastError) {
+		this.lastError = lastError;
 	}
 
 	public String getPathExt() {

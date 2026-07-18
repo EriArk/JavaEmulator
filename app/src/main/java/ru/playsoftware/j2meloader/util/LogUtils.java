@@ -20,6 +20,7 @@ import java.io.File;
 import java.io.IOException;
 
 import ru.playsoftware.j2meloader.config.Config;
+import javax.microedition.util.ContextHolder;
 
 public class LogUtils {
 
@@ -29,6 +30,12 @@ public class LogUtils {
 			logFile.delete();
 		}
 		Runtime.getRuntime().exec("logcat -t 500 -f " + logFile);
+		File sessions = new File(ContextHolder.getAppContext().getFilesDir(),
+				"launch-diagnostics.jsonl");
+		if (sessions.isFile()) {
+			FileUtils.copyFileUsingChannel(sessions,
+					new File(Config.getEmulatorDir(), "launch-diagnostics.jsonl"));
+		}
 	}
 
 }
