@@ -64,6 +64,7 @@ import androidx.fragment.app.FragmentManager;
 import androidx.preference.PreferenceManager;
 import androidx.core.widget.TextViewCompat;
 
+import ru.playsoftware.j2meloader.BuildConfig;
 import ru.playsoftware.j2meloader.R;
 import ru.playsoftware.j2meloader.base.BaseActivity;
 import ru.playsoftware.j2meloader.databinding.ActivityConfigBinding;
@@ -587,14 +588,17 @@ public class ConfigActivity extends BaseActivity implements View.OnClickListener
 		binding.fontSizeLarge.setText(Integer.toString(params.fontSizeLarge));
 		binding.showFontSizesInScaledPixelsToggle.setChecked(params.fontApplyDimensions);
 		binding.enableAntiAliasingToggle.setChecked(params.fontAA);
-		boolean showVk = false;
-		binding.showVirtualKeyboardToggle.setChecked(false);
-		binding.showVirtualKeyboardToggle.setVisibility(View.GONE);
-		binding.virtualKeyboardConfigGroup.setVisibility(View.GONE);
+		boolean showVk = !BuildConfig.HANDHELD_MODE && params.showKeyboard;
+		binding.showVirtualKeyboardToggle.setChecked(showVk);
+		binding.showVirtualKeyboardToggle.setVisibility(
+				BuildConfig.HANDHELD_MODE ? View.GONE : View.VISIBLE);
+		binding.virtualKeyboardConfigGroup.setVisibility(showVk ? View.VISIBLE : View.GONE);
 		binding.enableHapticFeedbackToggle.setChecked(params.vkFeedback);
 		binding.forceOpacityForOffscreenKeysToggle.setChecked(params.vkForceOpacity);
-		binding.enableTouchInputToggle.setVisibility(View.GONE);
-		binding.enableTouchInputToggle.setChecked(false);
+		binding.enableTouchInputToggle.setVisibility(
+				BuildConfig.HANDHELD_MODE ? View.GONE : View.VISIBLE);
+		binding.enableTouchInputToggle.setChecked(
+				!BuildConfig.HANDHELD_MODE && params.touchInput);
 		int fpsLimit = params.fpsLimit;
 		binding.fpsLimit.setText(fpsLimit > 0 ? Integer.toString(fpsLimit) : "");
 
@@ -668,10 +672,12 @@ public class ConfigActivity extends BaseActivity implements View.OnClickListener
 			}
 			params.fontApplyDimensions = binding.showFontSizesInScaledPixelsToggle.isChecked();
 			params.fontAA = binding.enableAntiAliasingToggle.isChecked();
-			params.showKeyboard = false;
+			params.showKeyboard = !BuildConfig.HANDHELD_MODE
+					&& binding.showVirtualKeyboardToggle.isChecked();
 			params.vkFeedback = binding.enableHapticFeedbackToggle.isChecked();
 			params.vkForceOpacity = binding.forceOpacityForOffscreenKeysToggle.isChecked();
-			params.touchInput = false;
+			params.touchInput = !BuildConfig.HANDHELD_MODE
+					&& binding.enableTouchInputToggle.isChecked();
 
 			params.keyCodesLayout = binding.buttonsLayoutSelector.getSelectedItemPosition();
 			params.vkButtonShape = binding.buttonShapeSelector.getSelectedItemPosition();
@@ -876,7 +882,9 @@ public class ConfigActivity extends BaseActivity implements View.OnClickListener
 			params.screenScaleRatio = 100;
 			params.screenKeepAspectRatio = true;
 			params.screenGravity = 2;
-			params.orientation = 3;
+			if (BuildConfig.HANDHELD_MODE) {
+				params.orientation = 3;
+			}
 		} else if (symptom == 1) {
 			params.graphicsMode = (params.graphicsMode + 1) % 3;
 			params.immediateMode = true;
@@ -893,19 +901,22 @@ public class ConfigActivity extends BaseActivity implements View.OnClickListener
 			params.compatibilityProfile = "Generic MIDP";
 			params.compatibilityConfidence = "safe fallback";
 		}
-		params.showKeyboard = false;
-		params.touchInput = false;
+		if (BuildConfig.HANDHELD_MODE) {
+			params.showKeyboard = false;
+			params.touchInput = false;
+		}
 		ProfilesManager.saveConfig(params);
 		loadParams(false);
 		Toast.makeText(this, R.string.fix_game_applied, Toast.LENGTH_LONG).show();
 	}
 
 	private void applyHandheldControlsPreset() {
-		binding.enableTouchInputToggle.setChecked(false);
-		binding.showVirtualKeyboardToggle.setChecked(false);
-		binding.virtualKeyboardConfigGroup.setVisibility(View.GONE);
-		binding.forceFullscreenToggle.setChecked(true);
-		binding.screenOrientationSelector.setSelection(3);
+		boolean phone = !BuildConfig.HANDHELD_MODE;
+		binding.enableTouchInputToggle.setChecked(phone);
+		binding.showVirtualKeyboardToggle.setChecked(phone);
+		binding.virtualKeyboardConfigGroup.setVisibility(phone ? View.VISIBLE : View.GONE);
+		binding.forceFullscreenToggle.setChecked(!phone);
+		binding.screenOrientationSelector.setSelection(phone ? 0 : 3);
 		binding.scaleTypeSelector.setSelection(1);
 		binding.screenGravitySelector.setSelection(2);
 		binding.buttonsLayoutSelector.setSelection(0);

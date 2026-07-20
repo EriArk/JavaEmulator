@@ -228,7 +228,7 @@ public class MicroActivity extends AppCompatActivity {
 				orientation = ORIENTATION_PORTRAIT;
 			}
 		}
-		setOrientation(ORIENTATION_LANDSCAPE);
+		setOrientation(BuildConfig.HANDHELD_MODE ? ORIENTATION_LANDSCAPE : orientation);
 		menuKey = microLoader.getMenuKeyCode();
 		setupQuickSettingsOverlay();
 		setupQuickMapOverlay();
@@ -291,7 +291,25 @@ public class MicroActivity extends AppCompatActivity {
 
 	@SuppressLint("SourceLockedOrientationActivity")
 	private void setOrientation(int orientation) {
-		setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_SENSOR_LANDSCAPE);
+		if (BuildConfig.HANDHELD_MODE) {
+			setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_SENSOR_LANDSCAPE);
+			return;
+		}
+		switch (orientation) {
+			case ORIENTATION_AUTO:
+				setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_FULL_SENSOR);
+				break;
+			case ORIENTATION_PORTRAIT:
+				setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_SENSOR_PORTRAIT);
+				break;
+			case ORIENTATION_LANDSCAPE:
+				setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_SENSOR_LANDSCAPE);
+				break;
+			case ORIENTATION_DEFAULT:
+			default:
+				setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_UNSPECIFIED);
+				break;
+		}
 	}
 
 	private void loadMIDlet() throws Exception {

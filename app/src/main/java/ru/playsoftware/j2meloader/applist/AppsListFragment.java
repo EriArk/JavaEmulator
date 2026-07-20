@@ -92,6 +92,7 @@ import io.reactivex.Observable;
 import io.reactivex.ObservableOnSubscribe;
 import io.reactivex.android.schedulers.AndroidSchedulers;
 import io.reactivex.disposables.Disposable;
+import ru.playsoftware.j2meloader.BuildConfig;
 import ru.playsoftware.j2meloader.R;
 import ru.playsoftware.j2meloader.appsdb.AppRepository;
 import ru.playsoftware.j2meloader.config.Config;
@@ -269,6 +270,11 @@ public class AppsListFragment extends Fragment implements AppsListAdapter.Listen
 
 	private int calculateSpanCount(int mode) {
 		int screenWidthDp = getResources().getConfiguration().screenWidthDp;
+		if (isCompactPhoneLayout()) {
+			int minCardWidth = mode == AppsListAdapter.MODE_GALLERY ? 156 : 124;
+			return Math.max(mode == AppsListAdapter.MODE_GALLERY ? 1 : 2,
+					Math.max(1, screenWidthDp - 24) / minCardWidth);
+		}
 		int reserved = 132 + 330 + 32;
 		int available = Math.max(320, screenWidthDp - reserved);
 		int minCardWidth = mode == AppsListAdapter.MODE_GALLERY ? 150 : 112;
@@ -615,7 +621,8 @@ public class AppsListFragment extends Fragment implements AppsListAdapter.Listen
 			return;
 		}
 		selectedItem = item;
-		binding.detailPanel.setVisibility(item != null ? View.VISIBLE : View.GONE);
+		binding.detailPanel.setVisibility(item != null && !isCompactPhoneLayout()
+				? View.VISIBLE : View.GONE);
 		if (item == null) {
 			return;
 		}
@@ -640,6 +647,12 @@ public class AppsListFragment extends Fragment implements AppsListAdapter.Listen
 
 	private int dp(int value) {
 		return Math.round(value * getResources().getDisplayMetrics().density);
+	}
+
+	private boolean isCompactPhoneLayout() {
+		return !BuildConfig.HANDHELD_MODE
+				&& getResources().getConfiguration().orientation
+				== Configuration.ORIENTATION_PORTRAIT;
 	}
 
 	private void updateClock() {

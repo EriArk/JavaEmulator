@@ -13,9 +13,10 @@ android {
         applicationId "io.github.eriark.abyssme"
         minSdk MIN_SDK
         targetSdk TARGET_SDK
-        versionCode 101
-        versionName "0.1.0-beta.1"
+        versionCode 102
+        versionName "0.1.0-beta.2"
         resValue 'string', 'app_name', rootProject.name
+        buildConfigField 'boolean', 'HANDHELD_MODE', 'true'
         vectorDrawables.useSupportLibrary = true
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
     }
@@ -75,6 +76,15 @@ android {
             proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'),
                     'proguard-rules.pro', 'proguard-common.pro'
         }
+        phone {
+            applicationIdSuffix '.phone'
+            versionNameSuffix '-phone'
+            resValue 'string', 'app_name', 'AbyssME Phone'
+            buildConfigField 'boolean', 'FULL_EMULATOR', 'true'
+            buildConfigField 'boolean', 'HANDHELD_MODE', 'false'
+            proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'),
+                    'proguard-rules.pro', 'proguard-common.pro'
+        }
         dev {
             buildConfigField 'boolean', 'FULL_EMULATOR', 'true'
             proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'),
@@ -118,7 +128,8 @@ android {
 
     applicationVariants.all {
         if (buildType.name == 'debug' && flavorName != 'midlet') {
-            resValue 'string', 'app_name', 'AbyssME Debug'
+            resValue 'string', 'app_name', flavorName == 'phone'
+                    ? 'AbyssME Phone Debug' : 'AbyssME Debug'
         }
         def baseName = flavorName == 'midlet' ? "${midletArchivesBaseName}-" : "${rootProject.name}-"
         outputs.all {

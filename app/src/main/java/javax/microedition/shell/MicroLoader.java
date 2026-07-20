@@ -338,9 +338,15 @@ public class MicroLoader {
 	void applyConfiguration() {
 		try {
 			// Apply configuration to the launching MIDlet
-			params.showKeyboard = false;
-			params.touchInput = false;
-			ContextHolder.setVk(null);
+			if (BuildConfig.HANDHELD_MODE) {
+				params.showKeyboard = false;
+				params.touchInput = false;
+				ContextHolder.setVk(null);
+			} else if (params.showKeyboard) {
+				ContextHolder.setVk(new VirtualKeyboard(params));
+			} else {
+				ContextHolder.setVk(null);
+			}
 			setProperties();
 
 			final String[] propLines = params.systemProperties.split("\n");
@@ -378,7 +384,7 @@ public class MicroLoader {
 			Font.applySettings(params);
 
 			KeyMapper.setKeyMapping(params);
-			Canvas.setHasTouchInput(false);
+			Canvas.setHasTouchInput(!BuildConfig.HANDHELD_MODE && params.touchInput);
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
@@ -458,7 +464,9 @@ public class MicroLoader {
 	}
 
 	private void saveDisplayConfiguration() {
-		params.touchInput = false;
+		if (BuildConfig.HANDHELD_MODE) {
+			params.touchInput = false;
+		}
 		ProfilesManager.saveConfig(params);
 		Canvas.setScale(params.screenGravity, params.screenScaleType, params.screenScaleRatio);
 		Canvas.setFilterBitmap(params.screenFilter);

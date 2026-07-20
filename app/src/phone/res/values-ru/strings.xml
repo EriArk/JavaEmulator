@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="launcher_title">ABYSSME PHONE</string>
+    <string name="pref_handheld_controls_preset">Пресет сенсорного управления</string>
+    <string name="pref_handheld_controls_preset_applied">Пресет сенсорного управления применен</string>
+</resources>

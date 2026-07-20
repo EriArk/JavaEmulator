@@ -28,6 +28,7 @@ import javax.microedition.lcdui.keyboard.KeyMapper;
 import javax.microedition.lcdui.keyboard.VirtualKeyboard;
 import javax.microedition.util.ContextHolder;
 
+import ru.playsoftware.j2meloader.BuildConfig;
 import ru.playsoftware.j2meloader.util.SparseIntArrayAdapter;
 
 public class ProfileModel {
@@ -221,8 +222,8 @@ public class ProfileModel {
 		fontSizeLarge = 26;
 		fontAA = true;
 
-		showKeyboard = false;
-		touchInput = false;
+		showKeyboard = !BuildConfig.HANDHELD_MODE;
+		touchInput = !BuildConfig.HANDHELD_MODE;
 
 		vkButtonShape = VirtualKeyboard.ROUND_RECT_SHAPE;
 		vkAlpha = 64;

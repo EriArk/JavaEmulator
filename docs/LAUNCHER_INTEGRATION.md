@@ -15,3 +15,7 @@ source launch the prepared game directly. Exiting the game returns to ES-DE.
 Configure the launcher with package `io.github.eriark.abyssme`, activity
 `.MainActivity`, action `android.intent.action.VIEW`, and the game as the intent
 data URI. Supported sources are JAR, JAD, ZIP and 7Z. Content URIs are preferred.
+
+The touch-oriented build can be addressed as `io.github.eriark.abyssme.phone`
+with the same activity, action and URI format. The two packages keep independent
+libraries and per-game settings.

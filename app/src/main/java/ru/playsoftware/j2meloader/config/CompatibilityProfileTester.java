@@ -24,6 +24,7 @@ import java.util.zip.ZipFile;
 
 import javax.microedition.util.ContextHolder;
 
+import ru.playsoftware.j2meloader.BuildConfig;
 import ru.playsoftware.j2meloader.R;
 import ru.woesss.j2me.jar.Descriptor;
 
@@ -97,8 +98,10 @@ final class CompatibilityProfileTester {
 		params.compatibilityReasons = reasons;
 		params.compatibilityTested = true;
 		applyDisplayDefaults(params, probe);
-		params.showKeyboard = false;
-		params.touchInput = false;
+		if (BuildConfig.HANDHELD_MODE) {
+			params.showKeyboard = false;
+			params.touchInput = false;
+		}
 		ProfilesManager.saveConfig(params);
 		return new Result(best.name, best.score, confidence, reasons);
 	}
