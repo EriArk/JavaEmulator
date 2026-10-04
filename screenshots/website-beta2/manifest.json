@@ -1,0 +1,108 @@
+{
+  "product": "AbyssME",
+  "version": "0.1.0-beta.2",
+  "captured_at": "2026-10-04T20:40:35.846176+00:00",
+  "environment": "Android 15 / API 35 x86_64 emulator, not physical-device captures",
+  "capture_settings": {
+    "handheld": "1920x1080, 240 dpi",
+    "phone": "1080x1920, 400 dpi; Phone keylayout chosen through Virtual keyboard > Switch keylayout",
+    "gameplay": "2048 played using directional input; Phone capture played by tapping virtual 2/4/6/8 keys"
+  },
+  "images": [
+    {
+      "png": "01-handheld-gallery.png",
+      "webp": "webp/01-handheld-gallery.webp",
+      "width": 1920,
+      "height": 1080,
+      "png_bytes": 279401,
+      "webp_bytes": 195640
+    },
+    {
+      "png": "02-handheld-grid.png",
+      "webp": "webp/02-handheld-grid.webp",
+      "width": 1920,
+      "height": 1080,
+      "png_bytes": 186188,
+      "webp_bytes": 99194
+    },
+    {
+      "png": "03-handheld-list.png",
+      "webp": "webp/03-handheld-list.webp",
+      "width": 1920,
+      "height": 1080,
+      "png_bytes": 139251,
+      "webp_bytes": 65170
+    },
+    {
+      "png": "04-handheld-gameplay.png",
+      "webp": "webp/04-handheld-gameplay.webp",
+      "width": 1920,
+      "height": 1080,
+      "png_bytes": 26012,
+      "webp_bytes": 7808
+    },
+    {
+      "png": "05-quick-settings.png",
+      "webp": "webp/05-quick-settings.webp",
+      "width": 1920,
+      "height": 1080,
+      "png_bytes": 35030,
+      "webp_bytes": 11808
+    },
+    {
+      "png": "06-controller-mapping.png",
+      "webp": "webp/06-controller-mapping.webp",
+      "width": 1920,
+      "height": 1080,
+      "png_bytes": 41876,
+      "webp_bytes": 11782
+    },
+    {
+      "png": "07-phone-portrait-keypad.png",
+      "webp": "webp/07-phone-portrait-keypad.webp",
+      "width": 1080,
+      "height": 1920,
+      "png_bytes": 55128,
+      "webp_bytes": 14334
+    }
+  ],
+  "processing": "Unretouched adb screencap PNGs; lossless WebP copies, no resizing or compositing.",
+  "library": "Free demonstration games installed separately; not bundled with AbyssME.",
+  "installed_games": [
+    "2048",
+    "Caverns of Fire",
+    "Dungeons of Hack",
+    "Matrix Miner",
+    "Munchies",
+    "Ogrotron",
+    "Pub Man",
+    "Space Run"
+  ],
+  "display_names": "Spaces added using the built-in Rename action; JARs are unchanged.",
+  "artwork": "Gallery covers selected manually using Change cover. JGame covers are original author screenshots; 2048 uses its bundled icon. Grid/List retain actual MIDlet icons and native fallbacks.",
+  "sources": [
+    {
+      "title": "2048 for J2ME",
+      "url": "https://github.com/jsmucr/2048-for-J2ME"
+    },
+    {
+      "title": "JGame mobile games",
+      "author": "Boris van Schooten",
+      "url": "https://www.13thmonkey.org/~boris/jgame/JGame/html/mobile.html"
+    },
+    {
+      "title": "JGame artwork",
+      "url": "https://www.13thmonkey.org/~boris/jgame/JGame/html/games.html"
+    }
+  ],
+  "release_apks": [
+    {
+      "name": "AbyssME-0.1.0-beta.2-fdroid-release.apk",
+      "sha256": "ededbb4fb781718635226aadf48cee12de041857ff2b63944b6785e1eb748dc6"
+    },
+    {
+      "name": "AbyssME-0.1.0-beta.2-phone-release.apk",
+      "sha256": "c37492b05c36e687aa8fba38a6d4130ca9ab9da44b0a791da95f2e826e4dfd68"
+    }
+  ]
+}
