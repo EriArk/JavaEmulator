@@ -1,5 +1,10 @@
 # Handheld UI Direction
 
+> Historical design exploration, not a description of the current release or
+> a committed roadmap. Some proposals below were implemented differently or
+> remain unimplemented. See the [README](../README.md) for shipped behavior and
+> [Issues](https://github.com/EriArk/JavaEmulator/issues) for current work.
+
 ## Product feel
 
 The app should feel like a small handheld console launcher, not like an Android file list.
@@ -82,4 +87,3 @@ First implementation slice:
 3. Add landscape detail pane.
 4. Add pause overlay for gamepad use.
 5. Polish settings into grouped handheld/display/input pages.
-

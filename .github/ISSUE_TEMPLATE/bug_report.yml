@@ -1,28 +1,44 @@
 name: Bug Report
-description: File a bug report
+description: Report a reproducible problem with AbyssME
 labels: bug
 body:
+  - type: markdown
+    attributes:
+      value: |
+        Please search existing issues first. Do not attach commercial game files,
+        signing keys, passwords or private data. Screenshots and redacted logs help.
   - type: input
     id: emulator-version
     attributes:
       label: Emulator version
-      placeholder: "e.g. 1.7.9"
+      placeholder: "e.g. 0.1.0-beta.2"
     validations:
       required: true
+  - type: dropdown
+    id: build-variant
+    attributes:
+      label: Build variant
+      options:
+        - Handheld
+        - Phone
+        - Local/custom build
+    validations:
+      required: true
+  - type: input
+    id: game-name
+    attributes:
+      label: Game title and filename (if relevant)
+      description: Include the vendor or resolution variant if known; do not upload the game.
   - type: input
     id: game-version
     attributes:
       label: Game version
       placeholder: "e.g. 1.0.1"
-    validations:
-      required: true
   - type: input
     id: game-resolution
     attributes:
       label: Game resolution
       placeholder: "e.g. 240x320"
-    validations:
-      required: true
   - type: input
     id: device
     attributes:
@@ -38,9 +54,26 @@ body:
     validations:
       required: true
   - type: textarea
-    id: issue
+    id: steps
     attributes:
-      label: Description of the issue
-      description: What's the issue you encountered?
+      label: Steps to reproduce
+      description: Describe how to reach the problem, starting from opening the app.
     validations:
       required: true
+  - type: textarea
+    id: result
+    attributes:
+      label: Expected and actual behavior
+      description: What should happen, and what happens instead?
+    validations:
+      required: true
+  - type: input
+    id: controls-launcher
+    attributes:
+      label: Controller and external launcher (if relevant)
+      placeholder: "e.g. Odin 2 controls; ES-DE version; cold or already-running app"
+  - type: textarea
+    id: evidence
+    attributes:
+      label: Screenshots or redacted logs
+      description: Remove personal paths, account details and other private information.

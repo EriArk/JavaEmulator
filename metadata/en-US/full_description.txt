@@ -1,4 +1,10 @@
-J2ME Loader is a J2ME emulator for Android. It supports most 2D and 3D games (including Mascot Capsule 3D ones).
-Emulator has a virtual keyboard, individual settings for each application, scaling support. This project is a fork of J2meLoader.
+AbyssME is an independent fork of J2ME Loader for Android handhelds and phones.
 
-Translations page: https://crowdin.com/project/j2me-loader
+The Handheld build offers a landscape game library and physical-controller mappings. The separate Phone build includes an on-screen keypad and a portrait keypad layout. Both use the same emulation core and keep independent libraries and settings.
+
+Features include Gallery, List and Grid views, local game artwork, per-game controls and live display settings. First-launch setup selects initial settings from game metadata and resource hints; it does not verify gameplay under multiple phone profiles.
+
+Android 10 or newer is required. This is beta software: compatibility, Phone rotation and external-launcher behavior still have known limitations. No games are bundled with the APKs.
+
+Downloads, current limitations and support: https://github.com/EriArk/JavaEmulator
+Upstream J2ME Loader: https://github.com/nikita36078/J2ME-Loader

@@ -6,7 +6,7 @@ body:
     id: quick-summary
     attributes:
       label: Quick summary
-      description: Please briefly describe what feature you would like J2ME Loader to have.
+      description: What would you like AbyssME to improve, and what problem would it solve?
     validations:
       required: true
   - type: textarea

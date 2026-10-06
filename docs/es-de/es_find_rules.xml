@@ -2,7 +2,7 @@
 <ruleList>
     <emulator name="ABYSSME">
         <rule type="androidpackage">
-            <entry>io.github.eriark.abyssme/.MainActivity</entry>
+            <entry>io.github.eriark.abyssme/ru.playsoftware.j2meloader.MainActivity</entry>
         </rule>
     </emulator>
 </ruleList>

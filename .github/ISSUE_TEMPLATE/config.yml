@@ -1,5 +1,5 @@
 blank_issues_enabled: false
 contact_links:
-  - name: Discord
-    url: https://discord.gg/Ag4rcpz
-    about: If you are experiencing issues or have questions, you can ask on our Discord server.
+  - name: Setup and known limitations
+    url: https://github.com/EriArk/JavaEmulator#readme
+    about: Read the AbyssME setup guide, then use a bug report or feature request for this fork.

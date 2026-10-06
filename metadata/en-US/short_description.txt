@@ -1,1 +1,1 @@
-A J2ME emulator for Android.
+J2ME games on Android handhelds and phones.
