@@ -1,6 +1,6 @@
 # Built application files
 *.apk
-!test-builds/*.apk
+# Historical tracked APKs stay in test-builds; new binaries go to Releases only.
 *.ap_
 *.aab
 

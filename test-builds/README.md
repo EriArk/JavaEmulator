@@ -23,7 +23,17 @@ they may use different package IDs or signing keys. Do not assume they can
 update a current installation or preserve its data.
 
 Reports and screenshots describe the particular build and test environment
-named in each report; they do not certify later releases. Existing files are
-being retained while the archive policy is discussed in
-[#6](https://github.com/EriArk/JavaEmulator/issues/6).
+named in each report; they do not certify later releases. Existing APKs remain
+as an archive; they are not removed or rewritten. Git history is preserved.
+
+## Publication policy
+
+As approved in [#6](https://github.com/EriArk/JavaEmulator/issues/6), new APKs
+are published only as manually uploaded GitHub Release assets. Do not add new
+APKs to Git or replace an archived APK in this directory. The `.gitignore`
+rule excludes new APKs, while previously tracked files remain tracked.
+
+Text release notes, checksums and test reports may still be committed. Keep
+new release documentation under `docs/releases`, with download links pointing
+to Releases. Follow the [manual release checklist](../docs/RELEASING.md).
 No APKs are built or published automatically by GitHub Actions.

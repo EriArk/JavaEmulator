@@ -170,4 +170,5 @@ from [JL-Mod](https://github.com/woesss/JL-Mod) by woesss.
 Licensed under the [Apache License 2.0](LICENSE). See the repository history and
 source headers for individual copyright notices.
 Third-party games and artwork are not relicensed by this notice. The provenance
-of legacy repository fixtures is tracked separately in [test-games](test-games/README.md).
+and licenses of current test fixtures, plus the disposition of legacy files,
+are documented separately in [test-games](test-games/README.md).

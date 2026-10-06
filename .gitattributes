@@ -1,2 +1,8 @@
 *.h linguist-language=C
 *.inl linguist-language=C
+
+# Preserve downloaded fixture bytes so SHA-256 checks survive every checkout.
+test-games/sudoku-j2me/LICENSE -text
+test-games/sudoku-j2me/*.jad -text
+test-games/sudoku-j2me/*.jar -text
+test-games/sudoku-j2me/*.zip -text

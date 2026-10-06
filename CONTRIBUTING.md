@@ -57,6 +57,8 @@ new execution.
 GitHub Actions is intentionally disabled. Checks and builds run locally;
 maintainers publish signed release assets manually. Do not add workflows or
 automatic publishing as part of an unrelated contribution.
+New APKs belong only in GitHub Releases, not in the Git tree. Historical tracked
+APKs remain an archive. See the [manual release checklist](docs/RELEASING.md).
 
 ## Manual verification
 
