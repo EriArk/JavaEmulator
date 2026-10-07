@@ -305,7 +305,7 @@ final class CompatibilityProfileTester {
 		params.screenScaleRatio = 100;
 		params.screenGravity = 2;
 		params.forceFullscreen = true;
-		params.orientation = 3;
+		if (BuildConfig.HANDHELD_MODE) params.orientation = 3;
 	}
 
 	private static int scoreHints(String text, String... hints) {

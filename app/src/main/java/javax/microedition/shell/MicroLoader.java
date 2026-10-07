@@ -21,7 +21,6 @@ import static android.os.Build.VERSION.SDK_INT;
 import static android.os.Build.VERSION_CODES.UPSIDE_DOWN_CAKE;
 
 import android.content.Context;
-import android.graphics.Bitmap;
 import android.os.Environment;
 import android.os.StrictMode;
 import android.util.Log;
@@ -34,7 +33,6 @@ import org.acra.ACRA;
 import org.acra.ErrorReporter;
 
 import java.io.File;
-import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.lang.reflect.Constructor;
@@ -42,10 +40,7 @@ import java.lang.reflect.InvocationTargetException;
 import java.math.BigInteger;
 import java.nio.charset.Charset;
 import java.security.MessageDigest;
-import java.text.SimpleDateFormat;
 import java.util.ArrayList;
-import java.util.Calendar;
-import java.util.Date;
 import java.util.LinkedHashMap;
 import java.util.Locale;
 import java.util.Map;
@@ -239,6 +234,11 @@ public class MicroLoader {
 		return params.orientation;
 	}
 
+	void setOrientation(int orientation) {
+		params.orientation = orientation;
+		saveDisplayConfiguration();
+	}
+
 	int getScreenScaleRatio() {
 		return params.screenScaleRatio;
 	}
@@ -411,19 +411,8 @@ public class MicroLoader {
 				.subscribeOn(Schedulers.computation())
 				.observeOn(Schedulers.io())
 				.map(bitmap -> {
-					Calendar calendar = Calendar.getInstance();
-					Date now = calendar.getTime();
-					//noinspection SpellCheckingInspection
-					SimpleDateFormat simpleDateFormat = new SimpleDateFormat("yyyyMMdd-HHmmss", Locale.US);
-					String fileName = "Screenshot_" + simpleDateFormat.format(now) + ".png";
-					File screenshotDir = new File(Config.SCREENSHOTS_DIR);
-					File screenshotFile = new File(screenshotDir, fileName);
-					if (!screenshotDir.exists() && !screenshotDir.mkdirs()) {
-						throw new IOException("Can't create directory: " + screenshotDir);
-					}
-					FileOutputStream out = new FileOutputStream(screenshotFile);
-					bitmap.compress(Bitmap.CompressFormat.PNG, 100, out);
-					return screenshotFile.getAbsolutePath();
+					return ru.playsoftware.j2meloader.util.Screenshots.save(
+							ContextHolder.getAppContext(), bitmap).toString();
 				})
 				.observeOn(AndroidSchedulers.mainThread())
 				.subscribe(observer);

@@ -41,6 +41,13 @@ public class SettingsFragment extends PreferenceFragmentCompat {
 	@Override
 	public void onCreatePreferences(Bundle bundle, String rootKey) {
 		setPreferencesFromResource(R.xml.preferences, rootKey);
+		androidx.preference.SwitchPreferenceCompat screenshot = findPreference(
+				ru.playsoftware.j2meloader.util.Screenshots.BUTTON_PREFERENCE);
+		screenshot.setChecked(ru.playsoftware.j2meloader.util.Screenshots.isButtonVisible(requireContext()));
+		screenshot.setOnPreferenceChangeListener((preference, value) -> {
+			ru.playsoftware.j2meloader.util.Screenshots.setButtonVisible(requireContext(), (Boolean) value);
+			return true;
+		});
 		foldersPreference = findPreference("pref_game_folders");
 		foldersPreference.setOnPreferenceClickListener(preference -> {
 			folderLauncher.launch(null);

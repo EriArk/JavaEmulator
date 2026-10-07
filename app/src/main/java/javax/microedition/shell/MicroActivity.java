@@ -100,6 +100,7 @@ import ru.playsoftware.j2meloader.input.ControllerInput;
 import ru.playsoftware.j2meloader.input.ControllerMapperView;
 import ru.playsoftware.j2meloader.util.Constants;
 import ru.playsoftware.j2meloader.util.LogUtils;
+import ru.playsoftware.j2meloader.util.Screenshots;
 
 public class MicroActivity extends AppCompatActivity {
 	private static final int ORIENTATION_DEFAULT = 0;
@@ -111,6 +112,7 @@ public class MicroActivity extends AppCompatActivity {
 
 	private Displayable current;
 	private boolean visible;
+	private boolean screenshotPending;
 	private boolean actionBarEnabled;
 	private boolean statusBarEnabled;
 	private MicroLoader microLoader;
@@ -220,17 +222,18 @@ public class MicroActivity extends AppCompatActivity {
 		}
 		microLoader.applyConfiguration();
 		VirtualKeyboard vk = ContextHolder.getVk();
-		int orientation = BuildConfig.HANDHELD_MODE ? ORIENTATION_LANDSCAPE : ORIENTATION_AUTO;
+		int orientation = microLoader.getOrientation();
 		if (vk != null) {
 			vk.setView(binding.overlayView);
 			binding.overlayView.addLayer(vk);
-			if (vk.isPhone()) {
+			if (vk.isPhone() && orientation == ORIENTATION_DEFAULT) {
 				orientation = ORIENTATION_PORTRAIT;
 			}
 		}
 		setOrientation(BuildConfig.HANDHELD_MODE ? ORIENTATION_LANDSCAPE : orientation);
 		menuKey = microLoader.getMenuKeyCode();
 		setupQuickSettingsOverlay();
+		binding.gameScreenshotButton.setOnClickListener(v -> takeScreenshot());
 		binding.gameMenuButton.setVisibility(BuildConfig.HANDHELD_MODE ? View.GONE : View.VISIBLE);
 		binding.gameMenuButton.setOnClickListener(v -> openOptionsMenu());
 		binding.gameDisplayButton.setVisibility(BuildConfig.HANDHELD_MODE ? View.GONE : View.VISIBLE);
@@ -264,6 +267,7 @@ public class MicroActivity extends AppCompatActivity {
 	public void onResume() {
 		super.onResume();
 		visible = true;
+		updateScreenshotButton();
 		if (!isQuickMapVisible() && (gameMenu == null || !gameMenu.isShowing())) MidletThread.resumeApp();
 	}
 
@@ -581,6 +585,7 @@ public class MicroActivity extends AppCompatActivity {
 		binding.quickSettingsOverlay.setVisibility(View.VISIBLE);
 		binding.gameDisplayButton.setVisibility(View.GONE);
 		binding.gameMenuButton.setVisibility(View.GONE);
+		updateScreenshotButton();
 		scheduleQuickSettingsHide();
 	}
 
@@ -593,6 +598,15 @@ public class MicroActivity extends AppCompatActivity {
 		binding.quickSettingsOverlay.setVisibility(View.GONE);
 		binding.gameDisplayButton.setVisibility(BuildConfig.HANDHELD_MODE ? View.GONE : View.VISIBLE);
 		binding.gameMenuButton.setVisibility(BuildConfig.HANDHELD_MODE ? View.GONE : View.VISIBLE);
+		updateScreenshotButton();
+	}
+
+	private void updateScreenshotButton() {
+		if (binding == null) return;
+		boolean show = current instanceof Canvas && Screenshots.isButtonVisible(this)
+				&& binding.quickSettingsOverlay.getVisibility() != View.VISIBLE && !isQuickMapVisible();
+		binding.gameScreenshotButton.setVisibility(show ? View.VISIBLE : View.GONE);
+		binding.gameScreenshotButton.setEnabled(!screenshotPending);
 	}
 
 	private void scheduleQuickSettingsHide() {
@@ -661,6 +675,7 @@ public class MicroActivity extends AppCompatActivity {
 		binding.quickMapOverlay.addView(controllerMapper, new ViewGroup.LayoutParams(
 				ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT));
 		binding.quickMapOverlay.setVisibility(View.VISIBLE);
+		updateScreenshotButton();
 		hideSystemUI();
 	}
 
@@ -670,6 +685,7 @@ public class MicroActivity extends AppCompatActivity {
 		binding.quickMapOverlay.setVisibility(View.GONE);
 		binding.quickMapOverlay.removeAllViews();
 		controllerMapper = null;
+		updateScreenshotButton();
 		if (visible) {
 			MidletThread.resumeApp();
 		}
@@ -769,8 +785,9 @@ public class MicroActivity extends AppCompatActivity {
 		});
 		if (!BuildConfig.HANDHELD_MODE) {
 			gameMenu.action("Rotate device layout",R.drawable.ic_quick_orientation,()-> {
-				setRequestedOrientation(getResources().getConfiguration().orientation == Configuration.ORIENTATION_PORTRAIT
-						? ActivityInfo.SCREEN_ORIENTATION_SENSOR_LANDSCAPE : ActivityInfo.SCREEN_ORIENTATION_SENSOR_PORTRAIT);
+				microLoader.setOrientation(getResources().getConfiguration().orientation == Configuration.ORIENTATION_PORTRAIT
+						? ORIENTATION_LANDSCAPE : ORIENTATION_PORTRAIT);
+				setOrientation(microLoader.getOrientation());
 				gameMenu.dismiss();
 			});
 		}
@@ -779,6 +796,10 @@ public class MicroActivity extends AppCompatActivity {
 
 	private void showMorePage() {
 		gameMenu.page("More");
+		gameMenu.toggle(getString(R.string.screenshot_button), Screenshots.isButtonVisible(this), value -> {
+			Screenshots.setButtonVisible(this, value);
+			updateScreenshotButton();
+		});
 		if (current instanceof Canvas) gameMenu.action("Screenshot", R.drawable.ic_action_screenshot, () -> {
 			gameMenu.dismiss(); takeScreenshot();
 		});
@@ -926,7 +947,8 @@ public class MicroActivity extends AppCompatActivity {
 		} else if (id == R.id.action_lock_orientation) {
 			if (item.isChecked()) {
 				VirtualKeyboard vk = ContextHolder.getVk();
-				int orientation = vk != null && vk.isPhone() ? ORIENTATION_PORTRAIT : microLoader.getOrientation();
+				int orientation = microLoader.getOrientation();
+				if (orientation == ORIENTATION_DEFAULT && vk != null && vk.isPhone()) orientation = ORIENTATION_PORTRAIT;
 				setOrientation(orientation);
 				item.setChecked(false);
 			} else {
@@ -968,6 +990,9 @@ public class MicroActivity extends AppCompatActivity {
 
 	@SuppressLint("CheckResult")
 	private void takeScreenshot() {
+		if (!(current instanceof Canvas) || screenshotPending || !visible) return;
+		screenshotPending = true;
+		updateScreenshotButton();
 		microLoader.takeScreenshot((Canvas) current, new SingleObserver<String>() {
 			@Override
 			public void onSubscribe(@NonNull Disposable d) {
@@ -975,14 +1000,17 @@ public class MicroActivity extends AppCompatActivity {
 
 			@Override
 			public void onSuccess(@NonNull String s) {
-				Toast.makeText(MicroActivity.this, getString(R.string.screenshot_saved)
-						+ " " + s, Toast.LENGTH_LONG).show();
+				screenshotPending = false;
+				updateScreenshotButton();
+				Toast.makeText(getApplicationContext(), R.string.screenshot_gallery_saved, Toast.LENGTH_SHORT).show();
 			}
 
 			@Override
 			public void onError(@NonNull Throwable e) {
+				screenshotPending = false;
+				updateScreenshotButton();
 				e.printStackTrace();
-				Toast.makeText(MicroActivity.this, R.string.error, Toast.LENGTH_SHORT).show();
+				Toast.makeText(getApplicationContext(), R.string.screenshot_failed, Toast.LENGTH_SHORT).show();
 			}
 		});
 	}
@@ -1127,6 +1155,7 @@ public class MicroActivity extends AppCompatActivity {
 		@Override
 		public void process() {
 			closeOptionsMenu();
+			updateScreenshotButton();
 			if (current != null) {
 				current.clearDisplayableView();
 			}

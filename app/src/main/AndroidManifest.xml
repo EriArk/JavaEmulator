@@ -156,6 +156,10 @@
             android:screenOrientation="landscape" />
 
         <provider
+            android:name=".util.ScreenshotSettingsProvider"
+            android:authorities="${applicationId}.screenshotSettings"
+            android:exported="false" />
+        <provider
             android:name="androidx.core.content.FileProvider"
             android:authorities="${applicationId}.provider"
             android:exported="false"

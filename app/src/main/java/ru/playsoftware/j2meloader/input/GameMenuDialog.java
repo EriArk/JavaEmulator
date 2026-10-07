@@ -127,6 +127,17 @@ public final class GameMenuDialog extends Dialog {
         row.addView(spinner,new LinearLayout.LayoutParams(0,dp(48),1.3f));
         content.addView(row,new LinearLayout.LayoutParams(-1,dp(58)));
     }
+    public void toggle(String label, boolean checked, java.util.function.Consumer<Boolean> change) {
+        android.widget.Switch toggle = new android.widget.Switch(getContext());
+        toggle.setText(label); toggle.setTextSize(15); toggle.setTextColor(0xffedf1ee);
+        toggle.setChecked(checked);
+        toggle.setThumbTintList(new android.content.res.ColorStateList(
+                new int[][]{new int[]{android.R.attr.state_checked}, new int[]{}},
+                new int[]{0xffffc15a, 0xffa9b9bd}));
+        toggle.setTrackTintList(android.content.res.ColorStateList.valueOf(0xff526873));
+        toggle.setOnCheckedChangeListener((button, value) -> change.accept(value));
+        content.addView(toggle, new LinearLayout.LayoutParams(-1, dp(52)));
+    }
     public void opacity(int value, java.util.function.IntConsumer change) {
         TextView label = new TextView(getContext());
         label.setText("Opacity: " + value + "%"); label.setTextSize(15); label.setTextColor(0xffedf1ee);

@@ -9,7 +9,8 @@
         <Preference
             android:icon="@drawable/ic_setting_folder"
             android:key="pref_import_library"
-            android:title="Import from J2ME Loader" />
+            android:title="Library transfer"
+            android:summary="Back up, restore, or import from J2ME Loader" />
     </PreferenceCategory>
 
     <PreferenceCategory android:title="Handheld">
@@ -23,6 +24,14 @@
             android:icon="@drawable/ic_setting_keep_screen_on"
             android:key="pref_wakelock_switch"
             android:title="Keep screen awake while playing" />
+    </PreferenceCategory>
+
+    <PreferenceCategory android:title="In-game interface">
+        <SwitchPreferenceCompat
+            android:key="pref_screenshot_button"
+            android:persistent="false"
+            android:icon="@drawable/ic_action_screenshot"
+            android:title="@string/screenshot_button" />
     </PreferenceCategory>
 
     <PreferenceCategory android:title="Support">

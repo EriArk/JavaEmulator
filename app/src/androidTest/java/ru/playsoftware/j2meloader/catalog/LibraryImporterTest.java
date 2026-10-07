@@ -171,4 +171,86 @@ public class LibraryImporterTest {
 		assertNull(catalog.bySource(entry.sourceKey));
 		assertTrue(new File(source, "data/old-folder/sudoku.rms").isFile());
 	}
+
+	@Test public void archiveRoundTripPreservesProgressControlsAndLibraryMetadata() throws Exception {
+		ProfileModel profile = new ProfileModel(new File(source, "configs/old-folder"));
+		profile.touchLayout = 1; profile.touchOpacity = 75; profile.screenRotation = 180;
+		profile.orientation = 2;
+		profile.ensureCustomKeyMappingProfile();
+		profile.getActiveKeyMappings().put(96, 55);
+		assertTrue(ProfilesManager.saveConfig(profile));
+		AppItem sourceItem = new AppItem("old-folder", "Sudoku J2ME", "Vendor", "1");
+		sourceItem.setFavorite(true); sourceItem.setPlayCount(17);
+		write(source, "fs/c/shared-save", "shared progress");
+		java.io.ByteArrayOutputStream out = new java.io.ByteArrayOutputStream();
+		LibraryArchive archive = new LibraryArchive(cancel);
+		assertEquals(1, archive.write(source, java.util.Collections.singletonList(sourceItem), out));
+		File unpacked = archive.unpack(new java.io.ByteArrayInputStream(out.toByteArray()), context.getCacheDir());
+		try {
+			assertFalse(new File(unpacked, "converted/old-folder/converted.dex").exists());
+			LibraryImporter.Preview preview = importer.scanBackup(unpacked);
+			assertTrue(preview.entries.get(0).hasSaves);
+			importer.importEntry(preview.entries.get(0));
+			AppItem restored = catalog.bySource(preview.entries.get(0).sourceKey);
+			assertTrue(restored.isFavorite()); assertEquals(17, restored.getPlayCount());
+			ProfileModel loaded = ProfilesManager.loadConfig(new File(destination, "configs/" + restored.getPath()));
+			assertEquals(Integer.valueOf(1), loaded.touchLayout); assertEquals(75, loaded.touchOpacity);
+			assertEquals(180, loaded.screenRotation); assertEquals(BuildConfig.HANDHELD_MODE ? 3 : 2, loaded.orientation);
+			assertEquals(55, loaded.getActiveKeyMappings().get(96));
+			assertEquals(SourceIdentity.sha256(new File(source, "data/old-folder/sudoku.rms")),
+					SourceIdentity.sha256(new File(destination, "data/" + restored.getPath() + "/sudoku.rms")));
+			assertTrue(importer.importSharedFiles(preview).contains("1 shared files copied"));
+			write(destination, "fs/c/shared-save", "newer progress");
+			assertTrue(importer.importSharedFiles(preview).contains("1 existing files kept"));
+			assertEquals("newer progress", new String(Files.readAllBytes(new File(destination, "fs/c/shared-save").toPath()), StandardCharsets.UTF_8));
+			assertNotNull(importer.scanBackup(unpacked).entries.get(0).problem);
+		} finally { LibraryArchive.remove(unpacked); }
+	}
+
+	@Test public void unsafeAndIncompleteArchivesNeverPublish() throws Exception {
+		for (String path : new String[]{"../outside", "converted/../../escape", "/absolute", "converted/game/converted.dex"}) {
+			java.io.ByteArrayOutputStream out = new java.io.ByteArrayOutputStream();
+			try (java.util.zip.ZipOutputStream zip = new java.util.zip.ZipOutputStream(out)) {
+				zip.putNextEntry(new java.util.zip.ZipEntry(path)); zip.write(1); zip.closeEntry();
+			}
+			try {
+				new LibraryArchive(cancel).unpack(new java.io.ByteArrayInputStream(out.toByteArray()), context.getCacheDir()); fail();
+			} catch (java.io.IOException expected) { }
+			assertFalse(new File(destination, "converted").exists());
+		}
+	}
+
+	@Test public void changedArchivePayloadIsRejected() throws Exception {
+		java.io.ByteArrayOutputStream out = new java.io.ByteArrayOutputStream();
+		LibraryArchive archive = new LibraryArchive(cancel);
+		archive.write(source, java.util.Collections.singletonList(new AppItem("old-folder", "Game", "Vendor", "1")), out);
+		java.io.ByteArrayOutputStream modified = new java.io.ByteArrayOutputStream();
+		try (java.util.zip.ZipInputStream in = new java.util.zip.ZipInputStream(new java.io.ByteArrayInputStream(out.toByteArray()));
+			 java.util.zip.ZipOutputStream zip = new java.util.zip.ZipOutputStream(modified)) {
+			java.util.zip.ZipEntry entry;
+			while ((entry = in.getNextEntry()) != null) {
+				zip.putNextEntry(new java.util.zip.ZipEntry(entry.getName()));
+				byte[] buffer = new byte[8192]; int n;
+				while ((n = in.read(buffer)) != -1) zip.write(buffer, 0, n);
+				if (entry.getName().endsWith("sudoku.rms")) zip.write(42);
+				zip.closeEntry();
+			}
+		}
+		try { archive.unpack(new java.io.ByteArrayInputStream(modified.toByteArray()), context.getCacheDir()); fail(); }
+		catch (java.io.IOException expected) { assertTrue(expected.getMessage().contains("checksum")); }
+	}
+
+	@Test public void separatelySelectedGameAndSavesUseTheSameImportTransaction() throws Exception {
+		LibraryImporter.Preview preview = importer.scanSingle(DocumentFile.fromFile(new File(source, "converted/old-folder")),
+				DocumentFile.fromFile(new File(source, "data/old-folder")), DocumentFile.fromFile(new File(source, "configs/old-folder")));
+		assertTrue(preview.entries.get(0).hasSaves);
+		importer.importEntry(preview.entries.get(0));
+		AppItem item = catalog.bySource(preview.entries.get(0).sourceKey);
+		assertNotNull(item);
+		assertTrue(new File(destination, "data/" + item.getPath() + "/sudoku.rms").isFile());
+		try {
+			importer.scanSingle(DocumentFile.fromFile(new File(source, "converted/old-folder")), DocumentFile.fromFile(source), null);
+			fail();
+		} catch (java.io.IOException expected) { assertTrue(expected.getMessage().contains("same name")); }
+	}
 }

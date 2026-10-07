@@ -2,7 +2,6 @@
 package ru.playsoftware.j2meloader.catalog;
 
 import android.content.Context;
-import android.content.pm.ActivityInfo;
 import android.net.Uri;
 import android.database.Cursor;
 import android.provider.DocumentsContract;
@@ -63,12 +62,16 @@ public final class LibraryImporter {
 	public static final class Entry {
 		public String title, vendor, version, sourceKey, problem;
 		public boolean selected, duplicateTitle;
+		public boolean hasSaves;
+		private JsonObject backupInfo;
+		private String nativeId;
 		private DocumentFile game, data, config;
 	}
 
 	public static final class Preview {
 		public final List<Entry> entries = new ArrayList<>();
 		public boolean sharedFiles;
+		private DocumentFile shared;
 	}
 
 	private static final long MAX_BYTES = 256L * 1024 * 1024;
@@ -89,12 +92,40 @@ public final class LibraryImporter {
 	}
 
 	public Preview scan(DocumentFile root) throws IOException {
+		return scan(root, null);
+	}
+
+	public Preview scanBackup(File root) throws IOException {
+		return scan(DocumentFile.fromFile(root), LibraryArchive.readManifest(root));
+	}
+
+	/** Some older providers only grant direct children. Separate picker grants avoid file-manager copying. */
+	public Preview scanSingle(DocumentFile game, DocumentFile data, DocumentFile config) throws IOException {
+		if (game == null || !game.isDirectory()) throw new IOException("Select one installed game folder inside converted");
+		Entry entry = new Entry();
+		entry.game = game; entry.data = data; entry.config = config;
+		if ((data != null && !game.getName().equals(data.getName())) || (config != null && !game.getName().equals(config.getName())))
+			throw new IOException("Select the folder with the same name as the game: " + game.getName());
+		Descriptor descriptor = new Descriptor(readText(find(game, "converted.dex.conf"), 1024 * 1024), false);
+		entry.title = descriptor.getName(); entry.vendor = descriptor.getVendor(); entry.version = descriptor.getVersion();
+		entry.sourceKey = "j2me-library:" + game.getUri();
+		if (find(game, "res.jar") == null) throw new IOException("Original JAR required (no res.jar)");
+		if (catalog.bySource(entry.sourceKey) != null) entry.problem = "Already imported; existing saves will be kept";
+		entry.hasSaves = data != null && children(data).length > 0;
+		if (config != null && find(config, "config.json") == null) throw new IOException("Select this game's folder inside configs");
+		entry.duplicateTitle = catalog.byTitle(entry.title, entry.vendor) != null;
+		entry.selected = entry.problem == null && !entry.duplicateTitle;
+		Preview preview = new Preview(); preview.entries.add(entry); return preview;
+	}
+
+	private Preview scan(DocumentFile root, JsonObject backup) throws IOException {
 		checkCancelled();
 		if (root == null || !root.isDirectory() || !root.canRead()) throw new IOException("Cannot read this folder");
 		DocumentFile converted = find(root, "converted");
 		if (converted == null || !converted.isDirectory()) throw new IOException("Select the J2ME Loader folder containing converted, data and configs");
 		Preview result = new Preview();
-		result.sharedFiles = find(root, "fs") != null;
+		result.shared = find(root, "fs");
+		result.sharedFiles = result.shared != null && children(result.shared).length > 0;
 		DocumentFile data = find(root, "data"), configs = find(root, "configs");
 		DocumentFile[] games = children(converted);
 		if (games.length > MAX_FILES) throw new IOException("Too many library entries");
@@ -107,14 +138,29 @@ public final class LibraryImporter {
 			entry.sourceKey = "j2me-library:" + game.getUri();
 			try {
 				validName(game.getName());
-				Descriptor descriptor = new Descriptor(readText(find(game, "converted.dex.conf"), 1024 * 1024), false);
-				entry.title = descriptor.getName();
-				entry.vendor = descriptor.getVendor();
-				entry.version = descriptor.getVersion();
+				if (backup != null) {
+					entry.sourceKey = "abyssme-backup:" + backup.get("id").getAsString() + ":" + game.getName();
+					entry.backupInfo = backup.getAsJsonObject("games").getAsJsonObject(game.getName());
+					if (entry.backupInfo == null) throw new IOException("Game missing from backup manifest");
+				}
+				if (backup != null && find(game, AdditionalGames.MANIFEST) != null) {
+					AdditionalGames.Engine engine = AdditionalGames.get(context);
+					if (engine == null) throw new IOException("This build does not include this game's engine");
+					AppItem item = engine.readInstalled(new File(game.getUri().getPath()));
+					entry.nativeId = item.getPath();
+					if (!entry.nativeId.matches("mophun-[0-9a-f]{64}")) throw new IOException("Unsupported game identifier");
+					entry.title = item.getTitle(); entry.vendor = item.getAuthor(); entry.version = item.getVersion();
+					if (catalog.byPath(entry.nativeId) != null || new File(destination, "converted/" + entry.nativeId).exists())
+						entry.problem = "Already installed; existing saves will be kept";
+				} else {
+					Descriptor descriptor = new Descriptor(readText(find(game, "converted.dex.conf"), 1024 * 1024), false);
+					entry.title = descriptor.getName(); entry.vendor = descriptor.getVendor(); entry.version = descriptor.getVersion();
+					if (find(game, "res.jar") == null) entry.problem = "Original JAR required (no res.jar)";
+				}
 				entry.data = data == null ? null : find(data, game.getName());
 				entry.config = configs == null ? null : find(configs, game.getName());
-				if (find(game, "res.jar") == null) entry.problem = "Original JAR required (no res.jar)";
-				else if (catalog.bySource(entry.sourceKey) != null) entry.problem = "Already imported; existing saves will be kept";
+				entry.hasSaves = entry.data != null && children(entry.data).length > 0;
+				if (catalog.bySource(entry.sourceKey) != null) entry.problem = "Already imported; existing saves will be kept";
 				entry.duplicateTitle = catalog.byTitle(entry.title, entry.vendor) != null;
 				entry.selected = entry.problem == null && !entry.duplicateTitle;
 			} catch (IOException | RuntimeException error) {
@@ -131,17 +177,26 @@ public final class LibraryImporter {
 		checkCancelled();
 		if (entry.problem != null) throw new IOException(entry.problem);
 		copied = 0; files = 0;
-		String id = "import-" + UUID.randomUUID();
-		File stage = new File(new File(destination, ".library-import"), id);
+		String transaction = "import-" + UUID.randomUUID();
+		String id = entry.nativeId == null ? transaction : entry.nativeId;
+		File stage = new File(new File(destination, ".library-import"), transaction);
 		synchronized (LibraryImporter.class) {
 			mkdir(stage);
-			active.add(id);
+			active.add(transaction);
 		}
 		File app = new File(stage, "converted"), data = new File(stage, "data"), config = new File(stage, "configs");
 		boolean committed = false;
 		String notes;
 		try {
 			mkdir(app); mkdir(data); mkdir(config);
+			AppItem item;
+			if (entry.nativeId != null) {
+				copyTree(entry.game, app, 0);
+				item = new AppItem(id, entry.title, entry.vendor, entry.version);
+				String hash = SourceIdentity.sha256(new File(app, "game.mpn"));
+				if (!id.equals("mophun-" + hash)) throw new IOException("Game checksum mismatch");
+				item.setSourceHash(hash);
+			} else {
 			copyFile(find(entry.game, "res.jar"), new File(app, "res.jar"));
 			Descriptor descriptor = new Descriptor(readText(find(entry.game, "converted.dex.conf"), 1024 * 1024), false);
 			if (!entry.title.equals(descriptor.getName()) || !entry.vendor.equals(descriptor.getVendor())
@@ -153,16 +208,23 @@ public final class LibraryImporter {
 			Main.main(new String[]{"--no-optimize", "--core-library", "--output=" + new File(app, "converted.dex"), jar.getPath()});
 			if (!new File(app, "converted.dex").isFile()) throw new IOException("Missing converted code");
 			descriptor.writeTo(new File(app, "converted.dex.conf"));
+			item = new AppItem(id, descriptor.getName(), descriptor.getVendor(), descriptor.getVersion());
+			item.setSourceHash(SourceIdentity.sha256(jar));
+			}
 			for (String art : new String[]{"icon.png", "cover.png"}) {
 				DocumentFile file = find(entry.game, art);
 				if (file != null) copyFile(file, new File(app, art));
 			}
 			if (entry.data != null) copyTree(entry.data, data, 0);
-			notes = importConfig(entry.config, config);
+			notes = importConfig(entry.config, config, entry.backupInfo != null);
 			checkCancelled();
-			AppItem item = new AppItem(id, descriptor.getName(), descriptor.getVendor(), descriptor.getVersion());
 			item.setSourceKey(entry.sourceKey);
-			item.setSourceHash(SourceIdentity.sha256(jar));
+			if (entry.backupInfo != null) {
+				if (entry.backupInfo.has("title")) item.setTitle(entry.backupInfo.get("title").getAsString());
+				item.setFavorite(entry.backupInfo.get("favorite").getAsBoolean());
+				item.setPlayCount(entry.backupInfo.get("playCount").getAsInt());
+				item.setLastPlayedAt(entry.backupInfo.get("lastPlayedAt").getAsLong());
+			}
 			if (new File(app, "icon.png").isFile()) item.setImagePathExt("icon.png");
 			if (new File(app, "cover.png").isFile()) item.setCoverPathExt("cover.png");
 			// Recovery and startup indexing share this lock. The marker is durable before any moves.
@@ -175,7 +237,7 @@ public final class LibraryImporter {
 					mkdir(target.getParentFile());
 				}
 				try (FileOutputStream marker = new FileOutputStream(new File(stage, "pending"))) {
-					marker.write(1); marker.getFD().sync();
+					marker.write(id.getBytes(StandardCharsets.UTF_8)); marker.getFD().sync();
 				}
 				try {
 					for (String dir : new String[]{"data", "configs", "converted"}) {
@@ -189,18 +251,18 @@ public final class LibraryImporter {
 					if (!committed) rollback(destination, id);
 				}
 			}
-			return "Imported" + (notes.isEmpty() ? "" : "; " + notes);
+			return "Imported" + (entry.hasSaves ? " with saves" : "; no saves found") + (notes.isEmpty() ? "" : "; " + notes);
 		} finally {
 			// A pending marker is kept if cleanup fails so startup can retry safely.
 			synchronized (LibraryImporter.class) {
 				try {
 					if (committed || !new File(stage, "pending").exists() || !hasPublished(destination, id)) delete(stage);
-				} finally { active.remove(id); }
+				} finally { active.remove(transaction); }
 			}
 		}
 	}
 
-	private String importConfig(DocumentFile source, File target) throws IOException {
+	private String importConfig(DocumentFile source, File target, boolean backup) throws IOException {
 		String notes = "";
 		DocumentFile json = source == null ? null : find(source, "config.json");
 		if (json == null) return "settings not transferred; automatic setup on launch";
@@ -222,6 +284,15 @@ public final class LibraryImporter {
 				"VirtualKeyboardColorBackground", "VirtualKeyboardColorBackgroundSelected",
 				"VirtualKeyboardColorForeground", "VirtualKeyboardColorForegroundSelected",
 				"VirtualKeyboardColorOutline", "Layout", "KeyCodeMap", "KeyMappings", "SystemProperties"));
+		if (backup) {
+			// Only fields in our own model, never arbitrary JSON fields or foreign filesystem paths.
+			for (java.lang.reflect.Field field : ProfileModel.class.getFields()) {
+				if (java.lang.reflect.Modifier.isStatic(field.getModifiers()) || java.lang.reflect.Modifier.isTransient(field.getModifiers())) continue;
+				com.google.gson.annotations.SerializedName name = field.getAnnotation(com.google.gson.annotations.SerializedName.class);
+				allowed.add(name == null ? field.getName() : name.value());
+			}
+			allowed.remove("Shader");
+		}
 		for (String key : allowed) if (original.has(key) && !original.get(key).isJsonNull()) merged.add(key, original.get(key));
 		ProfileModel profile;
 		try { profile = gson.fromJson(merged, ProfileModel.class); }
@@ -239,19 +310,50 @@ public final class LibraryImporter {
 		profile.systemProperties = properties.toString();
 		if (original.has("Shader") && !original.get("Shader").isJsonNull()) notes = "external paths and custom shaders not transferred";
 		profile.dir = target;
-		profile.keyMappingProfiles = null;
+		if (!backup) profile.keyMappingProfiles = null;
 		profile.ensureKeyMappingProfiles();
-		profile.touchLayout = null;
+		if (!backup) profile.touchLayout = null;
 		if (BuildConfig.HANDHELD_MODE) {
 			profile.showKeyboard = false;
 			profile.touchInput = false;
-			profile.orientation = ActivityInfo.SCREEN_ORIENTATION_LANDSCAPE;
+			profile.orientation = 3;
 		} else {
 			DocumentFile keyboard = find(source, "VirtualKeyboardLayout");
 			if (keyboard != null) copyFile(keyboard, new File(target, "VirtualKeyboardLayout"));
 		}
 		if (!ProfilesManager.saveConfig(profile)) throw new IOException("Cannot save imported settings");
 		return notes;
+	}
+
+	/** Shared file-API data is merged on explicit request; collisions never replace existing files. */
+	public String importSharedFiles(Preview preview) throws IOException {
+		if (preview.shared == null) return "No shared files";
+		copied = 0; files = 0;
+		int[] counts = new int[2];
+		File stage = Files.createTempDirectory(destination.toPath(), ".shared-import-").toFile();
+		try {
+			copyTree(preview.shared, stage, 0);
+			mergeShared(stage, new File(destination, "fs"), counts);
+			return counts[0] + " shared files copied, " + counts[1] + " existing files kept";
+		} catch (CancellationException | IOException e) {
+			throw new IOException("Shared files: " + counts[0] + " copied, " + counts[1] + " kept; " + e.getMessage(), e);
+		} finally { delete(stage); }
+	}
+
+	private void mergeShared(File source, File target, int[] counts) throws IOException {
+		checkCancelled();
+		if (Files.isSymbolicLink(target.toPath())) throw new IOException("Linked destination is not supported");
+		if (source.isDirectory()) {
+			if (target.exists() && !target.isDirectory()) { counts[1]++; return; }
+			mkdir(target);
+			File[] children = source.listFiles();
+			if (children == null) throw new IOException("Cannot read staged shared files");
+			for (File child : children) mergeShared(child, new File(target, child.getName()), counts);
+		} else if (target.exists()) counts[1]++;
+		else {
+			try { Files.move(source.toPath(), target.toPath()); counts[0]++; }
+			catch (java.nio.file.FileAlreadyExistsException e) { counts[1]++; }
+		}
 	}
 
 	private void validateJar(File jar, Descriptor descriptor) throws IOException {
@@ -354,7 +456,7 @@ public final class LibraryImporter {
 						new String[]{DocumentsContract.Document.COLUMN_MIME_TYPE}, null, null, null)) {
 					if (cursor == null || !cursor.moveToFirst() || cursor.isNull(0)) throw new IOException("Cannot read a source entry");
 				} catch (RuntimeException error) {
-					throw new IOException("This provider blocks nested folders. Select a copy in Documents instead.", error);
+					throw new IOException("This provider blocks nested folders. Use J2ME Loader > Single game and select its saves separately.", error);
 				}
 			}
 		}
@@ -412,7 +514,13 @@ public final class LibraryImporter {
 			String id = stage.getName();
 			if (active.contains(id)) continue;
 			if (!id.matches("import-[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}")) continue;
-			if (new File(stage, "pending").isFile() && catalog.byPath(id) == null) rollback(root, id);
+			File marker = new File(stage, "pending");
+			if (marker.isFile()) {
+				String target = new String(Files.readAllBytes(marker.toPath()), StandardCharsets.UTF_8);
+				if (target.equals("\u0001") || target.equals("1")) target = id;
+				if (!target.equals(id) && !target.matches("mophun-[0-9a-f]{64}")) throw new IOException("Invalid import recovery marker");
+				if (catalog.byPath(target) == null) rollback(root, target);
+			}
 			delete(stage);
 		}
 	}

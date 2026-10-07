@@ -222,6 +222,7 @@ public class ProfileModel {
 		screenScaleType = 1;
 		screenGravity = 1;
 		screenScaleRatio = 100;
+		orientation = BuildConfig.HANDHELD_MODE ? 3 : 1;
 		screenScaleToFit = true;
 		screenKeepAspectRatio = true;
 		graphicsMode = 1;
