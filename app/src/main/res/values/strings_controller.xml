@@ -1,0 +1,21 @@
+<resources>
+    <string name="quick_rotate_image">Rotate image</string>
+    <string name="quick_rotation_value">Rotate image: %1$d\u00b0</string>
+    <string name="display_save_failed">Could not save display settings.</string>
+    <plurals name="library_games">
+        <item quantity="one">%d game</item>
+        <item quantity="other">%d games</item>
+    </plurals>
+    <string name="mapper_title">Controls</string>
+    <string name="mapper_controller">GAMEPAD</string>
+    <string name="mapper_phone">PHONE KEYS</string>
+    <string name="mapper_detect">Identify button</string>
+    <string name="mapper_undo">Undo last change</string>
+    <string name="mapper_listening">Listening...</string>
+    <string name="mapper_save">Save &amp; resume</string>
+    <string name="mapper_unbind">Unbind</string>
+    <string name="mapper_duplicate">Duplicate profile</string>
+    <string name="mapper_unbound">Unbound</string>
+    <string name="mapper_combined">Two directions</string>
+    <string name="mapper_save_failed">Could not save controls. Your changes are still open.</string>
+</resources>

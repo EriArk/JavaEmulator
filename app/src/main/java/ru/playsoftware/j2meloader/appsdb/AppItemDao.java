@@ -44,6 +44,12 @@ public interface AppItemDao {
 	@Insert(onConflict = OnConflictStrategy.REPLACE)
 	void insert(AppItem item);
 
+	@Insert(onConflict = OnConflictStrategy.ABORT)
+	long insertImported(AppItem item);
+
+	@Query("SELECT * FROM apps WHERE path = :path LIMIT 1")
+	AppItem getByPath(String path);
+
 	@Insert(onConflict = OnConflictStrategy.IGNORE)
 	void insert(List<AppItem> items);
 

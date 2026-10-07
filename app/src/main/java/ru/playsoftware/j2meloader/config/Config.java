@@ -102,6 +102,7 @@ public class Config {
 	}
 
 	public static void startApp(Context context, String name, String path, boolean showSettings, String arguments) {
+		if (ru.playsoftware.j2meloader.catalog.AdditionalGames.launch(context, name, new File(path), showSettings)) return;
 		LaunchDiagnostics.record(context, showSettings ? "settings_requested" : "launch_requested",
 				name, path);
 		File appDir = new File(path);

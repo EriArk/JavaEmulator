@@ -6,6 +6,10 @@
             android:icon="@drawable/ic_setting_folder"
             android:key="pref_game_folders"
             android:title="Game folders" />
+        <Preference
+            android:icon="@drawable/ic_setting_folder"
+            android:key="pref_import_library"
+            android:title="Import from J2ME Loader" />
     </PreferenceCategory>
 
     <PreferenceCategory android:title="Handheld">

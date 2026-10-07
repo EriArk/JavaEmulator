@@ -29,6 +29,7 @@ public class SettingsActivity extends BaseActivity {
 
 	@Override
 	protected void onCreate(@Nullable Bundle savedInstanceState) {
+		setTheme(R.style.SettingsTheme);
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.activity_settings);
 		ActionBar actionBar = getSupportActionBar();

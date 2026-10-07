@@ -33,6 +33,7 @@ import java.util.ListIterator;
 import ru.playsoftware.j2meloader.applist.AppItem;
 import ru.playsoftware.j2meloader.appsdb.AppRepository;
 import ru.playsoftware.j2meloader.config.Config;
+import ru.playsoftware.j2meloader.catalog.AdditionalGames;
 import ru.woesss.j2me.jar.Descriptor;
 
 public class AppUtils {
@@ -50,6 +51,14 @@ public class AppUtils {
 				continue;
 			}
 			File dex = new File(appFolder, Config.MIDLET_DEX_FILE);
+			if (AdditionalGames.isManaged(appFolder)) {
+				AdditionalGames.Engine engine = AdditionalGames.get(javax.microedition.util.ContextHolder.getAppContext());
+				if (engine != null) {
+					try { apps.add(engine.readInstalled(appFolder)); }
+					catch (IOException error) { Log.w(TAG, "Cannot index additional game; keeping its files", error); }
+				}
+				continue;
+			}
 			if (!dex.isFile()) {
 				FileUtils.deleteDirectory(appFolder);
 				continue;
@@ -96,6 +105,7 @@ public class AppUtils {
 				continue;
 			}
 			File dex = new File(appDir, Config.MIDLET_DEX_FILE);
+			if (AdditionalGames.isManaged(appDir)) continue;
 			if (!dex.isFile()) {
 				FileUtils.deleteDirectory(appDir);
 				continue;

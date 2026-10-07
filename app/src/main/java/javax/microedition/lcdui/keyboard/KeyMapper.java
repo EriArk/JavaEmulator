@@ -26,6 +26,7 @@ import androidx.collection.SparseArrayCompat;
 import java.util.ArrayList;
 
 import ru.playsoftware.j2meloader.config.ProfileModel;
+import ru.playsoftware.j2meloader.input.ControllerInput;
 
 import static javax.microedition.lcdui.Canvas.*;
 
@@ -156,6 +157,7 @@ public class KeyMapper {
 	public static int convertAndroidKeyCode(int keyCode, KeyEvent event) {
 		if (!event.isShiftPressed()) {
 			int map = androidToMIDP.get(keyCode, 0);
+			if (map == ControllerInput.UNBOUND) return 0;
 			if (map != 0) {
 				return map;
 			}
@@ -165,7 +167,20 @@ public class KeyMapper {
 	}
 
 	public static int convertInputCode(int inputCode) {
-		return androidToMIDP.get(inputCode, 0);
+		int key = getInputMapping(inputCode);
+		return key == ControllerInput.UNBOUND ? 0 : key;
+	}
+
+	public static int getInputMapping(int inputCode) {
+		return androidToMIDP == null ? 0 : androidToMIDP.get(inputCode, 0);
+	}
+
+	public static SparseIntArray resolveMappings(SparseIntArray overrides) {
+		SparseIntArray map = getDefaultKeyMap();
+		if (overrides != null) {
+			for (int i = 0; i < overrides.size(); i++) map.put(overrides.keyAt(i), overrides.valueAt(i));
+		}
+		return map;
 	}
 
 	public static int convertKeyCode(int keyCode) {
@@ -281,6 +296,16 @@ public class KeyMapper {
 		map.put(KeyEvent.KEYCODE_BUTTON_R1, KEY_NUM3);
 		map.put(KeyEvent.KEYCODE_BUTTON_L2, KEY_NUM7);
 		map.put(KeyEvent.KEYCODE_BUTTON_R2, KEY_NUM9);
+		return map;
+	}
+
+	public static SparseIntArray getEightWayKeyMap() {
+		SparseIntArray map = getNumpadMovementKeyMap();
+		int[] inputs = {ControllerInput.DPAD_UL, ControllerInput.DPAD_UR,
+				ControllerInput.DPAD_DL, ControllerInput.DPAD_DR, ControllerInput.STICK_UL,
+				ControllerInput.STICK_UR, ControllerInput.STICK_DL, ControllerInput.STICK_DR};
+		int[] keys = {KEY_NUM1, KEY_NUM3, KEY_NUM7, KEY_NUM9};
+		for (int i = 0; i < inputs.length; i++) map.put(inputs[i], keys[i % 4]);
 		return map;
 	}
 

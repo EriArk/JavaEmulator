@@ -52,6 +52,8 @@ public class CanvasWrapper {
 		this.canvas = canvas;
 	}
 
+	public Canvas getCanvas() { return canvas; }
+
 	public void clear(int color) {
 		canvas.drawColor(color, PorterDuff.Mode.SRC);
 	}
@@ -77,9 +79,26 @@ public class CanvasWrapper {
 	}
 
 	public void drawImage(Image image, RectF dst) {
+		drawImage(image, dst, 0);
+	}
+
+	public void drawImage(Image image, RectF dst, int rotation) {
 		Bitmap bitmap = image.getBitmap();
 		bitmap.prepareToDraw();
-		canvas.drawBitmap(bitmap, image.getBounds(), dst, imgPaint);
+		if (ScreenRotation.normalize(rotation) == 0) {
+			canvas.drawBitmap(bitmap, image.getBounds(), dst, imgPaint);
+			return;
+		}
+		int save = canvas.save();
+		try {
+			canvas.translate(dst.centerX(), dst.centerY());
+			canvas.rotate(ScreenRotation.normalize(rotation));
+			float w = ScreenRotation.swapsAxes(rotation) ? dst.height() : dst.width();
+			float h = ScreenRotation.swapsAxes(rotation) ? dst.width() : dst.height();
+			canvas.drawBitmap(bitmap, image.getBounds(), new RectF(-w / 2, -h / 2, w / 2, h / 2), imgPaint);
+		} finally {
+			canvas.restoreToCount(save);
+		}
 	}
 
 	public void fillRect(RectF rect) {

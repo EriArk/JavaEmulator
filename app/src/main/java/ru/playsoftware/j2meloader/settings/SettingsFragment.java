@@ -47,6 +47,8 @@ public class SettingsFragment extends PreferenceFragmentCompat {
 			return true;
 		});
 		updateFolderSummary();
+		findPreference("pref_import_library").setIntent(new Intent(requireActivity(),
+				ru.playsoftware.j2meloader.catalog.LibraryImportActivity.class));
 		findPreference("pref_expert").setIntent(new Intent(requireActivity(), ProfilesActivity.class));
 		findPreference("pref_local_diagnostics").setOnPreferenceClickListener(preference -> {
 			try {

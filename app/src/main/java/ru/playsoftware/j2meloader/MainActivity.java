@@ -80,7 +80,7 @@ public class MainActivity extends BaseActivity {
 		super.onNewIntent(intent);
 		Uri uri = intent.getData();
 		if (uri != null) {
-			InstallerDialog.newInstance(uri, true).show(getSupportFragmentManager(), "installer");
+			ru.playsoftware.j2meloader.catalog.AdditionalGames.install(this, getSupportFragmentManager(), uri, true, true);
 		}
 	}
 }

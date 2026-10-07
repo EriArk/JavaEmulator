@@ -56,6 +56,9 @@ public class ProfileModel {
 	@SerializedName("Orientation")
 	public int orientation;
 
+	@SerializedName("ScreenRotation")
+	public int screenRotation;
+
 	@SerializedName("ScreenScaleToFit")
 	public boolean screenScaleToFit;
 
@@ -118,6 +121,12 @@ public class ProfileModel {
 
 	@SerializedName("VirtualKeyboardType")
 	public int vkType;
+
+	public Integer touchLayout;
+	public int touchSize;
+	public int touchOpacity = 100;
+	public float touchPortraitReach;
+	public float touchLandscapeReach;
 
 	@SerializedName("ButtonShape")
 	public int vkButtonShape;
@@ -223,6 +232,7 @@ public class ProfileModel {
 		fontAA = true;
 
 		showKeyboard = !BuildConfig.HANDHELD_MODE;
+		touchLayout = 0;
 		touchInput = !BuildConfig.HANDHELD_MODE;
 
 		vkButtonShape = VirtualKeyboard.ROUND_RECT_SHAPE;

@@ -47,6 +47,7 @@ import ru.playsoftware.j2meloader.R;
 import ru.playsoftware.j2meloader.applist.AppItem;
 import ru.playsoftware.j2meloader.applist.AppListModel;
 import ru.playsoftware.j2meloader.config.Config;
+import ru.playsoftware.j2meloader.catalog.LibraryImporter;
 import ru.playsoftware.j2meloader.util.AppUtils;
 
 public class AppRepository implements SharedPreferences.OnSharedPreferenceChangeListener {
@@ -91,7 +92,12 @@ public class AppRepository implements SharedPreferences.OnSharedPreferenceChange
 				.publish();
 		compositeDisposable.add(listConnectableFlowable
 				.firstElement()
-				.subscribe(list -> AppUtils.updateDb(this, new ArrayList<>(list)), errorsLiveData::postValue));
+				.subscribe(list -> {
+					synchronized (LibraryImporter.class) {
+						LibraryImporter.recover(new File(path), LibraryImporter.catalog(this));
+						AppUtils.updateDb(this, new ArrayList<>(list));
+					}
+				}, errorsLiveData::postValue));
 		compositeDisposable.add(listConnectableFlowable.subscribe(listLiveData::postValue, errorsLiveData::postValue));
 		compositeDisposable.add(listConnectableFlowable.connect());
 	}
@@ -150,6 +156,15 @@ public class AppRepository implements SharedPreferences.OnSharedPreferenceChange
 
 	public AppItem getBySourceKey(String sourceKey) {
 		return appItemDao.getBySourceKey(sourceKey);
+	}
+
+	public AppItem getByPath(String path) {
+		return appItemDao.getByPath(path);
+	}
+
+	/** Worker-thread only: the importer must observe insertion failure before publishing success. */
+	public void insertImported(AppItem item) {
+		appItemDao.insertImported(item);
 	}
 
 	public void recordLaunch(AppItem item) {

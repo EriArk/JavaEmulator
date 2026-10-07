@@ -170,6 +170,13 @@ public class AppsListFragment extends Fragment implements AppsListAdapter.Listen
 		binding.appsRecycler.setAdapter(adapter);
 		binding.appsRecycler.setItemAnimator(null);
 		binding.appsRecycler.setHasFixedSize(false);
+		binding.launcherSoftbar.setVisibility(BuildConfig.HANDHELD_MODE ? View.VISIBLE : View.GONE);
+		binding.appsRecycler.addOnLayoutChangeListener((v, l, t, r, b, ol, ot, or, ob) -> {
+			if (r - l != or - ol && binding.appsRecycler.getLayoutManager() instanceof GridLayoutManager) {
+				((GridLayoutManager) binding.appsRecycler.getLayoutManager())
+						.setSpanCount(calculateSpanCount(adapter.getDisplayMode()));
+			}
+		});
 		adapter.registerAdapterDataObserver(new RecyclerView.AdapterDataObserver() {
 			@Override
 			public void onChanged() {
@@ -179,6 +186,10 @@ public class AppsListFragment extends Fragment implements AppsListAdapter.Listen
 		binding.viewModeGallery.setOnClickListener(v -> setDisplayMode(AppsListAdapter.MODE_GALLERY));
 		binding.viewModeList.setOnClickListener(v -> setDisplayMode(AppsListAdapter.MODE_LIST));
 		binding.viewModeGrid.setOnClickListener(v -> setDisplayMode(AppsListAdapter.MODE_GRID));
+		for (View tab : new View[]{binding.railLibrary, binding.railRecent, binding.railFavorites,
+				binding.viewModeGallery, binding.viewModeList, binding.viewModeGrid}) {
+			tab.setBackgroundResource(R.drawable.bg_library_tab);
+		}
 		binding.railLibrary.setSelected(true);
 		binding.railLibrary.setOnClickListener(v -> setCategory(AppsListAdapter.CATEGORY_LIBRARY));
 		binding.railRecent.setOnClickListener(v -> setCategory(AppsListAdapter.CATEGORY_RECENT));
@@ -256,6 +267,7 @@ public class AppsListFragment extends Fragment implements AppsListAdapter.Listen
 	}
 
 	private void applyDisplayMode() {
+		updateResponsiveToolbar();
 		int mode = adapter.getDisplayMode();
 		if (mode == AppsListAdapter.MODE_LIST) {
 			binding.appsRecycler.setLayoutManager(new LinearLayoutManager(requireContext()));
@@ -269,16 +281,31 @@ public class AppsListFragment extends Fragment implements AppsListAdapter.Listen
 	}
 
 	private int calculateSpanCount(int mode) {
-		int screenWidthDp = getResources().getConfiguration().screenWidthDp;
-		if (isCompactPhoneLayout()) {
-			int minCardWidth = mode == AppsListAdapter.MODE_GALLERY ? 156 : 124;
-			return Math.max(mode == AppsListAdapter.MODE_GALLERY ? 1 : 2,
-					Math.max(1, screenWidthDp - 24) / minCardWidth);
+		int width = binding.appsRecycler.getWidth();
+		int available = width > 0 ? Math.round(width / getResources().getDisplayMetrics().density)
+				: getResources().getConfiguration().screenWidthDp - 24;
+		return Math.max(1, available / (mode == AppsListAdapter.MODE_GALLERY ? 220 : 144));
+	}
+
+	private void updateResponsiveToolbar() {
+		boolean wide = getResources().getConfiguration().screenWidthDp >= 560;
+		ViewGroup parent = (ViewGroup) binding.libraryModeRow.getParent();
+		ViewGroup desired = wide ? binding.librarySearchRow : binding.libraryRoot;
+		if (parent != desired) {
+			parent.removeView(binding.libraryModeRow);
+			LinearLayout.LayoutParams lp = new LinearLayout.LayoutParams(wide ? dp(276) : -1, dp(48));
+			lp.setMargins(dp(8),0,dp(wide ? 0 : 12),0);
+			if (wide) desired.addView(binding.libraryModeRow,lp);
+			else desired.addView(binding.libraryModeRow,3,lp);
 		}
-		int reserved = 132 + 330 + 32;
-		int available = Math.max(320, screenWidthDp - reserved);
-		int minCardWidth = mode == AppsListAdapter.MODE_GALLERY ? 150 : 112;
-		return Math.max(mode == AppsListAdapter.MODE_GALLERY ? 2 : 3, available / minCardWidth);
+		binding.launcherTitle.setGravity(android.view.Gravity.CENTER_VERTICAL);
+		binding.launcherTitle.setTypeface(android.graphics.Typeface.DEFAULT, android.graphics.Typeface.BOLD);
+		binding.launcherTitle.setTextSize(18);
+		binding.launcherTitle.setText("AbyssME");
+		binding.launcherTitle.setSingleLine(true);
+		binding.launcherTitle.setEllipsize(android.text.TextUtils.TruncateAt.END);
+		binding.railRecent.setText("Recent");
+		binding.railFavorites.setText("Favorites");
 	}
 
 	@Override
@@ -308,7 +335,7 @@ public class AppsListFragment extends Fragment implements AppsListAdapter.Listen
 		preferences.edit()
 				.putString(Constants.PREF_LAST_PATH, FilteredFilePickerFragment.getLastPath())
 				.apply();
-		InstallerDialog.newInstance(uri).show(getParentFragmentManager(), "installer");
+		ru.playsoftware.j2meloader.catalog.AdditionalGames.install(requireContext(), getParentFragmentManager(), uri, false, false);
 	}
 
 	private void onPickFolderResult(Uri uri) {
@@ -415,8 +442,8 @@ public class AppsListFragment extends Fragment implements AppsListAdapter.Listen
 
 	private void startApp(AppItem item, boolean showSettings) {
 		if (!"ready".equals(item.getPreparationState()) && item.getSourceUri() != null) {
-			InstallerDialog.newInstance(Uri.parse(item.getSourceUri()), true, false)
-					.show(getParentFragmentManager(), "installer");
+			ru.playsoftware.j2meloader.catalog.AdditionalGames.install(requireContext(), getParentFragmentManager(),
+					Uri.parse(item.getSourceUri()), true, false);
 			return;
 		}
 		if (!showSettings) {
@@ -434,6 +461,11 @@ public class AppsListFragment extends Fragment implements AppsListAdapter.Listen
 	}
 
 	public boolean handleControllerKey(int keyCode) {
+		if (keyCode == KeyEvent.KEYCODE_BUTTON_X && selectedItem != null) {
+			View focus = binding.appsRecycler.findFocus();
+			showActions(focus != null ? focus : binding.appsRecycler, selectedItem);
+			return true;
+		}
 		if (keyCode == KeyEvent.KEYCODE_BUTTON_Y) {
 			toggleSelectedFavorite();
 			return true;
@@ -457,6 +489,10 @@ public class AppsListFragment extends Fragment implements AppsListAdapter.Listen
 		if (!new File(appItem.getPathExt() + Config.MIDLET_RES_FILE).exists()) {
 			menu.findItem(R.id.action_context_reinstall).setVisible(false);
 			menu.findItem(R.id.action_context_artwork).setVisible(false);
+		}
+		if (ru.playsoftware.j2meloader.catalog.AdditionalGames.isManaged(new File(appItem.getPathExt()))) {
+			menu.findItem(R.id.action_context_shortcut).setVisible(false);
+			menu.findItem(R.id.action_context_artwork).setVisible(true);
 		}
 		popup.setOnMenuItemClickListener(item -> {
 			int itemId = item.getItemId();
@@ -599,7 +635,7 @@ public class AppsListFragment extends Fragment implements AppsListAdapter.Listen
 	private void onDbUpdated(List<AppItem> items) {
 		adapter.setItems(items);
 		if (appUri != null) {
-			InstallerDialog.newInstance(appUri, true).show(getParentFragmentManager(), "installer");
+			ru.playsoftware.j2meloader.catalog.AdditionalGames.install(requireContext(), getParentFragmentManager(), appUri, true, true);
 			appUri = null;
 		}
 		updateDetail(adapter.getFirstItem());
@@ -613,7 +649,8 @@ public class AppsListFragment extends Fragment implements AppsListAdapter.Listen
 		boolean empty = adapter.getItemCount() == 0;
 		binding.empty.setVisibility(empty ? View.VISIBLE : View.GONE);
 		binding.appsRecycler.setVisibility(empty ? View.GONE : View.VISIBLE);
-		binding.libraryCount.setText(getString(R.string.library_game_count, adapter.getItemCount()));
+		binding.libraryCount.setText(getResources().getQuantityString(R.plurals.library_games,
+				adapter.getItemCount(), adapter.getItemCount()));
 	}
 
 	private void updateDetail(AppItem item) {
@@ -650,9 +687,8 @@ public class AppsListFragment extends Fragment implements AppsListAdapter.Listen
 	}
 
 	private boolean isCompactPhoneLayout() {
-		return !BuildConfig.HANDHELD_MODE
-				&& getResources().getConfiguration().orientation
-				== Configuration.ORIENTATION_PORTRAIT;
+		return getResources().getConfiguration().screenWidthDp < 900
+				|| getResources().getConfiguration().screenHeightDp < 480;
 	}
 
 	private void updateClock() {

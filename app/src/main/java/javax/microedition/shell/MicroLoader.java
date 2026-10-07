@@ -278,7 +278,7 @@ public class MicroLoader {
 		return preset;
 	}
 
-	private void applyDisplayPreset(int preset) {
+	void applyDisplayPreset(int preset) {
 		switch (preset) {
 			case DISPLAY_PRESET_PIXEL:
 				params.screenScaleType = 0;
@@ -318,6 +318,21 @@ public class MicroLoader {
 
 	void rotateScreen() {
 		setScreenSize(params.screenHeight, params.screenWidth);
+	}
+
+	int getScreenRotation() {
+		return javax.microedition.lcdui.graphics.ScreenRotation.normalize(params.screenRotation);
+	}
+
+	boolean setScreenRotation(int degrees) {
+		int previous = params.screenRotation;
+		params.screenRotation = javax.microedition.lcdui.graphics.ScreenRotation.normalize(degrees);
+		if (!ProfilesManager.saveConfig(params)) {
+			params.screenRotation = previous;
+			return false;
+		}
+		Canvas.setScreenRotation(params.screenRotation);
+		return true;
 	}
 
 	void restoreDetectedScreenSize() {
@@ -378,6 +393,7 @@ public class MicroLoader {
 			}
 			Canvas.setShaderFilter(shader);
 			Canvas.setForceFullscreen(params.forceFullscreen);
+			Canvas.setScreenRotation(params.screenRotation);
 			Canvas.setShowFps(params.showFps);
 			Canvas.setLimitFps(params.fpsLimit);
 
@@ -430,6 +446,10 @@ public class MicroLoader {
 		return params.keyMappingProfiles;
 	}
 
+	ProfileModel getTouchSettings() { return params; }
+
+	boolean saveTouchSettings() { return ProfilesManager.saveConfig(params); }
+
 	int getActiveKeyMappingProfile() {
 		params.ensureKeyMappingProfiles();
 		return params.activeKeyMappingProfile;
@@ -448,14 +468,25 @@ public class MicroLoader {
 		} else {
 			map = map.clone();
 		}
-		for (int i = map.size() - 1; i >= 0; i--) {
-			if (map.valueAt(i) == midpKeyCode) {
-				map.removeAt(i);
-			}
-		}
 		map.put(inputCode, midpKeyCode);
 		params.setActiveKeyMappings(map);
 		saveKeyMappingConfiguration();
+	}
+
+	boolean saveControllerProfiles(ArrayList<ProfileModel.KeyMappingProfile> profiles, int active) {
+		ArrayList<ProfileModel.KeyMappingProfile> previous = params.keyMappingProfiles;
+		int previousIndex = params.activeKeyMappingProfile;
+		SparseIntArray previousMappings = params.keyMappings;
+		params.keyMappingProfiles = profiles;
+		params.setActiveKeyMappingProfile(active);
+		if (!ProfilesManager.saveConfig(params)) {
+			params.keyMappingProfiles = previous;
+			params.activeKeyMappingProfile = previousIndex;
+			params.keyMappings = previousMappings;
+			return false;
+		}
+		KeyMapper.setKeyMapping(params);
+		return true;
 	}
 
 	private void saveKeyMappingConfiguration() {

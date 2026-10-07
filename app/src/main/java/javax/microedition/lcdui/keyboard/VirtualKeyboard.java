@@ -172,6 +172,7 @@ public class VirtualKeyboard implements Overlay, Runnable {
 	private final Handler handler;
 	private final File saveFile;
 	private final ProfileModel settings;
+	private final ru.playsoftware.j2meloader.input.TouchDeck touchDeck;
 	private final RectF virtualScreen = new RectF();
 
 	private Canvas target;
@@ -193,6 +194,15 @@ public class VirtualKeyboard implements Overlay, Runnable {
 	public VirtualKeyboard(ProfileModel settings) {
 		this.settings = settings;
 		this.saveFile = new File(settings.dir + Config.MIDLET_KEY_LAYOUT_FILE);
+		if (settings.touchLayout == null) settings.touchLayout = saveFile.exists() ? 2 : 0;
+		touchDeck = new ru.playsoftware.j2meloader.input.TouchDeck(settings,
+				ContextHolder.getAppContext().getResources().getDisplayMetrics().density,
+				new ru.playsoftware.j2meloader.input.TouchDeck.Sink() {
+					public void press(int code) { if (target != null) target.postKeyPressed(code); }
+					public void release(int code) { if (target != null) target.postKeyReleased(code); }
+					public void repeat(int code) { if (target != null) target.postKeyRepeated(code); }
+					public void invalidate() { if (overlayView != null) overlayView.postInvalidate(); }
+				});
 
 		for (int i = KEY_NUM1; i < 9; i++) {
 			keypad[i] = new VirtualKey(Canvas.KEY_NUM1 + i, Integer.toString(1 + i));
@@ -730,6 +740,7 @@ public class VirtualKeyboard implements Overlay, Runnable {
 
 	@Override
 	public void setTarget(Canvas canvas) {
+		cancel();
 		target = canvas;
 		highlightGroup(-1);
 	}
@@ -806,7 +817,17 @@ public class VirtualKeyboard implements Overlay, Runnable {
 	}
 
 	public boolean isPhone() {
-		return layoutVariant == TYPE_PHONE || layoutVariant == TYPE_PHONE_ARROWS;
+		return !hasTouchDeck() && (layoutVariant == TYPE_PHONE || layoutVariant == TYPE_PHONE_ARROWS);
+	}
+
+	public boolean hasTouchDeck() { return settings.touchLayout != null && settings.touchLayout != 2; }
+
+	public RectF getGameArea(float width, float height) { return touchDeck.gameArea(width, height); }
+
+	public void refreshTouchLayout() {
+		cancel();
+		if (target != null) target.updateSize();
+		if (overlayView != null) overlayView.postInvalidate();
 	}
 
 	private void highlightGroup(int group) {
@@ -856,6 +877,10 @@ public class VirtualKeyboard implements Overlay, Runnable {
 	public void resize(RectF screen, float left, float top, float right, float bottom) {
 		this.screen = screen;
 		virtualScreen.set(left, top, right, bottom);
+		if (hasTouchDeck()) {
+			touchDeck.layout(screen.width(), screen.height());
+			return;
+		}
 		snapRadius = keyScales[0];
 		for (int i = 1; i < keyScales.length; i++) {
 			if (keyScales[i] < snapRadius) {
@@ -906,6 +931,7 @@ public class VirtualKeyboard implements Overlay, Runnable {
 
 	@Override
 	public void paint(CanvasWrapper g) {
+		if (hasTouchDeck()) { touchDeck.draw(g.getCanvas()); return; }
 		if (visible) {
 			for (VirtualKey key : keypad) {
 				if (key.visible) {
@@ -917,9 +943,10 @@ public class VirtualKeyboard implements Overlay, Runnable {
 
 	@Override
 	public boolean pointerPressed(int pointer, float x, float y) {
+		if (hasTouchDeck()) return touchDeck.down(pointer, x, y);
 		switch (layoutEditMode) {
 			case LAYOUT_EOF:
-				if (pointer > associatedKeys.length) {
+				if (pointer < 0 || pointer >= associatedKeys.length) {
 					return false;
 				}
 				for (VirtualKey key : keypad) {
@@ -969,9 +996,10 @@ public class VirtualKeyboard implements Overlay, Runnable {
 
 	@Override
 	public boolean pointerDragged(int pointer, float x, float y) {
+		if (hasTouchDeck()) return touchDeck.move(pointer, x, y);
 		switch (layoutEditMode) {
 			case LAYOUT_EOF:
-				if (pointer > associatedKeys.length) {
+				if (pointer < 0 || pointer >= associatedKeys.length) {
 					return false;
 				}
 				VirtualKey aKey = associatedKeys[pointer];
@@ -1041,8 +1069,9 @@ public class VirtualKeyboard implements Overlay, Runnable {
 
 	@Override
 	public boolean pointerReleased(int pointer, float x, float y) {
+		if (hasTouchDeck()) return touchDeck.up(pointer);
 		if (layoutEditMode == LAYOUT_EOF) {
-			if (pointer > associatedKeys.length) {
+			if (pointer < 0 || pointer >= associatedKeys.length) {
 				return false;
 			}
 			VirtualKey key = associatedKeys[pointer];
@@ -1093,6 +1122,7 @@ public class VirtualKeyboard implements Overlay, Runnable {
 
 	@Override
 	public void hide() {
+		if (hasTouchDeck()) return;
 		long delay = settings.vkHideDelay;
 		if (delay > 0 && obscuresVirtualScreen && layoutEditMode == LAYOUT_EOF) {
 			handler.postDelayed(this, delay);
@@ -1101,6 +1131,7 @@ public class VirtualKeyboard implements Overlay, Runnable {
 
 	@Override
 	public void cancel() {
+		touchDeck.cancel();
 		for (VirtualKey key : keypad) {
 			key.selected = false;
 			handler.removeCallbacks(key);

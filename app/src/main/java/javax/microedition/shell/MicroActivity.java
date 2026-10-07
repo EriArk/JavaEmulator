@@ -23,6 +23,7 @@ import static ru.playsoftware.j2meloader.util.Constants.*;
 
 import android.annotation.SuppressLint;
 import android.content.Intent;
+import android.hardware.input.InputManager;
 import android.content.SharedPreferences;
 import android.content.pm.ActivityInfo;
 import android.content.pm.PackageManager;
@@ -51,7 +52,6 @@ import android.view.ViewGroup;
 import android.view.WindowManager;
 import android.view.inputmethod.InputMethodManager;
 import android.widget.AdapterView.AdapterContextMenuInfo;
-import android.widget.Button;
 import android.widget.EditText;
 import android.widget.LinearLayout;
 import android.widget.TextView;
@@ -72,6 +72,7 @@ import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.HashSet;
 import java.util.LinkedHashMap;
 import java.util.Objects;
 
@@ -95,6 +96,8 @@ import ru.playsoftware.j2meloader.config.Config;
 import ru.playsoftware.j2meloader.config.ProfileModel;
 import ru.playsoftware.j2meloader.databinding.ActivityMicroBinding;
 import ru.playsoftware.j2meloader.diagnostics.LaunchDiagnostics;
+import ru.playsoftware.j2meloader.input.ControllerInput;
+import ru.playsoftware.j2meloader.input.ControllerMapperView;
 import ru.playsoftware.j2meloader.util.Constants;
 import ru.playsoftware.j2meloader.util.LogUtils;
 
@@ -105,21 +108,6 @@ public class MicroActivity extends AppCompatActivity {
 	private static final int ORIENTATION_LANDSCAPE = 3;
 	private static final int QUICK_MAP_HOLD_MS = 350;
 	private static final int QUICK_SETTINGS_HIDE_MS = 5000;
-	private static final float QUICK_MAP_AXIS_DEADZONE = 0.45f;
-
-	private static final int[] QUICK_MAP_TARGET_KEYS = {
-			Canvas.KEY_UP, Canvas.KEY_DOWN, Canvas.KEY_LEFT, Canvas.KEY_RIGHT, Canvas.KEY_FIRE,
-			Canvas.KEY_NUM1, Canvas.KEY_NUM2, Canvas.KEY_NUM3, Canvas.KEY_NUM4, Canvas.KEY_NUM5,
-			Canvas.KEY_NUM6, Canvas.KEY_NUM7, Canvas.KEY_NUM8, Canvas.KEY_NUM9, Canvas.KEY_NUM0,
-			Canvas.KEY_STAR, Canvas.KEY_POUND, Canvas.KEY_SOFT_LEFT, Canvas.KEY_SOFT_RIGHT,
-			KeyMapper.KEY_OPTIONS_MENU
-	};
-
-	private static final String[] QUICK_MAP_TARGET_LABELS = {
-			"UP", "DOWN", "LEFT", "RIGHT", "FIRE",
-			"1", "2", "3", "4", "5", "6", "7", "8", "9", "0",
-			"*", "#", "SOFT1", "SOFT2", "MENU"
-	};
 
 	private Displayable current;
 	private boolean visible;
@@ -130,9 +118,21 @@ public class MicroActivity extends AppCompatActivity {
 	private InputMethodManager inputMethodManager;
 	private int menuKey;
 	private String appPath;
-	private int quickMapTargetKey;
-	private String quickMapTargetLabel;
-	private int quickMapCapturedKeyUp = KeyEvent.KEYCODE_UNKNOWN;
+	private ControllerMapperView controllerMapper;
+	private ru.playsoftware.j2meloader.input.GameMenuDialog gameMenu;
+	private final HashSet<Integer> overlayHeldKeys = new HashSet<>();
+	private InputManager inputManager;
+	private final ControllerInput controllerInput = new ControllerInput(KeyMapper::getInputMapping,
+			new ControllerInput.Sink() {
+				public void press(int key) { if (current instanceof Canvas) ((Canvas) current).postKeyPressed(key); }
+				public void release(int key) { if (current instanceof Canvas) ((Canvas) current).postKeyReleased(key); }
+				public void repeat(int key) { if (current instanceof Canvas) ((Canvas) current).postKeyRepeated(key); }
+			});
+	private final InputManager.InputDeviceListener controllerListener = new InputManager.InputDeviceListener() {
+		public void onInputDeviceAdded(int id) { }
+		public void onInputDeviceChanged(int id) { controllerInput.removeDevice(id); }
+		public void onInputDeviceRemoved(int id) { controllerInput.removeDevice(id); }
+	};
 	private boolean selectQuickMapTracking;
 	private boolean selectQuickMapOpened;
 	private final Handler quickSettingsHandler = new Handler(Looper.getMainLooper());
@@ -220,7 +220,7 @@ public class MicroActivity extends AppCompatActivity {
 		}
 		microLoader.applyConfiguration();
 		VirtualKeyboard vk = ContextHolder.getVk();
-		int orientation = ORIENTATION_LANDSCAPE;
+		int orientation = BuildConfig.HANDHELD_MODE ? ORIENTATION_LANDSCAPE : ORIENTATION_AUTO;
 		if (vk != null) {
 			vk.setView(binding.overlayView);
 			binding.overlayView.addLayer(vk);
@@ -231,7 +231,15 @@ public class MicroActivity extends AppCompatActivity {
 		setOrientation(BuildConfig.HANDHELD_MODE ? ORIENTATION_LANDSCAPE : orientation);
 		menuKey = microLoader.getMenuKeyCode();
 		setupQuickSettingsOverlay();
-		setupQuickMapOverlay();
+		binding.gameMenuButton.setVisibility(BuildConfig.HANDHELD_MODE ? View.GONE : View.VISIBLE);
+		binding.gameMenuButton.setOnClickListener(v -> openOptionsMenu());
+		binding.gameDisplayButton.setVisibility(BuildConfig.HANDHELD_MODE ? View.GONE : View.VISIBLE);
+		binding.gameDisplayButton.setOnClickListener(v -> {
+			if (binding.quickSettingsOverlay.getVisibility() == View.VISIBLE) hideQuickSettingsOverlay();
+			else { showQuickSettingsOverlay(); binding.quickScreenOptions.setVisibility(View.VISIBLE); }
+		});
+		inputManager = (InputManager) getSystemService(INPUT_SERVICE);
+		inputManager.registerInputDeviceListener(controllerListener, quickSettingsHandler);
 		inputMethodManager = (InputMethodManager) getSystemService(INPUT_METHOD_SERVICE);
 
 		try {
@@ -256,19 +264,18 @@ public class MicroActivity extends AppCompatActivity {
 	public void onResume() {
 		super.onResume();
 		visible = true;
-		MidletThread.resumeApp();
+		if (!isQuickMapVisible() && (gameMenu == null || !gameMenu.isShowing())) MidletThread.resumeApp();
 	}
 
 	@Override
 	public void onPause() {
+		controllerInput.clear();
+		VirtualKeyboard vk = ContextHolder.getVk();
+		if (vk != null) vk.cancel();
 		visible = false;
 		hideSoftInput();
 		cancelQuickMapTrigger();
 		hideQuickSettingsOverlay();
-		if (binding != null && binding.quickMapOverlay.getVisibility() == View.VISIBLE) {
-			binding.quickMapOverlay.setVisibility(View.GONE);
-			quickMapTargetKey = 0;
-		}
 		MidletThread.pauseApp();
 		super.onPause();
 	}
@@ -283,8 +290,13 @@ public class MicroActivity extends AppCompatActivity {
 	@Override
 	public void onWindowFocusChanged(boolean hasFocus) {
 		super.onWindowFocusChanged(hasFocus);
+		if (!hasFocus) {
+			controllerInput.clear();
+			VirtualKeyboard vk = ContextHolder.getVk();
+			if (vk != null) vk.cancel();
+		}
 		if (hasFocus && Build.VERSION.SDK_INT >= Build.VERSION_CODES.KITKAT &&
-				current instanceof Canvas) {
+				current instanceof Canvas && !isQuickMapVisible()) {
 			hideSystemUI();
 		}
 	}
@@ -390,8 +402,11 @@ public class MicroActivity extends AppCompatActivity {
 	}
 
 	public void setCurrent(Displayable displayable) {
-		ViewHandler.postEvent(new SetCurrentEvent(current, displayable));
-		current = displayable;
+		synchronized (controllerInput) {
+			controllerInput.clear();
+			ViewHandler.postEvent(new SetCurrentEvent(current, displayable));
+			current = displayable;
+		}
 	}
 
 	public Displayable getCurrent() {
@@ -421,7 +436,31 @@ public class MicroActivity extends AppCompatActivity {
 
 	@Override
 	public boolean dispatchKeyEvent(KeyEvent event) {
+		int key = event.getKeyCode();
+		if (!isQuickMapVisible() && overlayHeldKeys.contains(key)) {
+			if (event.getAction() == KeyEvent.ACTION_UP) overlayHeldKeys.remove(key);
+			return true;
+		}
+		if (isQuickMapVisible()) {
+			if (event.getAction() == KeyEvent.ACTION_DOWN) overlayHeldKeys.add(key);
+			else if (event.getAction() == KeyEvent.ACTION_UP) overlayHeldKeys.remove(key);
+			if (event.getKeyCode() == KeyEvent.KEYCODE_BUTTON_SELECT && selectQuickMapOpened) {
+				if (event.getAction() == KeyEvent.ACTION_UP) {
+					selectQuickMapOpened = false;
+					cancelQuickMapTrigger();
+				}
+				return true;
+			}
+			if (!controllerMapper.handleKey(event)) super.dispatchKeyEvent(event);
+			return true;
+		}
 		if (handleQuickMapKeyEvent(event)) {
+			return true;
+		}
+		if (current instanceof Canvas && event.getKeyCode() != menuKey
+				&& (KeyEvent.isGamepadButton(event.getKeyCode()) || ControllerInput.direction(event.getKeyCode()) != 0)) {
+			controllerInput.key(event.getDeviceId(), event.getKeyCode(),
+					event.getAction() == KeyEvent.ACTION_DOWN, event.getRepeatCount() != 0);
 			return true;
 		}
 		if (event.getKeyCode() == KeyEvent.KEYCODE_MENU)
@@ -443,13 +482,16 @@ public class MicroActivity extends AppCompatActivity {
 	@Override
 	public boolean dispatchGenericMotionEvent(MotionEvent event) {
 		if (isQuickMapVisible()) {
-			if (quickMapTargetKey != 0 && event.getAction() == MotionEvent.ACTION_MOVE
-					&& isFromSource(event, InputDevice.SOURCE_JOYSTICK)) {
-				int inputCode = getQuickMapStickInput(event);
-				if (inputCode != 0) {
-					saveQuickKeyMapping(inputCode);
-				}
-			}
+			if (event.getAction() == MotionEvent.ACTION_MOVE) controllerMapper.captureAxes(event);
+			return true;
+		}
+		if (current instanceof Canvas && event.getAction() == MotionEvent.ACTION_MOVE
+				&& isFromSource(event, InputDevice.SOURCE_JOYSTICK)) {
+			controllerInput.axes(event.getDeviceId(), getCenteredAxis(event, MotionEvent.AXIS_X),
+					getCenteredAxis(event, MotionEvent.AXIS_Y), getCenteredAxis(event, MotionEvent.AXIS_HAT_X),
+					getCenteredAxis(event, MotionEvent.AXIS_HAT_Y),
+					Math.max(event.getAxisValue(MotionEvent.AXIS_LTRIGGER), event.getAxisValue(MotionEvent.AXIS_BRAKE)),
+					Math.max(event.getAxisValue(MotionEvent.AXIS_RTRIGGER), event.getAxisValue(MotionEvent.AXIS_GAS)));
 			return true;
 		}
 		return super.dispatchGenericMotionEvent(event);
@@ -460,25 +502,6 @@ public class MicroActivity extends AppCompatActivity {
 			return false;
 		}
 		int keyCode = event.getKeyCode();
-		if (event.getAction() == KeyEvent.ACTION_UP && keyCode == quickMapCapturedKeyUp) {
-			quickMapCapturedKeyUp = KeyEvent.KEYCODE_UNKNOWN;
-			return true;
-		}
-		if (isQuickMapVisible()) {
-			if (event.getAction() == KeyEvent.ACTION_DOWN && event.getRepeatCount() == 0) {
-				if (keyCode == KeyEvent.KEYCODE_BACK) {
-					hideQuickMapOverlay();
-					quickMapCapturedKeyUp = keyCode;
-					return true;
-				}
-				if (quickMapTargetKey != 0 && !isIgnoredQuickMapKey(keyCode)) {
-					quickMapCapturedKeyUp = keyCode;
-					saveQuickKeyMapping(keyCode);
-					return true;
-				}
-			}
-			return false;
-		}
 		if (keyCode != KeyEvent.KEYCODE_BUTTON_SELECT || binding.displayableContainer.getChildCount() == 0) {
 			return false;
 		}
@@ -500,17 +523,8 @@ public class MicroActivity extends AppCompatActivity {
 		return false;
 	}
 
-	private void setupQuickMapOverlay() {
-		binding.quickMapClose.setOnClickListener(v -> hideQuickMapOverlay());
-		binding.quickMapOverlay.setOnClickListener(v -> {
-		});
-		binding.quickMapPanel.setOnClickListener(v -> {
-		});
-		rebuildQuickMapProfiles();
-		rebuildQuickMapTargets();
-	}
-
 	private void setupQuickSettingsOverlay() {
+		binding.quickSettingsOverlay.setOnClickListener(v -> hideQuickSettingsOverlay());
 		binding.quickSettingsQuality.setOnClickListener(v -> {
 			microLoader.cycleDisplayPreset();
 			applyRuntimeDisplaySettings(false);
@@ -522,13 +536,16 @@ public class MicroActivity extends AppCompatActivity {
 		});
 		binding.quickSettingsControls.setOnClickListener(v -> {
 			hideQuickSettingsOverlay();
-			showQuickMapOverlay();
+			if (BuildConfig.HANDHELD_MODE) showQuickMapOverlay();
+			else openOptionsMenu();
 		});
 		binding.quickScreenAuto.setOnClickListener(v -> applyQuickScreen(0, 0));
 		binding.quickScreen176.setOnClickListener(v -> applyQuickScreen(176, 220));
 		binding.quickScreen240.setOnClickListener(v -> applyQuickScreen(240, 320));
 		binding.quickScreenLand.setOnClickListener(v -> applyQuickScreen(320, 240));
-		binding.quickScreenRotate.setOnClickListener(v -> applyQuickScreen(-1, -1));
+		binding.quickScreen480.setOnClickListener(v -> applyQuickScreen(480, 800));
+		binding.quickScreenSwap.setOnClickListener(v -> applyQuickScreen(-1, -1));
+		binding.quickScreenRotate.setOnClickListener(v -> applyImageRotation(microLoader.getScreenRotation() + 90));
 		updateQuickSettingsLabels();
 	}
 
@@ -544,6 +561,17 @@ public class MicroActivity extends AppCompatActivity {
 		applyRuntimeDisplaySettings(false);
 	}
 
+	private void applyImageRotation(int degrees) {
+		if (!(current instanceof Canvas)) return;
+		if (!microLoader.setScreenRotation(degrees)) {
+			Toast.makeText(this, R.string.display_save_failed, Toast.LENGTH_LONG).show();
+			return;
+		}
+		VirtualKeyboard vk = ContextHolder.getVk();
+		if (vk != null) vk.cancel();
+		applyRuntimeDisplaySettings(false);
+	}
+
 	public void showQuickSettingsOverlay() {
 		if (binding == null || microLoader == null || isQuickMapVisible()
 				|| binding.displayableContainer.getChildCount() == 0) {
@@ -551,6 +579,8 @@ public class MicroActivity extends AppCompatActivity {
 		}
 		updateQuickSettingsLabels();
 		binding.quickSettingsOverlay.setVisibility(View.VISIBLE);
+		binding.gameDisplayButton.setVisibility(View.GONE);
+		binding.gameMenuButton.setVisibility(View.GONE);
 		scheduleQuickSettingsHide();
 	}
 
@@ -561,6 +591,8 @@ public class MicroActivity extends AppCompatActivity {
 		quickSettingsHandler.removeCallbacks(hideQuickSettingsRunnable);
 		binding.quickScreenOptions.setVisibility(View.GONE);
 		binding.quickSettingsOverlay.setVisibility(View.GONE);
+		binding.gameDisplayButton.setVisibility(BuildConfig.HANDHELD_MODE ? View.GONE : View.VISIBLE);
+		binding.gameMenuButton.setVisibility(BuildConfig.HANDHELD_MODE ? View.GONE : View.VISIBLE);
 	}
 
 	private void scheduleQuickSettingsHide() {
@@ -592,6 +624,8 @@ public class MicroActivity extends AppCompatActivity {
 		binding.quickSettingsScreen.setText(getString(R.string.quick_settings_screen)
 				+ "\n" + microLoader.getScreenWidth() + "x" + microLoader.getScreenHeight());
 		binding.quickSettingsControls.setText(R.string.quick_settings_controls);
+		binding.quickScreenRotate.setText(getString(R.string.quick_rotation_value, microLoader.getScreenRotation()));
+		binding.quickScreenRotate.setEnabled(current instanceof Canvas);
 	}
 
 	private int clampIndex(int index, int size) {
@@ -601,77 +635,41 @@ public class MicroActivity extends AppCompatActivity {
 		return index;
 	}
 
-	private void rebuildQuickMapProfiles() {
-		binding.quickMapProfiles.removeAllViews();
-		ArrayList<ProfileModel.KeyMappingProfile> profiles = microLoader.getKeyMappingProfiles();
-		int active = microLoader.getActiveKeyMappingProfile();
-		for (int i = 0, size = profiles.size(); i < size; i++) {
-			ProfileModel.KeyMappingProfile profile = profiles.get(i);
-			final int index = i;
-			String name = profile.name == null ? "Profile " + (i + 1) : profile.name;
-			Button button = createQuickMapButton((i == active ? "* " : "") + name);
-			button.setOnClickListener(v -> {
-				microLoader.setActiveKeyMappingProfile(index);
-				menuKey = microLoader.getMenuKeyCode();
-				quickMapTargetKey = 0;
-				quickMapTargetLabel = null;
-				binding.quickMapHint.setText(R.string.quick_map_pick_target);
-				rebuildQuickMapProfiles();
-			});
-			binding.quickMapProfiles.addView(button);
-		}
-	}
-
-	private void rebuildQuickMapTargets() {
-		binding.quickMapTargets.removeAllViews();
-		for (int i = 0; i < QUICK_MAP_TARGET_KEYS.length; i++) {
-			final int targetKey = QUICK_MAP_TARGET_KEYS[i];
-			final String label = QUICK_MAP_TARGET_LABELS[i];
-			Button button = createQuickMapButton(label);
-			button.setOnClickListener(v -> {
-				quickMapTargetKey = targetKey;
-				quickMapTargetLabel = label;
-				binding.quickMapHint.setText(getString(R.string.quick_map_waiting, label));
-			});
-			binding.quickMapTargets.addView(button);
-		}
-	}
-
-	private Button createQuickMapButton(String label) {
-		Button button = new Button(this);
-		button.setAllCaps(false);
-		button.setSingleLine(true);
-		button.setText(label);
-		button.setFocusable(true);
-		button.setMinWidth(dp(56));
-		LinearLayout.LayoutParams lp = new LinearLayout.LayoutParams(
-				ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT);
-		lp.setMargins(0, 0, dp(8), 0);
-		button.setLayoutParams(lp);
-		return button;
-	}
-
 	private void showQuickMapOverlay() {
-		if (binding == null || binding.displayableContainer.getChildCount() == 0) {
+		if (binding == null || microLoader == null || isQuickMapVisible()
+				|| binding.displayableContainer.getChildCount() == 0) {
 			return;
 		}
-		quickMapTargetKey = 0;
-		quickMapTargetLabel = null;
-		quickMapCapturedKeyUp = KeyEvent.KEYCODE_UNKNOWN;
-		binding.quickMapHint.setText(R.string.quick_map_pick_target);
-		rebuildQuickMapProfiles();
-		binding.quickMapOverlay.setVisibility(View.VISIBLE);
-		binding.quickMapOverlay.requestFocus();
-		showSystemUI();
+		controllerInput.clear();
+		VirtualKeyboard vk = ContextHolder.getVk();
+		if (vk != null) vk.cancel();
+		hideQuickSettingsOverlay();
 		MidletThread.pauseApp();
+		controllerMapper = new ControllerMapperView(this, appName,
+				microLoader.getKeyMappingProfiles(), microLoader.getActiveKeyMappingProfile(),
+				new ControllerMapperView.Listener() {
+					public void save(ArrayList<ProfileModel.KeyMappingProfile> profiles, int active) {
+						controllerInput.clear();
+						if (microLoader.saveControllerProfiles(profiles, active)) {
+							menuKey = microLoader.getMenuKeyCode();
+							hideQuickMapOverlay();
+						} else Toast.makeText(MicroActivity.this, R.string.mapper_save_failed, Toast.LENGTH_LONG).show();
+					}
+					public void cancel() { hideQuickMapOverlay(); }
+				});
+		binding.quickMapOverlay.removeAllViews();
+		binding.quickMapOverlay.addView(controllerMapper, new ViewGroup.LayoutParams(
+				ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT));
+		binding.quickMapOverlay.setVisibility(View.VISIBLE);
+		hideSystemUI();
 	}
 
 	private void hideQuickMapOverlay() {
 		cancelQuickMapTrigger();
-		quickMapTargetKey = 0;
-		quickMapTargetLabel = null;
-		quickMapCapturedKeyUp = KeyEvent.KEYCODE_UNKNOWN;
+		controllerInput.clear();
 		binding.quickMapOverlay.setVisibility(View.GONE);
+		binding.quickMapOverlay.removeAllViews();
+		controllerMapper = null;
 		if (visible) {
 			MidletThread.resumeApp();
 		}
@@ -695,52 +693,8 @@ public class MicroActivity extends AppCompatActivity {
 				KeyEvent.ACTION_UP, KeyEvent.KEYCODE_BUTTON_SELECT, 0));
 	}
 
-	private void saveQuickKeyMapping(int inputCode) {
-		String targetLabel = quickMapTargetLabel == null ? getMidpKeyLabel(quickMapTargetKey) : quickMapTargetLabel;
-		microLoader.saveQuickKeyMapping(inputCode, quickMapTargetKey);
-		menuKey = microLoader.getMenuKeyCode();
-		quickMapTargetKey = 0;
-		quickMapTargetLabel = null;
-		binding.quickMapHint.setText(R.string.quick_map_pick_target);
-		rebuildQuickMapProfiles();
-		Toast.makeText(this, getString(R.string.quick_map_saved,
-				targetLabel, getInputLabel(inputCode)), Toast.LENGTH_SHORT).show();
-	}
-
 	private boolean isQuickMapVisible() {
-		return binding != null && binding.quickMapOverlay.getVisibility() == View.VISIBLE;
-	}
-
-	private boolean isIgnoredQuickMapKey(int keyCode) {
-		return keyCode == KeyEvent.KEYCODE_HOME
-				|| keyCode == KeyEvent.KEYCODE_VOLUME_UP
-				|| keyCode == KeyEvent.KEYCODE_VOLUME_DOWN;
-	}
-
-	private int getQuickMapStickInput(MotionEvent event) {
-		float x = getCenteredAxis(event, MotionEvent.AXIS_X);
-		float y = getCenteredAxis(event, MotionEvent.AXIS_Y);
-		float hatX = getCenteredAxis(event, MotionEvent.AXIS_HAT_X);
-		float hatY = getCenteredAxis(event, MotionEvent.AXIS_HAT_Y);
-		if (x == 0) {
-			x = hatX;
-		}
-		if (y == 0) {
-			y = hatY;
-		}
-		if (x < -QUICK_MAP_AXIS_DEADZONE) {
-			return KeyMapper.INPUT_STICK_LEFT;
-		}
-		if (x > QUICK_MAP_AXIS_DEADZONE) {
-			return KeyMapper.INPUT_STICK_RIGHT;
-		}
-		if (y < -QUICK_MAP_AXIS_DEADZONE) {
-			return KeyMapper.INPUT_STICK_UP;
-		}
-		if (y > QUICK_MAP_AXIS_DEADZONE) {
-			return KeyMapper.INPUT_STICK_DOWN;
-		}
-		return 0;
+		return binding != null && controllerMapper != null && binding.quickMapOverlay.getVisibility() == View.VISIBLE;
 	}
 
 	private boolean isFromSource(MotionEvent event, int source) {
@@ -760,41 +714,139 @@ public class MicroActivity extends AppCompatActivity {
 		return Math.abs(value) > Math.max(range.getFlat(), 0.15f) ? value : 0;
 	}
 
-	private String getInputLabel(int inputCode) {
-		switch (inputCode) {
-			case KeyMapper.INPUT_STICK_UP:
-				return "STICK_UP";
-			case KeyMapper.INPUT_STICK_DOWN:
-				return "STICK_DOWN";
-			case KeyMapper.INPUT_STICK_LEFT:
-				return "STICK_LEFT";
-			case KeyMapper.INPUT_STICK_RIGHT:
-				return "STICK_RIGHT";
-			default:
-				return KeyEvent.keyCodeToString(inputCode);
-		}
-	}
-
-	private String getMidpKeyLabel(int keyCode) {
-		for (int i = 0; i < QUICK_MAP_TARGET_KEYS.length; i++) {
-			if (QUICK_MAP_TARGET_KEYS[i] == keyCode) {
-				return QUICK_MAP_TARGET_LABELS[i];
-			}
-		}
-		return String.valueOf(keyCode);
-	}
-
-	private int dp(int value) {
-		return (int) (value * getResources().getDisplayMetrics().density + 0.5f);
-	}
-
 	@Override
 	public void openOptionsMenu() {
-		if (!actionBarEnabled &&
-				Build.VERSION.SDK_INT >= Build.VERSION_CODES.KITKAT && current instanceof Canvas) {
-			showSystemUI();
+		if (microLoader == null || isQuickMapVisible() || (gameMenu != null && gameMenu.isShowing())) return;
+		cancelQuickMapTrigger();
+		controllerInput.clear();
+		VirtualKeyboard vk = ContextHolder.getVk();
+		if (vk != null) vk.cancel();
+		hideQuickSettingsOverlay();
+		MidletThread.pauseApp();
+		gameMenu = new ru.playsoftware.j2meloader.input.GameMenuDialog(this, appName);
+		gameMenu.setOnDismissListener(d -> {
+			if (visible && !isQuickMapVisible()) MidletThread.resumeApp();
+			hideSystemUI();
+		});
+		gameMenu.show();
+		showGameMenuPage();
+	}
+
+	private void showGameMenuPage() {
+		gameMenu.page("Game menu");
+		gameMenu.action("Resume", android.R.drawable.ic_media_play, () -> gameMenu.dismiss());
+		gameMenu.action("Display", R.drawable.ic_quick_size, this::showDisplayPage);
+		gameMenu.action("Controller mapping", R.drawable.ic_action_keyboard, () -> {
+			showQuickMapOverlay(); gameMenu.dismiss();
+		});
+		if (!BuildConfig.HANDHELD_MODE && ContextHolder.getVk() != null) {
+			gameMenu.action("Touch controls", R.drawable.ic_baseline_tune_24, this::showTouchPage);
 		}
-		super.openOptionsMenu();
+		gameMenu.action("More", android.R.drawable.ic_menu_more, this::showMorePage);
+		gameMenu.action("Exit game", android.R.drawable.ic_menu_close_clear_cancel, () -> {
+			gameMenu.dismiss(); showExitConfirmation();
+		});
+	}
+
+	private void showDisplayPage() {
+		gameMenu.page("Display");
+		if (current instanceof Canvas) gameMenu.choice(getString(R.string.quick_rotate_image),
+				new String[]{"0\u00b0", "90\u00b0", "180\u00b0", "270\u00b0"},
+				microLoader.getScreenRotation() / 90, index -> applyImageRotation(index * 90));
+		String[] labels = getResources().getStringArray(R.array.quick_display_preset_entries);
+		gameMenu.choice("Look", labels, clampIndex(microLoader.getDisplayPreset(), labels.length), index -> {
+			microLoader.applyDisplayPreset(index); applyRuntimeDisplaySettings(false);
+		});
+		gameMenu.action("Screen: " + microLoader.getScreenWidth() + " x " + microLoader.getScreenHeight(),
+				R.drawable.ic_quick_size, () -> {
+			gameMenu.page("Game resolution");
+			gameMenu.action("Auto",0,()-> { applyQuickScreen(0,0); showDisplayPage(); });
+			gameMenu.action("176 x 220",0,()-> { applyQuickScreen(176,220); showDisplayPage(); });
+			gameMenu.action("240 x 320",0,()-> { applyQuickScreen(240,320); showDisplayPage(); });
+			gameMenu.action("320 x 240",0,()-> { applyQuickScreen(320,240); showDisplayPage(); });
+			gameMenu.action("480 x 800",0,()-> { applyQuickScreen(480,800); showDisplayPage(); });
+			gameMenu.action("Back",android.R.drawable.ic_media_previous,this::showDisplayPage);
+		});
+		if (!BuildConfig.HANDHELD_MODE) {
+			gameMenu.action("Rotate device layout",R.drawable.ic_quick_orientation,()-> {
+				setRequestedOrientation(getResources().getConfiguration().orientation == Configuration.ORIENTATION_PORTRAIT
+						? ActivityInfo.SCREEN_ORIENTATION_SENSOR_LANDSCAPE : ActivityInfo.SCREEN_ORIENTATION_SENSOR_PORTRAIT);
+				gameMenu.dismiss();
+			});
+		}
+		gameMenu.action("Back",android.R.drawable.ic_media_previous,this::showGameMenuPage);
+	}
+
+	private void showMorePage() {
+		gameMenu.page("More");
+		if (current instanceof Canvas) gameMenu.action("Screenshot", R.drawable.ic_action_screenshot, () -> {
+			gameMenu.dismiss(); takeScreenshot();
+		});
+		gameMenu.action("System keyboard", R.drawable.ic_action_keyboard, () -> {
+			gameMenu.dismiss();
+			inputMethodManager.toggleSoftInputFromWindow(binding.displayableContainer.getWindowToken(),
+					InputMethodManager.SHOW_FORCED, 0);
+		});
+		gameMenu.action("Frame rate limit", R.drawable.ic_quick_quality, () -> {
+			gameMenu.dismiss(); showLimitFpsDialog();
+		});
+		gameMenu.action("Save log", android.R.drawable.ic_menu_save, this::saveLog);
+		gameMenu.action("Back", android.R.drawable.ic_media_previous, this::showGameMenuPage);
+	}
+
+	private void showTouchPage() {
+		ProfileModel p = microLoader.getTouchSettings();
+		gameMenu.page("Touch controls");
+		int layout = p.touchLayout == null ? 2 : p.touchLayout;
+		String[] layouts = {"Phone", "Gamepad", "Legacy"};
+		gameMenu.choice("Layout", layouts, Math.max(0,Math.min(2,layout)), index -> {
+			p.touchLayout = index; applyTouchSettings(); showTouchPage();
+		});
+		if (layout == 2) {
+			gameMenu.action("Legacy layout editor", R.drawable.ic_baseline_tune_24, this::showLegacyTouchPage);
+			gameMenu.action("Back",android.R.drawable.ic_media_previous,this::showGameMenuPage);
+			return;
+		}
+		gameMenu.choice("Size", new String[]{"Standard","Large","Extra large"},Math.max(0,Math.min(2,p.touchSize)), index -> {
+			p.touchSize = index; applyTouchSettings();
+		});
+		gameMenu.opacity(p.touchOpacity, value -> {
+			p.touchOpacity = value; applyTouchSettings();
+		});
+		boolean landscape = getResources().getConfiguration().orientation == Configuration.ORIENTATION_LANDSCAPE;
+		float reach = landscape ? p.touchLandscapeReach : p.touchPortraitReach;
+		gameMenu.choice("Position", new String[]{"Bottom","Raised"},reach > 0 ? 1 : 0, index -> {
+			if (landscape) p.touchLandscapeReach = index;
+			else p.touchPortraitReach = index;
+			applyTouchSettings();
+		});
+		gameMenu.action("Back",android.R.drawable.ic_media_previous,this::showGameMenuPage);
+	}
+
+	private void applyTouchSettings() {
+		VirtualKeyboard vk = ContextHolder.getVk();
+		if (vk != null) vk.refreshTouchLayout();
+		if (!microLoader.saveTouchSettings()) Toast.makeText(this, R.string.mapper_save_failed, Toast.LENGTH_LONG).show();
+	}
+
+	private void showLegacyTouchPage() {
+		gameMenu.page("Legacy controls");
+		VirtualKeyboard vk = ContextHolder.getVk();
+		if (vk.getLayoutEditMode() != VirtualKeyboard.LAYOUT_EOF) {
+			gameMenu.action("Finish editing", android.R.drawable.ic_menu_save, () -> {
+				gameMenu.dismiss(); handleVkOptions(R.id.action_layout_edit_finish);
+			});
+		} else {
+			gameMenu.action("Move buttons", R.drawable.ic_baseline_tune_24, () -> {
+				gameMenu.dismiss(); handleVkOptions(R.id.action_layout_edit_mode);
+			});
+			gameMenu.action("Resize buttons", R.drawable.ic_quick_size, () -> {
+				gameMenu.dismiss(); handleVkOptions(R.id.action_layout_scale_mode);
+			});
+		}
+		gameMenu.action("Choose layout", R.drawable.ic_action_keyboard, () -> { gameMenu.dismiss(); showSetLayoutDialog(); });
+		gameMenu.action("Visible buttons", R.drawable.ic_list, () -> { gameMenu.dismiss(); showHideButtonDialog(); });
+		gameMenu.action("Back", android.R.drawable.ic_media_previous, this::showTouchPage);
 	}
 
 	@Override
@@ -1099,6 +1151,14 @@ public class MicroActivity extends AppCompatActivity {
 
 	@Override
 	protected void onDestroy() {
+		cancelQuickMapTrigger();
+		if (gameMenu != null) {
+			gameMenu.setOnDismissListener(null);
+			gameMenu.dismiss();
+		}
+		quickSettingsHandler.removeCallbacksAndMessages(null);
+		if (inputManager != null) inputManager.unregisterInputDeviceListener(controllerListener);
+		controllerInput.clear();
 		if (isFinishing()) {
 			LaunchDiagnostics.record(this, "clean_exit", appName, null);
 		}

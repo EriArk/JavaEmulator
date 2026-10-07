@@ -149,6 +149,11 @@ public class AppsListAdapter extends RecyclerView.Adapter<AppsListAdapter.ViewHo
 			}
 			binding.icon.setVisibility(displayMode == MODE_GALLERY ? View.GONE : View.VISIBLE);
 			binding.name.setText(item.getTitle());
+			binding.name.setTypeface(android.graphics.Typeface.DEFAULT, android.graphics.Typeface.BOLD);
+			binding.name.setTextSize(15);
+			binding.name.setMinLines(displayMode == MODE_LIST ? 1 : 2);
+			binding.author.setVisibility(displayMode == MODE_LIST ? View.VISIBLE : View.GONE);
+			binding.appVersion.setVisibility(View.GONE);
 			binding.author.setText(item.getAuthor() == null ? "" : item.getAuthor());
 			binding.appVersion.setText(item.getVersion() == null ? "" : item.getVersion());
 			binding.getRoot().setOnClickListener(v -> listener.onAppClicked(item));
@@ -186,7 +191,7 @@ public class AppsListAdapter extends RecyclerView.Adapter<AppsListAdapter.ViewHo
 				binding.name.setMaxLines(1);
 			} else {
 				root.setOrientation(LinearLayout.VERTICAL);
-				int artHeight = mode == MODE_GALLERY ? dp(118) : dp(86);
+				int artHeight = mode == MODE_GALLERY ? dp(154) : dp(116);
 				LinearLayout.LayoutParams artLp = new LinearLayout.LayoutParams(
 						ViewGroup.LayoutParams.MATCH_PARENT, artHeight);
 				artLp.setMargins(0, 0, 0, 0);
@@ -196,7 +201,7 @@ public class AppsListAdapter extends RecyclerView.Adapter<AppsListAdapter.ViewHo
 				textLp.setMargins(0, dp(8), 0, 0);
 				text.setLayoutParams(textLp);
 				binding.icon.setPadding(dp(3), dp(3), dp(3), dp(3));
-				binding.icon.setLayoutParams(centerIconParams(mode == MODE_GALLERY ? dp(88) : dp(78)));
+				binding.icon.setLayoutParams(centerIconParams(dp(108)));
 				binding.name.setMaxLines(2);
 			}
 		}
@@ -220,7 +225,7 @@ public class AppsListAdapter extends RecyclerView.Adapter<AppsListAdapter.ViewHo
 			if (mode == MODE_LIST) {
 				return dp(58);
 			}
-			return mode == MODE_GALLERY ? dp(82) : dp(72);
+			return dp(108);
 		}
 
 		private int dp(int value) {

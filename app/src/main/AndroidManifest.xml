@@ -135,6 +135,7 @@
             android:theme="@style/AppTheme.NoActionBar"
             android:configChanges="orientation|screenSize|keyboardHidden|screenLayout|smallestScreenSize|uiMode"
             android:process=":midlet" />
+        <activity android:name=".catalog.LibraryImportActivity" android:exported="false" />
         <activity android:name=".settings.SettingsActivity"
             android:exported="false"
             android:screenOrientation="landscape">

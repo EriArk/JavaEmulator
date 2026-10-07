@@ -67,6 +67,7 @@ import javax.microedition.lcdui.graphics.CanvasView;
 import javax.microedition.lcdui.graphics.CanvasWrapper;
 import javax.microedition.lcdui.graphics.GlesView;
 import javax.microedition.lcdui.graphics.ShaderProgram;
+import javax.microedition.lcdui.graphics.ScreenRotation;
 import javax.microedition.lcdui.keyboard.KeyMapper;
 import javax.microedition.lcdui.keyboard.VirtualKeyboard;
 import javax.microedition.lcdui.overlay.FpsCounter;
@@ -135,6 +136,8 @@ public abstract class Canvas extends Displayable {
 	private static boolean screenshotRawMode;
 	private static int scaleType;
 	private static int screenGravity;
+	private static int screenRotation;
+	private volatile int drawRotation;
 
 	private final Object bufferLock = new Object();
 	private final Object surfaceLock = new Object();
@@ -163,7 +166,8 @@ public abstract class Canvas extends Displayable {
 	private FpsCounter fpsCounter;
 	private boolean skipLeftSoft;
 	private boolean skipRightSoft;
-	private int[][] lastPointerPos = new int[20][2];
+	private final int[][] lastPointerPos = new int[32][2];
+	private final boolean[] gamePointers = new boolean[32];
 
 	protected Canvas() {
 		this(forceFullscreen);
@@ -195,6 +199,10 @@ public abstract class Canvas extends Displayable {
 
 	public static void setBackgroundColor(int color) {
 		backgroundColor = color | 0xFF000000;
+	}
+
+	public static void setScreenRotation(int degrees) {
+		screenRotation = ScreenRotation.normalize(degrees);
 	}
 
 	public static void setFilterBitmap(boolean filter) {
@@ -314,7 +322,7 @@ public abstract class Canvas extends Displayable {
 		g.clear(backgroundColor);
 		synchronized (bufferLock) {
 			offscreenCopy.getBitmap().prepareToDraw();
-			g.drawImage(offscreenCopy, virtualScreen);
+			g.drawImage(offscreenCopy, virtualScreen, drawRotation);
 		}
 		if (fpsCounter != null) {
 			fpsCounter.increment();
@@ -336,7 +344,7 @@ public abstract class Canvas extends Displayable {
 				bitmap = Bitmap.createBitmap(onWidth, onHeight, Bitmap.Config.ARGB_8888);
 				canvasWrapper.bind(new android.graphics.Canvas(bitmap));
 				synchronized (bufferLock) {
-					canvasWrapper.drawImage(offscreenCopy, new RectF(0, 0, onWidth, onHeight));
+					canvasWrapper.drawImage(offscreenCopy, new RectF(0, 0, onWidth, onHeight), drawRotation);
 				}
 			}
 			emitter.onSuccess(bitmap);
@@ -354,6 +362,14 @@ public abstract class Canvas extends Displayable {
 	 * Update the size and position of the virtual screen relative to the real one.
 	 */
 	public void updateSize() {
+		if (drawRotation != screenRotation) {
+			for (int p = 0; p < gamePointers.length; p++) {
+				if (gamePointers[p]) Display.postEvent(CanvasEvent.getInstance(this,
+						CanvasEvent.POINTER_RELEASED, p, lastPointerPos[p][0], lastPointerPos[p][1]));
+				gamePointers[p] = false;
+			}
+			drawRotation = screenRotation;
+		}
 		/*
 		 * We turn the sizes of the virtual screen into the sizes of the visible canvas.
 		 *
@@ -364,13 +380,16 @@ public abstract class Canvas extends Displayable {
 		int scaledDisplayHeight;
 		VirtualKeyboard vk = ContextHolder.getVk();
 		boolean isPhoneSkin = vk != null && vk.isPhone();
+		RectF available = vk != null && vk.hasTouchDeck()
+				? vk.getGameArea(displayWidth, displayHeight) : new RectF(0, 0, displayWidth, displayHeight);
+		int scaledDisplayWidth = Math.max(1, (int) available.width());
 
 		// if phone keyboard layout is active, then scale down the virtual screen
 		if (isPhoneSkin) {
 			float vkHeight = vk.getPhoneKeyboardHeight(displayWidth, displayHeight);
 			scaledDisplayHeight = (int) (displayHeight - vkHeight - 1);
 		} else {
-			scaledDisplayHeight = displayHeight;
+			scaledDisplayHeight = Math.max(1, (int) available.height());
 		}
 		if (virtualWidth > 0) {
 			if (virtualHeight > 0) {
@@ -417,8 +436,8 @@ public abstract class Canvas extends Displayable {
 				break;
 			case 1:
 				// try to fit in width
-				onWidth = displayWidth;
-				onHeight = height * displayWidth / width;
+				onWidth = scaledDisplayWidth;
+				onHeight = height * scaledDisplayWidth / width;
 				if (onHeight > scaledDisplayHeight) {
 					// if height is too big, then fit in height
 					onHeight = scaledDisplayHeight;
@@ -431,7 +450,7 @@ public abstract class Canvas extends Displayable {
 			case 2:
 				// scaling without preserving the aspect ratio:
 				// just stretch the picture to full screen
-				onWidth = displayWidth;
+				onWidth = scaledDisplayWidth;
 				onHeight = scaledDisplayHeight;
 				if (scaleRatio > 100) {
 					scaleRatio = 100;
@@ -448,19 +467,19 @@ public abstract class Canvas extends Displayable {
 				onY = (scaledDisplayHeight - onHeight) / 2;
 				break;
 			case 1: // top
-				onX = (displayWidth - onWidth) / 2;
+				onX = (scaledDisplayWidth - onWidth) / 2;
 				onY = 0;
 				break;
 			case 2: // center
-				onX = (displayWidth - onWidth) / 2;
+				onX = (scaledDisplayWidth - onWidth) / 2;
 				onY = (scaledDisplayHeight - onHeight) / 2;
 				break;
 			case 3: // right
-				onX = displayWidth - onWidth;
+				onX = scaledDisplayWidth - onWidth;
 				onY = (scaledDisplayHeight - onHeight) / 2;
 				break;
 			case 4: // bottom
-				onX = (displayWidth - onWidth) / 2;
+				onX = (scaledDisplayWidth - onWidth) / 2;
 				onY = scaledDisplayHeight - onHeight;
 				break;
 		}
@@ -469,6 +488,8 @@ public abstract class Canvas extends Displayable {
 		/*
 		 * calculate the maximum height
 		 */
+		onX += (int) available.left;
+		onY += (int) available.top;
 		maxHeight = height;
 
 		softBar.resize();
@@ -480,6 +501,32 @@ public abstract class Canvas extends Displayable {
 			float scaleY = (float) onHeight / height;
 			height = (int) (height - softBarHeight / scaleY);
 			onHeight -= softBarHeight;
+		}
+
+		// Rotate presentation only, after determining the MIDlet's unchanged logical size.
+		if (ScreenRotation.swapsAxes(drawRotation)) {
+			int availableHeight = Math.max(1, scaledDisplayHeight - (int) softBarHeight);
+			if (scaleType == 0) {
+				onWidth = height;
+				onHeight = width;
+			} else if (scaleType == 2) {
+				onWidth = scaledDisplayWidth;
+				onHeight = availableHeight;
+			} else {
+				onWidth = scaledDisplayWidth;
+				onHeight = width * scaledDisplayWidth / Math.max(1, height);
+				if (onHeight > availableHeight) {
+					onHeight = availableHeight;
+					onWidth = height * availableHeight / Math.max(1, width);
+				}
+			}
+			onWidth = Math.max(1, onWidth * scaleRatio / 100);
+			onHeight = Math.max(1, onHeight * scaleRatio / 100);
+			onX = (int) available.left + (screenGravity == 0 ? 0 : screenGravity == 3
+					? scaledDisplayWidth - onWidth : (scaledDisplayWidth - onWidth) / 2);
+			onY = (int) available.top + (screenGravity == 1 ? 0 : screenGravity == 4
+					? availableHeight - onHeight : (availableHeight - onHeight) / 2);
+			softBar.resize();
 		}
 
 		RectF screen = new RectF(0, 0, displayWidth, displayHeight);
@@ -517,8 +564,9 @@ public abstract class Canvas extends Displayable {
 	 * @param x the pointer coordinate on the real screen
 	 * @return the corresponding pointer coordinate on the virtual screen
 	 */
-	private float convertPointerX(float x) {
-		return (x - onX) * width / onWidth;
+	private float convertPointerX(float x, float y) {
+		float normalized = ScreenRotation.sourceX((x - onX) / onWidth, (y - onY) / onHeight, drawRotation);
+		return Math.max(0, Math.min(width - 1, normalized * width));
 	}
 
 	/**
@@ -527,8 +575,9 @@ public abstract class Canvas extends Displayable {
 	 * @param y the pointer coordinate on the real screen
 	 * @return the corresponding pointer coordinate on the virtual screen
 	 */
-	private float convertPointerY(float y) {
-		return (y - onY) * height / onHeight;
+	private float convertPointerY(float x, float y) {
+		float normalized = ScreenRotation.sourceY((x - onX) / onWidth, (y - onY) / onHeight, drawRotation);
+		return Math.max(0, Math.min(height - 1, normalized * height));
 	}
 
 	@SuppressLint("ClickableViewAccessibility")
@@ -688,7 +737,7 @@ public abstract class Canvas extends Displayable {
 				g.bind(canvas);
 				g.clear(backgroundColor);
 				synchronized (bufferLock) {
-					g.drawImage(offscreenCopy, virtualScreen);
+					g.drawImage(offscreenCopy, virtualScreen, drawRotation);
 				}
 				surface.unlockCanvasAndPost(canvas);
 			}
@@ -851,10 +900,10 @@ public abstract class Canvas extends Displayable {
 			synchronized (vbo) {
 				FloatBuffer vertex_bg = vbo;
 				vertex_bg.rewind();
-				vertex_bg.put(gl).put(gt).put(0.0f).put(0.0f);// lt
-				vertex_bg.put(gl).put(gb).put(0.0f).put(  th);// lb
-				vertex_bg.put(gr).put(gt).put(  tw).put(0.0f);// rt
-				vertex_bg.put(gr).put(gb).put(  tw).put(  th);// rb
+				putVertex(vertex_bg, gl, gt, 0, 0, tw, th);
+				putVertex(vertex_bg, gl, gb, 0, 1, tw, th);
+				putVertex(vertex_bg, gr, gt, 1, 0, tw, th);
+				putVertex(vertex_bg, gr, gb, 1, 1, tw, th);
 			}
 			if (isStarted) {
 				mView.queueEvent(() -> {
@@ -868,6 +917,11 @@ public abstract class Canvas extends Displayable {
 
 		public void requestRender() {
 			mView.requestRender();
+		}
+
+		private void putVertex(FloatBuffer buffer, float x, float y, float u, float v, float tw, float th) {
+			buffer.put(x).put(y).put(ScreenRotation.sourceX(u, v, drawRotation) * tw)
+					.put(ScreenRotation.sourceY(u, v, drawRotation) * th);
 		}
 
 		public void setView(GLSurfaceView mView) {
@@ -889,7 +943,7 @@ public abstract class Canvas extends Displayable {
 						mView.requestRender();
 						mView.queueEvent(() -> {
 							try {
-								glReadPixels(displayWidth - onWidth - onX, displayHeight - onHeight - onY, onWidth, onHeight, GL_RGBA, GL_UNSIGNED_BYTE, buf);
+								glReadPixels(onX, displayHeight - onHeight - onY, onWidth, onHeight, GL_RGBA, GL_UNSIGNED_BYTE, buf);
 								emitter.onSuccess(buf);
 							} catch (Throwable e) {
 								emitter.onError(e);
@@ -1175,13 +1229,15 @@ public abstract class Canvas extends Displayable {
 					int id = event.getPointerId(index);
 					float x = event.getX(index);
 					float y = event.getY(index);
+					boolean consumed = false;
 					if (overlay != null) {
-						overlay.pointerPressed(id, x, y);
+						consumed = overlay.pointerPressed(id, x, y);
 					}
-					if (touchInput && virtualScreen.contains(x, y)) {
-						int cX = Math.round(convertPointerX(x));
-						int cY = Math.round(convertPointerY(y));
-						if (id < 20) {
+					if (touchInput && !consumed && virtualScreen.contains(x, y)) {
+						gamePointers[id] = true;
+						int cX = Math.round(convertPointerX(x, y));
+						int cY = Math.round(convertPointerY(x, y));
+						if (id < lastPointerPos.length) {
 							lastPointerPos[id][0] = cX;
 							lastPointerPos[id][1] = cY;
 						}
@@ -1203,10 +1259,10 @@ public abstract class Canvas extends Displayable {
 							if (overlay != null) {
 								overlay.pointerDragged(id, x, y);
 							}
-							if (touchInput && virtualScreen.contains(x, y)) {
-								int cX = Math.round(convertPointerX(x));
-								int cY = Math.round(convertPointerY(y));
-								if (id < 20) {
+							if (touchInput && gamePointers[id]) {
+								int cX = Math.round(convertPointerX(x, y));
+								int cY = Math.round(convertPointerY(x, y));
+								if (id < lastPointerPos.length) {
 									int oX = lastPointerPos[id][0];
 									int oY = lastPointerPos[id][1];
 									if (oX == cX && oY == cY) {
@@ -1230,10 +1286,10 @@ public abstract class Canvas extends Displayable {
 						if (overlay != null) {
 							overlay.pointerDragged(id, x, y);
 						}
-						if (touchInput && virtualScreen.contains(x, y)) {
-							int cX = Math.round(convertPointerX(x));
-							int cY = Math.round(convertPointerY(y));
-							if (id < 20) {
+						if (touchInput && gamePointers[id]) {
+							int cX = Math.round(convertPointerX(x, y));
+							int cY = Math.round(convertPointerY(x, y));
+							if (id < lastPointerPos.length) {
 								int oX = lastPointerPos[id][0];
 								int oY = lastPointerPos[id][1];
 								if (oX == cX && oY == cY) {
@@ -1262,9 +1318,10 @@ public abstract class Canvas extends Displayable {
 					if (overlay != null) {
 						overlay.pointerReleased(id, x, y);
 					}
-					if (touchInput && virtualScreen.contains(x, y)) {
-						int cX = Math.round(convertPointerX(x));
-						int cY = Math.round(convertPointerY(y));
+					if (touchInput && gamePointers[id]) {
+						gamePointers[id] = false;
+						int cX = Math.round(convertPointerX(x, y));
+						int cY = Math.round(convertPointerY(x, y));
 						lastPointerPos[id][0] = cX;
 						lastPointerPos[id][1] = cY;
 						Display.postEvent(CanvasEvent.getInstance(Canvas.this,
@@ -1279,6 +1336,11 @@ public abstract class Canvas extends Displayable {
 					}
 					break;
 				case MotionEvent.ACTION_CANCEL:
+					for (int p = 0; p < gamePointers.length; p++) {
+						if (gamePointers[p]) Display.postEvent(CanvasEvent.getInstance(Canvas.this,
+								CanvasEvent.POINTER_RELEASED, p, lastPointerPos[p][0], lastPointerPos[p][1]));
+						gamePointers[p] = false;
+					}
 					if (overlay != null) {
 						overlay.cancel();
 					}
