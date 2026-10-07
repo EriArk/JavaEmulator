@@ -36,11 +36,11 @@ uses temporary test libraries; it can launch activities and write screenshots.
 ## Recorded checks: 2026-10-08
 
 Both public-source variants built locally, and both JVM suites passed (14 tests
-each). The Android emulator passed these 50 tests in **each** variant:
+each). The Android emulator passed these 56 tests in **each** variant:
 
 | Suite | Tests |
 | --- | ---: |
-| CompatibilityProfileTest | 14 |
+| CompatibilityProfileTest | 20 |
 | OrientationTest | 1 |
 | DatabaseMigrationTest | 4 |
 | LibraryImporterTest | 11 |
@@ -60,8 +60,14 @@ The static MIDP-1.0 metadata case is not a redistributable MIDP-1.0 gameplay fix
 - Only first launch without a saved configuration starts automatic preparation.
 - Explicit target metadata wins over incidental vendor API references. Repeated
   aliases do not accumulate votes. Absent/conflicting vendor hints use Generic MIDP.
+- Distributor advertising and web addresses do not select a manufacturer. Exact
+  manufacturer publisher names and vendor API references are weak evidence, not
+  confirmation of a device model. Their confidence remains low.
 - Declared display dimensions take precedence over artwork dimensions. Atlases,
   sprites, tiles, icons and fonts are excluded; image area is not a ranking bonus.
+- Raw image dimensions must match a known phone resolution. An unusual background
+  such as 255x160 is not treated as a native display. Comma-separated declared
+  dimensions are supported; JAR URL hints use the filename, not the host or query.
 - Conflicting equal-strength screen sizes keep the current size. Resource order
   does not decide the winner. 480x800 and 480x854, including landscape, are supported.
 - Existing/imported/template settings are kept. Detected screen dimensions are

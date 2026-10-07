@@ -22,20 +22,41 @@ line or filename is not proof of the intended screen or phone model.
 | `TeamMcLarenMercedes.jar` / 0.1.6 | Samsung name comes from distributor branding, **target unconfirmed** | Samsung; 240x320 resource hint | Language picker rendered; OK selected English and advanced to the loading/title artwork. Not a completed race test. |
 | `Ghost_Recon_2_SE_128x160.jar` / 1.2.6 | Filename says SE 128x160; not present in MIDlet metadata | Generic MIDP; **240x320 fallback** | Black game surface. Log contains NullPointerException in game paint code (`a.a`, `a.d`, `a.r`). Root cause not established. |
 
-## Findings to address
+## Follow-up: advertising and background hints
 
-- Do not treat unusual background dimensions as a reliable native screen size.
-- Distinguish target metadata from publisher/distributor advertising and web
-  addresses. Current static heuristics can overstate vendor confidence.
+The table above records the original run, not the current selection rules.
+The follow-up excludes distributor text and web addresses from manufacturer
+selection, labels publisher/API evidence as low confidence, and ignores unusual
+raw image dimensions such as Gold Hunter's 255x160 background. Six new synthetic
+regression cases cover these examples, URL filename handling and comma-separated
+declared dimensions. Existing saved configurations are intentionally unchanged.
+
+Ghost Recon 2 was retested with the **same converted game**, Generic MIDP and a
+manually selected 128x160 screen. It reached the title, main menu, difficulty
+selection, mission briefing and first playable level. No paint exception was
+observed in that process. Switching back to 240x320 also reached the title on a
+subsequent launch, but rendered the fixed-size game in a small corner of the
+larger canvas. Therefore:
+
+- 128x160 corrects the framing for this file; no Sony-specific profile was needed.
+- The original null-array paint failure is not proven to be caused by resolution.
+- #15 remains open for first-launch/intermittent failure investigation. This is
+  not a full gameplay, audio or save-compatibility acceptance result.
+
+These follow-up game observations used the public-source Phone debug build,
+without the optional private engine. Screenshots remain local.
+
+## Findings still to address
+
 - Evaluate retaining source-filename resolution hints when the manifest/resources
   carry no equivalent information, without overriding explicit/manual settings.
-- Reproduce Ghost Recon 2 with 128x160 and a suitable profile, then isolate the
-  resource/rendering failure. A black screen is not automatically a size bug.
+- Reproduce the intermittent first-launch Ghost Recon 2 resource/rendering failure.
+  A black screen is not automatically a size bug.
 - Expand the sample with verifiable Samsung touch, 176x220 and 360x640/480x800
   builds. The current archive labels do not establish those targets.
 
-These findings keep #14 open. The 50-test public-source regression suite passing
-does not make these six game releases fully compatible. Screenshots were captured
+These findings keep #14 open. Passing the expanded 56-test public-source regression
+suite does not make these six game releases fully compatible. Screenshots were captured
 locally and shown in the development conversation; commercial game files/artwork
 are not being added as repository fixtures.
 

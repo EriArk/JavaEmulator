@@ -207,4 +207,54 @@ public class CompatibilityProfileTest {
         finally { Thread.interrupted(); }
         assertFalse(new File(root, Config.MIDLET_CONFIG_FILE).exists());
     }
+
+    @Test public void distributorBrandingDoesNotChooseADevice() throws Exception {
+        manifest("MIDlet-Name: McLaren **samsungpro.ru**\n"
+                + "MIDlet-Vendor: Sony Pictures Mobile /b&b by **samsungpro.ru**\n"
+                + "MIDlet-Delete-Confirm: New Games For Siemens phones\n"
+                + "MIDlet-Info-URL: https://nokia.example/480x800\n");
+        ProfileModel model = run();
+        assertEquals("Generic MIDP", model.compatibilityProfile);
+        assertFalse(model.compatibilityReasons.contains("Sony Ericsson"));
+        assertFalse(model.compatibilityReasons.contains("Samsung"));
+        assertFalse(model.compatibilityReasons.contains("Siemens"));
+        assertEquals(0, model.detectedScreenWidth);
+    }
+
+    @Test public void publisherAloneIsWeakEvidence() throws Exception {
+        manifest("MIDlet-Vendor: Motorola\n");
+        ProfileModel model = run();
+        assertEquals("Motorola", model.compatibilityProfile);
+        assertEquals("low", model.compatibilityConfidence);
+        assertTrue(model.compatibilityReasons.contains("publisher name"));
+    }
+
+    @Test public void unusualBackgroundDoesNotBecomeScreenSize() throws Exception {
+        images(false, "res/background.png:255:160", "title.png:512:256");
+        ProfileModel model = run();
+        assertEquals(240, model.screenWidth);
+        assertEquals(320, model.screenHeight);
+        assertEquals(0, model.detectedScreenWidth);
+    }
+
+    @Test public void targetWebsiteIsNotDeviceOrScreenEvidence() throws Exception {
+        manifest("Target-Device: https://samsung.example/480x800\n"
+                + "Screen-Size: https://nokia.example/240x320\n");
+        ProfileModel model = run();
+        assertEquals("Generic MIDP", model.compatibilityProfile);
+        assertEquals(0, model.detectedScreenWidth);
+    }
+
+    @Test public void jarUrlUsesFilenameNotHostOrQuery() throws Exception {
+        manifest("MIDlet-Jar-URL: https://nokia.example/480x800/Game_128x160.jar?device=Samsung\n");
+        ProfileModel model = run();
+        assertEquals("Generic MIDP", model.compatibilityProfile);
+        assertEquals(128, model.screenWidth);
+        assertEquals(160, model.screenHeight);
+    }
+
+    @Test public void commaSeparatedDeclaredScreenIsSupported() throws Exception {
+        manifest("Nokia-MIDlet-Original-Display-Size: 240,320\n");
+        assertEquals(320, run().detectedScreenHeight);
+    }
 }

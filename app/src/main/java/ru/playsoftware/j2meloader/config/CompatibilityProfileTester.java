@@ -58,8 +58,10 @@ final class CompatibilityProfileTester {
 	private static final String PROFILE_MOTOROLA = "Motorola";
 	private static final String PROFILE_SIEMENS = "Siemens";
 	private static final String PROFILE_SAMSUNG = "Samsung";
+	private static final Pattern WEB_ADDRESS = Pattern.compile(
+			"(?:https?://|www\\.)\\S+|\\b[a-z0-9-]+(?:\\.[a-z0-9-]+)*\\.[a-z]{2,24}(?:/\\S*)?");
 	private static final Pattern RESOLUTION_PATTERN = Pattern.compile(
-			"(?<!\\d)(128|160|176|208|220|240|320|352|360|416|480|640|800|854)\\s*[x*_ -]\\s*(128|160|176|208|220|240|320|352|360|416|480|640|800|854)(?!\\d)");
+			"(?<!\\d)(128|160|176|208|220|240|320|352|360|416|480|640|800|854)\\s*[x*,_ -]\\s*(128|160|176|208|220|240|320|352|360|416|480|640|800|854)(?!\\d)");
 
 	private CompatibilityProfileTester() {
 	}
@@ -109,7 +111,8 @@ final class CompatibilityProfileTester {
 		params.compatibilityScore = best.score;
 		int margin = second == null ? best.score : best.score - second.score;
 		String confidence = PROFILE_GENERIC.equals(best.name) ? "low"
-				: margin >= 80 ? "high" : margin >= 30 ? "medium" : "low";
+				: best.score >= 200 && margin >= 80 ? "high"
+				: best.score >= 80 && margin >= 30 ? "medium" : "low";
 		String reasons = buildReasons(probe);
 		if (!applyProperties) reasons += "; existing system properties kept";
 		params.suggestedCompatibilityProfile = best.name;
@@ -133,23 +136,25 @@ final class CompatibilityProfileTester {
 			if (manifest.length() > 1024 * 1024) return probe;
 			Descriptor descriptor = new Descriptor(manifest, false);
 			probe.attrs = descriptor.getAttrs();
-			StringBuilder text = new StringBuilder();
-			for (Map.Entry<String, String> entry : probe.attrs.entrySet()) {
-				text.append(entry.getKey()).append(' ').append(entry.getValue()).append('\n');
-			}
-			probe.manifestText = text.toString().toLowerCase(Locale.US);
 			for (Map.Entry<String, String> entry : probe.attrs.entrySet()) {
 				String key = entry.getKey().toLowerCase(Locale.US);
-				if (key.contains("target") || key.equals("microedition.platform") || key.equals("device"))
-					probe.targetText += " " + entry.getValue().toLowerCase(Locale.US);
+				String value = entry.getValue().toLowerCase(Locale.US);
+				if (key.equals("target-device") || key.equals("target-platform") || key.equals("midlet-target-device")
+						|| key.equals("microedition.platform") || key.equals("device"))
+					probe.targetText += " " + withoutWebAddresses(value);
+				if (key.equals("midlet-vendor")) probe.publisher = value.trim();
 				if (key.contains("screen") || key.contains("resolution") || key.contains("display")
-						|| key.contains("canvas")) readResolutionHints(probe, entry.getValue().toLowerCase(Locale.US), 1000);
-				else if (key.equals("midlet-name") || key.equals("midlet-jar-url"))
-					readResolutionHints(probe, entry.getValue().toLowerCase(Locale.US), 600);
+						|| key.contains("canvas")) readResolutionHints(probe, withoutWebAddresses(value), 1000);
+				else if (key.equals("midlet-name")) readResolutionHints(probe, withoutWebAddresses(value), 600);
+				else if (key.equals("midlet-jar-url")) {
+					String filename = android.net.Uri.parse(value).getLastPathSegment();
+					if (filename != null) readResolutionHints(probe, filename, 600);
+				}
 			}
 		} catch (Exception ignored) {
 			probe.attrs = new LinkedHashMap<>();
-			probe.manifestText = "";
+			probe.targetText = "";
+			probe.publisher = "";
 		}
 		return probe;
 	}
@@ -233,28 +238,56 @@ final class CompatibilityProfileTester {
 	private static int scoreCandidate(Candidate candidate, Probe probe) {
 		String[] hints;
 		String[] apis;
+		String prefix;
+		String publisher;
 		if (PROFILE_NOKIA.equals(candidate.name)) {
+			prefix = "nokia-";
+			publisher = "nokia";
 			hints = new String[]{"nokia", "s40", "series40", "series 40", "6233", "n73"};
 			apis = new String[]{"com/nokia/", "com.nokia."};
 		} else if (PROFILE_SONY_ERICSSON.equals(candidate.name)) {
+			prefix = "sonyericsson-";
+			publisher = "sony ericsson";
 			hints = new String[]{"sonyericsson", "sony ericsson", "k800", "jp-8", "jp8"};
 			apis = new String[]{"com/sonyericsson/", "com.sonyericsson.", "com/semc/", "com.semc."};
 		} else if (PROFILE_MOTOROLA.equals(candidate.name)) {
+			prefix = "motorola-";
+			publisher = "motorola";
 			hints = new String[]{"motorola", "v3x", "razr"};
 			apis = new String[]{"com/motorola/", "com.motorola."};
 		} else if (PROFILE_SIEMENS.equals(candidate.name)) {
+			prefix = "siemens-";
+			publisher = "siemens";
 			hints = new String[]{"siemens", "s65", "cx65"};
 			apis = new String[]{"com/siemens/", "com.siemens."};
 		} else if (PROFILE_SAMSUNG.equals(candidate.name)) {
+			prefix = "samsung-";
+			publisher = "samsung";
 			hints = new String[]{"samsung", "sgh", "gt_s8000", "gt-s8000", "d900", "e250"};
 			apis = new String[]{"com/samsung/", "com.samsung."};
 		} else {
 			return 0;
 		}
 		// Aliases count once. Metadata wins over weak references in multi-vendor code.
-		if (containsAny(probe.targetText, hints)) return 240;
-		if (containsAny(probe.manifestText, hints)) return 120;
-		return containsAny(probe.apiText, apis) ? 30 : 0;
+		if (containsAny(probe.targetText, hints)) {
+			candidate.reason = "target metadata";
+			return 240;
+		}
+		for (String key : probe.attrs.keySet()) {
+			if (key.toLowerCase(Locale.US).startsWith(prefix)) {
+				candidate.reason = "vendor-specific manifest attribute";
+				return 60;
+			}
+		}
+		if (probe.publisher.replace(" ", "").equals(publisher.replace(" ", ""))) {
+			candidate.reason = "publisher name (not a device model)";
+			return 40;
+		}
+		if (containsAny(probe.apiText, apis)) {
+			candidate.reason = "API reference (not a device model)";
+			return 30;
+		}
+		return 0;
 	}
 
 	private static boolean isImageFile(String lowerName) {
@@ -288,8 +321,7 @@ final class CompatibilityProfileTester {
 		if (isExcludedImage(name)) return 0;
 		boolean screen = containsAny(name, "splash", "title", "menu", "background", "loading");
 		if (isKnownJ2meResolution(width, height)) return screen ? 300 : 100;
-		float ratio = width / (float) height;
-		return screen && ratio >= 0.5f && ratio <= 2f ? 50 : 0;
+		return 0;
 	}
 
 	private static boolean isExcludedImage(String name) {
@@ -337,6 +369,10 @@ final class CompatibilityProfileTester {
 			if (text.contains(hint)) return true;
 		}
 		return false;
+	}
+
+	private static String withoutWebAddresses(String value) {
+		return WEB_ADDRESS.matcher(value).replaceAll(" ");
 	}
 
 	private static void checkCancelled() {
@@ -423,12 +459,9 @@ final class CompatibilityProfileTester {
 		} else {
 			reasons.add(probe.screens.isEmpty() ? "no screen-size evidence" : "conflicting screen sizes; size kept");
 		}
-		String hints = probe.manifestText + '\n' + probe.apiText;
-		if (hints.contains("nokia")) reasons.add("Nokia APIs/resources detected");
-		if (hints.contains("sony")) reasons.add("Sony Ericsson hints detected");
-		if (hints.contains("siemens")) reasons.add("Siemens APIs detected");
-		if (hints.contains("samsung")) reasons.add("Samsung hints detected");
-		if (hints.contains("motorola")) reasons.add("Motorola hints detected");
+		for (Candidate candidate : createCandidates(probe)) {
+			if (scoreCandidate(candidate, probe) > 0) reasons.add(candidate.name + ": " + candidate.reason);
+		}
 		reasons.add("static analysis, not a gameplay test");
 		return android.text.TextUtils.join(", ", reasons);
 	}
@@ -437,6 +470,7 @@ final class CompatibilityProfileTester {
 		final String name;
 		final LinkedHashMap<String, String> properties;
 		int score;
+		String reason;
 
 		private Candidate(String name, int score, LinkedHashMap<String, String> properties) {
 			this.name = name;
@@ -447,7 +481,7 @@ final class CompatibilityProfileTester {
 
 	private static final class Probe {
 		Map<String, String> attrs = new LinkedHashMap<>();
-		String manifestText = "";
+		String publisher = "";
 		String targetText = "";
 		String apiText = "";
 		final Map<String, Integer> screens = new LinkedHashMap<>();
