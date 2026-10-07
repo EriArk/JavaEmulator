@@ -77,3 +77,7 @@ Physical controller/disconnect testing (#9), Phone recreation with touch on/off
 more game releases remain separate checks. The external-launcher pass is deferred.
 Use the manual matrix in Contributing; record actual games/devices/results rather
 than turning untested rows into passed checkboxes.
+
+The first [six-game archive smoke sample](GAME_SMOKE_MATRIX.md) includes both
+successful screen transitions and unresolved failures. It is not a compatibility
+whitelist and does not replace the remaining device checks.
