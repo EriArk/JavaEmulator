@@ -77,9 +77,10 @@ Record the commit, APK variant, commands/results, game identification and
 Android/device or emulator version. Mark untested cases explicitly. Use games
 you are permitted to use, and never attach commercial JARs to reports.
 
-Current JVM coverage is limited to two source-identity tests. Passing them is
-not evidence that controller input, migrations or game compatibility work;
-broader coverage is tracked in [#4](https://github.com/EriArk/JavaEmulator/issues/4).
+Current local coverage includes 14 JVM tests and 50 focused Android instrumentation
+tests per variant. See [commands, scope and recorded checks](docs/LOCAL_TESTING.md).
+Passing these is not physical-controller or full-game compatibility acceptance;
+remaining coverage is tracked in [#4](https://github.com/EriArk/JavaEmulator/issues/4).
 
 ## Project layout
 

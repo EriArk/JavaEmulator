@@ -103,8 +103,8 @@ public class MicroLoader {
 		if (params == null) {
 			return false;
 		}
-		detectedScreenWidth = params.screenWidth;
-		detectedScreenHeight = params.screenHeight;
+		detectedScreenWidth = params.detectedScreenWidth > 0 ? params.detectedScreenWidth : params.screenWidth;
+		detectedScreenHeight = params.detectedScreenHeight > 0 ? params.detectedScreenHeight : params.screenHeight;
 		Display.initDisplay();
 		Graphics3D.initGraphics3D();
 		File cacheDir = ContextHolder.getCacheDir();

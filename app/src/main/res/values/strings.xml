@@ -228,9 +228,11 @@
     <string name="compatibility_test_starting">Starting analysis...</string>
     <string name="compatibility_test_manifest">Reading MIDlet manifest</string>
     <string name="compatibility_test_resources">Scanning resources and API hints</string>
-    <string name="compatibility_test_profile">Scoring %1$s compatibility</string>
-    <string name="compatibility_test_save">Saving %1$s profile</string>
-    <string name="compatibility_test_done">Selected %1$s. Launching...</string>
+    <string name="compatibility_test_profile">Checking %1$s hints</string>
+    <string name="compatibility_test_save">Saving analysis: %1$s</string>
+    <string name="compatibility_test_done">Preparation complete. Launching...</string>
+    <string name="compatibility_test_failed">Game preparation could not be saved. Check available storage and try again.</string>
+    <string name="compatibility_test_retry">Retry</string>
 
     <string name="pref_theme_auto_battery">Auto, by Battery Saver</string>
     <string name="pref_theme_auto_time">Auto, by time of day</string>

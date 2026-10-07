@@ -12,11 +12,16 @@ import android.graphics.BitmapFactory;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.InputStream;
+import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.LinkedHashMap;
 import java.util.Locale;
 import java.util.Map;
+import java.util.Collections;
+import java.util.Comparator;
+import java.util.Enumeration;
+import java.util.concurrent.CancellationException;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.zip.ZipEntry;
@@ -54,23 +59,26 @@ final class CompatibilityProfileTester {
 	private static final String PROFILE_SIEMENS = "Siemens";
 	private static final String PROFILE_SAMSUNG = "Samsung";
 	private static final Pattern RESOLUTION_PATTERN = Pattern.compile(
-			"(?<!\\d)(128|176|208|240|320|352|360|480|640)[x*_ -](128|160|176|208|220|240|320|352|360|416|480|640)(?!\\d)");
+			"(?<!\\d)(128|160|176|208|220|240|320|352|360|416|480|640|800|854)\\s*[x*_ -]\\s*(128|160|176|208|220|240|320|352|360|416|480|640|800|854)(?!\\d)");
 
 	private CompatibilityProfileTester() {
 	}
 
-	static Result run(Context context, File appDir, ProfileModel params, Callback callback) {
+	static Result run(Context context, File appDir, ProfileModel params, Callback callback) throws IOException {
+		checkCancelled();
 		callback.onProgress(5, context.getString(R.string.compatibility_test_manifest));
 		Probe probe = readProbe(appDir);
 
 		callback.onProgress(18, context.getString(R.string.compatibility_test_resources));
 		readResourceHints(appDir, probe);
-		probe.resourceText += '\n' + readDexHints(appDir);
+		probe.apiText = readDexHints(appDir);
+		probe.selectScreen();
 
 		ArrayList<Candidate> candidates = createCandidates(probe);
 		Candidate best = null;
 		Candidate second = null;
 		for (int i = 0, size = candidates.size(); i < size; i++) {
+			checkCancelled();
 			Candidate candidate = candidates.get(i);
 			int progress = 25 + (i * 55 / Math.max(1, size));
 			callback.onProgress(progress,
@@ -87,36 +95,58 @@ final class CompatibilityProfileTester {
 		if (best == null) {
 			best = candidates.get(0);
 		}
+		// Shared portability libraries often mention several vendors. A tie is not a device hint.
+		if (second != null && best.score == second.score) best = candidates.get(0);
 		callback.onProgress(86, context.getString(R.string.compatibility_test_save, best.name));
-		params.systemProperties = mergeProperties(params.systemProperties, best.properties);
-		params.compatibilityProfile = best.name;
+		boolean fresh = params.isNew && !params.compatibilityTested;
+		String defaults = ContextHolder.getAssetAsString("defaults/system.props");
+		boolean applyProperties = fresh && (params.systemProperties == null
+				|| params.systemProperties.trim().equals(defaults.trim()));
+		if (applyProperties) {
+			params.systemProperties = mergeProperties(params.systemProperties, best.properties);
+			params.compatibilityProfile = best.name;
+		}
 		params.compatibilityScore = best.score;
 		int margin = second == null ? best.score : best.score - second.score;
-		String confidence = margin >= 80 ? "high" : margin >= 30 ? "medium" : "low";
+		String confidence = PROFILE_GENERIC.equals(best.name) ? "low"
+				: margin >= 80 ? "high" : margin >= 30 ? "medium" : "low";
 		String reasons = buildReasons(probe);
+		if (!applyProperties) reasons += "; existing system properties kept";
+		params.suggestedCompatibilityProfile = best.name;
 		params.compatibilityConfidence = confidence;
 		params.compatibilityReasons = reasons;
+		applyDisplayDefaults(params, probe, fresh);
 		params.compatibilityTested = true;
-		applyDisplayDefaults(params, probe);
 		if (BuildConfig.HANDHELD_MODE) {
 			params.showKeyboard = false;
 			params.touchInput = false;
 		}
-		ProfilesManager.saveConfig(params);
+		checkCancelled();
+		if (!ProfilesManager.saveConfig(params)) throw new IOException("Cannot save game settings");
 		return new Result(best.name, best.score, confidence, reasons);
 	}
 
 	private static Probe readProbe(File appDir) {
 		Probe probe = new Probe();
 		try {
-			Descriptor descriptor = new Descriptor(new File(appDir, Config.MIDLET_MANIFEST_FILE), false);
+			File manifest = new File(appDir, Config.MIDLET_MANIFEST_FILE);
+			if (manifest.length() > 1024 * 1024) return probe;
+			Descriptor descriptor = new Descriptor(manifest, false);
 			probe.attrs = descriptor.getAttrs();
 			StringBuilder text = new StringBuilder();
 			for (Map.Entry<String, String> entry : probe.attrs.entrySet()) {
 				text.append(entry.getKey()).append(' ').append(entry.getValue()).append('\n');
 			}
 			probe.manifestText = text.toString().toLowerCase(Locale.US);
-			readResolutionHints(probe, probe.manifestText, 320);
+			for (Map.Entry<String, String> entry : probe.attrs.entrySet()) {
+				String key = entry.getKey().toLowerCase(Locale.US);
+				if (key.contains("target") || key.equals("microedition.platform") || key.equals("device"))
+					probe.targetText += " " + entry.getValue().toLowerCase(Locale.US);
+				if (key.contains("screen") || key.contains("resolution") || key.contains("display")
+						|| key.contains("canvas")) readResolutionHints(probe, entry.getValue().toLowerCase(Locale.US), 1000);
+				else if (key.equals("midlet-name") || key.equals("midlet-jar-url"))
+					readResolutionHints(probe, entry.getValue().toLowerCase(Locale.US), 600);
+			}
 		} catch (Exception ignored) {
 			probe.attrs = new LinkedHashMap<>();
 			probe.manifestText = "";
@@ -127,32 +157,37 @@ final class CompatibilityProfileTester {
 	private static void readResourceHints(File appDir, Probe probe) {
 		File resJar = new File(appDir, Config.MIDLET_RES_FILE);
 		if (!resJar.exists()) {
-			probe.resourceText = "";
 			return;
 		}
-		StringBuilder text = new StringBuilder();
 		try (ZipFile zip = new ZipFile(resJar)) {
+			ArrayList<ZipEntry> images = new ArrayList<>();
+			Enumeration<? extends ZipEntry> entries = zip.entries();
 			int count = 0;
-			for (ZipEntry entry : java.util.Collections.list(zip.entries())) {
-				if (count++ > 700) {
-					break;
-				}
-				text.append(entry.getName()).append('\n');
+			while (entries.hasMoreElements()) {
+				checkCancelled();
+				ZipEntry entry = entries.nextElement();
+				if (++count > 20000) { images.clear(); break; }
+				if (!entry.isDirectory() && isImageFile(entry.getName().toLowerCase(Locale.US))) images.add(entry);
+			}
+			Collections.sort(images, Comparator.comparing(ZipEntry::getName));
+			for (ZipEntry entry : images.subList(0, Math.min(700, images.size()))) {
+				checkCancelled();
 				String lower = entry.getName().toLowerCase(Locale.US);
-				if (isImageFile(lower)) {
+				if (!isExcludedImage(lower) && entry.getSize() >= 0 && entry.getSize() <= 8 * 1024 * 1024) {
+					readResolutionHints(probe, lower, 500);
 					BitmapFactory.Options options = new BitmapFactory.Options();
 					options.inJustDecodeBounds = true;
 					try (InputStream stream = zip.getInputStream(entry)) {
 						BitmapFactory.decodeStream(stream, null, options);
-						rememberScreenCandidate(probe, lower, options.outWidth, options.outHeight, 0);
+						int score = scoreScreenCandidate(lower, options.outWidth, options.outHeight);
+						if (score > 0) rememberScreenCandidate(probe, options.outWidth, options.outHeight, score);
 					} catch (Exception ignored) {
 					}
 				}
 			}
 		} catch (Exception ignored) {
 		}
-		probe.resourceText = text.toString().toLowerCase(Locale.US);
-		readResolutionHints(probe, probe.resourceText, 80);
+		checkCancelled();
 	}
 
 	private static String readDexHints(File appDir) {
@@ -164,6 +199,7 @@ final class CompatibilityProfileTester {
 		try (FileInputStream in = new FileInputStream(dex)) {
 			int offset = 0;
 			while (offset < data.length) {
+				checkCancelled();
 				int read = in.read(data, offset, data.length - offset);
 				if (read < 0) {
 					break;
@@ -180,51 +216,45 @@ final class CompatibilityProfileTester {
 		String profile = firstNonEmpty(probe.attrs.get("MicroEdition-Profile"), "MIDP-2.0");
 		String configuration = firstNonEmpty(probe.attrs.get("MicroEdition-Configuration"), "CLDC-1.1");
 		ArrayList<Candidate> candidates = new ArrayList<>();
-		candidates.add(new Candidate(PROFILE_GENERIC, 24, baseProperties(
+		candidates.add(new Candidate(PROFILE_GENERIC, 1, baseProperties(
 				"J2ME-Loader/Auto", profile, configuration)));
-		candidates.add(new Candidate(PROFILE_NOKIA, 28, nokiaProperties(profile, configuration)));
-		candidates.add(new Candidate(PROFILE_SONY_ERICSSON, 28,
+		candidates.add(new Candidate(PROFILE_NOKIA, 0, nokiaProperties(profile, configuration)));
+		candidates.add(new Candidate(PROFILE_SONY_ERICSSON, 0,
 				sonyEricssonProperties(profile, configuration)));
-		candidates.add(new Candidate(PROFILE_MOTOROLA, 26,
+		candidates.add(new Candidate(PROFILE_MOTOROLA, 0,
 				baseProperties("Motorola V3x", profile, configuration)));
-		candidates.add(new Candidate(PROFILE_SIEMENS, 26,
+		candidates.add(new Candidate(PROFILE_SIEMENS, 0,
 				siemensProperties(profile, configuration)));
-		candidates.add(new Candidate(PROFILE_SAMSUNG, 26,
+		candidates.add(new Candidate(PROFILE_SAMSUNG, 0,
 				baseProperties("SAMSUNG-SGH-D900", profile, configuration)));
 		return candidates;
 	}
 
 	private static int scoreCandidate(Candidate candidate, Probe probe) {
-		String text = probe.manifestText + '\n' + probe.resourceText;
-		int score = 0;
+		String[] hints;
+		String[] apis;
 		if (PROFILE_NOKIA.equals(candidate.name)) {
-			score += scoreHints(text, "nokia", "s40", "series40", "series 40", "6233", "n73",
-					"com/nokia", "com.nokia", "directgraphics");
-			if (hasAttrPrefix(probe, "Nokia-")) {
-				score += 80;
-			}
+			hints = new String[]{"nokia", "s40", "series40", "series 40", "6233", "n73"};
+			apis = new String[]{"com/nokia/", "com.nokia."};
 		} else if (PROFILE_SONY_ERICSSON.equals(candidate.name)) {
-			score += scoreHints(text, "sony", "ericsson", "sonyericsson", "sony ericsson",
-					"k800", "jp-8", "jp8", "com/sonyericsson", "com.sonyericsson",
-					"com/semc", "com.semc");
+			hints = new String[]{"sonyericsson", "sony ericsson", "k800", "jp-8", "jp8"};
+			apis = new String[]{"com/sonyericsson/", "com.sonyericsson.", "com/semc/", "com.semc."};
 		} else if (PROFILE_MOTOROLA.equals(candidate.name)) {
-			score += scoreHints(text, "motorola", "moto", "v3", "v3x", "razr",
-					"com/motorola", "com.motorola");
+			hints = new String[]{"motorola", "v3x", "razr"};
+			apis = new String[]{"com/motorola/", "com.motorola."};
 		} else if (PROFILE_SIEMENS.equals(candidate.name)) {
-			score += scoreHints(text, "siemens", "s65", "cx65", "com/siemens", "com.siemens");
+			hints = new String[]{"siemens", "s65", "cx65"};
+			apis = new String[]{"com/siemens/", "com.siemens."};
 		} else if (PROFILE_SAMSUNG.equals(candidate.name)) {
-			score += scoreHints(text, "samsung", "sgh", "d900", "e250", "com/samsung", "com.samsung");
+			hints = new String[]{"samsung", "sgh", "gt_s8000", "gt-s8000", "d900", "e250"};
+			apis = new String[]{"com/samsung/", "com.samsung."};
+		} else {
+			return 0;
 		}
-		if (text.contains("mascot") || text.contains(".m3g")) {
-			score += 6;
-		}
-		if (text.contains("midp-1.0") && PROFILE_GENERIC.equals(candidate.name)) {
-			score += 10;
-		}
-		if (text.contains("gameloft") && PROFILE_NOKIA.equals(candidate.name)) {
-			score += 10;
-		}
-		return score;
+		// Aliases count once. Metadata wins over weak references in multi-vendor code.
+		if (containsAny(probe.targetText, hints)) return 240;
+		if (containsAny(probe.manifestText, hints)) return 120;
+		return containsAny(probe.apiText, apis) ? 30 : 0;
 	}
 
 	private static boolean isImageFile(String lowerName) {
@@ -239,44 +269,31 @@ final class CompatibilityProfileTester {
 			try {
 				int width = Integer.parseInt(matcher.group(1));
 				int height = Integer.parseInt(matcher.group(2));
-				rememberScreenCandidate(probe, "declared-resolution", width, height, bonus);
+				rememberScreenCandidate(probe, width, height, bonus);
 			} catch (NumberFormatException ignored) {
 			}
 		}
 	}
 
-	private static void rememberScreenCandidate(Probe probe, String name, int width, int height, int bonus) {
-		if (width < 96 || height < 96 || width > 640 || height > 640) {
+	private static void rememberScreenCandidate(Probe probe, int width, int height, int score) {
+		if (width < 96 || height < 96 || width > 854 || height > 854) {
 			return;
 		}
-		int score = scoreScreenCandidate(name, width, height) + bonus;
-		if (score > probe.screenScore) {
-			probe.screenScore = score;
-			probe.screenWidth = width;
-			probe.screenHeight = height;
-		}
+		String key = width + "x" + height;
+		Integer previous = probe.screens.get(key);
+		probe.screens.put(key, previous == null ? score : Math.max(previous, score));
 	}
 
 	private static int scoreScreenCandidate(String name, int width, int height) {
-		int area = width * height;
-		int score = area / 512;
-		if (isKnownJ2meResolution(width, height)) {
-			score += 180;
-		}
-		if (name.contains("splash") || name.contains("title") || name.contains("menu")
-				|| name.contains("background") || name.contains("loading")) {
-			score += 160;
-		}
-		if (name.contains("font") || name.contains("sprite") || name.contains("icon")
-				|| name.contains("button") || name.contains("tile") || name.contains("digit")
-				|| name.contains("logo")) {
-			score -= 180;
-		}
+		if (isExcludedImage(name)) return 0;
+		boolean screen = containsAny(name, "splash", "title", "menu", "background", "loading");
+		if (isKnownJ2meResolution(width, height)) return screen ? 300 : 100;
 		float ratio = width / (float) height;
-		if ((ratio >= 0.45f && ratio <= 0.85f) || (ratio >= 1.2f && ratio <= 2.2f)) {
-			score += 40;
-		}
-		return score;
+		return screen && ratio >= 0.5f && ratio <= 2f ? 50 : 0;
+	}
+
+	private static boolean isExcludedImage(String name) {
+		return containsAny(name, "font", "sprite", "icon", "button", "tile", "digit", "logo", "atlas");
 	}
 
 	private static boolean isKnownJ2meResolution(int width, int height) {
@@ -288,7 +305,9 @@ final class CompatibilityProfileTester {
 				|| matchesResolution(width, height, 240, 320)
 				|| matchesResolution(width, height, 320, 240)
 				|| matchesResolution(width, height, 352, 416)
-				|| matchesResolution(width, height, 360, 640);
+				|| matchesResolution(width, height, 360, 640)
+				|| matchesResolution(width, height, 480, 800)
+				|| matchesResolution(width, height, 480, 854);
 	}
 
 	private static boolean matchesResolution(int width, int height, int expectedWidth, int expectedHeight) {
@@ -296,35 +315,32 @@ final class CompatibilityProfileTester {
 				|| (width == expectedHeight && height == expectedWidth);
 	}
 
-	private static void applyDisplayDefaults(ProfileModel params, Probe probe) {
+	private static void applyDisplayDefaults(ProfileModel params, Probe probe, boolean fresh) {
+		boolean defaults = fresh && params.screenWidth == 240 && params.screenHeight == 320;
 		if (probe.screenWidth > 0 && probe.screenHeight > 0) {
-			params.screenWidth = probe.screenWidth;
-			params.screenHeight = probe.screenHeight;
+			params.detectedScreenWidth = probe.screenWidth;
+			params.detectedScreenHeight = probe.screenHeight;
+			if (defaults) {
+				params.screenWidth = probe.screenWidth;
+				params.screenHeight = probe.screenHeight;
+			}
+		} else {
+			params.detectedScreenWidth = 0;
+			params.detectedScreenHeight = 0;
 		}
-		params.screenScaleType = 1;
-		params.screenScaleRatio = 100;
-		params.screenGravity = 2;
-		params.forceFullscreen = true;
+		if (fresh) params.forceFullscreen = true;
 		if (BuildConfig.HANDHELD_MODE) params.orientation = 3;
 	}
 
-	private static int scoreHints(String text, String... hints) {
-		int score = 0;
+	private static boolean containsAny(String text, String... hints) {
 		for (String hint : hints) {
-			if (text.contains(hint)) {
-				score += 30;
-			}
-		}
-		return score;
-	}
-
-	private static boolean hasAttrPrefix(Probe probe, String prefix) {
-		for (String key : probe.attrs.keySet()) {
-			if (key.startsWith(prefix)) {
-				return true;
-			}
+			if (text.contains(hint)) return true;
 		}
 		return false;
+	}
+
+	private static void checkCancelled() {
+		if (Thread.currentThread().isInterrupted()) throw new CancellationException();
 	}
 
 	private static LinkedHashMap<String, String> baseProperties(String platform, String profile,
@@ -402,13 +418,18 @@ final class CompatibilityProfileTester {
 	private static String buildReasons(Probe probe) {
 		ArrayList<String> reasons = new ArrayList<>();
 		if (probe.screenWidth > 0 && probe.screenHeight > 0) {
-			reasons.add("resources suggest " + probe.screenWidth + "x" + probe.screenHeight);
+			reasons.add((probe.screenScore >= 1000 ? "declared screen " : "resources suggest ")
+					+ probe.screenWidth + "x" + probe.screenHeight);
+		} else {
+			reasons.add(probe.screens.isEmpty() ? "no screen-size evidence" : "conflicting screen sizes; size kept");
 		}
-		String hints = probe.manifestText + '\n' + probe.resourceText;
+		String hints = probe.manifestText + '\n' + probe.apiText;
 		if (hints.contains("nokia")) reasons.add("Nokia APIs/resources detected");
-		if (hints.contains("sony") || hints.contains("jbed")) reasons.add("Sony Ericsson hints detected");
+		if (hints.contains("sony")) reasons.add("Sony Ericsson hints detected");
 		if (hints.contains("siemens")) reasons.add("Siemens APIs detected");
-		if (reasons.isEmpty()) reasons.add("standard MIDP metadata");
+		if (hints.contains("samsung")) reasons.add("Samsung hints detected");
+		if (hints.contains("motorola")) reasons.add("Motorola hints detected");
+		reasons.add("static analysis, not a gameplay test");
 		return android.text.TextUtils.join(", ", reasons);
 	}
 
@@ -427,9 +448,28 @@ final class CompatibilityProfileTester {
 	private static final class Probe {
 		Map<String, String> attrs = new LinkedHashMap<>();
 		String manifestText = "";
-		String resourceText = "";
+		String targetText = "";
+		String apiText = "";
+		final Map<String, Integer> screens = new LinkedHashMap<>();
 		int screenWidth;
 		int screenHeight;
 		int screenScore;
+
+		void selectScreen() {
+			String best = null;
+			boolean tied = false;
+			for (Map.Entry<String, Integer> entry : screens.entrySet()) {
+				if (entry.getValue() > screenScore) {
+					screenScore = entry.getValue();
+					best = entry.getKey();
+					tied = false;
+				} else if (entry.getValue() == screenScore) tied = true;
+			}
+			if (best != null && !tied) {
+				String[] size = best.split("x");
+				screenWidth = Integer.parseInt(size[0]);
+				screenHeight = Integer.parseInt(size[1]);
+			}
+		}
 	}
 }

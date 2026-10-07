@@ -188,6 +188,9 @@ public class ProfileModel {
 	public int compatibilityScore;
 	public String compatibilityConfidence;
 	public String compatibilityReasons;
+	public String suggestedCompatibilityProfile;
+	public int detectedScreenWidth;
+	public int detectedScreenHeight;
 
 	public static class KeyMappingProfile {
 		@SerializedName("Name")
@@ -220,7 +223,7 @@ public class ProfileModel {
 		screenHeight = 320;
 		screenBackgroundColor = 0x101218;
 		screenScaleType = 1;
-		screenGravity = 1;
+		screenGravity = BuildConfig.HANDHELD_MODE ? 2 : 1;
 		screenScaleRatio = 100;
 		orientation = BuildConfig.HANDHELD_MODE ? 3 : 1;
 		screenScaleToFit = true;

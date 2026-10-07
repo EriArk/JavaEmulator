@@ -22,6 +22,7 @@ import androidx.preference.PreferenceManager;
 import java.io.File;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
+import java.util.concurrent.CancellationException;
 
 import javax.microedition.shell.MicroActivity;
 
@@ -38,6 +39,8 @@ public class CompatibilityTestActivity extends AppCompatActivity {
 	private String appName;
 	private String arguments;
 	private volatile boolean destroyed;
+	private boolean ready;
+	private boolean launched;
 
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
@@ -83,22 +86,35 @@ public class CompatibilityTestActivity extends AppCompatActivity {
 	}
 
 	private void startTesting() {
-		executor = Executors.newSingleThreadExecutor();
+		if (executor == null) executor = Executors.newSingleThreadExecutor();
 		executor.execute(() -> {
-			ProfileModel params = loadOrCreateProfile();
-			updateProgress(0, getString(R.string.compatibility_test_starting));
-			CompatibilityProfileTester.Result result = CompatibilityProfileTester.run(
-					this, appDir, params, this::updateProgress);
-			LaunchDiagnostics.record(this, "profile_selected", appName,
-					result.profileName + ":" + result.confidence + ":" + result.reasons);
-			updateProgress(100, getString(R.string.compatibility_test_done, result.profileName));
-			runOnUiThread(() -> {
-				if (destroyed) {
-					return;
-				}
-				binding.compatibilityLaunchNow.setVisibility(View.VISIBLE);
-				binding.compatibilityLaunchNow.postDelayed(this::launchMidlet, 450);
-			});
+			try {
+				ProfileModel params = loadOrCreateProfile();
+				updateProgress(0, getString(R.string.compatibility_test_starting));
+				CompatibilityProfileTester.Result result = CompatibilityProfileTester.run(
+						this, appDir, params, this::updateProgress);
+				LaunchDiagnostics.record(this, "profile_selected", appName,
+						result.profileName + ":" + result.confidence + ":" + result.reasons);
+				updateProgress(100, getString(R.string.compatibility_test_done));
+				runOnUiThread(() -> {
+					if (destroyed) return;
+					ready = true;
+					binding.compatibilityLaunchNow.setVisibility(View.VISIBLE);
+					binding.compatibilityLaunchNow.postDelayed(this::launchMidlet, 450);
+				});
+			} catch (CancellationException ignored) {
+				// Leaving preparation must not launch a game from a stopped activity.
+			} catch (Exception error) {
+				LaunchDiagnostics.record(this, "preparation_failed", appName, error.getClass().getSimpleName());
+				runOnUiThread(() -> {
+					if (destroyed) return;
+					new AlertDialog.Builder(this).setTitle(R.string.error)
+							.setMessage(R.string.compatibility_test_failed)
+							.setPositiveButton(R.string.compatibility_test_retry, (dialog, which) -> startTesting())
+							.setNegativeButton(R.string.exit, (dialog, which) -> finish())
+							.setCancelable(false).show();
+				});
+			}
 		});
 	}
 
@@ -130,9 +146,10 @@ public class CompatibilityTestActivity extends AppCompatActivity {
 	}
 
 	private void launchMidlet() {
-		if (destroyed || appDir == null) {
+		if (destroyed || !ready || launched || appDir == null) {
 			return;
 		}
+		launched = true;
 		Intent intent = new Intent(Intent.ACTION_DEFAULT, Uri.parse(appDir.getPath()), this, MicroActivity.class);
 		intent.putExtra(KEY_MIDLET_NAME, appName);
 		intent.putExtra(KEY_START_ARGUMENTS, arguments);
