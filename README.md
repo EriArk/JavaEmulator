@@ -23,7 +23,13 @@ core: a controller-first **Handheld** APK and a portrait/touch-friendly
 The `main` branch is ahead of the published beta.2 APKs. Its unreleased changes
 include a graphical controller mapper with diagonal bindings, two Phone touch
 layouts, live Java game-image rotation, quick display settings, J2ME Loader
-library import and non-destructive database migrations.
+library import, menu-based backup/restore, a hideable screenshot button and
+non-destructive database migrations. Saved Phone orientation and settings-field
+contrast with Android's Light theme are also fixed in development builds.
+
+Use **Settings > Library transfer** to import from J2ME Loader or move installed
+games and saves between AbyssME installations. See the
+[workflow and limitations](docs/LIBRARY_TRANSFER.md).
 
 For the new Phone controls, open **Game menu > Touch controls** and choose
 **Phone** or **Gamepad**. The top-left display button opens live screen settings;
