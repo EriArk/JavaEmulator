@@ -46,6 +46,13 @@ larger canvas. Therefore:
 These follow-up game observations used the public-source Phone debug build,
 without the optional private engine. Screenshots remain local.
 
+The subsequent combined private Phone test APK reproduced the black surface even
+at 128x160. Its `:midlet` process logged the null-array paint exception before
+loading `/font_spr` and `/Game_text`. This points to startup/rendering order as
+a hypothesis, not a proven engine-specific cause. Changing resolution alone is
+not a reliable workaround. Public and private APKs still need controlled repeated
+launch comparison before attributing the difference to optional code.
+
 ## Findings still to address
 
 - Evaluate retaining source-filename resolution hints when the manifest/resources
