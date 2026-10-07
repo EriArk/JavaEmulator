@@ -44,3 +44,7 @@ keystore.properties
 # Local Python tooling caches
 __pycache__/
 *.pyc
+
+# Private engine experiments, game archives and device-session backups
+/local-games/
+/test-screenshots/

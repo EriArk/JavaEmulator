@@ -18,6 +18,22 @@ core: a controller-first **Handheld** APK and a portrait/touch-friendly
 
 [Download the latest beta](https://github.com/EriArk/JavaEmulator/releases)
 
+## Current Development
+
+The `main` branch is ahead of the published beta.2 APKs. Its unreleased changes
+include a graphical controller mapper with diagonal bindings, two Phone touch
+layouts, live Java game-image rotation, quick display settings, J2ME Loader
+library import and non-destructive database migrations.
+
+For the new Phone controls, open **Game menu > Touch controls** and choose
+**Phone** or **Gamepad**. The top-left display button opens live screen settings;
+image rotation is saved per game. The screenshots and beta.2 instructions below
+describe the published release, not every unreleased change.
+
+New release APKs are on hold pending the licensing decision. Wolphun and the
+experimental Mophun integration are not part of this public source tree.
+See [licensing status](docs/LICENSING.md). Existing release downloads are unchanged.
+
 ## Screenshots
 
 ![Handheld library in Gallery view](screenshots/website-beta2/01-handheld-gallery.png)
@@ -146,8 +162,9 @@ and release assets are uploaded manually.
   display size for unusual game releases.
 - Archives containing several JAR files require a one-time game selection.
 - Some vendor-specific J2ME APIs remain limited by the upstream emulation core.
-- Library schema upgrades do not yet have safe, tested migrations; see
-  [#2](https://github.com/EriArk/JavaEmulator/issues/2).
+- Published beta.2 lacks the migration fixes now present on `main`; see
+  [#2](https://github.com/EriArk/JavaEmulator/issues/2). Back up libraries and saves
+  before trying unreleased builds.
 
 Please report reproducible problems through
 [GitHub Issues](https://github.com/EriArk/JavaEmulator/issues) and include the
@@ -167,8 +184,17 @@ from [JL-Mod](https://github.com/woesss/JL-Mod) by woesss.
 
 ## License
 
-Licensed under the [Apache License 2.0](LICENSE). See the repository history and
-source headers for individual copyright notices.
+The current fork uses the [Apache License 2.0](LICENSE), with separately
+licensed third-party components. In particular, the inherited Nokia/Symbian
+M3G implementation is under EPL-1.0. Preserve the component licenses and
+individual copyright notices in the source headers.
+
+Licensing for a future Wolphun integration remains unresolved because of the
+existing EPL-1.0 M3G component. No license transition has taken effect; Wolphun
+is not included in public builds. See [licensing status](docs/LICENSING.md) for
+the evidence and release requirements. Removing a repository license would not
+remove the obligations attached to inherited code.
+
 Third-party games and artwork are not relicensed by this notice. The provenance
 and licenses of current test fixtures, plus the disposition of legacy files,
 are documented separately in [test-games](test-games/README.md).

@@ -93,6 +93,11 @@ broader coverage is tracked in [#4](https://github.com/EriArk/JavaEmulator/issue
 
 The installed package IDs are AbyssME-specific; the Java namespace remains
 `ru.playsoftware.j2meloader`. Preserve upstream copyright and license notices.
+Read [licensing status](docs/LICENSING.md) before adding an emulation engine or
+changing license headers. No project-wide license transition has taken effect.
+Wolphun integration experiments must remain in ignored local
+files and opt-in debug builds until the compatibility blocker is resolved.
+New release APKs are on hold; source-only updates do not authorize a release.
 
 ## Pull requests
 
