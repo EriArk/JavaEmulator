@@ -148,6 +148,12 @@ public final class GameMenuDialog extends Dialog {
         navigation.setTooltipText(navigation.getContentDescription());
     }
     private void navigateBack() { if (backAction != null) backAction.run(); else dismiss(); }
+    public void message(String value) {
+        TextView text = new TextView(getContext());
+        text.setText(value); text.setTextSize(14); text.setTextColor(0xffa9b9bd);
+        text.setPadding(dp(4), dp(6), dp(4), dp(10));
+        content.addView(text, new LinearLayout.LayoutParams(-1, -2));
+    }
     public Button action(String label, int icon, Runnable run) {
         Button button = new Button(getContext());
         button.setText(label); button.setTextSize(15); button.setAllCaps(false);

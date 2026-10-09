@@ -39,6 +39,16 @@ Regression tests cover search/collection recreation, touch and controller menu
 navigation, bounded menu height, large-font action labels and a non-scrolling
 header. Emulator checks are not physical-device acceptance.
 
+## General settings and transfer
+
+Settings now has three short sections: Library, Playing and Support. It uses a
+48 dp Back/title header and wrapping preference rows; saved preference keys and
+defaults are unchanged. Handheld hides system bars on both Settings and Library
+transfer. A/B and directional navigation remain available without touch.
+
+Library transfer shows one workflow at a time instead of keeping every import
+action above the game list. See [transfer behavior](LIBRARY_TRANSFER.md).
+
 ## Mapper
 
 Short landscape removes redundant headings and reduces outer spacing, not the

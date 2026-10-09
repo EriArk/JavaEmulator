@@ -33,6 +33,33 @@ Do not uninstall or clear app data to work around a signing conflict on someone'
 device. Test packages have separate `.debug` application IDs. Instrumentation
 uses temporary test libraries; it can launch activities and write screenshots.
 
+## Compact Settings and transfer: 2026-10-09
+
+Both public-source variants and their test APKs built independently; each Android
+runner reported OK (89 tests). Variant-specific assumptions apply. Both JVM
+suites passed 14 tests per variant.
+
+Three new `CompactSettingsTest` cases cover section navigation, preference
+persistence after recreation, preview space and selection, unavailable entries,
+results returning to the chooser, cancellation without closing the screen, and
+retry after an error. They use synthetic transfer states; they do not replace
+the 12 existing archive/import tests or document-provider checks.
+
+A manual Phone emulator check saved a real backup of 11 installed games through
+DocumentsUI and reopened it for preview. Saves were detected, existing titles
+were not selected automatically, and no duplicate restore was performed.
+Import/archive formats and save-conflict handling were not changed.
+
+The exact combined private test APKs also reported OK (116 selected cases) in
+each variant, including 27 optional-engine checks. Phone skips the Handheld-only
+focus case; Handheld skips Phone-only menu rotation. The Phone search case ran
+in portrait. This does not broaden the public-source engine support.
+
+Manual checks covered D-pad/A/B navigation through Settings and Library transfer
+at 480x320 dp, and Phone settings/transfer at 320 dp width with 1.3x font size.
+Captured screens come from installed apps. Physical handheld/controller and
+third-party launcher acceptance remain separate.
+
 ## Compact handheld interface: 2026-10-09
 
 Follow-up: artwork and focus checks add 13 cases (11 generated artwork fixtures,

@@ -27,7 +27,7 @@ library import, menu-based backup/restore, a hideable screenshot button and
 non-destructive database migrations. Saved Phone orientation and settings-field
 contrast with Android's Light theme are also fixed in development builds.
 
-Use **Settings > Library transfer** to import from J2ME Loader or move installed
+Use **Settings > Library > Library transfer** to import from J2ME Loader or move installed
 games and saves between AbyssME installations. See the
 [workflow and limitations](docs/LIBRARY_TRANSFER.md).
 
@@ -43,6 +43,9 @@ Short landscape screens and Phone portrait now use a [compact library](docs/COMP
 one header, larger game area and an on-demand library menu. Menus keep Close/Back
 visible while their contents scroll; short landscape also uses compact mapper pages.
 Handheld hides Android system bars; Gallery, List and Grid remain available.
+General Settings is split into **Library**, **Playing** and **Support**. Library
+transfer separates the operation chooser, game selection and results, leaving
+more room for the game list on small screens.
 Automatic artwork now favors declared icons and identifiable title art over
 arbitrary textures. **Game actions > Artwork** offers custom icons/covers and
 an explicit refresh for older libraries. See [artwork behavior](docs/ARTWORK.md).
