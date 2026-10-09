@@ -28,9 +28,10 @@ import android.os.Bundle;
 import android.text.SpannableStringBuilder;
 import android.view.LayoutInflater;
 import android.view.View;
+import android.view.KeyEvent;
 import android.widget.Button;
+import android.widget.ImageButton;
 import android.widget.LinearLayout;
-import android.widget.Toast;
 
 import androidx.activity.result.ActivityResultLauncher;
 import androidx.annotation.NonNull;
@@ -63,7 +64,7 @@ public class InstallerDialog extends DialogFragment {
 
 	private AppRepository appRepository;
 	private Button btnOk;
-	private Button btnClose;
+	private ImageButton btnClose;
 	private Button btnRun;
 	private AppInstaller installer;
 	private AlertDialog mDialog;
@@ -147,6 +148,7 @@ public class InstallerDialog extends DialogFragment {
 	@Override
 	public void onStart() {
 		super.onStart();
+		updateWindow();
 		if (installer != null) {
 			return;
 		}
@@ -156,6 +158,19 @@ public class InstallerDialog extends DialogFragment {
 		btnOk = binding.buttonInstall;
 		btnClose = binding.buttonClose;
 		btnRun = binding.buttonStart;
+		mDialog.setOnKeyListener((dialog, key, event) -> {
+			if (key == KeyEvent.KEYCODE_BUTTON_B || key == KeyEvent.KEYCODE_BACK) {
+				if (event.getAction() == KeyEvent.ACTION_UP && btnClose.isShown()) btnClose.performClick();
+				return true;
+			}
+			if (key == KeyEvent.KEYCODE_BUTTON_A) {
+				View focus = mDialog.getCurrentFocus();
+				if (event.getAction() == KeyEvent.ACTION_UP && focus != null && focus.isShown()
+						&& focus.isEnabled() && focus.isClickable()) focus.performClick();
+				return true;
+			}
+			return false;
+		});
 		binding.installerTitle.setText("MIDlet installer");
 		binding.installerMessage.setText("");
 		binding.installerIcon.setImageResource(R.mipmap.ic_launcher);
@@ -168,6 +183,24 @@ public class InstallerDialog extends DialogFragment {
 		}
 		int id = args.getInt(ARG_ID);
 		reinstallApp(id);
+	}
+
+	@Override public void onConfigurationChanged(@NonNull android.content.res.Configuration config) {
+		super.onConfigurationChanged(config);
+		updateWindow();
+	}
+
+	private void updateWindow() {
+		if (mDialog == null || mDialog.getWindow() == null) return;
+		android.util.DisplayMetrics metrics = getResources().getDisplayMetrics();
+		mDialog.getWindow().setLayout(Math.min(dp(480), metrics.widthPixels - dp(24)),
+				Math.min(dp(360), metrics.heightPixels - dp(48)));
+		if (ru.playsoftware.j2meloader.BuildConfig.HANDHELD_MODE) {
+			androidx.core.view.WindowInsetsControllerCompat bars = androidx.core.view.WindowCompat
+					.getInsetsController(mDialog.getWindow(), mDialog.getWindow().getDecorView());
+			bars.setSystemBarsBehavior(androidx.core.view.WindowInsetsControllerCompat.BEHAVIOR_SHOW_TRANSIENT_BARS_BY_SWIPE);
+			bars.hide(androidx.core.view.WindowInsetsCompat.Type.systemBars());
+		}
 	}
 
 	private void installApp(String path, Uri uri) {
@@ -222,13 +255,20 @@ public class InstallerDialog extends DialogFragment {
 
 	private void hideButtons() {
 		btnOk.setVisibility(View.GONE);
-		btnClose.setVisibility(View.GONE);
+		btnClose.setVisibility(View.INVISIBLE);
 		btnRun.setVisibility(View.GONE);
+		binding.installerActions.setVisibility(View.GONE);
 	}
 
 	private void showButtons() {
 		btnOk.setVisibility(View.VISIBLE);
 		btnClose.setVisibility(View.VISIBLE);
+		binding.installerActions.setVisibility(View.VISIBLE);
+		focusClose();
+	}
+
+	private void focusClose() {
+		btnClose.post(() -> { if (binding != null && btnClose.isShown()) btnClose.requestFocusFromTouch(); });
 	}
 
 	private void convert() {
@@ -260,17 +300,21 @@ public class InstallerDialog extends DialogFragment {
 		mDialog.setCancelable(false);
 		mDialog.setCanceledOnTouchOutside(false);
 		binding.installerMessage.setText(getString(R.string.install_jar_needed));
+		btnOk.setText("Choose JAR");
 		btnOk.setOnClickListener(positive);
 		showButtons();
 	}
 
 	private void onProgress(@NonNull Integer status) {
-		if (!isAdded()) {
+		if (!isAdded() || binding == null) {
 			return;
 		}
 		if (status != AppInstaller.STATUS_ARCHIVE_CHOICE) {
 			binding.installerArchiveChoices.setVisibility(View.GONE);
 		}
+		btnRun.setVisibility(View.GONE);
+		btnOk.setText(R.string.install);
+		binding.installerScroll.scrollTo(0, 0);
 		if (status == AppInstaller.STATUS_SUCCESS) {
 			binding.installationProgress.setVisibility(View.GONE);
 			binding.installationStatus.setText(getString(R.string.install_done));
@@ -283,7 +327,6 @@ public class InstallerDialog extends DialogFragment {
 			}
 			btnOk.setText(R.string.START_CMD);
 			btnOk.setOnClickListener(v -> launchAndDismiss(app));
-			btnClose.setText(R.string.close);
 			showButtons();
 			return;
 		}
@@ -298,6 +341,7 @@ public class InstallerDialog extends DialogFragment {
 				message = nd.getInfo(requireActivity());
 				break;
 			case AppInstaller.STATUS_OLDEST:
+				btnOk.setText("Reinstall");
 				if (isAutoStart()) {
 					convert();
 					return;
@@ -308,6 +352,7 @@ public class InstallerDialog extends DialogFragment {
 						installer.getCurrentVersion()));
 				break;
 			case AppInstaller.STATUS_EQUAL:
+				btnOk.setText("Reinstall");
 				if (isAutoStart()) {
 					launchAndDismiss(installer.getExistsApp());
 					return;
@@ -323,6 +368,7 @@ public class InstallerDialog extends DialogFragment {
 				});
 				break;
 			case AppInstaller.STATUS_NEWEST:
+				btnOk.setText("Update");
 				if (isAutoStart()) {
 					convert();
 					return;
@@ -363,22 +409,28 @@ public class InstallerDialog extends DialogFragment {
 		hideProgress();
 		hideButtons();
 		btnClose.setVisibility(View.VISIBLE);
+		focusClose();
 		binding.installerMessage.setText(R.string.archive_choose_game);
 		LinearLayout choices = binding.installerArchiveChoices;
 		choices.removeAllViews();
 		choices.setVisibility(View.VISIBLE);
 		for (String entry : installer.getArchiveEntries()) {
 			Button button = new Button(requireContext());
-			button.setText(new java.io.File(entry).getName());
+			button.setText(entry);
 			button.setTextColor(getResources().getColor(R.color.text_primary));
-			button.setTextSize(12);
+			button.setTextSize(15);
 			button.setAllCaps(false);
 			button.setBackgroundResource(R.drawable.bg_quick_setting_button);
-			LinearLayout.LayoutParams params = new LinearLayout.LayoutParams(dp(180), dp(52));
-			params.setMargins(dp(3), dp(3), dp(3), dp(3));
+			button.setBackgroundTintList(null);
+			button.setMinHeight(dp(48)); button.setMinimumHeight(dp(48));
+			button.setPadding(dp(12), dp(8), dp(12), dp(8));
+			button.setGravity(android.view.Gravity.CENTER_VERTICAL);
+			LinearLayout.LayoutParams params = new LinearLayout.LayoutParams(-1, -2);
+			params.bottomMargin = dp(6);
 			button.setLayoutParams(params);
 			button.setOnClickListener(v -> {
 				choices.setVisibility(View.GONE);
+				hideButtons();
 				showProgress();
 				Disposable disposable = installer.selectArchiveEntry(entry)
 						.subscribeOn(Schedulers.computation())
@@ -425,9 +477,16 @@ public class InstallerDialog extends DialogFragment {
 		e.printStackTrace();
 		installer.clearCache();
 		installer.deleteTemp();
-		if (!isAdded()) return;
+		if (!isAdded() || binding == null) return;
 		hideProgress();
-		Toast.makeText(requireActivity(), getString(R.string.error) + ": " + e.getMessage(), Toast.LENGTH_LONG).show();
-		dismissAllowingStateLoss();
+		hideButtons();
+		binding.installerArchiveChoices.setVisibility(View.GONE);
+		binding.installerTitle.setText("Installation failed");
+		String message = e.getMessage();
+		binding.installerMessage.setText(message == null || message.trim().isEmpty()
+				? getString(R.string.error) : message);
+		binding.installerScroll.scrollTo(0, 0);
+		btnClose.setVisibility(View.VISIBLE);
+		focusClose();
 	}
 }

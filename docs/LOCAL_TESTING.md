@@ -33,6 +33,32 @@ Do not uninstall or clear app data to work around a signing conflict on someone'
 device. Test packages have separate `.debug` application IDs. Instrumentation
 uses temporary test libraries; it can launch activities and write screenshots.
 
+## Compact installer and confirmations: 2026-10-10
+
+Both public-source variants and test APKs built independently and reported
+OK (97 selected Android cases) per variant, with variant-specific assumptions.
+Both JVM suites passed 14 tests per variant.
+
+Five new `InstallerDialogTest` cases cover vertical archive choices and source
+preservation, persistent invalid-archive errors, Back being ignored while busy,
+an explicit Choose JAR action, bounded geometry at 1.5x font, and exiting a
+missing-game preparation error with B. The busy/JAR-prompt case injects UI
+states; it does not certify the full JAD document-provider workflow.
+The pre-existing unmatched-JAD fallback is tracked separately in
+[#19](https://github.com/EriArk/JavaEmulator/issues/19).
+
+Three `InstallerSourceTest` cases exercise opaque content URIs via a wrapped
+provider: JAR/ZIP distinction, 7z/KJX/JAD signature preservation, short/empty
+input, byte-for-byte copies and unchanged sources. The 7z case validates format
+detection, not complete 7z decoding. A manual DocumentsUI import first reproduced
+ZIP-as-JAR misclassification, then reached the archive chooser after the fix.
+
+Manual emulator checks cover 480x320 dp archive navigation with D-pad, a no-game
+ZIP error, 2048 reinstall reaching Start with unchanged per-game configuration,
+and Phone at 320 dp with 1.3x font. A on the initial Delete confirmation cancels;
+the installed game remained. Screenshots are actual app captures. Physical
+controller/device acceptance is not claimed.
+
 ## Compact Settings and transfer: 2026-10-09
 
 Both public-source variants and their test APKs built independently; each Android

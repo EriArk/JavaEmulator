@@ -15,7 +15,7 @@ import android.net.Uri;
 import android.os.Bundle;
 import android.view.View;
 
-import androidx.appcompat.app.AlertDialog;
+import ru.playsoftware.j2meloader.input.GameMenuDialog;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.preference.PreferenceManager;
 
@@ -41,6 +41,7 @@ public class CompatibilityTestActivity extends AppCompatActivity {
 	private volatile boolean destroyed;
 	private boolean ready;
 	private boolean launched;
+	private GameMenuDialog errorDialog;
 
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
@@ -77,12 +78,21 @@ public class CompatibilityTestActivity extends AppCompatActivity {
 	}
 
 	private void showError() {
-		new AlertDialog.Builder(this)
-				.setTitle(R.string.error)
-				.setMessage(getString(R.string.err_missing_app, ""))
-				.setPositiveButton(R.string.exit, (dialog, which) -> finish())
-				.setCancelable(false)
-				.show();
+		showError(getString(R.string.err_missing_app, ""), false);
+	}
+
+	private void showError(String message, boolean retryable) {
+		errorDialog = new GameMenuDialog(this, appName);
+		GameMenuDialog dialog = errorDialog;
+		boolean[] retry = {false};
+		dialog.show(); dialog.page("Could not prepare game");
+		dialog.setCanceledOnTouchOutside(false);
+		dialog.message(message);
+		dialog.setOnDismissListener(d -> { if (!retry[0] && !destroyed) finish(); });
+		if (retryable) dialog.action("Retry", android.R.drawable.ic_menu_rotate, () -> {
+			retry[0] = true; dialog.dismiss(); startTesting();
+		});
+		dialog.action("Exit", android.R.drawable.ic_menu_close_clear_cancel, dialog::dismiss);
 	}
 
 	private void startTesting() {
@@ -108,11 +118,7 @@ public class CompatibilityTestActivity extends AppCompatActivity {
 				LaunchDiagnostics.record(this, "preparation_failed", appName, error.getClass().getSimpleName());
 				runOnUiThread(() -> {
 					if (destroyed) return;
-					new AlertDialog.Builder(this).setTitle(R.string.error)
-							.setMessage(R.string.compatibility_test_failed)
-							.setPositiveButton(R.string.compatibility_test_retry, (dialog, which) -> startTesting())
-							.setNegativeButton(R.string.exit, (dialog, which) -> finish())
-							.setCancelable(false).show();
+					showError(getString(R.string.compatibility_test_failed), true);
 				});
 			}
 		});
@@ -161,6 +167,7 @@ public class CompatibilityTestActivity extends AppCompatActivity {
 	@Override
 	protected void onDestroy() {
 		destroyed = true;
+		if (errorDialog != null) errorDialog.dismiss();
 		if (executor != null) {
 			executor.shutdownNow();
 		}

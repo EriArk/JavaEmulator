@@ -119,24 +119,41 @@ public class FileUtils {
 			throw new IOException("Can't create directory: " + tmpDir);
 		}
 		File file;
-		try (InputStream in = context.getContentResolver().openInputStream(uri)) {
+		InputStream source = context.getContentResolver().openInputStream(uri);
+		if (source == null) throw new IOException("Can't read data from uri: " + uri);
+		try (java.io.BufferedInputStream in = new java.io.BufferedInputStream(source)) {
 			byte[] buf = new byte[BUFFER_SIZE];
-			int len;
-			if (in == null || (len = in.read(buf)) == -1)
+			in.mark(6);
+			int prefix = 0, next;
+			while (prefix < 6 && (next = in.read()) != -1) buf[prefix++] = (byte) next;
+			in.reset();
+			if (prefix == 0)
 				throw new IOException("Can't read data from uri: " + uri);
-			if (buf[0] == 0x50 && buf[1] == 0x4B) {
+			if (prefix >= 2 && buf[0] == 0x50 && buf[1] == 0x4B) {
 				file = new File(tmpDir, TEMP_JAR_NAME);
-			} else if (buf[0] == 'K' && buf[1] == 'J' && buf[2] == 'X') {
+			} else if (prefix == 6 && buf[0] == 0x37 && buf[1] == 0x7A && buf[2] == (byte) 0xBC
+					&& buf[3] == (byte) 0xAF && buf[4] == 0x27 && buf[5] == 0x1C) {
+				file = new File(tmpDir, "tmp.7z");
+			} else if (prefix >= 3 && buf[0] == 'K' && buf[1] == 'J' && buf[2] == 'X') {
 				file = new File(tmpDir, TEMP_KJX_NAME);
 			} else {
 				file = new File(tmpDir, TEMP_JAD_NAME);
 			}
 			try (OutputStream out = new FileOutputStream(file)) {
-				out.write(buf, 0, len);
+				int len;
 				while ((len = in.read(buf)) > 0) {
 					out.write(buf, 0, len);
 				}
 			}
+		}
+		// JAR and ZIP share a signature. Inspect the copied container before naming it.
+		if (TEMP_JAR_NAME.equals(file.getName())) {
+			boolean midletJar;
+			try (java.util.zip.ZipFile zip = new java.util.zip.ZipFile(file)) {
+				midletJar = zip.getEntry("META-INF/MANIFEST.MF") != null;
+			}
+			if (!midletJar) file = java.nio.file.Files.move(file.toPath(), new File(tmpDir, "tmp.zip").toPath(),
+					java.nio.file.StandardCopyOption.REPLACE_EXISTING).toFile();
 		}
 		return file;
 	}

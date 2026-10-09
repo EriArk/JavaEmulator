@@ -77,7 +77,7 @@ Record the commit, APK variant, commands/results, game identification and
 Android/device or emulator version. Mark untested cases explicitly. Use games
 you are permitted to use, and never attach commercial JARs to reports.
 
-Current local shared-source coverage includes 14 JVM tests and 89 focused Android
+Current local shared-source coverage includes 14 JVM tests and 97 focused Android
 instrumentation cases. Variant/viewport-specific assumptions skip inapplicable
 checks; run the Phone search case in portrait and controller focus on Handheld.
 See [commands, scope and recorded checks](docs/LOCAL_TESTING.md).

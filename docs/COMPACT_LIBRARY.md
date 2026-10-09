@@ -49,6 +49,31 @@ transfer. A/B and directional navigation remain available without touch.
 Library transfer shows one workflow at a time instead of keeping every import
 action above the game list. See [transfer behavior](LIBRARY_TRANSFER.md).
 
+## Installer and confirmations
+
+The MIDlet installer keeps its title/icon and Close control above a scrolling
+body, with Install/Reinstall/Update/Start below it. Actions use flexible widths
+and at least 48 dp touch targets. Archive choices form a vertical list, with
+full entry paths to distinguish identically named JARs in different folders.
+Dialog bounds adapt to rotation and short landscape screens; Handheld hides
+system bars. Close receives initial focus on confirmation/error states.
+
+Installation errors remain visible until Close or Back/B instead of disappearing
+with a toast. During conversion, Close is hidden and Back/B is ignored; this is
+not a new cancellation mechanism. JAD pairing, conversion and save behavior are
+unchanged. Preparation errors use the shared menu with Retry/Exit where applicable.
+
+Files copied from document providers now distinguish a manifest-bearing JAR
+from a ZIP collection and recognize the 7z signature. Previously every ZIP
+stream was staged as `tmp.jar`, bypassing archive selection. Classification
+does not depend on a provider exposing a usable filename. Original files and
+source identity are retained; malformed containers still report an error.
+
+Library deletion uses the shared menu, identifies the selected game and warns
+that installed settings/saves are removed. Cancel is the first controller action;
+Close/Back/B also dismiss without deletion. Expert-editor dialogs are outside
+this batch.
+
 ## Mapper
 
 Short landscape removes redundant headings and reduces outer spacing, not the

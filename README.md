@@ -46,6 +46,11 @@ Handheld hides Android system bars; Gallery, List and Grid remain available.
 General Settings is split into **Library**, **Playing** and **Support**. Library
 transfer separates the operation chooser, game selection and results, leaving
 more room for the game list on small screens.
+The installer keeps its actions reachable while details and archive choices
+scroll. Installation errors stay visible until closed; deletion confirmations
+start on Cancel when using a controller.
+ZIP collections selected through Android's file picker now reach archive selection
+instead of being mistaken for a single JAR.
 Automatic artwork now favors declared icons and identifiable title art over
 arbitrary textures. **Game actions > Artwork** offers custom icons/covers and
 an explicit refresh for older libraries. See [artwork behavior](docs/ARTWORK.md).

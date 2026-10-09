@@ -649,15 +649,16 @@ public class AppsListFragment extends Fragment implements AppsListAdapter.Listen
 	}
 
 	private void alertDelete(AppItem item) {
-		AlertDialog.Builder builder = new AlertDialog.Builder(requireActivity())
-				.setTitle(android.R.string.dialog_alert_title)
-				.setMessage(R.string.message_delete)
-				.setPositiveButton(android.R.string.ok, (dialogInterface, i) -> {
-					AppUtils.deleteApp(item);
-					appRepository.delete(item);
-				})
-				.setNegativeButton(android.R.string.cancel, null);
-		builder.show();
+		ru.playsoftware.j2meloader.input.GameMenuDialog dialog =
+				new ru.playsoftware.j2meloader.input.GameMenuDialog(requireActivity(), item.getTitle());
+		dialog.show(); dialog.page("Delete game?");
+		dialog.message("This removes the installed game, its settings and saves. Original source files are kept.");
+		dialog.action("Cancel", android.R.drawable.ic_menu_close_clear_cancel, dialog::dismiss);
+		dialog.action("Delete game", android.R.drawable.ic_menu_delete, () -> {
+			dialog.dismiss();
+			AppUtils.deleteApp(item);
+			appRepository.delete(item);
+		});
 	}
 
 	@Override
