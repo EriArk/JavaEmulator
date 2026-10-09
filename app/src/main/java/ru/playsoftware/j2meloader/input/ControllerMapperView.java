@@ -68,10 +68,19 @@ public final class ControllerMapperView extends LinearLayout {
     private final Spinner profilePicker;
     private final Button detect;
     private final Button saveAction;
+    private final LinearLayout headerTitle;
+    private final LinearLayout body;
+    private final TextView sourceHeading;
+    private final TextView phoneHeading;
+    private final LinearLayout phoneTabs;
+    private final Button keypadTab;
+    private final Button navigationTab;
     private int selected = KeyEvent.KEYCODE_BUTTON_A;
     private int active;
     private boolean listening;
     private boolean compactPhone;
+    private boolean pagedPhone;
+    private boolean navigationPage;
     private int sourceGroup;
     private int buildingGroup;
     private final ArrayList<Button> groupTabs = new ArrayList<>();
@@ -117,6 +126,7 @@ public final class ControllerMapperView extends LinearLayout {
         LinearLayout header = new LinearLayout(context);
         header.setGravity(Gravity.CENTER_VERTICAL);
         LinearLayout title = new LinearLayout(context);
+        headerTitle = title;
         title.setOrientation(VERTICAL);
         title.addView(text(context.getString(R.string.mapper_title), 21, TEXT));
         TextView subtitle = text(game, 12, MUTED);
@@ -135,13 +145,14 @@ public final class ControllerMapperView extends LinearLayout {
         header.addView(duplicate, addParams);
         addView(header);
 
-        LinearLayout body = new LinearLayout(context);
+        body = new LinearLayout(context);
         LayoutParams bodyParams = new LayoutParams(LayoutParams.MATCH_PARENT, 0, 1);
         bodyParams.setMargins(0, dp(12), 0, dp(10));
         addView(body, bodyParams);
         LinearLayout sources = new LinearLayout(context);
         sources.setOrientation(VERTICAL);
-        sources.addView(section(R.string.mapper_controller));
+        sourceHeading = section(R.string.mapper_controller);
+        sources.addView(sourceHeading);
         LinearLayout groups = new LinearLayout(context);
         String[] groupNames = {"Buttons", "D-pad", "Stick"};
         for (int i = 0; i < groupNames.length; i++) {
@@ -166,7 +177,17 @@ public final class ControllerMapperView extends LinearLayout {
 
         LinearLayout destination = new LinearLayout(context);
         destination.setOrientation(VERTICAL);
-        destination.addView(section(R.string.mapper_phone));
+        phoneHeading = section(R.string.mapper_phone);
+        destination.addView(phoneHeading);
+        phoneTabs = new LinearLayout(context);
+        keypadTab = button("Keypad");
+        navigationTab = button("Navigation");
+        keypadTab.setOnClickListener(v -> showPhonePage(false));
+        navigationTab.setOnClickListener(v -> showPhonePage(true));
+        phoneTabs.addView(keypadTab, new LayoutParams(0, dp(32), 1));
+        phoneTabs.addView(navigationTab, new LayoutParams(0, dp(32), 1));
+        phoneTabs.setVisibility(GONE);
+        destination.addView(phoneTabs);
         phone = new LinearLayout(context);
         phone.setOrientation(VERTICAL);
         phone.setPadding(dp(10), dp(10), dp(10), dp(10));
@@ -330,7 +351,7 @@ public final class ControllerMapperView extends LinearLayout {
             row.getValue().setSelected(code == selected);
         }
         int key = mappings.get(selected, ControllerInput.UNBOUND);
-        lcd.setText(inputNames.get(selected) + "\n" + values.get(selected).getText());
+        lcd.setText(inputNames.get(selected) + (compactPhone ? "  :  " : "\n") + values.get(selected).getText());
         for (Map.Entry<Integer, Button> entry : phoneKeys.entrySet()) entry.getValue().setSelected(entry.getKey() == key);
     }
 
@@ -390,7 +411,9 @@ public final class ControllerMapperView extends LinearLayout {
         row.setOnClickListener(v -> {
             setListening(false);
             select(code, false);
-            phoneKeys.get(Canvas.KEY_FIRE).requestFocusFromTouch();
+            Button target = phoneKeys.get(Canvas.KEY_FIRE);
+            if (target == null) target = phoneKeys.get(53);
+            target.requestFocusFromTouch();
         });
         rows.put(code, row);
         values.put(code, value);
@@ -398,12 +421,22 @@ public final class ControllerMapperView extends LinearLayout {
     }
 
     private void rebuildPhone() {
+        View focus = findFocus();
+        Integer focusedKey = null;
+        for (Map.Entry<Integer, Button> entry : phoneKeys.entrySet()) {
+            if (entry.getValue() == focus) focusedKey = entry.getKey();
+        }
         phone.removeAllViews();
         phoneKeys.clear();
-        phone.setMinimumHeight(dp(compactPhone ? 192 : 350));
-        phone.addView(lcd, new LayoutParams(LayoutParams.MATCH_PARENT, dp(compactPhone ? 32 : 42)));
+        phone.setPadding(dp(compactPhone ? 4 : 10), dp(compactPhone ? 3 : 10),
+                dp(compactPhone ? 4 : 10), dp(compactPhone ? 3 : 10));
+        phone.setMinimumHeight(dp(pagedPhone ? 178 : compactPhone ? 204 : 350));
+        if (!pagedPhone) phone.addView(lcd, new LayoutParams(LayoutParams.MATCH_PARENT, dp(compactPhone ? 24 : 42)));
+        phoneTabs.setVisibility(pagedPhone ? VISIBLE : GONE);
+        keypadTab.setSelected(!navigationPage);
+        navigationTab.setSelected(navigationPage);
         LinearLayout navigation = phone, digits = phone;
-        if (compactPhone) {
+        if (compactPhone && !pagedPhone) {
             LinearLayout keys = new LinearLayout(getContext());
             phone.addView(keys, new LayoutParams(LayoutParams.MATCH_PARENT, 0, 1));
             navigation = new LinearLayout(getContext());
@@ -415,24 +448,44 @@ public final class ControllerMapperView extends LinearLayout {
             keys.addView(navigation, navParams);
             keys.addView(digits, new LayoutParams(0, LayoutParams.MATCH_PARENT, 1.2f));
         }
-        addPhoneRow(navigation, new int[]{Canvas.KEY_SOFT_LEFT, Canvas.KEY_UP, Canvas.KEY_SOFT_RIGHT},
+        if (!pagedPhone || navigationPage) {
+            addPhoneRow(navigation, new int[]{Canvas.KEY_SOFT_LEFT, Canvas.KEY_UP, Canvas.KEY_SOFT_RIGHT},
                 new String[]{"\u2014", "\u2191", "\u2014"});
         addPhoneRow(navigation, new int[]{Canvas.KEY_LEFT, Canvas.KEY_FIRE, Canvas.KEY_RIGHT},
                 new String[]{"\u2190", "OK", "\u2192"});
         addPhoneRow(navigation, new int[]{Canvas.KEY_CLEAR, Canvas.KEY_DOWN, Canvas.KEY_END},
                 new String[]{"C", "\u2193", "End"});
+        }
+        if (!pagedPhone || !navigationPage) {
         addPhoneRow(digits, new int[]{49, 50, 51}, new String[]{"1\n\u00b7", "2\nABC", "3\nDEF"});
         addPhoneRow(digits, new int[]{52, 53, 54}, new String[]{"4\nGHI", "5\nJKL", "6\nMNO"});
         addPhoneRow(digits, new int[]{55, 56, 57}, new String[]{"7\nPQRS", "8\nTUV", "9\nWXYZ"});
         addPhoneRow(digits, new int[]{42, 48, 35}, new String[]{"*", "0\n+", "#"});
+        }
         if (!rows.isEmpty()) refresh();
+        if (focusedKey != null && phoneKeys.containsKey(focusedKey)) phoneKeys.get(focusedKey).requestFocus();
+    }
+
+    private void showPhonePage(boolean navigation) {
+        navigationPage = navigation;
+        rebuildPhone();
     }
 
     @Override protected void onMeasure(int widthSpec, int heightSpec) {
-        boolean compact = MeasureSpec.getSize(heightSpec) < dp(450) && MeasureSpec.getSize(widthSpec) >= dp(560);
-        if (compact != compactPhone) {
+        boolean compact = MeasureSpec.getSize(heightSpec) < dp(450)
+                && MeasureSpec.getSize(widthSpec) > MeasureSpec.getSize(heightSpec);
+        boolean paged = compact && MeasureSpec.getSize(widthSpec) < dp(560);
+        if (compact != compactPhone || paged != pagedPhone) {
             compactPhone = compact;
+            pagedPhone = paged;
+            setPadding(dp(compact ? 8 : 16), dp(compact ? 2 : 12), dp(compact ? 8 : 16), dp(compact ? 2 : 10));
+            headerTitle.getLayoutParams().height = dp(compact ? 44 : 52);
+            LayoutParams bodyParams = (LayoutParams) body.getLayoutParams();
+            bodyParams.setMargins(0, dp(compact ? 0 : 12), 0, dp(compact ? 0 : 10));
+            sourceHeading.setVisibility(compact ? GONE : VISIBLE);
+            phoneHeading.setVisibility(compact ? GONE : VISIBLE);
             rebuildPhone();
+            showGroup(sourceGroup);
         }
         super.onMeasure(widthSpec, heightSpec);
     }
@@ -440,7 +493,7 @@ public final class ControllerMapperView extends LinearLayout {
     private void addPhoneRow(LinearLayout container, int[] keys, String[] labels) {
         LinearLayout row = new LinearLayout(getContext());
         LayoutParams rowParams = new LayoutParams(LayoutParams.MATCH_PARENT, 0, 1);
-        rowParams.setMargins(0, dp(5), 0, 0);
+        rowParams.setMargins(0, dp(compactPhone ? 3 : 5), 0, 0);
         container.addView(row, rowParams);
         for (int i = 0; i < keys.length; i++) {
             final int key = keys[i];
@@ -533,7 +586,8 @@ public final class ControllerMapperView extends LinearLayout {
         sourceGroup = group;
         for (int i = 0; i < sourceList.getChildCount(); i++) {
             View child = sourceList.getChildAt(i);
-            child.setVisibility(Integer.valueOf(group).equals(child.getTag()) ? VISIBLE : GONE);
+            child.setVisibility(Integer.valueOf(group).equals(child.getTag())
+                    && !(compactPhone && child instanceof TextView) ? VISIBLE : GONE);
         }
         for (int i = 0; i < groupTabs.size(); i++) groupTabs.get(i).setSelected(i == group);
         if (!Integer.valueOf(group).equals(rows.get(selected).getTag())) {

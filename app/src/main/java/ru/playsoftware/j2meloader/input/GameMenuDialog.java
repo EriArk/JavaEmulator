@@ -26,6 +26,16 @@ public final class GameMenuDialog extends Dialog {
         super(context); this.game = game;
         requestWindowFeature(Window.FEATURE_NO_TITLE);
     }
+    @Override public void show() {
+        super.show();
+        if (ru.playsoftware.j2meloader.BuildConfig.HANDHELD_MODE) {
+            getWindow().addFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN);
+            androidx.core.view.WindowInsetsControllerCompat bars =
+                    androidx.core.view.WindowCompat.getInsetsController(getWindow(), getWindow().getDecorView());
+            bars.setSystemBarsBehavior(androidx.core.view.WindowInsetsControllerCompat.BEHAVIOR_SHOW_TRANSIENT_BARS_BY_SWIPE);
+            bars.hide(androidx.core.view.WindowInsetsCompat.Type.systemBars());
+        }
+    }
     @Override protected void onCreate(Bundle state) {
         super.onCreate(state);
         ScrollView scroll = new ScrollView(getContext()) {
@@ -36,7 +46,7 @@ public final class GameMenuDialog extends Dialog {
         };
         scroll.setBackgroundColor(0xff131c21);
         content = new LinearLayout(getContext());
-        content.setPadding(dp(16),dp(12),dp(16),dp(16));
+        content.setPadding(dp(16),dp(compact() ? 8 : 12),dp(16),dp(compact() ? 8 : 16));
         content.setOrientation(LinearLayout.VERTICAL);
         scroll.addView(content);
         setContentView(scroll);
@@ -69,12 +79,13 @@ public final class GameMenuDialog extends Dialog {
         defaultAction = null;
         backAction = null;
         TextView heading = new TextView(getContext());
-        heading.setText(title); heading.setTextColor(0xffffc15a); heading.setTextSize(21);
+        heading.setText(title); heading.setTextColor(0xffffc15a); heading.setTextSize(compact() ? 18 : 21);
+        heading.setMaxLines(2); heading.setEllipsize(android.text.TextUtils.TruncateAt.END);
         content.addView(heading);
         TextView subtitle = new TextView(getContext());
         subtitle.setText(game); subtitle.setTextColor(0xffa9b9bd); subtitle.setTextSize(13);
         subtitle.setSingleLine(true); subtitle.setEllipsize(android.text.TextUtils.TruncateAt.END);
-        subtitle.setPadding(0,dp(4),0,dp(14)); content.addView(subtitle);
+        subtitle.setPadding(0,dp(4),0,dp(compact() ? 6 : 14)); content.addView(subtitle);
     }
     public void setBackAction(Runnable action) { backAction = action; }
     public Button action(String label, int icon, Runnable run) {
@@ -91,8 +102,8 @@ public final class GameMenuDialog extends Dialog {
             button.setCompoundDrawables(drawable,null,null,null); button.setCompoundDrawablePadding(dp(12));
         }
         button.setOnClickListener(v -> run.run());
-        LinearLayout.LayoutParams lp = new LinearLayout.LayoutParams(-1,dp(52));
-        lp.topMargin=dp(6); content.addView(button,lp);
+        LinearLayout.LayoutParams lp = new LinearLayout.LayoutParams(-1,dp(compact() ? 44 : 52));
+        lp.topMargin=dp(compact() ? 4 : 6); content.addView(button,lp);
         if (defaultAction == null) {
             defaultAction = button;
             button.requestFocusFromTouch();
@@ -167,5 +178,6 @@ public final class GameMenuDialog extends Dialog {
             }
         });
     }
+    private boolean compact() { return getContext().getResources().getConfiguration().screenHeightDp < 400; }
     private int dp(int value) { return Math.round(value*getContext().getResources().getDisplayMetrics().density); }
 }

@@ -103,7 +103,7 @@ public class ControllerMapperTest {
         InstrumentationRegistry.getInstrumentation().runOnMainSync(() -> {
             Context c = context();
             float density = c.getResources().getDisplayMetrics().density;
-            for (int[] size : new int[][]{{620, 540}, {640, 360}, {360, 640}}) {
+            for (int[] size : new int[][]{{620, 540}, {640, 360}, {480, 320}, {480, 302}, {360, 640}}) {
                 ControllerMapperView editor = new ControllerMapperView(c, "A very long game title to check truncation",
                         KeyMapper.createBuiltInProfiles(), 0, new ControllerMapperView.Listener() {
                     public void cancel() { }
@@ -114,6 +114,7 @@ public class ControllerMapperTest {
                         View.MeasureSpec.makeMeasureSpec(h, View.MeasureSpec.EXACTLY));
                 editor.layout(0, 0, w, h);
                 assertButtonGeometry(editor, density);
+                if (size[1] <= 360) assertPhoneKeysVisible(editor, editor, density);
                 Bitmap bitmap = Bitmap.createBitmap(w, h, Bitmap.Config.ARGB_8888);
                 editor.draw(new android.graphics.Canvas(bitmap));
                 File output = new File(c.getExternalFilesDir(null), "mapper-layout-" + size[0] + "x" + size[1] + ".png");
@@ -123,6 +124,50 @@ public class ControllerMapperTest {
                 finally { bitmap.recycle(); }
             }
         });
+    }
+
+    @Test public void compactPhonePagesKeepBindingsAndExposeEveryKey() {
+        InstrumentationRegistry.getInstrumentation().runOnMainSync(() -> {
+            Context c = context();
+            float density = c.getResources().getDisplayMetrics().density;
+            AtomicInteger saved = new AtomicInteger();
+            ControllerMapperView editor = new ControllerMapperView(c, "Test", KeyMapper.createBuiltInProfiles(), 0,
+                    new ControllerMapperView.Listener() {
+                        public void cancel() { }
+                        public void save(ArrayList<ProfileModel.KeyMappingProfile> draft, int active) {
+                            assertEquals(Canvas.KEY_SOFT_RIGHT, draft.get(active).mappings.get(96));
+                            saved.incrementAndGet();
+                        }
+                    });
+            int width = Math.round(480 * density), height = Math.round(320 * density);
+            int w = View.MeasureSpec.makeMeasureSpec(width, View.MeasureSpec.EXACTLY);
+            int h = View.MeasureSpec.makeMeasureSpec(height, View.MeasureSpec.EXACTLY);
+            editor.measure(w, h); editor.layout(0, 0, width, height);
+            assertNotNull(find(editor, "Phone key #"));
+            find(editor, "Phone key 7").performClick();
+            findText(editor, "Navigation").performClick();
+            editor.measure(w, h); editor.layout(0, 0, width, height);
+            assertPhoneKeysVisible(editor, editor, density);
+            assertNotNull(find(editor, "Phone key End call"));
+            find(editor, "Phone key Soft right").performClick();
+            findText(editor, "Keypad").performClick();
+            editor.measure(w, h); editor.layout(0, 0, width, height);
+            assertPhoneKeysVisible(editor, editor, density);
+            findText(editor, c.getString(R.string.mapper_save)).performClick();
+            assertEquals(1, saved.get());
+        });
+    }
+
+    private void assertPhoneKeysVisible(ViewGroup root, View view, float density) {
+        if (view.getVisibility() != View.VISIBLE) return;
+        if (view.getContentDescription() != null && view.getContentDescription().toString().startsWith("Phone key ")) {
+            android.graphics.Rect bounds = new android.graphics.Rect(0, 0, view.getWidth(), view.getHeight());
+            root.offsetDescendantRectToMyCoords(view, bounds);
+            assertTrue("Key too short: " + view.getContentDescription(), view.getHeight() >= 39 * density);
+            assertTrue("Clipped phone key: " + bounds, bounds.bottom <= root.getHeight() - 46 * density);
+        }
+        if (view instanceof ViewGroup) for (int i = 0; i < ((ViewGroup) view).getChildCount(); i++)
+            assertPhoneKeysVisible(root, ((ViewGroup) view).getChildAt(i), density);
     }
 
     @Test public void controllerCanSelectAndBindWithoutTouch() {
@@ -150,12 +195,18 @@ public class ControllerMapperTest {
                 ControllerMapperView editor = host[0];
                 find(editor, "A").requestFocusFromTouch();
                 editor.handleKey(new KeyEvent(KeyEvent.ACTION_DOWN, 96));
-                assertEquals("Phone key OK / Fire", editor.findFocus().getContentDescription());
-                int[] firePosition = new int[2], digitPosition = new int[2];
-                find(editor,"Phone key OK / Fire").getLocationOnScreen(firePosition);
-                find(editor,"Phone key 2").getLocationOnScreen(digitPosition);
-                int[] path = digitPosition[0] > firePosition[0] + 20
-                        ? new int[]{19,22,22,22} : new int[]{20,20};
+                int[] path;
+                if (find(editor, "Phone key OK / Fire") == null) {
+                    assertEquals("Phone key 5", editor.findFocus().getContentDescription());
+                    path = new int[]{19};
+                } else {
+                    assertEquals("Phone key OK / Fire", editor.findFocus().getContentDescription());
+                    int[] firePosition = new int[2], digitPosition = new int[2];
+                    find(editor,"Phone key OK / Fire").getLocationOnScreen(firePosition);
+                    find(editor,"Phone key 2").getLocationOnScreen(digitPosition);
+                    path = digitPosition[0] > firePosition[0] + 20
+                            ? new int[]{19,22,22,22} : new int[]{20,20};
+                }
                 for (int direction : path) editor.handleKey(new KeyEvent(KeyEvent.ACTION_DOWN,direction));
                 assertEquals("Phone key 2", editor.findFocus().getContentDescription());
                 editor.handleKey(new KeyEvent(KeyEvent.ACTION_DOWN, 96));
@@ -240,6 +291,7 @@ public class ControllerMapperTest {
     }
 
     private void assertButtonGeometry(View view, float density) {
+        if (view.getVisibility() != View.VISIBLE) return;
         if (view instanceof Button) {
             assertTrue("Too short: " + ((Button) view).getText(), view.getHeight() >= 28 * density);
             assertTrue("Too narrow: " + ((Button) view).getText(), view.getWidth() >= 30 * density);

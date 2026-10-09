@@ -33,6 +33,21 @@ Do not uninstall or clear app data to work around a signing conflict on someone'
 device. Test packages have separate `.debug` application IDs. Instrumentation
 uses temporary test libraries; it can launch activities and write screenshots.
 
+## Compact handheld interface: 2026-10-09
+
+Public-source Phone and Handheld APKs and both instrumentation APKs built.
+Handheld passed 68 selected Android tests at 480x320 dp. The two additional
+cases cover library card geometry/artwork modes and narrow mapper page bindings.
+Mapper geometry also covers 480x302 dp usable space (system cutout allowance),
+640x360 dp and 360x640 dp portrait. JVM suites passed 14 tests per variant.
+
+See [compact library behavior and design references](COMPACT_LIBRARY.md).
+Manual checks cover library view switching with L/R, visible selection, Start/X
+menus, expanded search and B-to-clear, narrow mapper pages, and portrait Phone
+browsing. Android may initially focus the collection selector; Down enters the
+games. Initial focus and visual acceptance on a physical handheld remain to be
+checked. This is emulator coverage, not physical-device/controller acceptance.
+
 ## Settings trials: 2026-10-09
 
 Both public-source APKs and instrumentation APKs built. Phone passed all 66
@@ -47,8 +62,8 @@ See [settings trial behavior and manual checks](SETTINGS_TRIALS.md).
 
 Manual emulator checks covered the library-to-game trial, Keep, live rotation
 Undo, Phone/Gamepad Undo and timeout rollback. At 480x320 dp, D-pad focus scrolls
-the settings action into view. The library itself needs a compact layout pass
-([#17](https://github.com/EriArk/JavaEmulator/issues/17)); this is not a claim that
+the settings action into view. The library issue found in that pass is addressed
+by the subsequent compact interface batch above (#17); this is not a claim that
 every screen is polished at that size.
 
 ## Earlier full baseline: 2026-10-08

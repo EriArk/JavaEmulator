@@ -59,10 +59,27 @@ public class AppsListAdapter extends RecyclerView.Adapter<AppsListAdapter.ViewHo
 	private CharSequence filterConstraint;
 	private int displayMode = MODE_GALLERY;
 	private int category = CATEGORY_LIBRARY;
+	private int availableHeight = Integer.MAX_VALUE;
+	private boolean compact;
+
+	public void setCompact(boolean value) {
+		if (compact != value) { compact = value; notifyDataSetChanged(); }
+	}
+
+	public void setAvailableHeight(int height) {
+		int bounded = Math.max(64, Math.min(154, height - 74));
+		if (availableHeight != bounded) {
+			availableHeight = bounded;
+			notifyDataSetChanged();
+		}
+	}
 
 	public AppsListAdapter(Listener listener) {
 		this.listener = listener;
+		setHasStableIds(true);
 	}
+
+	@Override public long getItemId(int position) { return filteredList.get(position).getId(); }
 
 	@Override
 	public int getItemCount() {
@@ -105,7 +122,7 @@ public class AppsListAdapter extends RecyclerView.Adapter<AppsListAdapter.ViewHo
 	@Override
 	public void onBindViewHolder(@NonNull ViewHolder holder, int position) {
 		AppItem item = filteredList.get(position);
-		holder.bind(item, displayMode, listener);
+		holder.bind(item, displayMode, availableHeight, compact, listener);
 	}
 
 	public void setItems(List<AppItem> items) {
@@ -124,10 +141,11 @@ public class AppsListAdapter extends RecyclerView.Adapter<AppsListAdapter.ViewHo
 		private ViewHolder(ListRowJarBinding binding) {
 			super(binding.getRoot());
 			this.binding = binding;
+			binding.rowRoot.setFocusableInTouchMode(true);
 		}
 
-		private void bind(AppItem item, int displayMode, Listener listener) {
-			applyMode(displayMode);
+		private void bind(AppItem item, int displayMode, int availableHeight, boolean compact, Listener listener) {
+			applyMode(displayMode, availableHeight, compact);
 			Bitmap icon = IconArtUtils.loadLargeIcon(item.getImagePathExt(), iconBitmapSize(displayMode));
 			Drawable cover = Drawable.createFromPath(item.getCoverPathExt());
 			if (displayMode == MODE_GALLERY && cover != null) {
@@ -168,18 +186,18 @@ public class AppsListAdapter extends RecyclerView.Adapter<AppsListAdapter.ViewHo
 			});
 		}
 
-		private void applyMode(int mode) {
+		private void applyMode(int mode, int availableHeight, boolean compact) {
 			LinearLayout root = binding.rowRoot;
 			FrameLayout art = binding.artContainer;
 			LinearLayout text = binding.textColumn;
-			int pad = dp(7);
+			int pad = dp(compact && mode == MODE_LIST ? 4 : 7);
 			root.setPadding(pad, pad, pad, pad);
 			ViewGroup.MarginLayoutParams itemLp = getMarginLayoutParams(root);
 			itemLp.setMargins(dp(4), dp(4), dp(4), dp(4));
 			root.setLayoutParams(itemLp);
 			if (mode == MODE_LIST) {
 				root.setOrientation(LinearLayout.HORIZONTAL);
-				LinearLayout.LayoutParams artLp = new LinearLayout.LayoutParams(dp(72), dp(72));
+				LinearLayout.LayoutParams artLp = new LinearLayout.LayoutParams(dp(compact ? 52 : 72), dp(compact ? 52 : 72));
 				artLp.setMargins(0, 0, dp(10), 0);
 				art.setLayoutParams(artLp);
 				LinearLayout.LayoutParams textLp = new LinearLayout.LayoutParams(0,
@@ -187,11 +205,11 @@ public class AppsListAdapter extends RecyclerView.Adapter<AppsListAdapter.ViewHo
 				textLp.setMargins(0, 0, 0, 0);
 				text.setLayoutParams(textLp);
 				binding.icon.setPadding(dp(3), dp(3), dp(3), dp(3));
-				binding.icon.setLayoutParams(centerIconParams(dp(64)));
+				binding.icon.setLayoutParams(centerIconParams(dp(compact ? 48 : 64)));
 				binding.name.setMaxLines(1);
 			} else {
 				root.setOrientation(LinearLayout.VERTICAL);
-				int artHeight = mode == MODE_GALLERY ? dp(154) : dp(116);
+				int artHeight = dp(Math.min(mode == MODE_GALLERY ? 154 : 116, availableHeight));
 				LinearLayout.LayoutParams artLp = new LinearLayout.LayoutParams(
 						ViewGroup.LayoutParams.MATCH_PARENT, artHeight);
 				artLp.setMargins(0, 0, 0, 0);
@@ -201,7 +219,7 @@ public class AppsListAdapter extends RecyclerView.Adapter<AppsListAdapter.ViewHo
 				textLp.setMargins(0, dp(8), 0, 0);
 				text.setLayoutParams(textLp);
 				binding.icon.setPadding(dp(3), dp(3), dp(3), dp(3));
-				binding.icon.setLayoutParams(centerIconParams(dp(108)));
+				binding.icon.setLayoutParams(centerIconParams(Math.min(dp(108), artHeight - dp(8))));
 				binding.name.setMaxLines(2);
 			}
 		}

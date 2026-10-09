@@ -102,6 +102,7 @@ import ru.playsoftware.j2meloader.databinding.FragmentAppsListBinding;
 import ru.playsoftware.j2meloader.filepicker.FilteredFilePickerFragment;
 import ru.playsoftware.j2meloader.info.AboutDialogFragment;
 import ru.playsoftware.j2meloader.info.HelpDialogFragment;
+import ru.playsoftware.j2meloader.input.GameMenuDialog;
 import ru.playsoftware.j2meloader.settings.SettingsActivity;
 import ru.playsoftware.j2meloader.util.AppUtils;
 import ru.playsoftware.j2meloader.util.Constants;
@@ -122,6 +123,10 @@ public class AppsListFragment extends Fragment implements AppsListAdapter.Listen
 	private AppItem selectedItem;
 	private AppItem artworkTarget;
 	private int category = AppsListAdapter.CATEGORY_LIBRARY;
+	private boolean searchExpanded;
+	private boolean compactLibrary;
+	private boolean initialGameFocus = true;
+	private int pendingGameFocus = -1;
 
 	private FragmentAppsListBinding binding;
 
@@ -170,8 +175,19 @@ public class AppsListFragment extends Fragment implements AppsListAdapter.Listen
 		binding.appsRecycler.setAdapter(adapter);
 		binding.appsRecycler.setItemAnimator(null);
 		binding.appsRecycler.setHasFixedSize(false);
+		binding.appsRecycler.getViewTreeObserver().addOnGlobalLayoutListener(() -> {
+			if (binding == null || pendingGameFocus < 0) return;
+			RecyclerView.ViewHolder holder = binding.appsRecycler.findViewHolderForAdapterPosition(pendingGameFocus);
+			if (holder != null && binding.getRoot().hasWindowFocus() && holder.itemView.requestFocus()) {
+				pendingGameFocus = -1;
+			}
+		});
+		binding.appsRecycler.getViewTreeObserver().addOnWindowFocusChangeListener(hasFocus -> {
+			if (hasFocus && binding != null && pendingGameFocus >= 0) binding.appsRecycler.requestLayout();
+		});
 		binding.launcherSoftbar.setVisibility(BuildConfig.HANDHELD_MODE ? View.VISIBLE : View.GONE);
 		binding.appsRecycler.addOnLayoutChangeListener((v, l, t, r, b, ol, ot, or, ob) -> {
+			adapter.setAvailableHeight(Math.round((b - t) / getResources().getDisplayMetrics().density));
 			if (r - l != or - ol && binding.appsRecycler.getLayoutManager() instanceof GridLayoutManager) {
 				((GridLayoutManager) binding.appsRecycler.getLayoutManager())
 						.setSpanCount(calculateSpanCount(adapter.getDisplayMode()));
@@ -181,6 +197,10 @@ public class AppsListFragment extends Fragment implements AppsListAdapter.Listen
 			@Override
 			public void onChanged() {
 				updateEmptyState();
+				if (binding != null && BuildConfig.HANDHELD_MODE && initialGameFocus && adapter.getItemCount() > 0) {
+					initialGameFocus = false;
+					focusGame(null);
+				}
 			}
 		});
 		binding.viewModeGallery.setOnClickListener(v -> setDisplayMode(AppsListAdapter.MODE_GALLERY));
@@ -209,6 +229,19 @@ public class AppsListFragment extends Fragment implements AppsListAdapter.Listen
 			}
 		});
 		binding.librarySort.setOnClickListener(v -> showSortDialog());
+		binding.libraryCategory.setOnClickListener(v -> showCategoryMenu());
+		binding.libraryMenu.setOnClickListener(v -> showLibraryMenu());
+		binding.librarySearchToggle.setOnClickListener(v -> {
+			searchExpanded = !searchExpanded;
+			if (!searchExpanded) {
+				binding.librarySearch.setText("");
+				android.view.inputmethod.InputMethodManager ime = (android.view.inputmethod.InputMethodManager)
+						requireContext().getSystemService(Context.INPUT_METHOD_SERVICE);
+				ime.hideSoftInputFromWindow(binding.librarySearch.getWindowToken(), 0);
+			}
+			updateResponsiveToolbar();
+			if (searchExpanded) binding.librarySearch.requestFocus();
+		});
 		binding.railAddGame.setOnClickListener(v -> openLastDirectory());
 		binding.railFolders.setOnClickListener(v -> openFolderLauncher.launch(null));
 		binding.railSettings.setOnClickListener(v ->
@@ -247,9 +280,69 @@ public class AppsListFragment extends Fragment implements AppsListAdapter.Listen
 	}
 
 	private void setDisplayMode(int mode) {
+		boolean restoreFocus = binding.appsRecycler.hasFocus();
+		String selectedPath = selectedItem == null ? null : selectedItem.getPath();
 		adapter.setDisplayMode(mode);
 		preferences.edit().putInt(PREF_LIBRARY_VIEW_MODE, mode).apply();
 		applyDisplayMode();
+		if (restoreFocus) focusGame(selectedPath);
+	}
+
+	private void focusGame(String path) {
+		int position = 0;
+		for (int i = 0; i < adapter.getItemCount(); i++) {
+			if (adapter.getItem(i).getPath().equals(path)) { position = i; break; }
+		}
+		pendingGameFocus = position;
+		binding.appsRecycler.scrollToPosition(position);
+		binding.appsRecycler.requestLayout();
+	}
+
+	private GameMenuDialog libraryDialog(String title) {
+		GameMenuDialog dialog = new GameMenuDialog(requireContext(),
+				getResources().getQuantityString(R.plurals.library_games, adapter.getItemCount(), adapter.getItemCount()));
+		dialog.show();
+		dialog.page(title);
+		return dialog;
+	}
+
+	private void showCategoryMenu() {
+		GameMenuDialog dialog = libraryDialog("Library");
+		String[] names = {"All games", "Recent", "Favorites"};
+		for (int i = 0; i < names.length; i++) {
+			int target = i;
+			dialog.action(names[i], 0, () -> { setCategory(target); dialog.dismiss(); });
+		}
+	}
+
+	private void showLibraryMenu() {
+		GameMenuDialog dialog = libraryDialog("Library menu");
+		dialog.action("View: " + new String[]{"Gallery", "List", "Grid"}[adapter.getDisplayMode()],
+				android.R.drawable.ic_menu_view, () -> {
+			dialog.page("View");
+			String[] modes = {"Gallery", "List", "Grid"};
+			for (int i = 0; i < modes.length; i++) {
+				int target = i;
+				dialog.action(modes[i], 0, () -> {
+					setDisplayMode(target); dialog.dismiss(); focusGame(selectedItem == null ? null : selectedItem.getPath());
+				});
+			}
+		});
+		dialog.action("Sort", R.drawable.ic_setting_sort, () -> {
+			dialog.page("Sort");
+			dialog.choice("Sort by", getResources().getStringArray(R.array.pref_app_sort_entries),
+					appRepository.getSort() & Integer.MAX_VALUE, index -> preferences.edit()
+							.putInt(PREF_APP_SORT, index | (appRepository.getSort() & Integer.MIN_VALUE)).apply());
+			dialog.toggle("Reverse order", appRepository.getSort() < 0, checked -> {
+				int sort = appRepository.getSort() & Integer.MAX_VALUE;
+				preferences.edit().putInt(PREF_APP_SORT, checked ? sort | Integer.MIN_VALUE : sort).apply();
+			});
+		});
+		dialog.action("Add game", R.drawable.ic_add_white, () -> { dialog.dismiss(); openLastDirectory(); });
+		dialog.action("Add folder", R.drawable.ic_setting_folder, () -> { dialog.dismiss(); openFolderLauncher.launch(null); });
+		dialog.action("Settings", R.drawable.ic_baseline_tune_24, () -> {
+			dialog.dismiss(); startActivity(new Intent(requireActivity(), SettingsActivity.class));
+		});
 	}
 
 	private void setCategory(int category) {
@@ -263,6 +356,8 @@ public class AppsListFragment extends Fragment implements AppsListAdapter.Listen
 				: category == AppsListAdapter.CATEGORY_FAVORITES
 				? R.string.launcher_favorites : R.string.library_title;
 		binding.libraryTitle.setText(title);
+		binding.libraryCategory.setText(category == AppsListAdapter.CATEGORY_LIBRARY
+				? "All games" : category == AppsListAdapter.CATEGORY_RECENT ? "Recent" : "Favorites");
 		updateDetail(adapter.getFirstItem());
 	}
 
@@ -289,15 +384,38 @@ public class AppsListFragment extends Fragment implements AppsListAdapter.Listen
 
 	private void updateResponsiveToolbar() {
 		boolean wide = getResources().getConfiguration().screenWidthDp >= 560;
+		boolean compact = getResources().getConfiguration().orientation == Configuration.ORIENTATION_LANDSCAPE
+				&& getResources().getConfiguration().screenHeightDp < 480;
+		compactLibrary = compact;
+		adapter.setCompact(compact);
+		binding.libraryCategoryRow.setVisibility(compact ? View.GONE : View.VISIBLE);
+		binding.libraryCount.setVisibility(compact ? View.GONE : View.VISIBLE);
+		binding.libraryCategory.setVisibility(compact ? View.VISIBLE : View.GONE);
+		binding.librarySearchToggle.setVisibility(compact ? View.VISIBLE : View.GONE);
+		binding.libraryMenu.setVisibility(compact ? View.VISIBLE : View.GONE);
+		binding.railAddGame.setVisibility(compact ? View.GONE : View.VISIBLE);
+		binding.railFolders.setVisibility(compact ? View.GONE : View.VISIBLE);
+		binding.railSettings.setVisibility(compact ? View.GONE : View.VISIBLE);
+		binding.libraryModeRow.setVisibility(compact ? View.GONE : View.VISIBLE);
+		binding.librarySort.setVisibility(compact ? View.GONE : View.VISIBLE);
+		binding.librarySearchToggle.setSelected(searchExpanded || binding.librarySearch.length() > 0);
+		binding.librarySearchRow.setVisibility(!compact || searchExpanded
+				|| binding.librarySearch.length() > 0 ? View.VISIBLE : View.GONE);
 		ViewGroup parent = (ViewGroup) binding.libraryModeRow.getParent();
-		ViewGroup desired = wide ? binding.librarySearchRow : binding.libraryRoot;
+		boolean inline = wide && !compact;
+		ViewGroup desired = inline ? binding.librarySearchRow : binding.libraryRoot;
 		if (parent != desired) {
 			parent.removeView(binding.libraryModeRow);
-			LinearLayout.LayoutParams lp = new LinearLayout.LayoutParams(wide ? dp(276) : -1, dp(48));
-			lp.setMargins(dp(8),0,dp(wide ? 0 : 12),0);
-			if (wide) desired.addView(binding.libraryModeRow,lp);
+			LinearLayout.LayoutParams lp = new LinearLayout.LayoutParams(inline ? dp(276) : -1, dp(48));
+			lp.setMargins(dp(12),0,dp(inline ? 0 : 12),0);
+			if (inline) desired.addView(binding.libraryModeRow,lp);
 			else desired.addView(binding.libraryModeRow,3,lp);
 		}
+		ViewGroup.LayoutParams bar = binding.launcherSoftbar.getLayoutParams();
+		bar.height = dp(compact ? 24 : 32);
+		binding.launcherSoftbar.setLayoutParams(bar);
+		binding.launcherSoftbar.setText(compact ? "A  Play     X  Options     L/R  View     Start  Menu"
+				: "A  Play     X  Options     Y  Favorite     L/R  View");
 		binding.launcherTitle.setGravity(android.view.Gravity.CENTER_VERTICAL);
 		binding.launcherTitle.setTypeface(android.graphics.Typeface.DEFAULT, android.graphics.Typeface.BOLD);
 		binding.launcherTitle.setTextSize(18);
@@ -461,6 +579,26 @@ public class AppsListFragment extends Fragment implements AppsListAdapter.Listen
 	}
 
 	public boolean handleControllerKey(int keyCode) {
+		if (binding.getRoot().findFocus() == null) {
+			if (keyCode == KeyEvent.KEYCODE_BUTTON_A && selectedItem != null) {
+				startApp(selectedItem, false);
+				return true;
+			}
+			if (ru.playsoftware.j2meloader.input.ControllerInput.direction(keyCode) != 0) {
+				focusGame(selectedItem == null ? null : selectedItem.getPath());
+				return true;
+			}
+		}
+		if (keyCode == KeyEvent.KEYCODE_BUTTON_START || keyCode == KeyEvent.KEYCODE_MENU) {
+			showLibraryMenu();
+			return true;
+		}
+		if (keyCode == KeyEvent.KEYCODE_BUTTON_B && compactLibrary && binding.librarySearchRow.getVisibility() == View.VISIBLE) {
+			if (!searchExpanded) searchExpanded = true;
+			binding.librarySearchToggle.performClick();
+			focusGame(selectedItem == null ? null : selectedItem.getPath());
+			return true;
+		}
 		if (keyCode == KeyEvent.KEYCODE_BUTTON_X && selectedItem != null) {
 			View focus = binding.appsRecycler.findFocus();
 			showActions(focus != null ? focus : binding.appsRecycler, selectedItem);
@@ -473,7 +611,9 @@ public class AppsListFragment extends Fragment implements AppsListAdapter.Listen
 		if (keyCode == KeyEvent.KEYCODE_BUTTON_L1 || keyCode == KeyEvent.KEYCODE_BUTTON_R1) {
 			int direction = keyCode == KeyEvent.KEYCODE_BUTTON_R1 ? 1 : -1;
 			int next = (adapter.getDisplayMode() + direction + 3) % 3;
+			String path = selectedItem == null ? null : selectedItem.getPath();
 			setDisplayMode(next);
+			focusGame(path);
 			return true;
 		}
 		return false;
@@ -494,7 +634,7 @@ public class AppsListFragment extends Fragment implements AppsListAdapter.Listen
 			menu.findItem(R.id.action_context_shortcut).setVisible(false);
 			menu.findItem(R.id.action_context_artwork).setVisible(true);
 		}
-		popup.setOnMenuItemClickListener(item -> {
+		PopupMenu.OnMenuItemClickListener action = item -> {
 			int itemId = item.getItemId();
 			if (itemId == R.id.action_context_shortcut) {
 				requestAddShortcut(appItem);
@@ -513,8 +653,24 @@ public class AppsListFragment extends Fragment implements AppsListAdapter.Listen
 				return false;
 			}
 			return true;
-		});
-		popup.show();
+		};
+		if (compactLibrary) {
+			GameMenuDialog dialog = new GameMenuDialog(requireContext(), "Game options");
+			dialog.show();
+			dialog.page(appItem.getTitle());
+			dialog.action("Settings", R.drawable.ic_baseline_tune_24, () -> {
+				dialog.dismiss(); startApp(appItem, true);
+			});
+			for (int i = 0; i < menu.size(); i++) {
+				MenuItem item = menu.getItem(i);
+				if (item.isVisible() && item.getItemId() != R.id.action_context_settings) dialog.action(item.getTitle().toString(), 0, () -> {
+					dialog.dismiss(); action.onMenuItemClick(item);
+				});
+			}
+		} else {
+			popup.setOnMenuItemClickListener(action);
+			popup.show();
+		}
 	}
 
 	private void requestAddShortcut(AppItem appItem) {
