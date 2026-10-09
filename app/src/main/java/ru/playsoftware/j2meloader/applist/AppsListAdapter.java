@@ -61,6 +61,7 @@ public class AppsListAdapter extends RecyclerView.Adapter<AppsListAdapter.ViewHo
 	private int category = CATEGORY_LIBRARY;
 	private int availableHeight = Integer.MAX_VALUE;
 	private boolean compact;
+	private String focusedPath;
 
 	public void setCompact(boolean value) {
 		if (compact != value) { compact = value; notifyDataSetChanged(); }
@@ -75,7 +76,14 @@ public class AppsListAdapter extends RecyclerView.Adapter<AppsListAdapter.ViewHo
 	}
 
 	public AppsListAdapter(Listener listener) {
-		this.listener = listener;
+		this.listener = new Listener() {
+			public void onAppClicked(AppItem item) { listener.onAppClicked(item); }
+			public void onAppFocused(AppItem item) {
+				focusedPath = item == null ? null : item.getPath();
+				listener.onAppFocused(item);
+			}
+			public void onAppActionsRequested(View anchor, AppItem item) { listener.onAppActionsRequested(anchor, item); }
+		};
 		setHasStableIds(true);
 	}
 
@@ -163,7 +171,8 @@ public class AppsListAdapter extends RecyclerView.Adapter<AppsListAdapter.ViewHo
 			if (icon != null) {
 				binding.icon.setImageBitmap(icon);
 			} else {
-				binding.icon.setImageResource(R.mipmap.ic_launcher);
+				binding.icon.setImageBitmap(IconArtUtils.createFallback(item.getTitle(),
+						iconBitmapSize(displayMode), iconBitmapSize(displayMode), null));
 			}
 			binding.icon.setVisibility(displayMode == MODE_GALLERY ? View.GONE : View.VISIBLE);
 			binding.name.setText(item.getTitle());
@@ -290,8 +299,12 @@ public class AppsListAdapter extends RecyclerView.Adapter<AppsListAdapter.ViewHo
 			if (results.values != null) {
 				//noinspection unchecked
 				filteredList = (List<AppItem>) results.values;
+				AppItem selected = getFirstItem();
+				for (AppItem item : filteredList) {
+					if (item.getPath().equals(focusedPath)) { selected = item; break; }
+				}
 				notifyDataSetChanged();
-				listener.onAppFocused(getFirstItem());
+				listener.onAppFocused(selected);
 			} else {
 				notifyDataSetChanged();
 			}

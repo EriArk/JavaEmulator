@@ -260,10 +260,10 @@ public class Descriptor {
 		}
 		icon = icon.trim();
 		if (icon.isEmpty()) return null;
-		while (icon.charAt(0) == '/') {
+		while (!icon.isEmpty() && icon.charAt(0) == '/') {
 			icon = icon.substring(1);
 		}
-		return icon;
+		return icon.isEmpty() ? null : icon;
 	}
 
 	public String getJarUrl() {

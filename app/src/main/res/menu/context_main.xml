@@ -11,7 +11,7 @@
         android:title="@string/action_settings" />
     <item
         android:id="@+id/action_context_artwork"
-        android:title="@string/action_change_artwork" />
+        android:title="Artwork" />
     <item
         android:id="@+id/action_context_reinstall"
         android:title="@string/action_reinstall" />

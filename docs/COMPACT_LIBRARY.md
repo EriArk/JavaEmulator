@@ -11,11 +11,14 @@ Portrait Phone browsing and the large-screen detail pane keep their existing lay
 - Start or Menu opens the library menu. Import, folders, sorting, settings and
   Gallery / List / Grid live here instead of permanently taking space above games.
 - L/R still changes views; A launches, X opens game actions, Y toggles a favorite.
+- Handheld initially focuses the first game after the list is laid out. Later
+  size/data updates do not pull focus away from the header or search.
 - Search expands only when requested; B closes it and clears the query.
 - Handheld hides Android system bars. An edge swipe can reveal them temporarily.
 - Short-screen game actions use the same dark menu as the rest of the app.
 - List uses compact rows; Grid keeps large icons and Gallery keeps covers.
   Artwork height responds to the actual available area, including system insets.
+  See [automatic artwork and custom images](ARTWORK.md).
 
 ## Mapper
 

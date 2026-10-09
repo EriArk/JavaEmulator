@@ -35,6 +35,20 @@ uses temporary test libraries; it can launch activities and write screenshots.
 
 ## Compact handheld interface: 2026-10-09
 
+Follow-up: artwork and focus checks add 13 cases (11 generated artwork fixtures,
+one backup/import round-trip and one Handheld-only real-activity focus test).
+Final combined debug snapshots passed 108 selected cases on Handheld; Phone's
+runner reported 108 with the Handheld-only case skipped (107 executed). This
+includes 27 private engine cases; the shared source accounts for 81 cases.
+Both public-source variants and test APKs also build separately. JVM suites
+were rerun: 14 tests per variant.
+
+The cold-start focus regression is fixed: resizing cards is deferred until after
+RecyclerView layout, so pending adapter updates complete. The activity test
+uses an isolated eight-item catalog, checks all three views and verifies that
+subsequent layout does not steal deliberately placed header focus.
+See [artwork rules and safe legacy refresh](ARTWORK.md).
+
 Public-source Phone and Handheld APKs and both instrumentation APKs built.
 Handheld passed 68 selected Android tests at 480x320 dp. The two additional
 cases cover library card geometry/artwork modes and narrow mapper page bindings.
@@ -44,9 +58,9 @@ Mapper geometry also covers 480x302 dp usable space (system cutout allowance),
 See [compact library behavior and design references](COMPACT_LIBRARY.md).
 Manual checks cover library view switching with L/R, visible selection, Start/X
 menus, expanded search and B-to-clear, narrow mapper pages, and portrait Phone
-browsing. Android may initially focus the collection selector; Down enters the
-games. Initial focus and visual acceptance on a physical handheld remain to be
-checked. This is emulator coverage, not physical-device/controller acceptance.
+browsing. The initial collection-selector focus found in that earlier pass is
+fixed by the follow-up above. Visual acceptance on a physical handheld remains
+to be checked. This is emulator coverage, not physical-device/controller acceptance.
 
 ## Settings trials: 2026-10-09
 

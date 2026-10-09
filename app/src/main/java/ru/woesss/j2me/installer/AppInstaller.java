@@ -17,7 +17,6 @@
 package ru.woesss.j2me.installer;
 
 import android.app.Application;
-import android.graphics.BitmapFactory;
 import android.net.Uri;
 import android.util.Log;
 
@@ -51,6 +50,7 @@ import java.util.jar.JarFile;
 import io.reactivex.Single;
 import io.reactivex.SingleEmitter;
 import ru.playsoftware.j2meloader.applist.AppItem;
+import ru.playsoftware.j2meloader.applist.GameArtwork;
 import ru.playsoftware.j2meloader.appsdb.AppRepository;
 import ru.playsoftware.j2meloader.catalog.SourceIdentity;
 import ru.playsoftware.j2meloader.config.Config;
@@ -426,30 +426,12 @@ public class AppInstaller {
 		}
 		File resJar = new File(tmpDir, Config.MIDLET_RES_FILE);
 		FileUtils.copyFileUsingChannel(srcJar, resJar);
-		String icon = findIconEntry(resJar, newDesc.getIcon());
-		File iconFile = new File(tmpDir, Config.MIDLET_ICON_FILE);
-		if (icon != null) {
-			try {
-				ZipUtils.unzipEntry(resJar, icon, iconFile);
-			} catch (IOException e) {
-				Log.w(TAG, "Can't unzip icon: " + icon, e);
-				icon = null;
-				//noinspection ResultOfMethodCallIgnored
-				iconFile.delete();
-			}
+		try {
+			GameArtwork.refresh(tmpDir, newDesc.getIcon());
+		} catch (IOException e) {
+			Log.w(TAG, "Can't extract artwork", e);
 		}
-		String cover = findCoverEntry(resJar, icon);
-		File coverFile = new File(tmpDir, Config.MIDLET_COVER_FILE);
-		if (cover != null) {
-			try {
-				ZipUtils.unzipEntry(resJar, cover, coverFile);
-			} catch (IOException e) {
-				Log.w(TAG, "Can't unzip cover: " + cover, e);
-				cover = null;
-				//noinspection ResultOfMethodCallIgnored
-				coverFile.delete();
-			}
-		}
+		if (currentApp != null) GameArtwork.preserveUserArt(new File(currentApp.getPathExt()), tmpDir);
 		newDesc.writeTo(new File(tmpDir, Config.MIDLET_MANIFEST_FILE));
 		FileUtils.deleteDirectory(targetDir);
 		if (!tmpDir.renameTo(targetDir)) {
@@ -463,12 +445,7 @@ public class AppInstaller {
 			app.setSourceKey(sourceKey());
 		}
 		app.setSourceHash(SourceIdentity.sha256(srcJar));
-		if (icon != null) {
-			app.setImagePathExt(Config.MIDLET_ICON_FILE);
-		}
-		if (cover != null) {
-			app.setCoverPathExt(Config.MIDLET_COVER_FILE);
-		}
+		GameArtwork.applyPaths(app, targetDir);
 		if (currentApp != null) {
 			app.setId(currentApp.getId());
 			if (!"indexed".equals(currentApp.getPreparationState())) {
@@ -506,157 +483,6 @@ public class AppInstaller {
 		emitter.onSuccess(STATUS_SUCCESS);
 	}
 
-	private String findCoverEntry(File jar, String iconPath) {
-		String best = null;
-		int bestScore = 0;
-		try (ZipFile zip = new ZipFile(jar)) {
-			List<FileHeader> headers = zip.getFileHeaders();
-			for (FileHeader header : headers) {
-				if (header.isDirectory()) {
-					continue;
-				}
-				String name = header.getFileName();
-				String lower = name.toLowerCase(Locale.US);
-				if (!isImageFile(lower)) {
-					continue;
-				}
-				if (iconPath != null && lower.equals(iconPath.toLowerCase(Locale.US))) {
-					continue;
-				}
-				BitmapFactory.Options options = new BitmapFactory.Options();
-				options.inJustDecodeBounds = true;
-				try (InputStream stream = zip.getInputStream(header)) {
-					BitmapFactory.decodeStream(stream, null, options);
-				} catch (Exception ignored) {
-					continue;
-				}
-				if (options.outWidth <= 0 || options.outHeight <= 0) {
-					continue;
-				}
-				int score = scoreCoverCandidate(lower, options.outWidth, options.outHeight);
-				if (score > bestScore) {
-					bestScore = score;
-					best = name;
-				}
-			}
-		} catch (Exception e) {
-			Log.w(TAG, "Can't scan cover art", e);
-		}
-		return bestScore > 0 ? best : null;
-	}
-
-	private String findIconEntry(File jar, String preferredIconPath) {
-		String best = null;
-		int bestScore = Integer.MIN_VALUE;
-		String preferred = preferredIconPath == null ? null : preferredIconPath.toLowerCase(Locale.US);
-		try (ZipFile zip = new ZipFile(jar)) {
-			List<FileHeader> headers = zip.getFileHeaders();
-			for (FileHeader header : headers) {
-				if (header.isDirectory()) {
-					continue;
-				}
-				String name = header.getFileName();
-				String lower = name.toLowerCase(Locale.US);
-				if (!isImageFile(lower)) {
-					continue;
-				}
-				BitmapFactory.Options options = new BitmapFactory.Options();
-				options.inJustDecodeBounds = true;
-				try (InputStream stream = zip.getInputStream(header)) {
-					BitmapFactory.decodeStream(stream, null, options);
-				} catch (Exception ignored) {
-					continue;
-				}
-				if (options.outWidth <= 0 || options.outHeight <= 0) {
-					continue;
-				}
-				boolean isPreferred = preferred != null && lower.equals(preferred);
-				int score = scoreIconCandidate(lower, options.outWidth, options.outHeight, isPreferred);
-				if (score > bestScore) {
-					bestScore = score;
-					best = name;
-				}
-			}
-		} catch (Exception e) {
-			Log.w(TAG, "Can't scan icon art", e);
-		}
-		return bestScore > 0 ? best : null;
-	}
-
-	private boolean isImageFile(String lowerName) {
-		return lowerName.endsWith(".png")
-				|| lowerName.endsWith(".jpg")
-				|| lowerName.endsWith(".jpeg");
-	}
-
-	private int scoreCoverCandidate(String name, int width, int height) {
-		int area = width * height;
-		if (area < 12000 || (width <= 72 && height <= 72)) {
-			return -1000;
-		}
-		int score = area / 1024;
-		float ratio = width / (float) height;
-		if (ratio >= 1.45f && ratio <= 2.6f) {
-			score += 220;
-		} else if (ratio >= 0.55f && ratio <= 0.85f && height >= 160) {
-			score += 70;
-		} else if (ratio >= 0.9f && ratio <= 1.1f && area < 60000) {
-			score -= 80;
-		}
-		if (name.contains("title") || name.contains("splash")
-				|| name.contains("cover") || name.contains("loading")) {
-			score += 180;
-		}
-		if (name.contains("menu/background") || name.contains("background")) {
-			score += 160;
-		}
-		if (name.contains("logo")) {
-			score += 20;
-		}
-		if (name.contains("font") || name.contains("sprite") || name.contains("button")
-				|| name.contains("tile") || name.contains("level") || name.contains("digit")
-				|| name.contains("icon") || name.contains("arrow") || name.contains("cursor")
-				|| name.contains("hud") || name.contains("gui") || name.contains("soft")) {
-			score -= 260;
-		}
-		return score;
-	}
-
-	private int scoreIconCandidate(String name, int width, int height, boolean preferred) {
-		int area = width * height;
-		if (area < 576) {
-			return preferred ? -50 : -400;
-		}
-		if (width > 192 || height > 192) {
-			return -200;
-		}
-		float ratio = width / (float) height;
-		int score = Math.min(120, area / 32);
-		if (ratio >= 0.75f && ratio <= 1.33f) {
-			score += 140;
-		} else {
-			score -= 120;
-		}
-		if (preferred) {
-			score += width >= 32 && height >= 32 ? 180 : 20;
-		}
-		if (name.contains("icon")) {
-			score += 110;
-		}
-		if (name.contains("logo") || name.contains("midlet")) {
-			score += 70;
-		}
-		if (name.contains("splash") || name.contains("title") || name.contains("background")
-				|| name.contains("cover")) {
-			score -= 80;
-		}
-		if (name.contains("font") || name.contains("sprite") || name.contains("button")
-				|| name.contains("tile") || name.contains("digit") || name.contains("arrow")
-				|| name.contains("hud") || name.contains("gui") || name.contains("cursor")) {
-			score -= 220;
-		}
-		return score;
-	}
 
 	private Descriptor loadManifest(File jar) throws IOException {
 		ZipFile zip = new ZipFile(jar);

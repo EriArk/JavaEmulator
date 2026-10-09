@@ -77,7 +77,6 @@ import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import java.io.File;
-import java.io.FileOutputStream;
 import java.io.InputStream;
 import java.io.IOException;
 import java.text.SimpleDateFormat;
@@ -121,7 +120,8 @@ public class AppsListFragment extends Fragment implements AppsListAdapter.Listen
 	private AppsListAdapter adapter;
 	private Disposable searchViewDisposable;
 	private AppItem selectedItem;
-	private AppItem artworkTarget;
+	private int artworkTargetId = -1;
+	private boolean pickingIcon;
 	private int category = AppsListAdapter.CATEGORY_LIBRARY;
 	private boolean searchExpanded;
 	private boolean compactLibrary;
@@ -154,6 +154,10 @@ public class AppsListFragment extends Fragment implements AppsListAdapter.Listen
 		appUri = args.getParcelable(KEY_APP_URI);
 		args.remove(KEY_APP_URI);
 		preferences = PreferenceManager.getDefaultSharedPreferences(requireActivity());
+		if (savedInstanceState != null) {
+			artworkTargetId = savedInstanceState.getInt("artworkTargetId", -1);
+			pickingIcon = savedInstanceState.getBoolean("pickingIcon");
+		}
 		adapter = new AppsListAdapter(this);
 		adapter.setDisplayMode(preferences.getInt(PREF_LIBRARY_VIEW_MODE, AppsListAdapter.MODE_GALLERY));
 		AppListModel appListModel = new ViewModelProvider(requireActivity()).get(AppListModel.class);
@@ -187,22 +191,18 @@ public class AppsListFragment extends Fragment implements AppsListAdapter.Listen
 		});
 		binding.launcherSoftbar.setVisibility(BuildConfig.HANDHELD_MODE ? View.VISIBLE : View.GONE);
 		binding.appsRecycler.addOnLayoutChangeListener((v, l, t, r, b, ol, ot, or, ob) -> {
-			adapter.setAvailableHeight(Math.round((b - t) / getResources().getDisplayMetrics().density));
+			// notifyDataSetChanged during layout can strand RecyclerView's pending updates and focus.
+			v.post(() -> {
+				if (binding != null) adapter.setAvailableHeight(Math.round(binding.appsRecycler.getHeight()
+						/ getResources().getDisplayMetrics().density));
+			});
 			if (r - l != or - ol && binding.appsRecycler.getLayoutManager() instanceof GridLayoutManager) {
 				((GridLayoutManager) binding.appsRecycler.getLayoutManager())
 						.setSpanCount(calculateSpanCount(adapter.getDisplayMode()));
 			}
 		});
-		adapter.registerAdapterDataObserver(new RecyclerView.AdapterDataObserver() {
-			@Override
-			public void onChanged() {
-				updateEmptyState();
-				if (binding != null && BuildConfig.HANDHELD_MODE && initialGameFocus && adapter.getItemCount() > 0) {
-					initialGameFocus = false;
-					focusGame(null);
-				}
-			}
-		});
+		initialGameFocus = true;
+		adapter.registerAdapterDataObserver(libraryObserver);
 		binding.viewModeGallery.setOnClickListener(v -> setDisplayMode(AppsListAdapter.MODE_GALLERY));
 		binding.viewModeList.setOnClickListener(v -> setDisplayMode(AppsListAdapter.MODE_LIST));
 		binding.viewModeGrid.setOnClickListener(v -> setDisplayMode(AppsListAdapter.MODE_GRID));
@@ -261,7 +261,18 @@ public class AppsListFragment extends Fragment implements AppsListAdapter.Listen
 		updateClock();
 		applyDisplayMode();
 		updateDetail(adapter.getFirstItem());
+		libraryObserver.onChanged();
 	}
+
+	private final RecyclerView.AdapterDataObserver libraryObserver = new RecyclerView.AdapterDataObserver() {
+		@Override public void onChanged() {
+			updateEmptyState();
+			if (binding != null && BuildConfig.HANDHELD_MODE && initialGameFocus && adapter.getItemCount() > 0) {
+				initialGameFocus = false;
+				if (!searchExpanded) focusGame(null);
+			}
+		}
+	};
 
 	private void openLastDirectory() {
 		String path = preferences.getString(PREF_LAST_PATH, null);
@@ -478,27 +489,79 @@ public class AppsListFragment extends Fragment implements AppsListAdapter.Listen
 	}
 
 	private void onArtworkPicked(Uri uri) {
-		AppItem target = artworkTarget;
-		artworkTarget = null;
-		if (uri == null || target == null || !"ready".equals(target.getPreparationState())) {
-			return;
-		}
+		int targetId = artworkTargetId;
+		boolean icon = pickingIcon;
+		artworkTargetId = -1;
+		if (uri == null || targetId < 0) return;
+		Context context = requireContext().getApplicationContext();
 		folderExecutor.execute(() -> {
-			File cover = new File(target.getPathExt(), Config.MIDLET_COVER_FILE);
-			try (InputStream input = requireContext().getContentResolver().openInputStream(uri);
-				 FileOutputStream output = new FileOutputStream(cover)) {
+			AppItem target = appRepository.get(targetId);
+			if (target == null || !"ready".equals(target.getPreparationState())) return;
+			File directory = new File(target.getPathExt());
+			try (InputStream input = context.getContentResolver().openInputStream(uri)) {
 				if (input == null) throw new IOException("Unable to open image");
-				byte[] buffer = new byte[32 * 1024];
-				int read;
-				while ((read = input.read(buffer)) != -1) output.write(buffer, 0, read);
-				target.setCoverPathExt(Config.MIDLET_COVER_FILE);
+				GameArtwork.saveUserImage(directory, icon, input);
+				GameArtwork.applyPaths(target, directory);
 				appRepository.update(target);
-				requireActivity().runOnUiThread(() -> updateDetail(target));
 			} catch (IOException e) {
-				requireActivity().runOnUiThread(() -> Toast.makeText(requireContext(),
-						R.string.error, Toast.LENGTH_SHORT).show());
+				showArtworkError(context, e);
 			}
 		});
+	}
+
+	private void showArtworkMenu(AppItem item) {
+		GameMenuDialog dialog = new GameMenuDialog(requireContext(), item.getTitle());
+		dialog.show();
+		dialog.page("Artwork");
+		for (boolean icon : new boolean[]{true, false}) {
+			dialog.action(icon ? "Choose icon" : "Choose cover", android.R.drawable.ic_menu_gallery, () -> {
+				dialog.dismiss(); artworkTargetId = item.getId(); pickingIcon = icon;
+				artworkLauncher.launch("image/*");
+			});
+			dialog.action(icon ? "Reset icon" : "Reset cover", android.R.drawable.ic_menu_revert, () -> {
+				dialog.dismiss(); refreshArtwork(item, icon ? GameArtwork.USER_ICON : GameArtwork.USER_COVER);
+			});
+		}
+		if (new File(item.getPathExt(), Config.MIDLET_RES_FILE).isFile()) {
+			dialog.action("Refresh automatic art", android.R.drawable.ic_popup_sync, () -> {
+				dialog.page("Refresh automatic art?");
+				dialog.action("Replace legacy art, keep custom images", 0, () -> {
+					dialog.dismiss(); refreshArtwork(item, null);
+				});
+				dialog.action("Cancel", 0, dialog::dismiss);
+			});
+		}
+	}
+
+	private void refreshArtwork(AppItem target, String reset) {
+		Context context = requireContext().getApplicationContext();
+		folderExecutor.execute(() -> {
+			try {
+				File directory = new File(target.getPathExt());
+				if (GameArtwork.USER_ICON.equals(reset) && !new File(directory, GameArtwork.AUTO_MARKER).exists()
+						&& !new File(directory, GameArtwork.USER_COVER).exists()) {
+					File cover = new File(directory, "cover.png");
+					if (cover.isFile()) java.nio.file.Files.copy(cover.toPath(),
+							new File(directory, GameArtwork.USER_COVER).toPath());
+				}
+				if (new File(directory, Config.MIDLET_RES_FILE).isFile()) GameArtwork.refresh(directory);
+				if (reset != null) java.nio.file.Files.deleteIfExists(new File(directory, reset).toPath());
+				GameArtwork.applyPaths(target, directory);
+				appRepository.update(target);
+			} catch (IOException e) { showArtworkError(context, e); }
+		});
+	}
+
+	private void showArtworkError(Context context, Exception e) {
+		Log.w(TAG, "Artwork update failed", e);
+		new android.os.Handler(android.os.Looper.getMainLooper()).post(() ->
+				Toast.makeText(context, "Could not update artwork", Toast.LENGTH_SHORT).show());
+	}
+
+	@Override public void onSaveInstanceState(@NonNull Bundle state) {
+		super.onSaveInstanceState(state);
+		state.putInt("artworkTargetId", artworkTargetId);
+		state.putBoolean("pickingIcon", pickingIcon);
 	}
 
 	private void alertRename(AppItem item) {
@@ -643,8 +706,7 @@ public class AppsListFragment extends Fragment implements AppsListAdapter.Listen
 			} else if (itemId == R.id.action_context_settings) {
 				startApp(appItem, true);
 			} else if (itemId == R.id.action_context_artwork) {
-				artworkTarget = appItem;
-				artworkLauncher.launch("image/*");
+				showArtworkMenu(appItem);
 			} else if (itemId == R.id.action_context_reinstall) {
 				InstallerDialog.newInstance(appItem.getId()).show(getParentFragmentManager(), "installer");
 			} else if (itemId == R.id.action_context_delete) {
@@ -794,7 +856,6 @@ public class AppsListFragment extends Fragment implements AppsListAdapter.Listen
 			ru.playsoftware.j2meloader.catalog.AdditionalGames.install(requireContext(), getParentFragmentManager(), appUri, true, true);
 			appUri = null;
 		}
-		updateDetail(adapter.getFirstItem());
 		updateEmptyState();
 	}
 
@@ -889,6 +950,8 @@ public class AppsListFragment extends Fragment implements AppsListAdapter.Listen
 
 	@Override
 	public void onDestroyView() {
+		adapter.unregisterAdapterDataObserver(libraryObserver);
+		pendingGameFocus = -1;
 		super.onDestroyView();
 		binding = null;
 	}

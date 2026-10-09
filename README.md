@@ -42,6 +42,9 @@ now offers a trial instead. See [settings trials](docs/SETTINGS_TRIALS.md).
 Short landscape screens now use a [compact library](docs/COMPACT_LIBRARY.md):
 one header, larger game area, an on-demand library menu and compact mapper pages.
 Handheld hides Android system bars; Gallery, List and Grid remain available.
+Automatic artwork now favors declared icons and identifiable title art over
+arbitrary textures. **Game actions > Artwork** offers custom icons/covers and
+an explicit refresh for older libraries. See [artwork behavior](docs/ARTWORK.md).
 
 The screenshots and beta.2 instructions below
 describe the published release, not every unreleased change.

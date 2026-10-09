@@ -211,7 +211,7 @@ public final class LibraryImporter {
 			item = new AppItem(id, descriptor.getName(), descriptor.getVendor(), descriptor.getVersion());
 			item.setSourceHash(SourceIdentity.sha256(jar));
 			}
-			for (String art : new String[]{"icon.png", "cover.png"}) {
+			for (String art : ru.playsoftware.j2meloader.applist.GameArtwork.FILES) {
 				DocumentFile file = find(entry.game, art);
 				if (file != null) copyFile(file, new File(app, art));
 			}
@@ -225,8 +225,7 @@ public final class LibraryImporter {
 				item.setPlayCount(entry.backupInfo.get("playCount").getAsInt());
 				item.setLastPlayedAt(entry.backupInfo.get("lastPlayedAt").getAsLong());
 			}
-			if (new File(app, "icon.png").isFile()) item.setImagePathExt("icon.png");
-			if (new File(app, "cover.png").isFile()) item.setCoverPathExt("cover.png");
+			ru.playsoftware.j2meloader.applist.GameArtwork.applyPaths(item, app);
 			// Recovery and startup indexing share this lock. The marker is durable before any moves.
 			synchronized (LibraryImporter.class) {
 				checkCancelled();

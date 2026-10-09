@@ -75,6 +75,26 @@ public class LibraryImporterTest {
 		return importer.scan(DocumentFile.fromFile(source)).entries.get(0);
 	}
 
+	@Test public void customArtworkSurvivesBackupAndImport() throws Exception {
+		File game = new File(source, "converted/old-folder");
+		for (String name : new String[]{"user-icon.png", "user-cover.png", "artwork-v1"})
+			Files.write(new File(game, name).toPath(), new byte[]{1, 2, 3});
+		AppItem sourceItem = new AppItem("old-folder", "Test", "Vendor", "1");
+		java.io.ByteArrayOutputStream backup = new java.io.ByteArrayOutputStream();
+		LibraryArchive archive = new LibraryArchive(cancel);
+		assertEquals(1, archive.write(source, java.util.Collections.singletonList(sourceItem), backup));
+		File unpacked = archive.unpack(new java.io.ByteArrayInputStream(backup.toByteArray()), context.getCacheDir());
+		for (String name : new String[]{"user-icon.png", "user-cover.png", "artwork-v1"})
+			assertArrayEquals(new byte[]{1, 2, 3}, Files.readAllBytes(new File(unpacked, "converted/old-folder/" + name).toPath()));
+		LibraryImporter.Entry entry = importer.scan(DocumentFile.fromFile(unpacked)).entries.get(0);
+		assertTrue(importer.importEntry(entry).startsWith("Imported"));
+		AppItem item = catalog.bySource(entry.sourceKey);
+		assertTrue(item.getImagePath().endsWith("/user-icon.png"));
+		assertTrue(item.getCoverPath().endsWith("/user-cover.png"));
+		assertArrayEquals(new byte[]{1, 2, 3}, Files.readAllBytes(new File(destination,
+				"converted/" + item.getPath() + "/user-cover.png").toPath()));
+	}
+
 	@Test public void copiesSavesAndSettingsAndRecompilesWithoutSourceWrites() throws Exception {
 		LibraryImporter.Entry entry = entry();
 		String original = SourceIdentity.sha256(new File(source, "configs/old-folder/config.json"));
