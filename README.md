@@ -51,6 +51,10 @@ scroll. Installation errors stay visible until closed; deletion confirmations
 start on Cancel when using a controller.
 ZIP collections selected through Android's file picker now reach archive selection
 instead of being mistaken for a single JAR.
+Continuing past a mismatched JAD/JAR description now keeps the selected game and
+its original import identity, so reusing the same source URI finds the existing
+entry. A provider changing a file's URI can still create a duplicate; see
+[#20](https://github.com/EriArk/JavaEmulator/issues/20).
 Automatic artwork now favors declared icons and identifiable title art over
 arbitrary textures. **Game actions > Artwork** offers custom icons/covers and
 an explicit refresh for older libraries. See [artwork behavior](docs/ARTWORK.md).

@@ -178,7 +178,7 @@ public class InstallerDialog extends DialogFragment {
 		Bundle args = requireArguments();
 		Uri uri = args.getParcelable(ARG_URI);
 		if (uri != null) {
-			installApp(null, uri);
+			installApp(uri);
 			return;
 		}
 		int id = args.getInt(ARG_ID);
@@ -203,8 +203,8 @@ public class InstallerDialog extends DialogFragment {
 		}
 	}
 
-	private void installApp(String path, Uri uri) {
-		installer = new AppInstaller(path, uri, requireActivity().getApplication(), appRepository);
+	private void installApp(Uri uri) {
+		installer = new AppInstaller(uri, requireActivity().getApplication(), appRepository);
 		btnClose.setOnClickListener(v -> {
 			installer.deleteTemp();
 			installer.clearCache();
@@ -236,6 +236,8 @@ public class InstallerDialog extends DialogFragment {
 		if (uri == null) {
 			return;
 		}
+		hideButtons();
+		showProgress();
 		Disposable disposable = installer.updateInfo(uri)
 				.subscribeOn(Schedulers.computation())
 				.observeOn(AndroidSchedulers.mainThread())
@@ -381,7 +383,15 @@ public class InstallerDialog extends DialogFragment {
 			case AppInstaller.STATUS_UNMATCHED:
 				SpannableStringBuilder info = installer.getManifest().getInfo(requireActivity());
 				info.append(getString(R.string.install_jar_non_matched_jad));
-				alertConfirm(info, v -> installApp(installer.getJar(), null));
+				alertConfirm(info, v -> {
+					hideButtons();
+					showProgress();
+					Disposable disposable = installer.useJarManifest()
+							.subscribeOn(Schedulers.computation())
+							.observeOn(AndroidSchedulers.mainThread())
+							.subscribe(this::onProgress, this::onError);
+					compositeDisposable.add(disposable);
+				});
 				return;
 			case AppInstaller.STATUS_NEED_JAD:
 				alertSelectJar(v -> openFileLauncher.launch(null));

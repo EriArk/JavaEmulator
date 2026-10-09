@@ -88,10 +88,9 @@ public class AppInstaller {
 	private List<String> archiveEntries;
 	private String selectedArchiveEntry;
 
-	AppInstaller(String path, Uri uri, Application context, AppRepository appRepository) {
+	AppInstaller(Uri uri, Application context, AppRepository appRepository) {
 		id = -1;
 		this.appRepository = appRepository;
-		if (path != null) srcFile = new File(path);
 		this.uri = uri;
 		this.context = context;
 		this.cacheDir = new File(context.getCacheDir(), "installer");
@@ -190,6 +189,17 @@ public class AppInstaller {
 			}
 			int result = checkDescriptor();
 			emitter.onSuccess(result);
+		});
+	}
+
+	Single<Integer> useJarManifest() {
+		return Single.create(emitter -> {
+			if (srcJar == null || manifest == null) {
+				throw new IOException("No JAR selected");
+			}
+			// Keep the original source identity and staged JAR; only discard the mismatched JAD.
+			newDesc = manifest;
+			emitter.onSuccess(checkDescriptor());
 		});
 	}
 

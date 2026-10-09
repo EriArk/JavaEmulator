@@ -33,6 +33,44 @@ Do not uninstall or clear app data to work around a signing conflict on someone'
 device. Test packages have separate `.debug` application IDs. Instrumentation
 uses temporary test libraries; it can launch activities and write screenshots.
 
+## Mismatched JAD/JAR fallback: 2026-10-10
+
+The old installer was reproduced failing with a null-URI exception after accepting
+a mismatched local pair. The same dialog test passes after the fix: acceptance
+changes the descriptor in the existing installer, retaining the selected JAR
+and original JAD source identity instead of creating a path-only installer.
+
+Both public-source variants and instrumentation APKs built. Each variant passed
+12 focused installer cases (`InstallerJadTest`, `InstallerDialogTest`,
+`InstallerSourceTest`); the JVM suites were rerun and passed 14 tests each.
+The complete public-source Android suite was not rerun for this patch.
+
+Four new `InstallerJadTest` cases use an isolated library and the MIT Sudoku JAR:
+local mismatch and reinstall; content-URI mismatch, cancelled selection, cancelled
+confirmation and retry; matching metadata with a retained JAD-only property;
+and a missing selected file followed by a successful retry. They drive the real
+dialog/installer and conversion. Picker callbacks are delivered by the test,
+not by automating DocumentsUI; content URIs come from Android FileProvider.
+Reinstall assertions check the same database ID/path, one library entry, original
+source URI/key/hash, intact source files, and unchanged RMS/config marker bytes.
+This does not claim to validate every game's save format or remote JAD downloads.
+
+Both exact combined private APKs reported OK (128 selected cases), including
+27 optional-engine checks, at 480x320 dp Handheld and 320x640 dp Phone. Variant
+assumptions still apply. These are emulator results, not physical acceptance.
+
+Manual Phone DocumentsUI verification selected a generated mismatched JAD and
+the Sudoku JAR from Downloads, accepted the warning and reached successful
+installation. Reimporting the same document URI reached Reinstall, retained
+the database ID/path and row count, and left all 40 existing RMS/config file
+hashes unchanged. Screenshots record Choose JAR, mismatch, success and Reinstall.
+
+The first two picker selections returned different Downloads document IDs
+(`raw:` then `msf:`), creating separate entries despite identical JAR bytes.
+This distinct identity-alias problem is tracked in
+[#20](https://github.com/EriArk/JavaEmulator/issues/20), not silently merged by
+this patch. The third selection reused the `msf:` URI and correctly reinstalled.
+
 ## Compact installer and confirmations: 2026-10-10
 
 Both public-source variants and test APKs built independently and reported
@@ -44,8 +82,8 @@ preservation, persistent invalid-archive errors, Back being ignored while busy,
 an explicit Choose JAR action, bounded geometry at 1.5x font, and exiting a
 missing-game preparation error with B. The busy/JAR-prompt case injects UI
 states; it does not certify the full JAD document-provider workflow.
-The pre-existing unmatched-JAD fallback is tracked separately in
-[#19](https://github.com/EriArk/JavaEmulator/issues/19).
+The unmatched-JAD fallback found in that batch is covered by the follow-up above
+([#19](https://github.com/EriArk/JavaEmulator/issues/19)).
 
 Three `InstallerSourceTest` cases exercise opaque content URIs via a wrapped
 provider: JAR/ZIP distinction, 7z/KJX/JAD signature preservation, short/empty
