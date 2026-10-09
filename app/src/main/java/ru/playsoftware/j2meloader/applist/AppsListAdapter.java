@@ -24,7 +24,6 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Filter;
-import android.widget.Filterable;
 import android.widget.FrameLayout;
 import android.widget.LinearLayout;
 
@@ -38,7 +37,7 @@ import java.util.List;
 import ru.playsoftware.j2meloader.R;
 import ru.playsoftware.j2meloader.databinding.ListRowJarBinding;
 
-public class AppsListAdapter extends RecyclerView.Adapter<AppsListAdapter.ViewHolder> implements Filterable {
+public class AppsListAdapter extends RecyclerView.Adapter<AppsListAdapter.ViewHolder> {
 	public static final int MODE_GALLERY = 0;
 	public static final int MODE_LIST = 1;
 	public static final int MODE_GRID = 2;
@@ -56,7 +55,7 @@ public class AppsListAdapter extends RecyclerView.Adapter<AppsListAdapter.ViewHo
 	private List<AppItem> list = new ArrayList<>();
 	private List<AppItem> filteredList = new ArrayList<>();
 	private final AppFilter appFilter = new AppFilter();
-	private CharSequence filterConstraint;
+	private String filterConstraint = "";
 	private int displayMode = MODE_GALLERY;
 	private int category = CATEGORY_LIBRARY;
 	private int availableHeight = Integer.MAX_VALUE;
@@ -138,9 +137,10 @@ public class AppsListAdapter extends RecyclerView.Adapter<AppsListAdapter.ViewHo
 		appFilter.filter(filterConstraint);
 	}
 
-	@Override
-	public Filter getFilter() {
-		return appFilter;
+	public void setSearchQuery(CharSequence query) {
+		// Store the requested query before asynchronous database/filter callbacks can arrive.
+		filterConstraint = query == null ? "" : query.toString();
+		appFilter.filter(filterConstraint);
 	}
 
 	static class ViewHolder extends RecyclerView.ViewHolder {
@@ -295,7 +295,7 @@ public class AppsListAdapter extends RecyclerView.Adapter<AppsListAdapter.ViewHo
 
 		@Override
 		protected void publishResults(CharSequence constraint, FilterResults results) {
-			filterConstraint = constraint;
+			if (!TextUtils.equals(filterConstraint, constraint)) return;
 			if (results.values != null) {
 				//noinspection unchecked
 				filteredList = (List<AppItem>) results.values;

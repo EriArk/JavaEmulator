@@ -24,8 +24,8 @@ that every title screen will be identified.
 
 Open a game's actions (X / long press), then **Artwork**:
 
-- **Choose icon / Choose cover** opens Android's image picker.
-- **Reset icon / Reset cover** removes that custom image and uses automatic art.
+- **Icon / Cover > Choose image** opens Android's image picker.
+- **Icon / Cover > Use automatic** removes that custom image and uses automatic art.
 - **Refresh automatic art** rescans the installed Java resources without
   reinstalling the game. Its confirmation replaces old legacy art but keeps
   images chosen through the new menu.

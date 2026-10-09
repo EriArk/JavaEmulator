@@ -57,6 +57,7 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import androidx.activity.result.ActivityResultLauncher;
+import androidx.activity.OnBackPressedCallback;
 import androidx.activity.result.contract.ActivityResultContracts;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -124,6 +125,8 @@ public class AppsListFragment extends Fragment implements AppsListAdapter.Listen
 	private boolean pickingIcon;
 	private int category = AppsListAdapter.CATEGORY_LIBRARY;
 	private boolean searchExpanded;
+	private String restoredSearch = "";
+	private OnBackPressedCallback searchBack;
 	private boolean compactLibrary;
 	private boolean initialGameFocus = true;
 	private int pendingGameFocus = -1;
@@ -157,6 +160,9 @@ public class AppsListFragment extends Fragment implements AppsListAdapter.Listen
 		if (savedInstanceState != null) {
 			artworkTargetId = savedInstanceState.getInt("artworkTargetId", -1);
 			pickingIcon = savedInstanceState.getBoolean("pickingIcon");
+			searchExpanded = savedInstanceState.getBoolean("searchExpanded");
+			restoredSearch = savedInstanceState.getString("searchQuery", "");
+			category = savedInstanceState.getInt("libraryCategory", AppsListAdapter.CATEGORY_LIBRARY);
 		}
 		adapter = new AppsListAdapter(this);
 		adapter.setDisplayMode(preferences.getInt(PREF_LIBRARY_VIEW_MODE, AppsListAdapter.MODE_GALLERY));
@@ -221,7 +227,8 @@ public class AppsListFragment extends Fragment implements AppsListAdapter.Listen
 
 			@Override
 			public void onTextChanged(CharSequence s, int start, int before, int count) {
-				adapter.getFilter().filter(s);
+				restoredSearch = s.toString();
+				adapter.setSearchQuery(s);
 			}
 
 			@Override
@@ -232,16 +239,24 @@ public class AppsListFragment extends Fragment implements AppsListAdapter.Listen
 		binding.libraryCategory.setOnClickListener(v -> showCategoryMenu());
 		binding.libraryMenu.setOnClickListener(v -> showLibraryMenu());
 		binding.librarySearchToggle.setOnClickListener(v -> {
-			searchExpanded = !searchExpanded;
-			if (!searchExpanded) {
-				binding.librarySearch.setText("");
-				android.view.inputmethod.InputMethodManager ime = (android.view.inputmethod.InputMethodManager)
-						requireContext().getSystemService(Context.INPUT_METHOD_SERVICE);
-				ime.hideSoftInputFromWindow(binding.librarySearch.getWindowToken(), 0);
-			}
+			if (searchExpanded) { closeSearch(); return; }
+			searchExpanded = true;
+			pendingGameFocus = -1;
 			updateResponsiveToolbar();
-			if (searchExpanded) binding.librarySearch.requestFocus();
+			binding.librarySearch.requestFocus();
+			binding.librarySearch.post(() -> {
+				if (binding != null && searchExpanded) {
+					android.view.inputmethod.InputMethodManager ime = (android.view.inputmethod.InputMethodManager)
+							requireContext().getSystemService(Context.INPUT_METHOD_SERVICE);
+					ime.showSoftInput(binding.librarySearch, android.view.inputmethod.InputMethodManager.SHOW_IMPLICIT);
+				}
+			});
 		});
+		binding.librarySearchClose.setOnClickListener(v -> closeSearch());
+		searchBack = new OnBackPressedCallback(false) {
+			@Override public void handleOnBackPressed() { closeSearch(); }
+		};
+		requireActivity().getOnBackPressedDispatcher().addCallback(getViewLifecycleOwner(), searchBack);
 		binding.railAddGame.setOnClickListener(v -> openLastDirectory());
 		binding.railFolders.setOnClickListener(v -> openFolderLauncher.launch(null));
 		binding.railSettings.setOnClickListener(v ->
@@ -259,6 +274,8 @@ public class AppsListFragment extends Fragment implements AppsListAdapter.Listen
 		binding.detailFavorite.setOnClickListener(v -> toggleSelectedFavorite());
 		binding.floatingActionButton.setOnClickListener(v -> openLastDirectory());
 		updateClock();
+		setCategory(category);
+		binding.librarySearch.setText(restoredSearch);
 		applyDisplayMode();
 		updateDetail(adapter.getFirstItem());
 		libraryObserver.onChanged();
@@ -273,6 +290,17 @@ public class AppsListFragment extends Fragment implements AppsListAdapter.Listen
 			}
 		}
 	};
+
+	private void closeSearch() {
+		searchExpanded = false;
+		binding.librarySearch.setText("");
+		binding.librarySearch.clearFocus();
+		android.view.inputmethod.InputMethodManager ime = (android.view.inputmethod.InputMethodManager)
+				 requireContext().getSystemService(Context.INPUT_METHOD_SERVICE);
+		ime.hideSoftInputFromWindow(binding.librarySearch.getWindowToken(), 0);
+		updateResponsiveToolbar();
+		if (BuildConfig.HANDHELD_MODE) focusGame(selectedItem == null ? null : selectedItem.getPath());
+	}
 
 	private void openLastDirectory() {
 		String path = preferences.getString(PREF_LAST_PATH, null);
@@ -328,19 +356,27 @@ public class AppsListFragment extends Fragment implements AppsListAdapter.Listen
 
 	private void showLibraryMenu() {
 		GameMenuDialog dialog = libraryDialog("Library menu");
+		populateLibraryMenu(dialog);
+	}
+
+	private void populateLibraryMenu(GameMenuDialog dialog) {
+		dialog.page("Library menu");
 		dialog.action("View: " + new String[]{"Gallery", "List", "Grid"}[adapter.getDisplayMode()],
 				android.R.drawable.ic_menu_view, () -> {
 			dialog.page("View");
+			dialog.setBackAction(() -> populateLibraryMenu(dialog));
 			String[] modes = {"Gallery", "List", "Grid"};
 			for (int i = 0; i < modes.length; i++) {
 				int target = i;
 				dialog.action(modes[i], 0, () -> {
-					setDisplayMode(target); dialog.dismiss(); focusGame(selectedItem == null ? null : selectedItem.getPath());
+					setDisplayMode(target); dialog.dismiss();
+					if (BuildConfig.HANDHELD_MODE) focusGame(selectedItem == null ? null : selectedItem.getPath());
 				});
 			}
 		});
 		dialog.action("Sort", R.drawable.ic_setting_sort, () -> {
 			dialog.page("Sort");
+			dialog.setBackAction(() -> populateLibraryMenu(dialog));
 			dialog.choice("Sort by", getResources().getStringArray(R.array.pref_app_sort_entries),
 					appRepository.getSort() & Integer.MAX_VALUE, index -> preferences.edit()
 							.putInt(PREF_APP_SORT, index | (appRepository.getSort() & Integer.MIN_VALUE)).apply());
@@ -395,10 +431,11 @@ public class AppsListFragment extends Fragment implements AppsListAdapter.Listen
 
 	private void updateResponsiveToolbar() {
 		boolean wide = getResources().getConfiguration().screenWidthDp >= 560;
-		boolean compact = getResources().getConfiguration().orientation == Configuration.ORIENTATION_LANDSCAPE
+		boolean shortLandscape = getResources().getConfiguration().orientation == Configuration.ORIENTATION_LANDSCAPE
 				&& getResources().getConfiguration().screenHeightDp < 480;
+		boolean compact = shortLandscape || getResources().getConfiguration().screenWidthDp < 600;
 		compactLibrary = compact;
-		adapter.setCompact(compact);
+		adapter.setCompact(shortLandscape);
 		binding.libraryCategoryRow.setVisibility(compact ? View.GONE : View.VISIBLE);
 		binding.libraryCount.setVisibility(compact ? View.GONE : View.VISIBLE);
 		binding.libraryCategory.setVisibility(compact ? View.VISIBLE : View.GONE);
@@ -409,6 +446,8 @@ public class AppsListFragment extends Fragment implements AppsListAdapter.Listen
 		binding.railSettings.setVisibility(compact ? View.GONE : View.VISIBLE);
 		binding.libraryModeRow.setVisibility(compact ? View.GONE : View.VISIBLE);
 		binding.librarySort.setVisibility(compact ? View.GONE : View.VISIBLE);
+		binding.librarySearchClose.setVisibility(compact ? View.VISIBLE : View.GONE);
+		if (searchBack != null) searchBack.setEnabled(compact && (searchExpanded || binding.librarySearch.length() > 0));
 		binding.librarySearchToggle.setSelected(searchExpanded || binding.librarySearch.length() > 0);
 		binding.librarySearchRow.setVisibility(!compact || searchExpanded
 				|| binding.librarySearch.length() > 0 ? View.VISIBLE : View.GONE);
@@ -430,8 +469,11 @@ public class AppsListFragment extends Fragment implements AppsListAdapter.Listen
 		binding.launcherTitle.setGravity(android.view.Gravity.CENTER_VERTICAL);
 		binding.launcherTitle.setTypeface(android.graphics.Typeface.DEFAULT, android.graphics.Typeface.BOLD);
 		binding.launcherTitle.setTextSize(18);
+		TextViewCompat.setAutoSizeTextTypeUniformWithConfiguration(binding.launcherTitle, 14, 18, 1,
+				android.util.TypedValue.COMPLEX_UNIT_SP);
 		binding.launcherTitle.setText("AbyssME");
 		binding.launcherTitle.setSingleLine(true);
+		binding.launcherTitle.setHorizontallyScrolling(false);
 		binding.launcherTitle.setEllipsize(android.text.TextUtils.TruncateAt.END);
 		binding.railRecent.setText("Recent");
 		binding.railFavorites.setText("Favorites");
@@ -512,19 +554,28 @@ public class AppsListFragment extends Fragment implements AppsListAdapter.Listen
 	private void showArtworkMenu(AppItem item) {
 		GameMenuDialog dialog = new GameMenuDialog(requireContext(), item.getTitle());
 		dialog.show();
+		populateArtworkMenu(dialog, item);
+	}
+
+	private void populateArtworkMenu(GameMenuDialog dialog, AppItem item) {
 		dialog.page("Artwork");
 		for (boolean icon : new boolean[]{true, false}) {
-			dialog.action(icon ? "Choose icon" : "Choose cover", android.R.drawable.ic_menu_gallery, () -> {
-				dialog.dismiss(); artworkTargetId = item.getId(); pickingIcon = icon;
-				artworkLauncher.launch("image/*");
-			});
-			dialog.action(icon ? "Reset icon" : "Reset cover", android.R.drawable.ic_menu_revert, () -> {
-				dialog.dismiss(); refreshArtwork(item, icon ? GameArtwork.USER_ICON : GameArtwork.USER_COVER);
+			dialog.action(icon ? "Icon" : "Cover", android.R.drawable.ic_menu_gallery, () -> {
+				dialog.page(icon ? "Icon" : "Cover");
+				dialog.setBackAction(() -> populateArtworkMenu(dialog, item));
+				dialog.action("Choose image", android.R.drawable.ic_menu_gallery, () -> {
+					dialog.dismiss(); artworkTargetId = item.getId(); pickingIcon = icon;
+					artworkLauncher.launch("image/*");
+				});
+				dialog.action("Use automatic", android.R.drawable.ic_menu_revert, () -> {
+					dialog.dismiss(); refreshArtwork(item, icon ? GameArtwork.USER_ICON : GameArtwork.USER_COVER);
+				});
 			});
 		}
 		if (new File(item.getPathExt(), Config.MIDLET_RES_FILE).isFile()) {
 			dialog.action("Refresh automatic art", android.R.drawable.ic_popup_sync, () -> {
 				dialog.page("Refresh automatic art?");
+				dialog.setBackAction(() -> populateArtworkMenu(dialog, item));
 				dialog.action("Replace legacy art, keep custom images", 0, () -> {
 					dialog.dismiss(); refreshArtwork(item, null);
 				});
@@ -562,6 +613,9 @@ public class AppsListFragment extends Fragment implements AppsListAdapter.Listen
 		super.onSaveInstanceState(state);
 		state.putInt("artworkTargetId", artworkTargetId);
 		state.putBoolean("pickingIcon", pickingIcon);
+		state.putBoolean("searchExpanded", searchExpanded);
+		state.putString("searchQuery", binding == null ? restoredSearch : binding.librarySearch.getText().toString());
+		state.putInt("libraryCategory", category);
 	}
 
 	private void alertRename(AppItem item) {
@@ -657,9 +711,7 @@ public class AppsListFragment extends Fragment implements AppsListAdapter.Listen
 			return true;
 		}
 		if (keyCode == KeyEvent.KEYCODE_BUTTON_B && compactLibrary && binding.librarySearchRow.getVisibility() == View.VISIBLE) {
-			if (!searchExpanded) searchExpanded = true;
-			binding.librarySearchToggle.performClick();
-			focusGame(selectedItem == null ? null : selectedItem.getPath());
+			closeSearch();
 			return true;
 		}
 		if (keyCode == KeyEvent.KEYCODE_BUTTON_X && selectedItem != null) {
@@ -795,7 +847,7 @@ public class AppsListFragment extends Fragment implements AppsListAdapter.Listen
 				.map(String::toLowerCase)
 				.distinctUntilChanged()
 				.observeOn(AndroidSchedulers.mainThread())
-				.subscribe(charSequence -> adapter.getFilter().filter(charSequence));
+				.subscribe(adapter::setSearchQuery);
 	}
 
 	@Override

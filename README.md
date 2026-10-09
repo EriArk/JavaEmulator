@@ -39,8 +39,9 @@ Phone resolution and the full compatibility editor are under **Advanced**.
 The old expert editor still saves ordinary edits directly; its **Fix game** action
 now offers a trial instead. See [settings trials](docs/SETTINGS_TRIALS.md).
 
-Short landscape screens now use a [compact library](docs/COMPACT_LIBRARY.md):
-one header, larger game area, an on-demand library menu and compact mapper pages.
+Short landscape screens and Phone portrait now use a [compact library](docs/COMPACT_LIBRARY.md):
+one header, larger game area and an on-demand library menu. Menus keep Close/Back
+visible while their contents scroll; short landscape also uses compact mapper pages.
 Handheld hides Android system bars; Gallery, List and Grid remain available.
 Automatic artwork now favors declared icons and identifiable title art over
 arbitrary textures. **Game actions > Artwork** offers custom icons/covers and

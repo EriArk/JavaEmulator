@@ -39,7 +39,6 @@ public final class GameSettingsPages {
         menu.action("Controls", R.drawable.ic_action_keyboard, this::controls);
         if (javaGame) menu.action("Advanced", R.drawable.ic_baseline_tune_24, this::advanced);
         trialAction();
-        menu.action("Close", android.R.drawable.ic_menu_close_clear_cancel, menu::dismiss);
     }
 
     public void display() {
@@ -100,7 +99,6 @@ public final class GameSettingsPages {
 
     private void footer() {
         trialAction();
-        menu.action("Back", android.R.drawable.ic_media_previous, this::home);
         menu.setBackAction(this::home);
     }
     public ProfileModel draft() { return draft; }

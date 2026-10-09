@@ -1,8 +1,10 @@
-# Compact handheld interface
+# Compact library and menus
 
 The short-landscape library uses one header and a game-focused body, not a scaled
-version of the full toolbar. It activates below 480 dp height in landscape.
-Portrait Phone browsing and the large-screen detail pane keep their existing layout.
+version of the full toolbar. It activates below 480 dp height in landscape and
+below 600 dp width in either orientation. Phone portrait now uses the same single
+48 dp header instead of four persistent rows. Portrait keeps its larger list
+icons; the large-screen detail pane is unchanged.
 
 ## Interaction
 
@@ -13,12 +15,29 @@ Portrait Phone browsing and the large-screen detail pane keep their existing lay
 - L/R still changes views; A launches, X opens game actions, Y toggles a favorite.
 - Handheld initially focuses the first game after the list is laid out. Later
   size/data updates do not pull focus away from the header or search.
-- Search expands only when requested; B closes it and clears the query.
+- Search expands only when requested. The close icon, Back or B clears the query
+  and returns the space to the library. Search and collection survive activity
+  recreation; asynchronous library loading retains the requested filter.
 - Handheld hides Android system bars. An edge swipe can reveal them temporarily.
-- Short-screen game actions use the same dark menu as the rest of the app.
+- Compact-screen game actions use the same dark menu as the rest of the app.
 - List uses compact rows; Grid keeps large icons and Gallery keeps covers.
   Artwork height responds to the actual available area, including system insets.
   See [automatic artwork and custom images](ARTWORK.md).
+
+## Menus
+
+Phone portrait menus appear at the bottom; landscape and Handheld menus stay
+centered. A fixed header holds Close or Back while the actions below scroll.
+The Phone library keeps an open menu during rotation and updates its placement.
+Touch targets remain at least 48 dp tall, with wrapping action labels and dynamic
+choice/toggle heights for larger fonts. Display and Controls use the header's
+Back arrow rather than a duplicate full-width row. Draft/try behavior is unchanged.
+The first action receives controller focus after layout/window focus, not the
+header's Close button; subsequent navigation is left alone.
+
+Regression tests cover search/collection recreation, touch and controller menu
+navigation, bounded menu height, large-font action labels and a non-scrolling
+header. Emulator checks are not physical-device acceptance.
 
 ## Mapper
 

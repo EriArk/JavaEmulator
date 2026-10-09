@@ -165,6 +165,17 @@
                 android:textColorHint="@color/text_secondary"
                 android:textSize="14sp" />
             <ImageButton
+                android:id="@+id/library_search_close"
+                android:layout_width="48dp"
+                android:layout_height="48dp"
+                android:background="@drawable/bg_library_tab"
+                android:src="@android:drawable/ic_menu_close_clear_cancel"
+                android:tint="@color/text_primary"
+                android:padding="12dp"
+                android:contentDescription="Close search"
+                android:tooltipText="Close search"
+                android:visibility="gone" />
+            <ImageButton
                 android:id="@+id/library_sort"
                 android:layout_width="48dp"
                 android:layout_height="48dp"
