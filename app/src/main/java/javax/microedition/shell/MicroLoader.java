@@ -103,6 +103,8 @@ public class MicroLoader {
 		if (params == null) {
 			return false;
 		}
+		try { ru.playsoftware.j2meloader.config.SettingsTrial.claim(params); }
+		catch (IOException e) { Log.w(TAG, "Discarding invalid settings trial", e); }
 		detectedScreenWidth = params.detectedScreenWidth > 0 ? params.detectedScreenWidth : params.screenWidth;
 		detectedScreenHeight = params.detectedScreenHeight > 0 ? params.detectedScreenHeight : params.screenHeight;
 		Display.initDisplay();
@@ -436,6 +438,20 @@ public class MicroLoader {
 	}
 
 	ProfileModel getTouchSettings() { return params; }
+
+	void previewSettings(ProfileModel draft) {
+		ProfilesManager.beginPreview(params);
+		ProfilesManager.copyInto(draft, params);
+		applyPreviewSettings();
+	}
+
+	void applyPreviewSettings() {
+		Displayable.setVirtualSize(params.screenWidth, params.screenHeight);
+		Canvas.setScale(params.screenGravity, params.screenScaleType, params.screenScaleRatio);
+		Canvas.setFilterBitmap(params.screenFilter);
+		Canvas.setScreenRotation(params.screenRotation);
+		KeyMapper.setKeyMapping(params);
+	}
 
 	boolean saveTouchSettings() { return ProfilesManager.saveConfig(params); }
 

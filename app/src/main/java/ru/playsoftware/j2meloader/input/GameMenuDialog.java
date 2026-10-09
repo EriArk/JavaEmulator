@@ -19,7 +19,8 @@ import ru.playsoftware.j2meloader.R;
 /** A single controller- and touch-accessible entry point for in-game options. */
 public final class GameMenuDialog extends Dialog {
     private LinearLayout content;
-    private Button defaultAction;
+    private View defaultAction;
+    private Runnable backAction;
     private final String game;
     public GameMenuDialog(Context context, String game) {
         super(context); this.game = game;
@@ -47,7 +48,9 @@ public final class GameMenuDialog extends Dialog {
                 WindowManager.LayoutParams.WRAP_CONTENT);
         setOnKeyListener((d,key,event) -> {
             if (key == KeyEvent.KEYCODE_BUTTON_B || key == KeyEvent.KEYCODE_BACK) {
-                if (event.getAction() == KeyEvent.ACTION_UP) dismiss();
+                if (event.getAction() == KeyEvent.ACTION_UP) {
+                    if (backAction != null) backAction.run(); else dismiss();
+                }
                 return true;
             }
             if (key == KeyEvent.KEYCODE_BUTTON_A) {
@@ -64,6 +67,7 @@ public final class GameMenuDialog extends Dialog {
     public void page(String title) {
         content.removeAllViews();
         defaultAction = null;
+        backAction = null;
         TextView heading = new TextView(getContext());
         heading.setText(title); heading.setTextColor(0xffffc15a); heading.setTextSize(21);
         content.addView(heading);
@@ -72,6 +76,7 @@ public final class GameMenuDialog extends Dialog {
         subtitle.setSingleLine(true); subtitle.setEllipsize(android.text.TextUtils.TruncateAt.END);
         subtitle.setPadding(0,dp(4),0,dp(14)); content.addView(subtitle);
     }
+    public void setBackAction(Runnable action) { backAction = action; }
     public Button action(String label, int icon, Runnable run) {
         Button button = new Button(getContext());
         button.setText(label); button.setTextSize(15); button.setAllCaps(false);
@@ -102,6 +107,7 @@ public final class GameMenuDialog extends Dialog {
         row.addView(name,new LinearLayout.LayoutParams(0,dp(52),1));
         name.setGravity(Gravity.CENTER_VERTICAL);
         android.widget.Spinner spinner = new android.widget.Spinner(getContext());
+        spinner.setForeground(getContext().getDrawable(R.drawable.bg_settings_focus));
         spinner.setBackgroundTintList(android.content.res.ColorStateList.valueOf(0xffffc15a));
         spinner.setContentDescription(label);
         android.widget.ArrayAdapter<String> adapter = new android.widget.ArrayAdapter<String>(
@@ -126,9 +132,11 @@ public final class GameMenuDialog extends Dialog {
         });
         row.addView(spinner,new LinearLayout.LayoutParams(0,dp(48),1.3f));
         content.addView(row,new LinearLayout.LayoutParams(-1,dp(58)));
+        if (defaultAction == null) { defaultAction = spinner; spinner.requestFocusFromTouch(); }
     }
     public void toggle(String label, boolean checked, java.util.function.Consumer<Boolean> change) {
         android.widget.Switch toggle = new android.widget.Switch(getContext());
+        toggle.setForeground(getContext().getDrawable(R.drawable.bg_settings_focus));
         toggle.setText(label); toggle.setTextSize(15); toggle.setTextColor(0xffedf1ee);
         toggle.setChecked(checked);
         toggle.setThumbTintList(new android.content.res.ColorStateList(
@@ -137,12 +145,14 @@ public final class GameMenuDialog extends Dialog {
         toggle.setTrackTintList(android.content.res.ColorStateList.valueOf(0xff526873));
         toggle.setOnCheckedChangeListener((button, value) -> change.accept(value));
         content.addView(toggle, new LinearLayout.LayoutParams(-1, dp(52)));
+        if (defaultAction == null) { defaultAction = toggle; toggle.requestFocusFromTouch(); }
     }
     public void opacity(int value, java.util.function.IntConsumer change) {
         TextView label = new TextView(getContext());
         label.setText("Opacity: " + value + "%"); label.setTextSize(15); label.setTextColor(0xffedf1ee);
         label.setPadding(0,dp(12),0,0); content.addView(label);
         android.widget.SeekBar slider = new android.widget.SeekBar(getContext());
+        slider.setForeground(getContext().getDrawable(R.drawable.bg_settings_focus));
         slider.setContentDescription("Opacity");
         slider.setMax(20); slider.setProgress(value-80);
         slider.setProgressTintList(android.content.res.ColorStateList.valueOf(0xffffc15a));

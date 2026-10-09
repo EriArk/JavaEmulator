@@ -124,6 +124,8 @@
             android:exported="true"
             android:screenOrientation="landscape"
             android:windowSoftInputMode="stateHidden" />
+        <activity android:name=".config.GameSettingsActivity" android:exported="false"
+            android:theme="@style/AppTheme.NoActionBar" />
         <activity
             android:name=".config.CompatibilityTestActivity"
             android:exported="false"

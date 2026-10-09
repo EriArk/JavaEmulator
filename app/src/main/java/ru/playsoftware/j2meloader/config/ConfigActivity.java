@@ -877,6 +877,8 @@ public class ConfigActivity extends BaseActivity implements View.OnClickListener
 			startActivity(intent);
 			return;
 		}
+		saveParams();
+		ProfilesManager.beginPreview(params);
 		if (symptom == 0) {
 			params.screenScaleType = 1;
 			params.screenScaleRatio = 100;
@@ -905,9 +907,28 @@ public class ConfigActivity extends BaseActivity implements View.OnClickListener
 			params.showKeyboard = false;
 			params.touchInput = false;
 		}
-		ProfilesManager.saveConfig(params);
 		loadParams(false);
-		Toast.makeText(this, R.string.fix_game_applied, Toast.LENGTH_LONG).show();
+		String change = symptom == 0 ? "Fit picture, preserve proportions, center the image."
+				: symptom == 1 ? "Try a different renderer with immediate drawing."
+				: "Try the default compatibility properties, 240 x 320 and a basic renderer.";
+		Runnable undo = () -> { ProfilesManager.undoPreview(params); loadParams(false); };
+		new AlertDialog.Builder(this).setTitle("Try settings?").setMessage(change)
+				.setPositiveButton(isProfile ? "Keep" : "Try in game", (dialog, which) -> {
+					if (isProfile) {
+						if (!ProfilesManager.keepPreview(params)) Toast.makeText(this, R.string.display_save_failed, Toast.LENGTH_LONG).show();
+						return;
+					}
+					try {
+						SettingsTrial.stage(params);
+						undo.run();
+						needShow = false;
+						startMIDlet();
+					} catch (IOException e) {
+						undo.run();
+						Toast.makeText(this, R.string.display_save_failed, Toast.LENGTH_LONG).show();
+					}
+				}).setNegativeButton("Undo", (dialog, which) -> undo.run())
+				.setOnCancelListener(dialog -> undo.run()).show();
 	}
 
 	private void applyHandheldControlsPreset() {

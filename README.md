@@ -31,9 +31,14 @@ Use **Settings > Library transfer** to import from J2ME Loader or move installed
 games and saves between AbyssME installations. See the
 [workflow and limitations](docs/LIBRARY_TRANSFER.md).
 
-For the new Phone controls, open **Game menu > Touch controls** and choose
-**Phone** or **Gamepad**. The top-left display button opens live screen settings;
-image rotation is saved per game. The screenshots and beta.2 instructions below
+Development builds share **Display** and **Controls** pages between the library's
+per-game settings and the in-game menu. On Phone, choose **Controls > Touch layout >
+Phone / Gamepad**. Use **Try changes** (or **Try in game** from the library), then
+**Keep** or **Undo**; unconfirmed changes revert after about 20 seconds of preview.
+Phone resolution and the full compatibility editor are under **Advanced**.
+The old expert editor still saves ordinary edits directly; its **Fix game** action
+now offers a trial instead. See [settings trials](docs/SETTINGS_TRIALS.md).
+The screenshots and beta.2 instructions below
 describe the published release, not every unreleased change.
 
 New release APKs are on hold pending the licensing decision. Wolphun and the

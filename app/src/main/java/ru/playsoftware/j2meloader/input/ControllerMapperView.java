@@ -67,6 +67,7 @@ public final class ControllerMapperView extends LinearLayout {
     private final TextView lcd;
     private final Spinner profilePicker;
     private final Button detect;
+    private final Button saveAction;
     private int selected = KeyEvent.KEYCODE_BUTTON_A;
     private int active;
     private boolean listening;
@@ -225,6 +226,7 @@ public final class ControllerMapperView extends LinearLayout {
         cancel.setOnClickListener(v -> listener.cancel());
         footer.addView(cancel, new LayoutParams(0, dp(44), 0.8f));
         Button save = button(context.getString(R.string.mapper_save));
+        saveAction = save;
         save.setTextColor(AMBER);
         save.setOnClickListener(v -> { setListening(false); listener.save(profiles, active); });
         LayoutParams saveParams = new LayoutParams(0, dp(44), 1.3f);
@@ -633,6 +635,8 @@ public final class ControllerMapperView extends LinearLayout {
         view.setLetterSpacing(0);
         return view;
     }
+
+    public void setSaveLabel(String label) { saveAction.setText(label); }
 
     private Button button(String label) {
         Button view = new Button(getContext());

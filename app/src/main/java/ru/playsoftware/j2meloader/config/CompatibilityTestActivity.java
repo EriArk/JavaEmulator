@@ -150,7 +150,8 @@ public class CompatibilityTestActivity extends AppCompatActivity {
 			return;
 		}
 		launched = true;
-		Intent intent = new Intent(Intent.ACTION_DEFAULT, Uri.parse(appDir.getPath()), this, MicroActivity.class);
+		Intent intent = new Intent(Intent.ACTION_DEFAULT, Uri.parse(appDir.getPath()), this,
+				getIntent().getBooleanExtra("open_settings", false) ? GameSettingsActivity.class : MicroActivity.class);
 		intent.putExtra(KEY_MIDLET_NAME, appName);
 		intent.putExtra(KEY_START_ARGUMENTS, arguments);
 		startActivity(intent);

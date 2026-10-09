@@ -33,7 +33,25 @@ Do not uninstall or clear app data to work around a signing conflict on someone'
 device. Test packages have separate `.debug` application IDs. Instrumentation
 uses temporary test libraries; it can launch activities and write screenshots.
 
-## Recorded checks: 2026-10-08
+## Settings trials: 2026-10-09
+
+Both public-source APKs and instrumentation APKs built. Phone passed all 66
+selected Android tests; Handheld passed the 10 new `SettingsTrialTest` cases.
+Both JVM suites passed again (14 tests per variant). The full Handheld Android
+suite was not repeated for this batch.
+
+New coverage includes draft isolation, suppressed runtime autosave, repeated
+preview/undo, Keep and failed Keep, one-shot launch consumption, malformed drafts,
+restart-required detection, save-file preservation and interrupted atomic writes.
+See [settings trial behavior and manual checks](SETTINGS_TRIALS.md).
+
+Manual emulator checks covered the library-to-game trial, Keep, live rotation
+Undo, Phone/Gamepad Undo and timeout rollback. At 480x320 dp, D-pad focus scrolls
+the settings action into view. The library itself needs a compact layout pass
+([#17](https://github.com/EriArk/JavaEmulator/issues/17)); this is not a claim that
+every screen is polished at that size.
+
+## Earlier full baseline: 2026-10-08
 
 Both public-source variants built locally, and both JVM suites passed (14 tests
 each). The Android emulator passed these 56 tests in **each** variant:
@@ -57,7 +75,8 @@ The static MIDP-1.0 metadata case is not a redistributable MIDP-1.0 gameplay fix
 
 ## Automatic preparation contract
 
-- Only first launch without a saved configuration starts automatic preparation.
+- First launch or opening per-game settings without a saved configuration starts
+  automatic preparation. Opening settings returns to the editor, not to gameplay.
 - Explicit target metadata wins over incidental vendor API references. Repeated
   aliases do not accumulate votes. Absent/conflicting vendor hints use Generic MIDP.
 - Distributor advertising and web addresses do not select a manufacturer. Exact

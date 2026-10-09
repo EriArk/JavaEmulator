@@ -37,6 +37,7 @@ public class ProfileModel {
 	public final transient boolean isNew;
 
 	public transient File dir;
+	transient ProfileModel previewBaseline;
 
 	@SerializedName("Version")
 	public int version;
