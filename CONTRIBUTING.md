@@ -98,6 +98,9 @@ The installed package IDs are AbyssME-specific; the Java namespace remains
 `ru.playsoftware.j2meloader`. Preserve upstream copyright and license notices.
 Read [licensing status](docs/LICENSING.md) before adding an emulation engine or
 changing license headers. No project-wide license transition has taken effect.
+Upstream has responded positively; the exact additional-permission scope is
+being documented in the linked record. Do not treat the clarification request
+as an issued license exception or remove existing third-party notices.
 Wolphun integration experiments must remain in ignored local
 files and opt-in debug builds until the compatibility blocker is resolved.
 New release APKs are on hold; source-only updates do not authorize a release.

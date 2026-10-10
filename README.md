@@ -62,9 +62,11 @@ an explicit refresh for older libraries. See [artwork behavior](docs/ARTWORK.md)
 The screenshots and beta.2 instructions below
 describe the published release, not every unreleased change.
 
-New release APKs are on hold pending the licensing decision. Wolphun and the
-experimental Mophun integration are not part of this public source tree.
-See [licensing status](docs/LICENSING.md). Existing release downloads are unchanged.
+The Wolphun author has responded positively to our integration request. We are
+documenting the permission's scope and preparing the licensing notices before
+publishing the combined build. Wolphun and the experimental Mophun integration
+are not yet part of this public source tree. See [licensing status](docs/LICENSING.md).
+Existing release downloads are unchanged.
 
 ## Screenshots
 

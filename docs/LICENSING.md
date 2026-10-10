@@ -20,12 +20,24 @@ games and artwork. Wolphun experiments are limited to ignored local files and
 opt-in local debug builds, not the distributable source tree. Published APKs
 have not been replaced or retroactively relicensed.
 
-The permission request was submitted as
+## Upstream response: 2026-10-10
+
+The permission request is recorded in
 [Wolphun issue #1](https://github.com/jamisson2006/wolphun-a-Mophun-emulator/issues/1).
-Its status is **pending**, not granted. The maintainer approved continuing
-private development in one app while awaiting a response; separate end-user
-applications are not the selected product design. Public combined source/APK
-distribution remains gated on resolution of the licensing issue.
+The author has [responded positively](https://github.com/jamisson2006/wolphun-a-Mophun-emulator/issues/1#issuecomment-6093620526),
+welcoming use of the project as a reference. We have sent a
+[short clarification](https://github.com/jamisson2006/wolphun-a-Mophun-emulator/issues/1#issuecomment-6100205259)
+to record permission for code inclusion/modification and distribution of the
+combined source and APKs with the EPL-1.0 M3G components, including the scope
+of a GPLv3 section 7 additional permission and any other contributors' rights.
+
+Status: **positive upstream response; precise additional-permission scope being
+documented**. This is no longer an unanswered request. Integration preparation
+can continue in the existing app; separate end-user applications are not the
+selected design. No new license text is attributed to the author by this update,
+and the upstream GPLv3 license and inherited notices remain unchanged.
+Public combined source/APK distribution still awaits the recorded permission
+scope and the release checks below. No release has been published by this update.
 
 ## Verified integration blocker
 
@@ -54,7 +66,8 @@ resolve that issue. Maintainer approval cannot change third-party rights.
 1. Request suitable additional permission or alternative licensing from the
    relevant Wolphun rights holders, covering the actual EPL-1.0 combination.
    Review provenance and dependencies too; one author's permission cannot
-   override other contributors' rights. The request linked above is pending.
+   override other contributors' rights. The positive reply and scope clarification
+   are linked above; do not substitute our requested wording for the author's grant.
 2. Evaluate a GPL-compatible replacement for the EPL-1.0 M3G implementation
    and bindings, with regression tests for existing J2ME 3D games. Removing 3D
    support is not approved as a shortcut.
@@ -62,9 +75,9 @@ resolve that issue. Maintainer approval cannot change third-party rights.
    This changes the integration design and needs its own licensing review;
    a separate module, shared library or Android process alone is not clearance.
 
-The preferred first investigation is additional upstream permission, since it
-could preserve the existing J2ME compatibility without replacing M3G. This is
-a proposal, not evidence that permission will be available.
+The selected preparation path is additional upstream permission, which could
+preserve existing J2ME compatibility without replacing M3G. The author's positive
+response is recorded above; exact scope and dependency review remain outstanding.
 
 ## Transition and release checklist
 
