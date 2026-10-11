@@ -1,5 +1,28 @@
 # M3G in the Real AbyssME Host
 
+## Current Checkpoint
+
+The [2026-10-11 readiness report](../../docs/m3g-beta-readiness-2026-10-11/README.md)
+supersedes the historical counts below. The verifier requires 47 shared checks,
+seven candidate-only tone checks and (when measured) seven timing checks: 61 for
+the measured candidate, 54 for measured baseline with two intentional skips.
+Both Handheld (`fdroid`) and Phone research builds are supported; pass
+`-Variant phone` to `verify.ps1` for Phone.
+
+Candidate builds replace the inherited EPL tone package with the original
+[ToneControl implementation](tone-java/README.md). Run `:app:testToneCompiler`
+for the independent JVM MIDI-parser checks. Opt-in local `-PmophunSource=<path>`
+and `-PmophunTestGames=<path>` add private Mophun adapters/tests and test-only
+fixtures. These are not required for the Java-only research build, do not
+publish private sources, and must never add games to the application APK.
+
+`-Pm3gTrace=true` enables bounded distinct draw-state capture in private cache.
+It is mutually exclusive with measurement; never compare traced timings with
+untraced timings as renderer performance. `-Pm3gMeasure=true` now records
+aggregate bitmap-read/write and draw phases in addition to target sessions.
+
+## Original Setup
+
 Branch-only research, not an end-user engine option. The ordinary app build and
 `main` retain the existing M3G engine. No release APK, license change, Mophun or
 Symbian integration is part of this experiment.

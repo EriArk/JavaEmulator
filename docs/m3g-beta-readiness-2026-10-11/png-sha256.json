@@ -1,0 +1,14 @@
+﻿[
+    {
+        "file":  "combined-asphalt-race.png",
+        "sha256":  "a20b1760d9d6ed82645b633d870373435c11305f931d4dfdbd87a0bac909137b"
+    },
+    {
+        "file":  "shadow-before.png",
+        "sha256":  "a416169532b74e48ba44819b1da57dc40db762479a2422c6ee9fccbfc3609659"
+    },
+    {
+        "file":  "shadow-fixed.png",
+        "sha256":  "809254a6781b13e943184c9990ab4ad76ef4784e107a1292c19c0b719fe23fec"
+    }
+]

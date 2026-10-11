@@ -205,6 +205,13 @@ replacement decision. Keep main's current engine and release gates unchanged.
 
 ## Merge Gates
 
+The [beta-readiness checkpoint](m3g-beta-readiness-2026-10-11/README.md) supersedes
+the outstanding shadow diagnosis above: RGB replacement alpha, independent
+write masks and sprite frustum clipping now have reproduced/fixed fixtures.
+It also records the additional EPL tone dependency, its candidate replacement,
+combined-host tests and the remaining production/licensing work. Historical
+reports are preserved rather than rewritten as if those fixes already existed.
+
 Before proposing a merge into `main`:
 
 - Document the tested game versions, device configurations and remaining failures.
