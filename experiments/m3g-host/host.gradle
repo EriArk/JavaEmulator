@@ -6,6 +6,31 @@ android.applicationVariants.all { variant ->
 android.defaultConfig.ndk.abiFilters 'arm64-v8a', 'x86_64'
 android.sourceSets.androidTest.java.srcDir rootProject.file('experiments/m3g-host/tests')
 
+if (providers.gradleProperty('m3gMeasure').orNull == 'true') {
+    def measured = layout.buildDirectory.dir('generated/measured-host')
+    def canvas = file('src/main/java/javax/microedition/lcdui/Canvas.java')
+    android.sourceSets.main.java.exclude { element -> element.file == canvas }
+    android.sourceSets.main.java.srcDir measured
+    android.sourceSets.main.java.srcDir rootProject.file('experiments/m3g-host/measurement-java')
+    tasks.register('prepareMeasuredHost') {
+        outputs.upToDateWhen { false }
+        doLast {
+            def text = canvas.getText('UTF-8').replace('\r\n', '\n')
+            def paint = 'paint(g);'
+            def flush = '\t\trequestFlushToScreen();'
+            if (text.count(paint) != 1 || text.count(flush + '\n\t}') != 2) {
+                throw new GradleException('Canvas measurement hook drift')
+            }
+            text = text.replace(paint, 'long measureStart = System.nanoTime();\n\t\t\t\tpaint(g);\n\t\t\t\torg.abyssme.research.FrameMeter.record(System.nanoTime() - measureStart);')
+            text = text.replace(flush + '\n\t}', '\t\torg.abyssme.research.FrameMeter.record(-1);\n' + flush + '\n\t}')
+            def target = new File(measured.get().asFile, 'javax/microedition/lcdui/Canvas.java')
+            target.parentFile.mkdirs()
+            target.setText(text, 'UTF-8')
+        }
+    }
+    tasks.named('preBuild').configure { dependsOn 'prepareMeasuredHost' }
+}
+
 if (candidate) {
     apply from: rootProject.file('experiments/m3g-probe/prepare-candidate.gradle')
     def original = file('src/main/java/javax/microedition/m3g').toPath()

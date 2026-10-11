@@ -1,0 +1,32 @@
+﻿[
+    {
+        "engine":  "baseline",
+        "updatesPerSecond":  252.1610097741345,
+        "medianOfWindowPaintP50Ms":  3.6592445,
+        "worstWindowPaintP95Ms":  4.997968,
+        "pssKiB":  [
+                       77843,
+                       79408,
+                       76034,
+                       79377
+                   ],
+        "elapsedSeconds":  91.0478794,
+        "windows":  44,
+        "error":  null
+    },
+    {
+        "engine":  "candidate",
+        "updatesPerSecond":  109.41306238960273,
+        "medianOfWindowPaintP50Ms":  8.744011,
+        "worstWindowPaintP95Ms":  11.582604,
+        "pssKiB":  [
+                       85350,
+                       77863,
+                       80307,
+                       81535
+                   ],
+        "elapsedSeconds":  91.032123599999991,
+        "windows":  44,
+        "error":  null
+    }
+]

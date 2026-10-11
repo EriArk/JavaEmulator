@@ -1,0 +1,50 @@
+﻿[
+    {
+        "path":  "emulator-asphalt/end.png",
+        "sha256":  "6A7B053BD9165DEAA41E8B472A5AF22A7DE2C010A2A4A3176289B6C96832B12A"
+    },
+    {
+        "path":  "emulator-asphalt/start.png",
+        "sha256":  "022E157BF75FA6CD320FA908452828687093EAABB17F8DCC7FA0D18462A61A66"
+    },
+    {
+        "path":  "lifecycle/dirt-gameplay.png",
+        "sha256":  "2FD26CCE42B815A74DDBDE12299A2A348018D2CB0EC32EEFDBE825DEAF96943A"
+    },
+    {
+        "path":  "lifecycle/resumed-3.png",
+        "sha256":  "67E6AC0C1931CEA1FC47D2EC7CAB1C04AA38B9DD08EC0B6BC258D16D01F10EBB"
+    },
+    {
+        "path":  "retroid-baseline/end.png",
+        "sha256":  "B779E4510333D5261D6759AF5838916B64FA1F0CFC42F60DB66233FD6CBFC89F"
+    },
+    {
+        "path":  "retroid-baseline/event.png",
+        "sha256":  "B5DECD449648A8498E79B2BE9DF5681D63A9799797454ACB9AB92C9F39051063"
+    },
+    {
+        "path":  "retroid-baseline/start.png",
+        "sha256":  "280806C2F5F568DDA4AA4C9BFA9E6C39BA48C809141E342273FED8AA80D61F3E"
+    },
+    {
+        "path":  "retroid-candidate/end.png",
+        "sha256":  "5671D408BAD2FCF4FA14DBC6E70EB9B4501FD078C3B5A2F6E7CD7E1E51D600A9"
+    },
+    {
+        "path":  "retroid-candidate/event.png",
+        "sha256":  "76F5E3D5FD5CCC2779F261A3A860F8D4490197A3B76966CED585EA0D8E1A9A4A"
+    },
+    {
+        "path":  "retroid-candidate/start.png",
+        "sha256":  "BAC52B197AE617F6C394F1ACE7226BE2FEED61FDC085B77ABE91D81CF8087B07"
+    },
+    {
+        "path":  "retroid-pilot/end.png",
+        "sha256":  "83ACDD4B899D6FD57292FF0E3D7BDCF72B45DAE40064DD31F8D2DAB7758C275F"
+    },
+    {
+        "path":  "retroid-pilot/start.png",
+        "sha256":  "EE961D0F95E250EA97D8263A594CC2E263FDE8D8A3C9A39B436297043406FB8A"
+    }
+]

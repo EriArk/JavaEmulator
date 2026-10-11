@@ -59,7 +59,7 @@ existing M3G Java/native sources without modification. No original LCDUI,
 loader, compatibility heuristic, game JAR or native engine source is patched.
 
 This adapter copies a framebuffer in both directions on each binding cycle.
-Its sustained CPU/memory/frame-time cost is **not measured yet**. This is not
+Its sustained CPU/memory/frame-time cost is not established by the initial smoke tests. This is not
 zero-copy rendering, full JSR-184 conformance, or publication-license clearance.
 No combined binary is distributed here; any later distribution requires review
 of the complete artifact and applicable source/notice obligations.
@@ -81,3 +81,42 @@ passes with the separate scratch buffer. These are focused integration checks,
 not the complete existing app test suite or physical controller acceptance.
 
 [Dated device results, game variants and screenshots](../../docs/m3g-host-2026-10-11/README.md).
+
+## Performance Observation
+
+Add `-Pm3gMeasure=true` to **both** research build commands for comparable host
+instrumentation. This opt-in task generates a copy of Canvas with three guarded
+hooks: completion of `paint`, GameCanvas flush and ExtendedImage flush. The
+original source and both M3G engines remain unchanged. Do not compare an
+instrumented engine against an uninstrumented one as if costs were identical.
+
+`FrameMeter` records bounded two-second windows in the app-private cache, capped
+at 512 KiB. File output is deliberate: this Retroid suppresses Info/Warning
+log messages. It records Canvas update count/intervals and paint-call duration,
+not game-logic ticks or isolated GPU/renderer time. A game may flush multiple
+times per logical frame. Observing paint includes game drawing and dispatch;
+telemetry itself adds some overhead and has not been independently calibrated.
+
+After manually reaching and inspecting gameplay, run:
+
+```powershell
+.\experiments\m3g-host\test-frame-metrics.ps1
+.\experiments\m3g-host\measure.ps1 -Serial YOUR_DEVICE -Engine candidate -Run game-session1 -Seconds 90
+```
+
+Use a fresh run label; existing evidence is never overwritten. The script does
+not select games, steer or install APKs. It collects the installed APK hash,
+unmodified start/end screenshots, per-process PSS every 30 seconds, battery
+temperature and deduplicated SurfaceFlinger presentation timestamps. It checks
+the process and foreground activity and rejects missing cadence, sample
+overflow, a stale surface or a polling gap that could lose history. Only complete
+telemetry windows within the sample are used; no forced GC is performed.
+
+Surface refresh is **not game FPS**: Android may repeatedly present the same
+game image. The timestamp column order and invalid fence sentinel follow the
+[AOSP FrameTracker implementation](https://android.googlesource.com/platform/frameworks/native/+/51de481/services/surfaceflinger/FrameTracker.cpp).
+Inspect screenshots and host cadence too. Surface polling is supplemental;
+screen changes, warm-up, pauses and game switches must not be mixed into a
+steady-game measurement. A 90-second PSS series cannot prove absence of leaks.
+
+[Runtime observations, lifecycle checks and rejected samples](../../docs/m3g-runtime-2026-10-11/README.md).

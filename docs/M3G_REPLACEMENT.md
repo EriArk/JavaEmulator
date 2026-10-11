@@ -145,10 +145,25 @@ current-engine baseline. These first eight checks remain historical evidence.
 [Host adapter/build instructions](../experiments/m3g-host/README.md) and
 [reports, exact variants, hashes and screenshots](m3g-host-2026-10-11/README.md).
 
-Next proposed batch: measure sustained frame time/memory and exercise repeated
-pause/resume/game switching on this same fixed sample, with current-engine
-baselines. Keep auto-profile dimensions as a separately tracked host problem.
-Physical controls, audio, full playthroughs and broad API coverage remain open.
+## 2026-10-11: Runtime Instrumentation and Lifecycle
+
+Added identical opt-in host observation hooks for both engines and a bounded
+ADB collector for presentation history, Canvas cadence and process PSS. Six
+parser checks cover invalid timestamps, coverage and Android 14/15 layer names.
+Both measured builds compile; their six host checks pass on Retroid, with the
+candidate also passing on the emulator. The production sources remain unchanged.
+
+Asphalt survives three emulator Home/Recents/resume cycles in the same process;
+confirmed host exit followed by DiRT reaches a race with the existing manual
+320x240 research profile. This is not save-migration or same-process acceptance.
+Short Retroid baseline/candidate observations and rejected emulator surface
+timing are recorded with their limitations in the
+[runtime report and screenshots](m3g-runtime-2026-10-11/README.md).
+
+Next proposed batch: repeated, warmed and longer matched observations across
+the fixed sample, including Deep lifecycle and the visible shadow difference.
+Keep auto-profile dimensions as a separately tracked host problem. Physical
+controls, audio, full playthroughs and broad API coverage remain open.
 
 ## Merge Gates
 
