@@ -1,0 +1,48 @@
+﻿{
+  "upstream": "baca76a4dda6f30abac67fb4a3db009eed05f91c",
+  "device": "Retroid Pocket Classic",
+  "sdk": 34,
+  "abi": "arm64-v8a",
+  "tests": [
+    {
+      "name": "transform_inverse",
+      "passed": true,
+      "elapsedMs": 0.215833
+    },
+    {
+      "name": "immediate_triangle",
+      "passed": true,
+      "elapsedMs": 84.573021
+    },
+    {
+      "name": "retained_matches_immediate",
+      "passed": true,
+      "elapsedMs": 56.87849
+    },
+    {
+      "name": "depth_order",
+      "passed": true,
+      "elapsedMs": 20.272396
+    },
+    {
+      "name": "texture_checker",
+      "passed": true,
+      "elapsedMs": 17.20474
+    },
+    {
+      "name": "translated_clip",
+      "passed": true,
+      "elapsedMs": 15.691719
+    },
+    {
+      "name": "png_loader",
+      "passed": true,
+      "elapsedMs": 1.989114
+    },
+    {
+      "name": "release_and_rebind",
+      "passed": true,
+      "elapsedMs": 19.836458
+    }
+  ]
+}
