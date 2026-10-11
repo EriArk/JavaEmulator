@@ -24,6 +24,8 @@ bundled. The app UI is English.
 - Both variants have independent app data and can coexist.
 - Experimental Mophun support is being developed inside the same app, not as
   a separate end-user product. It is not in the public release or source tree.
+- Embedded Symbian / N-Gage support is the next research direction. The EKA2L1
+  source audit is documented; no integration has been built or shipped.
 
 ## Availability: Do Not Mix These Channels
 
@@ -143,8 +145,29 @@ Current open work, checked on GitHub on 2026-10-11:
 - [#1](https://github.com/EriArk/JavaEmulator/issues/1): clean-clone debug signing setup; [#4](https://github.com/EriArk/JavaEmulator/issues/4): broader regression coverage.
 - [#13](https://github.com/EriArk/JavaEmulator/issues/13): experimental Mophun; [#11](https://github.com/EriArk/JavaEmulator/issues/11): broader themes/skins/customization, not a shipped theme editor.
 
-Proposed next implementation: #20 source-identity aliases. It is not fixed or
-scheduled by this document. The maintainer decides the next batch.
+## Next Direction: Symbian and N-Gage
+
+On 2026-10-11 the maintainer selected embedded Symbian / N-Gage support inside
+the existing application, prioritizing a simple user experience over a quick
+external-app handoff. The [source audit and staged plan](SYMBIAN_INTEGRATION.md)
+pin EKA2L1 to `11f5b6cd141c0884a130ee45743f1f5e17bb1783`.
+
+The inspected Android bridge already exposes device setup, app lists/icons,
+UID launch and input. It needs lifecycle, storage and UI adaptation; our optional
+engine hook also needs to support more than one provider without breaking Mophun.
+The proposed experience is one-time virtual-phone setup, a shared game library
+and backups through the menu. Firmware is user-supplied, not bundled.
+
+**Current evidence: source review only.** No EKA2L1 native build, imported
+firmware, Symbian game session or new APK resulted from this batch. Original
+N-Gage and N-Gage 2 need separate acceptance; do not advertise either as shipped.
+EKA2L1's GPL terms require a separate review of the existing EPL M3G combination.
+
+Next proposed batch: isolated native build/bootstrap and dependency inventory,
+followed by environment import and one controlled game session. The separate
+M3G replacement investigation is a candidate publication path, not a finished
+replacement. #20 source-identity aliases remains open; it has not been fixed
+or silently dropped. The maintainer confirms the next implementation batch.
 
 ## Distribution and Licensing Status
 

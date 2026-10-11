@@ -11,6 +11,11 @@ stated otherwise. **Experimental** means local/private combined builds only.
 
 ## 2026-10-11
 
+- **Research / not shipped:** audited EKA2L1 as an embedded Symbian / N-Gage
+  engine and documented one-app setup, import, controls and backup goals,
+  source findings, licensing/build gates and staged acceptance. No native
+  integration, game run or new APK in this batch.
+  [Integration plan](docs/SYMBIAN_INTEGRATION.md).
 - **Public source / experimental.15:** J2ME Loader whole-library import can
   request access to a blocked nested folder and resume scanning. Wrong-folder
   selection and cancellation are recoverable; save folders are checked and

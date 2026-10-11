@@ -90,6 +90,24 @@ response is recorded above; exact scope and dependency review remain outstanding
 
 ## Transition and release checklist
 
+### Additional candidate: EKA2L1, 2026-10-11
+
+The [Symbian integration audit](SYMBIAN_INTEGRATION.md) inspected EKA2L1 revision
+`11f5b6cd141c0884a130ee45743f1f5e17bb1783`. Its
+[LICENSE](https://github.com/EKA2L1/EKA2L1/blob/11f5b6cd141c0884a130ee45743f1f5e17bb1783/LICENSE)
+contains GPLv3; inspected source headers specify version 3 or later.
+No EKA2L1 implementation has been added to AbyssME's tracked source or APKs.
+
+Any future combination with the existing EPL-1.0 M3G code requires its own
+resolution and complete dependency/asset review. Permission from Wolphun's
+author would not grant rights over EKA2L1. An internal Android process or Gradle
+module is an engineering boundary, not an automatic licensing exception.
+The M3G replacement investigation is a possible route for both integrations;
+it is not yet an accepted replacement. Upstream submodules, guest patches,
+shaders and sound banks still need a pinned provenance and obligations inventory.
+
+### Combined publication checks
+
 - Resolve and document the EPL/GPL integration path before publishing combined
   Wolphun/M3G source or binaries. Keep private experiments out of tracked files.
 - Review all bundled source and resolved binary dependencies, including native
