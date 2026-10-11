@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     android:id="@+id/installer_root"
     android:layout_width="match_parent" android:layout_height="match_parent"
     android:background="@drawable/bg_quick_map_panel"
@@ -17,7 +18,7 @@
         <ImageButton android:id="@+id/button_close"
             android:layout_width="48dp" android:layout_height="48dp"
             android:background="@drawable/bg_quick_setting_button" android:backgroundTint="@null"
-            android:src="@android:drawable/ic_menu_close_clear_cancel" android:tint="@color/accent"
+            android:src="@android:drawable/ic_menu_close_clear_cancel" app:tint="@color/accent"
             android:padding="12dp" android:contentDescription="Close" android:tooltipText="Close" />
     </LinearLayout>
     <ScrollView android:id="@+id/installer_scroll"
