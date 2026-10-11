@@ -294,11 +294,27 @@ public class M3gRasterTest {
         near("blue", pixel & 255, 255, 3);
     }
 
+    @Test public void spriteBeforeNearPlaneIsClipped() throws Exception {
+        int pixel = maskedTarget(true, true, "sprite-before-near", true, -0.5f).getPixel(32, 32);
+        near("red", (pixel >>> 16) & 255, 191, 3);
+        near("blue", pixel & 255, 255, 3);
+    }
+
+    @Test public void spriteBeyondFarPlaneIsClipped() throws Exception {
+        int pixel = maskedTarget(true, true, "sprite-beyond-far", true, -11).getPixel(32, 32);
+        near("red", (pixel >>> 16) & 255, 191, 3);
+        near("blue", pixel & 255, 255, 3);
+    }
+
     private Bitmap maskedTarget(boolean rgb, boolean alpha, String name) throws Exception {
         return maskedTarget(rgb, alpha, name, false);
     }
 
     private Bitmap maskedTarget(boolean rgb, boolean alpha, String name, boolean sprite) throws Exception {
+        return maskedTarget(rgb, alpha, name, sprite, -2);
+    }
+
+    private Bitmap maskedTarget(boolean rgb, boolean alpha, String name, boolean sprite, float z) throws Exception {
         Image2D target = new Image2D(Image2D.RGBA, 64, 64);
         renderer.bindTarget(target);
         renderer.setViewport(0, 0, 64, 64);
@@ -314,10 +330,16 @@ public class M3gRasterTest {
         mode.setColorWriteEnable(rgb);
         mode.setAlphaWriteEnable(alpha);
         if (sprite) {
+            byte[] pixels = new byte[8 * 8 * 4];
+            for (int i = 0; i < pixels.length; i += 4) {
+                pixels[i] = -1;
+                pixels[i + 3] = -128;
+            }
             Sprite3D node = new Sprite3D(true,
-                    new Image2D(Image2D.RGBA, 1, 1, new byte[]{-1,0,0,-128}), appearance);
-            node.setTranslation(0, 0, -2);
-            renderer.render(node, new Transform());
+                    new Image2D(Image2D.RGBA, 8, 8, pixels), appearance);
+            Transform position = new Transform();
+            position.postTranslate(0, 0, z);
+            renderer.render(node, position);
         } else renderer.render(mesh, new Transform());
         renderer.releaseTarget();
         mode.setBlending(CompositingMode.ALPHA);

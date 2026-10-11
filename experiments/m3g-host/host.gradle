@@ -72,6 +72,45 @@ if (measuring) {
 }
 
 if (candidate) {
+    def originalTonePlayer = file('src/main/java/javax/microedition/media/TonePlayer.java')
+    def originalManager = file('src/main/java/javax/microedition/media/Manager.java')
+    android.sourceSets.main.java.exclude { element -> element.file == originalTonePlayer || element.file == originalManager }
+    def toneHost = layout.buildDirectory.dir('generated/tone-host')
+    android.sourceSets.main.java.srcDir toneHost
+    tasks.register('prepareToneHost') {
+        outputs.upToDateWhen { false }
+        doLast {
+            def text = originalManager.getText('UTF-8')
+            def hook = 'return new MicroPlayer(new InternalDataSource(stream, type));'
+            if (text.count(hook) != 2) throw new GradleException('Tone stream routing hook drift')
+            text = text.replace(hook, 'if ("audio/x-tone-seq".equalsIgnoreCase(type)) return new TonePlayer(stream);\n\t\t\t' + hook)
+            def output = new File(toneHost.get().asFile, 'javax/microedition/media/Manager.java')
+            output.parentFile.mkdirs()
+            output.setText(text, 'UTF-8')
+        }
+    }
+    tasks.named('preBuild').configure { dependsOn 'prepareToneHost' }
+    def legacyTone = file('src/main/java/javax/microedition/media/tone').toPath()
+    android.sourceSets.main.java.exclude { element -> element.file.toPath().startsWith(legacyTone) }
+    android.sourceSets.main.java.srcDir rootProject.file('experiments/m3g-host/tone-java')
+    android.sourceSets.androidTest.java.srcDir rootProject.file('experiments/m3g-host/tone-android-tests')
+    def toneChecks = configurations.create('toneChecks')
+    dependencies.add('toneChecks', 'junit:junit:4.13.2')
+    def toneClasses = layout.buildDirectory.dir('tone-checks/classes')
+    def compileTone = tasks.register('compileToneChecks', JavaCompile) {
+        source rootProject.file('experiments/m3g-host/tone-java/javax/microedition/media/tone/ToneSequence.java')
+        source rootProject.file('experiments/m3g-host/tone-tests')
+        source file('src/main/java/javax/microedition/media/control/ToneControl.java')
+        source file('src/main/java/javax/microedition/media/Control.java')
+        classpath = toneChecks
+        destinationDirectory = toneClasses
+        options.release = 8
+    }
+    tasks.register('testToneCompiler', Test) {
+        dependsOn compileTone
+        testClassesDirs = files(toneClasses)
+        classpath = files(toneClasses) + toneChecks
+    }
     if (tracing) android.sourceSets.main.java.srcDir rootProject.file('experiments/m3g-host/trace-java')
     apply from: rootProject.file('experiments/m3g-probe/prepare-candidate.gradle')
     def original = file('src/main/java/javax/microedition/m3g').toPath()

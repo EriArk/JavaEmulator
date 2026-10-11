@@ -57,6 +57,13 @@ try {
         try { $dex = $reader.ReadToEnd() } finally { $reader.Dispose() }
         if ($dex.Contains('Lorg/abyssme/research/FrameMeter;')) { $measured = $true }
         if ($Engine -eq 'candidate' -and $dex.Contains('Ljavax/microedition/m3g/Platform;')) { throw 'EPL bindings in candidate' }
+        if ($Engine -eq 'candidate') {
+            foreach ($legacy in @('BlockEndEvent', 'BlockStartEvent', 'Event', 'EventList',
+                    'MidiSequence', 'MidiSequenceException', 'PlayBlockEvent', 'RepeatEvent',
+                    'ToneEvent', 'VolumeEvent')) {
+                if ($dex.Contains("Ljavax/microedition/media/tone/$legacy;")) { throw "EPL tone type in candidate: $legacy" }
+            }
+        }
         if ($Engine -eq 'baseline' -and $dex.Contains('Lorg/recompile/mobile/PlatformGraphics;')) { throw 'Candidate host in baseline' }
     }
 } finally { $zip.Dispose() }
@@ -65,7 +72,11 @@ try {
 Invoke-Adb @('install', '-r', $apk)
 Invoke-Adb @('install', '-r', $test)
 $classes = 'javax.microedition.shell.M3gHostTest,javax.microedition.shell.M3gRasterTest,javax.microedition.shell.M3gSceneTest'
-$expectedTests = 45
+$expectedTests = 47
+if ($Engine -eq 'candidate') {
+    $classes += ',javax.microedition.shell.TonePlaybackTest'
+    $expectedTests += 7
+}
 if ($measured) {
     $classes += ',javax.microedition.shell.M3gTargetMeterTest'
     $expectedTests += 7

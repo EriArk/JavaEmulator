@@ -47,6 +47,11 @@ tasks.register('prepareM3g') {
         def raster = new File(output, 'java/javax/microedition/m3g/Graphics3D.java')
         contents = raster.getText('UTF-8')
         contents = contents.replace('\r\n', '\n')
+        def spriteClip = 'if (clip[3] <= 0f || clip[7] <= 0f || clip[11] <= 0f) { return; }'
+        if (contents.count(spriteClip) != 1) throw new GradleException('Sprite clip hook drift')
+        contents = contents.replace(spriteClip, spriteClip + '''
+        // A billboard has constant eye depth: reject its origin outside the frustum.
+        if (clip[2] < -clip[3] || clip[2] > clip[3]) { return; }''')
         def maskPatches = [
             'private int currAlphaFactor = 256;': 'private int currAlphaFactor = 256;\n    private int colorWriteMask = -1;',
             'if(!colorEnabled) { continue; }': 'if(colorWriteMask == 0) { continue; }',
