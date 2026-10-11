@@ -11,6 +11,16 @@ stated otherwise. **Experimental** means local/private combined builds only.
 
 ## 2026-10-11
 
+- **Separate experiment / not shipped:** added opt-in host cadence/PSS collection
+  with rejected-sample reporting and six parser checks. Both measured engines
+  pass six Retroid host checks; candidate also passes on the emulator. One
+  matched Asphalt pair completed about 91 seconds per engine; candidate paint
+  cost is higher (window-p50 median 8.74 vs 3.66 ms) and shadows/filtering differ.
+  Emulator Asphalt survived three resumes and a switch to DiRT reached gameplay;
+  emulator surface timing was rejected for a polling gap. Published raw windows,
+  hashes and screenshots, not APKs/games. Longer three-title performance and
+  replacement acceptance remain open; main engine/licensing unchanged.
+  [Dated evidence](https://github.com/EriArk/JavaEmulator/blob/08f38c78/docs/m3g-runtime-2026-10-11/README.md).
 - **Separate experiment / not shipped:** connected the alternative M3G renderer
   to the real AbyssME host in isolated candidate/baseline debug builds. Six host
   checks pass on Retroid for both engines and on the emulator for the candidate;

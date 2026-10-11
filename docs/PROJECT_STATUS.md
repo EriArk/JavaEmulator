@@ -35,7 +35,7 @@ bundled. The app UI is English.
 | Public development source | `main`; latest app-code change at this review: [d39ed742](https://github.com/EriArk/JavaEmulator/commit/d39ed742) | Unreleased Java/UI/storage improvements listed below; not all are in the downloadable beta |
 | Private combined test snapshot | `0.1.0-beta.2-experimental.15`, 2026-10-11 | Handheld and Phone debug APKs containing Java plus experimental Mophun; supplied separately to testers, not a GitHub release |
 | Local-only implementation | Ignored optional-engine source and diagnostics | Mophun integration, game-specific experiments and test fixtures; public descriptions below, implementation not published |
-| Separate research branch | [`codex/m3g-replacement`](https://github.com/EriArk/JavaEmulator/tree/codex/m3g-replacement), `d91321b0` | Synthetic M3G probes plus isolated real-host candidate/baseline debug builds, six host checks and a three-game smoke comparison; not merged, released or accepted as a replacement |
+| Separate research branch | [`codex/m3g-replacement`](https://github.com/EriArk/JavaEmulator/tree/codex/m3g-replacement), `08f38c78` | Synthetic M3G probes, isolated real-host builds, three-game smoke checks, opt-in runtime measurement and a bounded Asphalt comparison; not merged, released or accepted as a replacement |
 
 The experimental number is a distribution label: build 15 still reports
 version code **102** and `0.1.0-beta.2` / `0.1.0-beta.2-phone` internally.
@@ -229,9 +229,32 @@ earlier candidate build, as distinguished in the capture report.
 
 [Source, exact variants, artifact hashes and eight screenshots](https://github.com/EriArk/JavaEmulator/blob/d91321b0/docs/m3g-host-2026-10-11/README.md)
 are public on the experimental branch; the APKs and game archives are not.
-There is no mainline engine or licensing change. Next proposed batch: sustained
-frame time/memory and repeated lifecycle/game-switch checks on the same sample,
-with the auto-profile issue kept separate. Await maintainer confirmation.
+There is no mainline engine or licensing change.
+
+### Runtime follow-up: 2026-10-11
+
+Added identical opt-in host observation hooks and a bounded collector in the
+experimental branch. Both measured builds pass six host checks on Retroid;
+candidate also passes six on the emulator. Six collector parser checks pass.
+
+One matched Retroid Asphalt pair (Honolulu, Mustang GT, 240x320) completed about
+91 seconds per engine without collector rejection or process changes. The median
+of window paint medians was 3.66 ms for the current engine and 8.74 ms for the
+candidate. This measures host paint cost, not a game-speed ratio; it is one short
+pair with uncalibrated observation overhead. Candidate shadows and filtering
+visibly differ. Short PSS traces cannot establish absence of memory leaks.
+
+The emulator candidate resumed Asphalt three times through Home/Recents in the
+same process, then reached a DiRT race after confirmed host exit and switching.
+DiRT still needs the manual 320x240 research profile. Emulator surface timing
+was rejected because a polling delay could lose frames; that result is not an
+accepted FPS figure. No native-baseline emulator rerun, full app suite, new lint,
+physical control/audio acceptance or release APK in this batch.
+
+[Report, raw windows, artifact identities and screenshots](https://github.com/EriArk/JavaEmulator/blob/08f38c78/docs/m3g-runtime-2026-10-11/README.md).
+Next proposed batch: repeat longer matched runs across Deep / Asphalt / DiRT,
+complete Deep lifecycle checks, and isolate the visible rendering differences.
+Main retains the current engine. Await maintainer confirmation.
 
 ## Distribution and Licensing Status
 
