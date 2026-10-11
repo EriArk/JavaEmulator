@@ -11,6 +11,18 @@ stated otherwise. **Experimental** means local/private combined builds only.
 
 ## 2026-10-11
 
+- **Separate experiment / not shipped:** fixed the traced Asphalt shadow alpha,
+  independent color/alpha write masks and sprite near/far clipping; added
+  scene/picking checks and bounded drawing/copy timing. Brought current mainline
+  UI/storage work into combined Handheld/Phone research builds. Replaced the
+  additional inherited EPL tone compiler with original Apache-2.0 code and
+  repaired direct ToneControl playback/completion/validation. Candidate passes
+  61 focused checks per device, plus independent MIDI parsing; both combined
+  app suites complete with explicit variant skips. Corrected 13 blocking XML
+  lint findings without redesigning the UI. Production/license transition and
+  public beta remain pending the documented release gates.
+  [Evidence and remaining work](https://github.com/EriArk/JavaEmulator/blob/codex/m3g-replacement/docs/m3g-beta-readiness-2026-10-11/README.md).
+
 - **Separate experiment / not shipped:** reproduced and fixed material
   emission/alpha with no lights and fog distance under parallel projection.
   Added regressions and bind-to-release timing for direct-flush games: 32 checks

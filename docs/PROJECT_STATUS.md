@@ -35,7 +35,7 @@ bundled. The app UI is English.
 | Public development source | `main`; latest app-code change at this review: [d39ed742](https://github.com/EriArk/JavaEmulator/commit/d39ed742) | Unreleased Java/UI/storage improvements listed below; not all are in the downloadable beta |
 | Private combined test snapshot | `0.1.0-beta.2-experimental.15`, 2026-10-11 | Handheld and Phone debug APKs containing Java plus experimental Mophun; supplied separately to testers, not a GitHub release |
 | Local-only implementation | Ignored optional-engine source and diagnostics | Mophun integration, game-specific experiments and test fixtures; public descriptions below, implementation not published |
-| Separate research branch | [`codex/m3g-replacement`](https://github.com/EriArk/JavaEmulator/tree/codex/m3g-replacement), `044d9a28` | Isolated real-host builds, texture/material/fog fixes, 32 measured-host checks and bounded game observations; not merged, released or accepted as a replacement |
+| Separate research branch | [`codex/m3g-replacement`](https://github.com/EriArk/JavaEmulator/tree/codex/m3g-replacement), code checkpoint `ff971cac` | Combined Handheld/Phone research builds, corrected shadows/masks/sprite clipping, new tone compiler, 61 focused checks per device; not a production-engine switch or public beta |
 
 The experimental number is a distribution label: build 15 still reports
 version code **102** and `0.1.0-beta.2` / `0.1.0-beta.2-phone` internally.
@@ -304,9 +304,41 @@ process-death acceptance. Asphalt reached a moving race but still shows the
 hard black shadow; its cause remains unresolved.
 
 [Source, failed fixtures, final reports and screenshots](https://github.com/EriArk/JavaEmulator/blob/044d9a28/docs/m3g-shading-2026-10-11/README.md).
-Next proposed batch: capture a bounded render-state trace for the remaining
-shadow and separate renderer/copy cost before optimizing. No new game catalog,
-mainline engine replacement or release APK. Await maintainer confirmation.
+That batch proposed tracing the remaining shadow and separating renderer/copy
+cost. The following checkpoint records the outcome.
+
+### Beta preparation and tone replacement: 2026-10-11
+
+Maintainer authorization now covers finishing the engine, merging when ready,
+choosing appropriate licensing and publishing a beta. The earlier per-batch
+confirmation restriction is superseded; readiness and redistribution checks
+remain required. Ordinary builds still use the existing engine.
+
+The trace reproduced RGB texture replacement losing vertex/default alpha.
+The alternative renderer now preserves it, handles color/alpha write masks
+independently, and clips sprites outside camera near/far planes. Asphalt reached
+a moving race with translucent shadows on Retroid in the combined host.
+No game-specific rendering override was added. Six scene-graph/picking cases
+and bounded phase timings were added; bitmap copying was not the dominant
+measured cost in the recorded Asphalt sample.
+
+An additional EPL dependency was found in the inherited tone compiler. The
+candidate replaces it with original Apache-2.0 code for notes, rests, tempo,
+resolution, volume, repeats and blocks. Direct game ToneControl calls and tone
+streams now use timed Android MIDI playback, including completion and replay.
+
+**Verified:** 61 focused candidate checks pass on Retroid and Phone emulator;
+native Retroid baseline has 52 passes and two candidate-only skips. Independent
+JDK MIDI parsing passes 14 checks, shared JVM tests pass 14 per variant, and the
+standalone candidate passes 18 emulator cases. The full combined app suite has
+132 cases per device with variant-specific assumptions, not 132 unconditional
+passes. Thirteen blocking XML lint findings were corrected; warnings remain.
+
+[Detailed results, APK identities, failures and screenshots](https://github.com/EriArk/JavaEmulator/blob/codex/m3g-replacement/docs/m3g-beta-readiness-2026-10-11/README.md).
+The current combined build remains local: private Mophun sources and ROMs are
+not committed. Production source arrangement, complete dependency/source/notice
+review and signed upgrade/save checks still precede the merge and public beta.
+No root-license change or release has occurred at this checkpoint.
 
 ## Distribution and Licensing Status
 

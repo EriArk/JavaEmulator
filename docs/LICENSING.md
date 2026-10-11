@@ -6,7 +6,9 @@ On 2026-10-07, the maintainer requested publishing accumulated development
 changes while withholding new release APKs until upstream permission is
 resolved. A future project-wide license remains undecided; no license change
 has taken effect. The integration blocker is the existing EPL-1.0 M3G
-implementation described below, not the presence of the root LICENSE file.
+implementation and inherited tone compiler described below, not the presence
+of the root LICENSE file. The later candidate-replacement checkpoint below
+records the maintainer's conditional merge/release authorization.
 
 Public source updates cover AbyssME's UI, controls, importer, database and Java
 display work. The optional-engine interface contains no Wolphun implementation;
@@ -55,6 +57,7 @@ is inferred here, and the existing combined-publication review remains open.
 | Current fork and inherited Apache-licensed code | Root LICENSE and individual source headers | Apache-2.0 |
 | Nokia/Symbian M3G native engine | `app/src/main/cpp/m3g/`, for example `inc/m3g_core.h` | EPL-1.0 |
 | M3G Java bindings | `app/src/main/java/javax/microedition/m3g/`, including `Platform.java` | EPL-1.0 |
+| Inherited tone-to-MIDI compiler | 13 files in `app/src/main/java/javax/microedition/media/tone/` | EPL-1.0 |
 | Proposed Wolphun engine | [Upstream LICENSE](https://github.com/jamisson2006/wolphun-a-Mophun-emulator/blob/main/LICENSE) | GPLv3; not integrated |
 
 This is executable code, not an unused notice: `app/src/main/cpp/Android.mk`
@@ -84,9 +87,27 @@ resolve that issue. Maintainer approval cannot change third-party rights.
    This changes the integration design and needs its own licensing review;
    a separate module, shared library or Android process alone is not clearance.
 
-The selected preparation path is additional upstream permission, which could
+The original preparation path was additional upstream permission, which could
 preserve existing J2ME compatibility without replacing M3G. The author's positive
 response is recorded above; exact scope and dependency review remain outstanding.
+
+### Candidate replacement checkpoint, 2026-10-11
+
+The maintainer subsequently authorized finishing a compatible replacement,
+merging it when ready and publishing a beta with appropriate licensing. The
+research branch now excludes native/Java EPL M3G and all 13 inherited EPL tone
+files from its candidate builds. FreeJ2ME-Plus supplies the pinned GPLv3-or-later
+M3G source; original Apache-2.0 code supplies the tone compiler/player adapter.
+Ordinary builds have not switched engines. No project-wide license change has
+yet taken effect, and this approval does not waive third-party obligations.
+
+The artifact verifier rejects the old native library, Platform binding and ten
+obsolete tone helper classes; three retained API class names use new code. This
+is evidence about that experimental APK, not a complete license audit. The
+remaining production-source, dependency provenance, corresponding-source,
+notice and signed-artifact steps are in the
+[readiness report](https://github.com/EriArk/JavaEmulator/blob/codex/m3g-replacement/docs/m3g-beta-readiness-2026-10-11/README.md).
+Private combined inputs remain local until that preparation is complete.
 
 ## Transition and release checklist
 
