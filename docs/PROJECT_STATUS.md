@@ -35,7 +35,7 @@ bundled. The app UI is English.
 | Public development source | `main`; latest app-code change at this review: [d39ed742](https://github.com/EriArk/JavaEmulator/commit/d39ed742) | Unreleased Java/UI/storage improvements listed below; not all are in the downloadable beta |
 | Private combined test snapshot | `0.1.0-beta.2-experimental.15`, 2026-10-11 | Handheld and Phone debug APKs containing Java plus experimental Mophun; supplied separately to testers, not a GitHub release |
 | Local-only implementation | Ignored optional-engine source and diagnostics | Mophun integration, game-specific experiments and test fixtures; public descriptions below, implementation not published |
-| Separate research branch | [`codex/m3g-replacement`](https://github.com/EriArk/JavaEmulator/tree/codex/m3g-replacement), `9e758abe` | Independent candidate/baseline M3G probes, scene/animation comparisons and evidence; not integrated into AbyssME or accepted as a replacement |
+| Separate research branch | [`codex/m3g-replacement`](https://github.com/EriArk/JavaEmulator/tree/codex/m3g-replacement), `d91321b0` | Synthetic M3G probes plus isolated real-host candidate/baseline debug builds, six host checks and a three-game smoke comparison; not merged, released or accepted as a replacement |
 
 The experimental number is a distribution label: build 15 still reports
 version code **102** and `0.1.0-beta.2` / `0.1.0-beta.2-phone` internally.
@@ -176,7 +176,7 @@ while developing an alternative only in `codex/m3g-replacement`. Licensing
 discussions remain a possible route; no engine removal or root-license change
 has taken effect.
 
-The branch contains two independent Android test APKs: one using pinned
+The initial branch work produced two standalone Android test APKs: one using pinned
 FreeJ2ME-Plus M3G software-renderer sources, the other using the unchanged
 tree-hash-pinned existing EPL Java/native engine. Neither APK contains the other
 engine, updates either AbyssME app, or connects to the real MIDP game host.
@@ -196,14 +196,42 @@ simple triangle edges; this is not exact parity or a game compatibility score.
 The baseline emulator attempts stalled/exited without a completed report; the
 cause remains unresolved and that target is not accepted. The emulator was
 restored without wiping data. No current-engine changes were made to hide this.
-Real games, controllers, audio, sustained performance and complete M3G coverage
-remain unverified. No replacement or probe APK was released.
+Those initial probes did not test real games. Controllers, audio, sustained
+performance and complete M3G coverage remain unverified. No replacement or
+probe APK was released.
 
 See the [dated reports, frames and hashes](https://github.com/EriArk/JavaEmulator/blob/9e758abe/docs/m3g-scenes-2026-10-11/README.md)
 and [reproducible probe](https://github.com/EriArk/JavaEmulator/tree/9e758abe/experiments/m3g-probe).
-Next proposed alternative-engine batch: a branch-only real MIDP host adapter
-and a small fixed selection of permitted 3D games, comparing lifecycle and
-2D/3D composition against the current engine. Mainline retains its engine.
+
+### Real-host follow-up: 2026-10-11
+
+The branch now also has opt-in AbyssME research builds with separate package
+IDs, libraries and output directories. The candidate connects to the real
+LCDUI bitmap, MIDlet resources and session-reset hook. Ordinary app builds
+retain their existing engine; no production Java/native M3G source was edited.
+
+**Verified:** six shared host checks pass for the candidate on Retroid and the
+emulator, and for the unchanged baseline on Retroid. A regression test reproduced
+Image2D corruption from reusing texture storage for the Android framebuffer;
+a separate scratch buffer fixes it. Both full-host debug/test APKs build. The
+standalone candidate still passes 18/18 emulator checks after build-script
+refactoring; its rerun lint reports 0 errors and 6 warnings. Full-host lint and
+the entire application suite were not rerun in this batch.
+
+Deep: Submarine Odyssey 1.0.2 (Java, **not Mophun Deep Abyss**), Asphalt 3 3D
+1.1.5 and Colin McRae DiRT 3D 1.0.6 reached gameplay on Retroid with both engines.
+Asphalt also reached a moving race with the candidate in the emulator. These
+are fixed-variant smoke checks, not complete-game or broad compatibility claims.
+DiRT's auto-profile selected 128x128 on both engines; manual 320x240 rendered
+the full race layout. The auto-profile heuristic remains unchanged, with no
+per-title code patch. Initial Deep pause/resume observations belong to the
+earlier candidate build, as distinguished in the capture report.
+
+[Source, exact variants, artifact hashes and eight screenshots](https://github.com/EriArk/JavaEmulator/blob/d91321b0/docs/m3g-host-2026-10-11/README.md)
+are public on the experimental branch; the APKs and game archives are not.
+There is no mainline engine or licensing change. Next proposed batch: sustained
+frame time/memory and repeated lifecycle/game-switch checks on the same sample,
+with the auto-profile issue kept separate. Await maintainer confirmation.
 
 ## Distribution and Licensing Status
 

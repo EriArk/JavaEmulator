@@ -11,6 +11,15 @@ stated otherwise. **Experimental** means local/private combined builds only.
 
 ## 2026-10-11
 
+- **Separate experiment / not shipped:** connected the alternative M3G renderer
+  to the real AbyssME host in isolated candidate/baseline debug builds. Six host
+  checks pass on Retroid for both engines and on the emulator for the candidate;
+  reproduced and fixed an Image2D/framebuffer ownership regression. Deep,
+  Asphalt 3 and DiRT reached gameplay in the fixed Retroid smoke sample; DiRT
+  required manual 320x240 instead of its incorrect auto-profile. Published
+  eight screenshots, exact variants and build/test records, not game archives
+  or APKs. Main engine/licensing unchanged; performance and broad compatibility
+  remain open. [Dated evidence](https://github.com/EriArk/JavaEmulator/blob/d91321b0/docs/m3g-host-2026-10-11/README.md).
 - **Separate experiment / not shipped:** expanded alternative M3G checks to
   scene loading and animation, with a separate unchanged-current-engine APK.
   Fixed premature multi-section loading in the candidate's generated sources.
