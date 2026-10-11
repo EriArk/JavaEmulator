@@ -80,6 +80,14 @@ The sixth test demonstrably fails with the earlier shared-buffer adapter and
 passes with the separate scratch buffer. These are focused integration checks,
 not the complete existing app test suite or physical controller acceptance.
 
+`M3gRasterTest` adds eleven public-API scenes: default/vertex/texture/node alpha,
+multiplied vertex/texture alpha, linear texture centers and all four clamp edges,
+nearest filtering and repeat seams. The verifier now requires **17 tests** and
+pulls the raw 64x64 scene images. The candidate's continuous bilinear coordinate
+is clamped before splitting texel neighbors and weights; clamping only the first
+neighbor incorrectly mixed edge texels. This generated-source fix also applies
+to the standalone candidate. Upstream and the baseline stay unchanged.
+
 [Dated device results, game variants and screenshots](../../docs/m3g-host-2026-10-11/README.md).
 
 ## Performance Observation

@@ -59,7 +59,7 @@ try {
 Invoke-Adb @('install', '-r', $apk)
 Invoke-Adb @('install', '-r', $test)
 $result = Invoke-Adb @('shell', 'am', 'instrument', '-w', '-r', '-e', 'class',
-    'javax.microedition.shell.M3gHostTest', "$package.test/androidx.test.runner.AndroidJUnitRunner")
+    'javax.microedition.shell.M3gHostTest,javax.microedition.shell.M3gRasterTest', "$package.test/androidx.test.runner.AndroidJUnitRunner")
 $result | Set-Content -Encoding UTF8 (Join-Path $out 'tests.txt')
 [pscustomobject]@{
     engine = $Engine
@@ -69,7 +69,8 @@ $result | Set-Content -Encoding UTF8 (Join-Path $out 'tests.txt')
     apk = (Get-FileHash $apk).Hash
     testApk = (Get-FileHash $test).Hash
 } | ConvertTo-Json | Set-Content -Encoding UTF8 (Join-Path $out 'artifact.json')
-if ($result -notmatch 'OK \(6 tests\)' -or $result -match 'FAILURES|INSTRUMENTATION_FAILED') {
+if ($result -notmatch 'OK \(17 tests\)' -or $result -match 'FAILURES|INSTRUMENTATION_FAILED') {
     throw "Incomplete/failed host checks; see $out"
 }
-Write-Output "$Engine : 6/6 host checks passed; $out"
+Invoke-Adb @('pull', "/sdcard/Android/data/$package/files/m3g-raster", $out)
+Write-Output "$Engine : 17/17 host and raster checks passed; $out"

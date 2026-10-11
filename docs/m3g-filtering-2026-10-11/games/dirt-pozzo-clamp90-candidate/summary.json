@@ -1,0 +1,21 @@
+﻿{
+    "engine":  "candidate",
+    "run":  "dirt-pozzo-clamp90",
+    "apkSha256":  "31b6efd2e6e854d0157657f70b00cec54b74ddb9faf361a37fe048aa87fe3ac0",
+    "processId":  "15451",
+    "layer":  "SurfaceView[io.github.eriark.abyssme.m3gcandidate.debug/javax.microedition.shell.MicroActivity](BLAST)#23420",
+    "elapsedSeconds":  90.2177835,
+    "maxPollGapSeconds":  1.2808144999999982,
+    "error":  null,
+    "metrics":  {
+                    "frames":  1477,
+                    "spanSeconds":  89.230138768,
+                    "presentedFps":  16.541496184799477,
+                    "intervalP50Ms":  66.659584,
+                    "intervalP95Ms":  66.687604,
+                    "maxIntervalMs":  100.014114,
+                    "intervalsAbove100Ms":  3
+                },
+    "cadenceWindows":  43,
+    "interpretation":  "Surface presentation intervals, not game logic FPS or isolated renderer cost. Inspect captures."
+}

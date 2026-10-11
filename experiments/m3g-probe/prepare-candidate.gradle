@@ -42,6 +42,21 @@ tasks.register('prepareM3g') {
         contents = loader.getText('UTF-8')
         if (contents.count(oldBoundary) != 1) throw new GradleException('Loader boundary patch no longer matches')
         loader.setText(contents.replace(oldBoundary, newBoundary), 'UTF-8')
+        // Clamp the continuous texel position before splitting neighbors/fraction.
+        // Clamping only the first neighbor blends an edge with the next texel.
+        def raster = new File(output, 'java/javax/microedition/m3g/Graphics3D.java')
+        contents = raster.getText('UTF-8')
+        def filterPatches = [
+            'final int sFixed = (int) (s * 256.0f) - 128;': 'int sFixed = (int) (s * 256.0f) - 128;',
+            'final int tFixed = (int) (t * 256.0f) - 128;': '''int tFixed = (int) (t * 256.0f) - 128;
+                if (!texRepeatS[unitIdx]) sFixed = Math.max(0, Math.min((texW - 1) << 8, sFixed));
+                if (!texRepeatT[unitIdx]) tFixed = Math.max(0, Math.min((texH - 1) << 8, tFixed));'''
+        ]
+        filterPatches.each { before, after ->
+            if (contents.count(before) != 1) throw new GradleException("Texture clamp patch drift: ${before}")
+            contents = contents.replace(before, after)
+        }
+        raster.setText(contents, 'UTF-8')
         copy { from new File(source, 'LICENSE'); into new File(output, 'assets'); rename { 'FREEJ2ME-LICENSE.txt' } }
     }
 }

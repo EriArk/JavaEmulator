@@ -1,0 +1,222 @@
+﻿[
+    {
+        "path":  "before/linear-clamp.png",
+        "sha256":  "2a757b9137ff588dee057ac8506e9a5781365e90e1caad3e9e5b2a2434865ea2",
+        "bytes":  255
+    },
+    {
+        "path":  "deep-opening.png",
+        "sha256":  "7a406f64b3093bade4fa9dd790b32b12567cc4812ab0a19df32551bec440923c",
+        "bytes":  44569
+    },
+    {
+        "path":  "deep-return-pause.png",
+        "sha256":  "8938e54295bfc8c8fe9becc9a28d016971ce117001b8c5962a7d5d7f9d7de63f",
+        "bytes":  25383
+    },
+    {
+        "path":  "games/deep-opening-clamp90-baseline/end.png",
+        "sha256":  "8e71b50457fc4359f6e0e6d0db5cd6269551b24004a510ebb941db6469cdc5a8",
+        "bytes":  30300
+    },
+    {
+        "path":  "games/deep-opening-clamp90-baseline/start.png",
+        "sha256":  "1ba4df919671c3d7320efb546756008b0c976727e983699290cb641408444586",
+        "bytes":  52894
+    },
+    {
+        "path":  "games/deep-opening-clamp90-candidate/end.png",
+        "sha256":  "85efce5cb2e373a14ff5ab6064a3ce08d98f46e533c05d9e0671ee0ca59805c2",
+        "bytes":  24950
+    },
+    {
+        "path":  "games/deep-opening-clamp90-candidate/start.png",
+        "sha256":  "5dfdf0e3082b4f33e43fa519726d028a07ffb1b04caa574e054b9f0a6ea167e2",
+        "bytes":  54608
+    },
+    {
+        "path":  "games/dirt-pozzo-clamp90-baseline/end.png",
+        "sha256":  "608152f4a3ab1fb5057342f22a723327a91de3b6a84e2ad5b1182ea987e9f979",
+        "bytes":  118486
+    },
+    {
+        "path":  "games/dirt-pozzo-clamp90-baseline/start.png",
+        "sha256":  "951ce3644da3bea0251d22a7e0560afc6622c37690e2f89d2b1c1536ae0740c5",
+        "bytes":  118984
+    },
+    {
+        "path":  "games/dirt-pozzo-clamp90-candidate/end.png",
+        "sha256":  "aa6c17d461711d138489fc8a64b1fa65d349839a06fe7e88a2972da6ed2f99ab",
+        "bytes":  110520
+    },
+    {
+        "path":  "games/dirt-pozzo-clamp90-candidate/start.png",
+        "sha256":  "0871f7110c974d39fd12b762486bdb5de22c934a687e2dacfe15ae7be0e7318e",
+        "bytes":  123258
+    },
+    {
+        "path":  "scenes/emulator-candidate/default-alpha.png",
+        "sha256":  "c62ba04d377150df4770735fcc339beac6505073898c3a53cda60a156bfe4033",
+        "bytes":  236
+    },
+    {
+        "path":  "scenes/emulator-candidate/linear-center.png",
+        "sha256":  "5954a98febbeeb6105d2a026854d45bfbb9d948ce9beacc00d5b677fadb16894",
+        "bytes":  256
+    },
+    {
+        "path":  "scenes/emulator-candidate/linear-clamp.png",
+        "sha256":  "5954a98febbeeb6105d2a026854d45bfbb9d948ce9beacc00d5b677fadb16894",
+        "bytes":  256
+    },
+    {
+        "path":  "scenes/emulator-candidate/linear-repeat.png",
+        "sha256":  "156ce897c062ebf7ddba3de4547900bf91e67c4cb276c7a6ed7966e96fb4542e",
+        "bytes":  262
+    },
+    {
+        "path":  "scenes/emulator-candidate/linear-right.png",
+        "sha256":  "5954a98febbeeb6105d2a026854d45bfbb9d948ce9beacc00d5b677fadb16894",
+        "bytes":  256
+    },
+    {
+        "path":  "scenes/emulator-candidate/linear-vertical.png",
+        "sha256":  "702e16ed24e24533c1c9cb33b49029bd357adf8bfed80cb8094c3a75dec6363c",
+        "bytes":  251
+    },
+    {
+        "path":  "scenes/emulator-candidate/modulated-alpha.png",
+        "sha256":  "45a482fc63b306c10cbbc28f939b10cf46e2459d792ad700a04a90dfd4dcf9b0",
+        "bytes":  237
+    },
+    {
+        "path":  "scenes/emulator-candidate/nearest.png",
+        "sha256":  "3475c13a3a9566ba68dfae997247e64095706d741d644b02ab0aa4ff1d947e17",
+        "bytes":  242
+    },
+    {
+        "path":  "scenes/emulator-candidate/node-alpha.png",
+        "sha256":  "a89557be56a2ef3d273519302763f5d2c855806d46ad6114c191d5e6c918b5c2",
+        "bytes":  236
+    },
+    {
+        "path":  "scenes/emulator-candidate/texture-alpha.png",
+        "sha256":  "c62ba04d377150df4770735fcc339beac6505073898c3a53cda60a156bfe4033",
+        "bytes":  236
+    },
+    {
+        "path":  "scenes/emulator-candidate/vertex-alpha.png",
+        "sha256":  "c62ba04d377150df4770735fcc339beac6505073898c3a53cda60a156bfe4033",
+        "bytes":  236
+    },
+    {
+        "path":  "scenes/retroid-baseline/default-alpha.png",
+        "sha256":  "9c0ca805f8c7118d0e4cd3182d9bb44ef3265af5066709a0d2930d8ecbae438f",
+        "bytes":  236
+    },
+    {
+        "path":  "scenes/retroid-baseline/linear-center.png",
+        "sha256":  "869d2807fb69a9d81090ad2af713de6980ddc3267ecc4d926f5fe015d549fc55",
+        "bytes":  274
+    },
+    {
+        "path":  "scenes/retroid-baseline/linear-clamp.png",
+        "sha256":  "869d2807fb69a9d81090ad2af713de6980ddc3267ecc4d926f5fe015d549fc55",
+        "bytes":  274
+    },
+    {
+        "path":  "scenes/retroid-baseline/linear-repeat.png",
+        "sha256":  "c9ec6e341be1454b5e925e3c7be685f40ae96e278d0df99b97e9af4dfd294435",
+        "bytes":  277
+    },
+    {
+        "path":  "scenes/retroid-baseline/linear-right.png",
+        "sha256":  "869d2807fb69a9d81090ad2af713de6980ddc3267ecc4d926f5fe015d549fc55",
+        "bytes":  274
+    },
+    {
+        "path":  "scenes/retroid-baseline/linear-vertical.png",
+        "sha256":  "35c6f4178a0ce4e5f73d0d801e2b49fbeaa16f5bbc471da83fa69feb81ebd63c",
+        "bytes":  297
+    },
+    {
+        "path":  "scenes/retroid-baseline/modulated-alpha.png",
+        "sha256":  "1b6d79fd0e2c0d8b600e6b9d441ad8f79c711f649bf1196a6c5000dfc5992134",
+        "bytes":  237
+    },
+    {
+        "path":  "scenes/retroid-baseline/nearest.png",
+        "sha256":  "3475c13a3a9566ba68dfae997247e64095706d741d644b02ab0aa4ff1d947e17",
+        "bytes":  242
+    },
+    {
+        "path":  "scenes/retroid-baseline/node-alpha.png",
+        "sha256":  "96fd418648676963f10148992cbdee2407ed0de7951f00ee0576e856923eddbe",
+        "bytes":  236
+    },
+    {
+        "path":  "scenes/retroid-baseline/texture-alpha.png",
+        "sha256":  "9c0ca805f8c7118d0e4cd3182d9bb44ef3265af5066709a0d2930d8ecbae438f",
+        "bytes":  236
+    },
+    {
+        "path":  "scenes/retroid-baseline/vertex-alpha.png",
+        "sha256":  "9c0ca805f8c7118d0e4cd3182d9bb44ef3265af5066709a0d2930d8ecbae438f",
+        "bytes":  236
+    },
+    {
+        "path":  "scenes/retroid-candidate/default-alpha.png",
+        "sha256":  "c62ba04d377150df4770735fcc339beac6505073898c3a53cda60a156bfe4033",
+        "bytes":  236
+    },
+    {
+        "path":  "scenes/retroid-candidate/linear-center.png",
+        "sha256":  "5954a98febbeeb6105d2a026854d45bfbb9d948ce9beacc00d5b677fadb16894",
+        "bytes":  256
+    },
+    {
+        "path":  "scenes/retroid-candidate/linear-clamp.png",
+        "sha256":  "5954a98febbeeb6105d2a026854d45bfbb9d948ce9beacc00d5b677fadb16894",
+        "bytes":  256
+    },
+    {
+        "path":  "scenes/retroid-candidate/linear-repeat.png",
+        "sha256":  "156ce897c062ebf7ddba3de4547900bf91e67c4cb276c7a6ed7966e96fb4542e",
+        "bytes":  262
+    },
+    {
+        "path":  "scenes/retroid-candidate/linear-right.png",
+        "sha256":  "5954a98febbeeb6105d2a026854d45bfbb9d948ce9beacc00d5b677fadb16894",
+        "bytes":  256
+    },
+    {
+        "path":  "scenes/retroid-candidate/linear-vertical.png",
+        "sha256":  "702e16ed24e24533c1c9cb33b49029bd357adf8bfed80cb8094c3a75dec6363c",
+        "bytes":  251
+    },
+    {
+        "path":  "scenes/retroid-candidate/modulated-alpha.png",
+        "sha256":  "45a482fc63b306c10cbbc28f939b10cf46e2459d792ad700a04a90dfd4dcf9b0",
+        "bytes":  237
+    },
+    {
+        "path":  "scenes/retroid-candidate/nearest.png",
+        "sha256":  "3475c13a3a9566ba68dfae997247e64095706d741d644b02ab0aa4ff1d947e17",
+        "bytes":  242
+    },
+    {
+        "path":  "scenes/retroid-candidate/node-alpha.png",
+        "sha256":  "a89557be56a2ef3d273519302763f5d2c855806d46ad6114c191d5e6c918b5c2",
+        "bytes":  236
+    },
+    {
+        "path":  "scenes/retroid-candidate/texture-alpha.png",
+        "sha256":  "c62ba04d377150df4770735fcc339beac6505073898c3a53cda60a156bfe4033",
+        "bytes":  236
+    },
+    {
+        "path":  "scenes/retroid-candidate/vertex-alpha.png",
+        "sha256":  "c62ba04d377150df4770735fcc339beac6505073898c3a53cda60a156bfe4033",
+        "bytes":  236
+    }
+]

@@ -165,6 +165,23 @@ the fixed sample, including Deep lifecycle and the visible shadow difference.
 Keep auto-profile dimensions as a separately tracked host problem. Physical
 controls, audio, full playthroughs and broad API coverage remain open.
 
+## 2026-10-11: Texture Edge Regression
+
+An original public-API fixture exposed incorrect bilinear CLAMP sampling at
+left/top texture edges. The generated candidate now clamps the continuous
+texel position before extracting neighbors and interpolation weights. Repeat
+and nearest behavior are covered; no game-specific workaround was added.
+
+The six host checks plus eleven raster cases pass on Retroid for both engines
+and on the emulator for the candidate. Ordinary alpha cases already passed
+before this fix: the darker Asphalt shadow remains unexplained, not fixed.
+See the [filtering report](m3g-filtering-2026-10-11/README.md) for before/after
+evidence, exact builds and bounded DiRT/Deep observations.
+
+Next: isolate the remaining shadow difference with reproducible material/depth/
+fog and texture-combine scenes, then review renderer cost. Keep auto-profile
+dimensions separate. No mainline replacement or public APK is proposed yet.
+
 ## Merge Gates
 
 Before proposing a merge into `main`:
