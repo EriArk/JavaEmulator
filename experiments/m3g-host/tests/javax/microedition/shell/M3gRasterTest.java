@@ -74,6 +74,34 @@ public class M3gRasterTest {
         gray(render("modulated-alpha"), 191);
     }
 
+    @Test public void rgbReplacePreservesDefaultAlpha() throws Exception {
+        vertices.setDefaultColor(0x99030303);
+        texture(new Image2D(Image2D.RGB, 1, 1, new byte[]{0,0,0}), Texture2D.FILTER_NEAREST);
+        gray(render("rgb-replace-alpha"), 102);
+    }
+
+    @Test public void rgbDecalPreservesVertexAlpha() throws Exception {
+        VertexArray colors = new VertexArray(4, 4, 1);
+        colors.set(0, 4, new byte[]{0,0,0,-128, 0,0,0,-128, 0,0,0,-128, 0,0,0,-128});
+        vertices.setColors(colors);
+        texture(new Image2D(Image2D.RGB, 1, 1, new byte[]{0,0,0}), Texture2D.FILTER_NEAREST);
+        appearance.getTexture(0).setBlending(Texture2D.FUNC_DECAL);
+        gray(render("rgb-decal-alpha"), 127);
+    }
+
+    @Test public void luminanceReplacePreservesDefaultAlpha() throws Exception {
+        vertices.setDefaultColor(0x80030303);
+        texture(new Image2D(Image2D.LUMINANCE, 1, 1, new byte[]{0}), Texture2D.FILTER_NEAREST);
+        gray(render("luminance-replace-alpha"), 127);
+    }
+
+    @Test public void rgbReplaceCombinesWithNodeAlpha() throws Exception {
+        vertices.setDefaultColor(0x80ffffff);
+        mesh.setAlphaFactor(0.5f);
+        texture(new Image2D(Image2D.RGB, 1, 1, new byte[]{0,0,0}), Texture2D.FILTER_NEAREST);
+        gray(render("rgb-replace-node-alpha"), 191);
+    }
+
     @Test public void linearFilterInterpolatesTextureCenter() throws Exception {
         coloredTexture(Texture2D.FILTER_LINEAR);
         int pixel = render("linear-center").getPixel(31, 24);
@@ -222,6 +250,82 @@ public class M3gRasterTest {
         fog.setLinear(1, 3);
         fog.setColor(0xffffff);
         appearance.setFog(fog);
+    }
+
+    @Test public void alphaWriteMaskPreservesTargetAlpha() throws Exception {
+        Bitmap result = maskedTarget(true, false, "alpha-mask");
+        int pixel = result.getPixel(24, 24);
+        near("red", (pixel >>> 16) & 255, 255, 3);
+        near("green", (pixel >>> 8) & 255, 191, 3);
+        near("blue", pixel & 255, 191, 3);
+    }
+
+    @Test public void colorWriteMaskStillAllowsAlphaWrite() throws Exception {
+        Bitmap result = maskedTarget(false, true, "color-mask");
+        int pixel = result.getPixel(24, 24);
+        near("red", (pixel >>> 16) & 255, 127, 3);
+        near("green", (pixel >>> 8) & 255, 127, 3);
+        near("blue", pixel & 255, 255, 3);
+    }
+
+    @Test public void disabledColorAndAlphaPreserveTarget() throws Exception {
+        Bitmap result = maskedTarget(false, false, "both-masks");
+        int pixel = result.getPixel(24, 24);
+        near("red", (pixel >>> 16) & 255, 191, 3);
+        near("green", (pixel >>> 8) & 255, 191, 3);
+        near("blue", pixel & 255, 255, 3);
+    }
+
+    @Test public void spriteAlphaMaskPreservesTargetAlpha() throws Exception {
+        int pixel = maskedTarget(true, false, "sprite-alpha-mask", true).getPixel(32, 32);
+        near("red", (pixel >>> 16) & 255, 255, 3);
+        near("green", (pixel >>> 8) & 255, 191, 3);
+    }
+
+    @Test public void spriteColorMaskStillAllowsAlphaWrite() throws Exception {
+        int pixel = maskedTarget(false, true, "sprite-color-mask", true).getPixel(32, 32);
+        near("red", (pixel >>> 16) & 255, 127, 3);
+        near("blue", pixel & 255, 255, 3);
+    }
+
+    @Test public void spriteBothMasksPreserveTarget() throws Exception {
+        int pixel = maskedTarget(false, false, "sprite-both-masks", true).getPixel(32, 32);
+        near("red", (pixel >>> 16) & 255, 191, 3);
+        near("blue", pixel & 255, 255, 3);
+    }
+
+    private Bitmap maskedTarget(boolean rgb, boolean alpha, String name) throws Exception {
+        return maskedTarget(rgb, alpha, name, false);
+    }
+
+    private Bitmap maskedTarget(boolean rgb, boolean alpha, String name, boolean sprite) throws Exception {
+        Image2D target = new Image2D(Image2D.RGBA, 64, 64);
+        renderer.bindTarget(target);
+        renderer.setViewport(0, 0, 64, 64);
+        Background background = new Background();
+        background.setColor(0x400000ff);
+        renderer.clear(background);
+        Camera camera = new Camera();
+        camera.setParallel(2, 1, 1, 10);
+        renderer.setCamera(camera, new Transform());
+        vertices.setDefaultColor(0x80ff0000);
+        CompositingMode mode = appearance.getCompositingMode();
+        mode.setBlending(CompositingMode.REPLACE);
+        mode.setColorWriteEnable(rgb);
+        mode.setAlphaWriteEnable(alpha);
+        if (sprite) {
+            Sprite3D node = new Sprite3D(true,
+                    new Image2D(Image2D.RGBA, 1, 1, new byte[]{-1,0,0,-128}), appearance);
+            node.setTranslation(0, 0, -2);
+            renderer.render(node, new Transform());
+        } else renderer.render(mesh, new Transform());
+        renderer.releaseTarget();
+        mode.setBlending(CompositingMode.ALPHA);
+        mode.setColorWriteEnable(true);
+        mode.setAlphaWriteEnable(true);
+        vertices.setDefaultColor(0xffffffff);
+        texture(target, Texture2D.FILTER_NEAREST);
+        return render(name);
     }
 
     private Mesh solidMesh(int color, int z) {

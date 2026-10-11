@@ -1,6 +1,21 @@
 // Opt-in research APKs only; the ordinary application build keeps its engine.
 def candidate = providers.gradleProperty('m3gExperiment').get() == 'candidate'
 def measuring = providers.gradleProperty('m3gMeasure').orNull == 'true'
+def tracing = providers.gradleProperty('m3gTrace').orNull == 'true'
+if (tracing && (!candidate || measuring)) throw new GradleException('Trace requires an unmeasured candidate')
+def mophun = providers.gradleProperty('mophunSource').orNull
+if (mophun != null) {
+    if (!candidate) throw new GradleException('Combined research requires the GPL-compatible candidate')
+    def local = rootProject.file(mophun)
+    ['vendor', 'java', 'tests', 'AndroidManifest.xml', 'WOLPHUN-LICENSE'].each {
+        if (!new File(local, it).exists()) throw new GradleException("Missing private Mophun input: ${it}")
+    }
+    android.sourceSets.debug.java.srcDirs new File(local, 'vendor'), new File(local, 'java')
+    android.sourceSets.debug.manifest.srcFile new File(local, 'AndroidManifest.xml')
+    android.sourceSets.androidTest.java.srcDir new File(local, 'tests')
+    def fixtures = providers.gradleProperty('mophunTestGames').orNull
+    if (fixtures != null) android.sourceSets.androidTest.assets.srcDir rootProject.file(fixtures)
+}
 def instrumentTarget = { String source, boolean alternative ->
     def patches = alternative ? [
         'private int[] androidFrameBuffer;': 'private int[] androidFrameBuffer;\n\tprivate long researchTargetStart;',
@@ -57,11 +72,16 @@ if (measuring) {
 }
 
 if (candidate) {
+    if (tracing) android.sourceSets.main.java.srcDir rootProject.file('experiments/m3g-host/trace-java')
     apply from: rootProject.file('experiments/m3g-probe/prepare-candidate.gradle')
     def original = file('src/main/java/javax/microedition/m3g').toPath()
     android.sourceSets.main.java.exclude { element -> element.file.toPath().startsWith(original) }
     android.sourceSets.main.java.srcDir m3gGenerated.map { new File(it.asFile, 'java') }
     android.sourceSets.main.java.srcDir rootProject.file('experiments/m3g-host/java')
+    if (measuring) {
+        def adapter = rootProject.file('experiments/m3g-host/java/org/recompile/mobile/PlatformGraphics.java')
+        android.sourceSets.main.java.exclude { element -> element.file == adapter }
+    }
     android.sourceSets.main.assets.srcDir m3gGenerated.map { new File(it.asFile, 'assets') }
     android.defaultConfig.externalNativeBuild.ndkBuild.targets 'micro3d'
     android.packaging.jniLibs.excludes.add('**/libjavam3g.so')
@@ -80,6 +100,33 @@ if (candidate) {
             patches.each { before, after ->
                 if (text.count(before) != 1) throw new GradleException("Host patch drift: ${before}")
                 text = text.replace(before, after)
+            }
+            if (tracing) {
+                def hook = 'this.currAlphaFactor = alphaFactor;'
+                if (text.count(hook) != 1) throw new GradleException('Trace hook drift')
+                text = text.replace(hook, hook + '\n\t\tRenderStateTrace.record(vertices, appearance, alphaFactor);')
+            }
+            if (measuring) {
+                ['renderSubmesh': ['VertexBuffer vertices, IndexBuffer triangles, Appearance appearance, Transform transform, int scope, int alphaFactor', 'vertices, triangles, appearance, transform, scope, alphaFactor'],
+                 'renderSprite': ['Sprite3D sprite, Transform transform, int alphaFactor', 'sprite, transform, alphaFactor']].each { name, args ->
+                    def signature = 'private void ' + name + '(' + args[0] + ')'
+                    if (text.count(signature) != 1) throw new GradleException("Draw measurement hook drift: ${name}")
+                    text = text.replace(signature, signature + ''' {
+        long start = System.nanoTime();
+        try { ''' + name + 'Measured(' + args[1] + '''); }
+        finally { org.abyssme.research.FrameMeter.recordPhase(2, System.nanoTime() - start); }
+    }
+    private void ''' + name + 'Measured(' + args[0] + ')')
+                }
+                def adapter = rootProject.file('experiments/m3g-host/java/org/recompile/mobile/PlatformGraphics.java').getText('UTF-8')
+                ['bitmap.getPixels(pixels, 0, width, 0, 0, width, height);',
+                 'bitmap.setPixels(pixels, 0, bitmap.getWidth(), 0, 0, bitmap.getWidth(), bitmap.getHeight());'].eachWithIndex { hook, phase ->
+                    if (adapter.count(hook) != 1) throw new GradleException('Bitmap timing hook drift')
+                    adapter = adapter.replace(hook, 'long start = System.nanoTime();\n        ' + hook + '\n        org.abyssme.research.FrameMeter.recordPhase(' + phase + ', System.nanoTime() - start);')
+                }
+                def output = new File(m3gGenerated.get().asFile, 'java/org/recompile/mobile/PlatformGraphics.java')
+                output.parentFile.mkdirs()
+                output.setText(adapter, 'UTF-8')
             }
             source.setText(measuring ? instrumentTarget(text, true) : text, 'UTF-8')
         }

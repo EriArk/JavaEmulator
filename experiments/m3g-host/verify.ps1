@@ -1,15 +1,19 @@
 param(
     [Parameter(Mandatory = $true)][string]$Serial,
     [ValidateSet('candidate', 'baseline')][string]$Engine = 'candidate',
+    [ValidateSet('fdroid', 'phone')][string]$Variant = 'fdroid',
     [string]$Adb = "$env:ANDROID_HOME/platform-tools/adb.exe"
 )
 $ErrorActionPreference = 'Stop'
 $root = (Resolve-Path (Join-Path $PSScriptRoot '../..')).Path
 $package = "io.github.eriark.abyssme.m3g$Engine.debug"
+if ($Variant -eq 'phone') { $package = "io.github.eriark.abyssme.m3g$Engine.phone.debug" }
 $build = Join-Path $root "app/build/m3g-$Engine/outputs/apk"
-$apk = Join-Path $build 'fdroid/debug/AbyssME-0.1.0-beta.2-debug.apk'
-$test = Join-Path $build 'androidTest/fdroid/debug/app-fdroid-debug-androidTest.apk'
+$suffix = if ($Variant -eq 'phone') { '-phone' } else { '' }
+$apk = Join-Path $build "$Variant/debug/AbyssME-0.1.0-beta.2$suffix-debug.apk"
+$test = Join-Path $build "androidTest/$Variant/debug/app-$Variant-debug-androidTest.apk"
 $out = Join-Path $PSScriptRoot ('build/evidence/' + ($Serial -replace '[^a-zA-Z0-9_-]', '_') + '-' + $Engine)
+if ($Variant -eq 'phone') { $out += '-phone' }
 New-Item -ItemType Directory -Force $out | Out-Null
 foreach ($artifact in @(@{path=$apk; id=$package}, @{path=$test; id="$package.test"})) {
     $metadata = Get-Content -Raw (Join-Path (Split-Path $artifact.path) 'output-metadata.json') | ConvertFrom-Json
@@ -60,26 +64,29 @@ try {
 # Application IDs are fixed research-only IDs; never install over a user's normal build.
 Invoke-Adb @('install', '-r', $apk)
 Invoke-Adb @('install', '-r', $test)
-$classes = 'javax.microedition.shell.M3gHostTest,javax.microedition.shell.M3gRasterTest'
-$expectedTests = 29
+$classes = 'javax.microedition.shell.M3gHostTest,javax.microedition.shell.M3gRasterTest,javax.microedition.shell.M3gSceneTest'
+$expectedTests = 45
 if ($measured) {
     $classes += ',javax.microedition.shell.M3gTargetMeterTest'
-    $expectedTests += 3
+    $expectedTests += 7
 }
 $result = Invoke-Adb @('shell', 'am', 'instrument', '-w', '-r', '-e', 'class',
     $classes, "$package.test/androidx.test.runner.AndroidJUnitRunner")
 $result | Set-Content -Encoding UTF8 (Join-Path $out 'tests.txt')
 [pscustomobject]@{
     engine = $Engine
+    variant = $Variant
     package = $package
     device = (Invoke-Adb @('shell', 'getprop', 'ro.product.model')).Trim()
     sdk = (Invoke-Adb @('shell', 'getprop', 'ro.build.version.sdk')).Trim()
     apk = (Get-FileHash $apk).Hash
     testApk = (Get-FileHash $test).Hash
     measured = $measured
+    skipped = ([regex]::Matches($result, 'INSTRUMENTATION_STATUS_CODE: -4')).Count
 } | ConvertTo-Json | Set-Content -Encoding UTF8 (Join-Path $out 'artifact.json')
 if ($result -notmatch "OK \($expectedTests tests\)" -or $result -match 'FAILURES|INSTRUMENTATION_FAILED') {
     throw "Incomplete/failed host checks; see $out"
 }
 Invoke-Adb @('pull', "/sdcard/Android/data/$package/files/m3g-raster", $out)
-Write-Output "$Engine : $expectedTests/$expectedTests host/raster/optional meter checks passed; $out"
+$skipped = ([regex]::Matches($result, 'INSTRUMENTATION_STATUS_CODE: -4')).Count
+Write-Output "$Engine : $($expectedTests - $skipped) passed, $skipped skipped, $expectedTests total; $out"

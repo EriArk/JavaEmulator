@@ -46,6 +46,42 @@ tasks.register('prepareM3g') {
         // Clamping only the first neighbor blends an edge with the next texel.
         def raster = new File(output, 'java/javax/microedition/m3g/Graphics3D.java')
         contents = raster.getText('UTF-8')
+        contents = contents.replace('\r\n', '\n')
+        def maskPatches = [
+            'private int currAlphaFactor = 256;': 'private int currAlphaFactor = 256;\n    private int colorWriteMask = -1;',
+            'if(!colorEnabled) { continue; }': 'if(colorWriteMask == 0) { continue; }',
+            'rasterData[rasterIdx] = compBlender == null ? paintPixel : compBlender.blend(rasterData[rasterIdx],\n\t\t\t\t\tpaintPixel, alpha);': 'rasterData[rasterIdx] = compositePixel(rasterData[rasterIdx], paintPixel, alpha);',
+            'rasterData[rasterIdx] = compBlender == null ? paintPixel : compBlender.blend(rasterData[rasterIdx], paintPixel, alpha);': 'rasterData[rasterIdx] = compositePixel(rasterData[rasterIdx], paintPixel, alpha);',
+            'private final Graphics3DPipelines.CompositingBlender getCompositingBlender(int blendMode)': '''private int compositePixel(int background, int foreground, int alpha) {
+        int pixel = compBlender == null ? foreground : compBlender.blend(background, foreground, alpha);
+        return (pixel & colorWriteMask) | (background & ~colorWriteMask);
+    }
+    private final Graphics3DPipelines.CompositingBlender getCompositingBlender(int blendMode)'''
+        ]
+        maskPatches.each { before, after ->
+            if (contents.count(before) != 1) throw new GradleException("Color mask patch drift: ${before}")
+            contents = contents.replace(before, after)
+        }
+        def maskHook = 'compBlender = getCompositingBlender(compositingMode.getBlending());'
+        if (contents.count(maskHook) != 2) throw new GradleException('Color mask setup drift')
+        contents = contents.replace(maskHook, maskHook + '''
+        colorWriteMask = (compositingMode.isColorWriteEnabled() ? 0x00FFFFFF : 0)
+                | (compositingMode.isAlphaWriteEnabled() ? 0xFF000000 : 0);''')
+        // RGB/LUMINANCE replace color only, not the incoming fragment alpha.
+        def rgbCase = 'case ((Texture2D.FUNC_REPLACE & 7) << 3) | (Image2D.LUMINANCE & 7):'
+        if (contents.count(rgbCase) != 1) throw new GradleException('RGB alpha patch drift')
+        contents = contents.replace(rgbCase, rgbCase + '\n\t\t\t\treturn Graphics3DPipelines.TextureBlenders.REPLACE_RGB;')
+        def pipelines = new File(output, 'java/javax/microedition/m3g/Graphics3DPipelines.java')
+        def pipelineText = pipelines.getText('UTF-8').replace('\r\n', '\n')
+        def pipelineHook = 'static class TextureBlenders\n\t{'
+        if (pipelineText.count(pipelineHook) != 1) throw new GradleException('RGB blender patch drift')
+        pipelineText = pipelineText.replace(pipelineHook, pipelineHook + '''
+        static final TextureBlender REPLACE_RGB = new TextureBlender() {
+            public int blend(int bg, int fg, int texBlendColor) {
+                return (bg & 0xFF000000) | (fg & 0x00FFFFFF);
+            }
+        };''')
+        pipelines.setText(pipelineText, 'UTF-8')
         def filterPatches = [
             'final int sFixed = (int) (s * 256.0f) - 128;': 'int sFixed = (int) (s * 256.0f) - 128;',
             'final int tFixed = (int) (t * 256.0f) - 128;': '''int tFixed = (int) (t * 256.0f) - 128;

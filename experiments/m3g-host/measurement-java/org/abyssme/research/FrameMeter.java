@@ -16,6 +16,15 @@ public final class FrameMeter {
     private static long previous, windowStart, wallStart;
     private static int frames, paintCount, intervalCount, overflow;
     private static int targetCount;
+    private static final long[] phaseNs = new long[3], phaseCalls = new long[3];
+    private static final String[] phaseNames = {"bitmapRead", "bitmapWrite", "draw"};
+
+    /** Candidate CPU phases; draw excludes scene traversal and bitmap transfers. */
+    public static synchronized void recordPhase(int phase, long nanos) {
+        if (phase < 0 || phase >= phaseNs.length || nanos < 0) return;
+        phaseNs[phase] += nanos;
+        phaseCalls[phase]++;
+    }
 
     /** Wall time after successful bind through release; includes intervening game code. */
     public static synchronized void recordTarget(long nanos) {
@@ -49,6 +58,10 @@ public final class FrameMeter {
             out.put("spanNs", now - windowStart);
             out.put("updates", frames);
             out.put("paints", paintCount);
+            for (int i = 0; i < phaseNames.length; i++) {
+                out.put(phaseNames[i] + "Ns", phaseNs[i]);
+                out.put(phaseNames[i] + "Calls", phaseCalls[i]);
+            }
             out.put("targetSessions", targetCount);
             out.put("targetP50Ns", percentile(targets, targetCount, 0.5));
             out.put("targetP95Ns", percentile(targets, targetCount, 0.95));
@@ -68,6 +81,8 @@ public final class FrameMeter {
         windowStart = now;
         wallStart = System.currentTimeMillis();
         frames = paintCount = intervalCount = overflow = targetCount = 0;
+        Arrays.fill(phaseNs, 0);
+        Arrays.fill(phaseCalls, 0);
     }
 
     private static long percentile(long[] values, int count, double fraction) {

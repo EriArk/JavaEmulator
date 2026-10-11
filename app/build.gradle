@@ -72,7 +72,7 @@ android {
     flavorDimensions 'default'
     if (m3gExperiment != null) {
         variantFilter { variant ->
-            variant.ignore = variant.buildType.name != 'debug' || variant.flavors*.name != ['fdroid']
+            variant.ignore = variant.buildType.name != 'debug' || !(variant.flavors*.name in [['fdroid'], ['phone']])
         }
         defaultConfig.applicationId = "io.github.eriark.abyssme.m3g${m3gExperiment}"
     }

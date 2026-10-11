@@ -5,8 +5,10 @@
 - Experiment branch: `codex/m3g-replacement`.
 - Starting revision: `a0daaf2a96443f01f531e21c10f629efc161b638` from `main`.
 - The main application continues development with its existing M3G engine.
-- This branch is an investigation, not an approved engine replacement or release.
-- No automatic merge into `main`, license removal or release APK publication.
+- This branch is the development path toward a reviewed engine replacement.
+- On 2026-10-11 the maintainer authorized completing the replacement, merging
+  after readiness checks, applying the appropriate license and publishing its
+  first beta. Authorization is not evidence that the gates below have passed.
 
 Use a separate Git worktree for the experiment. Keep developer signing settings,
 SDK paths, game archives, saves and diagnostic output local and ignored. Existing
@@ -18,9 +20,9 @@ Determine whether a replacement for the inherited EPL-1.0 M3G implementation
 can preserve Java game compatibility and acceptable performance while allowing
 a reviewed licensing path for future Wolphun integration.
 
-The maintainer reaffirmed on 2026-10-11 that the current engine must stay in
-`main` while licensing discussions continue. Develop an alternative here;
-do not interpret this experiment as approval to remove the current engine.
+The current engine stays in `main` until the replacement passes the gates below.
+The later 2026-10-11 instruction authorizes the final transition without another
+approval round, but does not waive compatibility, data safety or license checks.
 
 A standalone Android candidate probe now passes 18 synthetic checks on an
 x86_64 emulator and a Retroid Pocket Classic. A separate APK with the unchanged
@@ -211,7 +213,11 @@ Before proposing a merge into `main`:
   from the resulting distribution; replacing only the renderer is insufficient.
 - Review the complete resulting dependency/license combination, not just M3G.
 - Preserve library data, saves, control profiles and current user-facing workflows.
-- Obtain an explicit maintainer decision after presenting the comparison results.
+- Maintainer authorization: received 2026-10-11, conditional on readiness.
+- Verify Handheld and Phone builds, representative 2D Java and Mophun games,
+  import/backup/restore, existing saves and physical/touch control workflows.
+- Publish matching reproducible source, notices and signed beta artifacts;
+  distinguish known beta limitations from blocking regressions.
 
 Regular UI, input, importer and compatibility work continues independently on
 `main`. Bring mainline changes into this experiment deliberately; do not move
