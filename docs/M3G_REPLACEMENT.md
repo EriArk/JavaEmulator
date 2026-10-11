@@ -25,8 +25,9 @@ do not interpret this experiment as approval to remove the current engine.
 A standalone Android candidate probe now passes 18 synthetic checks on an
 x86_64 emulator and a Retroid Pocket Classic. A separate APK with the unchanged
 existing engine passes the 10 shared cases on Retroid; its emulator run remains
-unverified after emulator stalls/exits. Neither is wired into AbyssME or accepted
-for real games. See the dated results below.
+unverified after emulator stalls/exits. The follow-up now also provides opt-in
+real-host AbyssME research builds and a three-game smoke comparison. This is
+not full game acceptance or approval to replace the engine. See the dated results below.
 
 ## Candidates
 
@@ -123,9 +124,31 @@ current-engine baseline. These first eight checks remain historical evidence.
 
 [Reports, hashes, frame comparisons and device screenshot](m3g-scenes-2026-10-11/README.md).
 
-Next proposed batch: a branch-only real MIDP host adapter and a small, fixed
-selection of permitted 3D game variants. Keep current-engine baselines, lifecycle
-and 2D/3D composition visible; this is not approval to replace the main engine.
+## 2026-10-11: Real Host and Three-Game Smoke Comparison
+
+- Added opt-in candidate and baseline AbyssME debug builds with isolated app
+  IDs, build directories and data; ordinary builds keep their existing engine.
+- Adapted the candidate to the actual LCDUI bitmap, active MIDlet archive and
+  session-reset hook. The existing Java/native M3G and LCDUI sources are unchanged.
+- Added six shared host checks. A reproduced Image2D corruption regression was
+  fixed by separating the Android scratch framebuffer from texture storage.
+- Candidate: 6/6 checks on Retroid and emulator; baseline: 6/6 on Retroid.
+- Deep: Submarine Odyssey, Asphalt 3 3D and Colin McRae DiRT 3D reached gameplay
+  on Retroid with both engines. Asphalt also reached a moving race on the
+  candidate emulator. This is a fixed-variant smoke test, not full compatibility.
+- DiRT's automatically selected 128x128 screen is wrong for this variant on
+  both engines. Manual 320x240 gives a complete race screen; 240x320 still clips.
+  The auto-profile code was not changed, and no per-game patch was introduced.
+- Shared-source preparation refactoring preserves the standalone candidate's
+  build/lint and its 18/18 emulator checks.
+
+[Host adapter/build instructions](../experiments/m3g-host/README.md) and
+[reports, exact variants, hashes and screenshots](m3g-host-2026-10-11/README.md).
+
+Next proposed batch: measure sustained frame time/memory and exercise repeated
+pause/resume/game switching on this same fixed sample, with current-engine
+baselines. Keep auto-profile dimensions as a separately tracked host problem.
+Physical controls, audio, full playthroughs and broad API coverage remain open.
 
 ## Merge Gates
 

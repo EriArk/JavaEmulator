@@ -1,52 +1,5 @@
 plugins { id 'com.android.application' }
-
-def pinnedRevision = 'baca76a4dda6f30abac67fb4a3db009eed05f91c'
-def upstream = providers.gradleProperty('freej2meSource')
-def generated = layout.buildDirectory.dir('generated/m3g')
-
-tasks.register('prepareM3g') {
-    outputs.upToDateWhen { false }
-    doLast {
-        if (!upstream.isPresent()) {
-            throw new GradleException('Pass -Pfreej2meSource=<pinned FreeJ2ME-Plus checkout>')
-        }
-        def source = file(upstream.get())
-        def revision = new ByteArrayOutputStream()
-        exec { workingDir source; commandLine 'git', 'rev-parse', 'HEAD'; standardOutput revision }
-        if (revision.toString('UTF-8').trim() != pinnedRevision) {
-            throw new GradleException("Expected FreeJ2ME-Plus ${pinnedRevision}")
-        }
-        def dirty = new ByteArrayOutputStream()
-        exec {
-            workingDir source
-            commandLine 'git', 'status', '--porcelain', '--', 'src/javax/microedition/m3g', 'LICENSE'
-            standardOutput dirty
-        }
-        if (dirty.size() != 0) throw new GradleException('Upstream M3G sources must be unmodified')
-        def output = generated.get().asFile
-        delete output
-        copy {
-            from new File(source, 'src/javax/microedition/m3g')
-            include '*.java'
-            into new File(output, 'java/javax/microedition/m3g')
-        }
-        // Android has no AWT. Keep the MIDP Image path and fail if upstream drifts.
-        def image = new File(output, 'java/javax/microedition/m3g/Image2D.java')
-        def oldCheck = ' && !(image instanceof java.awt.Image)'
-        def contents = image.getText('UTF-8')
-        if (contents.count(oldCheck) != 1) throw new GradleException('Image2D adaptation no longer matches')
-        image.setText(contents.replace(oldCheck, ''), 'UTF-8')
-        // available() shrinks while 'read' grows; comparing them skips later sections.
-        // Keep the header's end boundary, including for embedded files with trailing data.
-        def loader = new File(output, 'java/javax/microedition/m3g/Loader.java')
-        def oldBoundary = 'while ((bounded ? read < Math.min(dis.available(), totalFileSize) : dis.available() > 0))'
-        def newBoundary = 'while (bounded ? read < totalFileSize : dis.available() > 0)'
-        contents = loader.getText('UTF-8')
-        if (contents.count(oldBoundary) != 1) throw new GradleException('Loader boundary patch no longer matches')
-        loader.setText(contents.replace(oldBoundary, newBoundary), 'UTF-8')
-        copy { from new File(source, 'LICENSE'); into new File(output, 'assets'); rename { 'FREEJ2ME-LICENSE.txt' } }
-    }
-}
+apply from: '../prepare-candidate.gradle'
 
 android {
     namespace 'io.github.eriark.m3gprobe'
@@ -66,8 +19,8 @@ android {
     }
     sourceSets {
         main.java.srcDir 'src/candidate/java'
-        main.java.srcDir generated.map { new File(it.asFile, 'java') }
-        main.assets.srcDir generated.map { new File(it.asFile, 'assets') }
+        main.java.srcDir m3gGenerated.map { new File(it.asFile, 'java') }
+        main.assets.srcDir m3gGenerated.map { new File(it.asFile, 'assets') }
     }
 }
 tasks.named('preBuild').configure { dependsOn 'prepareM3g' }

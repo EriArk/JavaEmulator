@@ -1,0 +1,38 @@
+// Opt-in research APKs only; the ordinary application build keeps its engine.
+def candidate = providers.gradleProperty('m3gExperiment').get() == 'candidate'
+android.applicationVariants.all { variant ->
+    variant.resValue 'string', 'app_name', candidate ? 'AbyssME M3G Candidate' : 'AbyssME M3G Baseline'
+}
+android.defaultConfig.ndk.abiFilters 'arm64-v8a', 'x86_64'
+android.sourceSets.androidTest.java.srcDir rootProject.file('experiments/m3g-host/tests')
+
+if (candidate) {
+    apply from: rootProject.file('experiments/m3g-probe/prepare-candidate.gradle')
+    def original = file('src/main/java/javax/microedition/m3g').toPath()
+    android.sourceSets.main.java.exclude { element -> element.file.toPath().startsWith(original) }
+    android.sourceSets.main.java.srcDir m3gGenerated.map { new File(it.asFile, 'java') }
+    android.sourceSets.main.java.srcDir rootProject.file('experiments/m3g-host/java')
+    android.sourceSets.main.assets.srcDir m3gGenerated.map { new File(it.asFile, 'assets') }
+    android.defaultConfig.externalNativeBuild.ndkBuild.targets 'micro3d'
+    android.packaging.jniLibs.excludes.add('**/libjavam3g.so')
+    tasks.register('adaptM3gHost') {
+        dependsOn 'prepareM3g'
+        doLast {
+            def source = new File(m3gGenerated.get().asFile, 'java/javax/microedition/m3g/Graphics3D.java')
+            def text = source.getText('UTF-8')
+            def patches = [
+                'private static Graphics3D instance = null;': 'private static Graphics3D instance = null;\n\tprivate int[] androidFrameBuffer;',
+                'rasterData = ((PlatformGraphics) pgrp).getFrameBuffer();': 'rasterData = androidFrameBuffer = PlatformGraphics.read(pgrp, androidFrameBuffer);',
+                'final PlatformGraphics pgrp = (PlatformGraphics) this.target;': 'final PlatformGraphics pgrp = new PlatformGraphics((Graphics) this.target);',
+                'this.target = null;': 'try { if (this.target instanceof Graphics) PlatformGraphics.flush((Graphics) this.target, rasterData); } finally { this.target = null; }',
+                'public static Graphics3D getInstance()': 'public static void initGraphics3D() { instance = null; }\n\tpublic static Graphics3D getInstance()'
+            ]
+            patches.each { before, after ->
+                if (text.count(before) != 1) throw new GradleException("Host patch drift: ${before}")
+                text = text.replace(before, after)
+            }
+            source.setText(text, 'UTF-8')
+        }
+    }
+    tasks.named('preBuild').configure { dependsOn 'adaptM3gHost' }
+}

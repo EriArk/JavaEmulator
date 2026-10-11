@@ -3,6 +3,13 @@ plugins {
 }
 
 def midletArchivesBaseName
+def m3gExperiment = providers.gradleProperty('m3gExperiment').orNull
+if (m3gExperiment != null && !(m3gExperiment in ['candidate', 'baseline'])) {
+    throw new GradleException('m3gExperiment must be candidate or baseline')
+}
+if (m3gExperiment != null) {
+    layout.buildDirectory.set(file("build/m3g-${m3gExperiment}"))
+}
 
 android {
     compileSdk COMPILE_SDK
@@ -33,7 +40,7 @@ android {
                 keyPassword System.getenv('BITRISEIO_ANDROID_KEYSTORE_PRIVATE_KEY_PASSWORD')
                 storeFile rootProject.file(System.getenv('BITRISEIO_ANDROID_KEYSTORE_NAME'))
                 storePassword System.getenv('BITRISEIO_ANDROID_KEYSTORE_PASSWORD')
-            } else {
+            } else if (m3gExperiment == null) {
                 Properties keystoreProps = new Properties()
                 keystoreProps.load(new FileInputStream(rootProject.file("keystore.properties")))
                 keyAlias keystoreProps['keyAlias']
@@ -63,6 +70,12 @@ android {
     }
 
     flavorDimensions 'default'
+    if (m3gExperiment != null) {
+        variantFilter { variant ->
+            variant.ignore = variant.buildType.name != 'debug' || variant.flavors*.name != ['fdroid']
+        }
+        defaultConfig.applicationId = "io.github.eriark.abyssme.m3g${m3gExperiment}"
+    }
     productFlavors {
         play {
             buildConfigField 'boolean', 'FULL_EMULATOR', 'true'
@@ -150,6 +163,10 @@ android {
     sourceSets {
         androidTest.assets.srcDir rootProject.file('test-games/sudoku-j2me')
     }
+}
+
+if (m3gExperiment != null) {
+    apply from: rootProject.file('experiments/m3g-host/host.gradle')
 }
 
 static def generateVersionCode() {
