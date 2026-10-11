@@ -35,7 +35,7 @@ bundled. The app UI is English.
 | Public development source | `main`; latest app-code change at this review: [d39ed742](https://github.com/EriArk/JavaEmulator/commit/d39ed742) | Unreleased Java/UI/storage improvements listed below; not all are in the downloadable beta |
 | Private combined test snapshot | `0.1.0-beta.2-experimental.15`, 2026-10-11 | Handheld and Phone debug APKs containing Java plus experimental Mophun; supplied separately to testers, not a GitHub release |
 | Local-only implementation | Ignored optional-engine source and diagnostics | Mophun integration, game-specific experiments and test fixtures; public descriptions below, implementation not published |
-| Separate research branch | [`codex/m3g-replacement`](https://github.com/EriArk/JavaEmulator/tree/codex/m3g-replacement), `9354c311` | Replacement investigation and merge gates, not a completed replacement engine |
+| Separate research branch | [`codex/m3g-replacement`](https://github.com/EriArk/JavaEmulator/tree/codex/m3g-replacement), `8d7aafdf` | Isolated Android M3G candidate probe and test evidence; not integrated into AbyssME or accepted as a replacement |
 
 The experimental number is a distribution label: build 15 still reports
 version code **102** and `0.1.0-beta.2` / `0.1.0-beta.2-phone` internally.
@@ -163,11 +163,36 @@ firmware, Symbian game session or new APK resulted from this batch. Original
 N-Gage and N-Gage 2 need separate acceptance; do not advertise either as shipped.
 EKA2L1's GPL terms require a separate review of the existing EPL M3G combination.
 
-Next proposed batch: isolated native build/bootstrap and dependency inventory,
-followed by environment import and one controlled game session. The separate
-M3G replacement investigation is a candidate publication path, not a finished
-replacement. #20 source-identity aliases remains open; it has not been fixed
-or silently dropped. The maintainer confirms the next implementation batch.
+The Symbian prototype's next step remains an isolated native build/bootstrap
+and dependency inventory, followed by environment import and one controlled
+game session. The maintainer then prioritized the separate M3G alternative
+experiment below. #20 source-identity aliases remains open; it has not been
+fixed or silently dropped. The maintainer confirms each next implementation batch.
+
+## Separate Experiment: Alternative M3G
+
+On 2026-10-11 the maintainer explicitly retained the current engine in `main`
+while developing an alternative only in `codex/m3g-replacement`. Licensing
+discussions remain a possible route; no engine removal or root-license change
+has taken effect.
+
+The branch now contains a standalone Android test harness using pinned
+FreeJ2ME-Plus M3G software-renderer sources. It does not include the existing
+EPL engine, update either AbyssME app, or connect to the real MIDP game host.
+Desktop-M3G/Java-M3G were inspected first but deprioritized after finding
+unimplemented core immediate-rendering methods.
+
+**Verified:** the diagnostic APK built; Android lint finished with 0 errors and
+5 warnings. Eight synthetic pixel/behavior checks passed on each of Retroid
+Pocket Classic (Android 14, arm64) and an Android 15 x86_64 emulator. Captured
+screenshots show geometry, texture and clipping. This is not a real-game,
+controller, audio, sustained-performance or complete M3G compatibility result.
+No replacement or probe APK was released.
+
+See the [branch report and screenshots](https://github.com/EriArk/JavaEmulator/blob/8d7aafdf/docs/M3G_REPLACEMENT.md)
+and [reproducible probe](https://github.com/EriArk/JavaEmulator/tree/8d7aafdf/experiments/m3g-probe).
+Next proposed alternative-engine batch: scene loading/animation checks and
+matching current-engine baselines before a branch-only real-host adapter.
 
 ## Distribution and Licensing Status
 

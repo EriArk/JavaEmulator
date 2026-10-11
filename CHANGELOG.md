@@ -11,6 +11,12 @@ stated otherwise. **Experimental** means local/private combined builds only.
 
 ## 2026-10-11
 
+- **Separate experiment / not shipped:** built a standalone Android probe for
+  a FreeJ2ME-Plus M3G alternative on `codex/m3g-replacement`. Eight synthetic
+  checks passed on Retroid Pocket Classic and an x86_64 emulator; diagnostic
+  screenshots and raw reports are published on that branch. Current mainline
+  M3G and licensing remain unchanged; no real-game compatibility or replacement
+  is claimed. [Branch results](https://github.com/EriArk/JavaEmulator/blob/8d7aafdf/docs/M3G_REPLACEMENT.md).
 - **Research / not shipped:** audited EKA2L1 as an embedded Symbian / N-Gage
   engine and documented one-app setup, import, controls and backup goals,
   source findings, licensing/build gates and staged acceptance. No native
