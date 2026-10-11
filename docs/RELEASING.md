@@ -15,6 +15,12 @@ by a maintainer; this document does not enable any automation.
 
 ## Prepare
 
+For a combined Wolphun/M3G release, first complete the permission and component
+notice checks in [licensing status](LICENSING.md). The positive upstream response
+and the clarification request are linked there. Archive the author's actual
+permission and verify its scope before changing release licensing or publishing
+combined sources/binaries; a request drafted by us is not that permission.
+
 1. Agree on the version and scope. Record the source commit and update the app
    version separately as part of the release work. Do not reuse a published tag
    for a different build.

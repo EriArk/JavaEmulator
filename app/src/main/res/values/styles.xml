@@ -1,7 +1,8 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources xmlns:tools="http://schemas.android.com/tools">
 
-    <style name="AppTheme" parent="Theme.AppCompat.DayNight.DarkActionBar">
+    <!-- The retro UI uses dark surfaces in both system modes. Match native widgets to them. -->
+    <style name="AppTheme" parent="Theme.AppCompat">
         <item name="colorPrimary">@color/primary</item>
         <item name="colorPrimaryDark">@color/primary_dark</item>
         <item name="colorAccent">@color/accent</item>
@@ -12,6 +13,9 @@
         <item name="bg_config_card">@drawable/bg_config_card</item>
         <item name="textColorPrimary">@color/text_primary</item>
         <item name="textColorSecondary">@color/text_secondary</item>
+        <item name="android:textColorPrimary">@color/text_primary</item>
+        <item name="android:textColorSecondary">@color/text_secondary</item>
+        <item name="alertDialogTheme">@style/FilePickerAlertDialogTheme</item>
         <item name="android:forceDarkAllowed" tools:targetApi="q">false</item>
     </style>
 
@@ -29,7 +33,7 @@
         <item name="textAppearanceLargePopupMenu">@style/PopupMenuTextAppearanceLarge</item>
     </style>
 
-    <style name="Widget.AppTheme.OverflowMenu" parent="Widget.AppCompat.Light.PopupMenu.Overflow">
+    <style name="Widget.AppTheme.OverflowMenu" parent="Widget.AppCompat.PopupMenu.Overflow">
         <item name="android:popupBackground">@color/background</item>
         <item name="overlapAnchor">false</item>
     </style>
@@ -46,7 +50,7 @@
         <item name="android:textColor">@color/text_primary</item>
     </style>
 
-    <style name="FilePickerTheme" parent="Theme.AppCompat.DayNight.DialogWhenLarge">
+    <style name="FilePickerTheme" parent="Theme.AppCompat.DialogWhenLarge">
         <item name="colorPrimary">@color/primary</item>
         <item name="colorPrimaryDark">@color/primary_dark</item>
         <item name="colorAccent">@color/file_picker_accent</item>
@@ -64,7 +68,7 @@
         <item name="android:forceDarkAllowed" tools:targetApi="q">false</item>
     </style>
 
-    <style name="FilePickerAlertDialogTheme" parent="Theme.AppCompat.DayNight.Dialog.Alert">
+    <style name="FilePickerAlertDialogTheme" parent="Theme.AppCompat.Dialog.Alert">
         <item name="colorAccent">@color/file_picker_accent</item>
         <item name="android:forceDarkAllowed" tools:targetApi="q">false</item>
     </style>
@@ -98,6 +102,9 @@
         <item name="android:paddingRight">6dp</item>
         <item name="android:elevation" tools:targetApi="lollipop">1dp</item>
         <item name="android:background">@drawable/bg_button</item>
+        <item name="backgroundTint">@null</item>
+        <item name="android:backgroundTint">@null</item>
+        <item name="android:textColor">@color/text_primary</item>
     </style>
 
     <style name="QuickOptionButton" parent="Widget.AppCompat.Button">

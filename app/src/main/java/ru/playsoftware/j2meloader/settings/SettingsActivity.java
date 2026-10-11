@@ -17,34 +17,28 @@
 package ru.playsoftware.j2meloader.settings;
 
 import android.os.Bundle;
-import android.view.MenuItem;
 
 import androidx.annotation.Nullable;
-import androidx.appcompat.app.ActionBar;
 
 import ru.playsoftware.j2meloader.R;
-import ru.playsoftware.j2meloader.base.BaseActivity;
 
-public class SettingsActivity extends BaseActivity {
+public class SettingsActivity extends CompactSettingsActivity implements
+        androidx.preference.PreferenceFragmentCompat.OnPreferenceStartScreenCallback {
 
 	@Override
 	protected void onCreate(@Nullable Bundle savedInstanceState) {
-		setTheme(R.style.SettingsTheme);
 		super.onCreate(savedInstanceState);
-		setContentView(R.layout.activity_settings);
-		ActionBar actionBar = getSupportActionBar();
-		if (actionBar != null) {
-			actionBar.setDisplayHomeAsUpEnabled(true);
-		}
-		setTitle(R.string.action_settings);
+		if (savedInstanceState == null) getSupportFragmentManager().beginTransaction()
+				.replace(R.id.settings_content, new SettingsFragment()).commit();
 	}
 
-	@Override
-	public boolean onOptionsItemSelected(MenuItem item) {
-		if (item.getItemId() == android.R.id.home) {
-			finish();
-			return true;
-		}
-		return super.onOptionsItemSelected(item);
+	@Override public boolean onPreferenceStartScreen(androidx.preference.PreferenceFragmentCompat caller,
+			androidx.preference.PreferenceScreen screen) {
+		Bundle args = new Bundle(); args.putString(androidx.preference.PreferenceFragmentCompat.ARG_PREFERENCE_ROOT, screen.getKey());
+		SettingsFragment fragment = new SettingsFragment(); fragment.setArguments(args);
+		getSupportFragmentManager().beginTransaction().replace(R.id.settings_content, fragment)
+				.addToBackStack(screen.getKey()).commit();
+		return true;
 	}
+
 }

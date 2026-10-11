@@ -124,6 +124,8 @@
             android:exported="true"
             android:screenOrientation="landscape"
             android:windowSoftInputMode="stateHidden" />
+        <activity android:name=".config.GameSettingsActivity" android:exported="false"
+            android:theme="@style/AppTheme.NoActionBar" />
         <activity
             android:name=".config.CompatibilityTestActivity"
             android:exported="false"
@@ -155,6 +157,10 @@
         <activity android:name=".config.ProfilesActivity" android:exported="false"
             android:screenOrientation="landscape" />
 
+        <provider
+            android:name=".util.ScreenshotSettingsProvider"
+            android:authorities="${applicationId}.screenshotSettings"
+            android:exported="false" />
         <provider
             android:name="androidx.core.content.FileProvider"
             android:authorities="${applicationId}.provider"

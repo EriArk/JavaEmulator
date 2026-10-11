@@ -94,6 +94,10 @@ public class AppUtils {
 		if (cover.exists()) {
 			item.setCoverPathExt(Config.MIDLET_COVER_FILE);
 		}
+		if (new File(appDir, ru.playsoftware.j2meloader.applist.GameArtwork.USER_ICON).isFile())
+			item.setImagePathExt(ru.playsoftware.j2meloader.applist.GameArtwork.USER_ICON);
+		if (new File(appDir, ru.playsoftware.j2meloader.applist.GameArtwork.USER_COVER).isFile())
+			item.setCoverPathExt(ru.playsoftware.j2meloader.applist.GameArtwork.USER_COVER);
 		return item;
 	}
 

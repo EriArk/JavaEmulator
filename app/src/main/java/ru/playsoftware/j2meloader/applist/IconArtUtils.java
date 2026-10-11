@@ -85,6 +85,18 @@ public final class IconArtUtils {
 			int top = (safeHeight - size) / 2;
 			paint.setFilterBitmap(false);
 			canvas.drawBitmap(icon, null, new Rect(left, top, left + size, top + size), paint);
+		} else {
+			String value = title == null ? "?" : title.trim();
+			String initials = value.isEmpty() ? "?" : value.substring(0,
+					value.offsetByCodePoints(0, Math.min(2, value.codePointCount(0, value.length()))))
+					.toUpperCase(java.util.Locale.ROOT);
+			paint.setAntiAlias(true);
+			paint.setTypeface(android.graphics.Typeface.create("sans-serif", android.graphics.Typeface.BOLD));
+			paint.setTextSize(Math.min(safeWidth, safeHeight) * .4f);
+			float maxWidth = safeWidth * .8f;
+			if (paint.measureText(initials) > maxWidth) paint.setTextSize(paint.getTextSize() * maxWidth / paint.measureText(initials));
+			paint.setTextAlign(Paint.Align.CENTER);
+			canvas.drawText(initials, safeWidth / 2f, (safeHeight - paint.ascent() - paint.descent()) / 2f, paint);
 		}
 		return result;
 	}

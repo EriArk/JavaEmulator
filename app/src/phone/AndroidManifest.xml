@@ -5,7 +5,7 @@
     <application>
         <activity
             android:name=".MainActivity"
-            android:configChanges="screenSize|screenLayout|smallestScreenSize"
+            android:configChanges="orientation|screenSize|screenLayout|smallestScreenSize"
             android:screenOrientation="unspecified"
             tools:replace="android:configChanges,android:screenOrientation" />
         <activity

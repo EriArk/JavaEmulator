@@ -1,0 +1,228 @@
+# Local regression checks
+
+GitHub Actions is intentionally disabled. Set up the SDK/JDK and local signing
+workaround in [Contributing](../CONTRIBUTING.md) first; #1 is still open.
+Commands below use the public source tree, without optional private engines.
+
+## Build and JVM tests
+
+```shell
+./gradlew :app:assemblePhoneDebug :app:assembleFdroidDebug :app:assemblePhoneDebugAndroidTest :app:assembleFdroidDebugAndroidTest
+./gradlew :app:testPhoneDebugUnitTest --rerun :app:testFdroidDebugUnitTest --rerun
+```
+
+On Windows use `gradlew.bat`. JVM coverage is 14 tests per variant: source identity
+and controller direction/diagonal transitions, release behavior and fallback.
+
+## Android instrumentation
+
+Use an explicit emulator/device serial. Example for `emulator-5554` and beta.2
+development filenames (adjust filenames when the version changes):
+
+```shell
+adb -s emulator-5554 install -r -d app/build/outputs/apk/phone/debug/AbyssME-0.1.0-beta.2-phone-debug.apk
+adb -s emulator-5554 install -r -d app/build/outputs/apk/androidTest/phone/debug/app-phone-debug-androidTest.apk
+adb -s emulator-5554 shell am instrument -w -e package ru.playsoftware.j2meloader io.github.eriark.abyssme.phone.debug.test/androidx.test.runner.AndroidJUnitRunner
+
+adb -s emulator-5554 install -r -d app/build/outputs/apk/fdroid/debug/AbyssME-0.1.0-beta.2-debug.apk
+adb -s emulator-5554 install -r -d app/build/outputs/apk/androidTest/fdroid/debug/app-fdroid-debug-androidTest.apk
+adb -s emulator-5554 shell am instrument -w -e package ru.playsoftware.j2meloader io.github.eriark.abyssme.debug.test/androidx.test.runner.AndroidJUnitRunner
+```
+
+Do not uninstall or clear app data to work around a signing conflict on someone's
+device. Test packages have separate `.debug` application IDs. Instrumentation
+uses temporary test libraries; it can launch activities and write screenshots.
+
+## Mismatched JAD/JAR fallback: 2026-10-10
+
+The old installer was reproduced failing with a null-URI exception after accepting
+a mismatched local pair. The same dialog test passes after the fix: acceptance
+changes the descriptor in the existing installer, retaining the selected JAR
+and original JAD source identity instead of creating a path-only installer.
+
+Both public-source variants and instrumentation APKs built. Each variant passed
+12 focused installer cases (`InstallerJadTest`, `InstallerDialogTest`,
+`InstallerSourceTest`); the JVM suites were rerun and passed 14 tests each.
+The complete public-source Android suite was not rerun for this patch.
+
+Four new `InstallerJadTest` cases use an isolated library and the MIT Sudoku JAR:
+local mismatch and reinstall; content-URI mismatch, cancelled selection, cancelled
+confirmation and retry; matching metadata with a retained JAD-only property;
+and a missing selected file followed by a successful retry. They drive the real
+dialog/installer and conversion. Picker callbacks are delivered by the test,
+not by automating DocumentsUI; content URIs come from Android FileProvider.
+Reinstall assertions check the same database ID/path, one library entry, original
+source URI/key/hash, intact source files, and unchanged RMS/config marker bytes.
+This does not claim to validate every game's save format or remote JAD downloads.
+
+Both exact combined private APKs reported OK (128 selected cases), including
+27 optional-engine checks, at 480x320 dp Handheld and 320x640 dp Phone. Variant
+assumptions still apply. These are emulator results, not physical acceptance.
+
+Manual Phone DocumentsUI verification selected a generated mismatched JAD and
+the Sudoku JAR from Downloads, accepted the warning and reached successful
+installation. Reimporting the same document URI reached Reinstall, retained
+the database ID/path and row count, and left all 40 existing RMS/config file
+hashes unchanged. Screenshots record Choose JAR, mismatch, success and Reinstall.
+
+The first two picker selections returned different Downloads document IDs
+(`raw:` then `msf:`), creating separate entries despite identical JAR bytes.
+This distinct identity-alias problem is tracked in
+[#20](https://github.com/EriArk/JavaEmulator/issues/20), not silently merged by
+this patch. The third selection reused the `msf:` URI and correctly reinstalled.
+
+## Compact installer and confirmations: 2026-10-10
+
+Both public-source variants and test APKs built independently and reported
+OK (97 selected Android cases) per variant, with variant-specific assumptions.
+Both JVM suites passed 14 tests per variant.
+
+Five new `InstallerDialogTest` cases cover vertical archive choices and source
+preservation, persistent invalid-archive errors, Back being ignored while busy,
+an explicit Choose JAR action, bounded geometry at 1.5x font, and exiting a
+missing-game preparation error with B. The busy/JAR-prompt case injects UI
+states; it does not certify the full JAD document-provider workflow.
+The unmatched-JAD fallback found in that batch is covered by the follow-up above
+([#19](https://github.com/EriArk/JavaEmulator/issues/19)).
+
+Three `InstallerSourceTest` cases exercise opaque content URIs via a wrapped
+provider: JAR/ZIP distinction, 7z/KJX/JAD signature preservation, short/empty
+input, byte-for-byte copies and unchanged sources. The 7z case validates format
+detection, not complete 7z decoding. A manual DocumentsUI import first reproduced
+ZIP-as-JAR misclassification, then reached the archive chooser after the fix.
+
+Manual emulator checks cover 480x320 dp archive navigation with D-pad, a no-game
+ZIP error, 2048 reinstall reaching Start with unchanged per-game configuration,
+and Phone at 320 dp with 1.3x font. A on the initial Delete confirmation cancels;
+the installed game remained. Screenshots are actual app captures. Physical
+controller/device acceptance is not claimed.
+
+## Compact Settings and transfer: 2026-10-09
+
+Both public-source variants and their test APKs built independently; each Android
+runner reported OK (89 tests). Variant-specific assumptions apply. Both JVM
+suites passed 14 tests per variant.
+
+Three new `CompactSettingsTest` cases cover section navigation, preference
+persistence after recreation, preview space and selection, unavailable entries,
+results returning to the chooser, cancellation without closing the screen, and
+retry after an error. They use synthetic transfer states; they do not replace
+the 12 existing archive/import tests or document-provider checks.
+
+A manual Phone emulator check saved a real backup of 11 installed games through
+DocumentsUI and reopened it for preview. Saves were detected, existing titles
+were not selected automatically, and no duplicate restore was performed.
+Import/archive formats and save-conflict handling were not changed.
+
+The exact combined private test APKs also reported OK (116 selected cases) in
+each variant, including 27 optional-engine checks. Phone skips the Handheld-only
+focus case; Handheld skips Phone-only menu rotation. The Phone search case ran
+in portrait. This does not broaden the public-source engine support.
+
+Manual checks covered D-pad/A/B navigation through Settings and Library transfer
+at 480x320 dp, and Phone settings/transfer at 320 dp width with 1.3x font size.
+Captured screens come from installed apps. Physical handheld/controller and
+third-party launcher acceptance remain separate.
+
+## Compact handheld interface: 2026-10-09
+
+Follow-up: artwork and focus checks add 13 cases (11 generated artwork fixtures,
+one backup/import round-trip and one Handheld-only real-activity focus test).
+Final combined debug snapshots passed 108 selected cases on Handheld; Phone's
+runner reported 108 with the Handheld-only case skipped (107 executed). This
+includes 27 private engine cases; the shared source accounts for 81 cases.
+Both public-source variants and test APKs also build separately. JVM suites
+were rerun: 14 tests per variant.
+
+The cold-start focus regression is fixed: resizing cards is deferred until after
+RecyclerView layout, so pending adapter updates complete. The activity test
+uses an isolated eight-item catalog, checks all three views and verifies that
+subsequent layout does not steal deliberately placed header focus.
+See [artwork rules and safe legacy refresh](ARTWORK.md).
+
+Public-source Phone and Handheld APKs and both instrumentation APKs built.
+Handheld passed 68 selected Android tests at 480x320 dp. The two additional
+cases cover library card geometry/artwork modes and narrow mapper page bindings.
+Mapper geometry also covers 480x302 dp usable space (system cutout allowance),
+640x360 dp and 360x640 dp portrait. JVM suites passed 14 tests per variant.
+
+See [compact library behavior and design references](COMPACT_LIBRARY.md).
+Manual checks cover library view switching with L/R, visible selection, Start/X
+menus, expanded search and B-to-clear, narrow mapper pages, and portrait Phone
+browsing. The initial collection-selector focus found in that earlier pass is
+fixed by the follow-up above. Visual acceptance on a physical handheld remains
+to be checked. This is emulator coverage, not physical-device/controller acceptance.
+
+## Settings trials: 2026-10-09
+
+Both public-source APKs and instrumentation APKs built. Phone passed all 66
+selected Android tests; Handheld passed the 10 new `SettingsTrialTest` cases.
+Both JVM suites passed again (14 tests per variant). The full Handheld Android
+suite was not repeated for this batch.
+
+New coverage includes draft isolation, suppressed runtime autosave, repeated
+preview/undo, Keep and failed Keep, one-shot launch consumption, malformed drafts,
+restart-required detection, save-file preservation and interrupted atomic writes.
+See [settings trial behavior and manual checks](SETTINGS_TRIALS.md).
+
+Manual emulator checks covered the library-to-game trial, Keep, live rotation
+Undo, Phone/Gamepad Undo and timeout rollback. At 480x320 dp, D-pad focus scrolls
+the settings action into view. The library issue found in that pass is addressed
+by the subsequent compact interface batch above (#17); this is not a claim that
+every screen is polished at that size.
+
+## Earlier full baseline: 2026-10-08
+
+Both public-source variants built locally, and both JVM suites passed (14 tests
+each). The Android emulator passed these 56 tests in **each** variant:
+
+| Suite | Tests |
+| --- | ---: |
+| CompatibilityProfileTest | 20 |
+| OrientationTest | 1 |
+| DatabaseMigrationTest | 4 |
+| LibraryImporterTest | 11 |
+| AdditionalGamesTest | 1 |
+| ControllerMapperTest | 7 |
+| ScreenRotationTest | 3 |
+| TouchDeckTest | 4 |
+| ScreenshotTest | 3 |
+| ThemeContrastTest | 2 |
+
+This excludes inherited GraphicsTest and is not a blanket test of every
+emulation API. MIDI/audio/native engines and full gameplay are not proven by it.
+The static MIDP-1.0 metadata case is not a redistributable MIDP-1.0 gameplay fixture.
+
+## Automatic preparation contract
+
+- First launch or opening per-game settings without a saved configuration starts
+  automatic preparation. Opening settings returns to the editor, not to gameplay.
+- Explicit target metadata wins over incidental vendor API references. Repeated
+  aliases do not accumulate votes. Absent/conflicting vendor hints use Generic MIDP.
+- Distributor advertising and web addresses do not select a manufacturer. Exact
+  manufacturer publisher names and vendor API references are weak evidence, not
+  confirmation of a device model. Their confidence remains low.
+- Declared display dimensions take precedence over artwork dimensions. Atlases,
+  sprites, tiles, icons and fonts are excluded; image area is not a ranking bonus.
+- Raw image dimensions must match a known phone resolution. An unusual background
+  such as 255x160 is not treated as a native display. Comma-separated declared
+  dimensions are supported; JAR URL hints use the filename, not the host or query.
+- Conflicting equal-strength screen sizes keep the current size. Resource order
+  does not decide the winner. 480x800 and 480x854, including landscape, are supported.
+- Existing/imported/template settings are kept. Detected screen dimensions are
+  stored separately so the in-game Auto size can restore them after relaunch.
+  Legacy profiles with no detection record retain the old launch-size fallback.
+- Preparation failures are reported instead of being silently treated as saved.
+- This is static analysis, not running each profile or certifying compatibility.
+
+## Manual acceptance still required
+
+Physical controller/disconnect testing (#9), Phone recreation with touch on/off
+(#3), actual ES-DE/Beacon launch-return flows (#7), more document providers and
+more game releases remain separate checks. The external-launcher pass is deferred.
+Use the manual matrix in Contributing; record actual games/devices/results rather
+than turning untested rows into passed checkboxes.
+
+The first [six-game archive smoke sample](GAME_SMOKE_MATRIX.md) includes both
+successful screen transitions and unresolved failures. It is not a compatibility
+whitelist and does not replace the remaining device checks.

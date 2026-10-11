@@ -137,6 +137,20 @@
         android:visibility="gone" />
 
     <ImageButton
+        android:id="@+id/game_screenshot_button"
+        android:layout_width="48dp"
+        android:layout_height="48dp"
+        android:layout_gravity="top|start"
+        android:layout_marginStart="52dp"
+        android:background="@drawable/bg_quick_setting_button"
+        android:src="@drawable/ic_action_screenshot"
+        android:tint="@color/text_primary"
+        android:padding="12dp"
+        android:contentDescription="@string/capture_screenshot"
+        android:tooltipText="@string/capture_screenshot"
+        android:visibility="gone" />
+
+    <ImageButton
         android:id="@+id/game_menu_button"
         android:layout_width="48dp"
         android:layout_height="48dp"

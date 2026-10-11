@@ -26,8 +26,6 @@ import com.google.gson.JsonElement;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
-import java.io.FileReader;
-import java.io.FileWriter;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -111,8 +109,9 @@ public class ProfilesManager {
 	public static ProfileModel loadConfig(File dir) {
 		File file = new File(dir, Config.MIDLET_CONFIG_FILE);
 		ProfileModel params = null;
-		if (file.exists()) {
-			try (FileReader reader = new FileReader(file)) {
+		if (file.exists() || new File(file.getPath() + ".bak").exists()) {
+			try (java.io.InputStreamReader reader = new java.io.InputStreamReader(
+					new android.util.AtomicFile(file).openRead(), java.nio.charset.StandardCharsets.UTF_8)) {
 				params = gson.fromJson(reader, ProfileModel.class);
 				params.dir = dir;
 			} catch (Exception e) {
@@ -177,13 +176,65 @@ public class ProfilesManager {
 	}
 
 	public static boolean saveConfig(ProfileModel p) {
-		try (FileWriter writer = new FileWriter(new File(p.dir, Config.MIDLET_CONFIG_FILE))) {
-			gson.toJson(p, writer);
-			writer.close();
+		// Runtime helpers may request autosave while a reversible preview is active.
+		if (isPreview(p)) return true;
+		if (p.dir == null || !p.dir.isDirectory()) return false;
+		android.util.AtomicFile file = new android.util.AtomicFile(new File(p.dir, Config.MIDLET_CONFIG_FILE));
+		java.io.FileOutputStream stream = null;
+		try {
+			stream = file.startWrite();
+			stream.write(gson.toJson(p).getBytes(java.nio.charset.StandardCharsets.UTF_8));
+			file.finishWrite(stream);
 			return true;
 		} catch (Exception e) {
+			file.failWrite(stream);
 			Log.e(TAG, "saveConfig: ", e);
 		}
+		return false;
+	}
+
+	public static ProfileModel copy(ProfileModel source) {
+		ProfileModel result = gson.fromJson(gson.toJson(source), ProfileModel.class);
+		result.dir = source.dir;
+		return result;
+	}
+
+	/** Preserve the model identity held by the touch deck and runtime. */
+	public static void copyInto(ProfileModel source, ProfileModel destination) {
+		ProfileModel detached = copy(source);
+		try {
+			for (java.lang.reflect.Field field : ProfileModel.class.getFields()) {
+				int modifiers = field.getModifiers();
+				if (!java.lang.reflect.Modifier.isStatic(modifiers)
+						&& !java.lang.reflect.Modifier.isTransient(modifiers)) field.set(destination, field.get(detached));
+			}
+		} catch (IllegalAccessException e) { throw new IllegalStateException(e); }
+	}
+
+	public static boolean isPreview(ProfileModel p) { return p.previewBaseline != null; }
+
+	public static boolean previewNeedsRestart(ProfileModel p) {
+		ProfileModel old = p.previewBaseline;
+		return old != null && (old.graphicsMode != p.graphicsMode || old.immediateMode != p.immediateMode
+				|| old.parallelRedrawScreen != p.parallelRedrawScreen
+				|| !java.util.Objects.equals(old.systemProperties, p.systemProperties));
+	}
+
+	public static void beginPreview(ProfileModel p) {
+		if (!isPreview(p)) p.previewBaseline = copy(p);
+	}
+
+	public static void undoPreview(ProfileModel p) {
+		if (!isPreview(p)) return;
+		copyInto(p.previewBaseline, p);
+		p.previewBaseline = null;
+	}
+
+	public static boolean keepPreview(ProfileModel p) {
+		ProfileModel baseline = p.previewBaseline;
+		p.previewBaseline = null;
+		if (saveConfig(p)) return true;
+		p.previewBaseline = baseline;
 		return false;
 	}
 

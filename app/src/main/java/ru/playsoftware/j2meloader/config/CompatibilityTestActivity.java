@@ -15,13 +15,14 @@ import android.net.Uri;
 import android.os.Bundle;
 import android.view.View;
 
-import androidx.appcompat.app.AlertDialog;
+import ru.playsoftware.j2meloader.input.GameMenuDialog;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.preference.PreferenceManager;
 
 import java.io.File;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
+import java.util.concurrent.CancellationException;
 
 import javax.microedition.shell.MicroActivity;
 
@@ -38,6 +39,9 @@ public class CompatibilityTestActivity extends AppCompatActivity {
 	private String appName;
 	private String arguments;
 	private volatile boolean destroyed;
+	private boolean ready;
+	private boolean launched;
+	private GameMenuDialog errorDialog;
 
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
@@ -74,31 +78,49 @@ public class CompatibilityTestActivity extends AppCompatActivity {
 	}
 
 	private void showError() {
-		new AlertDialog.Builder(this)
-				.setTitle(R.string.error)
-				.setMessage(getString(R.string.err_missing_app, ""))
-				.setPositiveButton(R.string.exit, (dialog, which) -> finish())
-				.setCancelable(false)
-				.show();
+		showError(getString(R.string.err_missing_app, ""), false);
+	}
+
+	private void showError(String message, boolean retryable) {
+		errorDialog = new GameMenuDialog(this, appName);
+		GameMenuDialog dialog = errorDialog;
+		boolean[] retry = {false};
+		dialog.show(); dialog.page("Could not prepare game");
+		dialog.setCanceledOnTouchOutside(false);
+		dialog.message(message);
+		dialog.setOnDismissListener(d -> { if (!retry[0] && !destroyed) finish(); });
+		if (retryable) dialog.action("Retry", android.R.drawable.ic_menu_rotate, () -> {
+			retry[0] = true; dialog.dismiss(); startTesting();
+		});
+		dialog.action("Exit", android.R.drawable.ic_menu_close_clear_cancel, dialog::dismiss);
 	}
 
 	private void startTesting() {
-		executor = Executors.newSingleThreadExecutor();
+		if (executor == null) executor = Executors.newSingleThreadExecutor();
 		executor.execute(() -> {
-			ProfileModel params = loadOrCreateProfile();
-			updateProgress(0, getString(R.string.compatibility_test_starting));
-			CompatibilityProfileTester.Result result = CompatibilityProfileTester.run(
-					this, appDir, params, this::updateProgress);
-			LaunchDiagnostics.record(this, "profile_selected", appName,
-					result.profileName + ":" + result.confidence + ":" + result.reasons);
-			updateProgress(100, getString(R.string.compatibility_test_done, result.profileName));
-			runOnUiThread(() -> {
-				if (destroyed) {
-					return;
-				}
-				binding.compatibilityLaunchNow.setVisibility(View.VISIBLE);
-				binding.compatibilityLaunchNow.postDelayed(this::launchMidlet, 450);
-			});
+			try {
+				ProfileModel params = loadOrCreateProfile();
+				updateProgress(0, getString(R.string.compatibility_test_starting));
+				CompatibilityProfileTester.Result result = CompatibilityProfileTester.run(
+						this, appDir, params, this::updateProgress);
+				LaunchDiagnostics.record(this, "profile_selected", appName,
+						result.profileName + ":" + result.confidence + ":" + result.reasons);
+				updateProgress(100, getString(R.string.compatibility_test_done));
+				runOnUiThread(() -> {
+					if (destroyed) return;
+					ready = true;
+					binding.compatibilityLaunchNow.setVisibility(View.VISIBLE);
+					binding.compatibilityLaunchNow.postDelayed(this::launchMidlet, 450);
+				});
+			} catch (CancellationException ignored) {
+				// Leaving preparation must not launch a game from a stopped activity.
+			} catch (Exception error) {
+				LaunchDiagnostics.record(this, "preparation_failed", appName, error.getClass().getSimpleName());
+				runOnUiThread(() -> {
+					if (destroyed) return;
+					showError(getString(R.string.compatibility_test_failed), true);
+				});
+			}
 		});
 	}
 
@@ -130,10 +152,12 @@ public class CompatibilityTestActivity extends AppCompatActivity {
 	}
 
 	private void launchMidlet() {
-		if (destroyed || appDir == null) {
+		if (destroyed || !ready || launched || appDir == null) {
 			return;
 		}
-		Intent intent = new Intent(Intent.ACTION_DEFAULT, Uri.parse(appDir.getPath()), this, MicroActivity.class);
+		launched = true;
+		Intent intent = new Intent(Intent.ACTION_DEFAULT, Uri.parse(appDir.getPath()), this,
+				getIntent().getBooleanExtra("open_settings", false) ? GameSettingsActivity.class : MicroActivity.class);
 		intent.putExtra(KEY_MIDLET_NAME, appName);
 		intent.putExtra(KEY_START_ARGUMENTS, arguments);
 		startActivity(intent);
@@ -143,6 +167,7 @@ public class CompatibilityTestActivity extends AppCompatActivity {
 	@Override
 	protected void onDestroy() {
 		destroyed = true;
+		if (errorDialog != null) errorDialog.dismiss();
 		if (executor != null) {
 			executor.shutdownNow();
 		}

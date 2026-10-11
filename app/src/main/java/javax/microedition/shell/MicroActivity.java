@@ -94,12 +94,17 @@ import ru.playsoftware.j2meloader.BuildConfig;
 import ru.playsoftware.j2meloader.R;
 import ru.playsoftware.j2meloader.config.Config;
 import ru.playsoftware.j2meloader.config.ProfileModel;
+import ru.playsoftware.j2meloader.config.ProfilesManager;
+import ru.playsoftware.j2meloader.config.GameSettingsPages;
+import ru.playsoftware.j2meloader.input.MapperDialog;
+import ru.playsoftware.j2meloader.input.SettingsPreviewBar;
 import ru.playsoftware.j2meloader.databinding.ActivityMicroBinding;
 import ru.playsoftware.j2meloader.diagnostics.LaunchDiagnostics;
 import ru.playsoftware.j2meloader.input.ControllerInput;
 import ru.playsoftware.j2meloader.input.ControllerMapperView;
 import ru.playsoftware.j2meloader.util.Constants;
 import ru.playsoftware.j2meloader.util.LogUtils;
+import ru.playsoftware.j2meloader.util.Screenshots;
 
 public class MicroActivity extends AppCompatActivity {
 	private static final int ORIENTATION_DEFAULT = 0;
@@ -111,6 +116,7 @@ public class MicroActivity extends AppCompatActivity {
 
 	private Displayable current;
 	private boolean visible;
+	private boolean screenshotPending;
 	private boolean actionBarEnabled;
 	private boolean statusBarEnabled;
 	private MicroLoader microLoader;
@@ -120,6 +126,8 @@ public class MicroActivity extends AppCompatActivity {
 	private String appPath;
 	private ControllerMapperView controllerMapper;
 	private ru.playsoftware.j2meloader.input.GameMenuDialog gameMenu;
+	private MapperDialog settingsMapper;
+	private SettingsPreviewBar settingsPreview;
 	private final HashSet<Integer> overlayHeldKeys = new HashSet<>();
 	private InputManager inputManager;
 	private final ControllerInput controllerInput = new ControllerInput(KeyMapper::getInputMapping,
@@ -220,24 +228,28 @@ public class MicroActivity extends AppCompatActivity {
 		}
 		microLoader.applyConfiguration();
 		VirtualKeyboard vk = ContextHolder.getVk();
-		int orientation = BuildConfig.HANDHELD_MODE ? ORIENTATION_LANDSCAPE : ORIENTATION_AUTO;
+		int orientation = microLoader.getOrientation();
 		if (vk != null) {
 			vk.setView(binding.overlayView);
 			binding.overlayView.addLayer(vk);
-			if (vk.isPhone()) {
+			if (vk.isPhone() && orientation == ORIENTATION_DEFAULT) {
 				orientation = ORIENTATION_PORTRAIT;
 			}
 		}
 		setOrientation(BuildConfig.HANDHELD_MODE ? ORIENTATION_LANDSCAPE : orientation);
 		menuKey = microLoader.getMenuKeyCode();
 		setupQuickSettingsOverlay();
+		settingsPreview = new SettingsPreviewBar(this, this::keepSettingsPreview, this::undoSettingsPreview);
+		android.widget.FrameLayout.LayoutParams previewLayout = new android.widget.FrameLayout.LayoutParams(
+				ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT, android.view.Gravity.TOP);
+		previewLayout.topMargin = Math.round(54 * getResources().getDisplayMetrics().density);
+		binding.midletFrame.addView(settingsPreview, previewLayout);
+		if (ProfilesManager.isPreview(microLoader.getTouchSettings())) settingsPreview.start();
+		binding.gameScreenshotButton.setOnClickListener(v -> takeScreenshot());
 		binding.gameMenuButton.setVisibility(BuildConfig.HANDHELD_MODE ? View.GONE : View.VISIBLE);
 		binding.gameMenuButton.setOnClickListener(v -> openOptionsMenu());
 		binding.gameDisplayButton.setVisibility(BuildConfig.HANDHELD_MODE ? View.GONE : View.VISIBLE);
-		binding.gameDisplayButton.setOnClickListener(v -> {
-			if (binding.quickSettingsOverlay.getVisibility() == View.VISIBLE) hideQuickSettingsOverlay();
-			else { showQuickSettingsOverlay(); binding.quickScreenOptions.setVisibility(View.VISIBLE); }
-		});
+		binding.gameDisplayButton.setOnClickListener(v -> { openOptionsMenu(); showDisplayPage(); });
 		inputManager = (InputManager) getSystemService(INPUT_SERVICE);
 		inputManager.registerInputDeviceListener(controllerListener, quickSettingsHandler);
 		inputMethodManager = (InputMethodManager) getSystemService(INPUT_METHOD_SERVICE);
@@ -264,11 +276,17 @@ public class MicroActivity extends AppCompatActivity {
 	public void onResume() {
 		super.onResume();
 		visible = true;
-		if (!isQuickMapVisible() && (gameMenu == null || !gameMenu.isShowing())) MidletThread.resumeApp();
+		updateScreenshotButton();
+		if (!isQuickMapVisible() && (gameMenu == null || !gameMenu.isShowing())
+				&& (settingsMapper == null || !settingsMapper.isShowing())) {
+			MidletThread.resumeApp();
+			if (settingsPreview != null) settingsPreview.resume();
+		}
 	}
 
 	@Override
 	public void onPause() {
+		if (settingsPreview != null) settingsPreview.suspend();
 		controllerInput.clear();
 		VirtualKeyboard vk = ContextHolder.getVk();
 		if (vk != null) vk.cancel();
@@ -526,6 +544,7 @@ public class MicroActivity extends AppCompatActivity {
 	private void setupQuickSettingsOverlay() {
 		binding.quickSettingsOverlay.setOnClickListener(v -> hideQuickSettingsOverlay());
 		binding.quickSettingsQuality.setOnClickListener(v -> {
+			ProfilesManager.beginPreview(microLoader.getTouchSettings());
 			microLoader.cycleDisplayPreset();
 			applyRuntimeDisplaySettings(false);
 		});
@@ -550,6 +569,7 @@ public class MicroActivity extends AppCompatActivity {
 	}
 
 	private void applyQuickScreen(int width, int height) {
+		ProfilesManager.beginPreview(microLoader.getTouchSettings());
 		if (width == 0) {
 			microLoader.restoreDetectedScreenSize();
 		} else if (width < 0) {
@@ -563,6 +583,7 @@ public class MicroActivity extends AppCompatActivity {
 
 	private void applyImageRotation(int degrees) {
 		if (!(current instanceof Canvas)) return;
+		ProfilesManager.beginPreview(microLoader.getTouchSettings());
 		if (!microLoader.setScreenRotation(degrees)) {
 			Toast.makeText(this, R.string.display_save_failed, Toast.LENGTH_LONG).show();
 			return;
@@ -581,6 +602,7 @@ public class MicroActivity extends AppCompatActivity {
 		binding.quickSettingsOverlay.setVisibility(View.VISIBLE);
 		binding.gameDisplayButton.setVisibility(View.GONE);
 		binding.gameMenuButton.setVisibility(View.GONE);
+		updateScreenshotButton();
 		scheduleQuickSettingsHide();
 	}
 
@@ -593,6 +615,15 @@ public class MicroActivity extends AppCompatActivity {
 		binding.quickSettingsOverlay.setVisibility(View.GONE);
 		binding.gameDisplayButton.setVisibility(BuildConfig.HANDHELD_MODE ? View.GONE : View.VISIBLE);
 		binding.gameMenuButton.setVisibility(BuildConfig.HANDHELD_MODE ? View.GONE : View.VISIBLE);
+		updateScreenshotButton();
+	}
+
+	private void updateScreenshotButton() {
+		if (binding == null) return;
+		boolean show = current instanceof Canvas && Screenshots.isButtonVisible(this)
+				&& binding.quickSettingsOverlay.getVisibility() != View.VISIBLE && !isQuickMapVisible();
+		binding.gameScreenshotButton.setVisibility(show ? View.VISIBLE : View.GONE);
+		binding.gameScreenshotButton.setEnabled(!screenshotPending);
 	}
 
 	private void scheduleQuickSettingsHide() {
@@ -611,6 +642,46 @@ public class MicroActivity extends AppCompatActivity {
 		}
 		updateQuickSettingsLabels();
 		scheduleQuickSettingsHide();
+		if (settingsPreview != null && ProfilesManager.isPreview(microLoader.getTouchSettings())) settingsPreview.start();
+	}
+
+	private void keepSettingsPreview() {
+		if (!ProfilesManager.keepPreview(microLoader.getTouchSettings())) {
+			Toast.makeText(this, R.string.display_save_failed, Toast.LENGTH_LONG).show(); return;
+		}
+		settingsPreview.stop();
+		if (gameMenu != null && gameMenu.isShowing()) showGameMenuPage();
+	}
+
+	private void undoSettingsPreview() {
+		if (microLoader == null || !ProfilesManager.isPreview(microLoader.getTouchSettings())) return;
+		controllerInput.clear();
+		boolean restart = ProfilesManager.previewNeedsRestart(microLoader.getTouchSettings());
+		ProfilesManager.undoPreview(microLoader.getTouchSettings());
+		if (restart) {
+			settingsPreview.stop();
+			Toast.makeText(this, "Previous settings restored. Restart the game to continue.", Toast.LENGTH_LONG).show();
+			MidletThread.destroyApp();
+			return;
+		}
+		microLoader.applyPreviewSettings();
+		VirtualKeyboard vk = ContextHolder.getVk();
+		if (vk != null) vk.refreshTouchLayout();
+		applyRuntimeDisplaySettings(true);
+		menuKey = microLoader.getMenuKeyCode();
+		settingsPreview.stop();
+		if (gameMenu != null && gameMenu.isShowing()) showGameMenuPage();
+	}
+
+	private void previewSettings(ProfileModel draft) {
+		controllerInput.clear();
+		VirtualKeyboard vk = ContextHolder.getVk();
+		if (vk != null) vk.cancel();
+		microLoader.previewSettings(draft);
+		if (vk != null) vk.refreshTouchLayout();
+		applyRuntimeDisplaySettings(true);
+		menuKey = microLoader.getMenuKeyCode();
+		if (gameMenu != null) gameMenu.dismiss();
 	}
 
 	private void updateQuickSettingsLabels() {
@@ -641,6 +712,7 @@ public class MicroActivity extends AppCompatActivity {
 			return;
 		}
 		controllerInput.clear();
+		if (settingsPreview != null) settingsPreview.suspend();
 		VirtualKeyboard vk = ContextHolder.getVk();
 		if (vk != null) vk.cancel();
 		hideQuickSettingsOverlay();
@@ -650,17 +722,20 @@ public class MicroActivity extends AppCompatActivity {
 				new ControllerMapperView.Listener() {
 					public void save(ArrayList<ProfileModel.KeyMappingProfile> profiles, int active) {
 						controllerInput.clear();
-						if (microLoader.saveControllerProfiles(profiles, active)) {
-							menuKey = microLoader.getMenuKeyCode();
-							hideQuickMapOverlay();
-						} else Toast.makeText(MicroActivity.this, R.string.mapper_save_failed, Toast.LENGTH_LONG).show();
+						ProfileModel draft = ProfilesManager.copy(microLoader.getTouchSettings());
+						draft.keyMappingProfiles = profiles;
+						draft.setActiveKeyMappingProfile(active);
+						hideQuickMapOverlay();
+						previewSettings(draft);
 					}
 					public void cancel() { hideQuickMapOverlay(); }
 				});
+		controllerMapper.setSaveLabel("Try changes");
 		binding.quickMapOverlay.removeAllViews();
 		binding.quickMapOverlay.addView(controllerMapper, new ViewGroup.LayoutParams(
 				ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT));
 		binding.quickMapOverlay.setVisibility(View.VISIBLE);
+		updateScreenshotButton();
 		hideSystemUI();
 	}
 
@@ -670,8 +745,10 @@ public class MicroActivity extends AppCompatActivity {
 		binding.quickMapOverlay.setVisibility(View.GONE);
 		binding.quickMapOverlay.removeAllViews();
 		controllerMapper = null;
+		updateScreenshotButton();
 		if (visible) {
 			MidletThread.resumeApp();
+			if (settingsPreview != null) settingsPreview.resume();
 		}
 		if (current instanceof Canvas) {
 			hideSystemUI();
@@ -718,6 +795,7 @@ public class MicroActivity extends AppCompatActivity {
 	public void openOptionsMenu() {
 		if (microLoader == null || isQuickMapVisible() || (gameMenu != null && gameMenu.isShowing())) return;
 		cancelQuickMapTrigger();
+		if (settingsPreview != null) settingsPreview.suspend();
 		controllerInput.clear();
 		VirtualKeyboard vk = ContextHolder.getVk();
 		if (vk != null) vk.cancel();
@@ -725,7 +803,10 @@ public class MicroActivity extends AppCompatActivity {
 		MidletThread.pauseApp();
 		gameMenu = new ru.playsoftware.j2meloader.input.GameMenuDialog(this, appName);
 		gameMenu.setOnDismissListener(d -> {
-			if (visible && !isQuickMapVisible()) MidletThread.resumeApp();
+			if (visible && !isQuickMapVisible()) {
+				MidletThread.resumeApp();
+				if (settingsPreview != null) settingsPreview.resume();
+			}
 			hideSystemUI();
 		});
 		gameMenu.show();
@@ -734,14 +815,13 @@ public class MicroActivity extends AppCompatActivity {
 
 	private void showGameMenuPage() {
 		gameMenu.page("Game menu");
+		if (ProfilesManager.isPreview(microLoader.getTouchSettings())) {
+			gameMenu.action("Keep changes", android.R.drawable.ic_menu_save, this::keepSettingsPreview);
+			gameMenu.action("Undo changes", android.R.drawable.ic_menu_revert, this::undoSettingsPreview);
+		}
 		gameMenu.action("Resume", android.R.drawable.ic_media_play, () -> gameMenu.dismiss());
 		gameMenu.action("Display", R.drawable.ic_quick_size, this::showDisplayPage);
-		gameMenu.action("Controller mapping", R.drawable.ic_action_keyboard, () -> {
-			showQuickMapOverlay(); gameMenu.dismiss();
-		});
-		if (!BuildConfig.HANDHELD_MODE && ContextHolder.getVk() != null) {
-			gameMenu.action("Touch controls", R.drawable.ic_baseline_tune_24, this::showTouchPage);
-		}
+		gameMenu.action("Controls", R.drawable.ic_action_keyboard, this::showTouchPage);
 		gameMenu.action("More", android.R.drawable.ic_menu_more, this::showMorePage);
 		gameMenu.action("Exit game", android.R.drawable.ic_menu_close_clear_cancel, () -> {
 			gameMenu.dismiss(); showExitConfirmation();
@@ -749,36 +829,31 @@ public class MicroActivity extends AppCompatActivity {
 	}
 
 	private void showDisplayPage() {
-		gameMenu.page("Display");
-		if (current instanceof Canvas) gameMenu.choice(getString(R.string.quick_rotate_image),
-				new String[]{"0\u00b0", "90\u00b0", "180\u00b0", "270\u00b0"},
-				microLoader.getScreenRotation() / 90, index -> applyImageRotation(index * 90));
-		String[] labels = getResources().getStringArray(R.array.quick_display_preset_entries);
-		gameMenu.choice("Look", labels, clampIndex(microLoader.getDisplayPreset(), labels.length), index -> {
-			microLoader.applyDisplayPreset(index); applyRuntimeDisplaySettings(false);
+		settingsPages().display();
+	}
+
+	private GameSettingsPages settingsPages() {
+		return new GameSettingsPages(gameMenu, microLoader.getTouchSettings(), true, new GameSettingsPages.Host() {
+			public void preview(ProfileModel draft) { previewSettings(draft); }
+			public void mapping(ProfileModel draft, Runnable back) {
+				gameMenu.hide();
+				settingsMapper = new MapperDialog(MicroActivity.this, appName, draft, () -> {
+					if (!isFinishing()) { gameMenu.show(); back.run(); }
+				});
+				settingsMapper.show();
+			}
+			public void advanced() { }
+			public void legacyControls() { showLegacyTouchPage(); }
+			public void back() { showGameMenuPage(); }
 		});
-		gameMenu.action("Screen: " + microLoader.getScreenWidth() + " x " + microLoader.getScreenHeight(),
-				R.drawable.ic_quick_size, () -> {
-			gameMenu.page("Game resolution");
-			gameMenu.action("Auto",0,()-> { applyQuickScreen(0,0); showDisplayPage(); });
-			gameMenu.action("176 x 220",0,()-> { applyQuickScreen(176,220); showDisplayPage(); });
-			gameMenu.action("240 x 320",0,()-> { applyQuickScreen(240,320); showDisplayPage(); });
-			gameMenu.action("320 x 240",0,()-> { applyQuickScreen(320,240); showDisplayPage(); });
-			gameMenu.action("480 x 800",0,()-> { applyQuickScreen(480,800); showDisplayPage(); });
-			gameMenu.action("Back",android.R.drawable.ic_media_previous,this::showDisplayPage);
-		});
-		if (!BuildConfig.HANDHELD_MODE) {
-			gameMenu.action("Rotate device layout",R.drawable.ic_quick_orientation,()-> {
-				setRequestedOrientation(getResources().getConfiguration().orientation == Configuration.ORIENTATION_PORTRAIT
-						? ActivityInfo.SCREEN_ORIENTATION_SENSOR_LANDSCAPE : ActivityInfo.SCREEN_ORIENTATION_SENSOR_PORTRAIT);
-				gameMenu.dismiss();
-			});
-		}
-		gameMenu.action("Back",android.R.drawable.ic_media_previous,this::showGameMenuPage);
 	}
 
 	private void showMorePage() {
 		gameMenu.page("More");
+		gameMenu.toggle(getString(R.string.screenshot_button), Screenshots.isButtonVisible(this), value -> {
+			Screenshots.setButtonVisible(this, value);
+			updateScreenshotButton();
+		});
 		if (current instanceof Canvas) gameMenu.action("Screenshot", R.drawable.ic_action_screenshot, () -> {
 			gameMenu.dismiss(); takeScreenshot();
 		});
@@ -795,32 +870,7 @@ public class MicroActivity extends AppCompatActivity {
 	}
 
 	private void showTouchPage() {
-		ProfileModel p = microLoader.getTouchSettings();
-		gameMenu.page("Touch controls");
-		int layout = p.touchLayout == null ? 2 : p.touchLayout;
-		String[] layouts = {"Phone", "Gamepad", "Legacy"};
-		gameMenu.choice("Layout", layouts, Math.max(0,Math.min(2,layout)), index -> {
-			p.touchLayout = index; applyTouchSettings(); showTouchPage();
-		});
-		if (layout == 2) {
-			gameMenu.action("Legacy layout editor", R.drawable.ic_baseline_tune_24, this::showLegacyTouchPage);
-			gameMenu.action("Back",android.R.drawable.ic_media_previous,this::showGameMenuPage);
-			return;
-		}
-		gameMenu.choice("Size", new String[]{"Standard","Large","Extra large"},Math.max(0,Math.min(2,p.touchSize)), index -> {
-			p.touchSize = index; applyTouchSettings();
-		});
-		gameMenu.opacity(p.touchOpacity, value -> {
-			p.touchOpacity = value; applyTouchSettings();
-		});
-		boolean landscape = getResources().getConfiguration().orientation == Configuration.ORIENTATION_LANDSCAPE;
-		float reach = landscape ? p.touchLandscapeReach : p.touchPortraitReach;
-		gameMenu.choice("Position", new String[]{"Bottom","Raised"},reach > 0 ? 1 : 0, index -> {
-			if (landscape) p.touchLandscapeReach = index;
-			else p.touchPortraitReach = index;
-			applyTouchSettings();
-		});
-		gameMenu.action("Back",android.R.drawable.ic_media_previous,this::showGameMenuPage);
+		settingsPages().controls();
 	}
 
 	private void applyTouchSettings() {
@@ -926,7 +976,8 @@ public class MicroActivity extends AppCompatActivity {
 		} else if (id == R.id.action_lock_orientation) {
 			if (item.isChecked()) {
 				VirtualKeyboard vk = ContextHolder.getVk();
-				int orientation = vk != null && vk.isPhone() ? ORIENTATION_PORTRAIT : microLoader.getOrientation();
+				int orientation = microLoader.getOrientation();
+				if (orientation == ORIENTATION_DEFAULT && vk != null && vk.isPhone()) orientation = ORIENTATION_PORTRAIT;
 				setOrientation(orientation);
 				item.setChecked(false);
 			} else {
@@ -968,6 +1019,9 @@ public class MicroActivity extends AppCompatActivity {
 
 	@SuppressLint("CheckResult")
 	private void takeScreenshot() {
+		if (!(current instanceof Canvas) || screenshotPending || !visible) return;
+		screenshotPending = true;
+		updateScreenshotButton();
 		microLoader.takeScreenshot((Canvas) current, new SingleObserver<String>() {
 			@Override
 			public void onSubscribe(@NonNull Disposable d) {
@@ -975,14 +1029,17 @@ public class MicroActivity extends AppCompatActivity {
 
 			@Override
 			public void onSuccess(@NonNull String s) {
-				Toast.makeText(MicroActivity.this, getString(R.string.screenshot_saved)
-						+ " " + s, Toast.LENGTH_LONG).show();
+				screenshotPending = false;
+				updateScreenshotButton();
+				Toast.makeText(getApplicationContext(), R.string.screenshot_gallery_saved, Toast.LENGTH_SHORT).show();
 			}
 
 			@Override
 			public void onError(@NonNull Throwable e) {
+				screenshotPending = false;
+				updateScreenshotButton();
 				e.printStackTrace();
-				Toast.makeText(MicroActivity.this, R.string.error, Toast.LENGTH_SHORT).show();
+				Toast.makeText(getApplicationContext(), R.string.screenshot_failed, Toast.LENGTH_SHORT).show();
 			}
 		});
 	}
@@ -1127,6 +1184,7 @@ public class MicroActivity extends AppCompatActivity {
 		@Override
 		public void process() {
 			closeOptionsMenu();
+			updateScreenshotButton();
 			if (current != null) {
 				current.clearDisplayableView();
 			}
@@ -1151,6 +1209,8 @@ public class MicroActivity extends AppCompatActivity {
 
 	@Override
 	protected void onDestroy() {
+		if (settingsPreview != null) settingsPreview.stop();
+		if (settingsMapper != null) { settingsMapper.setOnDismissListener(null); settingsMapper.dismiss(); }
 		cancelQuickMapTrigger();
 		if (gameMenu != null) {
 			gameMenu.setOnDismissListener(null);

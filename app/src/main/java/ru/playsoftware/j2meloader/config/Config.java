@@ -109,9 +109,15 @@ public class Config {
 		String workDir = appDir.getParentFile().getParent();
 		File file = new File(workDir + Config.MIDLET_CONFIGS_DIR + appDir.getName());
 		File config = new File(file, Config.MIDLET_CONFIG_FILE);
-		if (showSettings) {
+		if (showSettings && !config.exists()) {
+			Intent intent = new Intent(Intent.ACTION_DEFAULT, Uri.parse(path), context, CompatibilityTestActivity.class);
+			intent.putExtra(KEY_MIDLET_NAME, name);
+			intent.putExtra(KEY_START_ARGUMENTS, arguments);
+			intent.putExtra("open_settings", true);
+			context.startActivity(intent);
+		} else if (showSettings) {
 			Intent intent = new Intent(ACTION_EDIT, Uri.parse(path),
-					context, ConfigActivity.class);
+					context, GameSettingsActivity.class);
 			intent.putExtra(KEY_MIDLET_NAME, name);
 			intent.putExtra(KEY_START_ARGUMENTS, arguments);
 			context.startActivity(intent);

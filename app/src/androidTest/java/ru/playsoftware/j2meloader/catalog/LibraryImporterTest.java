@@ -1,6 +1,15 @@
 package ru.playsoftware.j2meloader.catalog;
 
 import android.content.Context;
+import android.content.ContentProvider;
+import android.content.ContentResolver;
+import android.content.ContentValues;
+import android.content.ContextWrapper;
+import android.database.Cursor;
+import android.database.MatrixCursor;
+import android.net.Uri;
+import android.os.ParcelFileDescriptor;
+import android.provider.DocumentsContract;
 
 import androidx.documentfile.provider.DocumentFile;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
@@ -73,6 +82,132 @@ public class LibraryImporterTest {
 	}
 	private LibraryImporter.Entry entry() throws Exception {
 		return importer.scan(DocumentFile.fromFile(source)).entries.get(0);
+	}
+
+	@Test public void restrictedProviderResumesWithExplicitGrantsAndKeepsSourceIdentity() throws Exception {
+		File second = new File(source, "converted/second-folder"); assertTrue(second.mkdirs());
+		for (String name : new String[]{"res.jar", "converted.dex.conf"})
+			Files.copy(new File(source, "converted/old-folder/" + name).toPath(), new File(second, name).toPath());
+		Context wrapped = restrictedProvider(false);
+		LibraryImporter reader = new LibraryImporter(wrapped, destination, catalog, cancel);
+		DocumentFile root = DocumentFile.fromTreeUri(wrapped, DocumentsContract.buildTreeDocumentUri("fixture.library", "root"));
+		String originalSave = SourceIdentity.sha256(new File(source, "data/old-folder/sudoku.rms"));
+		LibraryImporter.Preview preview = null;
+		int prompts = 0;
+		for (; prompts < 12; prompts++) {
+			try { preview = reader.scan(root); break; }
+			catch (LibraryImporter.FolderAccessRequired request) {
+				reader.allowFolder(request, DocumentsContract.buildTreeDocumentUri(request.folder.getAuthority(),
+						DocumentsContract.getDocumentId(request.folder)));
+			}
+		}
+		assertNotNull("Folder recovery must terminate", preview);
+		assertTrue(prompts > 0);
+		assertEquals(2, preview.entries.size());
+		for (LibraryImporter.Entry found : preview.entries)
+			assertTrue("Grant order must not change source identity", found.sourceKey.startsWith("j2me-library:" + root.getUri()));
+		LibraryImporter.Entry entry = preview.entries.stream().filter(found -> found.hasSaves).findFirst().get();
+		assertNull(entry.problem); assertTrue(entry.hasSaves);
+		assertEquals("j2me-library:" + DocumentsContract.buildDocumentUriUsingTree(root.getUri(), "root/converted/old-folder"), entry.sourceKey);
+		assertTrue(reader.importEntry(entry).startsWith("Imported"));
+		AppItem item = catalog.bySource(entry.sourceKey); assertNotNull(item);
+		assertEquals(originalSave, SourceIdentity.sha256(new File(destination, "data/" + item.getPath() + "/sudoku.rms")));
+		assertEquals(originalSave, SourceIdentity.sha256(new File(source, "data/old-folder/sudoku.rms")));
+		assertTrue(new File(destination, "data/" + item.getPath() + "/private/file.txt").isFile());
+		assertNotNull(reader.scan(root).entries.stream().filter(found -> found.hasSaves).findFirst().get().problem);
+	}
+
+	@Test public void folderRecoveryRejectsWrongFolderAndAuthority() throws Exception {
+		Uri folder = DocumentsContract.buildDocumentUriUsingTree(
+				DocumentsContract.buildTreeDocumentUri("fixture.library", "root"), "root/data/game");
+		LibraryImporter.FolderAccessRequired request = new LibraryImporter.FolderAccessRequired(folder, "game");
+		for (Uri wrong : new Uri[]{DocumentsContract.buildTreeDocumentUri("fixture.library", "root/data/other"),
+				DocumentsContract.buildTreeDocumentUri("other.provider", "root/data/game"), Uri.fromFile(source)}) {
+			try { importer.allowFolder(request, wrong); fail("Unexpected folder accepted"); }
+			catch (java.io.IOException expected) { assertTrue(expected.getMessage().contains("different folder")); }
+		}
+		importer.allowFolder(request, DocumentsContract.buildTreeDocumentUri("fixture.library", "root/data/game"));
+	}
+
+	@Test public void providerFailureIsNotReportedAsPermissionFailure() throws Exception {
+		Context wrapped = restrictedProvider(true);
+		LibraryImporter reader = new LibraryImporter(wrapped, destination, catalog, cancel);
+		try {
+			reader.scan(DocumentFile.fromTreeUri(wrapped, DocumentsContract.buildTreeDocumentUri("fixture.library", "root")));
+			fail("Provider failure must not produce a successful empty library");
+		} catch (java.io.IOException expected) {
+			assertFalse(expected instanceof LibraryImporter.FolderAccessRequired);
+			assertFalse(expected.getMessage().contains("blocks nested"));
+		}
+	}
+
+	private Context restrictedProvider(boolean broken) {
+		ContentProvider provider = new ContentProvider() {
+			private File file(Uri uri) {
+				String id = DocumentsContract.getDocumentId(uri), tree = DocumentsContract.getTreeDocumentId(uri);
+				String parent = id.contains("/") ? id.substring(0, id.lastIndexOf('/')) : "";
+				if (!id.equals(tree) && !parent.equals(tree)) throw new SecurityException("Direct children only");
+				return id.equals("root") ? source : new File(source, id.substring(5));
+			}
+			@Override public boolean onCreate() { return true; }
+			@Override public String getType(Uri uri) { return file(uri).isDirectory() ? DocumentsContract.Document.MIME_TYPE_DIR : "application/octet-stream"; }
+			@Override public Cursor query(Uri uri, String[] projection, String s, String[] a, String order) {
+				File directory = file(uri);
+				boolean listing = uri.getLastPathSegment().equals("children");
+				if (broken && listing) throw new IllegalStateException("Provider offline");
+				if (projection == null) projection = new String[]{DocumentsContract.Document.COLUMN_DOCUMENT_ID};
+				MatrixCursor cursor = new MatrixCursor(projection);
+				File[] entries = listing ? directory.listFiles() : new File[]{directory};
+				if (entries == null) return cursor;
+				for (File entry : entries) {
+					MatrixCursor.RowBuilder row = cursor.newRow();
+					String path = source.toPath().relativize(entry.toPath()).toString().replace('\\', '/');
+					for (String column : projection) {
+						Object value = null;
+						if (column.equals(DocumentsContract.Document.COLUMN_DOCUMENT_ID)) value = path.isEmpty() ? "root" : "root/" + path;
+						else if (column.equals(DocumentsContract.Document.COLUMN_DISPLAY_NAME)) value = entry.getName();
+						else if (column.equals(DocumentsContract.Document.COLUMN_MIME_TYPE)) value = entry.isDirectory() ? DocumentsContract.Document.MIME_TYPE_DIR : "application/octet-stream";
+						else if (column.equals(DocumentsContract.Document.COLUMN_FLAGS)) value = 0;
+						else if (column.equals(DocumentsContract.Document.COLUMN_SIZE)) value = entry.length();
+						row.add(value);
+					}
+				}
+				return cursor;
+			}
+			@Override public ParcelFileDescriptor openFile(Uri uri, String mode) throws java.io.FileNotFoundException {
+				assertEquals("r", mode); return ParcelFileDescriptor.open(file(uri), ParcelFileDescriptor.MODE_READ_ONLY);
+			}
+			@Override public Uri insert(Uri uri, ContentValues v) { throw new AssertionError("Source write"); }
+			@Override public int update(Uri uri, ContentValues v, String s, String[] a) { throw new AssertionError("Source write"); }
+			@Override public int delete(Uri uri, String s, String[] a) { throw new AssertionError("Source write"); }
+		};
+		android.content.pm.ProviderInfo info = new android.content.pm.ProviderInfo(); info.authority = "fixture.library";
+		provider.attachInfo(context, info);
+		return new ContextWrapper(context) {
+			@Override public Context getApplicationContext() { return this; }
+			@Override public ContentResolver getContentResolver() { return ContentResolver.wrap(provider); }
+			@Override public int checkCallingOrSelfUriPermission(Uri uri, int flags) { return android.content.pm.PackageManager.PERMISSION_GRANTED; }
+		};
+	}
+
+	@Test public void customArtworkSurvivesBackupAndImport() throws Exception {
+		File game = new File(source, "converted/old-folder");
+		for (String name : new String[]{"user-icon.png", "user-cover.png", "artwork-v1"})
+			Files.write(new File(game, name).toPath(), new byte[]{1, 2, 3});
+		AppItem sourceItem = new AppItem("old-folder", "Test", "Vendor", "1");
+		java.io.ByteArrayOutputStream backup = new java.io.ByteArrayOutputStream();
+		LibraryArchive archive = new LibraryArchive(cancel);
+		assertEquals(1, archive.write(source, java.util.Collections.singletonList(sourceItem), backup));
+		File unpacked = archive.unpack(new java.io.ByteArrayInputStream(backup.toByteArray()), context.getCacheDir());
+		for (String name : new String[]{"user-icon.png", "user-cover.png", "artwork-v1"})
+			assertArrayEquals(new byte[]{1, 2, 3}, Files.readAllBytes(new File(unpacked, "converted/old-folder/" + name).toPath()));
+		LibraryImporter.Entry entry = importer.scan(DocumentFile.fromFile(unpacked)).entries.get(0);
+		assertTrue(importer.importEntry(entry).startsWith("Imported"));
+		AppItem item = catalog.bySource(entry.sourceKey);
+		assertTrue(item.getImagePath().endsWith("/user-icon.png"));
+		assertTrue(item.getCoverPath().endsWith("/user-cover.png"));
+		assertArrayEquals(new byte[]{1, 2, 3}, Files.readAllBytes(new File(destination,
+				"converted/" + item.getPath() + "/user-cover.png").toPath()));
 	}
 
 	@Test public void copiesSavesAndSettingsAndRecompilesWithoutSourceWrites() throws Exception {
@@ -170,5 +305,87 @@ public class LibraryImporterTest {
 		try { importer.importEntry(entry); fail(); } catch (java.io.IOException expected) { }
 		assertNull(catalog.bySource(entry.sourceKey));
 		assertTrue(new File(source, "data/old-folder/sudoku.rms").isFile());
+	}
+
+	@Test public void archiveRoundTripPreservesProgressControlsAndLibraryMetadata() throws Exception {
+		ProfileModel profile = new ProfileModel(new File(source, "configs/old-folder"));
+		profile.touchLayout = 1; profile.touchOpacity = 75; profile.screenRotation = 180;
+		profile.orientation = 2;
+		profile.ensureCustomKeyMappingProfile();
+		profile.getActiveKeyMappings().put(96, 55);
+		assertTrue(ProfilesManager.saveConfig(profile));
+		AppItem sourceItem = new AppItem("old-folder", "Sudoku J2ME", "Vendor", "1");
+		sourceItem.setFavorite(true); sourceItem.setPlayCount(17);
+		write(source, "fs/c/shared-save", "shared progress");
+		java.io.ByteArrayOutputStream out = new java.io.ByteArrayOutputStream();
+		LibraryArchive archive = new LibraryArchive(cancel);
+		assertEquals(1, archive.write(source, java.util.Collections.singletonList(sourceItem), out));
+		File unpacked = archive.unpack(new java.io.ByteArrayInputStream(out.toByteArray()), context.getCacheDir());
+		try {
+			assertFalse(new File(unpacked, "converted/old-folder/converted.dex").exists());
+			LibraryImporter.Preview preview = importer.scanBackup(unpacked);
+			assertTrue(preview.entries.get(0).hasSaves);
+			importer.importEntry(preview.entries.get(0));
+			AppItem restored = catalog.bySource(preview.entries.get(0).sourceKey);
+			assertTrue(restored.isFavorite()); assertEquals(17, restored.getPlayCount());
+			ProfileModel loaded = ProfilesManager.loadConfig(new File(destination, "configs/" + restored.getPath()));
+			assertEquals(Integer.valueOf(1), loaded.touchLayout); assertEquals(75, loaded.touchOpacity);
+			assertEquals(180, loaded.screenRotation); assertEquals(BuildConfig.HANDHELD_MODE ? 3 : 2, loaded.orientation);
+			assertEquals(55, loaded.getActiveKeyMappings().get(96));
+			assertEquals(SourceIdentity.sha256(new File(source, "data/old-folder/sudoku.rms")),
+					SourceIdentity.sha256(new File(destination, "data/" + restored.getPath() + "/sudoku.rms")));
+			assertTrue(importer.importSharedFiles(preview).contains("1 shared files copied"));
+			write(destination, "fs/c/shared-save", "newer progress");
+			assertTrue(importer.importSharedFiles(preview).contains("1 existing files kept"));
+			assertEquals("newer progress", new String(Files.readAllBytes(new File(destination, "fs/c/shared-save").toPath()), StandardCharsets.UTF_8));
+			assertNotNull(importer.scanBackup(unpacked).entries.get(0).problem);
+		} finally { LibraryArchive.remove(unpacked); }
+	}
+
+	@Test public void unsafeAndIncompleteArchivesNeverPublish() throws Exception {
+		for (String path : new String[]{"../outside", "converted/../../escape", "/absolute", "converted/game/converted.dex"}) {
+			java.io.ByteArrayOutputStream out = new java.io.ByteArrayOutputStream();
+			try (java.util.zip.ZipOutputStream zip = new java.util.zip.ZipOutputStream(out)) {
+				zip.putNextEntry(new java.util.zip.ZipEntry(path)); zip.write(1); zip.closeEntry();
+			}
+			try {
+				new LibraryArchive(cancel).unpack(new java.io.ByteArrayInputStream(out.toByteArray()), context.getCacheDir()); fail();
+			} catch (java.io.IOException expected) { }
+			assertFalse(new File(destination, "converted").exists());
+		}
+	}
+
+	@Test public void changedArchivePayloadIsRejected() throws Exception {
+		java.io.ByteArrayOutputStream out = new java.io.ByteArrayOutputStream();
+		LibraryArchive archive = new LibraryArchive(cancel);
+		archive.write(source, java.util.Collections.singletonList(new AppItem("old-folder", "Game", "Vendor", "1")), out);
+		java.io.ByteArrayOutputStream modified = new java.io.ByteArrayOutputStream();
+		try (java.util.zip.ZipInputStream in = new java.util.zip.ZipInputStream(new java.io.ByteArrayInputStream(out.toByteArray()));
+			 java.util.zip.ZipOutputStream zip = new java.util.zip.ZipOutputStream(modified)) {
+			java.util.zip.ZipEntry entry;
+			while ((entry = in.getNextEntry()) != null) {
+				zip.putNextEntry(new java.util.zip.ZipEntry(entry.getName()));
+				byte[] buffer = new byte[8192]; int n;
+				while ((n = in.read(buffer)) != -1) zip.write(buffer, 0, n);
+				if (entry.getName().endsWith("sudoku.rms")) zip.write(42);
+				zip.closeEntry();
+			}
+		}
+		try { archive.unpack(new java.io.ByteArrayInputStream(modified.toByteArray()), context.getCacheDir()); fail(); }
+		catch (java.io.IOException expected) { assertTrue(expected.getMessage().contains("checksum")); }
+	}
+
+	@Test public void separatelySelectedGameAndSavesUseTheSameImportTransaction() throws Exception {
+		LibraryImporter.Preview preview = importer.scanSingle(DocumentFile.fromFile(new File(source, "converted/old-folder")),
+				DocumentFile.fromFile(new File(source, "data/old-folder")), DocumentFile.fromFile(new File(source, "configs/old-folder")));
+		assertTrue(preview.entries.get(0).hasSaves);
+		importer.importEntry(preview.entries.get(0));
+		AppItem item = catalog.bySource(preview.entries.get(0).sourceKey);
+		assertNotNull(item);
+		assertTrue(new File(destination, "data/" + item.getPath() + "/sudoku.rms").isFile());
+		try {
+			importer.scanSingle(DocumentFile.fromFile(new File(source, "converted/old-folder")), DocumentFile.fromFile(source), null);
+			fail();
+		} catch (java.io.IOException expected) { assertTrue(expected.getMessage().contains("same name")); }
 	}
 }

@@ -20,19 +20,60 @@ core: a controller-first **Handheld** APK and a portrait/touch-friendly
 
 ## Current Development
 
+For website copy, progress posts and handoffs, start with the
+[current product/development status](docs/PROJECT_STATUS.md) and
+[dated changelog](CHANGELOG.md). They also describe local/private experiments,
+explicitly separated from public downloads. The
+[fresh development screenshot pack](screenshots/post-2026-10-11/README.md)
+shows experimental.15, not the published beta.2 interface pictured below.
+
 The `main` branch is ahead of the published beta.2 APKs. Its unreleased changes
 include a graphical controller mapper with diagonal bindings, two Phone touch
 layouts, live Java game-image rotation, quick display settings, J2ME Loader
-library import and non-destructive database migrations.
+library import, menu-based backup/restore, a hideable screenshot button and
+non-destructive database migrations. Saved Phone orientation and settings-field
+contrast with Android's Light theme are also fixed in development builds.
 
-For the new Phone controls, open **Game menu > Touch controls** and choose
-**Phone** or **Gamepad**. The top-left display button opens live screen settings;
-image rotation is saved per game. The screenshots and beta.2 instructions below
+Use **Settings > Library > Library transfer** to import from J2ME Loader or move installed
+games and saves between AbyssME installations. See the
+[workflow and limitations](docs/LIBRARY_TRANSFER.md).
+
+Development builds share **Display** and **Controls** pages between the library's
+per-game settings and the in-game menu. On Phone, choose **Controls > Touch layout >
+Phone / Gamepad**. Use **Try changes** (or **Try in game** from the library), then
+**Keep** or **Undo**; unconfirmed changes revert after about 20 seconds of preview.
+Phone resolution and the full compatibility editor are under **Advanced**.
+The old expert editor still saves ordinary edits directly; its **Fix game** action
+now offers a trial instead. See [settings trials](docs/SETTINGS_TRIALS.md).
+
+Short landscape screens and Phone portrait now use a [compact library](docs/COMPACT_LIBRARY.md):
+one header, larger game area and an on-demand library menu. Menus keep Close/Back
+visible while their contents scroll; short landscape also uses compact mapper pages.
+Handheld hides Android system bars; Gallery, List and Grid remain available.
+General Settings is split into **Library**, **Playing** and **Support**. Library
+transfer separates the operation chooser, game selection and results, leaving
+more room for the game list on small screens.
+The installer keeps its actions reachable while details and archive choices
+scroll. Installation errors stay visible until closed; deletion confirmations
+start on Cancel when using a controller.
+ZIP collections selected through Android's file picker now reach archive selection
+instead of being mistaken for a single JAR.
+Continuing past a mismatched JAD/JAR description now keeps the selected game and
+its original import identity, so reusing the same source URI finds the existing
+entry. A provider changing a file's URI can still create a duplicate; see
+[#20](https://github.com/EriArk/JavaEmulator/issues/20).
+Automatic artwork now favors declared icons and identifiable title art over
+arbitrary textures. **Game actions > Artwork** offers custom icons/covers and
+an explicit refresh for older libraries. See [artwork behavior](docs/ARTWORK.md).
+
+The screenshots and beta.2 instructions below
 describe the published release, not every unreleased change.
 
-New release APKs are on hold pending the licensing decision. Wolphun and the
-experimental Mophun integration are not part of this public source tree.
-See [licensing status](docs/LICENSING.md). Existing release downloads are unchanged.
+The Wolphun author has responded positively to our integration request. We are
+documenting the permission's scope and preparing the licensing notices before
+publishing the combined build. Wolphun and the experimental Mophun integration
+are not yet part of this public source tree. See [licensing status](docs/LICENSING.md).
+Existing release downloads are unchanged.
 
 ## Screenshots
 

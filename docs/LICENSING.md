@@ -20,12 +20,33 @@ games and artwork. Wolphun experiments are limited to ignored local files and
 opt-in local debug builds, not the distributable source tree. Published APKs
 have not been replaced or retroactively relicensed.
 
-The permission request was submitted as
+## Upstream response: 2026-10-10
+
+The permission request is recorded in
 [Wolphun issue #1](https://github.com/jamisson2006/wolphun-a-Mophun-emulator/issues/1).
-Its status is **pending**, not granted. The maintainer approved continuing
-private development in one app while awaiting a response; separate end-user
-applications are not the selected product design. Public combined source/APK
-distribution remains gated on resolution of the licensing issue.
+The author has [responded positively](https://github.com/jamisson2006/wolphun-a-Mophun-emulator/issues/1#issuecomment-6093620526),
+welcoming use of the project as a reference. We have sent a
+[short clarification](https://github.com/jamisson2006/wolphun-a-Mophun-emulator/issues/1#issuecomment-6100205259)
+to record permission for code inclusion/modification and distribution of the
+combined source and APKs with the EPL-1.0 M3G components, including the scope
+of a GPLv3 section 7 additional permission and any other contributors' rights.
+
+Status: **positive upstream response; precise additional-permission scope being
+documented**. This is no longer an unanswered request. Integration preparation
+can continue in the existing app; separate end-user applications are not the
+selected design. No new license text is attributed to the author by this update,
+and the upstream GPLv3 license and inherited notices remain unchanged.
+Public combined source/APK distribution still awaits the recorded permission
+scope and the release checks below. No release has been published by this update.
+
+### Follow-up reply, checked 2026-10-11
+
+The author posted a [further reply on 2026-10-10](https://github.com/jamisson2006/wolphun-a-Mophun-emulator/issues/1#issuecomment-6100316305),
+stating that all the code is under GPL 3.0 and welcoming contributors. Record
+this alongside the positive response above; the clarification is not unanswered.
+The reply does not explicitly state the requested additional permission for
+the EPL-1.0 combination. No new permission text or project-wide license change
+is inferred here, and the existing combined-publication review remains open.
 
 ## Verified integration blocker
 
@@ -54,7 +75,8 @@ resolve that issue. Maintainer approval cannot change third-party rights.
 1. Request suitable additional permission or alternative licensing from the
    relevant Wolphun rights holders, covering the actual EPL-1.0 combination.
    Review provenance and dependencies too; one author's permission cannot
-   override other contributors' rights. The request linked above is pending.
+   override other contributors' rights. The positive reply and scope clarification
+   are linked above; do not substitute our requested wording for the author's grant.
 2. Evaluate a GPL-compatible replacement for the EPL-1.0 M3G implementation
    and bindings, with regression tests for existing J2ME 3D games. Removing 3D
    support is not approved as a shortcut.
@@ -62,11 +84,29 @@ resolve that issue. Maintainer approval cannot change third-party rights.
    This changes the integration design and needs its own licensing review;
    a separate module, shared library or Android process alone is not clearance.
 
-The preferred first investigation is additional upstream permission, since it
-could preserve the existing J2ME compatibility without replacing M3G. This is
-a proposal, not evidence that permission will be available.
+The selected preparation path is additional upstream permission, which could
+preserve existing J2ME compatibility without replacing M3G. The author's positive
+response is recorded above; exact scope and dependency review remain outstanding.
 
 ## Transition and release checklist
+
+### Additional candidate: EKA2L1, 2026-10-11
+
+The [Symbian integration audit](SYMBIAN_INTEGRATION.md) inspected EKA2L1 revision
+`11f5b6cd141c0884a130ee45743f1f5e17bb1783`. Its
+[LICENSE](https://github.com/EKA2L1/EKA2L1/blob/11f5b6cd141c0884a130ee45743f1f5e17bb1783/LICENSE)
+contains GPLv3; inspected source headers specify version 3 or later.
+No EKA2L1 implementation has been added to AbyssME's tracked source or APKs.
+
+Any future combination with the existing EPL-1.0 M3G code requires its own
+resolution and complete dependency/asset review. Permission from Wolphun's
+author would not grant rights over EKA2L1. An internal Android process or Gradle
+module is an engineering boundary, not an automatic licensing exception.
+The M3G replacement investigation is a possible route for both integrations;
+it is not yet an accepted replacement. Upstream submodules, guest patches,
+shaders and sound banks still need a pinned provenance and obligations inventory.
+
+### Combined publication checks
 
 - Resolve and document the EPL/GPL integration path before publishing combined
   Wolphun/M3G source or binaries. Keep private experiments out of tracked files.
