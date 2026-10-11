@@ -1,0 +1,232 @@
+﻿[
+    {
+        "path":  "asphalt-moving.png",
+        "sha256":  "c096f727486744f8036286f19f0b8c3c743b88f7a50b6238b8b798fde4de237d",
+        "bytes":  107702
+    },
+    {
+        "path":  "asphalt-start.png",
+        "sha256":  "236ac9e9c68e3ae45704a761794e949c003c1b2900f4d56721e8adb6c5d8f1cf",
+        "bytes":  117947
+    },
+    {
+        "path":  "before/material-alpha.png",
+        "sha256":  "60d72b44e448e3cd1579a3d28162352a5a1d772771e3d98f04682cbd119f8bb7",
+        "bytes":  236
+    },
+    {
+        "path":  "before/parallel-fog-alpha.png",
+        "sha256":  "c62ba04d377150df4770735fcc339beac6505073898c3a53cda60a156bfe4033",
+        "bytes":  236
+    },
+    {
+        "path":  "deep-resumed.png",
+        "sha256":  "0d298e9df96600486c47242da98482195edd2e3d495cd7e520b9c51bebaede8b",
+        "bytes":  34949
+    },
+    {
+        "path":  "deep-resumed-later.png",
+        "sha256":  "06eb1f599b2f727e2612e0bc86dfeb674fe2ae1bf001d29d5b942d00c9a130cb",
+        "bytes":  64377
+    },
+    {
+        "path":  "games/deep-target45-baseline/end.png",
+        "sha256":  "e7d67cefcf9737cd4d4b120c85a1c54c2bfffedab9000bb51b2147dcffaec862",
+        "bytes":  46637
+    },
+    {
+        "path":  "games/deep-target45-baseline/start.png",
+        "sha256":  "ee74c85b30063f57e09ce74f13babf1d2e0cf953454130885d7fb4cc551fcb90",
+        "bytes":  46011
+    },
+    {
+        "path":  "games/deep-target45-candidate/end.png",
+        "sha256":  "7ce67e1eb5c36046110c3a2f02ee211c2933380a77a7286e27015ebbc037e094",
+        "bytes":  40233
+    },
+    {
+        "path":  "games/deep-target45-candidate/start.png",
+        "sha256":  "3940061dabcbb80bf2a64ef84c91df293dfca6008ce67118a60b81f38e696bbb",
+        "bytes":  48058
+    },
+    {
+        "path":  "scenes/emulator-candidate/alpha-reject-depth.png",
+        "sha256":  "64779f3ea000e712c651171ab2ec61da6ddbdaf1f0e0ac30147c17f9e3fc4b0b",
+        "bytes":  235
+    },
+    {
+        "path":  "scenes/emulator-candidate/depth-disabled.png",
+        "sha256":  "d6c35d7653500125bdbfd51c4f47eaddf961af45ab8045d805222104f8a82b0a",
+        "bytes":  235
+    },
+    {
+        "path":  "scenes/emulator-candidate/depth-write-disabled.png",
+        "sha256":  "64779f3ea000e712c651171ab2ec61da6ddbdaf1f0e0ac30147c17f9e3fc4b0b",
+        "bytes":  235
+    },
+    {
+        "path":  "scenes/emulator-candidate/emissive-no-lights.png",
+        "sha256":  "d579c359259f92ba28d9195d8908962ca4353624c2475aa3041c6a3595e8a759",
+        "bytes":  236
+    },
+    {
+        "path":  "scenes/emulator-candidate/luminance-alpha.png",
+        "sha256":  "c62ba04d377150df4770735fcc339beac6505073898c3a53cda60a156bfe4033",
+        "bytes":  236
+    },
+    {
+        "path":  "scenes/emulator-candidate/material-alpha.png",
+        "sha256":  "c62ba04d377150df4770735fcc339beac6505073898c3a53cda60a156bfe4033",
+        "bytes":  236
+    },
+    {
+        "path":  "scenes/emulator-candidate/multiply-shadow.png",
+        "sha256":  "a89557be56a2ef3d273519302763f5d2c855806d46ad6114c191d5e6c918b5c2",
+        "bytes":  236
+    },
+    {
+        "path":  "scenes/emulator-candidate/parallel-fog-alpha.png",
+        "sha256":  "45a482fc63b306c10cbbc28f939b10cf46e2459d792ad700a04a90dfd4dcf9b0",
+        "bytes":  237
+    },
+    {
+        "path":  "scenes/emulator-candidate/parallel-fog-collapsed-depth.png",
+        "sha256":  "45a482fc63b306c10cbbc28f939b10cf46e2459d792ad700a04a90dfd4dcf9b0",
+        "bytes":  237
+    },
+    {
+        "path":  "scenes/emulator-candidate/parallel-fog-no-depth.png",
+        "sha256":  "45a482fc63b306c10cbbc28f939b10cf46e2459d792ad700a04a90dfd4dcf9b0",
+        "bytes":  237
+    },
+    {
+        "path":  "scenes/emulator-candidate/parallel-fog-slope.png",
+        "sha256":  "3fd5952ae03a034a77b01384418b7058a26df105bafb062505b75168bd0cfac5",
+        "bytes":  242
+    },
+    {
+        "path":  "scenes/emulator-candidate/perspective-fog-alpha.png",
+        "sha256":  "77d580473398078824489ad6bcc7958bd3dffb2a3f0cc5874db67a3cd7dfa970",
+        "bytes":  262
+    },
+    {
+        "path":  "scenes/retroid-baseline/alpha-reject-depth.png",
+        "sha256":  "64779f3ea000e712c651171ab2ec61da6ddbdaf1f0e0ac30147c17f9e3fc4b0b",
+        "bytes":  235
+    },
+    {
+        "path":  "scenes/retroid-baseline/depth-disabled.png",
+        "sha256":  "d6c35d7653500125bdbfd51c4f47eaddf961af45ab8045d805222104f8a82b0a",
+        "bytes":  235
+    },
+    {
+        "path":  "scenes/retroid-baseline/depth-write-disabled.png",
+        "sha256":  "64779f3ea000e712c651171ab2ec61da6ddbdaf1f0e0ac30147c17f9e3fc4b0b",
+        "bytes":  235
+    },
+    {
+        "path":  "scenes/retroid-baseline/emissive-no-lights.png",
+        "sha256":  "fad2af61a5eca57e2827701a7f52e84760e315d1216bb420e9734d4a712f6d97",
+        "bytes":  236
+    },
+    {
+        "path":  "scenes/retroid-baseline/luminance-alpha.png",
+        "sha256":  "9c0ca805f8c7118d0e4cd3182d9bb44ef3265af5066709a0d2930d8ecbae438f",
+        "bytes":  236
+    },
+    {
+        "path":  "scenes/retroid-baseline/material-alpha.png",
+        "sha256":  "9c0ca805f8c7118d0e4cd3182d9bb44ef3265af5066709a0d2930d8ecbae438f",
+        "bytes":  236
+    },
+    {
+        "path":  "scenes/retroid-baseline/multiply-shadow.png",
+        "sha256":  "96fd418648676963f10148992cbdee2407ed0de7951f00ee0576e856923eddbe",
+        "bytes":  236
+    },
+    {
+        "path":  "scenes/retroid-baseline/parallel-fog-alpha.png",
+        "sha256":  "1b6d79fd0e2c0d8b600e6b9d441ad8f79c711f649bf1196a6c5000dfc5992134",
+        "bytes":  237
+    },
+    {
+        "path":  "scenes/retroid-baseline/parallel-fog-collapsed-depth.png",
+        "sha256":  "1b6d79fd0e2c0d8b600e6b9d441ad8f79c711f649bf1196a6c5000dfc5992134",
+        "bytes":  237
+    },
+    {
+        "path":  "scenes/retroid-baseline/parallel-fog-no-depth.png",
+        "sha256":  "1b6d79fd0e2c0d8b600e6b9d441ad8f79c711f649bf1196a6c5000dfc5992134",
+        "bytes":  237
+    },
+    {
+        "path":  "scenes/retroid-baseline/parallel-fog-slope.png",
+        "sha256":  "1ebeb21ddb5ea5dfc0db198557444f211dffc786df5651ab9c1e044aecf39110",
+        "bytes":  242
+    },
+    {
+        "path":  "scenes/retroid-baseline/perspective-fog-alpha.png",
+        "sha256":  "e10cf43bd1eb9d24b035c1d76e6728da3246d632333e358cbb1e21dc077b61c4",
+        "bytes":  259
+    },
+    {
+        "path":  "scenes/retroid-candidate/alpha-reject-depth.png",
+        "sha256":  "64779f3ea000e712c651171ab2ec61da6ddbdaf1f0e0ac30147c17f9e3fc4b0b",
+        "bytes":  235
+    },
+    {
+        "path":  "scenes/retroid-candidate/depth-disabled.png",
+        "sha256":  "d6c35d7653500125bdbfd51c4f47eaddf961af45ab8045d805222104f8a82b0a",
+        "bytes":  235
+    },
+    {
+        "path":  "scenes/retroid-candidate/depth-write-disabled.png",
+        "sha256":  "64779f3ea000e712c651171ab2ec61da6ddbdaf1f0e0ac30147c17f9e3fc4b0b",
+        "bytes":  235
+    },
+    {
+        "path":  "scenes/retroid-candidate/emissive-no-lights.png",
+        "sha256":  "d579c359259f92ba28d9195d8908962ca4353624c2475aa3041c6a3595e8a759",
+        "bytes":  236
+    },
+    {
+        "path":  "scenes/retroid-candidate/luminance-alpha.png",
+        "sha256":  "c62ba04d377150df4770735fcc339beac6505073898c3a53cda60a156bfe4033",
+        "bytes":  236
+    },
+    {
+        "path":  "scenes/retroid-candidate/material-alpha.png",
+        "sha256":  "c62ba04d377150df4770735fcc339beac6505073898c3a53cda60a156bfe4033",
+        "bytes":  236
+    },
+    {
+        "path":  "scenes/retroid-candidate/multiply-shadow.png",
+        "sha256":  "a89557be56a2ef3d273519302763f5d2c855806d46ad6114c191d5e6c918b5c2",
+        "bytes":  236
+    },
+    {
+        "path":  "scenes/retroid-candidate/parallel-fog-alpha.png",
+        "sha256":  "45a482fc63b306c10cbbc28f939b10cf46e2459d792ad700a04a90dfd4dcf9b0",
+        "bytes":  237
+    },
+    {
+        "path":  "scenes/retroid-candidate/parallel-fog-collapsed-depth.png",
+        "sha256":  "45a482fc63b306c10cbbc28f939b10cf46e2459d792ad700a04a90dfd4dcf9b0",
+        "bytes":  237
+    },
+    {
+        "path":  "scenes/retroid-candidate/parallel-fog-no-depth.png",
+        "sha256":  "45a482fc63b306c10cbbc28f939b10cf46e2459d792ad700a04a90dfd4dcf9b0",
+        "bytes":  237
+    },
+    {
+        "path":  "scenes/retroid-candidate/parallel-fog-slope.png",
+        "sha256":  "3fd5952ae03a034a77b01384418b7058a26df105bafb062505b75168bd0cfac5",
+        "bytes":  242
+    },
+    {
+        "path":  "scenes/retroid-candidate/perspective-fog-alpha.png",
+        "sha256":  "77d580473398078824489ad6bcc7958bd3dffb2a3f0cc5874db67a3cd7dfa970",
+        "bytes":  262
+    }
+]

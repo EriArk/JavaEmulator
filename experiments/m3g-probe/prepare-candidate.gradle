@@ -56,7 +56,48 @@ tasks.register('prepareM3g') {
             if (contents.count(before) != 1) throw new GradleException("Texture clamp patch drift: ${before}")
             contents = contents.replace(before, after)
         }
+        // Parallel projection has w=1: recover eye depth before viewport/depth mapping.
+        def fogPatches = [
+            'private int currAlphaFactor = 256;': '''private int currAlphaFactor = 256;
+    private boolean parallelFog;
+    private float[] parallelFogDepth = new float[0];
+    private final float[] fogProjection = new float[16];
+    private float fogEyeA, fogEyeDx, fogEyeDy;''',
+            'Triangle.transform(trisScreen, renderableTriangles[0], tr, textr, hasTexture);': '''parallelFog = fog != null && projType == Camera.PARALLEL;
+        if (parallelFog) {
+            projectionMatrix.get(fogProjection);
+            int count = renderableTriangles[0] * 3;
+            if (parallelFogDepth.length < count) parallelFogDepth = new float[count];
+            for (int i = 0; i < renderableTriangles[0]; i++) {
+                Triangle triangle = trisScreen[i];
+                parallelFogDepth[i * 3] = (fogProjection[11] - triangle.zA()) / fogProjection[10];
+                parallelFogDepth[i * 3 + 1] = (fogProjection[11] - triangle.zB()) / fogProjection[10];
+                parallelFogDepth[i * 3 + 2] = (fogProjection[11] - triangle.zC()) / fogProjection[10];
+            }
+        }
+        Triangle.transform(trisScreen, renderableTriangles[0], tr, textr, hasTexture);''',
+            'final float invDet = M3GMath.fastReciprocal(denominator);': '''final float invDet = M3GMath.fastReciprocal(denominator);
+            if (parallelFog) {
+                fogEyeA = parallelFogDepth[tri_id * 3];
+                float db = parallelFogDepth[tri_id * 3 + 1] - fogEyeA;
+                float dc = parallelFogDepth[tri_id * 3 + 2] - fogEyeA;
+                fogEyeDx = (db * dyC - dc * dyB) * invDet;
+                fogEyeDy = (dc * dxB - db * dxC) * invDet;
+            }''',
+            'float zEyeStart = invPw;': 'float zEyeStart = parallelFog ? fogEyeA + (x - triScreen.xA()) * fogEyeDx + (y - triScreen.yA()) * fogEyeDy : invPw;',
+            'float zEyeEnd = invPw + stepInvPw * spanLen;': 'float zEyeEnd = parallelFog ? zEyeStart + fogEyeDx * spanLen : invPw + stepInvPw * spanLen;'
+        ]
+        fogPatches.each { before, after ->
+            if (contents.count(before) != 1) throw new GradleException("Parallel fog patch drift: ${before}")
+            contents = contents.replace(before, after)
+        }
         raster.setText(contents, 'UTF-8')
+        // An empty light list does not disable emissive color or diffuse alpha.
+        def triangle = new File(output, 'java/javax/microedition/m3g/Triangle.java')
+        contents = triangle.getText('UTF-8')
+        def oldLighting = 'lights != null && !lights.isEmpty()'
+        if (contents.count(oldLighting) != 1) throw new GradleException('Material lighting patch drift')
+        triangle.setText(contents.replace(oldLighting, 'lights != null'), 'UTF-8')
         copy { from new File(source, 'LICENSE'); into new File(output, 'assets'); rename { 'FREEJ2ME-LICENSE.txt' } }
     }
 }

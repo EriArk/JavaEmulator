@@ -182,6 +182,25 @@ Next: isolate the remaining shadow difference with reproducible material/depth/
 fog and texture-combine scenes, then review renderer cost. Keep auto-profile
 dimensions separate. No mainline replacement or public APK is proposed yet.
 
+## 2026-10-11: Material, Fog and Direct-Flush Timing
+
+Original scenes reproduced two further candidate differences against the
+native baseline: material evaluation was skipped for an empty light list,
+and parallel fog used constant clip W as camera distance. Generated-source
+fixes preserve material emission/alpha and interpolate recovered parallel eye
+depth independently of depth-test/depth-range state. No game-specific override.
+
+The measured host builds pass 32 checks on Retroid for both engines and on the
+emulator for the candidate. The standalone candidate still passes 18 checks on
+the emulator. New bounded target-session timing includes direct-flush games
+without pretending that absent Canvas paint callbacks mean zero render cost.
+The [shading and timing report](m3g-shading-2026-10-11/README.md) preserves the
+original failures, final artifacts and observation boundaries.
+
+These cases do not identify Asphalt's actual shadow draw state. A bounded
+render-state trace/replay is the next step before more visual tuning or any
+replacement decision. Keep main's current engine and release gates unchanged.
+
 ## Merge Gates
 
 Before proposing a merge into `main`:

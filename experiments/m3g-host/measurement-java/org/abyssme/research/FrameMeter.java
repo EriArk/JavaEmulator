@@ -12,8 +12,17 @@ import javax.microedition.util.ContextHolder;
 public final class FrameMeter {
     private static final long[] intervals = new long[1024];
     private static final long[] paints = new long[1024];
+    private static final long[] targets = new long[1024];
     private static long previous, windowStart, wallStart;
     private static int frames, paintCount, intervalCount, overflow;
+    private static int targetCount;
+
+    /** Wall time after successful bind through release; includes intervening game code. */
+    public static synchronized void recordTarget(long nanos) {
+        if (nanos < 0) return;
+        if (targetCount < targets.length) targets[targetCount++] = nanos;
+        else overflow++;
+    }
 
     public static synchronized void record(long paintNanos) {
         long now = System.nanoTime();
@@ -40,6 +49,9 @@ public final class FrameMeter {
             out.put("spanNs", now - windowStart);
             out.put("updates", frames);
             out.put("paints", paintCount);
+            out.put("targetSessions", targetCount);
+            out.put("targetP50Ns", percentile(targets, targetCount, 0.5));
+            out.put("targetP95Ns", percentile(targets, targetCount, 0.95));
             out.put("overflow", overflow);
             out.put("intervalP50Ns", percentile(intervals, intervalCount, 0.5));
             out.put("intervalP95Ns", percentile(intervals, intervalCount, 0.95));
@@ -55,7 +67,7 @@ public final class FrameMeter {
         }
         windowStart = now;
         wallStart = System.currentTimeMillis();
-        frames = paintCount = intervalCount = overflow = 0;
+        frames = paintCount = intervalCount = overflow = targetCount = 0;
     }
 
     private static long percentile(long[] values, int count, double fraction) {

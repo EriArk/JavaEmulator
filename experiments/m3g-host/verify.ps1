@@ -41,6 +41,7 @@ function Invoke-Adb([string[]]$Arguments) {
 }
 
 Add-Type -AssemblyName System.IO.Compression.FileSystem
+$measured = $false
 $zip = [IO.Compression.ZipFile]::OpenRead($apk)
 try {
     $native = @($zip.Entries.FullName -match 'libjavam3g\.so$')
@@ -50,6 +51,7 @@ try {
     foreach ($entry in $zip.Entries | Where-Object { $_.Name -match '^classes\d*\.dex$' }) {
         $reader = [IO.StreamReader]::new($entry.Open(), [Text.Encoding]::GetEncoding(28591))
         try { $dex = $reader.ReadToEnd() } finally { $reader.Dispose() }
+        if ($dex.Contains('Lorg/abyssme/research/FrameMeter;')) { $measured = $true }
         if ($Engine -eq 'candidate' -and $dex.Contains('Ljavax/microedition/m3g/Platform;')) { throw 'EPL bindings in candidate' }
         if ($Engine -eq 'baseline' -and $dex.Contains('Lorg/recompile/mobile/PlatformGraphics;')) { throw 'Candidate host in baseline' }
     }
@@ -58,8 +60,14 @@ try {
 # Application IDs are fixed research-only IDs; never install over a user's normal build.
 Invoke-Adb @('install', '-r', $apk)
 Invoke-Adb @('install', '-r', $test)
+$classes = 'javax.microedition.shell.M3gHostTest,javax.microedition.shell.M3gRasterTest'
+$expectedTests = 29
+if ($measured) {
+    $classes += ',javax.microedition.shell.M3gTargetMeterTest'
+    $expectedTests += 3
+}
 $result = Invoke-Adb @('shell', 'am', 'instrument', '-w', '-r', '-e', 'class',
-    'javax.microedition.shell.M3gHostTest,javax.microedition.shell.M3gRasterTest', "$package.test/androidx.test.runner.AndroidJUnitRunner")
+    $classes, "$package.test/androidx.test.runner.AndroidJUnitRunner")
 $result | Set-Content -Encoding UTF8 (Join-Path $out 'tests.txt')
 [pscustomobject]@{
     engine = $Engine
@@ -68,9 +76,10 @@ $result | Set-Content -Encoding UTF8 (Join-Path $out 'tests.txt')
     sdk = (Invoke-Adb @('shell', 'getprop', 'ro.build.version.sdk')).Trim()
     apk = (Get-FileHash $apk).Hash
     testApk = (Get-FileHash $test).Hash
+    measured = $measured
 } | ConvertTo-Json | Set-Content -Encoding UTF8 (Join-Path $out 'artifact.json')
-if ($result -notmatch 'OK \(17 tests\)' -or $result -match 'FAILURES|INSTRUMENTATION_FAILED') {
+if ($result -notmatch "OK \($expectedTests tests\)" -or $result -match 'FAILURES|INSTRUMENTATION_FAILED') {
     throw "Incomplete/failed host checks; see $out"
 }
 Invoke-Adb @('pull', "/sdcard/Android/data/$package/files/m3g-raster", $out)
-Write-Output "$Engine : 17/17 host and raster checks passed; $out"
+Write-Output "$Engine : $expectedTests/$expectedTests host/raster/optional meter checks passed; $out"

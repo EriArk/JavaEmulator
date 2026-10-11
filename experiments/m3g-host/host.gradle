@@ -1,17 +1,37 @@
 // Opt-in research APKs only; the ordinary application build keeps its engine.
 def candidate = providers.gradleProperty('m3gExperiment').get() == 'candidate'
+def measuring = providers.gradleProperty('m3gMeasure').orNull == 'true'
+def instrumentTarget = { String source, boolean alternative ->
+    def patches = alternative ? [
+        'private int[] androidFrameBuffer;': 'private int[] androidFrameBuffer;\n\tprivate long researchTargetStart;',
+        'this.hints = hints;': 'this.hints = hints;\n\t\tresearchTargetStart = System.nanoTime();',
+        'finally { this.target = null; }': 'finally { this.target = null; if (researchTargetStart != 0) org.abyssme.research.FrameMeter.recordTarget(System.nanoTime() - researchTargetStart); researchTargetStart = 0; }'
+    ] : [
+        'private java.lang.Object currentTarget = null;': 'private java.lang.Object currentTarget = null;\n\tprivate long researchTargetStart;',
+        'depthEnabled = depth;': 'depthEnabled = depth;\n\t\tresearchTargetStart = System.nanoTime();',
+        '\t\tcurrentTarget = null;': '\t\tcurrentTarget = null;\n\t\tif (researchTargetStart != 0) org.abyssme.research.FrameMeter.recordTarget(System.nanoTime() - researchTargetStart);\n\t\tresearchTargetStart = 0;'
+    ]
+    patches.each { before, after ->
+        if (source.count(before) != 1) throw new GradleException("Target measurement hook drift: ${before}")
+        source = source.replace(before, after)
+    }
+    source
+}
 android.applicationVariants.all { variant ->
     variant.resValue 'string', 'app_name', candidate ? 'AbyssME M3G Candidate' : 'AbyssME M3G Baseline'
 }
 android.defaultConfig.ndk.abiFilters 'arm64-v8a', 'x86_64'
 android.sourceSets.androidTest.java.srcDir rootProject.file('experiments/m3g-host/tests')
 
-if (providers.gradleProperty('m3gMeasure').orNull == 'true') {
+if (measuring) {
     def measured = layout.buildDirectory.dir('generated/measured-host')
     def canvas = file('src/main/java/javax/microedition/lcdui/Canvas.java')
     android.sourceSets.main.java.exclude { element -> element.file == canvas }
     android.sourceSets.main.java.srcDir measured
     android.sourceSets.main.java.srcDir rootProject.file('experiments/m3g-host/measurement-java')
+    android.sourceSets.androidTest.java.srcDir rootProject.file('experiments/m3g-host/measurement-tests')
+    def baselineGraphics = file('src/main/java/javax/microedition/m3g/Graphics3D.java')
+    if (!candidate) android.sourceSets.main.java.exclude { element -> element.file == baselineGraphics }
     tasks.register('prepareMeasuredHost') {
         outputs.upToDateWhen { false }
         doLast {
@@ -26,6 +46,11 @@ if (providers.gradleProperty('m3gMeasure').orNull == 'true') {
             def target = new File(measured.get().asFile, 'javax/microedition/lcdui/Canvas.java')
             target.parentFile.mkdirs()
             target.setText(text, 'UTF-8')
+            if (!candidate) {
+                def graphics = new File(measured.get().asFile, 'javax/microedition/m3g/Graphics3D.java')
+                graphics.parentFile.mkdirs()
+                graphics.setText(instrumentTarget(baselineGraphics.getText('UTF-8'), false), 'UTF-8')
+            }
         }
     }
     tasks.named('preBuild').configure { dependsOn 'prepareMeasuredHost' }
@@ -56,7 +81,7 @@ if (candidate) {
                 if (text.count(before) != 1) throw new GradleException("Host patch drift: ${before}")
                 text = text.replace(before, after)
             }
-            source.setText(text, 'UTF-8')
+            source.setText(measuring ? instrumentTarget(text, true) : text, 'UTF-8')
         }
     }
     tasks.named('preBuild').configure { dependsOn 'adaptM3gHost' }

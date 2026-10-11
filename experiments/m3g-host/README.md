@@ -80,13 +80,20 @@ The sixth test demonstrably fails with the earlier shared-buffer adapter and
 passes with the separate scratch buffer. These are focused integration checks,
 not the complete existing app test suite or physical controller acceptance.
 
-`M3gRasterTest` adds eleven public-API scenes: default/vertex/texture/node alpha,
+`M3gRasterTest` includes the original eleven public-API scenes: default/vertex/texture/node alpha,
 multiplied vertex/texture alpha, linear texture centers and all four clamp edges,
-nearest filtering and repeat seams. The verifier now requires **17 tests** and
+nearest filtering and repeat seams. The verifier
 pulls the raw 64x64 scene images. The candidate's continuous bilinear coordinate
 is clamped before splitting texel neighbors and weights; clamping only the first
 neighbor incorrectly mixed edge texels. This generated-source fix also applies
 to the standalone candidate. Upstream and the baseline stay unchanged.
+
+Twelve more raster cases cover material diffuse alpha/emission without lights,
+luminance-alpha textures, multiply blending, depth test/write and alpha rejection,
+and fog under parallel/perspective projection, including sloped geometry and
+disabled/collapsed depth state. The verifier requires **29 host/raster tests**.
+Generated candidate fixes preserve material evaluation with an empty light list
+and recover parallel eye depth before viewport/depth-range mapping for fog.
 
 [Dated device results, game variants and screenshots](../../docs/m3g-host-2026-10-11/README.md).
 
@@ -95,7 +102,9 @@ to the standalone candidate. Upstream and the baseline stay unchanged.
 Add `-Pm3gMeasure=true` to **both** research build commands for comparable host
 instrumentation. This opt-in task generates a copy of Canvas with three guarded
 hooks: completion of `paint`, GameCanvas flush and ExtendedImage flush. The
-original source and both M3G engines remain unchanged. Do not compare an
+original Canvas source remains unchanged. Generated Graphics3D copies also
+observe successful target binding through release on both engines. No checked-in
+production Java/native source is edited. Do not compare an
 instrumented engine against an uninstrumented one as if costs were identical.
 
 `FrameMeter` records bounded two-second windows in the app-private cache, capped
@@ -104,6 +113,14 @@ log messages. It records Canvas update count/intervals and paint-call duration,
 not game-logic ticks or isolated GPU/renderer time. A game may flush multiple
 times per logical frame. Observing paint includes game drawing and dispatch;
 telemetry itself adds some overhead and has not been independently calibrated.
+
+`targetSessions`, `targetP50Ns` and `targetP95Ns` describe wall time from the end
+of a successful `bindTarget` through `releaseTarget`, including intervening game
+code and buffer release/readback, but excluding binding. They are not isolated
+renderer timings. This captures 3D work even for games that bypass `Canvas.paint`.
+No samples are reported as -1, not as zero cost. Three extra hook tests verify
+held duration, duplicate release and invalid binding. The verifier detects the
+measurement class in the APK and requires **32 tests** for measured builds.
 
 After manually reaching and inspecting gameplay, run:
 

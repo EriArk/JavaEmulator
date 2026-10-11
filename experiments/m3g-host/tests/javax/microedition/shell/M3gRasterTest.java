@@ -20,6 +20,9 @@ public class M3gRasterTest {
     private VertexBuffer vertices;
     private Appearance appearance;
     private Mesh mesh;
+    private Mesh beforeMesh, afterMesh;
+    private boolean perspective;
+    private boolean collapsedDepthRange;
 
     @Before public void setup() {
         Graphics3D.initGraphics3D();
@@ -116,6 +119,122 @@ public class M3gRasterTest {
         near("blue", pixel & 255, 128, 12);
     }
 
+    @Test public void luminanceAlphaModulatesShadow() throws Exception {
+        texture(new Image2D(Image2D.LUMINANCE_ALPHA, 1, 1, new byte[]{0,-128}), Texture2D.FILTER_NEAREST);
+        appearance.getTexture(0).setBlending(Texture2D.FUNC_MODULATE);
+        gray(render("luminance-alpha"), 127);
+    }
+
+    @Test public void multiplyShadowPreservesGray() throws Exception {
+        vertices.setDefaultColor(0xff808080);
+        appearance.getCompositingMode().setBlending(CompositingMode.MODULATE);
+        gray(render("multiply-shadow"), 128);
+    }
+
+    @Test public void materialDiffuseAlphaAffectsShadow() throws Exception {
+        Material material = new Material();
+        material.setColor(Material.AMBIENT | Material.DIFFUSE | Material.EMISSIVE, 0x80000000);
+        appearance.setMaterial(material);
+        VertexArray normals = new VertexArray(4, 3, 1);
+        normals.set(0, 4, new byte[]{0,0,127, 0,0,127, 0,0,127, 0,0,127});
+        vertices.setNormals(normals);
+        gray(render("material-alpha"), 127);
+    }
+
+    @Test public void parallelFogPreservesAlpha() throws Exception {
+        fogShadow();
+        gray(render("parallel-fog-alpha"), 191);
+    }
+
+    @Test public void perspectiveFogPreservesAlpha() throws Exception {
+        fogShadow();
+        perspective = true;
+        gray(render("perspective-fog-alpha"), 191);
+    }
+
+    @Test public void parallelFogDoesNotDependOnDepthTesting() throws Exception {
+        fogShadow();
+        appearance.getCompositingMode().setDepthTestEnable(false);
+        gray(render("parallel-fog-no-depth"), 191);
+    }
+
+    @Test public void parallelFogDoesNotDependOnDepthRange() throws Exception {
+        fogShadow();
+        collapsedDepthRange = true;
+        gray(render("parallel-fog-collapsed-depth"), 191);
+    }
+
+    @Test public void parallelFogInterpolatesSlopedGeometry() throws Exception {
+        fogShadow();
+        VertexArray positions = new VertexArray(4, 3, 2);
+        positions.set(0, 4, new short[]{-1,1,-1, -1,-1,-1, 1,1,-3, 1,-1,-3});
+        vertices.setPositions(positions, 1, null);
+        Bitmap bitmap = render("parallel-fog-slope");
+        near("left", bitmap.getPixel(8, 24) & 255, 144, 5);
+        near("right", bitmap.getPixel(55, 24) & 255, 237, 5);
+    }
+
+    @Test public void emissiveMaterialWithoutLightsRetainsColor() throws Exception {
+        Material material = new Material();
+        material.setColor(Material.DIFFUSE, 0x80000000);
+        material.setColor(Material.EMISSIVE, 0xff0000);
+        appearance.setMaterial(material);
+        VertexArray normals = new VertexArray(4, 3, 1);
+        normals.set(0, 4, new byte[]{0,0,127, 0,0,127, 0,0,127, 0,0,127});
+        vertices.setNormals(normals);
+        int pixel = render("emissive-no-lights").getPixel(24, 24);
+        near("red", (pixel >>> 16) & 255, 255, 3);
+        near("green", (pixel >>> 8) & 255, 127, 3);
+        near("blue", pixel & 255, 127, 3);
+    }
+
+    @Test public void disabledDepthTestDrawsBehindExistingGeometry() throws Exception {
+        beforeMesh = solidMesh(0xff0000ff, -1);
+        vertices.setDefaultColor(0xffff0000);
+        appearance.getCompositingMode().setDepthTestEnable(false);
+        int pixel = render("depth-disabled").getPixel(24, 24);
+        near("red", (pixel >>> 16) & 255, 255, 3);
+        near("blue", pixel & 255, 0, 3);
+    }
+
+    @Test public void disabledDepthWriteDoesNotOccludeLaterGeometry() throws Exception {
+        vertices.setDefaultColor(0xffff0000);
+        appearance.getCompositingMode().setDepthWriteEnable(false);
+        afterMesh = solidMesh(0xff0000ff, -3);
+        int pixel = render("depth-write-disabled").getPixel(24, 24);
+        near("red", (pixel >>> 16) & 255, 0, 3);
+        near("blue", pixel & 255, 255, 3);
+    }
+
+    @Test public void alphaRejectedFragmentDoesNotWriteDepth() throws Exception {
+        vertices.setDefaultColor(0x40000000);
+        appearance.getCompositingMode().setAlphaThreshold(0.5f);
+        afterMesh = solidMesh(0xff0000ff, -3);
+        int pixel = render("alpha-reject-depth").getPixel(24, 24);
+        near("red", (pixel >>> 16) & 255, 0, 3);
+        near("blue", pixel & 255, 255, 3);
+    }
+
+    private void fogShadow() {
+        vertices.setDefaultColor(0x80000000);
+        Fog fog = new Fog();
+        fog.setMode(Fog.LINEAR);
+        fog.setLinear(1, 3);
+        fog.setColor(0xffffff);
+        appearance.setFog(fog);
+    }
+
+    private Mesh solidMesh(int color, int z) {
+        VertexArray positions = new VertexArray(4, 3, 2);
+        positions.set(0, 4, new short[]{-1,1,(short)z, -1,-1,(short)z, 1,1,(short)z, 1,-1,(short)z});
+        VertexBuffer buffer = new VertexBuffer();
+        buffer.setPositions(positions, 1, null);
+        buffer.setDefaultColor(color);
+        Appearance style = new Appearance();
+        style.setPolygonMode(appearance.getPolygonMode());
+        return new Mesh(buffer, new TriangleStripArray(0, new int[]{4}), style);
+    }
+
     private void coloredTexture(int filter) {
         texture(new Image2D(Image2D.RGB, 2, 2, new byte[]{-1,0,0, 0,0,-1, -1,0,0, 0,0,-1}), filter);
     }
@@ -135,13 +254,17 @@ public class M3gRasterTest {
         Image image = Image.createImage(64, 64);
         renderer.bindTarget(image.getGraphics());
         renderer.setViewport(0, 0, 64, 64);
+        if (collapsedDepthRange) renderer.setDepthRange(0.5f, 0.5f);
         Background background = new Background();
         background.setColor(0xffffffff);
         renderer.clear(background);
         Camera camera = new Camera();
-        camera.setParallel(2, 1, 1, 10);
+        if (perspective) camera.setPerspective(60, 1, 1, 10);
+        else camera.setParallel(2, 1, 1, 10);
         renderer.setCamera(camera, new Transform());
+        if (beforeMesh != null) renderer.render(beforeMesh, new Transform());
         renderer.render(mesh, new Transform());
+        if (afterMesh != null) renderer.render(afterMesh, new Transform());
         renderer.releaseTarget();
         Bitmap bitmap = image.getBitmap();
         File root = new File(InstrumentationRegistry.getInstrumentation().getTargetContext().getExternalFilesDir(null), "m3g-raster");

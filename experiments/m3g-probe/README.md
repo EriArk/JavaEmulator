@@ -32,6 +32,14 @@ cases failed on Retroid and the emulator. Header-bounded reading still stops
 before trailing container bytes. The build fails if either exact patch or the
 expected revision no longer matches; upstream files remain unmodified.
 
+Further shared patches correct bilinear clamp edges, retain material emission
+and diffuse alpha without active lights, and recover parallel-projection eye
+depth for fog independently of viewport depth state. The real-host regression
+scenes and exact before/after results are in the
+[shading report](../../docs/m3g-shading-2026-10-11/README.md). The standalone
+candidate's existing 18 checks were rerun after these changes; they do not
+independently cover every new material/fog case.
+
 The tiny `Mobile`, `Graphics`, `Image` and `PlatformGraphics` hosts are test
 adapters, **not a complete MIDP implementation**. Android Bitmap supplies PNG
 decoding and presentation. Debug wireframe explicitly throws instead of faking
