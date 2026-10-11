@@ -27,9 +27,15 @@ public class LibraryImportModel extends AndroidViewModel {
 		public final int completed, total;
 		public final LibraryImporter.Preview preview;
 		public final List<String> results;
+		public final LibraryImporter.FolderAccessRequired access;
 		State(boolean busy, String status, int completed, int total, LibraryImporter.Preview preview, List<String> results) {
+			this(busy, status, completed, total, preview, results, null);
+		}
+		State(boolean busy, String status, int completed, int total, LibraryImporter.Preview preview, List<String> results,
+				LibraryImporter.FolderAccessRequired access) {
 			this.busy = busy; this.status = status; this.completed = completed; this.total = total;
 			this.preview = preview; this.results = results;
+			this.access = access;
 		}
 	}
 
@@ -42,13 +48,14 @@ public class LibraryImportModel extends AndroidViewModel {
 	private volatile boolean busy;
 	private File backupStage;
 	private Uri singleGame, singleData, singleConfig;
+	private Uri libraryRoot;
 	public boolean isSingleGame() { return singleGame != null; }
 
 	public void scanSingle(int part, Uri uri) {
 		if (busy) return;
-		if (part == 0) { singleGame = uri; singleData = null; singleConfig = null; }
+		if (part == 0) { importer.resetFolderAccess(); libraryRoot = null; singleGame = uri; singleData = null; singleConfig = null; }
 		else if (part == 1) singleData = uri;
-		else singleConfig = uri;
+		else if (part == 2) singleConfig = uri;
 		busy = true; cancelled.set(false); preview = null;
 		state.setValue(new State(true, "Reading game and saves...", 0, 0, null, null));
 		executor.execute(() -> {
@@ -58,7 +65,7 @@ public class LibraryImportModel extends AndroidViewModel {
 						singleData == null ? null : DocumentFile.fromTreeUri(getApplication(), singleData),
 						singleConfig == null ? null : DocumentFile.fromTreeUri(getApplication(), singleConfig));
 				state.postValue(new State(false, "1 game found", 0, 0, preview, null));
-			} catch (Exception e) { state.postValue(new State(false, e.getMessage(), 0, 0, null, null)); }
+			} catch (Exception e) { scanFailed(e); }
 			finally { busy = false; }
 		});
 	}
@@ -70,10 +77,36 @@ public class LibraryImportModel extends AndroidViewModel {
 	}
 
 	public void scan(Uri uri) {
+		if (busy) return;
+		importer.resetFolderAccess(); libraryRoot = uri;
 		scan(uri, false);
 	}
 
-	public void scanBackup(Uri uri) { scan(uri, true); }
+	public void scanBackup(Uri uri) {
+		if (busy) return;
+		importer.resetFolderAccess(); libraryRoot = null;
+		scan(uri, true);
+	}
+
+	public void allowFolder(Uri uri) {
+		State current = state.getValue();
+		if (busy || current == null || current.access == null) return;
+		try { importer.allowFolder(current.access, uri); }
+		catch (java.io.IOException e) {
+			state.setValue(new State(false, e.getMessage() + "\n\n" + current.access.getMessage(), 0, 0, null, null, current.access));
+			return;
+		}
+		if (singleGame != null) scanSingle(-1, null);
+		else if (libraryRoot != null) scan(libraryRoot, false);
+	}
+
+	private void scanFailed(Exception error) {
+		LibraryImporter.FolderAccessRequired access = error instanceof LibraryImporter.FolderAccessRequired
+				? (LibraryImporter.FolderAccessRequired) error : null;
+		state.postValue(new State(false, error instanceof CancellationException ? "Cancelled"
+				: error.getMessage() == null ? "Cannot read this library. Try selecting it again." : error.getMessage(),
+				0, 0, null, null, access));
+	}
 
 	private void scan(Uri uri, boolean backup) {
 		if (busy) return;
@@ -94,7 +127,7 @@ public class LibraryImportModel extends AndroidViewModel {
 				preview = found;
 				state.postValue(new State(false, found.entries.size() + (found.entries.size() == 1 ? " game found" : " games found"), 0, 0, found, null));
 			} catch (Exception e) {
-				state.postValue(new State(false, e instanceof CancellationException ? "Cancelled" : e.getMessage(), 0, 0, null, null));
+				scanFailed(e);
 			} finally { busy = false; }
 		});
 	}

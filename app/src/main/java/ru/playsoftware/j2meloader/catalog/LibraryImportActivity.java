@@ -29,6 +29,8 @@ public class LibraryImportActivity extends CompactSettingsActivity {
     private static final int LIGHT = 0xFFE6EDF3, MUTED = 0xFF9DAAB3, AMBER = 0xFFFFB62E;
     private LibraryImportModel model;
     private TextView status;
+    private TextView homeStatus;
+    private Button allowAccess;
     private Button start;
     private CheckBox select;
     private ProgressBar progress;
@@ -59,6 +61,11 @@ public class LibraryImportActivity extends CompactSettingsActivity {
                 if (uri == null) return;
                 retain(uri); homeRequested = false; restoring = false; model.scanSingle(singlePart, uri);
             });
+    private final ActivityResultLauncher<Uri> accessPicker = registerForActivityResult(
+            new ActivityResultContracts.OpenDocumentTree(), uri -> {
+                if (uri == null) return;
+                retain(uri); model.allowFolder(uri);
+            });
 
     @Override protected void onCreate(Bundle state) {
         super.onCreate(state);
@@ -78,6 +85,13 @@ public class LibraryImportActivity extends CompactSettingsActivity {
         root.addView(progress, new LinearLayout.LayoutParams(-1, dp(4)));
         home = new ScrollView(this);
         LinearLayout choices = new LinearLayout(this); choices.setOrientation(LinearLayout.VERTICAL);
+        homeStatus = text(14, LIGHT);
+        homeStatus.setPadding(dp(4), 0, dp(4), dp(12)); choices.addView(homeStatus);
+        allowAccess = button("Allow folder access", R.drawable.ic_setting_folder, () -> {
+            if (current != null && current.access != null) accessPicker.launch(android.provider.DocumentsContract.buildDocumentUri(
+                    current.access.folder.getAuthority(), android.provider.DocumentsContract.getDocumentId(current.access.folder)));
+        });
+        choices.addView(allowAccess, actionParams());
         choices.addView(button("Back up library", android.R.drawable.ic_menu_save, () -> backupPicker.launch(
                 "AbyssME-" + new java.text.SimpleDateFormat("yyyy-MM-dd-HHmm", java.util.Locale.ROOT)
                         .format(new java.util.Date()) + ".zip")), actionParams());
@@ -143,10 +157,13 @@ public class LibraryImportActivity extends CompactSettingsActivity {
         home.setVisibility(review ? View.GONE : View.VISIBLE);
         list.setVisibility(review ? View.VISIBLE : View.GONE);
         footer.setVisibility(review ? View.VISIBLE : View.GONE);
-        status.setText(state.status);
-        status.setVisibility("No folder selected".equals(state.status) || (homeRequested && state.preview != null)
-                ? View.GONE : View.VISIBLE);
-        options.setVisibility(status.getVisibility() == View.VISIBLE ? View.VISIBLE : View.GONE);
+        boolean showStatus = !"No folder selected".equals(state.status) && !(homeRequested && state.preview != null);
+        status.setText(review ? state.status : "");
+        status.setVisibility(showStatus && review ? View.VISIBLE : View.GONE);
+        homeStatus.setText(!review ? state.status : "");
+        homeStatus.setVisibility(showStatus && !review ? View.VISIBLE : View.GONE);
+        allowAccess.setVisibility(!review && state.access != null ? View.VISIBLE : View.GONE);
+        options.setVisibility(showStatus ? View.VISIBLE : View.GONE);
         progress.setVisibility(state.busy ? View.VISIBLE : View.GONE);
         progress.setIndeterminate(state.total == 0);
         if (state.total > 0) { progress.setMax(state.total); progress.setProgress(state.completed); }
@@ -154,7 +171,7 @@ public class LibraryImportActivity extends CompactSettingsActivity {
         adapter.entries = preview ? state.preview.entries : new ArrayList<>();
         adapter.results = results ? state.results : new ArrayList<>();
         adapter.notifyDataSetChanged(); updateSelection();
-        int stage = state.busy ? 2 : preview ? 1 : results ? 3 : 0;
+        int stage = state.busy ? 2 : preview ? 1 : results ? 3 : state.access != null ? 4 : 0;
         if (displayedStage != stage) { displayedStage = stage; focusContentWhenReady(); }
     }
     private void updateSelection() {

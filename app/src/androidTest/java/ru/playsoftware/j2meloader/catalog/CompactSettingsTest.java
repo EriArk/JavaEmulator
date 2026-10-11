@@ -114,6 +114,29 @@ public class CompactSettingsTest {
             });
         }
     }
+    @Test public void folderAccessRecoverySurvivesRecreationAndShowsFullMessage() {
+        android.net.Uri tree = android.provider.DocumentsContract.buildTreeDocumentUri("fixture.library", "root");
+        LibraryImporter.FolderAccessRequired request = new LibraryImporter.FolderAccessRequired(
+                android.provider.DocumentsContract.buildDocumentUriUsingTree(tree, "root/data/game"), "data/game");
+        try (ActivityScenario<LibraryImportActivity> scenario = ActivityScenario.launch(LibraryImportActivity.class)) {
+            scenario.onActivity(activity -> new ViewModelProvider(activity).get(LibraryImportModel.class).state.setValue(
+                    new LibraryImportModel.State(false, request.getMessage(), 0, 0, null, null, request)));
+            idle(); scenario.recreate(); idle();
+            scenario.onActivity(activity -> {
+                View root = activity.getWindow().getDecorView();
+                TextView message = (TextView) find(root, request.getMessage());
+                assertNotNull(message); assertTrue(message.isShown()); assertNull(message.getEllipsize());
+                assertTrue(message.getMaxLines() > 2);
+                assertTrue(find(root, "Allow folder access").isEnabled());
+                LibraryImportModel model = new ViewModelProvider(activity).get(LibraryImportModel.class);
+                assertSame(request, model.state.getValue().access);
+                model.allowFolder(android.provider.DocumentsContract.buildTreeDocumentUri("fixture.library", "wrong"));
+                assertSame(request, model.state.getValue().access);
+                assertTrue(model.state.getValue().status.startsWith("A different folder"));
+            });
+        }
+    }
+
     private void idle() {
         InstrumentationRegistry.getInstrumentation().waitForIdleSync();
         android.os.SystemClock.sleep(150);

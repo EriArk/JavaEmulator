@@ -24,6 +24,8 @@ import java.nio.file.Files;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashSet;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.List;
 import java.util.Set;
 import java.util.UUID;
@@ -83,6 +85,51 @@ public final class LibraryImporter {
 	private final AtomicBoolean cancelled;
 	private long copied;
 	private int files;
+	private final Map<String, Uri> folderGrants = new HashMap<>();
+	private final Map<String, String> folderNames = new HashMap<>();
+	private Uri sourceTree;
+
+	public static final class FolderAccessRequired extends IOException {
+		public final Uri folder;
+		FolderAccessRequired(Uri folder, String name) {
+			super("Allow access to " + name + " to continue reading the library. Android will ask you to select this folder. Original files stay unchanged.");
+			this.folder = folder;
+		}
+	}
+
+	private static String documentKey(Uri uri) {
+		return uri.getAuthority() + ":" + DocumentsContract.getDocumentId(uri);
+	}
+
+	public void resetFolderAccess() { folderGrants.clear(); folderNames.clear(); sourceTree = null; }
+
+	public void allowFolder(FolderAccessRequired request, Uri selected) throws IOException {
+		if (!"content".equals(selected.getScheme()) || !DocumentsContract.isTreeUri(selected)
+				|| !request.folder.getAuthority().equals(selected.getAuthority())
+				|| !DocumentsContract.getDocumentId(request.folder).equals(DocumentsContract.getTreeDocumentId(selected)))
+			throw new IOException("A different folder was selected. Choose the requested folder to continue.");
+		folderGrants.put(documentKey(request.folder), selected);
+	}
+
+	private DocumentFile resolve(DocumentFile file) {
+		if (file == null || !"content".equals(file.getUri().getScheme())) return file;
+		String key = documentKey(file.getUri());
+		Uri grant = folderGrants.get(key);
+		return grant == null ? file : DocumentFile.fromTreeUri(context, grant);
+	}
+
+	private Uri originalUri(DocumentFile file) {
+		Uri uri = file.getUri();
+		return sourceTree != null && "content".equals(uri.getScheme())
+				? DocumentsContract.buildDocumentUriUsingTree(sourceTree, DocumentsContract.getDocumentId(uri)) : uri;
+	}
+
+	private IOException accessRequired(DocumentFile folder, String name, SecurityException cause) {
+		name = folderNames.getOrDefault(documentKey(folder.getUri()), name);
+		if (folderGrants.containsKey(documentKey(folder.getUri())))
+			return new IOException("Access to " + name + " is still unavailable. No files were changed. Try choosing the library from another storage location.", cause);
+		return new FolderAccessRequired(folder.getUri(), name == null ? "the source folder" : name);
+	}
 
 	public LibraryImporter(Context context, File destination, Catalog catalog, AtomicBoolean cancelled) {
 		this.context = context.getApplicationContext();
@@ -102,16 +149,18 @@ public final class LibraryImporter {
 	/** Some older providers only grant direct children. Separate picker grants avoid file-manager copying. */
 	public Preview scanSingle(DocumentFile game, DocumentFile data, DocumentFile config) throws IOException {
 		if (game == null || !game.isDirectory()) throw new IOException("Select one installed game folder inside converted");
+		sourceTree = game.getUri();
 		Entry entry = new Entry();
 		entry.game = game; entry.data = data; entry.config = config;
 		if ((data != null && !game.getName().equals(data.getName())) || (config != null && !game.getName().equals(config.getName())))
 			throw new IOException("Select the folder with the same name as the game: " + game.getName());
 		Descriptor descriptor = new Descriptor(readText(find(game, "converted.dex.conf"), 1024 * 1024), false);
 		entry.title = descriptor.getName(); entry.vendor = descriptor.getVendor(); entry.version = descriptor.getVersion();
-		entry.sourceKey = "j2me-library:" + game.getUri();
+		entry.sourceKey = "j2me-library:" + originalUri(game);
 		if (find(game, "res.jar") == null) throw new IOException("Original JAR required (no res.jar)");
 		if (catalog.bySource(entry.sourceKey) != null) entry.problem = "Already imported; existing saves will be kept";
 		entry.hasSaves = data != null && children(data).length > 0;
+		if (data != null) checkTree(data, 0, new int[]{0});
 		if (config != null && find(config, "config.json") == null) throw new IOException("Select this game's folder inside configs");
 		entry.duplicateTitle = catalog.byTitle(entry.title, entry.vendor) != null;
 		entry.selected = entry.problem == null && !entry.duplicateTitle;
@@ -121,11 +170,13 @@ public final class LibraryImporter {
 	private Preview scan(DocumentFile root, JsonObject backup) throws IOException {
 		checkCancelled();
 		if (root == null || !root.isDirectory() || !root.canRead()) throw new IOException("Cannot read this folder");
+		sourceTree = root.getUri();
 		DocumentFile converted = find(root, "converted");
 		if (converted == null || !converted.isDirectory()) throw new IOException("Select the J2ME Loader folder containing converted, data and configs");
 		Preview result = new Preview();
 		result.shared = find(root, "fs");
 		result.sharedFiles = result.shared != null && children(result.shared).length > 0;
+		if (result.sharedFiles) checkTree(result.shared, 0, new int[]{0});
 		DocumentFile data = find(root, "data"), configs = find(root, "configs");
 		DocumentFile[] games = children(converted);
 		if (games.length > MAX_FILES) throw new IOException("Too many library entries");
@@ -135,7 +186,7 @@ public final class LibraryImporter {
 			Entry entry = new Entry();
 			entry.game = game;
 			entry.title = game.getName();
-			entry.sourceKey = "j2me-library:" + game.getUri();
+			entry.sourceKey = "j2me-library:" + originalUri(game);
 			try {
 				validName(game.getName());
 				if (backup != null) {
@@ -160,11 +211,14 @@ public final class LibraryImporter {
 				entry.data = data == null ? null : find(data, game.getName());
 				entry.config = configs == null ? null : find(configs, game.getName());
 				entry.hasSaves = entry.data != null && children(entry.data).length > 0;
+				if (entry.data != null) checkTree(entry.data, 0, new int[]{0});
+				if (entry.config != null) children(entry.config);
 				if (catalog.bySource(entry.sourceKey) != null) entry.problem = "Already imported; existing saves will be kept";
 				entry.duplicateTitle = catalog.byTitle(entry.title, entry.vendor) != null;
 				entry.selected = entry.problem == null && !entry.duplicateTitle;
 			} catch (IOException | RuntimeException error) {
 				if (error instanceof CancellationException) throw error;
+				if (error instanceof FolderAccessRequired) throw (FolderAccessRequired) error;
 				entry.problem = "Unsupported entry: " + error.getMessage();
 			}
 			result.entries.add(entry);
@@ -436,8 +490,18 @@ public final class LibraryImporter {
 
 	private DocumentFile[] children(DocumentFile directory) throws IOException {
 		checkCancelled();
-		if (!directory.isDirectory() || !directory.canRead()) throw new IOException("Cannot read source folder");
+		directory = resolve(directory);
 		Uri uri = directory.getUri();
+		if ("content".equals(uri.getScheme())) {
+			try (Cursor cursor = context.getContentResolver().query(uri,
+					new String[]{DocumentsContract.Document.COLUMN_MIME_TYPE}, null, null, null)) {
+				if (cursor == null || !cursor.moveToFirst()
+						|| !DocumentsContract.Document.MIME_TYPE_DIR.equals(cursor.getString(0)))
+					throw new IOException("Cannot read source folder");
+			} catch (SecurityException error) { throw accessRequired(directory, directory.getName(), error); }
+			catch (RuntimeException error) { throw new IOException("Cannot read source folder", error); }
+		}
+		if (!directory.isDirectory() || !directory.canRead()) throw new IOException("Cannot read source folder");
 		if ("file".equals(uri.getScheme())) {
 			File file = new File(uri.getPath());
 			if (Files.isSymbolicLink(file.toPath()) || file.list() == null) throw new IOException("Unreadable or linked source folder");
@@ -446,21 +510,38 @@ public final class LibraryImporter {
 		// DocumentFile swallows provider errors and returns an empty/partial list. Never call that success.
 		if ("content".equals(uri.getScheme())) {
 			Uri childUri = DocumentsContract.buildChildDocumentsUriUsingTree(uri, DocumentsContract.getDocumentId(uri));
+			Map<String, String[]> metadata = new HashMap<>();
 			try (Cursor cursor = context.getContentResolver().query(childUri,
-					new String[]{DocumentsContract.Document.COLUMN_DOCUMENT_ID}, null, null, null)) {
+					new String[]{DocumentsContract.Document.COLUMN_DOCUMENT_ID,
+							DocumentsContract.Document.COLUMN_MIME_TYPE, DocumentsContract.Document.COLUMN_DISPLAY_NAME}, null, null, null)) {
 				if (cursor == null || cursor.getCount() != children.length) throw new IOException("Incomplete folder listing; retry import");
-			} catch (RuntimeException error) { throw new IOException("Cannot enumerate source folder", error); }
-			for (DocumentFile child : children) {
+				while (cursor.moveToNext()) metadata.put(cursor.getString(0), new String[]{cursor.getString(1), cursor.getString(2)});
+			} catch (SecurityException error) { throw accessRequired(directory, directory.getName(), error); }
+			catch (RuntimeException error) { throw new IOException("Cannot enumerate source folder", error); }
+			for (int i = 0; i < children.length; i++) {
+				DocumentFile child = children[i] = resolve(children[i]);
+				String[] info = metadata.get(DocumentsContract.getDocumentId(child.getUri()));
+				if (info == null) throw new IOException("Source changed; scan the library again");
+				String parentName = folderNames.getOrDefault(documentKey(uri), "");
+				folderNames.put(documentKey(child.getUri()), parentName.isEmpty() ? info[1] : parentName + " / " + info[1]);
 				try (Cursor cursor = context.getContentResolver().query(child.getUri(),
 						new String[]{DocumentsContract.Document.COLUMN_MIME_TYPE}, null, null, null)) {
 					if (cursor == null || !cursor.moveToFirst() || cursor.isNull(0)) throw new IOException("Cannot read a source entry");
-				} catch (RuntimeException error) {
-					throw new IOException("This provider blocks nested folders. Use J2ME Loader > Single game and select its saves separately.", error);
-				}
+				} catch (SecurityException error) {
+					throw accessRequired(directory, directory.getName(), error);
+				} catch (RuntimeException error) { throw new IOException("Cannot read a source entry", error); }
 			}
 		}
 		if (children.length > MAX_FILES) throw new IOException("Too many source files");
 		return children;
+	}
+
+	private void checkTree(DocumentFile directory, int depth, int[] count) throws IOException {
+		if (depth > 20) throw new IOException("Source folders are nested too deeply");
+		for (DocumentFile child : children(directory)) {
+			if (++count[0] > MAX_FILES) throw new IOException("Too many source files");
+			if (child.isDirectory()) checkTree(child, depth + 1, count);
+		}
 	}
 
 	private InputStream open(DocumentFile file) throws IOException {

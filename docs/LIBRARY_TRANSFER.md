@@ -9,8 +9,15 @@ backup until you have checked your games and saves in the destination app.
 Choose **Import from J2ME Loader > Whole library** and select an accessible library folder in Android's file
 picker. Review the detected games, select the ones to copy, then import.
 
-Some J2ME Loader document providers allow only a single game folder at a time.
-For these, choose **Single game** and the game under `converted`, then open
+Some J2ME Loader document providers reject nested folders under a library-wide
+permission. If prompted, choose **Allow folder access**, confirm the requested
+folder in Android's picker, and the library scan resumes. The selected library
+and earlier grants survive screen recreation and picker cancellation. Selecting
+a different folder does not replace the source. A restrictive provider may need
+several confirmations, including separate folders for saves and settings.
+No Android storage restrictions are bypassed.
+
+Alternatively, choose **Single game** and the game under `converted`, then open
 **Transfer options > Add saves** for its matching folder under `data` and
 **Add settings** for the matching folder under `configs`.
 All selection happens in the app and Android file picker; root and manual copying
@@ -43,12 +50,29 @@ active Java game process. Third-party games should also be closed before import.
 
 ## Verification and limits
 
+On 2026-10-11, whole-library import was reproduced with genuine J2ME Loader
+1.8.2-open on the Android emulator. The old nested-folder error was replaced by
+seven explicit folder confirmations for this fixture, followed by a successful
+Sudoku import with saves and settings. Both RMS files matched the originals by
+SHA-256, and the source files were unchanged. The count of confirmations depends
+on the source library and provider; Android may open its picker at the root,
+in which case select the path shown in the access message.
+
+Regression checks cover a direct-child-only provider with two games, stable
+source identity across extra grants, nested saves, wrong-folder/authority
+rejection, unrelated provider failures, and recovery UI recreation. These are
+emulator and fixture checks, not acceptance on the reporter's Samsung phones.
+
 The compact transfer screen separates the operation chooser, preview and result.
 Preview keeps the game list central and Select all / Import at the bottom.
 Shared-file options and single-game save/settings pickers live under the header's
 Transfer options button. Back during a running operation requests safe cancellation;
 Back from a preview returns to the chooser. Original-source and missing-save
 warnings remain. Archive/import rules are unchanged.
+
+Access-recovery and error messages wrap inside the scrollable operation chooser;
+they are not truncated to two lines. Save subfolders are checked before preview,
+so a nested-folder permission error does not silently omit that game's saves.
 
 The 2026-10-09 UI checks use synthetic preview/result states for selection,
 recreation, cancellation and retry, alongside the existing archive/import tests.
