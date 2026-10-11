@@ -39,6 +39,15 @@ and the upstream GPLv3 license and inherited notices remain unchanged.
 Public combined source/APK distribution still awaits the recorded permission
 scope and the release checks below. No release has been published by this update.
 
+### Follow-up reply, checked 2026-10-11
+
+The author posted a [further reply on 2026-10-10](https://github.com/jamisson2006/wolphun-a-Mophun-emulator/issues/1#issuecomment-6100316305),
+stating that all the code is under GPL 3.0 and welcoming contributors. Record
+this alongside the positive response above; the clarification is not unanswered.
+The reply does not explicitly state the requested additional permission for
+the EPL-1.0 combination. No new permission text or project-wide license change
+is inferred here, and the existing combined-publication review remains open.
+
 ## Verified integration blocker
 
 | Component | Evidence in the checkout or upstream | Terms |

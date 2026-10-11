@@ -5,6 +5,19 @@ welcome. Search [existing issues](https://github.com/EriArk/JavaEmulator/issues)
 before starting. Discuss changes to storage, input behavior, UI direction or
 release policy before implementing them.
 
+## Status and Change Records
+
+Keep [PROJECT_STATUS](docs/PROJECT_STATUS.md) current after meaningful changes,
+test-build distributions and acceptance checks. Append user-visible changes to
+[CHANGELOG](CHANGELOG.md), with dates, availability and evidence links. These
+documents are also the handoff source for the website and progress posts.
+Summarize local-only work without publishing ignored implementation or game files.
+
+Separate released APKs, unreleased `main`, private test snapshots and local
+experiments. A successful build or emulator run is not physical-device acceptance.
+For substantial commits, add a body describing the changes, verification and
+remaining limitations. Do not rewrite published history just to expand messages.
+
 ## Local setup
 
 - JDK 21 (used by the current local verification environment).

@@ -20,6 +20,13 @@ core: a controller-first **Handheld** APK and a portrait/touch-friendly
 
 ## Current Development
 
+For website copy, progress posts and handoffs, start with the
+[current product/development status](docs/PROJECT_STATUS.md) and
+[dated changelog](CHANGELOG.md). They also describe local/private experiments,
+explicitly separated from public downloads. The
+[fresh development screenshot pack](screenshots/post-2026-10-11/README.md)
+shows experimental.15, not the published beta.2 interface pictured below.
+
 The `main` branch is ahead of the published beta.2 APKs. Its unreleased changes
 include a graphical controller mapper with diagonal bindings, two Phone touch
 layouts, live Java game-image rotation, quick display settings, J2ME Loader
