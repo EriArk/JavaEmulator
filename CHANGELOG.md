@@ -11,6 +11,15 @@ stated otherwise. **Experimental** means local/private combined builds only.
 
 ## 2026-10-11
 
+- **Separate experiment / not shipped:** reproduced and fixed material
+  emission/alpha with no lights and fog distance under parallel projection.
+  Added regressions and bind-to-release timing for direct-flush games: 32 checks
+  pass on both Retroid engines and candidate emulator; standalone candidate
+  retains 18/18. Deep provided usable target-session measurements and resumed
+  gameplay after Home/Recents. Asphalt still shows a hard black shadow. Source,
+  failures and screenshots are on the experiment branch; production engine,
+  licensing and release APKs are unchanged.
+  [Dated evidence](https://github.com/EriArk/JavaEmulator/blob/044d9a28/docs/m3g-shading-2026-10-11/README.md).
 - **Separate experiment / not shipped:** reproduced and fixed bilinear texture
   edge bleeding in the generated alternative M3G renderer. Added eleven raster
   cases to six host checks: 17/17 pass on Retroid for both engines and candidate

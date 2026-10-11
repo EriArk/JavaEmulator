@@ -35,7 +35,7 @@ bundled. The app UI is English.
 | Public development source | `main`; latest app-code change at this review: [d39ed742](https://github.com/EriArk/JavaEmulator/commit/d39ed742) | Unreleased Java/UI/storage improvements listed below; not all are in the downloadable beta |
 | Private combined test snapshot | `0.1.0-beta.2-experimental.15`, 2026-10-11 | Handheld and Phone debug APKs containing Java plus experimental Mophun; supplied separately to testers, not a GitHub release |
 | Local-only implementation | Ignored optional-engine source and diagnostics | Mophun integration, game-specific experiments and test fixtures; public descriptions below, implementation not published |
-| Separate research branch | [`codex/m3g-replacement`](https://github.com/EriArk/JavaEmulator/tree/codex/m3g-replacement), `86d79068` | Synthetic M3G probes, isolated real-host builds, texture-edge fix, 17 host/raster checks and bounded game observations; not merged, released or accepted as a replacement |
+| Separate research branch | [`codex/m3g-replacement`](https://github.com/EriArk/JavaEmulator/tree/codex/m3g-replacement), `044d9a28` | Isolated real-host builds, texture/material/fog fixes, 32 measured-host checks and bounded game observations; not merged, released or accepted as a replacement |
 
 The experimental number is a distribution label: build 15 still reports
 version code **102** and `0.1.0-beta.2` / `0.1.0-beta.2-phone` internally.
@@ -277,9 +277,36 @@ Deep returned through Home/Recents to its own pause menu in the same process;
 continued gameplay after that return was not verified in this batch.
 
 [Fix, tests, exact builds, limitations and screenshots](https://github.com/EriArk/JavaEmulator/blob/86d79068/docs/m3g-filtering-2026-10-11/README.md).
-Next proposed batch: isolate shadow/material/depth/fog and texture-combine
-differences, and cover direct-flush drawing before interpreting Deep paint
-cost. Main retains the current engine. Await maintainer confirmation.
+That batch proposed shading isolation and direct-flush timing; the following
+entry records those checks without claiming complete replacement readiness.
+
+### Shading and direct-flush follow-up: 2026-10-11
+
+Two original scenes reproduced differences against the native baseline:
+materials were ignored with no active lights, and parallel fog treated constant
+clip W as camera distance. Generated-source fixes preserve emission/diffuse
+alpha and recover parallel eye depth independently of depth-buffer state.
+Neither fix is a per-game patch, and production engine sources remain unchanged.
+
+Both measured host builds pass **32/32** checks on Retroid; candidate also passes
+32/32 on the emulator. The standalone candidate retains 18/18 on the emulator;
+six collector checks pass. Full app suite and lint were not rerun. New hooks
+measure successful bind-to-release intervals for direct-flush games, including
+intervening game code and release/readback, not isolated renderer cost.
+
+Both Deep opening-gameplay runs completed about 45 seconds on Retroid. Median
+of window target-session medians was 3.24 ms for baseline and 8.46 ms for the
+candidate, despite 60.00 Hz surface presentation on both. These are moving,
+non-synchronized scenes, not a renderer-speed ratio or game-logic FPS. Candidate
+Deep resumed actual gameplay after Home/Recents in the same process, with two
+post-resume captures showing progress. This is one cycle, not save/reload or
+process-death acceptance. Asphalt reached a moving race but still shows the
+hard black shadow; its cause remains unresolved.
+
+[Source, failed fixtures, final reports and screenshots](https://github.com/EriArk/JavaEmulator/blob/044d9a28/docs/m3g-shading-2026-10-11/README.md).
+Next proposed batch: capture a bounded render-state trace for the remaining
+shadow and separate renderer/copy cost before optimizing. No new game catalog,
+mainline engine replacement or release APK. Await maintainer confirmation.
 
 ## Distribution and Licensing Status
 
