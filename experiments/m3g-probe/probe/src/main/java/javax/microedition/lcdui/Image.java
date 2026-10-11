@@ -9,6 +9,8 @@ import java.io.InputStream;
 public final class Image {
     private final Bitmap bitmap;
     public Image(Bitmap bitmap) { this.bitmap = bitmap; }
+    public Bitmap getBitmap() { return bitmap; }
+    public boolean isMutable() { return bitmap.isMutable(); }
     public int getWidth() { return bitmap.getWidth(); }
     public int getHeight() { return bitmap.getHeight(); }
     public void getRGB(int[] pixels, int offset, int stride, int x, int y, int w, int h) {

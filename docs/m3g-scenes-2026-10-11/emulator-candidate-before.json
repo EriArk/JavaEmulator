@@ -1,0 +1,121 @@
+﻿{
+  "engine": "FreeJ2ME-Plus",
+  "suiteVersion": 2,
+  "upstream": "baca76a4dda6f30abac67fb4a3db009eed05f91c",
+  "device": "sdk_gphone64_x86_64",
+  "sdk": 35,
+  "abi": "x86_64",
+  "tests": [
+    {
+      "name": "transform_inverse",
+      "passed": true,
+      "elapsedMs": 0.151
+    },
+    {
+      "name": "immediate_triangle",
+      "passed": true,
+      "elapsedMs": 72.6139
+    },
+    {
+      "name": "retained_matches_immediate",
+      "passed": true,
+      "elapsedMs": 822.1062
+    },
+    {
+      "name": "depth_order",
+      "passed": true,
+      "elapsedMs": 166.9746
+    },
+    {
+      "name": "texture_checker",
+      "passed": true,
+      "elapsedMs": 69.4654
+    },
+    {
+      "name": "translated_clip",
+      "passed": true,
+      "elapsedMs": 52.433
+    },
+    {
+      "name": "png_loader",
+      "passed": true,
+      "elapsedMs": 10.9513
+    },
+    {
+      "name": "release_and_rebind",
+      "passed": true,
+      "elapsedMs": 500.8448
+    },
+    {
+      "name": "scene_raw",
+      "passed": true,
+      "elapsedMs": 94.0536
+    },
+    {
+      "name": "scene_zlib",
+      "passed": true,
+      "elapsedMs": 108.7116
+    },
+    {
+      "name": "scene_multisection",
+      "passed": false,
+      "error": "java.lang.AssertionError: World root missing; returned 1 objects",
+      "elapsedMs": 7.1903
+    },
+    {
+      "name": "scene_zlib_multisection",
+      "passed": false,
+      "error": "java.lang.AssertionError: World root missing; returned 1 objects",
+      "elapsedMs": 4.0174
+    },
+    {
+      "name": "scene_offset",
+      "passed": true,
+      "elapsedMs": 27.0344
+    },
+    {
+      "name": "scene_truncated_rejected",
+      "passed": true,
+      "elapsedMs": 18.4565
+    },
+    {
+      "name": "animation_translation",
+      "passed": true,
+      "elapsedMs": 49.5121
+    },
+    {
+      "name": "animation_orientation",
+      "passed": true,
+      "elapsedMs": 34.5808
+    },
+    {
+      "name": "morph_vertices",
+      "passed": true,
+      "elapsedMs": 53.2114
+    },
+    {
+      "name": "skin_bone",
+      "passed": true,
+      "elapsedMs": 52.2934
+    }
+  ],
+  "frames": [
+    "immediate",
+    "retained",
+    "texture",
+    "clip",
+    "scene_raw_api",
+    "scene_raw",
+    "scene_zlib_api",
+    "scene_zlib",
+    "scene_offset",
+    "translation_start",
+    "translation_end",
+    "rotation_start",
+    "rotation_mid",
+    "morph_start",
+    "morph_end",
+    "skin_start",
+    "skin_end"
+  ]
+}

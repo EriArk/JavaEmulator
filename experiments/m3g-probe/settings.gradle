@@ -7,3 +7,4 @@ dependencyResolutionManagement {
 }
 rootProject.name = 'AbyssM3GProbe'
 include ':probe'
+include ':baseline'

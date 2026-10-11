@@ -1,0 +1,123 @@
+﻿{
+  "engine": "FreeJ2ME-Plus",
+  "suiteVersion": 2,
+  "upstream": "baca76a4dda6f30abac67fb4a3db009eed05f91c",
+  "device": "Retroid Pocket Classic",
+  "sdk": 34,
+  "abi": "arm64-v8a",
+  "tests": [
+    {
+      "name": "transform_inverse",
+      "passed": true,
+      "elapsedMs": 0.065677
+    },
+    {
+      "name": "immediate_triangle",
+      "passed": true,
+      "elapsedMs": 18.397187
+    },
+    {
+      "name": "retained_matches_immediate",
+      "passed": true,
+      "elapsedMs": 39.909687
+    },
+    {
+      "name": "depth_order",
+      "passed": true,
+      "elapsedMs": 21.865729
+    },
+    {
+      "name": "texture_checker",
+      "passed": true,
+      "elapsedMs": 17.356927
+    },
+    {
+      "name": "translated_clip",
+      "passed": true,
+      "elapsedMs": 15.595729
+    },
+    {
+      "name": "png_loader",
+      "passed": true,
+      "elapsedMs": 2.158542
+    },
+    {
+      "name": "release_and_rebind",
+      "passed": true,
+      "elapsedMs": 20.009063
+    },
+    {
+      "name": "scene_raw",
+      "passed": true,
+      "elapsedMs": 23.25724
+    },
+    {
+      "name": "scene_zlib",
+      "passed": true,
+      "elapsedMs": 23.248803
+    },
+    {
+      "name": "scene_multisection",
+      "passed": true,
+      "elapsedMs": 31.523959
+    },
+    {
+      "name": "scene_zlib_multisection",
+      "passed": true,
+      "elapsedMs": 23.915937
+    },
+    {
+      "name": "scene_offset",
+      "passed": true,
+      "elapsedMs": 14.565833
+    },
+    {
+      "name": "scene_truncated_rejected",
+      "passed": true,
+      "elapsedMs": 1.963437
+    },
+    {
+      "name": "animation_translation",
+      "passed": true,
+      "elapsedMs": 25.588177
+    },
+    {
+      "name": "animation_orientation",
+      "passed": true,
+      "elapsedMs": 15.436354
+    },
+    {
+      "name": "morph_vertices",
+      "passed": true,
+      "elapsedMs": 12.074219
+    },
+    {
+      "name": "skin_bone",
+      "passed": true,
+      "elapsedMs": 6.275886
+    }
+  ],
+  "frames": [
+    "immediate",
+    "retained",
+    "texture",
+    "clip",
+    "scene_raw_api",
+    "scene_raw",
+    "scene_zlib_api",
+    "scene_zlib",
+    "scene_multisection_api",
+    "scene_multisection",
+    "scene_zlib_multisection_api",
+    "scene_zlib_multisection",
+    "scene_offset",
+    "translation_start",
+    "translation_end",
+    "rotation_start",
+    "rotation_mid",
+    "morph_start",
+    "morph_end",
+    "skin_start",
+    "skin_end"
+  ]
+}

@@ -36,6 +36,14 @@ tasks.register('prepareM3g') {
         def contents = image.getText('UTF-8')
         if (contents.count(oldCheck) != 1) throw new GradleException('Image2D adaptation no longer matches')
         image.setText(contents.replace(oldCheck, ''), 'UTF-8')
+        // available() shrinks while 'read' grows; comparing them skips later sections.
+        // Keep the header's end boundary, including for embedded files with trailing data.
+        def loader = new File(output, 'java/javax/microedition/m3g/Loader.java')
+        def oldBoundary = 'while ((bounded ? read < Math.min(dis.available(), totalFileSize) : dis.available() > 0))'
+        def newBoundary = 'while (bounded ? read < totalFileSize : dis.available() > 0)'
+        contents = loader.getText('UTF-8')
+        if (contents.count(oldBoundary) != 1) throw new GradleException('Loader boundary patch no longer matches')
+        loader.setText(contents.replace(oldBoundary, newBoundary), 'UTF-8')
         copy { from new File(source, 'LICENSE'); into new File(output, 'assets'); rename { 'FREEJ2ME-LICENSE.txt' } }
     }
 }
@@ -43,6 +51,7 @@ tasks.register('prepareM3g') {
 android {
     namespace 'io.github.eriark.m3gprobe'
     compileSdk 34
+    buildFeatures { buildConfig true }
     compileOptions {
         sourceCompatibility JavaVersion.VERSION_11
         targetCompatibility JavaVersion.VERSION_11
@@ -51,10 +60,12 @@ android {
         applicationId 'io.github.eriark.m3gprobe'
         minSdk 29
         targetSdk 34
-        versionCode 1
-        versionName '0.1-probe'
+        versionCode 2
+        versionName '0.2-scenes'
+        buildConfigField 'boolean', 'BASELINE', 'false'
     }
     sourceSets {
+        main.java.srcDir 'src/candidate/java'
         main.java.srcDir generated.map { new File(it.asFile, 'java') }
         main.assets.srcDir generated.map { new File(it.asFile, 'assets') }
     }

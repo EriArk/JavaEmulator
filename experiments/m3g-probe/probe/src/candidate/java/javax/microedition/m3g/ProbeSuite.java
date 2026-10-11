@@ -8,6 +8,7 @@ import java.util.Map;
 import org.json.JSONArray;
 import org.json.JSONObject;
 import org.recompile.mobile.PlatformGraphics;
+import io.github.eriark.m3gprobe.SceneSuite;
 
 /** Synthetic tests only; deliberately not a game-compatibility claim. */
 public final class ProbeSuite {
@@ -116,7 +117,12 @@ public final class ProbeSuite {
                 require(g.getTarget() == null, "target not released");
             }
         });
-        return new JSONObject().put("upstream", "baca76a4dda6f30abac67fb4a3db009eed05f91c")
+        SceneSuite shared = new SceneSuite();
+        JSONArray sceneResults = shared.run();
+        for (int i = 0; i < sceneResults.length(); i++) results.put(sceneResults.get(i));
+        frames.putAll(shared.frames);
+        return new JSONObject().put("engine", "FreeJ2ME-Plus").put("suiteVersion", 2)
+                .put("upstream", "baca76a4dda6f30abac67fb4a3db009eed05f91c")
                 .put("device", android.os.Build.MODEL).put("sdk", android.os.Build.VERSION.SDK_INT)
                 .put("abi", android.os.Build.SUPPORTED_ABIS[0]).put("tests", results);
     }

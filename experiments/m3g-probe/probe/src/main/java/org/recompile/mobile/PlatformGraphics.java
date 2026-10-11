@@ -12,6 +12,12 @@ public final class PlatformGraphics extends Graphics {
         pixels = new int[width * height];
     }
     public int[] getFrameBuffer() { return pixels; }
+    public int[] readReleasedPixels() {
+        if (io.github.eriark.m3gprobe.BuildConfig.BASELINE) {
+            getBitmap().getPixels(pixels, 0, image.getWidth(), 0, 0, image.getWidth(), image.getHeight());
+        }
+        return pixels.clone();
+    }
     public int getColor() { return color; }
     public void setColor(int color) { this.color = color; }
     public void drawTriangle(int x1, int y1, int x2, int y2, int x3, int y3) {

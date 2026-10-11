@@ -24,12 +24,13 @@ public final class ProbeActivity extends Activity {
             try {
                 ProbeSuite suite = new ProbeSuite();
                 JSONObject report = suite.run();
-                write("report.json", report.toString(2).getBytes(StandardCharsets.UTF_8));
                 for (Map.Entry<String, Bitmap> frame : suite.frames.entrySet()) {
                     try (FileOutputStream out = new FileOutputStream(new File(getFilesDir(), frame.getKey() + ".png"))) {
                         frame.getValue().compress(Bitmap.CompressFormat.PNG, 100, out);
                     }
                 }
+                report.put("frames", new JSONArray(suite.frames.keySet()));
+                write("report.json", report.toString(2).getBytes(StandardCharsets.UTF_8));
                 android.util.Log.i("M3GProbe", report.toString());
                 runOnUiThread(() -> showReport(report, suite));
             } catch (Throwable error) {
@@ -49,7 +50,7 @@ public final class ProbeActivity extends Activity {
         JSONArray results = report.optJSONArray("tests");
         int passed = 0;
         for (int i = 0; i < results.length(); i++) if (results.optJSONObject(i).optBoolean("passed")) passed++;
-        label(column, "M3G candidate / " + passed + " of " + results.length() + " checks passed", 22);
+        label(column, report.optString("engine", "M3G candidate") + " / " + passed + " of " + results.length() + " checks passed", 22);
         label(column, report.optString("device") + " | " + report.optString("abi") + " | Synthetic tests", 14);
         LinearLayout row = null;
         int index = 0;

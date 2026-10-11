@@ -9,6 +9,7 @@ public class Graphics {
         clipW = image.getWidth(); clipH = image.getHeight();
     }
     public Image getCanvas() { return image; }
+    public android.graphics.Bitmap getBitmap() { return image.getBitmap(); }
     public int getTranslateX() { return tx; }
     public int getTranslateY() { return ty; }
     public int getClipX() { return clipX - tx; }

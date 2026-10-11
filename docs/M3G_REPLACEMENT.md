@@ -22,9 +22,11 @@ The maintainer reaffirmed on 2026-10-11 that the current engine must stay in
 `main` while licensing discussions continue. Develop an alternative here;
 do not interpret this experiment as approval to remove the current engine.
 
-A standalone Android candidate probe now builds and passes eight synthetic
-checks on an x86_64 emulator and a Retroid Pocket Classic. It is **not** wired
-into AbyssME or accepted for real games. See the dated results below.
+A standalone Android candidate probe now passes 18 synthetic checks on an
+x86_64 emulator and a Retroid Pocket Classic. A separate APK with the unchanged
+existing engine passes the 10 shared cases on Retroid; its emulator run remains
+unverified after emulator stalls/exits. Neither is wired into AbyssME or accepted
+for real games. See the dated results below.
 
 ## Candidates
 
@@ -49,7 +51,7 @@ Preserve original notices and record exact revisions for any imported files.
       required dependencies; record any unresolved questions.
 - [ ] Establish a baseline using the current engine on a fixed set of permitted
       JSR-184 test scenes and game variants. Keep commercial game files out of Git.
-- [ ] Build a minimal Android prototype with current project SDK/NDK settings,
+- [x] Build a minimal Android prototype with current project SDK/NDK settings,
       initially for arm64 and the x86_64 emulator.
 - [ ] Exercise loading, immediate rendering, scene graphs, textures, transparency,
       depth, lights, fog, transforms, picking, morphing and skeletal animation.
@@ -96,8 +98,34 @@ Evidence: [Retroid JSON](m3g-probe-2026-10-11/retroid.json),
 Recorded timings include cold initialization/allocations and are not an FPS
 comparison. The screenshot is a diagnostic scene, not an AbyssME interface change.
 
-Next: broaden synthetic scene loading/animation checks and compare the same
-scenes against the current engine before attempting a branch-only host adapter.
+The follow-up below broadens scene loading/animation and adds an independent
+current-engine baseline. These first eight checks remain historical evidence.
+
+## 2026-10-11: Scene Loading and Animation Comparison
+
+- Added original raw/zlib `.m3g` fixtures, multiple object sections, embedded
+  offsets/trailing bytes and truncated-input rejection.
+- Added translation/rotation tracks, morphing and single-bone skinning, with
+  numerical and visible-pixel assertions. Animation tracks are API-created,
+  not yet loaded from files.
+- Built a separate baseline APK using tree-hash-pinned, unchanged EPL Java/native
+  M3G. Candidate and baseline do not contain each other's engines.
+- Fixed the candidate loader's premature multi-section termination in the
+  generated copy only. Both devices failed 2 cases before the patch and pass
+  18/18 after it; the upstream checkout is untouched.
+- Existing-engine baseline: 10/10 shared cases on Retroid. Across 17 frame pairs,
+  0.70-0.86% of pixels differ; this is not exact parity or a compatibility score.
+- Baseline emulator attempts stalled/exited the emulator without a fresh report.
+  The cause is unresolved; the emulator was restored and boots normally. Do not
+  describe that target as passed or change the baseline to hide the failure.
+- Both APK builds and lint completed (0 errors; candidate 5 warnings, baseline
+  23). Inherited native warnings remain. No public APK or mainline engine change.
+
+[Reports, hashes, frame comparisons and device screenshot](m3g-scenes-2026-10-11/README.md).
+
+Next proposed batch: a branch-only real MIDP host adapter and a small, fixed
+selection of permitted 3D game variants. Keep current-engine baselines, lifecycle
+and 2D/3D composition visible; this is not approval to replace the main engine.
 
 ## Merge Gates
 
