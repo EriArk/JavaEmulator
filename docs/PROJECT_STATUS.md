@@ -35,7 +35,7 @@ bundled. The app UI is English.
 | Public development source | `main`; latest app-code change at this review: [d39ed742](https://github.com/EriArk/JavaEmulator/commit/d39ed742) | Unreleased Java/UI/storage improvements listed below; not all are in the downloadable beta |
 | Private combined test snapshot | `0.1.0-beta.2-experimental.15`, 2026-10-11 | Handheld and Phone debug APKs containing Java plus experimental Mophun; supplied separately to testers, not a GitHub release |
 | Local-only implementation | Ignored optional-engine source and diagnostics | Mophun integration, game-specific experiments and test fixtures; public descriptions below, implementation not published |
-| Separate research branch | [`codex/m3g-replacement`](https://github.com/EriArk/JavaEmulator/tree/codex/m3g-replacement), `8d7aafdf` | Isolated Android M3G candidate probe and test evidence; not integrated into AbyssME or accepted as a replacement |
+| Separate research branch | [`codex/m3g-replacement`](https://github.com/EriArk/JavaEmulator/tree/codex/m3g-replacement), `9e758abe` | Independent candidate/baseline M3G probes, scene/animation comparisons and evidence; not integrated into AbyssME or accepted as a replacement |
 
 The experimental number is a distribution label: build 15 still reports
 version code **102** and `0.1.0-beta.2` / `0.1.0-beta.2-phone` internally.
@@ -176,23 +176,34 @@ while developing an alternative only in `codex/m3g-replacement`. Licensing
 discussions remain a possible route; no engine removal or root-license change
 has taken effect.
 
-The branch now contains a standalone Android test harness using pinned
-FreeJ2ME-Plus M3G software-renderer sources. It does not include the existing
-EPL engine, update either AbyssME app, or connect to the real MIDP game host.
+The branch contains two independent Android test APKs: one using pinned
+FreeJ2ME-Plus M3G software-renderer sources, the other using the unchanged
+tree-hash-pinned existing EPL Java/native engine. Neither APK contains the other
+engine, updates either AbyssME app, or connects to the real MIDP game host.
 Desktop-M3G/Java-M3G were inspected first but deprioritized after finding
 unimplemented core immediate-rendering methods.
 
-**Verified:** the diagnostic APK built; Android lint finished with 0 errors and
-5 warnings. Eight synthetic pixel/behavior checks passed on each of Retroid
-Pocket Classic (Android 14, arm64) and an Android 15 x86_64 emulator. Captured
-screenshots show geometry, texture and clipping. This is not a real-game,
-controller, audio, sustained-performance or complete M3G compatibility result.
-No replacement or probe APK was released.
+**Verified:** both diagnostic APKs built; Android lint finished with 0 errors
+(candidate 5 warnings, baseline 23). The candidate passed 18 synthetic checks
+on each of Retroid Pocket Classic (Android 14, arm64) and an Android 15 x86_64
+emulator. The existing engine passed the 10 shared cases on Retroid. New cases
+cover raw/zlib `.m3g` loading, multiple sections, offsets/truncation, translation,
+rotation, morphing and single-bone animation. A generated-source loader fix
+resolved premature multi-section termination in the candidate on both devices.
 
-See the [branch report and screenshots](https://github.com/EriArk/JavaEmulator/blob/8d7aafdf/docs/M3G_REPLACEMENT.md)
-and [reproducible probe](https://github.com/EriArk/JavaEmulator/tree/8d7aafdf/experiments/m3g-probe).
-Next proposed alternative-engine batch: scene loading/animation checks and
-matching current-engine baselines before a branch-only real-host adapter.
+Seventeen Retroid frame pairs differ in about 0.70-0.86% of pixels, primarily
+simple triangle edges; this is not exact parity or a game compatibility score.
+The baseline emulator attempts stalled/exited without a completed report; the
+cause remains unresolved and that target is not accepted. The emulator was
+restored without wiping data. No current-engine changes were made to hide this.
+Real games, controllers, audio, sustained performance and complete M3G coverage
+remain unverified. No replacement or probe APK was released.
+
+See the [dated reports, frames and hashes](https://github.com/EriArk/JavaEmulator/blob/9e758abe/docs/m3g-scenes-2026-10-11/README.md)
+and [reproducible probe](https://github.com/EriArk/JavaEmulator/tree/9e758abe/experiments/m3g-probe).
+Next proposed alternative-engine batch: a branch-only real MIDP host adapter
+and a small fixed selection of permitted 3D games, comparing lifecycle and
+2D/3D composition against the current engine. Mainline retains its engine.
 
 ## Distribution and Licensing Status
 

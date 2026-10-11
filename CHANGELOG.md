@@ -11,6 +11,14 @@ stated otherwise. **Experimental** means local/private combined builds only.
 
 ## 2026-10-11
 
+- **Separate experiment / not shipped:** expanded alternative M3G checks to
+  scene loading and animation, with a separate unchanged-current-engine APK.
+  Fixed premature multi-section loading in the candidate's generated sources.
+  Candidate: 18/18 synthetic checks on Retroid and emulator; current engine:
+  10/10 shared cases on Retroid, emulator attempts stalled/exited and remain
+  unresolved. Published 17 frame comparisons and before/after reports, not
+  game-compatibility claims or release APKs. Main engine/licensing unchanged.
+  [Dated evidence](https://github.com/EriArk/JavaEmulator/blob/9e758abe/docs/m3g-scenes-2026-10-11/README.md).
 - **Separate experiment / not shipped:** built a standalone Android probe for
   a FreeJ2ME-Plus M3G alternative on `codex/m3g-replacement`. Eight synthetic
   checks passed on Retroid Pocket Classic and an x86_64 emulator; diagnostic
