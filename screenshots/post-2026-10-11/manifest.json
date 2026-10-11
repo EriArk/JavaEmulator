@@ -1,0 +1,105 @@
+{
+  "product": "AbyssME",
+  "captured_date": "2026-10-11",
+  "build": "0.1.0-beta.2-experimental.15",
+  "public_source_commit": "d39ed742c6fd059af3dc09bc5636f42ae882449a",
+  "environment": "Android 15 / API 35 x86_64 emulator; not physical-device captures",
+  "capture_method": "Unedited ADB screencap PNG",
+  "artwork": "Manually curated author covers; original icons and native fallback art",
+  "apks": [
+    {
+      "file": "AbyssME-handheld-test-2026-10-11-15.apk",
+      "sha256": "9c61f344ff307d2e901226f964eefb82098ccdf1abff4b3798cabb893dc0cb73"
+    },
+    {
+      "file": "AbyssME-phone-test-2026-10-11-15.apk",
+      "sha256": "8c3fae3ec67f5991bf0ab684b8607a5339a9f0d8e09cf217852f7edc709075e3"
+    }
+  ],
+  "images": [
+    {
+      "file": "01-library-gallery.png",
+      "width": 1920,
+      "height": 1080,
+      "bytes": 494221,
+      "sha256": "90631af12ff629c142963976ebecb69d396bb5b7501d25adfb87ba54b7646014"
+    },
+    {
+      "file": "02-library-grid.png",
+      "width": 1920,
+      "height": 1080,
+      "bytes": 164483,
+      "sha256": "5e268772fe19935b1ea2a5b9de68913665eb49ca916333d2b4efc35eeabe0438"
+    },
+    {
+      "file": "03-library-list.png",
+      "width": 1920,
+      "height": 1080,
+      "bytes": 95694,
+      "sha256": "d739371435976818f632934d6b936ea77c27c867d4bd12590d4eaeacaac4dd73"
+    },
+    {
+      "file": "04-settings.png",
+      "width": 1920,
+      "height": 1080,
+      "bytes": 24239,
+      "sha256": "dd8cb8c142992785cb8512b462279eb227bbe6152bc7a346c1b93750c290adc6"
+    },
+    {
+      "file": "05-library-transfer.png",
+      "width": 1920,
+      "height": 1080,
+      "bytes": 34976,
+      "sha256": "359d1172b08b8002c5de1fcd07e0ef4c8afa631a01ece83fd162523d557fea2c"
+    },
+    {
+      "file": "06-gameplay-2048.png",
+      "width": 1920,
+      "height": 1080,
+      "bytes": 26602,
+      "sha256": "832c17f552bcea8e895915d68b862f45270226ddef626d3fb6103d1f1a9ad305"
+    },
+    {
+      "file": "07-game-menu.png",
+      "width": 1920,
+      "height": 1080,
+      "bytes": 37506,
+      "sha256": "f7945bdc367e5c21afeb0190614a48b9535e475ca4837a7a8bf1cf235998b92d"
+    },
+    {
+      "file": "08-controller-mapper.png",
+      "width": 1920,
+      "height": 1080,
+      "bytes": 142937,
+      "sha256": "5b188c1fb11a64af5b38b8bd517d128df8c8367548325aa48c87bc94d13440f8"
+    },
+    {
+      "file": "09-display-settings.png",
+      "width": 1920,
+      "height": 1080,
+      "bytes": 40309,
+      "sha256": "1b135b0481fea39520885c033be0d9d7311d4b698030b11fc7eb7aeffddb4a68"
+    },
+    {
+      "file": "10-phone-keypad.png",
+      "width": 1080,
+      "height": 1920,
+      "bytes": 134457,
+      "sha256": "76b1953ad49efa6f3ccc36f94bd0e2ded0e22bce5cc3a0b4ca86321696b6f3f0"
+    },
+    {
+      "file": "11-phone-gamepad.png",
+      "width": 1080,
+      "height": 1920,
+      "bytes": 134700,
+      "sha256": "304348476d5679463afb2124e6cd97a06e4c0f596c96b1abd9ce7482e3b64499"
+    },
+    {
+      "file": "12-deep-abyss-gameplay.png",
+      "width": 1920,
+      "height": 1080,
+      "bytes": 21900,
+      "sha256": "5b62612d71a3da12ce73bcf63115f8db9c94b7087be19fedb4fc6266671bb4cd"
+    }
+  ]
+}
