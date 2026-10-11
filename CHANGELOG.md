@@ -11,6 +11,15 @@ stated otherwise. **Experimental** means local/private combined builds only.
 
 ## 2026-10-11
 
+- **Separate experiment / not shipped:** reproduced and fixed bilinear texture
+  edge bleeding in the generated alternative M3G renderer. Added eleven raster
+  cases to six host checks: 17/17 pass on Retroid for both engines and candidate
+  emulator. Completed bounded Deep/DiRT observations, preserving rejected
+  timing and unavailable Deep paint-cost data. Deep returns to its own pause
+  menu in the same process; gameplay after return remains unverified. Asphalt
+  shadow difference is not fixed. Published evidence/screenshots only; main
+  engine, licensing and release APKs unchanged.
+  [Dated evidence](https://github.com/EriArk/JavaEmulator/blob/86d79068/docs/m3g-filtering-2026-10-11/README.md).
 - **Separate experiment / not shipped:** added opt-in host cadence/PSS collection
   with rejected-sample reporting and six parser checks. Both measured engines
   pass six Retroid host checks; candidate also passes on the emulator. One

@@ -35,7 +35,7 @@ bundled. The app UI is English.
 | Public development source | `main`; latest app-code change at this review: [d39ed742](https://github.com/EriArk/JavaEmulator/commit/d39ed742) | Unreleased Java/UI/storage improvements listed below; not all are in the downloadable beta |
 | Private combined test snapshot | `0.1.0-beta.2-experimental.15`, 2026-10-11 | Handheld and Phone debug APKs containing Java plus experimental Mophun; supplied separately to testers, not a GitHub release |
 | Local-only implementation | Ignored optional-engine source and diagnostics | Mophun integration, game-specific experiments and test fixtures; public descriptions below, implementation not published |
-| Separate research branch | [`codex/m3g-replacement`](https://github.com/EriArk/JavaEmulator/tree/codex/m3g-replacement), `08f38c78` | Synthetic M3G probes, isolated real-host builds, three-game smoke checks, opt-in runtime measurement and a bounded Asphalt comparison; not merged, released or accepted as a replacement |
+| Separate research branch | [`codex/m3g-replacement`](https://github.com/EriArk/JavaEmulator/tree/codex/m3g-replacement), `86d79068` | Synthetic M3G probes, isolated real-host builds, texture-edge fix, 17 host/raster checks and bounded game observations; not merged, released or accepted as a replacement |
 
 The experimental number is a distribution label: build 15 still reports
 version code **102** and `0.1.0-beta.2` / `0.1.0-beta.2-phone` internally.
@@ -252,9 +252,34 @@ accepted FPS figure. No native-baseline emulator rerun, full app suite, new lint
 physical control/audio acceptance or release APK in this batch.
 
 [Report, raw windows, artifact identities and screenshots](https://github.com/EriArk/JavaEmulator/blob/08f38c78/docs/m3g-runtime-2026-10-11/README.md).
-Next proposed batch: repeat longer matched runs across Deep / Asphalt / DiRT,
-complete Deep lifecycle checks, and isolate the visible rendering differences.
-Main retains the current engine. Await maintainer confirmation.
+That batch proposed longer observations and isolation of rendering differences;
+the following entry records the next bounded step, not complete acceptance.
+
+### Filtering follow-up: 2026-10-11
+
+An original public-API scene reproduced incorrect blending at clamped texture
+edges. A guarded generated-source fix now clamps the continuous texel position
+before interpolation; nearest/repeat behavior is covered. No per-game patch,
+upstream checkout edit or mainline engine change was made.
+
+Both isolated host builds compile. Six host plus eleven raster checks pass on
+Retroid for both engines, and on the emulator for the candidate; six collector
+checks pass. Ordinary alpha cases passed before the fix, so the darker Asphalt
+shadow is still unresolved. Standalone probes, full app suite and lint were
+not rerun in this batch.
+
+DiRT and Deep reached gameplay in both approximately 90-second Retroid runs.
+DiRT candidate presentation was 16.54 Hz; baseline surface timing was rejected
+for a polling gap. Both Deep runs presented at 60.00 Hz, but measured paint
+callbacks were absent, so renderer cost cannot be inferred. These are not
+game-logic FPS, deterministic replays or broad compatibility results. Candidate
+Deep returned through Home/Recents to its own pause menu in the same process;
+continued gameplay after that return was not verified in this batch.
+
+[Fix, tests, exact builds, limitations and screenshots](https://github.com/EriArk/JavaEmulator/blob/86d79068/docs/m3g-filtering-2026-10-11/README.md).
+Next proposed batch: isolate shadow/material/depth/fog and texture-combine
+differences, and cover direct-flush drawing before interpreting Deep paint
+cost. Main retains the current engine. Await maintainer confirmation.
 
 ## Distribution and Licensing Status
 
