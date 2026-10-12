@@ -80,7 +80,8 @@ public class M3gBenchmark {
         report.put("cases", cases);
         for (int[] size : new int[][]{{240,320},{320,240}}) {
             for (String kind : new String[]{"rgb-nearest","rgb-linear","rgba-alpha","lit-fog","exp-fog","multi-texture",
-                    "mip-nearest","mip-linear","sprites","lighting-grid","multi-draw"}) {
+                    "mip-nearest","mip-linear","sprites","lighting-grid","multi-draw",
+                    "modulate","modulate-x2","depth-offset"}) {
                 String name = kind + "-" + size[0] + "x" + size[1];
                 if (kind.equals("multi-texture") && (Integer) Graphics3D.getProperties().get("numTextureUnits") < 4) {
                     assertNull("Candidate must support all four layers", nativeEnabled);
@@ -246,6 +247,9 @@ public class M3gBenchmark {
         style.setPolygonMode(polygon);
         CompositingMode blend = new CompositingMode();
         blend.setBlending(alpha ? CompositingMode.ALPHA : CompositingMode.REPLACE);
+        if(kind.equals("modulate")) blend.setBlending(CompositingMode.MODULATE);
+        if(kind.equals("modulate-x2")) blend.setBlending(CompositingMode.MODULATE_X2);
+        if(kind.equals("depth-offset")) blend.setDepthOffset(-1,-100000000f);
         style.setCompositingMode(blend);
         if (kind.equals("lit-fog") || kind.equals("exp-fog")) {
             VertexArray normal = new VertexArray(count, 3, 1);

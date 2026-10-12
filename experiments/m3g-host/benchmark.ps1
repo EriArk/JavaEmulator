@@ -59,7 +59,7 @@ if ($result -notmatch 'OK \(1 test\)' -or $result -match 'FAILURES|INSTRUMENTATI
 }
 Invoke-Adb @('pull', "/sdcard/Android/data/$package/files/m3g-benchmark/$Run/.", $out) | Out-Null
 $report = Get-Content -Raw (Join-Path $out 'report.json') | ConvertFrom-Json
-if ($report.package -ne $package -or $report.cases.Count -ne 22) { throw 'Unexpected benchmark report' }
+if ($report.package -ne $package -or $report.cases.Count -ne 28) { throw 'Unexpected benchmark report' }
 [pscustomobject]@{
     engine = $Engine
     apkSha256 = (Get-FileHash $apk).Hash

@@ -190,8 +190,10 @@ The candidate now includes an off-by-default GLES3 submesh backend, selected
 explicitly by `benchmark.ps1 -Raster gpu` or a manual `-Pm3gGpu=true` research
 build. Ordinary builds and main's engine are unaffected. Unsupported effects
 retain native-CPU/Java execution. Consecutive Graphics-target draws share GPU
-color/depth until a CPU-access barrier; alpha blending, fog, four texture layers
-and mipmapping also run on GPU. Revision-aware upload caching preserves mutable
-textures. The current verifier requires 98 candidate checks (81 earlier checks
-plus seventeen GPU-specific checks), or 105 with measurement (not rerun in this checkpoint).
+color/depth until a CPU-access barrier; all framebuffer blend modes, bounded depth
+offsets, fog, four texture layers and mipmapping also run on GPU. Empty meshes
+do not force readback; signed CPU depth keeps its safe fallback. Revision-aware
+upload caching preserves mutable textures. The current verifier requires 104
+candidate checks (81 earlier checks plus 23 GPU-specific checks), or 111 with
+measurement (not rerun in this checkpoint).
 See [scope, device evidence, screenshots and performance limits](gpu/README.md).

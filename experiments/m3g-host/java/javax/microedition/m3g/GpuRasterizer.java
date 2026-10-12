@@ -12,10 +12,12 @@ import static android.opengl.GLES30.*;
 final class GpuRasterizer {
     static boolean enabled = ru.playsoftware.j2meloader.BuildConfig.M3G_GPU;
     static boolean retainTargets = true;
-    static long draws, uploads, readbacks, textureUploads;
+    static long draws, uploads, readbacks, textureUploads, emptyDraws, offsetDraws, multiplyDraws;
     static String renderer = "not initialized", failure = "";
     private static GpuRasterizer instance;
     private static boolean failed;
+    private static final java.util.Set<short[]> signedDepthChecks = java.util.Collections.newSetFromMap(
+            new java.util.WeakHashMap<short[],Boolean>());
     private static final java.util.HashSet<Integer> reportedFallbacks=new java.util.HashSet<>();
     private static int diagnosticLines;
     private static void diagnostic(String message) {
@@ -35,6 +37,7 @@ final class GpuRasterizer {
         int key=flags|(blend<<8)|(format<<16);
         if(reportedFallbacks.add(key)) diagnostic("CPU fallback flags="+flags+" blend="+blend+" format="+format+" failure="+failure);
     }
+    static synchronized void cpuDepthWriteWithOffset(short[] depth) { signedDepthChecks.add(depth); }
     private EGLDisplay display = EGL_NO_DISPLAY;
     private EGLContext context = EGL_NO_CONTEXT;
     private EGLSurface surface = EGL_NO_SURFACE;
@@ -57,17 +60,22 @@ final class GpuRasterizer {
             boolean vertexColors, int defaultColor, boolean perspective, boolean depthTest,
             boolean depthWrite, int mask, int alphaFactor, int threshold, Texture2D[] textures, int units,
             Graphics3D.TextureFilter[] filters, Graphics3DPipelines.MipmapMode[] mipModes,
-            int blend, Fog fog, boolean parallelFog, float[] fogDepth, boolean resident) {
+            int blend, float depthFactor, float depthUnits, Fog fog, boolean parallelFog, float[] fogDepth, boolean resident) {
         if (!enabled || failed || count==0 || w<1 || h<1 || w>2048 || h>2048 || count>65536
                 || pixels.length<w*h || zbuffer.length<w*h) return false;
+        if (signedDepthChecks.contains(zbuffer)) {
+            // CPU uses signed shorts; raw negative values cannot be uploaded as unsigned GL depth.
+            for(int i=0;i<w*h;i++) if(zbuffer[i]<0) return false;
+            signedDepthChecks.remove(zbuffer);
+        }
         if (units<0 || units>4) return false;
         for (int unit=0;unit<units;unit++) {
             Image2D image=textures[unit].getImage();
             if (image.image==pixels || image.getWidth()>2048 || image.getHeight()>2048
                     || (image.getFormat()!=Image2D.RGB && image.getFormat()!=Image2D.RGBA)) return false;
         }
-        if (blend!=CompositingMode.REPLACE && blend!=CompositingMode.ALPHA
-                && blend!=CompositingMode.ALPHA_ADD) return false;
+        if (blend<CompositingMode.ALPHA || blend>CompositingMode.REPLACE
+                || !Float.isFinite(depthFactor) || !Float.isFinite(depthUnits)) return false;
         if (fog!=null && (!Float.isFinite(fog.getDensity()) || !Float.isFinite(fog.getNearDistance())
                 || !Float.isFinite(fog.getFarDistance()) || (fog.getMode()==Fog.LINEAR
                 && Math.abs(fog.getFarDistance()-fog.getNearDistance())<0.000001f))) return false;
@@ -75,8 +83,9 @@ final class GpuRasterizer {
             Triangle t=triangles[i];
             if (parallelFog && (!Float.isFinite(fogDepth[i*3]) || !Float.isFinite(fogDepth[i*3+1])
                     || !Float.isFinite(fogDepth[i*3+2]))) return false;
-            if (!valid(t.xA(),t.yA(),t.zA(),t.iwA()) || !valid(t.xB(),t.yB(),t.zB(),t.iwB())
-                    || !valid(t.xC(),t.yC(),t.zC(),t.iwC())) return false;
+            float offset=depthOffset(t,depthFactor,depthUnits);
+            if (!valid(t.xA(),t.yA(),t.zA()+offset,t.iwA()) || !valid(t.xB(),t.yB(),t.zB()+offset,t.iwB())
+                    || !valid(t.xC(),t.yC(),t.zC()+offset,t.iwC())) return false;
             for (int unit=0;unit<units;unit++) if (!(Float.isFinite(t.sA(unit)) && Float.isFinite(t.tA(unit))
                     && Float.isFinite(t.sB(unit)) && Float.isFinite(t.tB(unit))
                     && Float.isFinite(t.sC(unit)) && Float.isFinite(t.tC(unit)))) return false;
@@ -93,7 +102,7 @@ final class GpuRasterizer {
             if (!eglMakeCurrent(gpu.display,gpu.surface,gpu.surface,gpu.context)) throw new IllegalStateException("eglMakeCurrent");
             gpu.render(pixels,zbuffer,w,h,triangles,count,ox,oy,left,top,right,bottom,vertexColors,
                     defaultColor,perspective,depthTest,depthWrite,mask,alphaFactor,threshold,textures,units,filters,mipModes,
-                    blend,fog,parallelFog,fogDepth);
+                    blend,depthFactor,depthUnits,fog,parallelFog,fogDepth);
             success=true;
         } catch (RuntimeException error) {
             failure=error.toString();
@@ -113,8 +122,12 @@ final class GpuRasterizer {
             return false;
         }
         draws++;
+        if(depthFactor!=0 || depthUnits!=0) offsetDraws++;
+        if(blend==CompositingMode.MODULATE || blend==CompositingMode.MODULATE_X2) multiplyDraws++;
         if (ru.playsoftware.j2meloader.BuildConfig.M3G_GPU && (draws&1023)==1)
-            diagnostic("draws="+draws+" units="+units+" textureUploads="+textureUploads+" renderer="+renderer);
+            diagnostic("draws="+draws+" units="+units+" textureUploads="+textureUploads
+                    +" offsets="+offsetDraws+" multiply="+multiplyDraws+" empty="+emptyDraws
+                    +" uploads="+uploads+" readbacks="+readbacks+" renderer="+renderer);
         if (!resident || !retainTargets) flush();
         return true;
     }
@@ -149,6 +162,17 @@ final class GpuRasterizer {
     private static boolean valid(float x,float y,float z,float iw) {
         return Float.isFinite(x) && Float.isFinite(y) && Float.isFinite(z) && z>=0 && z<=32200
                 && Float.isFinite(iw) && iw>0;
+    }
+
+    private static float depthOffset(Triangle t,float factor,float units) {
+        if(factor==0) return units*1e-7f;
+        float dxB=t.xB()-t.xA(),dyB=t.yB()-t.yA(),dxC=t.xC()-t.xA(),dyC=t.yC()-t.yA();
+        float det=dxB*dyC-dxC*dyB;
+        if(Math.abs(det)<1e-6f) return 0;
+        // Match the candidate's slope norm and depth units, not driver polygon-offset units.
+        float inv=M3GMath.fastReciprocal(det),dzB=t.zB()-t.zA(),dzC=t.zC()-t.zA();
+        float dx=(dzB*dyC-dzC*dyB)*inv,dy=(dxB*dzC-dxC*dzB)*inv;
+        return factor*M3GMath.sqrt(dx*dx+dy*dy)+units*1e-7f;
     }
 
     static synchronized void close() {
@@ -207,7 +231,7 @@ final class GpuRasterizer {
             int left,int top,int right,int bottom,boolean vertexColors,int defaultColor,boolean perspective,
             boolean depthTest,boolean depthWrite,int mask,int alphaFactor,int threshold,Texture2D[] textures,int units,
             Graphics3D.TextureFilter[] filters,Graphics3DPipelines.MipmapMode[] mipModes,
-            int blend,Fog fog,boolean parallelFog,float[] fogDepth) {
+            int blend,float depthFactor,float depthUnits,Fog fog,boolean parallelFog,float[] fogDepth) {
         int packWidth=(w+1)/2;
         glActiveTexture(GL_TEXTURE0); glPixelStorei(GL_UNPACK_ALIGNMENT,1); glPixelStorei(GL_PACK_ALIGNMENT,1);
         if (residentPixels==null) {
@@ -228,13 +252,14 @@ final class GpuRasterizer {
         geometry=buffer(geometry,count*3*20*4); FloatBuffer data=geometry.asFloatBuffer();
         for (int i=0; i<count; i++) {
             Triangle t=triangles[i];
-            vertex(data,t.xA()+ox,t.yA()+oy,t.zA(),vertexColors?t.colorA():defaultColor,
+            float offset=depthOffset(t,depthFactor,depthUnits);
+            vertex(data,t.xA()+ox,t.yA()+oy,t.zA()+offset,vertexColors?t.colorA():defaultColor,
                     t,0,units,perspective?t.iwA():1,
                     parallelFog?fogDepth[i*3]:t.iwA());
-            vertex(data,t.xB()+ox,t.yB()+oy,t.zB(),vertexColors?t.colorB():defaultColor,
+            vertex(data,t.xB()+ox,t.yB()+oy,t.zB()+offset,vertexColors?t.colorB():defaultColor,
                     t,1,units,perspective?t.iwB():1,
                     parallelFog?fogDepth[i*3+1]:t.iwB());
-            vertex(data,t.xC()+ox,t.yC()+oy,t.zC(),vertexColors?t.colorC():defaultColor,
+            vertex(data,t.xC()+ox,t.yC()+oy,t.zC()+offset,vertexColors?t.colorC():defaultColor,
                     t,2,units,perspective?t.iwC():1,
                     parallelFog?fogDepth[i*3+2]:t.iwC());
         }
@@ -248,8 +273,11 @@ final class GpuRasterizer {
         glViewport(0,0,w,h); glDisable(GL_BLEND); glDisable(GL_CULL_FACE); glDisable(GL_DITHER);
         if (blend!=CompositingMode.REPLACE) {
             glEnable(GL_BLEND); glBlendEquation(GL_FUNC_ADD);
-            glBlendFuncSeparate(GL_SRC_ALPHA,blend==CompositingMode.ALPHA?GL_ONE_MINUS_SRC_ALPHA:GL_ONE,
-                    GL_ONE,GL_ONE_MINUS_SRC_ALPHA);
+            if(blend==CompositingMode.MODULATE || blend==CompositingMode.MODULATE_X2)
+                glBlendFuncSeparate(GL_DST_COLOR,blend==CompositingMode.MODULATE?GL_ZERO:GL_SRC_COLOR,
+                        GL_DST_ALPHA,blend==CompositingMode.MODULATE?GL_ZERO:GL_SRC_ALPHA);
+            else glBlendFuncSeparate(GL_SRC_ALPHA,blend==CompositingMode.ALPHA?GL_ONE_MINUS_SRC_ALPHA:GL_ONE,
+                        GL_ONE,GL_ONE_MINUS_SRC_ALPHA);
         }
         glEnable(GL_SCISSOR_TEST); glScissor(left,top,Math.max(0,right-left),Math.max(0,bottom-top));
         if (depthTest) glEnable(GL_DEPTH_TEST); else glDisable(GL_DEPTH_TEST);
@@ -258,7 +286,7 @@ final class GpuRasterizer {
         glUseProgram(program); glUniform2f(targetSizeLocation,w,h);
         glUniform1i(alphaLocation,alphaFactor);
         glUniform1i(thresholdLocation,threshold);
-        glUniform1i(compositeLocation,blend==CompositingMode.REPLACE?0:1);
+        glUniform1i(compositeLocation,blend==CompositingMode.ALPHA || blend==CompositingMode.ALPHA_ADD?1:0);
         glUniform1i(fogModeLocation,fog==null?0:fog.getMode()==Fog.LINEAR?1:2);
         glUniform1i(parallelFogLocation,parallelFog?1:0);
         if (fog!=null) {

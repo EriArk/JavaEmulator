@@ -68,7 +68,8 @@ public class GpuRasterizerTest {
     @Test public void unsupportedStateFallsBackWithoutDroppingGeometry() {
         Graphics3D.initGraphics3D(); Graphics3D g=Graphics3D.getInstance(); Image target=bind(g,32,32);
         Background bg=new Background(); bg.setColor(0xff000000); g.clear(bg);
-        Mesh mesh=quad(0xffff0000,null); Fog fog=new Fog(); fog.setMode(Fog.LINEAR);
+        Texture2D luminance=new Texture2D(new Image2D(Image2D.LUMINANCE,1,1,new byte[]{-1}));
+        Mesh mesh=quad(0xffff0000,luminance); Fog fog=new Fog(); fog.setMode(Fog.LINEAR);
         fog.setColor(0x0000ff); fog.setLinear(1,3); mesh.getAppearance(0).setFog(fog);
         CompositingMode mode=new CompositingMode(); mode.setDepthOffset(1,1);
         mesh.getAppearance(0).setCompositingMode(mode);
@@ -115,7 +116,8 @@ public class GpuRasterizerTest {
     @Test public void fogAndTransparencyMatchCpuInterior() {
         for(boolean perspective:new boolean[]{false,true})
             for(int fogMode:new int[]{0,Fog.LINEAR,Fog.EXPONENTIAL})
-                for(int blend:new int[]{CompositingMode.REPLACE,CompositingMode.ALPHA,CompositingMode.ALPHA_ADD}) {
+                for(int blend:new int[]{CompositingMode.REPLACE,CompositingMode.ALPHA,CompositingMode.ALPHA_ADD,
+                        CompositingMode.MODULATE,CompositingMode.MODULATE_X2}) {
                     int cpu=effect(false,perspective,fogMode,blend), gpu=effect(true,perspective,fogMode,blend);
                     for(int shift=0;shift<32;shift+=8) assertTrue("effect "+perspective+"/"+fogMode+"/"+blend
                             +" cpu="+Integer.toHexString(cpu)+" gpu="+Integer.toHexString(gpu),
@@ -140,7 +142,7 @@ public class GpuRasterizerTest {
         return target.image[15*32+16];
     }
 
-    @Test public void spriteAndUnsupportedBlendSeeResidentDepth() {
+    @Test public void spriteAndMultiplicationSeeResidentDepth() {
         Graphics3D.initGraphics3D(); Graphics3D g=Graphics3D.getInstance(); Image target=bind(g,32,32);
         g.clear(null); GpuRasterizer.enabled=true;
         g.render(quad(0xff20a060,null),position(-2)); long reads=GpuRasterizer.readbacks;
@@ -156,7 +158,8 @@ public class GpuRasterizerTest {
     }
 
     @Test public void alphaExtremesMasksAndDepthAgreeWithCpu() {
-        for(int blend:new int[]{CompositingMode.ALPHA,CompositingMode.ALPHA_ADD})
+        for(int blend:new int[]{CompositingMode.ALPHA,CompositingMode.ALPHA_ADD,
+                CompositingMode.MODULATE,CompositingMode.MODULATE_X2})
             for(int alpha:new int[]{0,128,255}) for(int mask:new int[]{0,1,2,3}) {
                 int[] output=new int[2];
                 for(int path=0;path<2;path++) {

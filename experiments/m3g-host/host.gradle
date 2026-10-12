@@ -148,6 +148,10 @@ if (candidate) {
                 text = text.replace(before, after)
             }
             def nativeFields = 'private int[] androidFrameBuffer;'
+            def emptyMesh = 'boolean hasColors = trisScreen[0].hasVertexColors();'
+            if (text.count(emptyMesh)!=1) throw new GradleException('Empty mesh guard drift')
+            text = text.replace(emptyMesh,
+                    'if (renderableTriangles[0] == 0) { GpuRasterizer.emptyDraws++; return; }\n\t\t' + emptyMesh)
             def gpuHook = '\n\t\tfor (int tri_id = 0; tri_id < renderableTriangles[0]; tri_id++)'
             if (text.count(gpuHook)!=1) throw new GradleException('GPU submesh hook drift')
             text = text.replace(gpuHook, rootProject.file('experiments/m3g-host/gpu/mesh-hook.java.inc').getText('UTF-8') + gpuHook)

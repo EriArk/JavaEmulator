@@ -11,15 +11,15 @@ culled and lit triangles. GLES3 rasterizes one complete submesh per draw. It
 supports untextured color/lighting and up to four RGB/RGBA textures with
 REPLACE, MODULATE, ADD, BLEND or DECAL, nearest/bilinear filtering, independent repeat/clamp,
 perspective-correct coordinates, alpha rejection, color/alpha masks, viewport
-clipping and depth test/write. It also supports framebuffer ALPHA / ALPHA_ADD
-and linear/exponential fog with parallel or perspective eye depth. Base-level,
+clipping and depth test/write. It also supports all five framebuffer blend modes,
+bounded depth offsets and linear/exponential fog with parallel or perspective eye depth. Base-level,
 nearest-mip and trilinear sampling use the candidate's existing mip chains,
 including rectangular, NPOT and one-pixel-wide images. Per-unit uploads are
 cached by image identity and revision, including individual mip revisions;
 switching images may still upload their levels again. This is a bounded slot
 cache, not a persistent cache of every texture used by a game.
 
-Framebuffer MODULATE / MODULATE_X2, non-RGB/RGBA textures, depth offsets, AA,
+Non-RGB/RGBA textures, out-of-range/nonfinite depth offsets, AA,
 dithering, wireframe, half-resolution mode and sprites retain CPU execution.
 Oversized or nonfinite geometry and target/texture aliases are rejected before
 GPU execution. Degenerate/nonfinite fog settings also retain CPU execution.
@@ -53,7 +53,100 @@ Framebuffer alpha uses [separate RGB/alpha blend factors](https://registry.khron
 not destination sampling or a per-triangle readback. Normalized hardware blending
 has rounding differences from the software integer pipeline.
 
-## Four Texture Layers and Mipmaps: 2026-10-12
+## Depth Offsets and Framebuffer Multiplication: 2026-10-12
+
+Added framebuffer MODULATE and MODULATE_X2 using separate RGB/alpha blend factors,
+including saturated double multiplication. No destination texture copy or
+per-triangle readback is needed. Alpha threshold, node alpha, fog and channel
+masks retain the candidate's existing semantics. Hardware normalized blending
+still differs from integer CPU rounding; fixed interior checks allow up to two
+channel levels for multiplication and three with fog, not general pixel parity.
+
+Depth bias uses the CPU candidate's slope norm and `units * 1e-7` convention,
+before depth quantization. This deliberately does not substitute driver-defined
+polygon-offset units. Disabled depth ignores bias; disabled depth writes do not
+modify the shared buffer. Adjusted vertices outside the supported 0..32200 depth
+range or nonfinite bias retain CPU execution, without silently clamping them.
+
+Fixed two shared-path defects found during implementation:
+
+- Fully clipped meshes no longer force GPU readback or access the first triangle
+  when none is renderable. Six visible draws separated by clipped meshes and
+  different blend modes retain one upload/readback pair.
+- Extreme CPU depth bias can write negative signed shorts. Uploading those bits
+  as unsigned GL depth made later objects appear in front incorrectly. The
+  failing Retroid regression was reproduced, then fixed by tracking potentially
+  affected buffers with weak references. GPU use resumes after their depth is
+  nonnegative again (including after clear). Only flagged buffers are scanned;
+  ordinary buffers do not incur that scan. Unsupported signed depth stays on CPU.
+
+Final non-debuggable research builds pass **104 checks, zero skips** on Retroid
+Pocket Classic arm64/Android 14 and Phone emulator x86_64/Android 15. Six new GPU
+checks cover positive/negative units and slopes, depth enable/write behavior,
+known multiplication colors including saturation/zero alpha, empty-mesh
+residency, extreme-bias fallback and signed-depth recovery. Existing fog/alpha/
+mask checks now exercise both multiplication modes as well.
+
+Same-APK Retroid measurements, Adreno A12, thermal status 0 before/after:
+
+| Scene | Native CPU ms/frame | GLES3 ms/frame |
+| --- | ---: | ---: |
+| MODULATE 240x320 | 2.228 | 2.102 |
+| MODULATE 320x240 | 1.889 | 2.051 |
+| MODULATE_X2 240x320 | 2.229 | 2.118 |
+| MODULATE_X2 320x240 | 1.875 | 2.090 |
+| Depth offset 240x320 | 2.018 | 2.139 |
+| Depth offset 320x240 | 1.734 | 2.026 |
+
+26 of 28 workloads execute GPU draws; the two sprite fallback images exactly
+match native CPU. All 22 preceding GPU-run scene images retain their CRCs.
+These effects are not uniformly faster than CPU in isolation. Avoiding mixed
+backend round trips is the motivation; no measured whole-game FPS gain is
+claimed. Each case has 64 warm-up frames and five 32-frame batches. Timing runs
+preceded the signed-depth guard; final correctness checks include that fix.
+
+Local evidence: `build/benchmarks/gpu-depth-blends` and
+`gpu-depth-blends-native-reference`, plus `build/evidence/{device}-candidate[-phone]`.
+Timing Handheld/test SHA-256:
+
+```text
+1D12873ED57CE85F280545C45BE37441C6FB403D35847F635C8B9F87F199CD42
+9142CA22B2690C1E0E76F39096E7292C3B5C2D2654F3C608684DA655C7492A83
+```
+
+Final correctness APK SHA-256 (ordinary GPU-off builds, tests explicitly enable it):
+
+```text
+8ABE152BA3F83BDF3A387979F7DE44D86775EFC511966649773A8EB96CA52021 Handheld
+472EAB0962FB931C1368D9E06B521892E462557B041F6205F81D646860B449B2 Handheld tests
+1EB1EA8E1D467AA7A4FD791EE449897F2EF6538C275F4974A887CB50FD76D03D Phone
+57BC6BFDE1E5041E49770B40BC5BA11B365FA76F5763D6396A1EE2F093E96925 Phone tests
+```
+
+A fresh GPU-enabled Retroid build reaches a moving Asphalt 3 race. Diagnostics
+record 64,513 GPU draws, including 5,740 biased draws, and 56,101 empty meshes
+skipped without a CPU barrier. Remaining CPU fallbacks have no GPU failure string.
+The capture shows the track, car, shadow and HUD; this is not a pixel-matched
+legacy comparison or full-game/controller/audio acceptance. Sound was disabled,
+controls injected through ADB. The debug log is capped, so these are session
+checkpoints, not totals or FPS. Multiplication is verified in fixtures, not
+claimed as exercised by this particular race.
+The game log also reports FFmpeg errors for RTX media data; audio compatibility
+was not investigated or accepted in this renderer-only checkpoint.
+
+![Asphalt with GPU depth offsets on Retroid](retroid-asphalt-depth-gpu.png)
+
+Manual-game APK SHA-256:
+`5F724F166833026A6B16B1E056A6329509E07BA94D6356C2989EB02E02CABFC8`.
+Local evidence: `build/gpu-depth-asphalt-{1,2}.png`,
+`build/gpu-depth-asphalt-session.txt`; final verified APK snapshot:
+`build/gpu-depth-blends-verified`. No APKs or game files are published.
+
+GPU stays off by default. Next: remaining texture formats and Sprite3D to reduce
+mixed-backend barriers, followed by context-loss recovery and broader game/
+performance acceptance before any production-engine switch.
+
+## Four Texture Layers and Mipmaps: 2026-10-12 (Historical)
 
 Final non-debuggable Handheld/Phone research builds pass **98 checks, zero skips**
 on Retroid Pocket Classic arm64/Android 14 and x86_64/Android 15 emulator.
@@ -251,7 +344,7 @@ in the **same** research APK; the bounded benchmark selects one explicitly:
 ```
 
 `-Raster gpu` allows unsupported draws to fall back, but requires real GPU
-draws for the twenty supported workloads (of 22). Reports include GPU/native
+draws for the twenty-six supported workloads (of 28). Reports include GPU/native
 counts, upload/readback counts and driver identity. Residence is on by default
 when GPU is explicitly selected; `-GpuResident off` compares the same APK using
 the original per-mesh transfer strategy. For a separate manual game experiment, add
