@@ -11,6 +11,17 @@ stated otherwise. **Experimental** means local/private combined builds only.
 
 ## 2026-10-12
 
+- **Separate experiment / not shipped:** added four texture layers, all texture
+  blend modes and mipmapping to the experimental GPU renderer. Cached unchanged
+  uploads, preserved mutable textures and fixed constant-coordinate mip selection.
+  Final Retroid/Phone emulator builds each pass 98 checks. Texture-heavy fixtures
+  improve about 1.7-2.9x versus native CPU; some simpler cases remain slower.
+  GPU-enabled Asphalt 3 and Deep reach gameplay on Retroid, with real GPU calls
+  confirmed and screenshots recorded. This is not full-game/audio/controller
+  acceptance; unsupported effects still use CPU. GPU stays off by default and
+  main's engine/license/public APKs are unchanged.
+  [Implementation, screenshots and limits](https://github.com/EriArk/JavaEmulator/blob/5433c574/experiments/m3g-host/gpu/README.md).
+
 - **Separate experiment / not shipped:** keep consecutive 3D models in one GPU
   frame and synchronize before CPU drawing or screen output. Added GPU alpha/
   additive transparency and linear/exponential fog. Retroid and Phone emulator
