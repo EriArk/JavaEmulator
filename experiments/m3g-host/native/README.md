@@ -47,6 +47,68 @@ Level dimensions follow independent width/height halving, down to 1x1. The
 base-level fast path does not build or pin a mip chain. Sprite packets use four
 floats and 20 integers; `sprite-hook.java.inc` describes the layout.
 
+## Geometry and Lighting Preparation: 2026-10-12
+
+The shared generated-source adaptations fix two correctness problems and avoid
+repeated preparation work, without changing the pinned upstream checkout:
+
+- Packed `VertexArray` transforms now process only the declared vertices. The
+  old two-pass path transformed the entire oversized scratch buffer, modified
+  its unused tail, and rejected otherwise sufficient non-multiple-of-four output
+  capacity. The direct path preserves the original float operation order.
+- Lighting colors are cached per vertex **and normal orientation**, within one
+  draw only. Previously, a shared vertex could incorrectly reuse the preceding
+  triangle's front-face color on a back face. The new cache also handles
+  nonadjacent shared vertices and flat-shading provoking colors. Draw epochs
+  invalidate material/light/transform changes, including epoch rollover.
+- The normal matrix is copied once per lit draw, not once per triangle.
+  Unlit geometry no longer prepares unused light transforms.
+- Dense texture-coordinate scratch survives gaps in API texture slots and
+  temporary untextured draws. A separate active view still clears inactive
+  coordinates and texture-object references; retained buffers cannot accidentally
+  enable texturing. Capacity is reused, not allocated on every sparse draw.
+
+Final non-debuggable research Handheld and Phone APKs pass **81 checks, zero
+skips**, respectively on Retroid arm64/Android 14 and emulator x86_64/Android 15.
+Seven new regressions cover signed byte/short 2D/3D transforms and output tails,
+invalid inputs, opposite faces, smooth/flat/color-tracked reuse, invalidation,
+sparse texture-buffer identity and unlit-to-lit transitions. Standalone
+`:probe:assembleDebug` also builds with the same generated-source adaptations.
+Asphalt 3 reaches a moving race on the final Retroid APK; two successive local
+captures show the car, track and HUD advancing. Sound was disabled for this
+short check; it does not establish audio, complete-game or physical-controller
+acceptance. Captures: `build/geometry-asphalt-{a,b}.png` under the host harness.
+
+Same-APK Retroid measurements with native rasterization and thermal status 0
+at both ends compare the new cache enabled/disabled, **not the old adjacent-only
+cache**. The new grid has 1,089 shared vertices, 2,048 triangles, ambient,
+directional, omni and spot lights, and a specular material:
+
+| Scene | Cache off ms/frame | Cache on ms/frame | Shaded vertices/frame off / on |
+| --- | ---: | ---: | ---: |
+| Lighting grid 240x320 | 6.276 | 5.315 | 4,992 / 891 |
+| Lighting grid 320x240 | 7.379 | 5.955 | 6,144 / 1,089 |
+
+All **20** cache-on/off scene CRCs match; the **18** existing workloads also
+retain the preceding trilinear checkpoint's exact pixels. The grid's frame cost
+is 15-19% lower than fully uncached lighting, not a game-FPS or legacy-GLES parity
+claim. The earlier adjacent-only implementation was not benchmarked on this new
+grid. Rasterization still dominates many scenes; software/native-CPU rendering
+does not establish performance parity with the legacy GPU renderer.
+
+Reproduce with `benchmark.ps1 -Raster native -LightingCache on` / `off`, using
+fresh run labels. Maintainer-local evidence is in
+`build/benchmarks/geometry-cache-{on,off}` and
+`build/evidence/{device}-candidate[-phone]` under `experiments/m3g-host`.
+These are ignored diagnostics, not published APKs or bundled games.
+
+```text
+E6FFBD7C39019EBE2BBE07D1A40D4E31FB8E27C93771F5A756BB2043A89A9957 Handheld
+D2C8E864C953551981EA772FB1B0BCBF857BD4B1F3FE637DC208837DD68E8BF2 Handheld tests
+C9A3EDF60C94394627309ED6DBFF00F881651CF600C83C6C559AA3495F140D82 Phone
+5C6879F5523DC58BBA0B2115793FE82F7866A1C31340BA6F35F62CFA833D156D Phone tests
+```
+
 ## Trilinear Filtering: 2026-10-12
 
 Replaced the spatial mip-level switch with weighted interpolation in Java and

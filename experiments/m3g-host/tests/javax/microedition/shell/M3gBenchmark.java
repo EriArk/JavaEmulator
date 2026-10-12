@@ -41,6 +41,15 @@ public class M3gBenchmark {
         } catch (ClassNotFoundException baseline) {
             assertNull("No selectable native software backend in this APK", raster);
         }
+        String lighting = InstrumentationRegistry.getArguments().getString("benchLightingCache");
+        java.lang.reflect.Field lightingCache=null, shadedVertices=null;
+        if (lighting != null) {
+            assertTrue("benchLightingCache must be on or off", lighting.equals("on") || lighting.equals("off"));
+            Class<?> triangle=Class.forName("javax.microedition.m3g.Triangle");
+            lightingCache=triangle.getDeclaredField("cacheLighting"); lightingCache.setAccessible(true);
+            shadedVertices=triangle.getDeclaredField("shadedVertices"); shadedVertices.setAccessible(true);
+            lightingCache.setBoolean(null,lighting.equals("on"));
+        }
         File root = new File(context.getExternalFilesDir(null), "m3g-benchmark/" + run);
         assertTrue("Do not overwrite previous samples", root.mkdirs());
         PowerManager power = (PowerManager) context.getSystemService(android.content.Context.POWER_SERVICE);
@@ -49,12 +58,13 @@ public class M3gBenchmark {
                 .put("debuggable", (context.getApplicationInfo().flags
                         & android.content.pm.ApplicationInfo.FLAG_DEBUGGABLE) != 0)
                 .put("thermalStart", power.getCurrentThermalStatus())
+                .put("lightingCache", lighting == null ? "default" : lighting)
                 .put("raster", nativeEnabled == null ? "legacy" : nativeEnabled.getBoolean(null) ? "native" : "java");
         JSONArray cases = new JSONArray();
         report.put("cases", cases);
         for (int[] size : new int[][]{{240,320},{320,240}}) {
             for (String kind : new String[]{"rgb-nearest","rgb-linear","rgba-alpha","lit-fog","exp-fog","multi-texture",
-                    "mip-nearest","mip-linear","sprites"}) {
+                    "mip-nearest","mip-linear","sprites","lighting-grid"}) {
                 String name = kind + "-" + size[0] + "x" + size[1];
                 if (kind.equals("multi-texture") && (Integer) Graphics3D.getProperties().get("numTextureUnits") < 4) {
                     assertNull("Candidate must support all four layers", nativeEnabled);
@@ -72,11 +82,22 @@ public class M3gBenchmark {
                 light.setMode(Light.AMBIENT);
                 light.setIntensity(0.8f);
                 renderer.addLight(light, new Transform());
+                if (kind.equals("lighting-grid")) {
+                    light.setIntensity(0.15f);
+                    for (int mode : new int[]{Light.DIRECTIONAL,Light.OMNI,Light.SPOT}) {
+                        Light extra=new Light(); extra.setMode(mode); extra.setIntensity(0.25f);
+                        extra.setColor(mode==Light.DIRECTIONAL ? 0xff8080 : mode==Light.OMNI ? 0x80ff80 : 0x8080ff);
+                        extra.setSpotAngle(60); extra.setSpotExponent(4);
+                        Transform lightTransform=new Transform(); lightTransform.postTranslate(.5f,.3f,0);
+                        renderer.addLight(extra,lightTransform);
+                    }
+                }
                 Background background = new Background();
                 background.setColor(0xff314159);
                 Transform model = new Transform();
                 java.lang.reflect.Field counter=kind.equals("sprites") ? nativeSprites : nativeDraws;
                 long nativeStart = counter == null ? 0 : counter.getLong(null);
+                long shadedStart = shadedVertices == null ? 0 : shadedVertices.getLong(null);
                 for (int i = 0; i < 64; i++) frame(renderer, target, mesh, background, model);
                 JSONArray wall = new JSONArray(), cpu = new JSONArray();
                 for (int batch = 0; batch < 5; batch++) {
@@ -101,6 +122,7 @@ public class M3gBenchmark {
                 cases.put(new JSONObject().put("name", name).put("framesPerBatch", 32)
                         .put("warmupFrames", 64).put("wallNs", wall).put("threadCpuNs", cpu)
                         .put("pixelCrc32", crc.getValue()).put("changedPixels", changed)
+                        .put("shadedVertices", shadedVertices == null ? -1 : shadedVertices.getLong(null)-shadedStart)
                         .put("nativeDraws", counter == null ? 0 : counter.getLong(null)-nativeStart));
                 if ("native".equals(raster)) assertTrue("Native path was not exercised", counter.getLong(null)>nativeStart);
                 renderer.releaseTarget();
@@ -111,6 +133,7 @@ public class M3gBenchmark {
             out.write(report.toString(2).getBytes(StandardCharsets.UTF_8));
         }
         if (nativeEnabled != null) nativeEnabled.setBoolean(null, true);
+        if (lightingCache != null) lightingCache.setBoolean(null, true);
     }
 
     private void frame(Graphics3D renderer, Image image, Node mesh, Background background, Transform transform) {
@@ -120,6 +143,7 @@ public class M3gBenchmark {
     }
 
     private Node scene(String kind) {
+        if (kind.equals("lighting-grid")) return lightingGrid();
         int cells = 8, count = cells * cells * 4;
         short[] positions = new short[count * 3], uv = new short[count * 2];
         byte[] normals = new byte[count * 3];
@@ -205,5 +229,30 @@ public class M3gBenchmark {
             return group;
         }
         return new Mesh(vertices, new TriangleStripArray(0, strips), style);
+    }
+
+    private Mesh lightingGrid() {
+        int cells=32, side=cells+1, count=side*side;
+        short[] positions=new short[count*3]; byte[] normals=new byte[count*3];
+        for (int y=0; y<side; y++) for (int x=0; x<side; x++) {
+            int v=y*side+x;
+            positions[v*3]=(short)(-120+x*240/cells);
+            positions[v*3+1]=(short)(120-y*240/cells);
+            positions[v*3+2]=(short)(-200-x);
+            normals[v*3+2]=127;
+        }
+        int[] strips=new int[cells], indices=new int[cells*side*2];
+        for (int y=0,i=0; y<cells; y++) {
+            strips[y]=side*2;
+            for (int x=0; x<side; x++) { indices[i++]=y*side+x; indices[i++]=(y+1)*side+x; }
+        }
+        VertexArray points=new VertexArray(count,3,2); points.set(0,count,positions);
+        VertexArray normal=new VertexArray(count,3,1); normal.set(0,count,normals);
+        VertexBuffer vertices=new VertexBuffer(); vertices.setPositions(points,.01f,null); vertices.setNormals(normal);
+        Material material=new Material(); material.setColor(Material.DIFFUSE,0xffd0b090);
+        material.setColor(Material.SPECULAR,0x808080); material.setShininess(16);
+        Appearance style=new Appearance(); style.setMaterial(material);
+        PolygonMode poly=new PolygonMode(); poly.setCulling(PolygonMode.CULL_NONE); style.setPolygonMode(poly);
+        return new Mesh(vertices,new TriangleStripArray(indices,strips),style);
     }
 }

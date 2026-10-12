@@ -4,6 +4,7 @@ param(
     [ValidateSet('candidate', 'baseline')][string]$Engine = 'candidate',
     [string]$ApkRoot,
     [ValidateSet('java', 'native')][string]$Raster,
+    [ValidateSet('on', 'off')][string]$LightingCache,
     [string]$Adb = "$env:LOCALAPPDATA/Android/Sdk/platform-tools/adb.exe"
 )
 $ErrorActionPreference = 'Stop'
@@ -47,6 +48,7 @@ Invoke-Adb @('install', '-r', $test) | Out-Null
 $arguments = @('shell', 'am', 'instrument', '-w', '-r', '-e', 'class',
     'javax.microedition.shell.M3gBenchmark', '-e', 'benchRun', $Run)
 if ($Raster) { $arguments += @('-e', 'benchRaster', $Raster) }
+if ($LightingCache) { $arguments += @('-e', 'benchLightingCache', $LightingCache) }
 $arguments += "$package.test/androidx.test.runner.AndroidJUnitRunner"
 $result = Invoke-Adb $arguments
 $result | Set-Content -Encoding UTF8 (Join-Path $out 'tests.txt')
@@ -55,7 +57,7 @@ if ($result -notmatch 'OK \(1 test\)' -or $result -match 'FAILURES|INSTRUMENTATI
 }
 Invoke-Adb @('pull', "/sdcard/Android/data/$package/files/m3g-benchmark/$Run/.", $out) | Out-Null
 $report = Get-Content -Raw (Join-Path $out 'report.json') | ConvertFrom-Json
-if ($report.package -ne $package -or $report.cases.Count -ne 18) { throw 'Unexpected benchmark report' }
+if ($report.package -ne $package -or $report.cases.Count -ne 20) { throw 'Unexpected benchmark report' }
 [pscustomobject]@{
     engine = $Engine
     apkSha256 = (Get-FileHash $apk).Hash
