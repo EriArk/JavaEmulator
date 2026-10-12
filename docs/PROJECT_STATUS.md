@@ -1,6 +1,6 @@
 # AbyssME - Current Product and Development Status
 
-**Last verified: 2026-10-11.** This is the starting point for website copy,
+**Last verified: 2026-10-12.** This is the starting point for website copy,
 announcements, progress posts and project handoffs. It includes work that exists
 only in local experiments or private test builds. Describing that work here
 does not publish its implementation or make it a released feature.
@@ -35,7 +35,7 @@ bundled. The app UI is English.
 | Public development source | `main`; latest app-code change at this review: [d39ed742](https://github.com/EriArk/JavaEmulator/commit/d39ed742) | Unreleased Java/UI/storage improvements listed below; not all are in the downloadable beta |
 | Private combined test snapshot | `0.1.0-beta.2-experimental.15`, 2026-10-11 | Handheld and Phone debug APKs containing Java plus experimental Mophun; supplied separately to testers, not a GitHub release |
 | Local-only implementation | Ignored optional-engine source and diagnostics | Mophun integration, game-specific experiments and test fixtures; public descriptions below, implementation not published |
-| Separate research branch | [`codex/m3g-replacement`](https://github.com/EriArk/JavaEmulator/tree/codex/m3g-replacement), code checkpoint `ff971cac` | Combined Handheld/Phone research builds, corrected shadows/masks/sprite clipping, new tone compiler, 61 focused checks per device; not a production-engine switch or public beta |
+| Separate research branch | [`codex/m3g-replacement`](https://github.com/EriArk/JavaEmulator/tree/codex/m3g-replacement), code checkpoint `f2cecfec` | Sparse texture crash fixed; platform angle math; 58 unmeasured Java-only checks per device and controlled performance evidence. Earlier combined-build results remain separate; no production-engine switch or public beta |
 
 The experimental number is a distribution label: build 15 still reports
 version code **102** and `0.1.0-beta.2` / `0.1.0-beta.2-phone` internally.
@@ -339,6 +339,34 @@ The current combined build remains local: private Mophun sources and ROMs are
 not committed. Production source arrangement, complete dependency/source/notice
 review and signed upgrade/save checks still precede the merge and public beta.
 No root-license change or release has occurred at this checkpoint.
+
+### Sparse textures and controlled performance: 2026-10-12
+
+Fixed crashes when a game uses a later texture unit without an earlier one:
+texture coordinates, transforms, wrapping and mip state now follow the same
+packed layer order. Two regressions failed before the fix and pass on both
+engines. The external angle approximation was replaced by platform `Math.atan2`,
+with tests for ordinary and special values. This resolves that source-inventory
+item, not the whole licensing/release review.
+
+**Verified:** the final Java-only, non-debuggable candidate passes 58 focused
+checks on Retroid and the Phone emulator, with zero skips; native Retroid passes
+49 shared checks. Asphalt reaches a moving race and host exit. These are not
+new combined-Mophun acceptance results. A repeatable eight-scene benchmark now
+records images, wall/CPU timing, build identities and thermal status.
+
+The matched non-debuggable runs still show roughly 3.3-4.8 ms per synthetic frame
+for the candidate versus 0.85-0.94 ms for native. These costs are not game FPS or
+total GPU time. Removing debug execution explains much of the earlier overhead;
+it is not a newly delivered production speedup. A slower sampler experiment was
+discarded, and no rendering-quality setting was reduced. All eight candidate
+image CRCs remain unchanged across the compared builds.
+
+[Code checkpoint, raw checks, benchmark data and screenshots](https://github.com/EriArk/JavaEmulator/blob/codex/m3g-replacement/docs/m3g-performance-2026-10-12/README.md).
+Performance parity remains open. Next is a bounded GPU-rasterization prototype
+with image comparisons, retaining software rendering as a reference/fallback,
+plus the existing dependency, packaging, signed-upgrade and save-preservation gates.
+No production merge, root-license change or release APK was made in this batch.
 
 ## Distribution and Licensing Status
 

@@ -1,13 +1,25 @@
 # AbyssME Changelog
 
 User-facing development history, reconstructed from commits, release notes and
-local/private build records through **2026-10-11**. This is not a claim that all
+local/private build records through **2026-10-12**. This is not a claim that all
 listed work is in a public APK. See [current status](docs/PROJECT_STATUS.md) for
 availability, verification, known limits and screenshot guidance.
 
 Labels: **Public source** means implemented on `main` but unreleased unless
 stated otherwise. **Experimental** means local/private combined builds only.
 **Released** means an actual GitHub release asset.
+
+## 2026-10-12
+
+- **Separate experiment / not shipped:** fixed a crash with nonconsecutive M3G
+  texture units and replaced the external angle approximation with platform
+  math. Added two shared raster regressions, two candidate math checks, and
+  repeatable eight-scene performance/image measurements. Final candidate passes
+  58 focused checks on Retroid and Phone emulator; native passes 49 shared checks.
+  Asphalt reaches a moving race. Matched non-debuggable samples still show a
+  software-rendering cost gap; no performance-parity claim, quality reduction,
+  production-engine switch, root-license change or release.
+  [Evidence and next gate](https://github.com/EriArk/JavaEmulator/blob/codex/m3g-replacement/docs/m3g-performance-2026-10-12/README.md).
 
 ## 2026-10-11
 
