@@ -1,4 +1,4 @@
-﻿INSTRUMENTATION_STATUS: class=javax.microedition.m3g.M3gMathTest
+INSTRUMENTATION_STATUS: class=javax.microedition.m3g.M3gMathTest
 INSTRUMENTATION_STATUS: current=1
 INSTRUMENTATION_STATUS: id=AndroidJUnitRunner
 INSTRUMENTATION_STATUS: numtests=58
@@ -823,4 +823,3 @@ OK (58 tests)
 
 
 INSTRUMENTATION_CODE: -1
-

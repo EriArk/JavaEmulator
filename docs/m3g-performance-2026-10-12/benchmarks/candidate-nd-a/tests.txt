@@ -1,4 +1,4 @@
-﻿INSTRUMENTATION_STATUS: class=javax.microedition.shell.M3gBenchmark
+INSTRUMENTATION_STATUS: class=javax.microedition.shell.M3gBenchmark
 INSTRUMENTATION_STATUS: current=1
 INSTRUMENTATION_STATUS: id=AndroidJUnitRunner
 INSTRUMENTATION_STATUS: numtests=1
@@ -21,4 +21,3 @@ OK (1 test)
 
 
 INSTRUMENTATION_CODE: -1
-

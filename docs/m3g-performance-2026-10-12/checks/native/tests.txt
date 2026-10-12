@@ -1,4 +1,4 @@
-﻿INSTRUMENTATION_STATUS: class=javax.microedition.shell.M3gSceneTest
+INSTRUMENTATION_STATUS: class=javax.microedition.shell.M3gSceneTest
 INSTRUMENTATION_STATUS: current=1
 INSTRUMENTATION_STATUS: id=AndroidJUnitRunner
 INSTRUMENTATION_STATUS: numtests=49
@@ -695,4 +695,3 @@ OK (49 tests)
 
 
 INSTRUMENTATION_CODE: -1
-
