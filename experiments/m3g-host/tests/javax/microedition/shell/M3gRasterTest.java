@@ -136,6 +136,31 @@ public class M3gRasterTest {
         near("right blue", bitmap.getPixel(48, 24) & 255, 255, 3);
     }
 
+    @Test public void repeatSDoesNotRepeatClampedT() throws Exception {
+        mixedWrap(true);
+    }
+
+    @Test public void repeatTDoesNotRepeatClampedS() throws Exception {
+        mixedWrap(false);
+    }
+
+    private void mixedWrap(boolean repeatS) throws Exception {
+        for (int filter : new int[]{Texture2D.FILTER_NEAREST, Texture2D.FILTER_LINEAR}) {
+            // At (1.25, 1.25), repeating S alone selects blue, T alone selects green.
+            texture(new Image2D(Image2D.RGB, 2, 2,
+                    new byte[]{-1,0,0, 0,-1,0, 0,0,-1, -1,-1,-1}), filter);
+            VertexArray uv = new VertexArray(4, 2, 1);
+            uv.set(0, 4, new byte[]{5,5, 5,5, 5,5, 5,5});
+            vertices.setTexCoords(0, uv, 0.25f, null);
+            appearance.getTexture(0).setWrapping(repeatS ? Texture2D.WRAP_REPEAT : Texture2D.WRAP_CLAMP,
+                    repeatS ? Texture2D.WRAP_CLAMP : Texture2D.WRAP_REPEAT);
+            int pixel = render("mixed-wrap-" + repeatS + "-" + filter).getPixel(24, 24);
+            near("red", (pixel >>> 16) & 255, 0, 3);
+            near("green", (pixel >>> 8) & 255, repeatS ? 0 : 255, 3);
+            near("blue", pixel & 255, repeatS ? 255 : 0, 3);
+        }
+    }
+
     @Test public void sparseTextureStateSurvivesInterleavedUntexturedDraws() throws Exception {
         coloredTexture(Texture2D.FILTER_LINEAR);
         Texture2D texture = appearance.getTexture(0);

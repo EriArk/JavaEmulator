@@ -127,7 +127,8 @@ if (candidate) {
         android.sourceSets.main.java.exclude { element -> element.file == adapter }
     }
     android.sourceSets.main.assets.srcDir m3gGenerated.map { new File(it.asFile, 'assets') }
-    android.defaultConfig.externalNativeBuild.ndkBuild.targets 'micro3d'
+    android.externalNativeBuild.ndkBuild.path = rootProject.file('experiments/m3g-host/native/Android.mk')
+    android.defaultConfig.externalNativeBuild.ndkBuild.targets 'micro3d', 'abyssm3graster'
     android.packaging.jniLibs.excludes.add('**/libjavam3g.so')
     tasks.register('adaptM3gHost') {
         dependsOn 'prepareM3g'
@@ -145,6 +146,12 @@ if (candidate) {
                 if (text.count(before) != 1) throw new GradleException("Host patch drift: ${before}")
                 text = text.replace(before, after)
             }
+            def nativeFields = 'private int[] androidFrameBuffer;'
+            if (text.count(nativeFields) != 1) throw new GradleException('Native state field drift')
+            text = text.replace(nativeFields, nativeFields + '\n    private final float[] nativeState = new float[32];\n    private final int[] nativeFlags = new int[25];')
+            def nativeHook = 'int rowIdx = (originY + viewy + yStart) * canvasWidth + originX + viewx;'
+            if (text.count(nativeHook) != 1) throw new GradleException('Native half hook drift')
+            text = text.replace(nativeHook, nativeHook + '\n' + rootProject.file('experiments/m3g-host/native/half-hook.java.inc').getText('UTF-8'))
             if (tracing) {
                 def hook = 'this.currAlphaFactor = alphaFactor;'
                 if (text.count(hook) != 1) throw new GradleException('Trace hook drift')

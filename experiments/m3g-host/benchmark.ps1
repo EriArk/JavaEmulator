@@ -3,6 +3,7 @@ param(
     [Parameter(Mandatory = $true)][ValidatePattern('^[A-Za-z0-9_-]+$')][string]$Run,
     [ValidateSet('candidate', 'baseline')][string]$Engine = 'candidate',
     [string]$ApkRoot,
+    [ValidateSet('java', 'native')][string]$Raster,
     [string]$Adb = "$env:LOCALAPPDATA/Android/Sdk/platform-tools/adb.exe"
 )
 $ErrorActionPreference = 'Stop'
@@ -43,9 +44,11 @@ function Invoke-Adb([string[]]$Arguments) {
 New-Item -ItemType Directory -Path $out | Out-Null
 Invoke-Adb @('install', '-r', $apk) | Out-Null
 Invoke-Adb @('install', '-r', $test) | Out-Null
-$result = Invoke-Adb @('shell', 'am', 'instrument', '-w', '-r', '-e', 'class',
-    'javax.microedition.shell.M3gBenchmark', '-e', 'benchRun', $Run,
-    "$package.test/androidx.test.runner.AndroidJUnitRunner")
+$arguments = @('shell', 'am', 'instrument', '-w', '-r', '-e', 'class',
+    'javax.microedition.shell.M3gBenchmark', '-e', 'benchRun', $Run)
+if ($Raster) { $arguments += @('-e', 'benchRaster', $Raster) }
+$arguments += "$package.test/androidx.test.runner.AndroidJUnitRunner"
+$result = Invoke-Adb $arguments
 $result | Set-Content -Encoding UTF8 (Join-Path $out 'tests.txt')
 if ($result -notmatch 'OK \(1 test\)' -or $result -match 'FAILURES|INSTRUMENTATION_FAILED') {
     throw "Benchmark failed; see $out"

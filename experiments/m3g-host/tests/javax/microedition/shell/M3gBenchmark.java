@@ -24,6 +24,21 @@ public class M3gBenchmark {
         String run = InstrumentationRegistry.getArguments().getString("benchRun");
         assertTrue("Pass a fresh benchRun label", run != null && run.matches("[A-Za-z0-9_-]+"));
         android.content.Context context = InstrumentationRegistry.getInstrumentation().getTargetContext();
+        String raster = InstrumentationRegistry.getArguments().getString("benchRaster");
+        java.lang.reflect.Field nativeEnabled = null, nativeDraws = null;
+        try {
+            Class<?> backend = Class.forName("javax.microedition.m3g.NativeRasterizer");
+            nativeEnabled = backend.getDeclaredField("enabled");
+            nativeEnabled.setAccessible(true);
+            nativeDraws = backend.getDeclaredField("draws");
+            nativeDraws.setAccessible(true);
+            if (raster != null) {
+                assertTrue("benchRaster must be java or native", raster.equals("java") || raster.equals("native"));
+                nativeEnabled.setBoolean(null, raster.equals("native"));
+            }
+        } catch (ClassNotFoundException baseline) {
+            assertNull("No selectable native software backend in this APK", raster);
+        }
         File root = new File(context.getExternalFilesDir(null), "m3g-benchmark/" + run);
         assertTrue("Do not overwrite previous samples", root.mkdirs());
         PowerManager power = (PowerManager) context.getSystemService(android.content.Context.POWER_SERVICE);
@@ -31,7 +46,8 @@ public class M3gBenchmark {
                 .put("device", android.os.Build.MODEL).put("sdk", android.os.Build.VERSION.SDK_INT)
                 .put("debuggable", (context.getApplicationInfo().flags
                         & android.content.pm.ApplicationInfo.FLAG_DEBUGGABLE) != 0)
-                .put("thermalStart", power.getCurrentThermalStatus());
+                .put("thermalStart", power.getCurrentThermalStatus())
+                .put("raster", nativeEnabled == null ? "legacy" : nativeEnabled.getBoolean(null) ? "native" : "java");
         JSONArray cases = new JSONArray();
         report.put("cases", cases);
         for (int[] size : new int[][]{{240,320},{320,240}}) {
@@ -50,6 +66,7 @@ public class M3gBenchmark {
                 Background background = new Background();
                 background.setColor(0xff314159);
                 Transform model = new Transform();
+                long nativeStart = nativeDraws == null ? 0 : nativeDraws.getLong(null);
                 for (int i = 0; i < 64; i++) frame(renderer, target, mesh, background, model);
                 JSONArray wall = new JSONArray(), cpu = new JSONArray();
                 for (int batch = 0; batch < 5; batch++) {
@@ -74,7 +91,9 @@ public class M3gBenchmark {
                 }
                 cases.put(new JSONObject().put("name", name).put("framesPerBatch", 32)
                         .put("warmupFrames", 64).put("wallNs", wall).put("threadCpuNs", cpu)
-                        .put("pixelCrc32", crc.getValue()).put("changedPixels", changed));
+                        .put("pixelCrc32", crc.getValue()).put("changedPixels", changed)
+                        .put("nativeDraws", nativeDraws == null ? 0 : nativeDraws.getLong(null)-nativeStart));
+                if ("native".equals(raster)) assertTrue("Native path was not exercised", nativeDraws.getLong(null)>nativeStart);
                 renderer.releaseTarget();
             }
         }
@@ -82,6 +101,7 @@ public class M3gBenchmark {
         try (FileOutputStream out = new FileOutputStream(new File(root, "report.json"))) {
             out.write(report.toString(2).getBytes(StandardCharsets.UTF_8));
         }
+        if (nativeEnabled != null) nativeEnabled.setBoolean(null, true);
     }
 
     private void frame(Graphics3D renderer, Image image, Mesh mesh, Background background, Transform transform) {

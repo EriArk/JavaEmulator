@@ -3,9 +3,11 @@
 ## Current Checkpoint
 
 The [2026-10-12 compatibility/performance report](../../docs/m3g-performance-2026-10-12/README.md)
-supersedes the historical counts below. The verifier requires 49 shared checks,
-seven candidate-only tone checks, two candidate math checks and (when measured)
-seven timing checks: 58 for an unmeasured candidate, 65 when measured, and 56 for
+records the earlier Java-only checkpoint. The candidate now includes a
+[native raster fast path](native/README.md) with a shared-buffer Java fallback.
+The verifier requires 51 shared checks, seven candidate-only tone checks,
+two candidate math checks, three native parity/bounds checks and (when measured)
+seven timing checks: 63 for an unmeasured candidate, 70 when measured, and 58 for
 measured baseline with two intentional skips.
 Both Handheld (`fdroid`) and Phone research builds are supported; pass
 `-Variant phone` to `verify.ps1` for Phone.
@@ -30,6 +32,9 @@ runs eight bounded original scenes and saves PNGs, timings, thermal status and
 APK hashes. This benchmark is opt-in, not part of the normal verifier. Its wall
 cost is not game FPS. Use `-ApkRoot` for saved APK snapshots when alternating
 engines: Gradle can remove the other engine's stale test output directory.
+For a same-APK fast-path comparison, pass `-Raster java` or `-Raster native`
+with separate run labels. Native runs require a successful native draw in every
+scene; library loading alone is not accepted as proof.
 
 ## Original Setup
 
@@ -50,7 +55,7 @@ clean, pinned FreeJ2ME-Plus checkout described in the
 .\experiments\m3g-host\verify.ps1 -Serial YOUR_DEVICE -Engine baseline
 ```
 
-Set `ANDROID_HOME` or pass `-Adb` to the verifier. Only `fdroidDebug` is enabled
+Set `ANDROID_HOME` or pass `-Adb` to the verifier. Only `fdroidDebug` and `phoneDebug` are enabled
 in research mode; private signing configuration is not required. Build outputs
 are separated under `app/build/m3g-candidate` and `app/build/m3g-baseline`.
 Both support arm64-v8a and x86_64. Application IDs are isolated:

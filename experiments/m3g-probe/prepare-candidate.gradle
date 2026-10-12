@@ -99,6 +99,32 @@ tasks.register('prepareM3g') {
                 return (bg & 0xFF000000) | (fg & 0x00FFFFFF);
             }
         };''')
+        def wrapperHook = 'static class TextureWrappers\n\t{'
+        if (pipelineText.count(wrapperHook) != 1) throw new GradleException('Mixed wrap hook drift')
+        pipelineText = pipelineText.replace(wrapperHook, wrapperHook + '''
+        private static int repeat(int coordinate, int size) {
+            if ((size & (size - 1)) == 0) return coordinate & (size - 1);
+            int value = coordinate % size;
+            return value < 0 ? value + size : value;
+        }
+        private static int clamp(int coordinate, int size) {
+            return Math.max(0, Math.min(size - 1, coordinate));
+        }
+        static final TextureWrapper REPEAT_S = new TextureWrapper() {
+            public int wrap(int s, int t, int w, int h) {
+                return (clamp(t, h) << 16) | repeat(s, w);
+            }
+        };
+        static final TextureWrapper REPEAT_T = new TextureWrapper() {
+            public int wrap(int s, int t, int w, int h) {
+                return (repeat(t, h) << 16) | clamp(s, w);
+            }
+        };''')
+        def wrapSelection = 'if (!repeatS && !repeatT) { return Graphics3DPipelines.TextureWrappers.CLAMP; }'
+        if (contents.count(wrapSelection) != 1) throw new GradleException('Mixed wrap selection drift')
+        contents = contents.replace(wrapSelection, wrapSelection + '''
+        if (!repeatT) return Graphics3DPipelines.TextureWrappers.REPEAT_S;
+        if (!repeatS) return Graphics3DPipelines.TextureWrappers.REPEAT_T;''')
         pipelines.setText(pipelineText, 'UTF-8')
         def filterPatches = [
             'final int sFixed = (int) (s * 256.0f) - 128;': 'int sFixed = (int) (s * 256.0f) - 128;',
