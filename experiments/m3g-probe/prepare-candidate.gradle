@@ -176,18 +176,35 @@ tasks.register('prepareM3g') {
             if (contents.count(before) != 1) throw new GradleException("Parallel fog patch drift: ${before}")
             contents = contents.replace(before, after)
         }
-        // Keep fractional coordinates and scale each axis independently, including NPOT/rectangular levels.
-        contents = contents.replaceAll(/\/\/ POT textures coming in with another fast path: Just shift\s*\/\/ right by the difference in width between base level and\s*\/\/ target one!/, '// Preserve subtexel positions and the actual size ratio on each axis.')
-        ['0', 'i'].each { unit ->
-            def oldCoords = "int targetLevel = textures[${unit}].getImage().widthShift - targetImage.widthShift;"
-            if (contents.count(oldCoords) != 1) throw new GradleException('Mipmap coordinate hook drift')
-            contents = contents.replace(oldCoords, "Image2D baseImage = textures[${unit}].getImage();")
+        // Shared host/standalone sampling: interpolate raw texels before material blending.
+        def patchSource = rootProject.file('experiments/m3g-probe')
+        if (!patchSource.isDirectory()) patchSource = rootProject.projectDir
+        def modeStart = '\tstatic class TexturingModes'
+        def modeEnd = '\t// This one is also faster staying here.'
+        if (contents.count(modeStart)!=1 || contents.count(modeEnd)!=1) throw new GradleException('Texturing block drift')
+        contents = contents.substring(0,contents.indexOf(modeStart)) + new File(patchSource,'texturing.java.inc').getText('UTF-8') + '\n' + contents.substring(contents.indexOf(modeEnd))
+        def filterSignature = 'void filterTexture(float s, float t, int unitIdx, Image2D targetImage)'
+        if (contents.count(filterSignature)!=3) throw new GradleException('Raw texture sampler drift')
+        contents = contents.replace(filterSignature, 'int sampleTexture(float s, float t, int unitIdx, Image2D targetImage)')
+        def nearestBlend = 'paintPixel = texBlenders[unitIdx] == null ? pixel :\n\t\t\t\t\ttexBlenders[unitIdx].blend(paintPixel, pixel, textures[unitIdx].getBlendColor());'
+        def linearBlend = 'paintPixel = texBlenders[unitIdx] == null ? (ag << 8) | rb \n\t\t\t\t\t: texBlenders[unitIdx].blend(paintPixel, (ag << 8) | rb, textures[unitIdx].getBlendColor());'
+        if (contents.count(nearestBlend)!=1 || contents.count(linearBlend)!=1) throw new GradleException('Sample/blend split drift')
+        contents = contents.replace(nearestBlend,'return pixel;').replace(linearBlend,'return (ag << 8) | rb;')
+        copy {
+            from new File(patchSource,'MipmapSampling.java')
+            into new File(output,'java/javax/microedition/m3g')
         }
-        ['s': 'getWidth()', 't': 'getHeight()'].each { coord, dimension ->
-            def oldCoords = "${coord} = (float) ((int) ${coord} >> targetLevel);"
-            if (contents.count(oldCoords) != 2) throw new GradleException('Mipmap axis hook drift')
-            contents = contents.replace(oldCoords, "${coord} *= (float) targetImage.${dimension} / baseImage.${dimension};")
-        }
+        def mipStart = '\tinterface MipmapMode'
+        if (pipelineText.count(mipStart)!=1) throw new GradleException('Mipmap mode marker drift')
+        pipelineText = pipelineText.substring(0,pipelineText.indexOf(mipStart)) + '''
+    interface MipmapMode { }
+    static class MipmapModes {
+        static final MipmapMode NEAREST = new MipmapMode() { };
+        static final MipmapMode LINEAR = new MipmapMode() { };
+    }
+}
+'''
+        pipelines.setText(pipelineText,'UTF-8')
         def releaseImage = 'this.target = null;'
         if (contents.count(releaseImage) != 1) throw new GradleException('Image target revision hook drift')
         contents = contents.replace(releaseImage, 'if (this.target instanceof Image2D) ((Image2D) this.target).revision++;\n\t\t\t' + releaseImage)

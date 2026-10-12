@@ -75,7 +75,8 @@ $classes = 'javax.microedition.shell.M3gHostTest,javax.microedition.shell.M3gRas
 $expectedTests = 51
 if ($Engine -eq 'candidate') {
     $classes += ',javax.microedition.shell.TonePlaybackTest,javax.microedition.m3g.M3gMathTest,javax.microedition.m3g.NativeRasterizerTest'
-    $expectedTests += 20
+    $classes += ',javax.microedition.m3g.MipmapSamplingTest'
+    $expectedTests += 23
 }
 if ($measured) {
     $classes += ',javax.microedition.shell.M3gTargetMeterTest'

@@ -9,6 +9,7 @@
 #include <cstdint>
 #include <cstring>
 #include <climits>
+#include <array>
 
 namespace {
 using u32 = uint32_t;
@@ -140,39 +141,55 @@ inline u32 composite(u32 bg, u32 fg, int alpha, int mode) {
     return out;
 }
 
+struct MipLevel {
+    const u32* pixels = nullptr;
+    int width, height;
+    float scaleS, scaleT;
+};
+
 struct Texture {
     const u32* pixels = nullptr;
     int width, height, repeat, linear, blend;
     u32 blendColor;
     float sL, tL, dsL, dtL, stepS, stepT;
-    const u32* levels[16] = {};
+    MipLevel levels[16];
     int count=1, mip=0;
     float sx=0, tx=0, sy=0, ty=0, wx=0, wy=0;
 };
 
-inline u32 mipSample(const Texture& tex, float s, float t, float inv, int x, int y) {
-    int level=0;
+const std::array<int,256> logFraction=[] {
+    std::array<int,256> values{};
+    for (int i=0; i<256; ++i) values[i]=int(std::log(1.0+i/256.0)*184.6649652337873);
+    return values;
+}();
+
+inline u32 sampleLevel(const Texture& tex, int level, float s, float t) {
+    const MipLevel& image=tex.levels[level];
+    s*=image.scaleS; t*=image.scaleT;
+    return tex.linear ? sample<true>(image.pixels,s,t,image.width,image.height,tex.repeat)
+                      : sample<false>(image.pixels,s,t,image.width,image.height,tex.repeat);
+}
+
+inline u32 mipSample(const Texture& tex, float s, float t, float inv) {
+    int lod=0;
     if (tex.mip) {
         float sx=(tex.sx-s*tex.wx)*inv, tx=(tex.tx-t*tex.wx)*inv;
         float sy=(tex.sy-s*tex.wy)*inv, ty=(tex.ty-t*tex.wy)*inv;
-        float area;
-        if (tex.mip==1) {
-            float a=sx*sx+tx*tx, b=sy*sy+ty*ty;
-            area=a>b ? a : b;
-        } else area=sx*ty-tx*sy;
-        int bits;
-        std::memcpy(&bits,&area,4);
-        if (tex.mip==2) bits &= 0x7fffffff;
-        bits-=0x3f800000;
-        int nonnegative=bits & ~(bits >> 31);
-        level=nonnegative >> 24;
-        if (tex.mip==2) level-=(((x*131+y*197)&255)-((nonnegative >> 16)&255)) >> 31;
-        level=std::min(level,tex.count-1);
+        float a=sx*sx+tx*tx, b=sy*sy+ty*ty, rho=a>b ? a : b;
+        if (rho>1) {
+            u32 bits;
+            std::memcpy(&bits,&rho,4);
+            lod=(int((bits>>23)&255)-127)*128+logFraction[(bits>>15)&255];
+        }
+        lod=std::min(lod,(tex.count-1)<<8);
     }
-    int w=std::max(1,tex.width >> level), h=std::max(1,tex.height >> level);
-    s*=float(w)/tex.width; t*=float(h)/tex.height;
-    return tex.linear ? sample<true>(tex.levels[level],s,t,w,h,tex.repeat)
-                      : sample<false>(tex.levels[level],s,t,w,h,tex.repeat);
+    int level=tex.mip==2 ? lod>>8 : (lod+127)>>8, weight=lod&255;
+    u32 color=sampleLevel(tex,level,s,t);
+    if (tex.mip!=2 || weight==0 || level==tex.count-1) return color;
+    u32 other=sampleLevel(tex,level+1,s,t), invWeight=256-weight;
+    u32 rb=(((color&RB)*invWeight+(other&RB)*weight)>>8)&RB;
+    u32 ag=((((color>>8)&RB)*invWeight+((other>>8)&RB)*weight)>>8)&RB;
+    return (ag<<8)|rb;
 }
 
 // Units and the single-texture filter specialize the common inner loops.
@@ -245,7 +262,7 @@ void render(u32* __restrict raster, int16_t* __restrict depth,
             for (int i=0; i<Units; ++i) {
                 const Texture& tex=textures[i];
                 u32 color;
-                if constexpr (Mip) color=mipSample(tex,s[i]*inv,t[i]*inv,inv,x,y);
+                if constexpr (Mip) color=mipSample(tex,s[i]*inv,t[i]*inv,inv);
                 else color=(Filter==1 || (Filter<0 && tex.linear))
                         ? sample<true>(tex.pixels,s[i]*inv,t[i]*inv,tex.width,tex.height,tex.repeat)
                         : sample<false>(tex.pixels,s[i]*inv,t[i]*inv,tex.width,tex.height,tex.repeat);
@@ -346,6 +363,8 @@ bool draw(JNIEnv* env, jintArray pixels, jshortArray depth, jobjectArray images,
             auto array=single ? singleImage : static_cast<jintArray>(env->GetObjectArrayElement(images,total));
             refs.arrays[total]=array; refs.owned[total]=!single;
             int w=std::max(1,t.width >> level), h=std::max(1,t.height >> level);
+            t.levels[level].width=w; t.levels[level].height=h;
+            t.levels[level].scaleS=float(w)/t.width; t.levels[level].scaleT=float(h)/t.height;
             if (!array || env->ExceptionCheck() || int64_t(w)*h>env->GetArrayLength(array)
                     || env->IsSameObject(pixels,array)) return false;
             alias[total]=total;
@@ -364,7 +383,7 @@ bool draw(JNIEnv* env, jintArray pixels, jshortArray depth, jobjectArray images,
     if (ready) {
         for (int i=0; i<units; ++i) {
             textures[i].pixels=pinned[unitBase[i]];
-            for (int l=0; l<textures[i].count; ++l) textures[i].levels[l]=pinned[unitBase[i]+l];
+            for (int l=0; l<textures[i].count; ++l) textures[i].levels[l].pixels=pinned[unitBase[i]+l];
         }
         if (mip) switch (units) {
             case 1: render<1,-1,true,true>(raster,z,textures,f,p); break;

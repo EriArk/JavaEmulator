@@ -26,8 +26,8 @@ DECAL for the applicable image formats. Each layer keeps its own coordinates,
 transform, filtering, wrapping and blend color; sparse source slots keep API order.
 Mipmap selection/sampling and Sprite3D pixels also run natively. Sprite setup,
 crop/projection/clipping and fog preparation stay in Java. Half-resolution mode
-retains Java execution. The existing FILTER_LINEAR mip-level approximation
-uses spatial LOD dithering, not true trilinear interpolation; this has not changed.
+retains Java execution. FILTER_LINEAR blends adjacent mip levels; with bilinear
+image filtering this is trilinear sampling, not spatial LOD dithering.
 
 Both paths read/write the same color and depth arrays. Native calls finish
 before Java continues, so mixed draws do not require GPU readback or depth
@@ -46,6 +46,62 @@ eight integers (level count/filter per unit), and at most 64 borrowed image arra
 Level dimensions follow independent width/height halving, down to 1x1. The
 base-level fast path does not build or pin a mip chain. Sprite packets use four
 floats and 20 integers; `sprite-hook.java.inc` describes the layout.
+
+## Trilinear Filtering: 2026-10-12
+
+Replaced the spatial mip-level switch with weighted interpolation in Java and
+native rendering. Raw samples, including alpha, are mixed before the texture
+blend is applied once. Image filtering remains independent: nearest image
+filtering takes one texel from each level, bilinear takes four from each.
+The [OpenGL ES 1.1 specification, texture minification](https://registry.khronos.org/OpenGL/specs/es/1.1/es_full_spec_1.1.pdf)
+describes this adjacent-level interpolation; the
+[JSR-184 API specification, Texture2D](https://citeseerx.ist.psu.edu/document?doi=029a9282bfebe3f8d2c10567fcbff19fea0bad75&repid=rep1&type=pdf)
+defines the independent level and image filters. No legacy EPL implementation
+was copied for this change.
+
+Fixed level selection too: both filters use the largest projected derivative,
+not the determinant/area that could collapse to zero on narrow projections.
+Nearest level filtering now rounds to the closest level instead of truncating.
+LOD has Q8 precision with a 256-entry logarithm lookup; the analytical-reference
+test bounds error to two Q8 steps over its sampled range. This is finite-precision
+isotropic filtering, not anisotropic filtering or a claim of exact GPU pixels.
+Native level dimensions and coordinate scales are prepared before the pixel loop.
+
+Final Retroid arm64 Handheld and x86_64 Phone emulator each pass **74 checks,
+zero skips**. New independent regressions cover collapsed derivatives, analytic
+LOD values, interpolation weights/alpha, one-pixel-wide rectangular levels,
+level clamping, and 130 native packets with known expected color before/after
+modulation. The earlier 64 layered mip scenes and all shared checks still pass.
+Standalone `:probe:assembleDebug` also builds with the shared helper/injection.
+This batch does not add a new real-game or physical-controller acceptance claim.
+
+All 18 same-APK Java/native benchmark CRCs match; thermal status is 0 at both
+ends. Fourteen non-mip workloads also retain their previous checkpoint CRCs.
+Changed mipmap pixels are intentional, not a parity claim against old dithering.
+
+| Scene | Java ms/frame | Native ms/frame |
+| --- | ---: | ---: |
+| Mip nearest 240x320 | 6.434 | 5.003 |
+| Mip linear 240x320 | 7.822 | 6.286 |
+| Mip nearest 320x240 | 4.969 | 4.032 |
+| Mip linear 320x240 | 6.345 | 5.017 |
+
+Trilinear sampling costs more than the former one-level approximation
+(4.666/3.821 ms in the previous checkpoint). Precomputing scales reduced this
+batch's first native result from 6.714/5.315 ms to 6.286/5.017 ms without changing
+pixels. The final mipmap workloads are 1.23-1.29x faster than current Java;
+this is not game FPS or performance parity with legacy GLES.
+
+Local evidence: `build/benchmarks/trilinear-{precomputed-native,java}` and
+`build/evidence/{device}-candidate[-phone]` under `experiments/m3g-host`.
+Research APK SHA-256 (not published release binaries):
+
+```text
+B2F690A0A2872D4D2B2284FAED9D43B3343D419EEF684BB9C5591FF8BF70B5EA Handheld
+65E8BE49BA4DEE40784F84F44E581CCE27036806AF28F62F12473EDFADF650B5 Handheld tests
+F8206659C19C600651520365A83D9F0097A7E6F9717F44DC62172807A9A965DD Phone
+E2CEE31944C8AAACFCF0FF8D5417A3CA773E7DFBA2B730C87A075A7BB0F096DD Phone tests
+```
 
 ## Mipmaps and Sprites: 2026-10-12
 
