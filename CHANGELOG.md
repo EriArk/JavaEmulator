@@ -11,6 +11,16 @@ stated otherwise. **Experimental** means local/private combined builds only.
 
 ## 2026-10-12
 
+- **Separate experiment / not shipped:** added opt-in GLES3 rendering for lit
+  geometry and one texture, with perspective, alpha rejection and shared
+  color/depth across GPU/CPU draws. Fixed the initial transfer bottleneck using
+  bulk copies and shader packing. Both devices pass 87 checks, including six
+  explicit GPU checks. Linear-filter and lit-grid samples improve versus native
+  CPU, while simple nearest-filter samples remain slower. Unsupported effects
+  fall back unchanged; GPU stays off by default. No production switch, licensing
+  transition, new release or real-game GPU acceptance.
+  [Implementation, comparison images and measured limits](https://github.com/EriArk/JavaEmulator/blob/5b777ae2/experiments/m3g-host/gpu/README.md).
+
 - **Separate experiment / not shipped:** fixed wrong back-face lighting on
   shared vertices and transforms processing unused buffer tails. Reused lighting
   across a draw, retained sparse texture scratch and skipped unused light setup.
