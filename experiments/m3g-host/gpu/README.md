@@ -96,6 +96,12 @@ caller EGL preservation, bounded repeated failure and reset. This is controlled
 fault injection, not evidence of recovery from a real OS/driver reset affecting
 the whole application.
 
+Final Handheld and Phone builds each pass **119 checks, zero skips** on Retroid
+Pocket Classic arm64/Android 14 and the Phone emulator x86_64/Android 15. These
+include the final setup/error-classification guards, not just the timed build.
+The existing 112 checks and seven recovery checks are required by `verify.ps1`;
+reports/hashes are in `build/evidence/{device}-candidate[-phone]` locally.
+
 Same-Retroid non-debuggable comparison (Adreno A12, thermal status 0 before/after;
 64 warmup frames plus five batches of 32, wall ms/frame):
 
