@@ -35,7 +35,7 @@ bundled. The app UI is English.
 | Public development source | `main`; latest app-code change at this review: [d39ed742](https://github.com/EriArk/JavaEmulator/commit/d39ed742) | Unreleased Java/UI/storage improvements listed below; not all are in the downloadable beta |
 | Private combined test snapshot | `0.1.0-beta.2-experimental.15`, 2026-10-11 | Handheld and Phone debug APKs containing Java plus experimental Mophun; supplied separately to testers, not a GitHub release |
 | Local-only implementation | Ignored optional-engine source and diagnostics | Mophun integration, game-specific experiments and test fixtures; public descriptions below, implementation not published |
-| Separate research branch | [`codex/m3g-replacement`](https://github.com/EriArk/JavaEmulator/tree/codex/m3g-replacement), code checkpoint `5b777ae2` | Native CPU path plus an off-by-default GLES3 backend for lit geometry and one base-level texture. Mixed GPU/CPU color and depth preserved. 87 checks per device, including six explicit GPU checks. GPU wins some measured scenes but loses simpler ones; fourteen fallback workloads retain exact CPU pixels. No real-game GPU acceptance, production-engine switch or new public beta |
+| Separate research branch | [`codex/m3g-replacement`](https://github.com/EriArk/JavaEmulator/tree/codex/m3g-replacement), code checkpoint `88d48084` | Off-by-default GLES3 now retains consecutive Graphics-target draws and supports alpha/additive transparency plus fog. 92 checks per device, including eleven explicit GPU checks. Sixteen-mesh scenes improve from 21-22 to 5.4-5.7 ms versus per-mesh GPU transfers; eight fallback scenes retain exact CPU pixels. Some scenes still lose to CPU. No real-game GPU acceptance, production-engine switch or new public beta |
 
 The experimental number is a distribution label: build 15 still reports
 version code **102** and `0.1.0-beta.2` / `0.1.0-beta.2-phone` internally.
@@ -519,6 +519,33 @@ Next implementation: retain consecutive GPU draws until CPU access or target
 release, reducing readback overhead, then extend effects such as blending/fog
 while preserving mixed rendering. No release or engine switch yet.
 [Code, driver evidence, limits and comparison images](https://github.com/EriArk/JavaEmulator/blob/5b777ae2/experiments/m3g-host/gpu/README.md).
+
+### Resident GPU Frames and Effects: 2026-10-12
+
+Implemented the next step above on the separate research branch. Consecutive
+supported meshes share GPU color/depth until CPU rendering, sprites, clear,
+bind/release or reset requires synchronization. Image2D targets commit immediately
+to preserve image/texture visibility. Added ALPHA/ALPHA_ADD and linear/exponential
+fog for both projection types. Other unsupported effects still use native CPU.
+
+**Verified:** Handheld on Retroid and Phone on the emulator each pass 92 checks,
+zero skips. In the same non-debuggable Retroid APK, the 16-mesh fixture drops
+from 21.622/21.354 to 5.421/5.692 ms (240x320 / 320x240) when residence is enabled;
+native CPU costs 5.930 ms at both sizes. Upload/readback pairs drop from 16 per
+frame to one. All 22 residence-on/off images match exactly; all eight CPU-fallback
+scenes match native reference images. Newly GPU-rendered alpha/fog cases have
+bounded fixture differences, not general pixel-exact parity.
+
+GPU remains off by default. Nearest filtering and landscape alpha still lose to
+CPU in these samples. Context loss with pending GPU work aborts explicitly rather
+than silently drawing on stale CPU buffers; transparent recovery/replay is not
+implemented. No real-game GPU, audio or controller acceptance was added. Main's
+engine, license, public APKs and private combined-build availability are unchanged.
+
+Next proposed work: GPU mipmapping and multiple texture layers, followed by
+representative real-game comparison and fixes. These are still implementation
+tasks, not release readiness.
+[Source, exact measurements and artifact hashes](https://github.com/EriArk/JavaEmulator/blob/88d48084/experiments/m3g-host/gpu/README.md).
 
 ## Distribution and Licensing Status
 
