@@ -123,6 +123,41 @@ public class M3gRasterTest {
         near("blue", pixel & 255, 0, 3);
     }
 
+    @Test public void textureUnitOneWorksWithoutUnitZero() throws Exception {
+        coloredTexture(Texture2D.FILTER_NEAREST);
+        Texture2D texture = appearance.getTexture(0);
+        VertexArray coords = vertices.getTexCoords(0, null);
+        appearance.setTexture(0, null);
+        vertices.setTexCoords(0, null, 1, null);
+        appearance.setTexture(1, texture);
+        vertices.setTexCoords(1, coords, 1, null);
+        Bitmap bitmap = render("sparse-unit-one");
+        near("left red", (bitmap.getPixel(16, 24) >>> 16) & 255, 255, 3);
+        near("right blue", bitmap.getPixel(48, 24) & 255, 255, 3);
+    }
+
+    @Test public void sparseTextureStateSurvivesInterleavedUntexturedDraws() throws Exception {
+        coloredTexture(Texture2D.FILTER_LINEAR);
+        Texture2D texture = appearance.getTexture(0);
+        VertexArray coords = vertices.getTexCoords(0, null);
+        render("sparse-before");
+        appearance.setTexture(0, null);
+        vertices.setTexCoords(0, null, 1, null);
+        appearance.setTexture(1, texture);
+        vertices.setTexCoords(1, coords, 1, null);
+        render("sparse-middle");
+        appearance.setTexture(1, null);
+        vertices.setDefaultColor(0xff00ff00);
+        int solid = render("sparse-untextured").getPixel(24, 24);
+        near("solid green", (solid >>> 8) & 255, 255, 3);
+        near("solid red", (solid >>> 16) & 255, 0, 3);
+        vertices.setDefaultColor(0xffffffff);
+        appearance.setTexture(1, texture);
+        int pixel = render("sparse-after").getPixel(31, 24);
+        near("red", (pixel >>> 16) & 255, 128, 12);
+        near("blue", pixel & 255, 128, 12);
+    }
+
     @Test public void linearClampPreservesRightEdge() throws Exception {
         coloredTexture(Texture2D.FILTER_LINEAR);
         int pixel = render("linear-right").getPixel(59, 24);

@@ -47,6 +47,19 @@ tasks.register('prepareM3g') {
         def raster = new File(output, 'java/javax/microedition/m3g/Graphics3D.java')
         contents = raster.getText('UTF-8')
         contents = contents.replace('\r\n', '\n')
+        // Compact texture and coordinate state together; API unit numbers may have gaps.
+        def packedStart = '// joint-increment ACTIVE_TEXTURE_UNITS alongside assignment.'
+        def packedEnd = 'texRepeatS[i], texRepeatT[i], t.isNPOT());'
+        if (contents.count(packedStart) != 1 || contents.count(packedEnd) != 1) {
+            throw new GradleException('Texture unit packing hook drift')
+        }
+        int start = contents.indexOf(packedStart)
+        int end = contents.indexOf(packedEnd, start) + packedEnd.length()
+        def packed = contents.substring(start, end)
+                .replace(packedStart, '// Preserve API order in a dense raster pipeline.')
+                .replace('textures[ACTIVE_TEXTURE_UNITS++] = t;', 'int unit = ACTIVE_TEXTURE_UNITS++;\n\t\t\t\t\ttextures[unit] = t;')
+                .replace('[i]', '[unit]')
+        contents = contents.substring(0, start) + packed + contents.substring(end)
         def spriteClip = 'if (clip[3] <= 0f || clip[7] <= 0f || clip[11] <= 0f) { return; }'
         if (contents.count(spriteClip) != 1) throw new GradleException('Sprite clip hook drift')
         contents = contents.replace(spriteClip, spriteClip + '''
@@ -139,6 +152,21 @@ tasks.register('prepareM3g') {
         def oldLighting = 'lights != null && !lights.isEmpty()'
         if (contents.count(oldLighting) != 1) throw new GradleException('Material lighting patch drift')
         triangle.setText(contents.replace(oldLighting, 'lights != null'), 'UTF-8')
+        // Do not carry the externally sourced approximation into candidate builds.
+        def math = new File(output, 'java/javax/microedition/m3g/M3GMath.java')
+        contents = math.getText('UTF-8').replace('\r\n', '\n')
+        def angleStart = '\t// Much faster atan2 approximation heavily based on https://gist.github.com/volkansalma/2972237'
+        def angleEnd = '\t// Fast float reciprocal (1 / x) using two Newton-Raphson steps'
+        if (contents.count(angleStart) != 1 || contents.count(angleEnd) != 1) {
+            throw new GradleException('atan2 replacement hook drift')
+        }
+        start = contents.indexOf(angleStart)
+        end = contents.indexOf(angleEnd, start)
+        math.setText(contents.substring(0, start) + '''    public static final float atan2(float y, float x) {
+        return (float) Math.atan2(y, x);
+    }
+
+''' + contents.substring(end), 'UTF-8')
         copy { from new File(source, 'LICENSE'); into new File(output, 'assets'); rename { 'FREEJ2ME-LICENSE.txt' } }
     }
 }

@@ -72,10 +72,10 @@ try {
 Invoke-Adb @('install', '-r', $apk)
 Invoke-Adb @('install', '-r', $test)
 $classes = 'javax.microedition.shell.M3gHostTest,javax.microedition.shell.M3gRasterTest,javax.microedition.shell.M3gSceneTest'
-$expectedTests = 47
+$expectedTests = 49
 if ($Engine -eq 'candidate') {
-    $classes += ',javax.microedition.shell.TonePlaybackTest'
-    $expectedTests += 7
+    $classes += ',javax.microedition.shell.TonePlaybackTest,javax.microedition.m3g.M3gMathTest'
+    $expectedTests += 9
 }
 if ($measured) {
     $classes += ',javax.microedition.shell.M3gTargetMeterTest'

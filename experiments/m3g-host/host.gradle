@@ -2,6 +2,10 @@
 def candidate = providers.gradleProperty('m3gExperiment').get() == 'candidate'
 def measuring = providers.gradleProperty('m3gMeasure').orNull == 'true'
 def tracing = providers.gradleProperty('m3gTrace').orNull == 'true'
+// Same code/signing/package as the research APK, without ART's debug execution mode.
+if (providers.gradleProperty('m3gNonDebuggable').orNull == 'true') {
+    android.buildTypes.debug.debuggable = false
+}
 if (tracing && (!candidate || measuring)) throw new GradleException('Trace requires an unmeasured candidate')
 def mophun = providers.gradleProperty('mophunSource').orNull
 if (mophun != null) {
@@ -72,6 +76,7 @@ if (measuring) {
 }
 
 if (candidate) {
+    android.sourceSets.androidTest.java.srcDir rootProject.file('experiments/m3g-host/candidate-tests')
     def originalTonePlayer = file('src/main/java/javax/microedition/media/TonePlayer.java')
     def originalManager = file('src/main/java/javax/microedition/media/Manager.java')
     android.sourceSets.main.java.exclude { element -> element.file == originalTonePlayer || element.file == originalManager }
