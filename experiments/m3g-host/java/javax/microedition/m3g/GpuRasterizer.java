@@ -12,8 +12,10 @@ import static android.opengl.GLES30.*;
 final class GpuRasterizer {
     static boolean enabled = ru.playsoftware.j2meloader.BuildConfig.M3G_GPU;
     static boolean retainTargets = true;
+    static boolean batchSubmission = true;
     static long draws, uploads, readbacks, textureUploads, emptyDraws, offsetDraws, multiplyDraws, spriteDraws;
     static long recoveries, replayedDraws, journalBarriers;
+    static long submissions, submittedDraws, geometryUploads;
     static final GpuFrame frame = new GpuFrame();
     // Research-only deterministic loss points: before draw, after draw, between readbacks.
     static int lossPoint, lossesRemaining;
@@ -55,7 +57,8 @@ final class GpuRasterizer {
     private int targetSizeLocation, alphaLocation, thresholdLocation, compositeLocation;
     private int fogModeLocation, parallelFogLocation, fogColorLocation, fogParamsLocation, packSizeLocation;
     private int spriteLocation, spriteLayoutLocation, spriteIndices, spriteIndexWidth;
-    private ByteBuffer colors, depths, depthInput, textureInput;
+    private ByteBuffer colors, depths, depthInput, textureInput, batchGeometry;
+    private int submitted;
     private int width, height;
     private int[] residentPixels;
     private short[] residentDepth;
@@ -148,7 +151,9 @@ final class GpuRasterizer {
                 perspective,depthTest,depthWrite,mask,alphaFactor,threshold,units,blend,depthFactor,
                 depthUnits,fog,parallelFog,fogDepth,sprite);
         frame.capture(command,pixels,zbuffer,w,h);
-        if(!execute(command,false)) return false;
+        // Submit the first draw immediately to preserve safe startup fallback. Later
+        // draws share one EGL scope and vertex upload at the next CPU access barrier.
+        if((frame.draws.size()==1 || !batchSubmission) && !execute(false)) return false;
         draws++;
         if(sprite!=null) spriteDraws++;
         if(depthFactor!=0 || depthUnits!=0) offsetDraws++;
@@ -164,11 +169,11 @@ final class GpuRasterizer {
     static synchronized void flush() {
         if(frameLost) throw new IllegalStateException("GPU frame unavailable; reset required: "+failure);
         if(frame.draws.isEmpty()) return;
-        execute(null,true);
+        execute(true);
         GpuRasterizer gpu=instance;
         gpu.colors.asIntBuffer().get(frame.pixels,0,frame.width*frame.height);
         if (gpu.depthDirty) gpu.depths.asShortBuffer().get(frame.depth,0,frame.width*frame.height);
-        gpu.residentPixels=null; gpu.residentDepth=null; gpu.depthDirty=false;
+        gpu.residentPixels=null; gpu.residentDepth=null; gpu.depthDirty=false; gpu.submitted=0;
         frame.clear(); readbacks++;
     }
 
@@ -192,7 +197,7 @@ final class GpuRasterizer {
         throw new ContextLost("Injected context loss at "+point);
     }
 
-    private static boolean execute(GpuFrame.Draw command,boolean read) {
+    private static boolean execute(boolean read) {
         EGLDisplay oldDisplay=eglGetCurrentDisplay(); EGLContext oldContext=eglGetCurrentContext();
         EGLSurface oldDraw=eglGetCurrentSurface(EGL_DRAW), oldRead=eglGetCurrentSurface(EGL_READ);
         RuntimeException error=null;
@@ -204,12 +209,16 @@ final class GpuRasterizer {
                 try {
                     if(instance==null) { instance=new GpuRasterizer(); instance.initialize(); }
                     ownedDisplay=instance.display; current(instance);
-                    if(attempt==0) {
-                        if(command!=null) { injectLoss(1); instance.render(command); injectLoss(2); }
-                    } else {
-                        for(GpuFrame.Draw saved:frame.draws) {
-                            injectLoss(1); instance.render(saved); injectLoss(2); replayedDraws++;
-                        }
+                    submissions++;
+                    int start=instance.submitted;
+                    instance.uploadGeometry(start);
+                    int firstVertex=0;
+                    for(int i=start;i<frame.draws.size();i++) {
+                        GpuFrame.Draw saved=frame.draws.get(i);
+                        injectLoss(1); instance.render(saved,firstVertex); injectLoss(2);
+                        firstVertex+=saved.count*3;
+                        instance.submitted=i+1; submittedDraws++;
+                        if(attempt!=0) replayedDraws++;
                     }
                     if(read) instance.readback();
                     if(attempt!=0) recoveries++;
@@ -377,7 +386,27 @@ final class GpuRasterizer {
         }
     }
 
-    private void render(GpuFrame.Draw command) {
+    private void uploadGeometry(int start) {
+        int end=frame.draws.size();
+        if(start==end) return;
+        ByteBuffer data;
+        if(end-start==1) data=frame.draws.get(start).geometry;
+        else {
+            int bytes=0;
+            for(int i=start;i<end;i++) bytes+=frame.draws.get(i).geometry.remaining();
+            batchGeometry=buffer(batchGeometry,bytes);
+            for(int i=start;i<end;i++) {
+                ByteBuffer source=frame.draws.get(i).geometry;
+                batchGeometry.put(source); source.rewind();
+            }
+            batchGeometry.flip(); data=batchGeometry;
+        }
+        glBindVertexArray(vao); glBindBuffer(GL_ARRAY_BUFFER,vbo);
+        glBufferData(GL_ARRAY_BUFFER,data.remaining(),data,GL_STREAM_DRAW);
+        check(); geometryUploads++;
+    }
+
+    private void render(GpuFrame.Draw command,int firstVertex) {
         int w=frame.width,h=frame.height,packWidth=(w+1)/2;
         int count=command.count,blend=command.blend,mask=command.mask;
         glActiveTexture(GL_TEXTURE0); glPixelStorei(GL_UNPACK_ALIGNMENT,1); glPixelStorei(GL_PACK_ALIGNMENT,1);
@@ -399,7 +428,6 @@ final class GpuRasterizer {
         }
         glBindFramebuffer(GL_FRAMEBUFFER,framebuffer);
         glBindVertexArray(vao); glBindBuffer(GL_ARRAY_BUFFER,vbo);
-        glBufferData(GL_ARRAY_BUFFER,command.geometry.remaining(),command.geometry,GL_STREAM_DRAW);
         glViewport(0,0,w,h); glDisable(GL_BLEND);
         if (blend!=CompositingMode.REPLACE) {
             glEnable(GL_BLEND); glBlendEquation(GL_FUNC_ADD);
@@ -468,7 +496,7 @@ final class GpuRasterizer {
             glUniform3f(blendColors[unit],(c>>16)&255,(c>>8)&255,c&255);
         }
         glActiveTexture(GL_TEXTURE0);
-        glDrawArrays(GL_TRIANGLES,0,count*3);
+        glDrawArrays(GL_TRIANGLES,firstVertex,count*3);
         depthDirty|=command.depthWrite && command.depthTest;
         check();
     }

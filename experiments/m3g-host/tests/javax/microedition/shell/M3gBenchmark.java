@@ -28,7 +28,9 @@ public class M3gBenchmark {
         java.lang.reflect.Field nativeEnabled = null, nativeDraws = null, nativeSprites = null;
         java.lang.reflect.Field gpuEnabled = null, gpuDraws = null, gpuRenderer = null;
         java.lang.reflect.Field gpuUploads=null, gpuReadbacks=null, gpuRetain=null;
+        java.lang.reflect.Field gpuBatch=null, gpuSubmissions=null, gpuSubmitted=null, gpuGeometry=null;
         String resident=InstrumentationRegistry.getArguments().getString("benchGpuResident");
+        String batching=InstrumentationRegistry.getArguments().getString("benchGpuBatch");
         try {
             Class<?> backend = Class.forName("javax.microedition.m3g.NativeRasterizer");
             nativeEnabled = backend.getDeclaredField("enabled");
@@ -48,6 +50,14 @@ public class M3gBenchmark {
             gpuUploads=gpu.getDeclaredField("uploads"); gpuUploads.setAccessible(true);
             gpuReadbacks=gpu.getDeclaredField("readbacks"); gpuReadbacks.setAccessible(true);
             gpuRetain=gpu.getDeclaredField("retainTargets"); gpuRetain.setAccessible(true);
+            gpuBatch=gpu.getDeclaredField("batchSubmission"); gpuBatch.setAccessible(true);
+            gpuSubmissions=gpu.getDeclaredField("submissions"); gpuSubmissions.setAccessible(true);
+            gpuSubmitted=gpu.getDeclaredField("submittedDraws"); gpuSubmitted.setAccessible(true);
+            gpuGeometry=gpu.getDeclaredField("geometryUploads"); gpuGeometry.setAccessible(true);
+            if(batching!=null) {
+                assertTrue("benchGpuBatch must be on or off",batching.equals("on") || batching.equals("off"));
+                gpuBatch.setBoolean(null,batching.equals("on"));
+            }
             if(resident!=null) {
                 assertTrue("benchGpuResident must be on or off",resident.equals("on") || resident.equals("off"));
                 gpuRetain.setBoolean(null,resident.equals("on"));
@@ -75,6 +85,7 @@ public class M3gBenchmark {
                 .put("thermalStart", power.getCurrentThermalStatus())
                 .put("lightingCache", lighting == null ? "default" : lighting)
                 .put("gpuResident",gpuRetain!=null && gpuRetain.getBoolean(null))
+                .put("gpuBatch",gpuBatch!=null && gpuBatch.getBoolean(null))
                 .put("raster", "gpu".equals(raster) ? "gpu" : nativeEnabled == null ? "legacy" : nativeEnabled.getBoolean(null) ? "native" : "java");
         JSONArray cases = new JSONArray();
         report.put("cases", cases);
@@ -117,6 +128,9 @@ public class M3gBenchmark {
                 long gpuStart = gpuDraws == null ? 0 : gpuDraws.getLong(null);
                 long uploadStart=gpuUploads==null?0:gpuUploads.getLong(null);
                 long readStart=gpuReadbacks==null?0:gpuReadbacks.getLong(null);
+                long submitStart=gpuSubmissions==null?0:gpuSubmissions.getLong(null);
+                long renderedStart=gpuSubmitted==null?0:gpuSubmitted.getLong(null);
+                long geometryStart=gpuGeometry==null?0:gpuGeometry.getLong(null);
                 long shadedStart = shadedVertices == null ? 0 : shadedVertices.getLong(null);
                 for (int i = 0; i < 64; i++) frame(renderer, target, mesh, background, model);
                 JSONArray wall = new JSONArray(), cpu = new JSONArray();
@@ -145,16 +159,25 @@ public class M3gBenchmark {
                         .put("gpuDraws", gpuDraws == null ? 0 : gpuDraws.getLong(null)-gpuStart)
                         .put("gpuUploads",gpuUploads==null?0:gpuUploads.getLong(null)-uploadStart)
                         .put("gpuReadbacks",gpuReadbacks==null?0:gpuReadbacks.getLong(null)-readStart)
+                        .put("gpuSubmissions",gpuSubmissions==null?0:gpuSubmissions.getLong(null)-submitStart)
+                        .put("gpuSubmittedDraws",gpuSubmitted==null?0:gpuSubmitted.getLong(null)-renderedStart)
+                        .put("gpuGeometryUploads",gpuGeometry==null?0:gpuGeometry.getLong(null)-geometryStart)
                         .put("shadedVertices", shadedVertices == null ? -1 : shadedVertices.getLong(null)-shadedStart)
                         .put("nativeDraws", counter == null ? 0 : counter.getLong(null)-nativeStart));
                 if ("native".equals(raster)) assertTrue("Native path was not exercised", counter.getLong(null)>nativeStart);
                 if ("gpu".equals(raster)) {
                     assertTrue("GPU path was not exercised",gpuDraws.getLong(null)>gpuStart);
+                    assertEquals("Every queued draw must reach GL",gpuDraws.getLong(null)-gpuStart,
+                            gpuSubmitted.getLong(null)-renderedStart);
                 }
                 if ("gpu".equals(raster) && kind.equals("multi-draw")) {
                     assertEquals(224*16,gpuDraws.getLong(null)-gpuStart);
                     assertEquals(gpuRetain.getBoolean(null)?224:224*16,gpuUploads.getLong(null)-uploadStart);
                     assertEquals(gpuUploads.getLong(null)-uploadStart,gpuReadbacks.getLong(null)-readStart);
+                    if(gpuRetain.getBoolean(null)) {
+                        assertEquals(224*(gpuBatch.getBoolean(null)?2:17),gpuSubmissions.getLong(null)-submitStart);
+                        assertEquals(224*(gpuBatch.getBoolean(null)?2:16),gpuGeometry.getLong(null)-geometryStart);
+                    }
                 }
                 renderer.releaseTarget();
             }
@@ -167,6 +190,7 @@ public class M3gBenchmark {
         if (nativeEnabled != null) nativeEnabled.setBoolean(null, true);
         if (gpuEnabled != null) gpuEnabled.setBoolean(null, false);
         if (gpuRetain != null) gpuRetain.setBoolean(null, true);
+        if (gpuBatch != null) gpuBatch.setBoolean(null, true);
         if (lightingCache != null) lightingCache.setBoolean(null, true);
     }
 

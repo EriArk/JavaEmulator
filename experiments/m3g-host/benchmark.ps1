@@ -6,6 +6,8 @@ param(
     [ValidateSet('java', 'native', 'gpu')][string]$Raster,
     [ValidateSet('on', 'off')][string]$LightingCache,
     [ValidateSet('on', 'off')][string]$GpuResident,
+    [ValidateSet('on', 'off')][string]$GpuBatch,
+    [ValidateRange(30,600)][int]$TestTimeoutSeconds = 300,
     [string]$Adb = "$env:LOCALAPPDATA/Android/Sdk/platform-tools/adb.exe"
 )
 $ErrorActionPreference = 'Stop'
@@ -35,7 +37,7 @@ function Invoke-Adb([string[]]$Arguments) {
     try {
         $stdout = $process.StandardOutput.ReadToEndAsync()
         $stderr = $process.StandardError.ReadToEndAsync()
-        if (-not $process.WaitForExit(90000)) {
+        if (-not $process.WaitForExit($TestTimeoutSeconds * 1000)) {
             $process.Kill(); $process.WaitForExit()
             throw 'ADB timeout; no benchmark pass can be inferred'
         }
@@ -51,6 +53,7 @@ $arguments = @('shell', 'am', 'instrument', '-w', '-r', '-e', 'class',
 if ($Raster) { $arguments += @('-e', 'benchRaster', $Raster) }
 if ($LightingCache) { $arguments += @('-e', 'benchLightingCache', $LightingCache) }
 if ($GpuResident) { $arguments += @('-e', 'benchGpuResident', $GpuResident) }
+if ($GpuBatch) { $arguments += @('-e', 'benchGpuBatch', $GpuBatch) }
 $arguments += "$package.test/androidx.test.runner.AndroidJUnitRunner"
 $result = Invoke-Adb $arguments
 $result | Set-Content -Encoding UTF8 (Join-Path $out 'tests.txt')
