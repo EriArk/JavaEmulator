@@ -2,10 +2,11 @@
 
 ## Current Checkpoint
 
-The [2026-10-11 readiness report](../../docs/m3g-beta-readiness-2026-10-11/README.md)
-supersedes the historical counts below. The verifier requires 47 shared checks,
-seven candidate-only tone checks and (when measured) seven timing checks: 61 for
-the measured candidate, 54 for measured baseline with two intentional skips.
+The [2026-10-12 compatibility/performance report](../../docs/m3g-performance-2026-10-12/README.md)
+supersedes the historical counts below. The verifier requires 49 shared checks,
+seven candidate-only tone checks, two candidate math checks and (when measured)
+seven timing checks: 58 for an unmeasured candidate, 65 when measured, and 56 for
+measured baseline with two intentional skips.
 Both Handheld (`fdroid`) and Phone research builds are supported; pass
 `-Variant phone` to `verify.ps1` for Phone.
 
@@ -20,6 +21,15 @@ publish private sources, and must never add games to the application APK.
 It is mutually exclusive with measurement; never compare traced timings with
 untraced timings as renderer performance. `-Pm3gMeasure=true` now records
 aggregate bitmap-read/write and draw phases in addition to target sessions.
+
+`-Pm3gNonDebuggable=true` disables ART debug execution in research builds for
+controlled comparisons. It retains research IDs/debug signing, does not enable
+R8, and is not a public release configuration. Use it for both engines, never
+only one side. `benchmark.ps1 -Serial YOUR_DEVICE -Engine candidate -Run NEW_LABEL`
+runs eight bounded original scenes and saves PNGs, timings, thermal status and
+APK hashes. This benchmark is opt-in, not part of the normal verifier. Its wall
+cost is not game FPS. Use `-ApkRoot` for saved APK snapshots when alternating
+engines: Gradle can remove the other engine's stale test output directory.
 
 ## Original Setup
 
