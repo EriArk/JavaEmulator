@@ -35,7 +35,7 @@ bundled. The app UI is English.
 | Public development source | `main`; latest app-code change at this review: [d39ed742](https://github.com/EriArk/JavaEmulator/commit/d39ed742) | Unreleased Java/UI/storage improvements listed below; not all are in the downloadable beta |
 | Private combined test snapshot | `0.1.0-beta.2-experimental.15`, 2026-10-11 | Handheld and Phone debug APKs containing Java plus experimental Mophun; supplied separately to testers, not a GitHub release |
 | Local-only implementation | Ignored optional-engine source and diagnostics | Mophun integration, game-specific experiments and test fixtures; public descriptions below, implementation not published |
-| Separate research branch | [`codex/m3g-replacement`](https://github.com/EriArk/JavaEmulator/tree/codex/m3g-replacement), code checkpoint `1b302bb9` | Native CPU raster acceleration with Java fallback, independent texture-wrap fix; 63 unmeasured Java-game checks per device. Same-APK synthetic render cost improves 1.74-2.02x with identical pixels. Earlier combined-Mophun results remain separate; no production-engine switch or public beta |
+| Separate research branch | [`codex/m3g-replacement`](https://github.com/EriArk/JavaEmulator/tree/codex/m3g-replacement), code checkpoint `3605df3a` | Native CPU raster acceleration for 1-4 texture layers and both fog modes, with Java fallback; zero-density fog tint fixed. 66 unmeasured Java-game checks per device. New layered/fog benchmark costs improve about 1.7-1.9x versus Java with exact pixels. Earlier combined-Mophun results remain separate; no production-engine switch or public beta |
 
 The experimental number is a distribution label: build 15 still reports
 version code **102** and `0.1.0-beta.2` / `0.1.0-beta.2-phone` internally.
@@ -390,6 +390,29 @@ existing publication gates remain open. Ordinary builds, main's engine and
 release APKs are unchanged. Next implementation work is to accelerate the remaining
 common drawing paths without weakening their rendering behavior.
 [Code, provenance, reproduction and artifact identities](https://github.com/EriArk/JavaEmulator/blob/1b302bb9/experiments/m3g-host/native/README.md).
+
+### Layered textures and exponential fog: 2026-10-12
+
+Extended native drawing to four texture layers with independent coordinates,
+transforms, wrapping/filtering and blend colors, including ADD/BLEND/DECAL.
+Exponential fog no longer forces Java rendering. Zero-density fog now leaves
+both models and sprites unchanged, instead of introducing a tint. Mipmaps and
+sprite rasterization still use Java. Shared-image arrays are pinned once;
+unsupported or invalid native input leaves the Java fallback available.
+
+**Verified:** 66 checks pass on Retroid Handheld and Phone emulator, including
+400 layered combinations, 12 shared-image cases and zero-density mesh/sprite
+regressions. Twelve same-APK benchmark scenes have identical pixels. Newly
+accelerated fog/layered scenes cost about 1.7-1.9x less than Java. Specialized
+single-layer loops and direct JNI reduce expansion overhead, but simple-scene
+cost remains slightly above the narrower earlier checkpoint; legacy GLES is
+still faster. Deep: Submarine Odyssey reaches gameplay on Retroid, responds
+to direction input and returns from its pause menu. Audio and a full playthrough
+are not accepted by this observation.
+
+Next implementation work is mipmap selection and sprite acceleration, while
+retaining their rendering behavior. Main's engine, licensing and release APKs
+remain unchanged. [Implementation, checks and measured limits](https://github.com/EriArk/JavaEmulator/blob/3605df3a/experiments/m3g-host/native/README.md).
 
 ## Distribution and Licensing Status
 

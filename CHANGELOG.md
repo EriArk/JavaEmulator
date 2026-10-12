@@ -11,6 +11,15 @@ stated otherwise. **Experimental** means local/private combined builds only.
 
 ## 2026-10-12
 
+- **Separate experiment / not shipped:** expanded native raster acceleration
+  to four independent texture layers, all current texture blends and exponential
+  fog. Fixed zero-density fog tinting for models and sprites. Newly accelerated
+  benchmark scenes cost about 1.7-1.9x less than Java with identical pixels;
+  simple-scene overhead and the legacy-GLES performance gap remain.
+  Both devices pass 66 checks; Deep reaches gameplay, turns and resumes on
+  Retroid. No production-engine switch or new release APK.
+  [Implementation and limits](https://github.com/EriArk/JavaEmulator/blob/3605df3a/experiments/m3g-host/native/README.md).
+
 - **Separate experiment / not shipped:** added native CPU acceleration for the
   alternative M3G renderer, keeping the Java fallback and shared color/depth
   buffers. Fixed independent repeat/clamp texture axes. Same-APK synthetic
