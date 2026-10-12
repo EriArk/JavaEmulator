@@ -35,7 +35,7 @@ bundled. The app UI is English.
 | Public development source | `main`; latest app-code change at this review: [d39ed742](https://github.com/EriArk/JavaEmulator/commit/d39ed742) | Unreleased Java/UI/storage improvements listed below; not all are in the downloadable beta |
 | Private combined test snapshot | `0.1.0-beta.2-experimental.15`, 2026-10-11 | Handheld and Phone debug APKs containing Java plus experimental Mophun; supplied separately to testers, not a GitHub release |
 | Local-only implementation | Ignored optional-engine source and diagnostics | Mophun integration, game-specific experiments and test fixtures; public descriptions below, implementation not published |
-| Separate research branch | [`codex/m3g-replacement`](https://github.com/EriArk/JavaEmulator/tree/codex/m3g-replacement), code checkpoint `b624a71e` | Native CPU raster acceleration includes 1-4 texture layers, both fog modes, mipmaps and Sprite3D; fractional mip coordinates and stale levels fixed. 71 unmeasured Java-game checks per device. All 18 Java/native benchmark scenes match; new mip/sprite workloads improve about 1.3x/1.6x versus Java. Earlier combined-Mophun results remain separate; no production-engine switch or public beta |
+| Separate research branch | [`codex/m3g-replacement`](https://github.com/EriArk/JavaEmulator/tree/codex/m3g-replacement), code checkpoint `610302b1` | Native CPU raster acceleration includes 1-4 texture layers, both fog modes, mipmaps and Sprite3D. True adjacent-level interpolation replaces mip dithering; LOD selection fixed. 74 unmeasured Java-game checks per device. All 18 Java/native benchmark scenes match. Higher-quality filtering costs more than the former approximation; legacy GLES remains faster. Earlier combined-Mophun results remain separate; no production-engine switch or public beta |
 
 The experimental number is a distribution label: build 15 still reports
 version code **102** and `0.1.0-beta.2` / `0.1.0-beta.2-phone` internally.
@@ -436,6 +436,31 @@ Next: improve remaining filtering/scene-processing gaps with fixes and focused
 comparisons, not a per-title patch collection. Main's engine, licensing and
 release APKs are unchanged.
 [Implementation, artifact hashes and timings](https://github.com/EriArk/JavaEmulator/blob/b624a71e/experiments/m3g-host/native/README.md).
+
+### Trilinear filtering and level selection: 2026-10-12
+
+Replaced the mipmap checkerboard approximation with interpolation of neighboring
+levels, including alpha, before material blending. Both Java and native paths
+use the corrected calculation: strong compression on one axis no longer collapses
+the requested detail level to the base image. Nearest-level filtering now selects
+the closest level. No new end-user setting is needed; each game's requested
+level/image filters remain independent.
+
+**Verified:** final Retroid Handheld and Phone emulator each pass 74 checks,
+zero skips. Added analytical/known-color regressions, not just agreement between
+implementations. All 18 same-APK benchmark scenes match exactly; fourteen
+non-mip workloads keep their preceding checkpoint pixels. Standalone probe builds.
+This batch adds renderer evidence, not new complete-game/controller acceptance.
+
+True trilinear workloads cost 5.017/6.286 ms natively versus 6.345/7.822 ms in
+Java. They are more expensive than the old approximation; precomputed level
+scales reduce overhead without reverting the quality improvement. Q8 LOD and
+isotropic filtering remain explicit precision limits. This is not legacy-GLES
+performance parity, anisotropic filtering or a game-FPS claim.
+
+Next implementation target is geometry/lighting preparation and the remaining
+renderer performance gap. Main's engine, licensing and release APKs are unchanged.
+[Implementation, reference specifications and measurements](https://github.com/EriArk/JavaEmulator/blob/610302b1/experiments/m3g-host/native/README.md).
 
 ## Distribution and Licensing Status
 
