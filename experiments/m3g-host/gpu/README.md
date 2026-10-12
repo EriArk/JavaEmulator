@@ -35,8 +35,10 @@ on the GPU. Barriers before CPU mesh/sprite rendering, clear, bind, release or
 renderer reset read both buffers, check GL status and restore the caller's EGL
 context before committing CPU arrays. Depth dirtiness accumulates across draws,
 including draws with depth writes disabled. Image2D targets commit immediately
-so image sampling and mutation do not observe stale pixels. Context switches and
-geometry uploads still occur per draw; this is not GPU scene preparation.
+so image sampling and mutation do not observe stale pixels. The first draw is
+submitted immediately for safe startup fallback; later draws share one EGL
+scope and combined vertex upload at the next barrier. This is not GPU scene
+preparation: transformation, clipping and lighting still happen on CPU.
 
 Unsupported states flush pending work before CPU fallback. GPU startup failure
 before a resident target exists can fall back. Owned-context loss now gets one
@@ -58,6 +60,119 @@ candidate. The existing upstream license asset and notices remain in the APK.
 Framebuffer alpha uses [separate RGB/alpha blend factors](https://registry.khronos.org/OpenGL-Refpages/es3.0/html/glBlendFuncSeparate.xhtml),
 not destination sampling or a per-triangle readback. Normalized hardware blending
 has rounding differences from the software integer pipeline.
+
+## Batched Submission: 2026-10-13
+
+Source checkpoint: `492d3bc0`, research branch only.
+
+Consecutive supported mesh and sprite commands now remain queued after the first
+draw until a CPU/target barrier. Each batch restores the caller's EGL context
+once, uploads its geometry once and executes commands in their original order.
+Single-command batches reuse their existing direct buffer without a copy.
+The existing 8 MiB/256-command checkpoint bounds still apply. Combined geometry
+uses one additional reusable direct buffer, bounded by the journal payload
+limit; this is additional memory, not included in the journal's accounting.
+
+The first draw still executes immediately, so unavailable GPU startup may fall
+back before older work exists. Queued work cannot fall back silently. Loss of
+the private context replays both submitted and queued commands from the last
+committed CPU color/depth buffers. Vertex offsets restart when replay rebuilds
+the combined buffer. Alpha is not applied twice, mutable texture/geometry/fog
+changes remain snapshotted, and target changes flush before resizing.
+
+Added five checks for queued mutable sprites versus immediate submission,
+actual submission/upload counts, target switching, reset/close, repeated loss
+and LCDUI/3D/LCDUI/3D paint order with translated/clipped targets. The initial
+mixed fixture incorrectly expected depth to survive release/rebind; corrected
+the fixture to explicitly clear depth and preserve color, as required by the
+[JSR-184 Graphics3D contract](https://nikita36078.github.io/J2ME_Docs/docs/jsr184/javax/microedition/m3g/Graphics3D.html).
+No renderer change was needed for that invalid expectation. Existing recovery
+and CPU/GPU transition checks also run against queued draws.
+
+Final GPU-off research Handheld and Phone builds each pass **124 tests, zero
+skips**, on Retroid Pocket Classic arm64/Android 14 and emulator x86_64/Android 15.
+Tests explicitly enable GPU. Retroid same-APK measurements use the `GpuBatch`
+toggle (64 warmup frames and 5 x 32 measured frames; thermal status 0 throughout):
+
+| Scene | Immediate ms/frame | Batched ms/frame |
+| --- | ---: | ---: |
+| 16 meshes, 240x320 | 5.929 | 4.394 |
+| 16 meshes, 320x240 | 5.808 | 4.498 |
+| Sprites, 240x320 | 2.937 | 2.770 |
+| Sprites, 320x240 | 2.616 | 2.479 |
+| Lighting grid, 240x320 | 5.518 | 5.551 |
+| Lighting grid, 320x240 | 6.394 | 6.490 |
+
+All **28 image CRCs match exactly** between immediate and batched submission.
+For 16 meshes, EGL scopes fall from 17 to 2 and geometry uploads from 16 to 2
+per frame, retaining one color/depth upload/readback pair. All 3,584 accepted
+draws per orientation are also counted as completed GL draws. Benchmark reports
+distinguish accepted commands, completed draws, scopes and geometry uploads;
+they fail if queued draws were not actually submitted. Single-mesh/CPU lighting
+work is not accelerated by batching. These numbers are not game FPS or parity
+with the original engine.
+
+Reproduce using `benchmark.ps1 -Serial DEVICE -Run UNIQUE -Raster gpu
+-GpuBatch on` (or `off`). Local raw evidence: `build/benchmarks/gpu-batch-immediate`
+and `gpu-batch-combined`; verified artifact snapshot: `build/gpu-batch-verified`.
+The [immediate report](batching-20261013/gpu-batch-immediate/report.json) and
+[batched report](batching-20261013/gpu-batch-combined/report.json) are also
+committed with their artifact identities.
+
+Verified Handheld APK / test APK SHA-256:
+
+```text
+56A1D043553F5BF241F9790D3502DAB64D693A812EB1A2431129EC7E5DADAE8F
+9C2E735341FBC5BC35B683EFE4A15BD6653F161653DF01BDC3409AABB12B7E56
+```
+
+Verified Phone APK / test APK SHA-256:
+
+```text
+A50B8C0D8D92A4C72DFCF9B81C7C8E4377E887B4023D633F39C7FE45D9F29B48
+8382509A0D95FAD799DFF57107074C0AE5F116E61605F04839C5EC8EA4A7FE6A
+```
+
+### Fresh Game Sessions on Retroid
+
+Installed a separately built GPU-enabled research APK, leaving the normal app
+and its data untouched. Asphalt 3 progresses from startup through Instant Play
+into a moving race with textured cars, track, shadow and LCDUI HUD. Two captures
+show different road positions and changing HUD values. Its diagnostic checkpoint
+records 28,673 accepted GPU commands and 1,988 depth-offset commands, with no
+recorded recovery. These bounded diagnostics are not FPS or total session counts.
+
+Deep: Submarine Odyssey displays its animated 3D menu and player setup, with
+readable 2D menus over the scene. This follow-up does not repeat the earlier
+tutorial/gameplay acceptance: automated character selection entered the optional
+camera screen, camera permission was denied and the research app was stopped.
+No camera or sound acceptance is claimed. The last bounded menu-session record
+has 128,001 accepted GPU commands; sprite usage remains zero in both games.
+
+The installed original-engine research APK was also launched for fresh Asphalt
+race and Deep menu captures. These are visual smoke checks, not frame-matched
+comparisons: Asphalt selected different tracks and Deep's camera was at different
+angles. Exact image comparison above is against immediate GPU submission, not
+against the original engine. Input was injected through ADB, not hand-played.
+
+GPU-enabled game APK SHA-256:
+`C5111A7663558256E4778C27717CC8E471BEA9006A4AF634A557626752630A3D`.
+Installed original-engine APK SHA-256:
+`71f1496c7c6ce9b119c58fafca2e50267e49cf18e1cc8df05c9da50e492aebff`.
+The GPU-enabled game build is distinct from the GPU-off artifacts verified above.
+Both research apps were stopped after the sessions; no games/APKs are committed.
+
+![Batched candidate: Asphalt race on Retroid](retroid-batched-asphalt.png)
+![Batched candidate: animated Deep menu on Retroid](retroid-batched-deep-menu.png)
+
+Original-engine references: [Asphalt race](retroid-baseline-asphalt-20261013.png)
+and [Deep menu](retroid-baseline-deep-20261013.png).
+
+Batching addresses per-object submission overhead, not every release gate.
+CPU scene preparation, fallback-heavy games, texture-switch costs, sustained
+whole-game parity, reproducible production-source packaging, dependency/source
+notices and signed upgrade/save acceptance still need work before a main engine
+switch and public beta. GPU remains off by default.
 
 ## Context Recovery and Draw Setup: 2026-10-12
 
