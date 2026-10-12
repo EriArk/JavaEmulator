@@ -13,9 +13,14 @@ final class GpuRasterizer {
     static boolean enabled = ru.playsoftware.j2meloader.BuildConfig.M3G_GPU;
     static boolean retainTargets = true;
     static long draws, uploads, readbacks, textureUploads, emptyDraws, offsetDraws, multiplyDraws, spriteDraws;
+    static long recoveries, replayedDraws, journalBarriers;
+    static final GpuFrame frame = new GpuFrame();
+    // Research-only deterministic loss points: before draw, after draw, between readbacks.
+    static int lossPoint, lossesRemaining;
     static String renderer = "not initialized", failure = "";
     private static GpuRasterizer instance;
     private static boolean failed;
+    private static boolean frameLost;
     private static final java.util.Set<short[]> signedDepthChecks = java.util.Collections.newSetFromMap(
             new java.util.WeakHashMap<short[],Boolean>());
     private static final java.util.HashSet<Integer> reportedFallbacks=new java.util.HashSet<>();
@@ -43,14 +48,14 @@ final class GpuRasterizer {
     private EGLSurface surface = EGL_NO_SURFACE;
     private int program, packProgram, framebuffer, packFramebuffer, color, depth, packed, vbo, vao;
     private final int[] textureIds = new int[4];
+    private final int[] samplerKeys = {-1,-1,-1,-1};
     private final Image2D[][] uploadedImages = new Image2D[4][12];
     private final long[][] uploadedRevisions = new long[4][12];
     private final int[] modes=new int[4], sizes=new int[4], formats=new int[4], mips=new int[4], blendColors=new int[4];
     private int targetSizeLocation, alphaLocation, thresholdLocation, compositeLocation;
     private int fogModeLocation, parallelFogLocation, fogColorLocation, fogParamsLocation, packSizeLocation;
     private int spriteLocation, spriteLayoutLocation, spriteIndices, spriteIndexWidth;
-    private ByteBuffer spriteIndexInput;
-    private ByteBuffer colors, depths, depthInput, textureInput, geometry;
+    private ByteBuffer colors, depths, depthInput, textureInput;
     private int width, height;
     private int[] residentPixels;
     private short[] residentDepth;
@@ -129,34 +134,21 @@ final class GpuRasterizer {
         if (instance!=null && instance.residentPixels!=null
                 && (instance.residentPixels!=pixels || instance.residentDepth!=zbuffer
                 || instance.width!=w || instance.height!=h)) flush();
-        EGLDisplay previousDisplay=eglGetCurrentDisplay(); EGLContext previousContext=eglGetCurrentContext();
-        EGLSurface previousDraw=eglGetCurrentSurface(EGL_DRAW), previousRead=eglGetCurrentSurface(EGL_READ);
-        GpuRasterizer gpu=instance;
-        boolean success=false;
-        try {
-            if (gpu==null) { gpu=new GpuRasterizer(); instance=gpu; gpu.initialize(); }
-            if (!eglMakeCurrent(gpu.display,gpu.surface,gpu.surface,gpu.context)) throw new IllegalStateException("eglMakeCurrent");
-            gpu.render(pixels,zbuffer,w,h,triangles,count,ox,oy,left,top,right,bottom,vertexColors,
-                    defaultColor,perspective,depthTest,depthWrite,mask,alphaFactor,threshold,textures,units,filters,mipModes,
-                    blend,depthFactor,depthUnits,fog,parallelFog,fogDepth,sprite);
-            success=true;
-        } catch (RuntimeException error) {
-            failure=error.toString();
-        } finally {
-            if (gpu!=null && gpu.display!=EGL_NO_DISPLAY) {
-                boolean restored=previousDisplay==EGL_NO_DISPLAY
-                        ? eglMakeCurrent(gpu.display,EGL_NO_SURFACE,EGL_NO_SURFACE,EGL_NO_CONTEXT)
-                        : eglMakeCurrent(previousDisplay,previousDraw,previousRead,previousContext);
-                if (!restored) { success=false; failure="Unable to restore caller EGL context"; }
-            }
+        GpuFrame.Draw command=new GpuFrame.Draw(); command.count=count; command.sprite=sprite!=null;
+        command.textures=new GpuFrame.Texture[units];
+        for(int unit=0;unit<units;unit++) command.textures[unit]=sprite!=null
+                ?new GpuFrame.Texture(null,sprite.image,null,null)
+                :new GpuFrame.Texture(textures[unit],null,filters[unit],mipModes[unit]);
+        long required=frame.required(command,w,h);
+        if(frame.bytes+required>frame.byteLimit || frame.draws.size()>=GpuFrame.MAX_DRAWS) {
+            if(!frame.draws.isEmpty()) { flush(); journalBarriers++; }
+            if(frame.required(command,w,h)>frame.byteLimit) return false;
         }
-        if (!success) {
-            boolean pending=gpu!=null && gpu.residentPixels!=null;
-            destroy(); failed=true;
-            // Never resume CPU rendering over stale buffers after loss of an in-flight frame.
-            if (pending) throw new IllegalStateException("GPU frame lost: "+failure);
-            return false;
-        }
+        prepare(command,w,h,triangles,count,ox,oy,left,top,right,bottom,vertexColors,defaultColor,
+                perspective,depthTest,depthWrite,mask,alphaFactor,threshold,units,blend,depthFactor,
+                depthUnits,fog,parallelFog,fogDepth,sprite);
+        frame.capture(command,pixels,zbuffer,w,h);
+        if(!execute(command,false)) return false;
         draws++;
         if(sprite!=null) spriteDraws++;
         if(depthFactor!=0 || depthUnits!=0) offsetDraws++;
@@ -164,36 +156,88 @@ final class GpuRasterizer {
         if (ru.playsoftware.j2meloader.BuildConfig.M3G_GPU && (draws&1023)==1)
             diagnostic("draws="+draws+" units="+units+" textureUploads="+textureUploads
                     +" offsets="+offsetDraws+" multiply="+multiplyDraws+" sprites="+spriteDraws+" empty="+emptyDraws
-                    +" uploads="+uploads+" readbacks="+readbacks+" renderer="+renderer);
+                    +" uploads="+uploads+" readbacks="+readbacks+" recoveries="+recoveries+" renderer="+renderer);
         if (!resident || !retainTargets) flush();
         return true;
     }
 
     static synchronized void flush() {
+        if(frameLost) throw new IllegalStateException("GPU frame unavailable; reset required: "+failure);
+        if(frame.draws.isEmpty()) return;
+        execute(null,true);
         GpuRasterizer gpu=instance;
-        if (gpu==null || gpu.residentPixels==null) return;
+        gpu.colors.asIntBuffer().get(frame.pixels,0,frame.width*frame.height);
+        if (gpu.depthDirty) gpu.depths.asShortBuffer().get(frame.depth,0,frame.width*frame.height);
+        gpu.residentPixels=null; gpu.residentDepth=null; gpu.depthDirty=false;
+        frame.clear(); readbacks++;
+    }
+
+    private static final class ContextLost extends IllegalStateException {
+        ContextLost(String message) { super(message); }
+    }
+
+    private static void current(GpuRasterizer gpu) {
+        if(eglMakeCurrent(gpu.display,gpu.surface,gpu.surface,gpu.context)) return;
+        int error=eglGetError();
+        if(error==EGL_CONTEXT_LOST || error==EGL_BAD_CONTEXT || error==EGL_BAD_SURFACE)
+            throw new ContextLost("Owned EGL context unavailable: "+error);
+        throw new IllegalStateException("eglMakeCurrent: "+error);
+    }
+
+    private static void injectLoss(int point) {
+        if(lossPoint!=point || lossesRemaining<=0) return;
+        lossesRemaining--;
+        // Destroy real owned GL objects, rather than merely pretending a draw failed.
+        destroyGpu();
+        throw new ContextLost("Injected context loss at "+point);
+    }
+
+    private static boolean execute(GpuFrame.Draw command,boolean read) {
         EGLDisplay oldDisplay=eglGetCurrentDisplay(); EGLContext oldContext=eglGetCurrentContext();
         EGLSurface oldDraw=eglGetCurrentSurface(EGL_DRAW), oldRead=eglGetCurrentSurface(EGL_READ);
         RuntimeException error=null;
+        boolean restoreFailed=false;
+        boolean hadWork=read || frame.draws.size()>1;
+        EGLDisplay ownedDisplay=instance==null?EGL_NO_DISPLAY:instance.display;
         try {
-            if (!eglMakeCurrent(gpu.display,gpu.surface,gpu.surface,gpu.context))
-                throw new IllegalStateException("GPU flush context unavailable");
-            gpu.readback();
+            for(int attempt=0;attempt<2;attempt++) {
+                try {
+                    if(instance==null) { instance=new GpuRasterizer(); instance.initialize(); }
+                    ownedDisplay=instance.display; current(instance);
+                    if(attempt==0) {
+                        if(command!=null) { injectLoss(1); instance.render(command); injectLoss(2); }
+                    } else {
+                        for(GpuFrame.Draw saved:frame.draws) {
+                            injectLoss(1); instance.render(saved); injectLoss(2); replayedDraws++;
+                        }
+                    }
+                    if(read) instance.readback();
+                    if(attempt!=0) recoveries++;
+                    break;
+                } catch(ContextLost lost) {
+                    destroyGpu();
+                    if(attempt!=0) throw lost;
+                }
+            }
         } catch (RuntimeException e) { error=e; }
         finally {
-            boolean restored=oldDisplay==EGL_NO_DISPLAY
-                    ? eglMakeCurrent(gpu.display,EGL_NO_SURFACE,EGL_NO_SURFACE,EGL_NO_CONTEXT)
-                    : eglMakeCurrent(oldDisplay,oldDraw,oldRead,oldContext);
-            if (!restored) error=new IllegalStateException("Unable to restore caller EGL context");
+            if(instance!=null) ownedDisplay=instance.display;
+            boolean restored=oldDisplay!=EGL_NO_DISPLAY
+                    ? eglMakeCurrent(oldDisplay,oldDraw,oldRead,oldContext)
+                    : ownedDisplay==EGL_NO_DISPLAY || eglMakeCurrent(ownedDisplay,EGL_NO_SURFACE,EGL_NO_SURFACE,EGL_NO_CONTEXT);
+            if (!restored) {
+                restoreFailed=true;
+                error=new IllegalStateException("Unable to restore caller EGL context");
+            }
         }
         if (error!=null) {
-            failure=error.toString(); destroy(); failed=true;
-            throw new IllegalStateException("GPU frame readback failed; CPU buffers not committed",error);
+            failure=error.toString();
+            boolean pending=restoreFailed || hadWork || instance!=null && instance.residentPixels!=null;
+            destroyGpu(); frame.close(); failed=true; frameLost=pending;
+            if(pending) throw new IllegalStateException("GPU recovery failed; CPU buffers not committed",error);
+            return false;
         }
-        gpu.colors.asIntBuffer().get(gpu.residentPixels,0,gpu.width*gpu.height);
-        if (gpu.depthDirty) gpu.depths.asShortBuffer().get(gpu.residentDepth,0,gpu.width*gpu.height);
-        gpu.residentPixels=null; gpu.residentDepth=null; gpu.depthDirty=false;
-        readbacks++;
+        return true;
     }
 
     private static boolean valid(float x,float y,float z,float iw) {
@@ -213,13 +257,17 @@ final class GpuRasterizer {
     }
 
     static synchronized void close() {
-        try { flush(); } finally { destroy(); }
-        failed=false;
+        try { if(!frameLost) flush(); }
+        finally {
+            destroyGpu(); frame.close(); failed=false; frameLost=false;
+            spriteState.image=null; spriteState.mapping=null; spriteState.flags=null;
+        }
     }
 
-    private static void destroy() {
-        spriteState.image=null; spriteState.mapping=null; spriteState.flags=null;
+    private static void destroyGpu() {
         if (instance==null) return;
+        if(eglGetCurrentContext().equals(instance.context) && instance.display!=EGL_NO_DISPLAY)
+            eglMakeCurrent(instance.display,EGL_NO_SURFACE,EGL_NO_SURFACE,EGL_NO_CONTEXT);
         // All owned objects die with this detached context; never terminate Android's shared display.
         if (instance.surface!=EGL_NO_SURFACE) eglDestroySurface(instance.display,instance.surface);
         if (instance.context!=EGL_NO_CONTEXT) eglDestroyContext(instance.display,instance.context);
@@ -236,8 +284,9 @@ final class GpuRasterizer {
                 || count[0]==0) throw new IllegalStateException("No GLES3 pbuffer config");
         context=eglCreateContext(display,configs[0],EGL_NO_CONTEXT,new int[]{EGL_CONTEXT_CLIENT_VERSION,3,EGL_NONE},0);
         surface=eglCreatePbufferSurface(display,configs[0],new int[]{EGL_WIDTH,1,EGL_HEIGHT,1,EGL_NONE},0);
-        if (context==EGL_NO_CONTEXT || surface==EGL_NO_SURFACE
-                || !eglMakeCurrent(display,surface,surface,context)) throw new IllegalStateException("Create GPU context");
+        if (context==EGL_NO_CONTEXT || surface==EGL_NO_SURFACE)
+            throw new IllegalStateException("Create GPU context");
+        current(this);
         renderer=glGetString(GL_RENDERER);
         program=program(VERTEX,FRAGMENT); packProgram=program(PACK_VERTEX,PACK_FRAGMENT);
         glUseProgram(program);
@@ -266,32 +315,30 @@ final class GpuRasterizer {
         glGenTextures(1,ids,0); spriteIndices=ids[0];
         glGenFramebuffers(2,ids,0); framebuffer=ids[0]; packFramebuffer=ids[1];
         glGenBuffers(1,ids,0); vbo=ids[0]; glGenVertexArrays(1,ids,0); vao=ids[0];
+        glBindVertexArray(vao); glBindBuffer(GL_ARRAY_BUFFER,vbo);
+        for(int i=0;i<7;i++) glEnableVertexAttribArray(i);
+        glVertexAttribPointer(0,3,GL_FLOAT,false,80,0);
+        glVertexAttribPointer(1,4,GL_FLOAT,false,80,12);
+        for(int i=0;i<4;i++) glVertexAttribPointer(2+i,3,GL_FLOAT,false,80,28+i*12);
+        glVertexAttribPointer(6,1,GL_FLOAT,false,80,76);
+        glDisable(GL_CULL_FACE); glDisable(GL_DITHER); glDepthFunc(GL_LEQUAL);
         check();
     }
 
-    private void render(int[] pixels,short[] zbuffer,int w,int h,Triangle[] triangles,int count,int ox,int oy,
+    private static void prepare(GpuFrame.Draw command,int w,int h,Triangle[] triangles,int count,int ox,int oy,
             int left,int top,int right,int bottom,boolean vertexColors,int defaultColor,boolean perspective,
-            boolean depthTest,boolean depthWrite,int mask,int alphaFactor,int threshold,Texture2D[] textures,int units,
-            Graphics3D.TextureFilter[] filters,Graphics3DPipelines.MipmapMode[] mipModes,
+            boolean depthTest,boolean depthWrite,int mask,int alphaFactor,int threshold,int units,
             int blend,float depthFactor,float depthUnits,Fog fog,boolean parallelFog,float[] fogDepth,SpriteState sprite) {
-        int packWidth=(w+1)/2;
-        glActiveTexture(GL_TEXTURE0); glPixelStorei(GL_UNPACK_ALIGNMENT,1); glPixelStorei(GL_PACK_ALIGNMENT,1);
-        if (residentPixels==null) {
-            colors=buffer(colors,w*h*4); depths=buffer(depths,packWidth*h*4); depthInput=buffer(depthInput,w*h*2);
-            // Keep Android's BGRA byte order in the FBO; shaders swizzle without Java pixel loops.
-            colors.asIntBuffer().put(pixels,0,w*h); depthInput.asShortBuffer().put(zbuffer,0,w*h);
-            boolean resize=width!=w || height!=h; width=w; height=h;
-            targetTexture(color,GL_RGBA8,GL_RGBA,GL_UNSIGNED_BYTE,w,h,colors,resize);
-            targetTexture(depth,GL_DEPTH_COMPONENT16,GL_DEPTH_COMPONENT,GL_UNSIGNED_SHORT,w,h,depthInput,resize);
-            targetTexture(packed,GL_RGBA8,GL_RGBA,GL_UNSIGNED_BYTE,packWidth,h,null,resize);
-            check();
-            residentPixels=pixels; residentDepth=zbuffer; uploads++;
+        command.left=left; command.top=top; command.right=right; command.bottom=bottom;
+        command.depthTest=depthTest; command.depthWrite=depthWrite; command.mask=mask;
+        command.alpha=alphaFactor; command.threshold=threshold; command.blend=blend;
+        command.parallelFog=parallelFog;
+        command.fogMode=fog==null?0:fog.getMode()==Fog.LINEAR?1:2;
+        if(fog!=null) {
+            command.fogColor=fog.getColor(); command.fogNear=fog.getNearDistance();
+            command.fogFar=fog.getFarDistance(); command.fogDensity=fog.getDensity();
         }
-        glBindFramebuffer(GL_FRAMEBUFFER,framebuffer);
-        glFramebufferTexture2D(GL_FRAMEBUFFER,GL_COLOR_ATTACHMENT0,GL_TEXTURE_2D,color,0);
-        glFramebufferTexture2D(GL_FRAMEBUFFER,GL_DEPTH_ATTACHMENT,GL_TEXTURE_2D,depth,0);
-        complete();
-        geometry=buffer(geometry,count*3*20*4); FloatBuffer data=geometry.asFloatBuffer();
+        command.geometry=frame.acquire(count*240); FloatBuffer data=command.geometry.asFloatBuffer();
         if(sprite!=null) {
             int z=sprite.flags[13];
             vertex(data,left,top,z,0,null,0,0,1,1);
@@ -314,14 +361,46 @@ final class GpuRasterizer {
                     t,2,units,perspective?t.iwC():1,
                     parallelFog?fogDepth[i*3+2]:t.iwC());
         }
-        data.flip(); glBindVertexArray(vao); glBindBuffer(GL_ARRAY_BUFFER,vbo);
-        glBufferData(GL_ARRAY_BUFFER,data.remaining()*4,data,GL_STREAM_DRAW);
-        for (int i=0; i<7; i++) glEnableVertexAttribArray(i);
-        glVertexAttribPointer(0,3,GL_FLOAT,false,80,0);
-        glVertexAttribPointer(1,4,GL_FLOAT,false,80,12);
-        for (int i=0;i<4;i++) glVertexAttribPointer(2+i,3,GL_FLOAT,false,80,28+i*12);
-        glVertexAttribPointer(6,1,GL_FLOAT,false,80,76);
-        glViewport(0,0,w,h); glDisable(GL_BLEND); glDisable(GL_CULL_FACE); glDisable(GL_DITHER);
+        if(sprite!=null) {
+            int[] p=sprite.flags; float[] f=sprite.mapping;
+            int size=Math.max(w,h);
+            command.indices=frame.acquire(size*8); IntBuffer indices=command.indices.asIntBuffer();
+            float u=f[0];
+            for(int x=left;x<right;x++,u+=f[1]) indices.put(x,Math.max(p[8],Math.min(p[8]+p[10]-1,p[8]+(int)u)));
+            for(int y=top;y<bottom;y++) {
+                float v=(y-sprite.oy+.5f-f[2])*f[3];
+                int ty=p[9]+(int)(((p[12]&4)!=0?1-v:v)*p[11]);
+                indices.put(size+y,Math.max(p[9],Math.min(p[9]+p[11]-1,ty)));
+            }
+            command.spriteFog=p[19];
+            if((p[12]&8)!=0) { command.fogMode=3; command.fogColor=p[18]; }
+        }
+    }
+
+    private void render(GpuFrame.Draw command) {
+        int w=frame.width,h=frame.height,packWidth=(w+1)/2;
+        int count=command.count,blend=command.blend,mask=command.mask;
+        glActiveTexture(GL_TEXTURE0); glPixelStorei(GL_UNPACK_ALIGNMENT,1); glPixelStorei(GL_PACK_ALIGNMENT,1);
+        if (residentPixels==null) {
+            colors=buffer(colors,w*h*4); depths=buffer(depths,packWidth*h*4); depthInput=buffer(depthInput,w*h*2);
+            colors.asIntBuffer().put(frame.pixels,0,w*h); depthInput.asShortBuffer().put(frame.depth,0,w*h);
+            boolean resize=width!=w || height!=h; width=w; height=h;
+            targetTexture(color,GL_RGBA8,GL_RGBA,GL_UNSIGNED_BYTE,w,h,colors,resize);
+            targetTexture(depth,GL_DEPTH_COMPONENT16,GL_DEPTH_COMPONENT,GL_UNSIGNED_SHORT,w,h,depthInput,resize);
+            targetTexture(packed,GL_RGBA8,GL_RGBA,GL_UNSIGNED_BYTE,packWidth,h,null,resize);
+            if(resize) {
+                glBindFramebuffer(GL_FRAMEBUFFER,framebuffer);
+                glFramebufferTexture2D(GL_FRAMEBUFFER,GL_COLOR_ATTACHMENT0,GL_TEXTURE_2D,color,0);
+                glFramebufferTexture2D(GL_FRAMEBUFFER,GL_DEPTH_ATTACHMENT,GL_TEXTURE_2D,depth,0); complete();
+                glBindFramebuffer(GL_FRAMEBUFFER,packFramebuffer);
+                glFramebufferTexture2D(GL_FRAMEBUFFER,GL_COLOR_ATTACHMENT0,GL_TEXTURE_2D,packed,0); complete();
+            }
+            check(); residentPixels=frame.pixels; residentDepth=frame.depth; uploads++;
+        }
+        glBindFramebuffer(GL_FRAMEBUFFER,framebuffer);
+        glBindVertexArray(vao); glBindBuffer(GL_ARRAY_BUFFER,vbo);
+        glBufferData(GL_ARRAY_BUFFER,command.geometry.remaining(),command.geometry,GL_STREAM_DRAW);
+        glViewport(0,0,w,h); glDisable(GL_BLEND);
         if (blend!=CompositingMode.REPLACE) {
             glEnable(GL_BLEND); glBlendEquation(GL_FUNC_ADD);
             if(blend==CompositingMode.MODULATE || blend==CompositingMode.MODULATE_X2)
@@ -330,80 +409,67 @@ final class GpuRasterizer {
             else glBlendFuncSeparate(GL_SRC_ALPHA,blend==CompositingMode.ALPHA?GL_ONE_MINUS_SRC_ALPHA:GL_ONE,
                         GL_ONE,GL_ONE_MINUS_SRC_ALPHA);
         }
-        glEnable(GL_SCISSOR_TEST); glScissor(left,top,Math.max(0,right-left),Math.max(0,bottom-top));
-        if (depthTest) glEnable(GL_DEPTH_TEST); else glDisable(GL_DEPTH_TEST);
-        glDepthFunc(GL_LEQUAL); glDepthMask(depthWrite);
+        glEnable(GL_SCISSOR_TEST); glScissor(command.left,command.top,
+                Math.max(0,command.right-command.left),Math.max(0,command.bottom-command.top));
+        if (command.depthTest) glEnable(GL_DEPTH_TEST); else glDisable(GL_DEPTH_TEST);
+        glDepthMask(command.depthWrite);
         glColorMask((mask&0xffffff)!=0,(mask&0xffffff)!=0,(mask&0xffffff)!=0,(mask&0xff000000)!=0);
         glUseProgram(program); glUniform2f(targetSizeLocation,w,h);
-        glUniform1i(alphaLocation,alphaFactor);
-        glUniform1i(thresholdLocation,threshold);
+        glUniform1i(alphaLocation,command.alpha);
+        glUniform1i(thresholdLocation,command.threshold);
         glUniform1i(compositeLocation,blend==CompositingMode.ALPHA || blend==CompositingMode.ALPHA_ADD?1:0);
-        glUniform1i(fogModeLocation,fog==null?0:fog.getMode()==Fog.LINEAR?1:2);
-        glUniform1i(parallelFogLocation,parallelFog?1:0);
-        glUniform1i(spriteLocation,sprite==null?0:1);
-        if(sprite!=null) {
-            int[] p=sprite.flags; float[] f=sprite.mapping;
-            // Preserve CPU DDA rounding at texel boundaries with O(width + height) indices.
-            // The GPU still performs all pixel sampling, fog, blending and depth operations.
+        glUniform1i(fogModeLocation,command.fogMode);
+        glUniform1i(parallelFogLocation,command.parallelFog?1:0);
+        glUniform1i(spriteLocation,command.sprite?1:0);
+        if(command.sprite) {
             int size=Math.max(w,h);
-            spriteIndexInput=buffer(spriteIndexInput,size*2*4);
-            IntBuffer indices=spriteIndexInput.asIntBuffer();
-            float u=f[0];
-            for(int x=left;x<right;x++,u+=f[1]) indices.put(x,Math.max(p[8],Math.min(p[8]+p[10]-1,p[8]+(int)u)));
-            for(int y=top;y<bottom;y++) {
-                float v=(y-sprite.oy+.5f-f[2])*f[3];
-                int ty=p[9]+(int)(((p[12]&4)!=0?1-v:v)*p[11]);
-                indices.put(size+y,Math.max(p[9],Math.min(p[9]+p[11]-1,ty)));
-            }
             glActiveTexture(GL_TEXTURE4);
-            targetTexture(spriteIndices,GL_R32I,GL_RED_INTEGER,GL_INT,size,2,spriteIndexInput,spriteIndexWidth!=size);
+            targetTexture(spriteIndices,GL_R32I,GL_RED_INTEGER,GL_INT,size,2,command.indices,spriteIndexWidth!=size);
             spriteIndexWidth=size;
-            glUniform4i(spriteLayoutLocation,0,0,p[19],0);
-            if((p[12]&8)!=0) {
-                glUniform1i(fogModeLocation,3);
-                glUniform3f(fogColorLocation,(p[18]>>16)&255,(p[18]>>8)&255,p[18]&255);
-            }
+            glUniform4i(spriteLayoutLocation,0,0,command.spriteFog,0);
         }
-        if (fog!=null) {
-            int c=fog.getColor();
+        if (command.fogMode!=0) {
+            int c=command.fogColor;
             glUniform3f(fogColorLocation,(c>>16)&255,(c>>8)&255,c&255);
-            glUniform3f(fogParamsLocation,fog.getNearDistance(),fog.getFarDistance(),fog.getDensity());
+            glUniform3f(fogParamsLocation,command.fogNear,command.fogFar,command.fogDensity);
         }
         for (int unit=0;unit<4;unit++) {
-            glUniform1i(modes[unit],unit>=units?0:sprite!=null?Texture2D.FUNC_REPLACE:textures[unit].getBlending());
+            GpuFrame.Texture tex=unit<command.textures.length?command.textures[unit]:null;
+            glUniform1i(modes[unit],tex==null?0:tex.mode);
             glActiveTexture(GL_TEXTURE0+unit);
-            if (unit>=units) { glBindTexture(GL_TEXTURE_2D,0); continue; }
-            Texture2D tex=sprite==null?textures[unit]:null;
-            Image2D image=sprite==null?tex.getImage():sprite.image; int tw=image.getWidth(), th=image.getHeight();
-            boolean linear=sprite==null && filters[unit]==Graphics3D.TextureFilters.BILINEAR;
-            int mip=sprite!=null || mipModes[unit]==null?0:mipModes[unit]==Graphics3DPipelines.MipmapModes.LINEAR?2:1;
-            int levels=mip==0?1:32-Integer.numberOfLeadingZeros(Math.max(tw,th));
+            if(tex==null) { glBindTexture(GL_TEXTURE_2D,0); continue; }
+            GpuFrame.Image image=tex.levels[0]; int tw=image.width,th=image.height;
+            boolean linear=tex.linear; int mip=tex.mip,levels=tex.levels.length;
             glBindTexture(GL_TEXTURE_2D,textureIds[unit]);
             for (int level=0;level<levels;level++) {
-                Image2D source=sprite!=null?image:tex.getImageForLOD(level); int sw=source.getWidth(),sh=source.getHeight();
-                if (uploadedImages[unit][level]==source && uploadedRevisions[unit][level]==source.revision) continue;
-                textureInput=buffer(textureInput,sw*sh*4); textureInput.asIntBuffer().put(source.image,0,sw*sh);
+                GpuFrame.Image source=tex.levels[level]; int sw=source.width,sh=source.height;
+                if (uploadedImages[unit][level]==source.source && uploadedRevisions[unit][level]==source.revision) continue;
+                textureInput=buffer(textureInput,sw*sh*4); textureInput.asIntBuffer().put(source.pixels,0,sw*sh);
                 glTexImage2D(GL_TEXTURE_2D,level,GL_RGBA8,sw,sh,0,GL_RGBA,GL_UNSIGNED_BYTE,textureInput);
-                uploadedImages[unit][level]=source; uploadedRevisions[unit][level]=source.revision; textureUploads++;
+                uploadedImages[unit][level]=source.source; uploadedRevisions[unit][level]=source.revision; textureUploads++;
             }
             for(int level=levels;level<12;level++) uploadedImages[unit][level]=null;
-            glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_MAX_LEVEL,levels-1);
             int min=mip==0?(linear?GL_LINEAR:GL_NEAREST):mip==1
                     ?(linear?GL_LINEAR_MIPMAP_NEAREST:GL_NEAREST_MIPMAP_NEAREST)
                     :(linear?GL_LINEAR_MIPMAP_LINEAR:GL_NEAREST_MIPMAP_LINEAR);
-            glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_MIN_FILTER,min);
-            glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_MAG_FILTER,linear?GL_LINEAR:GL_NEAREST);
-            glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_WRAP_S,tex!=null && tex.getWrappingS()==Texture2D.WRAP_REPEAT?GL_REPEAT:GL_CLAMP_TO_EDGE);
-            glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_WRAP_T,tex!=null && tex.getWrappingT()==Texture2D.WRAP_REPEAT?GL_REPEAT:GL_CLAMP_TO_EDGE);
+            int key=levels | (linear?32:0) | (mip<<6) | (tex.repeatS?256:0) | (tex.repeatT?512:0);
+            if(samplerKeys[unit]!=key) {
+                glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_MAX_LEVEL,levels-1);
+                glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_MIN_FILTER,min);
+                glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_MAG_FILTER,linear?GL_LINEAR:GL_NEAREST);
+                glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_WRAP_S,tex.repeatS?GL_REPEAT:GL_CLAMP_TO_EDGE);
+                glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_WRAP_T,tex.repeatT?GL_REPEAT:GL_CLAMP_TO_EDGE);
+                samplerKeys[unit]=key;
+            }
             glUniform2f(sizes[unit],tw,th);
-            glUniform1i(formats[unit],image.getFormat());
+            glUniform1i(formats[unit],image.format);
             glUniform1i(mips[unit],mip);
-            int c=tex==null?0:tex.getBlendColor();
+            int c=tex.blendColor;
             glUniform3f(blendColors[unit],(c>>16)&255,(c>>8)&255,c&255);
         }
         glActiveTexture(GL_TEXTURE0);
         glDrawArrays(GL_TRIANGLES,0,count*3);
-        depthDirty|=depthWrite && depthTest;
+        depthDirty|=command.depthWrite && command.depthTest;
         check();
     }
 
@@ -412,10 +478,10 @@ final class GpuRasterizer {
         glActiveTexture(GL_TEXTURE0);
         glBindFramebuffer(GL_FRAMEBUFFER,framebuffer);
         glReadPixels(0,0,w,h,GL_RGBA,GL_UNSIGNED_BYTE,colors);
+        injectLoss(3);
         if (depthDirty) {
             // ES3 has no portable depth readback. Pack two 16-bit samples into each RGBA pixel.
             glBindFramebuffer(GL_FRAMEBUFFER,packFramebuffer);
-            glFramebufferTexture2D(GL_FRAMEBUFFER,GL_COLOR_ATTACHMENT0,GL_TEXTURE_2D,packed,0); complete();
             glDisable(GL_BLEND); glDisable(GL_DEPTH_TEST); glDisable(GL_SCISSOR_TEST); glColorMask(true,true,true,true);
             glUseProgram(packProgram); glBindTexture(GL_TEXTURE_2D,depth);
             glUniform2i(packSizeLocation,w,h);
@@ -447,21 +513,28 @@ final class GpuRasterizer {
         else if (data!=null) glTexSubImage2D(GL_TEXTURE_2D,0,0,0,w,h,format,type,data);
     }
     private static void complete() {
-        if (glCheckFramebufferStatus(GL_FRAMEBUFFER)!=GL_FRAMEBUFFER_COMPLETE) throw new IllegalStateException("Incomplete GPU target");
+        if (glCheckFramebufferStatus(GL_FRAMEBUFFER)!=GL_FRAMEBUFFER_COMPLETE) {
+            check();
+            throw new IllegalStateException("Incomplete GPU target");
+        }
     }
     private static void check() {
-        int error=glGetError(); if (error!=GL_NO_ERROR) throw new IllegalStateException("GLES error "+error);
+        int error=glGetError();
+        if(error==0x0507) throw new ContextLost("GL_CONTEXT_LOST");
+        if (error!=GL_NO_ERROR) throw new IllegalStateException("GLES error "+error);
     }
     private static int shader(int kind,String source) {
         int id=glCreateShader(kind); glShaderSource(id,source); glCompileShader(id);
         int[] ok=new int[1]; glGetShaderiv(id,GL_COMPILE_STATUS,ok,0);
-        if (ok[0]==0) throw new IllegalStateException(glGetShaderInfoLog(id)); return id;
+        if (ok[0]==0) { check(); throw new IllegalStateException(glGetShaderInfoLog(id)); }
+        return id;
     }
     private static int program(String vertex,String fragment) {
         int id=glCreateProgram(), vs=shader(GL_VERTEX_SHADER,vertex), fs=shader(GL_FRAGMENT_SHADER,fragment);
         glAttachShader(id,vs); glAttachShader(id,fs); glLinkProgram(id); glDeleteShader(vs); glDeleteShader(fs);
         int[] ok=new int[1]; glGetProgramiv(id,GL_LINK_STATUS,ok,0);
-        if (ok[0]==0) throw new IllegalStateException(glGetProgramInfoLog(id)); return id;
+        if (ok[0]==0) { check(); throw new IllegalStateException(glGetProgramInfoLog(id)); }
+        return id;
     }
     private static String vertexShader() {
         StringBuilder s=new StringBuilder("#version 300 es\nlayout(location=0) in vec3 position; layout(location=1) in vec4 color;\n");

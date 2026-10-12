@@ -39,12 +39,12 @@ so image sampling and mutation do not observe stale pixels. Context switches and
 geometry uploads still occur per draw; this is not GPU scene preparation.
 
 Unsupported states flush pending work before CPU fallback. GPU startup failure
-before a resident target exists can fall back. An execution/readback/context
-failure with resident work raises an explicit exception and disables the backend
-until reset: there is no command replay yet, and silently continuing from stale
-CPU arrays would lose already drawn geometry. Context-loss recovery is not
-claimed. The private pbuffer context is detached between calls and destroyed on
-reset. Android's shared EGL display is not terminated.
+before a resident target exists can fall back. Owned-context loss now gets one
+recreation/replay attempt from a bounded journal of the pending frame. Persistent
+loss, other GL errors or failure to restore the caller's context with pending
+work raise an explicit exception until reset. They do not silently continue from
+stale CPU arrays. The private pbuffer context is detached between calls and
+destroyed on reset. Android's shared EGL display is not terminated.
 
 ARGB data uses bulk buffer copies and shader channel swizzles, not a Java
 per-pixel conversion loop. Depth is uploaded as 16-bit data and packed two samples
@@ -58,6 +58,81 @@ candidate. The existing upstream license asset and notices remain in the APK.
 Framebuffer alpha uses [separate RGB/alpha blend factors](https://registry.khronos.org/OpenGL-Refpages/es3.0/html/glBlendFuncSeparate.xhtml),
 not destination sampling or a per-triangle readback. Normalized hardware blending
 has rounding differences from the software integer pipeline.
+
+## Context Recovery and Draw Setup: 2026-10-12
+
+`GpuFrame` retains prepared geometry, sprite sampling indices, texture versions
+and draw state until the CPU target is committed. Mutable images are copied once
+per version within a journal segment; immutable images are borrowed. Later
+changes to mesh data, texture filtering/wrapping/blending, mip levels or fog do
+not retroactively change earlier draws during replay. Color and depth are only
+committed together, after successful readback and restoration of caller EGL.
+
+The journal checkpoints at 8 MiB of accounted payload or 256 draw commands;
+an individually oversized command falls back to CPU after flushing earlier work.
+Prepared direct buffers have an exact-size reuse pool capped at 64 buffers and
+4 MiB total. These are journal/pool limits, not an application-wide heap
+limit: CPU targets, GL resources, driver memory and Java metadata are additional.
+
+`EGL_CONTEXT_LOST`, invalid owned context/surface and `GL_CONTEXT_LOST` recreate
+the private context and replay the segment from the last committed CPU buffers.
+An interrupted alpha draw is not blended twice. One retry per operation is the
+limit; persistent loss with pending work explicitly requires renderer reset.
+There is no CPU replay of an already pending failed GPU frame. Caller-context
+restoration failure is fatal even when no older draw is pending. See the
+[Khronos EGL specification](https://registry.khronos.org/EGL/specs/eglspec.1.4.pdf)
+for context-loss and context-binding semantics.
+
+Vertex attribute layout and fixed depth/culling state are configured once per
+owned context. Framebuffer attachments/completeness are updated on target
+resize, and texture sampler parameters only when they change. Geometry uploads
+and EGL context switches still occur per draw.
+
+Seven added checks destroy the actual private context at deterministic points:
+before/after drawing and between color/depth readback. They compare complete
+color/depth results with uninterrupted GPU rendering, including changed images,
+mips, fog, geometry and mixed mesh/sprite work. They also verify journal limits,
+caller EGL preservation, bounded repeated failure and reset. This is controlled
+fault injection, not evidence of recovery from a real OS/driver reset affecting
+the whole application.
+
+Same-Retroid non-debuggable comparison (Adreno A12, thermal status 0 before/after;
+64 warmup frames plus five batches of 32, wall ms/frame):
+
+| Scene | Previous checkpoint | Initial journal | Final pooled journal |
+| --- | ---: | ---: | ---: |
+| Lit grid 240x320 | 5.740 | 6.077 | 5.576 |
+| Lit grid 320x240 | 6.347 | 7.054 | 6.343 |
+| 16 meshes 240x320 | 5.573 | 6.179 | 5.626 |
+| 16 meshes 320x240 | 5.798 | 6.373 | 5.823 |
+| Three sprites 240x320 | 2.885 | 2.840 | 2.807 |
+| Three sprites 320x240 | 2.702 | 2.666 | 2.606 |
+
+Fixed an initial overhead regression by retaining larger geometry buffers within
+the bounded pool, removing duplicate buffer views and skipping empty image-map
+allocation. Final multi-mesh cost is within 1% of the previous checkpoint in
+this comparison. It is not a statistically established speedup or a game-FPS
+claim. All 28 final scene pixel CRCs match both the previous-checkpoint rerun and
+the earlier sprite checkpoint; every scene records actual GPU draws. Standalone
+sprite GPU/CPU selection and whole-game performance acceptance remain open.
+
+Timings above precede the final context-loss classification guards in framebuffer
+setup and shader creation. The timed APK hash is
+`216837A358BB65BE7079D03DAEDF96EEF13CF14DE09DEA09BB242E88E60256C5`;
+those guards do not change the normal draw path. Final non-debuggable research
+artifact SHA-256:
+
+```text
+3295E6A13DE83AF9716AB748CF709C0126266C0BF54FBE609355A206980049F0 Handheld
+A320A40DF6822DB45690DF1EF38B9900EDE61B1F91D8F987F95FAD2F3EF27A75 Handheld tests
+F0ECD4A72F260191AA043AD484CBCF396488024FDD70E7D344CB6BFE3D881DB7 Phone
+BD075169A1A4DBD1E60C052E8081009CF5B584297D085EDC8478E9815874D917 Phone tests
+```
+
+Maintainer-local evidence: `build/benchmarks/gpu-recovery-{previous,journal,pooled}`
+under `experiments/m3g-host`. APKs, upstream source and game fixtures are not
+published by this checkpoint. GPU remains off by default; main's engine, root
+license and public release APKs are unchanged.
 
 ## Sprites and Remaining Image Formats: 2026-10-12
 
@@ -448,7 +523,7 @@ in the **same** research APK; the bounded benchmark selects one explicitly:
 ```
 
 `-Raster gpu` allows unsupported draws to fall back, but requires real GPU
-draws for the twenty-six supported workloads (of 28). Reports include GPU/native
+draws for all 28 workloads. Reports include GPU/native
 counts, upload/readback counts and driver identity. Residence is on by default
 when GPU is explicitly selected; `-GpuResident off` compares the same APK using
 the original per-mesh transfer strategy. For a separate manual game experiment, add

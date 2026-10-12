@@ -5,9 +5,9 @@
 The [2026-10-12 compatibility/performance report](../../docs/m3g-performance-2026-10-12/README.md)
 records the earlier Java-only checkpoint. The candidate now includes a
 [native raster fast path](native/README.md) with a shared-buffer Java fallback.
-The verifier requires 51 shared checks and 61 candidate checks (tone, math,
-native rasterization, mipmaps, geometry preparation and 31 GPU checks):
-112 for an unmeasured candidate, 119 when measured, and 58 for measured
+The verifier requires 51 shared checks and 68 candidate checks (tone, math,
+native rasterization, mipmaps, geometry preparation and 38 GPU checks):
+119 for an unmeasured candidate, 126 when measured, and 58 for measured
 baseline with two intentional skips. Seven additional timing checks apply
 only when measurement is enabled.
 Both Handheld (`fdroid`) and Phone research builds are supported; pass

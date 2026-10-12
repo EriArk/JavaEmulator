@@ -82,7 +82,8 @@ if ($Engine -eq 'candidate') {
     $classes += ',javax.microedition.m3g.GpuTextureTest'
     $classes += ',javax.microedition.m3g.GpuEffectsTest'
     $classes += ',javax.microedition.m3g.GpuSpriteTest'
-    $expectedTests += 61
+    $classes += ',javax.microedition.m3g.GpuRecoveryTest'
+    $expectedTests += 68
 }
 if ($measured) {
     $classes += ',javax.microedition.shell.M3gTargetMeterTest'
