@@ -11,6 +11,16 @@ stated otherwise. **Experimental** means local/private combined builds only.
 
 ## 2026-10-12
 
+- **Separate experiment / not shipped:** fixed wrong back-face lighting on
+  shared vertices and transforms processing unused buffer tails. Reused lighting
+  across a draw, retained sparse texture scratch and skipped unused light setup.
+  Both devices pass 81 checks; standalone probe builds; Asphalt 3 reaches a
+  moving Retroid race. Twenty cache-on/off scenes match and eighteen older
+  images remain unchanged. A new lit grid costs 15-19% less than uncached
+  lighting, not a game-FPS or old-engine parity claim. Main's engine, licensing
+  and public APKs remain unchanged.
+  [Implementation and measured limits](https://github.com/EriArk/JavaEmulator/blob/197f9955/experiments/m3g-host/native/README.md).
+
 - **Separate experiment / not shipped:** replaced dithered mip-level switching
   with real level interpolation, including alpha, in Java and native rendering.
   Corrected detail selection for narrow projections and nearest-level rounding.

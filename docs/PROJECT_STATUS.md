@@ -35,7 +35,7 @@ bundled. The app UI is English.
 | Public development source | `main`; latest app-code change at this review: [d39ed742](https://github.com/EriArk/JavaEmulator/commit/d39ed742) | Unreleased Java/UI/storage improvements listed below; not all are in the downloadable beta |
 | Private combined test snapshot | `0.1.0-beta.2-experimental.15`, 2026-10-11 | Handheld and Phone debug APKs containing Java plus experimental Mophun; supplied separately to testers, not a GitHub release |
 | Local-only implementation | Ignored optional-engine source and diagnostics | Mophun integration, game-specific experiments and test fixtures; public descriptions below, implementation not published |
-| Separate research branch | [`codex/m3g-replacement`](https://github.com/EriArk/JavaEmulator/tree/codex/m3g-replacement), code checkpoint `610302b1` | Native CPU raster acceleration includes 1-4 texture layers, both fog modes, mipmaps and Sprite3D. True adjacent-level interpolation replaces mip dithering; LOD selection fixed. 74 unmeasured Java-game checks per device. All 18 Java/native benchmark scenes match. Higher-quality filtering costs more than the former approximation; legacy GLES remains faster. Earlier combined-Mophun results remain separate; no production-engine switch or public beta |
+| Separate research branch | [`codex/m3g-replacement`](https://github.com/EriArk/JavaEmulator/tree/codex/m3g-replacement), code checkpoint `197f9955` | Native CPU rasterization includes 1-4 textures, fog, trilinear mipmaps and Sprite3D. Fixed two-sided lighting reuse and packed-transform bounds; reduced repeated geometry preparation. 81 unmeasured Java-game checks per device. All 20 cache-on/off scenes match and 18 previous scene images remain unchanged. Asphalt reaches a moving Retroid race. Legacy-GLES performance parity remains unproven; no production-engine switch or public beta |
 
 The experimental number is a distribution label: build 15 still reports
 version code **102** and `0.1.0-beta.2` / `0.1.0-beta.2-phone` internally.
@@ -461,6 +461,32 @@ performance parity, anisotropic filtering or a game-FPS claim.
 Next implementation target is geometry/lighting preparation and the remaining
 renderer performance gap. Main's engine, licensing and release APKs are unchanged.
 [Implementation, reference specifications and measurements](https://github.com/EriArk/JavaEmulator/blob/610302b1/experiments/m3g-host/native/README.md).
+
+### Geometry and lighting preparation: 2026-10-12
+
+Fixed shared vertices receiving the wrong side's lighting on two-sided polygons.
+Colors are now reused across a draw with separate front/back entries, including
+flat shading; subsequent material, light and transform changes invalidate them.
+Packed transforms stop at the active vertex count instead of processing old
+scratch-buffer tails. Sparse texture slots retain reusable coordinate buffers
+without retaining inactive texture state; unlit models skip unused light setup.
+
+**Verified:** final non-debuggable research APKs pass 81 checks each on Retroid
+Handheld and Phone emulator, zero skips; both variants and standalone probe build.
+Twenty same-APK native cache-on/off scenes retain exact pixels; all eighteen
+preexisting workloads also keep the preceding checkpoint's pixels. A new
+1,089-vertex lit grid costs 5.315/5.955 ms per frame with caching versus
+6.276/7.379 ms without it (240x320 / 320x240). That is 15-19% less frame cost
+than fully uncached lighting, **not** a comparison against the previous
+adjacent-only cache or a game-FPS claim. Asphalt 3 reaches a moving Retroid
+race with track, car and HUD; sound and full-game acceptance were not tested.
+
+The larger remaining speed gap calls for GPU rasterization rather than further
+small CPU-only tweaks. Next proposed implementation: a bounded GPU drawing path
+with the software renderer retained as fallback/reference, preserving rendering
+semantics and mixed 2D/3D output. No production switch, license change or release
+is implied by this checkpoint.
+[Implementation, regression scope and artifact hashes](https://github.com/EriArk/JavaEmulator/blob/197f9955/experiments/m3g-host/native/README.md).
 
 ## Distribution and Licensing Status
 
