@@ -11,6 +11,15 @@ stated otherwise. **Experimental** means local/private combined builds only.
 
 ## 2026-10-12
 
+- **Separate experiment / not shipped:** accelerated mipmapped textures and
+  Sprite3D rendering, retaining the shared-buffer Java fallback. Fixed lost
+  fractional texture coordinates, rectangular/NPOT mip scaling and stale levels
+  after image changes. Both devices pass 71 checks; all 18 benchmark scenes
+  retain exact Java/native pixels. New mipmap/sprite workloads improve about
+  1.3x/1.6x versus Java, not a game-FPS or legacy-GLES parity claim. Asphalt 3
+  reaches a running Retroid race. Production engine and public APKs unchanged.
+  [Implementation and limits](https://github.com/EriArk/JavaEmulator/blob/b624a71e/experiments/m3g-host/native/README.md).
+
 - **Separate experiment / not shipped:** expanded native raster acceleration
   to four independent texture layers, all current texture blends and exponential
   fog. Fixed zero-density fog tinting for models and sprites. Newly accelerated
