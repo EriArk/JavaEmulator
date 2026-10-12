@@ -25,13 +25,15 @@ public class M3gBenchmark {
         assertTrue("Pass a fresh benchRun label", run != null && run.matches("[A-Za-z0-9_-]+"));
         android.content.Context context = InstrumentationRegistry.getInstrumentation().getTargetContext();
         String raster = InstrumentationRegistry.getArguments().getString("benchRaster");
-        java.lang.reflect.Field nativeEnabled = null, nativeDraws = null;
+        java.lang.reflect.Field nativeEnabled = null, nativeDraws = null, nativeSprites = null;
         try {
             Class<?> backend = Class.forName("javax.microedition.m3g.NativeRasterizer");
             nativeEnabled = backend.getDeclaredField("enabled");
             nativeEnabled.setAccessible(true);
             nativeDraws = backend.getDeclaredField("draws");
             nativeDraws.setAccessible(true);
+            nativeSprites = backend.getDeclaredField("spriteDraws");
+            nativeSprites.setAccessible(true);
             if (raster != null) {
                 assertTrue("benchRaster must be java or native", raster.equals("java") || raster.equals("native"));
                 nativeEnabled.setBoolean(null, raster.equals("native"));
@@ -51,7 +53,8 @@ public class M3gBenchmark {
         JSONArray cases = new JSONArray();
         report.put("cases", cases);
         for (int[] size : new int[][]{{240,320},{320,240}}) {
-            for (String kind : new String[]{"rgb-nearest","rgb-linear","rgba-alpha","lit-fog","exp-fog","multi-texture"}) {
+            for (String kind : new String[]{"rgb-nearest","rgb-linear","rgba-alpha","lit-fog","exp-fog","multi-texture",
+                    "mip-nearest","mip-linear","sprites"}) {
                 String name = kind + "-" + size[0] + "x" + size[1];
                 if (kind.equals("multi-texture") && (Integer) Graphics3D.getProperties().get("numTextureUnits") < 4) {
                     assertNull("Candidate must support all four layers", nativeEnabled);
@@ -61,7 +64,7 @@ public class M3gBenchmark {
                 Graphics3D.initGraphics3D();
                 Graphics3D renderer = Graphics3D.getInstance();
                 Image target = Image.createImage(size[0], size[1]);
-                Mesh mesh = scene(kind);
+                Node mesh = scene(kind);
                 Camera camera = new Camera();
                 camera.setPerspective(60, (float) size[0] / size[1], 0.1f, 10);
                 renderer.setCamera(camera, new Transform());
@@ -72,7 +75,8 @@ public class M3gBenchmark {
                 Background background = new Background();
                 background.setColor(0xff314159);
                 Transform model = new Transform();
-                long nativeStart = nativeDraws == null ? 0 : nativeDraws.getLong(null);
+                java.lang.reflect.Field counter=kind.equals("sprites") ? nativeSprites : nativeDraws;
+                long nativeStart = counter == null ? 0 : counter.getLong(null);
                 for (int i = 0; i < 64; i++) frame(renderer, target, mesh, background, model);
                 JSONArray wall = new JSONArray(), cpu = new JSONArray();
                 for (int batch = 0; batch < 5; batch++) {
@@ -97,8 +101,8 @@ public class M3gBenchmark {
                 cases.put(new JSONObject().put("name", name).put("framesPerBatch", 32)
                         .put("warmupFrames", 64).put("wallNs", wall).put("threadCpuNs", cpu)
                         .put("pixelCrc32", crc.getValue()).put("changedPixels", changed)
-                        .put("nativeDraws", nativeDraws == null ? 0 : nativeDraws.getLong(null)-nativeStart));
-                if ("native".equals(raster)) assertTrue("Native path was not exercised", nativeDraws.getLong(null)>nativeStart);
+                        .put("nativeDraws", counter == null ? 0 : counter.getLong(null)-nativeStart));
+                if ("native".equals(raster)) assertTrue("Native path was not exercised", counter.getLong(null)>nativeStart);
                 renderer.releaseTarget();
             }
         }
@@ -109,13 +113,13 @@ public class M3gBenchmark {
         if (nativeEnabled != null) nativeEnabled.setBoolean(null, true);
     }
 
-    private void frame(Graphics3D renderer, Image image, Mesh mesh, Background background, Transform transform) {
+    private void frame(Graphics3D renderer, Image image, Node mesh, Background background, Transform transform) {
         renderer.bindTarget(image.getGraphics(), true, 0);
         try { renderer.clear(background); renderer.render(mesh, transform); }
         finally { renderer.releaseTarget(); }
     }
 
-    private Mesh scene(String kind) {
+    private Node scene(String kind) {
         int cells = 8, count = cells * cells * 4;
         short[] positions = new short[count * 3], uv = new short[count * 2];
         byte[] normals = new byte[count * 3];
@@ -140,7 +144,7 @@ public class M3gBenchmark {
         vertices.setPositions(points, 0.01f, null);
         vertices.setTexCoords(0, coords, 1f / 128, null);
         vertices.setDefaultColor(0xffffffff);
-        boolean alpha = kind.equals("rgba-alpha");
+        boolean alpha = kind.equals("rgba-alpha") || kind.equals("sprites");
         int channels = alpha ? 4 : 3;
         byte[] pixels = new byte[64 * 64 * channels];
         for (int y = 0; y < 64; y++) for (int x = 0; x < 64; x++) {
@@ -153,6 +157,8 @@ public class M3gBenchmark {
         Texture2D texture = new Texture2D(new Image2D(alpha ? Image2D.RGBA : Image2D.RGB, 64, 64, pixels));
         texture.setBlending(Texture2D.FUNC_MODULATE);
         texture.setFiltering(Texture2D.FILTER_BASE_LEVEL, kind.equals("rgb-linear") ? Texture2D.FILTER_LINEAR : Texture2D.FILTER_NEAREST);
+        if (kind.startsWith("mip-")) texture.setFiltering(kind.equals("mip-linear")
+                ? Texture2D.FILTER_LINEAR : Texture2D.FILTER_NEAREST,Texture2D.FILTER_LINEAR);
         Appearance style = new Appearance();
         style.setTexture(0, texture);
         if (kind.equals("multi-texture")) {
@@ -187,6 +193,16 @@ public class M3gBenchmark {
             fog.setColor(0x314159);
             fog.setLinear(1, 4);
             style.setFog(fog);
+        }
+        if (kind.equals("sprites")) {
+            Group group=new Group();
+            for (int i=0; i<3; i++) {
+                Sprite3D sprite=new Sprite3D(true,texture.getImage(),style);
+                sprite.setScale(2.4f,2.4f,1);
+                sprite.setTranslation((i-1)*0.3f,0,-2.2f+i*0.1f);
+                group.addChild(sprite);
+            }
+            return group;
         }
         return new Mesh(vertices, new TriangleStripArray(0, strips), style);
     }

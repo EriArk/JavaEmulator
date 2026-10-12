@@ -176,7 +176,48 @@ tasks.register('prepareM3g') {
             if (contents.count(before) != 1) throw new GradleException("Parallel fog patch drift: ${before}")
             contents = contents.replace(before, after)
         }
+        // Keep fractional coordinates and scale each axis independently, including NPOT/rectangular levels.
+        contents = contents.replaceAll(/\/\/ POT textures coming in with another fast path: Just shift\s*\/\/ right by the difference in width between base level and\s*\/\/ target one!/, '// Preserve subtexel positions and the actual size ratio on each axis.')
+        ['0', 'i'].each { unit ->
+            def oldCoords = "int targetLevel = textures[${unit}].getImage().widthShift - targetImage.widthShift;"
+            if (contents.count(oldCoords) != 1) throw new GradleException('Mipmap coordinate hook drift')
+            contents = contents.replace(oldCoords, "Image2D baseImage = textures[${unit}].getImage();")
+        }
+        ['s': 'getWidth()', 't': 'getHeight()'].each { coord, dimension ->
+            def oldCoords = "${coord} = (float) ((int) ${coord} >> targetLevel);"
+            if (contents.count(oldCoords) != 2) throw new GradleException('Mipmap axis hook drift')
+            contents = contents.replace(oldCoords, "${coord} *= (float) targetImage.${dimension} / baseImage.${dimension};")
+        }
+        def releaseImage = 'this.target = null;'
+        if (contents.count(releaseImage) != 1) throw new GradleException('Image target revision hook drift')
+        contents = contents.replace(releaseImage, 'if (this.target instanceof Image2D) ((Image2D) this.target).revision++;\n\t\t\t' + releaseImage)
         raster.setText(contents, 'UTF-8')
+        def imageSource = new File(output, 'java/javax/microedition/m3g/Image2D.java')
+        def imageText = imageSource.getText('UTF-8').replace('\r\n', '\n')
+        [
+            'private boolean mutable;': 'private boolean mutable;\n\tlong revision;',
+            'int srcOffset = 0;\n\t\tfor (int row = 0; row < h; row++)': 'revision++;\n\t\tint srcOffset = 0;\n\t\tfor (int row = 0; row < h; row++)'
+        ].each { before, after ->
+            if (imageText.count(before) != 1) throw new GradleException("Image revision hook drift: ${before}")
+            imageText = imageText.replace(before, after)
+        }
+        def pixelWrite = 'this.image[this.isPOT ? (y << this.widthShift) + x : (y * this.width) + x] = argb;'
+        if (imageText.count(pixelWrite) != 1) throw new GradleException('Pixel revision hook drift')
+        imageText = imageText.replace(pixelWrite, 'revision++;\n\t\t' + pixelWrite)
+        imageSource.setText(imageText, 'UTF-8')
+        def textureSource = new File(output, 'java/javax/microedition/m3g/Texture2D.java')
+        def textureText = textureSource.getText('UTF-8')
+        [
+            'private Image2D[] mipmaps;': 'private Image2D[] mipmaps;\n\tprivate long mipRevision;',
+            'if (texImage == null) return;': 'if (texImage == null) return;\n\t\tmipRevision = texImage.revision;',
+            'return mipmaps[lod >= mipmaps.length ? mipmaps.length - 1 : lod];': '''if (lod <= 0) return texImage;
+        if (mipRevision != texImage.revision) generateMipmaps();
+        return mipmaps[lod >= mipmaps.length ? mipmaps.length - 1 : lod];'''
+        ].each { before, after ->
+            if (textureText.count(before) != 1) throw new GradleException("Mipmap revision hook drift: ${before}")
+            textureText = textureText.replace(before, after)
+        }
+        textureSource.setText(textureText, 'UTF-8')
         // An empty light list does not disable emissive color or diffuse alpha.
         def triangle = new File(output, 'java/javax/microedition/m3g/Triangle.java')
         contents = triangle.getText('UTF-8')

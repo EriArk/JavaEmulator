@@ -12,26 +12,28 @@ It and the Java bridge/hook are GPL-3.0-or-later. The candidate's existing
 upstream notices and GPL license asset still apply. No legacy EPL renderer
 code or code from the inspected KEmulator/GLES2 reference is included here.
 
-`host.gradle` injects `half-hook.java.inc` into the generated, revision-guarded
+`host.gradle` injects triangle and sprite hooks into the generated, revision-guarded
 candidate. The original upstream checkout is never edited. The candidate-only
 NDK configuration builds `abyssm3graster` alongside the existing `micro3d` helper,
 without linking `javam3g`. Missing native libraries retain the Java path.
 
 Triangle setup, transforms, lighting and scene traversal remain in Java. The
-native loop handles untextured or up to four base-level textures, nearest/linear
+native loop handles untextured or up to four textures, nearest/linear
 sampling, independent repeat/clamp axes, vertex colors, depth, alpha rejection,
 write masks, all five framebuffer compositing modes, linear/exponential fog and
 dithering. All current texture blenders are supported, including ADD, BLEND and
 DECAL for the applicable image formats. Each layer keeps its own coordinates,
 transform, filtering, wrapping and blend color; sparse source slots keep API order.
-Mipmaps and half-resolution mode retain Java execution. Sprites also retain
-their existing Java implementation.
+Mipmap selection/sampling and Sprite3D pixels also run natively. Sprite setup,
+crop/projection/clipping and fog preparation stay in Java. Half-resolution mode
+retains Java execution. The existing FILTER_LINEAR mip-level approximation
+uses spatial LOD dithering, not true trilinear interpolation; this has not changed.
 
 Both paths read/write the same color and depth arrays. Native calls finish
 before Java continues, so mixed draws do not require GPU readback or depth
 conversion. Setup/buffer validation occurs before drawing; rejected packets
 leave buffers untouched and fall back to Java. Array pins are scoped to a
-single triangle half. Integer wraparound, float operation order and interpolation
+single triangle half or sprite. Integer wraparound, float operation order and interpolation
 match the Java reference; fast-math and fused multiply-add are disabled.
 Repeated image references are pinned once. Target/texture aliasing is rejected
 before drawing; this permits restricted output pointers inside the raster loop.
@@ -39,6 +41,58 @@ Single-layer calls avoid JNI object-array lookups and specialize common blends.
 The hook is the packet contract: 51 floats and 45 integers, with common setup
 followed by six values per extra texture. Java reference slots are cleared after
 each call, including fallback, rather than retaining a second copy of image state.
+Mipmapped calls add 18 floats (four derivatives per unit, two W derivatives),
+eight integers (level count/filter per unit), and at most 64 borrowed image arrays.
+Level dimensions follow independent width/height halving, down to 1x1. The
+base-level fast path does not build or pin a mip chain. Sprite packets use four
+floats and 20 integers; `sprite-hook.java.inc` describes the layout.
+
+## Mipmaps and Sprites: 2026-10-12
+
+Final Handheld Retroid arm64 and Phone emulator x86_64 each pass **71 checks,
+zero skips**. Added exact comparisons for 64 mipmapped layered scenes and 160
+sprite combinations: projection, scaled/unscaled mode, signed crop, NPOT images,
+alpha, fog, depth and write masks. Successful native draw counters are required.
+The mixed-path regression now deliberately exercises half-resolution Java
+drawing between native draws. Malformed mip/sprite packets leave buffers intact.
+
+Fixed two shared Java/native mipmap problems rather than preserving them:
+- Sampling no longer discards fractional coordinates or derives both axes from
+  the image width. Bilinear magnification now matches base-level filtering;
+  narrow, rectangular and NPOT levels keep their own coordinate scale.
+- `Image2D.set`, internal pixel writes and release of an Image2D render target
+  invalidate cached smaller images. Mipmaps rebuild lazily on the next LOD use.
+  Replacing the base image is also covered. The pinned upstream is unchanged.
+
+Same-APK non-debuggable Retroid measurements, thermal status 0 at both ends,
+retain exact CRCs in all **18** scenes. New workloads:
+
+| Scene | Java ms/frame | Native ms/frame |
+| --- | ---: | ---: |
+| Mip nearest 240x320 | 6.034 | 4.745 |
+| Mip linear 240x320 | 6.458 | 4.666 |
+| Sprites 240x320 | 3.568 | 2.157 |
+| Mip nearest 320x240 | 4.952 | 3.828 |
+| Mip linear 320x240 | 4.993 | 3.821 |
+| Sprites 320x240 | 2.787 | 1.771 |
+
+This is roughly 1.27-1.38x for mipmaps and 1.57-1.65x for the sprite scenes,
+not a measured game-FPS improvement or performance parity with legacy GLES.
+The twelve previous workloads also retain exact pixels; single-texture native
+cost is 1.73-2.79 ms in this run. Full replacement/release acceptance remains open.
+Asphalt 3 reaches a running Retroid race on this final APK, with successive
+gameplay captures. This short check is not audio or complete-game acceptance.
+
+Local reproducible evidence: `build/benchmarks/mip-sprite-{java,native}` and
+`build/evidence/{device}-candidate[-phone]`, relative to `experiments/m3g-host`.
+These generated diagnostics are ignored, not required source assets. APK SHA-256:
+
+```text
+D2E40E927FFAD99A094EA22555994B7B4CEF457B4DAA857FD8955DD36D0C35F4 Handheld
+B2A889FD4AB53478EB77E76549FB5923D8E5E0EE296F0FE97743D12177B5FDA0 Handheld tests
+8C49E55BC3DDCD66D869017C2836B4C3C7A01274D066B72E78EE19F6048DAF13 Phone
+ECB609D5704A3A7BF5FF82B1A714D7AE3856ABFBD18C37109381CC7532F85A00 Phone tests
+```
 
 ## Layered Textures and Fog: 2026-10-12
 

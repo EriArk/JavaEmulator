@@ -7,6 +7,7 @@ package javax.microedition.m3g;
 final class NativeRasterizer {
     static boolean enabled = true;
     static long draws;
+    static long spriteDraws;
     private static final boolean available;
     static {
         boolean loaded;
@@ -44,6 +45,33 @@ final class NativeRasterizer {
         if (blender == Graphics3DPipelines.TextureBlenders.PASSTHROUGH) return 11;
         return -1;
     }
+
+    static int compositeBlend(Graphics3DPipelines.CompositingBlender blender) {
+        if (blender == null) return 0;
+        if (blender == Graphics3DPipelines.CompositingBlenders.ALPHA) return 1;
+        if (blender == Graphics3DPipelines.CompositingBlenders.ALPHA_ADD) return 2;
+        if (blender == Graphics3DPipelines.CompositingBlenders.MODULATE) return 3;
+        if (blender == Graphics3DPipelines.CompositingBlenders.MODULATE_X2) return 4;
+        return -1;
+    }
+
+    static boolean sprite(int[] pixels, short[] depth, int[] image, float[] state, int[] flags) {
+        if (!available() || !drawSprite(pixels, depth, image, state, flags)) return false;
+        spriteDraws++;
+        return true;
+    }
+
+    static boolean mipmapped(int[] pixels, short[] depth, int[][] images,
+            float[] state, int[] flags, float[] mipState, int[] mipFlags) {
+        if (!available() || !drawMip(pixels, depth, images, state, flags, mipState, mipFlags)) return false;
+        draws++;
+        return true;
+    }
+
+    private static native boolean drawSprite(int[] pixels, short[] depth, int[] image,
+                                              float[] state, int[] flags);
+    private static native boolean drawMip(int[] pixels, short[] depth, int[][] images,
+            float[] state, int[] flags, float[] mipState, int[] mipFlags);
 
     private static native boolean drawHalf(int[] pixels, short[] depth, int[][] textures,
                                            float[] state, int[] flags);

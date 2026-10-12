@@ -1,10 +1,13 @@
         if (NativeRasterizer.available() && !Mobile.halfResM3GRaster) {
             int units = hasTexture ? ACTIVE_TEXTURE_UNITS : 0;
             boolean supported = units <= nativeImages.length;
+            boolean mipmapped = false;
+            for (int i=0; supported && i<units; i++) mipmapped |= mipModes[i] != null;
+            int mipCount = 0;
             for (int i = 0; supported && i < units; i++) {
                 Image2D image = textures[i].getImage();
                 int blend = NativeRasterizer.textureBlend(texBlenders[i]);
-                supported = mipModes[i] == null && blend >= 0 && image.image != rasterData;
+                supported = blend >= 0 && image.image != rasterData;
                 if (!supported) break;
                 nativeImages[i] = image.image;
                 int fi = i == 0 ? 11 : 33 + (i - 1) * 6;
@@ -17,6 +20,21 @@
                 nativeFlags[pi+3]=texFilter[i]==TextureFilters.BILINEAR?1:0;
                 nativeFlags[pi+4]=blend;
                 nativeFlags[i == 0 ? 26 : pi+5]=textures[i].getBlendColor();
+                if (mipmapped) {
+                    int mipMode = mipModes[i] == null ? 0
+                            : mipModes[i] == Graphics3DPipelines.MipmapModes.NEAREST ? 1 : 2;
+                    int levels = mipMode == 0 ? 1
+                            : 32 - Integer.numberOfLeadingZeros(Math.max(image.getWidth(), image.getHeight()));
+                    supported = levels <= 16;
+                    nativeMipFlags[i*2]=levels; nativeMipFlags[i*2+1]=mipMode;
+                    nativeMipState[i*4]=sStepX[i]; nativeMipState[i*4+1]=tStepX[i];
+                    nativeMipState[i*4+2]=sStepY[i]; nativeMipState[i*4+3]=tStepY[i];
+                    for (int level=0; supported && level<levels; level++) {
+                        int[] pixels = textures[i].getImageForLOD(level).image;
+                        supported = pixels != rasterData;
+                        nativeMipImages[mipCount++]=pixels;
+                    }
+                }
             }
             int nativeComp = -1;
             if (compBlender == null) nativeComp = 0;
@@ -49,10 +67,17 @@
                 p[22]=fogRB; p[23]=fogG; p[24]=Mobile.m3gPerspCorrSubFactor;
                 p[25]=units;
                 boolean drawn;
-                try { drawn = NativeRasterizer.draw(rasterData, depthBuffer, nativeImages, f, p); }
-                finally { java.util.Arrays.fill(nativeImages, null); }
+                nativeMipState[16]=dwdx; nativeMipState[17]=dwdy;
+                try { drawn = mipmapped
+                        ? NativeRasterizer.mipmapped(rasterData, depthBuffer, nativeMipImages, f, p, nativeMipState, nativeMipFlags)
+                        : NativeRasterizer.draw(rasterData, depthBuffer, nativeImages, f, p); }
+                finally {
+                    java.util.Arrays.fill(nativeImages, null);
+                    java.util.Arrays.fill(nativeMipImages, 0, mipCount, null);
+                }
                 if (drawn) return;
             } else {
                 java.util.Arrays.fill(nativeImages, null);
+                java.util.Arrays.fill(nativeMipImages, 0, mipCount, null);
             }
         }

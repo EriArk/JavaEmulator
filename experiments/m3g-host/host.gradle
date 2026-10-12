@@ -152,6 +152,15 @@ if (candidate) {
             def nativeHook = 'int rowIdx = (originY + viewy + yStart) * canvasWidth + originX + viewx;'
             if (text.count(nativeHook) != 1) throw new GradleException('Native half hook drift')
             text = text.replace(nativeHook, nativeHook + '\n' + rootProject.file('experiments/m3g-host/native/half-hook.java.inc').getText('UTF-8'))
+            def spriteHook = 'for (int y = pixT; y < pixB; y++)'
+            if (text.count(spriteHook) != 1) throw new GradleException('Native sprite hook drift')
+            text = text.replace(spriteHook, rootProject.file('experiments/m3g-host/native/sprite-hook.java.inc').getText('UTF-8') + '\n\t\t' + spriteHook)
+            text = text.replace(nativeFields, nativeFields + '''
+    private final float[] nativeSpriteState = new float[4];
+    private final int[] nativeSpriteFlags = new int[20];
+    private final float[] nativeMipState = new float[18];
+    private final int[] nativeMipFlags = new int[8];
+    private final int[][] nativeMipImages = new int[64][];''')
             if (tracing) {
                 def hook = 'this.currAlphaFactor = alphaFactor;'
                 if (text.count(hook) != 1) throw new GradleException('Trace hook drift')
