@@ -35,7 +35,7 @@ bundled. The app UI is English.
 | Public development source | `main`; latest app-code change at this review: [d39ed742](https://github.com/EriArk/JavaEmulator/commit/d39ed742) | Unreleased Java/UI/storage improvements listed below; not all are in the downloadable beta |
 | Private combined test snapshot | `0.1.0-beta.2-experimental.15`, 2026-10-11 | Handheld and Phone debug APKs containing Java plus experimental Mophun; supplied separately to testers, not a GitHub release |
 | Local-only implementation | Ignored optional-engine source and diagnostics | Mophun integration, game-specific experiments and test fixtures; public descriptions below, implementation not published |
-| Separate research branch | [`codex/m3g-replacement`](https://github.com/EriArk/JavaEmulator/tree/codex/m3g-replacement), code checkpoint `197f9955` | Native CPU rasterization includes 1-4 textures, fog, trilinear mipmaps and Sprite3D. Fixed two-sided lighting reuse and packed-transform bounds; reduced repeated geometry preparation. 81 unmeasured Java-game checks per device. All 20 cache-on/off scenes match and 18 previous scene images remain unchanged. Asphalt reaches a moving Retroid race. Legacy-GLES performance parity remains unproven; no production-engine switch or public beta |
+| Separate research branch | [`codex/m3g-replacement`](https://github.com/EriArk/JavaEmulator/tree/codex/m3g-replacement), code checkpoint `5b777ae2` | Native CPU path plus an off-by-default GLES3 backend for lit geometry and one base-level texture. Mixed GPU/CPU color and depth preserved. 87 checks per device, including six explicit GPU checks. GPU wins some measured scenes but loses simpler ones; fourteen fallback workloads retain exact CPU pixels. No real-game GPU acceptance, production-engine switch or new public beta |
 
 The experimental number is a distribution label: build 15 still reports
 version code **102** and `0.1.0-beta.2` / `0.1.0-beta.2-phone` internally.
@@ -487,6 +487,38 @@ with the software renderer retained as fallback/reference, preserving rendering
 semantics and mixed 2D/3D output. No production switch, license change or release
 is implied by this checkpoint.
 [Implementation, regression scope and artifact hashes](https://github.com/EriArk/JavaEmulator/blob/197f9955/experiments/m3g-host/native/README.md).
+
+### First GLES3 rendering path: 2026-10-12
+
+Implemented opt-in hardware rasterization for prepared lit geometry and one
+RGB/RGBA texture: perspective coordinates, nearest/bilinear filtering, alpha
+rejection, write masks, viewport clipping and depth. Unsupported effects retain
+the native-CPU/Java path. Both color and depth are exchanged transactionally,
+so hardware and software draws can alternate without losing earlier content.
+The caller's EGL context is restored. Root licensing and main's engine are
+unchanged; GPU is off by default even in these research APKs.
+
+Fixed an observed transfer bottleneck during implementation: bulk copies and
+shader channel/depth packing replace Java per-pixel conversion. Linear-filter
+samples fell from 4.935/4.718 ms to 2.107/2.052 ms without changing GPU pixels.
+Compared with CPU in the final **same APK**, linear filtering costs
+2.107/2.052 versus 2.802/2.241 ms, and the lit grid costs 5.122/5.642 versus
+5.322/5.932 ms (240x320 / 320x240). Nearest-filter scenes remain slower on GPU.
+This is not a general speedup or game-FPS claim: per-submesh buffer round trips
+remain, and hardware coverage/interpolation differs from software scanlines.
+
+**Verified:** both variants build and pass 87 checks each on Retroid and Phone
+emulator, zero skips. The six GPU-specific checks require actual GPU execution;
+the 81 earlier checks use the default CPU path. Six benchmark scenes record
+Adreno GPU draws, while fourteen unsupported scenes retain exact CPU pixels.
+Perspective-interior mean/max RGB differences are about 2.0/4 byte levels on
+the two devices; this is a bounded fixture result, not global conformance.
+No new real-game GPU, audio or physical-controller acceptance is claimed.
+
+Next implementation: retain consecutive GPU draws until CPU access or target
+release, reducing readback overhead, then extend effects such as blending/fog
+while preserving mixed rendering. No release or engine switch yet.
+[Code, driver evidence, limits and comparison images](https://github.com/EriArk/JavaEmulator/blob/5b777ae2/experiments/m3g-host/gpu/README.md).
 
 ## Distribution and Licensing Status
 
