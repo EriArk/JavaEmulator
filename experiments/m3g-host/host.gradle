@@ -76,6 +76,7 @@ if (measuring) {
 }
 
 if (candidate) {
+    android.defaultConfig.buildConfigField 'boolean', 'M3G_GPU', providers.gradleProperty('m3gGpu').orNull == 'true' ? 'true' : 'false'
     android.sourceSets.androidTest.java.srcDir rootProject.file('experiments/m3g-host/candidate-tests')
     def originalTonePlayer = file('src/main/java/javax/microedition/media/TonePlayer.java')
     def originalManager = file('src/main/java/javax/microedition/media/Manager.java')
@@ -147,6 +148,11 @@ if (candidate) {
                 text = text.replace(before, after)
             }
             def nativeFields = 'private int[] androidFrameBuffer;'
+            def gpuHook = '\n\t\tfor (int tri_id = 0; tri_id < renderableTriangles[0]; tri_id++)'
+            if (text.count(gpuHook)!=1) throw new GradleException('GPU submesh hook drift')
+            text = text.replace(gpuHook, rootProject.file('experiments/m3g-host/gpu/mesh-hook.java.inc').getText('UTF-8') + gpuHook)
+            text = text.replace('public static void initGraphics3D() { instance = null; }',
+                    'public static void initGraphics3D() { GpuRasterizer.close(); instance = null; }')
             if (text.count(nativeFields) != 1) throw new GradleException('Native state field drift')
             text = text.replace(nativeFields, nativeFields + '\n    private final float[] nativeState = new float[51];\n    private final int[] nativeFlags = new int[45];\n    private final int[][] nativeImages = new int[4][];')
             def nativeHook = 'int rowIdx = (originY + viewy + yStart) * canvasWidth + originX + viewx;'

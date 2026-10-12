@@ -3,7 +3,7 @@ param(
     [Parameter(Mandatory = $true)][ValidatePattern('^[A-Za-z0-9_-]+$')][string]$Run,
     [ValidateSet('candidate', 'baseline')][string]$Engine = 'candidate',
     [string]$ApkRoot,
-    [ValidateSet('java', 'native')][string]$Raster,
+    [ValidateSet('java', 'native', 'gpu')][string]$Raster,
     [ValidateSet('on', 'off')][string]$LightingCache,
     [string]$Adb = "$env:LOCALAPPDATA/Android/Sdk/platform-tools/adb.exe"
 )

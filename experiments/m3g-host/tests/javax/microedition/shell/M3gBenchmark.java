@@ -26,6 +26,7 @@ public class M3gBenchmark {
         android.content.Context context = InstrumentationRegistry.getInstrumentation().getTargetContext();
         String raster = InstrumentationRegistry.getArguments().getString("benchRaster");
         java.lang.reflect.Field nativeEnabled = null, nativeDraws = null, nativeSprites = null;
+        java.lang.reflect.Field gpuEnabled = null, gpuDraws = null, gpuRenderer = null;
         try {
             Class<?> backend = Class.forName("javax.microedition.m3g.NativeRasterizer");
             nativeEnabled = backend.getDeclaredField("enabled");
@@ -35,9 +36,14 @@ public class M3gBenchmark {
             nativeSprites = backend.getDeclaredField("spriteDraws");
             nativeSprites.setAccessible(true);
             if (raster != null) {
-                assertTrue("benchRaster must be java or native", raster.equals("java") || raster.equals("native"));
-                nativeEnabled.setBoolean(null, raster.equals("native"));
+                assertTrue("benchRaster must be java, native or gpu", raster.equals("java") || raster.equals("native") || raster.equals("gpu"));
+                nativeEnabled.setBoolean(null, !raster.equals("java"));
             }
+            Class<?> gpu=Class.forName("javax.microedition.m3g.GpuRasterizer");
+            gpuEnabled=gpu.getDeclaredField("enabled"); gpuEnabled.setAccessible(true);
+            gpuDraws=gpu.getDeclaredField("draws"); gpuDraws.setAccessible(true);
+            gpuRenderer=gpu.getDeclaredField("renderer"); gpuRenderer.setAccessible(true);
+            gpuEnabled.setBoolean(null,"gpu".equals(raster));
         } catch (ClassNotFoundException baseline) {
             assertNull("No selectable native software backend in this APK", raster);
         }
@@ -59,7 +65,7 @@ public class M3gBenchmark {
                         & android.content.pm.ApplicationInfo.FLAG_DEBUGGABLE) != 0)
                 .put("thermalStart", power.getCurrentThermalStatus())
                 .put("lightingCache", lighting == null ? "default" : lighting)
-                .put("raster", nativeEnabled == null ? "legacy" : nativeEnabled.getBoolean(null) ? "native" : "java");
+                .put("raster", "gpu".equals(raster) ? "gpu" : nativeEnabled == null ? "legacy" : nativeEnabled.getBoolean(null) ? "native" : "java");
         JSONArray cases = new JSONArray();
         report.put("cases", cases);
         for (int[] size : new int[][]{{240,320},{320,240}}) {
@@ -97,6 +103,7 @@ public class M3gBenchmark {
                 Transform model = new Transform();
                 java.lang.reflect.Field counter=kind.equals("sprites") ? nativeSprites : nativeDraws;
                 long nativeStart = counter == null ? 0 : counter.getLong(null);
+                long gpuStart = gpuDraws == null ? 0 : gpuDraws.getLong(null);
                 long shadedStart = shadedVertices == null ? 0 : shadedVertices.getLong(null);
                 for (int i = 0; i < 64; i++) frame(renderer, target, mesh, background, model);
                 JSONArray wall = new JSONArray(), cpu = new JSONArray();
@@ -122,17 +129,23 @@ public class M3gBenchmark {
                 cases.put(new JSONObject().put("name", name).put("framesPerBatch", 32)
                         .put("warmupFrames", 64).put("wallNs", wall).put("threadCpuNs", cpu)
                         .put("pixelCrc32", crc.getValue()).put("changedPixels", changed)
+                        .put("gpuDraws", gpuDraws == null ? 0 : gpuDraws.getLong(null)-gpuStart)
                         .put("shadedVertices", shadedVertices == null ? -1 : shadedVertices.getLong(null)-shadedStart)
                         .put("nativeDraws", counter == null ? 0 : counter.getLong(null)-nativeStart));
                 if ("native".equals(raster)) assertTrue("Native path was not exercised", counter.getLong(null)>nativeStart);
+                if ("gpu".equals(raster) && (kind.startsWith("rgb-") || kind.equals("lighting-grid"))) {
+                    assertTrue("GPU path was not exercised",gpuDraws.getLong(null)>gpuStart);
+                }
                 renderer.releaseTarget();
             }
         }
         report.put("thermalEnd", power.getCurrentThermalStatus());
+        report.put("gpuRenderer",gpuRenderer==null?"none":gpuRenderer.get(null));
         try (FileOutputStream out = new FileOutputStream(new File(root, "report.json"))) {
             out.write(report.toString(2).getBytes(StandardCharsets.UTF_8));
         }
         if (nativeEnabled != null) nativeEnabled.setBoolean(null, true);
+        if (gpuEnabled != null) gpuEnabled.setBoolean(null, false);
         if (lightingCache != null) lightingCache.setBoolean(null, true);
     }
 

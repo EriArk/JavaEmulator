@@ -183,3 +183,12 @@ screen changes, warm-up, pauses and game switches must not be mixed into a
 steady-game measurement. A 90-second PSS series cannot prove absence of leaks.
 
 [Runtime observations, lifecycle checks and rejected samples](../../docs/m3g-runtime-2026-10-11/README.md).
+
+## Opt-in GPU Backend
+
+The candidate now includes an off-by-default GLES3 submesh backend, selected
+explicitly by `benchmark.ps1 -Raster gpu` or a manual `-Pm3gGpu=true` research
+build. Ordinary builds and main's engine are unaffected. Unsupported effects
+retain native-CPU/Java execution. The current verifier requires 87 candidate
+checks (81 earlier checks plus six GPU-specific checks), or 94 with measurement.
+See [scope, device evidence, screenshots and performance limits](gpu/README.md).
