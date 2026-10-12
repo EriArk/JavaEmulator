@@ -11,6 +11,19 @@ stated otherwise. **Experimental** means local/private combined builds only.
 
 ## 2026-10-12
 
+- **Separate experiment / not shipped:** added bounded recovery of pending GPU
+  frames after private-context loss, retaining textures, transparency and depth.
+  Removed repeated graphics setup and fixed allocation overhead introduced by
+  replay storage. Added seven checks for controlled loss, changed draw data,
+  memory/draw limits, repeated failure, reset and caller-context preservation.
+  Final Handheld and Phone builds each pass 119 checks without skips on Retroid
+  and the Android emulator.
+  All 28 benchmark images remain unchanged; final multi-mesh cost is within 1%
+  of the previous checkpoint in the recorded Retroid comparison. This is not
+  a game-FPS or real OS/driver-reset guarantee. GPU stays off by default; no
+  main engine/license change or release APK.
+  [Implementation and evidence](https://github.com/EriArk/JavaEmulator/blob/a7b5d204/experiments/m3g-host/gpu/README.md).
+
 - **Separate experiment / not shipped:** added GPU Sprite3D and the remaining
   alpha/luminance image formats. Sprites and 3D meshes now share the same frame;
   invisible sprites no longer trigger needless transfers. Preserved exact crop,
