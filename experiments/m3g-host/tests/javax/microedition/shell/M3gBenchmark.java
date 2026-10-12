@@ -51,7 +51,13 @@ public class M3gBenchmark {
         JSONArray cases = new JSONArray();
         report.put("cases", cases);
         for (int[] size : new int[][]{{240,320},{320,240}}) {
-            for (String kind : new String[]{"rgb-nearest","rgb-linear","rgba-alpha","lit-fog"}) {
+            for (String kind : new String[]{"rgb-nearest","rgb-linear","rgba-alpha","lit-fog","exp-fog","multi-texture"}) {
+                String name = kind + "-" + size[0] + "x" + size[1];
+                if (kind.equals("multi-texture") && (Integer) Graphics3D.getProperties().get("numTextureUnits") < 4) {
+                    assertNull("Candidate must support all four layers", nativeEnabled);
+                    cases.put(new JSONObject().put("name",name).put("skipped","Requires four texture units"));
+                    continue;
+                }
                 Graphics3D.initGraphics3D();
                 Graphics3D renderer = Graphics3D.getInstance();
                 Image target = Image.createImage(size[0], size[1]);
@@ -85,7 +91,6 @@ public class M3gBenchmark {
                     for (int shift = 0; shift < 32; shift += 8) crc.update(pixel >>> shift);
                 }
                 assertTrue("Scene must draw visible geometry", changed > pixels.length / 4);
-                String name = kind + "-" + size[0] + "x" + size[1];
                 try (FileOutputStream out = new FileOutputStream(new File(root, name + ".png"))) {
                     assertTrue(bitmap.compress(Bitmap.CompressFormat.PNG, 100, out));
                 }
@@ -150,6 +155,18 @@ public class M3gBenchmark {
         texture.setFiltering(Texture2D.FILTER_BASE_LEVEL, kind.equals("rgb-linear") ? Texture2D.FILTER_LINEAR : Texture2D.FILTER_NEAREST);
         Appearance style = new Appearance();
         style.setTexture(0, texture);
+        if (kind.equals("multi-texture")) {
+            for (int unit=1; unit<4; unit++) {
+                Texture2D layer = new Texture2D(texture.getImage());
+                layer.setBlending(unit==2 ? Texture2D.FUNC_BLEND : Texture2D.FUNC_MODULATE);
+                layer.setBlendColor(0x406090);
+                layer.setFiltering(Texture2D.FILTER_BASE_LEVEL,
+                        unit==1 ? Texture2D.FILTER_LINEAR : Texture2D.FILTER_NEAREST);
+                layer.setTranslation(unit*0.125f,0,0);
+                style.setTexture(unit,layer);
+                vertices.setTexCoords(unit,coords,1f/128,null);
+            }
+        }
         PolygonMode polygon = new PolygonMode();
         polygon.setCulling(PolygonMode.CULL_NONE);
         polygon.setPerspectiveCorrectionEnable(true);
@@ -157,7 +174,7 @@ public class M3gBenchmark {
         CompositingMode blend = new CompositingMode();
         blend.setBlending(alpha ? CompositingMode.ALPHA : CompositingMode.REPLACE);
         style.setCompositingMode(blend);
-        if (kind.equals("lit-fog")) {
+        if (kind.equals("lit-fog") || kind.equals("exp-fog")) {
             VertexArray normal = new VertexArray(count, 3, 1);
             normal.set(0, count, normals);
             vertices.setNormals(normal);
@@ -165,7 +182,8 @@ public class M3gBenchmark {
             material.setColor(Material.AMBIENT | Material.DIFFUSE, 0xffd0b090);
             style.setMaterial(material);
             Fog fog = new Fog();
-            fog.setMode(Fog.LINEAR);
+            fog.setMode(kind.equals("exp-fog") ? Fog.EXPONENTIAL : Fog.LINEAR);
+            fog.setDensity(0.4f);
             fog.setColor(0x314159);
             fog.setLinear(1, 4);
             style.setFog(fog);

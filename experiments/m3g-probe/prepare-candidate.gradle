@@ -47,6 +47,11 @@ tasks.register('prepareM3g') {
         def raster = new File(output, 'java/javax/microedition/m3g/Graphics3D.java')
         contents = raster.getText('UTF-8')
         contents = contents.replace('\r\n', '\n')
+        // Zero-density exponential fog is an identity, including sprites.
+        def fogSelection = 'final Fog fog = Mobile.m3gDisableFog ? null : appearance.getFog();'
+        if (contents.count(fogSelection) != 2) throw new GradleException('Zero-density fog hook drift')
+        contents = contents.replace(fogSelection, '''Fog fog = Mobile.m3gDisableFog ? null : appearance.getFog();
+        if (fog != null && fog.getMode() == Fog.EXPONENTIAL && fog.getDensity() == 0f) fog = null;''')
         // Compact texture and coordinate state together; API unit numbers may have gaps.
         def packedStart = '// joint-increment ACTIVE_TEXTURE_UNITS alongside assignment.'
         def packedEnd = 'texRepeatS[i], texRepeatT[i], t.isNPOT());'

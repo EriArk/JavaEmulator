@@ -148,7 +148,7 @@ if (candidate) {
             }
             def nativeFields = 'private int[] androidFrameBuffer;'
             if (text.count(nativeFields) != 1) throw new GradleException('Native state field drift')
-            text = text.replace(nativeFields, nativeFields + '\n    private final float[] nativeState = new float[32];\n    private final int[] nativeFlags = new int[25];')
+            text = text.replace(nativeFields, nativeFields + '\n    private final float[] nativeState = new float[51];\n    private final int[] nativeFlags = new int[45];\n    private final int[][] nativeImages = new int[4][];')
             def nativeHook = 'int rowIdx = (originY + viewy + yStart) * canvasWidth + originX + viewx;'
             if (text.count(nativeHook) != 1) throw new GradleException('Native half hook drift')
             text = text.replace(nativeHook, nativeHook + '\n' + rootProject.file('experiments/m3g-host/native/half-hook.java.inc').getText('UTF-8'))

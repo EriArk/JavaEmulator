@@ -6,8 +6,8 @@ The [2026-10-12 compatibility/performance report](../../docs/m3g-performance-202
 records the earlier Java-only checkpoint. The candidate now includes a
 [native raster fast path](native/README.md) with a shared-buffer Java fallback.
 The verifier requires 51 shared checks, seven candidate-only tone checks,
-two candidate math checks, three native parity/bounds checks and (when measured)
-seven timing checks: 63 for an unmeasured candidate, 70 when measured, and 58 for
+two candidate math checks, six native/fog parity/bounds checks and (when measured)
+seven timing checks: 66 for an unmeasured candidate, 73 when measured, and 58 for
 measured baseline with two intentional skips.
 Both Handheld (`fdroid`) and Phone research builds are supported; pass
 `-Variant phone` to `verify.ps1` for Phone.
@@ -28,7 +28,7 @@ aggregate bitmap-read/write and draw phases in addition to target sessions.
 controlled comparisons. It retains research IDs/debug signing, does not enable
 R8, and is not a public release configuration. Use it for both engines, never
 only one side. `benchmark.ps1 -Serial YOUR_DEVICE -Engine candidate -Run NEW_LABEL`
-runs eight bounded original scenes and saves PNGs, timings, thermal status and
+runs twelve bounded original scenes and saves PNGs, timings, thermal status and
 APK hashes. This benchmark is opt-in, not part of the normal verifier. Its wall
 cost is not game FPS. Use `-ApkRoot` for saved APK snapshots when alternating
 engines: Gradle can remove the other engine's stale test output directory.

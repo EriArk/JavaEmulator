@@ -18,12 +18,14 @@ NDK configuration builds `abyssm3graster` alongside the existing `micro3d` helpe
 without linking `javam3g`. Missing native libraries retain the Java path.
 
 Triangle setup, transforms, lighting and scene traversal remain in Java. The
-native loop handles untextured or single base-level textures, nearest/linear
+native loop handles untextured or up to four base-level textures, nearest/linear
 sampling, independent repeat/clamp axes, vertex colors, depth, alpha rejection,
-write masks, all five framebuffer compositing modes, linear fog and dithering.
-Supported texture combinations use replace, RGB/RGBA modulate or alpha operations.
-Mipmaps, multiple textures, other texture blends, exponential fog and half-resolution
-mode retain Java execution. Sprites also retain their existing Java implementation.
+write masks, all five framebuffer compositing modes, linear/exponential fog and
+dithering. All current texture blenders are supported, including ADD, BLEND and
+DECAL for the applicable image formats. Each layer keeps its own coordinates,
+transform, filtering, wrapping and blend color; sparse source slots keep API order.
+Mipmaps and half-resolution mode retain Java execution. Sprites also retain
+their existing Java implementation.
 
 Both paths read/write the same color and depth arrays. Native calls finish
 before Java continues, so mixed draws do not require GPU readback or depth
@@ -31,8 +33,53 @@ conversion. Setup/buffer validation occurs before drawing; rejected packets
 leave buffers untouched and fall back to Java. Array pins are scoped to a
 single triangle half. Integer wraparound, float operation order and interpolation
 match the Java reference; fast-math and fused multiply-add are disabled.
+Repeated image references are pinned once. Target/texture aliasing is rejected
+before drawing; this permits restricted output pointers inside the raster loop.
+Single-layer calls avoid JNI object-array lookups and specialize common blends.
+The hook is the packet contract: 51 floats and 45 integers, with common setup
+followed by six values per extra texture. Java reference slots are cleared after
+each call, including fallback, rather than retaining a second copy of image state.
 
-## Verified on 2026-10-12
+## Layered Textures and Fog: 2026-10-12
+
+Final Handheld Retroid arm64 and Phone emulator x86_64 each pass **66 checks,
+zero skips**. New comparisons cover 400 combinations of 1-4 layers, five blend
+modes, five image formats, both camera types, filters and fog modes; 12 more
+cover shared image arrays. Existing 40 pipeline combinations, eight mixed
+native/Java scenes and atomic malformed-packet rejection still pass. Mipmap
+selection, rather than exponential fog, now exercises the Java fallback.
+Deep: Submarine Odyssey reaches the first playable objective on Retroid; its
+3D models/effects/HUD render, direction input turns the craft, and the game's
+pause/resume returns to gameplay. This is not audio or complete-game acceptance.
+
+Fixed zero-density exponential fog tinting in both triangle and sprite paths.
+It now bypasses fog entirely in both Java and native execution. This also applies
+to standalone candidate preparation; the pinned upstream checkout is unchanged.
+
+Same-APK non-debuggable comparisons on Retroid retain exact pixels in all 12
+benchmark scenes (thermal status 0 at both ends). Newly accelerated scenes:
+
+| Scene | Java ms/frame | Native ms/frame |
+| --- | ---: | ---: |
+| Exponential fog 240x320 | 4.712 | 2.566 |
+| Exponential fog 320x240 | 3.648 | 2.155 |
+| Four textures 240x320 | 9.349 | 4.982 |
+| Four textures 320x240 | 7.268 | 3.980 |
+
+Simple single-layer scenes cost 1.71-2.75 ms here versus 1.69-2.56 ms in the
+initial checkpoint below. Specialized common loops/direct JNI reduce the
+first expanded implementation's overhead, but do not establish no-regression
+parity with the narrower implementation. Legacy GLES remains faster. These
+are synthetic render costs, not game FPS or complete replacement acceptance.
+
+Application SHA-256: `a2e63395a14982df14ea074bdb360d5639901f680bf732484df531c086ebd2bf`.
+Test APK SHA-256: `9f39f5af39fe4b477b9d108a7bc48044f0bd65ca4904a6214f0420a6668572f7`.
+Maintainer-local raw results: `../build/benchmarks/layered-native-direct` and
+`../build/benchmarks/layered-java-final`; ignored outputs are not published.
+The benchmark explicitly skips the four-layer scenes on engines advertising
+fewer than four texture units, rather than silently measuring a smaller workload.
+
+## Initial Single-Texture Checkpoint: 2026-10-12
 
 Handheld arm64 on Retroid Pocket Classic and Phone x86_64 on the Android 15
 emulator each pass **63 checks, zero skips**. Native-specific checks compare exact

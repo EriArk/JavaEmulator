@@ -55,7 +55,7 @@ if ($result -notmatch 'OK \(1 test\)' -or $result -match 'FAILURES|INSTRUMENTATI
 }
 Invoke-Adb @('pull', "/sdcard/Android/data/$package/files/m3g-benchmark/$Run/.", $out) | Out-Null
 $report = Get-Content -Raw (Join-Path $out 'report.json') | ConvertFrom-Json
-if ($report.package -ne $package -or $report.cases.Count -ne 8) { throw 'Unexpected benchmark report' }
+if ($report.package -ne $package -or $report.cases.Count -ne 12) { throw 'Unexpected benchmark report' }
 [pscustomobject]@{
     engine = $Engine
     apkSha256 = (Get-FileHash $apk).Hash
@@ -66,8 +66,9 @@ if ($report.package -ne $package -or $report.cases.Count -ne 8) { throw 'Unexpec
 $report.cases | ForEach-Object {
     [pscustomobject]@{
         scene = $_.name
-        wallMs = [math]::Round(($_.wallNs | Measure-Object -Average).Average / $_.framesPerBatch / 1e6, 3)
-        cpuMs = [math]::Round(($_.threadCpuNs | Measure-Object -Average).Average / $_.framesPerBatch / 1e6, 3)
+        wallMs = if ($_.skipped) { $null } else { [math]::Round(($_.wallNs | Measure-Object -Average).Average / $_.framesPerBatch / 1e6, 3) }
+        cpuMs = if ($_.skipped) { $null } else { [math]::Round(($_.threadCpuNs | Measure-Object -Average).Average / $_.framesPerBatch / 1e6, 3) }
+        skipped = $_.skipped
     }
 } | Format-Table
 Write-Output "Evidence: $out; do not interpret synthetic frame cost as game FPS."
