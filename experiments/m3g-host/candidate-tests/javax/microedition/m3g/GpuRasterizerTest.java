@@ -71,7 +71,7 @@ public class GpuRasterizerTest {
         Texture2D luminance=new Texture2D(new Image2D(Image2D.LUMINANCE,1,1,new byte[]{-1}));
         Mesh mesh=quad(0xffff0000,luminance); Fog fog=new Fog(); fog.setMode(Fog.LINEAR);
         fog.setColor(0x0000ff); fog.setLinear(1,3); mesh.getAppearance(0).setFog(fog);
-        CompositingMode mode=new CompositingMode(); mode.setDepthOffset(1,1);
+        CompositingMode mode=new CompositingMode(); mode.setDepthOffset(0,Float.MAX_VALUE);
         mesh.getAppearance(0).setCompositingMode(mode);
         GpuRasterizer.enabled=true; long before=GpuRasterizer.draws;
         g.render(mesh,position(-2)); g.releaseTarget(); assertEquals(before,GpuRasterizer.draws);
@@ -148,12 +148,12 @@ public class GpuRasterizerTest {
         g.render(quad(0xff20a060,null),position(-2)); long reads=GpuRasterizer.readbacks;
         Sprite3D sprite=new Sprite3D(true,new Image2D(Image2D.RGB,1,1,new byte[]{-1,0,0}),new Appearance());
         sprite.setScale(2,2,1); g.render(sprite,position(-3));
-        assertEquals(reads+1,GpuRasterizer.readbacks);
+        assertEquals(reads,GpuRasterizer.readbacks);
         g.render(quad(0xff20a060,null),position(-2));
         Mesh fallback=quad(0xff808080,null); CompositingMode mode=new CompositingMode();
         mode.setBlending(CompositingMode.MODULATE); fallback.getAppearance(0).setCompositingMode(mode);
         g.render(fallback,position(-4)); g.releaseTarget();
-        assertEquals(reads+2,GpuRasterizer.readbacks);
+        assertEquals(reads+1,GpuRasterizer.readbacks);
         assertEquals(0xff20a060,target.getBitmap().getPixel(16,16));
     }
 

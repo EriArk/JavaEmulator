@@ -5,10 +5,11 @@
 The [2026-10-12 compatibility/performance report](../../docs/m3g-performance-2026-10-12/README.md)
 records the earlier Java-only checkpoint. The candidate now includes a
 [native raster fast path](native/README.md) with a shared-buffer Java fallback.
-The verifier requires 51 shared checks, seven candidate-only tone checks,
-two candidate math checks, fourteen native/fog/mipmap/sprite checks and (when measured)
-seven timing checks: 74 for an unmeasured candidate, 81 when measured, and 58 for
-measured baseline with two intentional skips.
+The verifier requires 51 shared checks and 61 candidate checks (tone, math,
+native rasterization, mipmaps, geometry preparation and 31 GPU checks):
+112 for an unmeasured candidate, 119 when measured, and 58 for measured
+baseline with two intentional skips. Seven additional timing checks apply
+only when measurement is enabled.
 Both Handheld (`fdroid`) and Phone research builds are supported; pass
 `-Variant phone` to `verify.ps1` for Phone.
 
@@ -28,13 +29,14 @@ aggregate bitmap-read/write and draw phases in addition to target sessions.
 controlled comparisons. It retains research IDs/debug signing, does not enable
 R8, and is not a public release configuration. Use it for both engines, never
 only one side. `benchmark.ps1 -Serial YOUR_DEVICE -Engine candidate -Run NEW_LABEL`
-runs eighteen bounded original scenes and saves PNGs, timings, thermal status and
+runs 28 bounded original scenes and saves PNGs, timings, thermal status and
 APK hashes. This benchmark is opt-in, not part of the normal verifier. Its wall
 cost is not game FPS. Use `-ApkRoot` for saved APK snapshots when alternating
 engines: Gradle can remove the other engine's stale test output directory.
-For a same-APK fast-path comparison, pass `-Raster java` or `-Raster native`
+For a same-APK fast-path comparison, pass `-Raster java`, `-Raster native` or `-Raster gpu`
 with separate run labels. Native runs require a successful native draw in every
-scene; library loading alone is not accepted as proof.
+scene; GPU runs now require GPU draws in all 28 scenes, including sprites.
+Library loading alone is not accepted as proof.
 
 ## Original Setup
 

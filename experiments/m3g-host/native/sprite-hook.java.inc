@@ -1,5 +1,5 @@
         // SPDX-License-Identifier: GPL-3.0-or-later
-        if (NativeRasterizer.available() && !Mobile.halfResM3GRaster && spr.image != rasterData) {
+        if (!Mobile.halfResM3GRaster && spr.image != rasterData) {
             float[] f = nativeSpriteState;
             f[0]=uStart; f[1]=uStep; f[2]=sy0; f[3]=invSpanY;
             int[] p = nativeSpriteFlags;
@@ -11,5 +11,9 @@
             p[13]=ndcZ; p[14]=alphaFactor; p[15]=alphaThreshold;
             p[16]=colorWriteMask; p[17]=NativeRasterizer.compositeBlend(compBlender);
             p[18]=fogRB | (fogG << 8); p[19]=intFogFactor;
-            if (NativeRasterizer.sprite(rasterData, depthBuffer, spr.image, f, p)) return;
+            if (GpuRasterizer.sprite(rasterData, depthBuffer, canvasWidth, canvasHeight, spr, f, p,
+                    originX + viewx, originY + viewy, compositingMode.getBlending(), this.target instanceof Graphics)) return;
+            GpuRasterizer.flush();
+            if (NativeRasterizer.available() && NativeRasterizer.sprite(rasterData, depthBuffer, spr.image, f, p)) return;
         }
+        GpuRasterizer.flush();

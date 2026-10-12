@@ -12,7 +12,7 @@ import static android.opengl.GLES30.*;
 final class GpuRasterizer {
     static boolean enabled = ru.playsoftware.j2meloader.BuildConfig.M3G_GPU;
     static boolean retainTargets = true;
-    static long draws, uploads, readbacks, textureUploads, emptyDraws, offsetDraws, multiplyDraws;
+    static long draws, uploads, readbacks, textureUploads, emptyDraws, offsetDraws, multiplyDraws, spriteDraws;
     static String renderer = "not initialized", failure = "";
     private static GpuRasterizer instance;
     private static boolean failed;
@@ -48,11 +48,33 @@ final class GpuRasterizer {
     private final int[] modes=new int[4], sizes=new int[4], formats=new int[4], mips=new int[4], blendColors=new int[4];
     private int targetSizeLocation, alphaLocation, thresholdLocation, compositeLocation;
     private int fogModeLocation, parallelFogLocation, fogColorLocation, fogParamsLocation, packSizeLocation;
+    private int spriteLocation, spriteLayoutLocation, spriteIndices, spriteIndexWidth;
+    private ByteBuffer spriteIndexInput;
     private ByteBuffer colors, depths, depthInput, textureInput, geometry;
     private int width, height;
     private int[] residentPixels;
     private short[] residentDepth;
     private boolean depthDirty;
+
+    private static final class SpriteState {
+        Image2D image;
+        float[] mapping;
+        int[] flags;
+        int ox, oy;
+    }
+    private static final SpriteState spriteState = new SpriteState();
+
+    static synchronized boolean sprite(int[] pixels, short[] depth, int w, int h, Image2D image,
+            float[] mapping, int[] flags, int ox, int oy, int blend, boolean resident) {
+        if (!enabled || failed) return false;
+        for(float value:mapping) if(!Float.isFinite(value)) return false;
+        SpriteState s=spriteState;
+        s.image=image;
+        s.mapping=mapping; s.flags=flags; s.ox=ox; s.oy=oy;
+        return draw(pixels,depth,w,h,null,2,ox,oy,ox+flags[0],oy+flags[2],ox+flags[1],oy+flags[3],
+                false,0,false,(flags[12]&1)!=0,(flags[12]&2)!=0,flags[16],flags[14],flags[15],
+                null,1,null,null,blend,0,0,null,false,null,resident,s);
+    }
 
     // CPU access barriers commit consecutive draws together. Image targets flush immediately.
     static synchronized boolean draw(int[] pixels, short[] zbuffer, int w, int h,
@@ -61,6 +83,18 @@ final class GpuRasterizer {
             boolean depthWrite, int mask, int alphaFactor, int threshold, Texture2D[] textures, int units,
             Graphics3D.TextureFilter[] filters, Graphics3DPipelines.MipmapMode[] mipModes,
             int blend, float depthFactor, float depthUnits, Fog fog, boolean parallelFog, float[] fogDepth, boolean resident) {
+        return draw(pixels,zbuffer,w,h,triangles,count,ox,oy,left,top,right,bottom,vertexColors,
+                defaultColor,perspective,depthTest,depthWrite,mask,alphaFactor,threshold,textures,units,
+                filters,mipModes,blend,depthFactor,depthUnits,fog,parallelFog,fogDepth,resident,null);
+    }
+
+    private static boolean draw(int[] pixels, short[] zbuffer, int w, int h,
+            Triangle[] triangles, int count, int ox, int oy, int left, int top, int right, int bottom,
+            boolean vertexColors, int defaultColor, boolean perspective, boolean depthTest,
+            boolean depthWrite, int mask, int alphaFactor, int threshold, Texture2D[] textures, int units,
+            Graphics3D.TextureFilter[] filters, Graphics3DPipelines.MipmapMode[] mipModes,
+            int blend, float depthFactor, float depthUnits, Fog fog, boolean parallelFog, float[] fogDepth,
+            boolean resident, SpriteState sprite) {
         if (!enabled || failed || count==0 || w<1 || h<1 || w>2048 || h>2048 || count>65536
                 || pixels.length<w*h || zbuffer.length<w*h) return false;
         if (signedDepthChecks.contains(zbuffer)) {
@@ -70,16 +104,18 @@ final class GpuRasterizer {
         }
         if (units<0 || units>4) return false;
         for (int unit=0;unit<units;unit++) {
-            Image2D image=textures[unit].getImage();
+            Image2D image=sprite==null?textures[unit].getImage():sprite.image;
             if (image.image==pixels || image.getWidth()>2048 || image.getHeight()>2048
-                    || (image.getFormat()!=Image2D.RGB && image.getFormat()!=Image2D.RGBA)) return false;
+                    || image.getFormat()<Image2D.ALPHA || image.getFormat()>Image2D.RGBA) return false;
         }
         if (blend<CompositingMode.ALPHA || blend>CompositingMode.REPLACE
                 || !Float.isFinite(depthFactor) || !Float.isFinite(depthUnits)) return false;
         if (fog!=null && (!Float.isFinite(fog.getDensity()) || !Float.isFinite(fog.getNearDistance())
                 || !Float.isFinite(fog.getFarDistance()) || (fog.getMode()==Fog.LINEAR
                 && Math.abs(fog.getFarDistance()-fog.getNearDistance())<0.000001f))) return false;
-        for (int i=0; i<count; i++) {
+        if(sprite!=null && (sprite.flags[13]<0 || sprite.flags[13]>32200 || left<0 || top<0
+                || right>w || bottom>h || left>=right || top>=bottom)) return false;
+        for (int i=0; sprite==null && i<count; i++) {
             Triangle t=triangles[i];
             if (parallelFog && (!Float.isFinite(fogDepth[i*3]) || !Float.isFinite(fogDepth[i*3+1])
                     || !Float.isFinite(fogDepth[i*3+2]))) return false;
@@ -102,7 +138,7 @@ final class GpuRasterizer {
             if (!eglMakeCurrent(gpu.display,gpu.surface,gpu.surface,gpu.context)) throw new IllegalStateException("eglMakeCurrent");
             gpu.render(pixels,zbuffer,w,h,triangles,count,ox,oy,left,top,right,bottom,vertexColors,
                     defaultColor,perspective,depthTest,depthWrite,mask,alphaFactor,threshold,textures,units,filters,mipModes,
-                    blend,depthFactor,depthUnits,fog,parallelFog,fogDepth);
+                    blend,depthFactor,depthUnits,fog,parallelFog,fogDepth,sprite);
             success=true;
         } catch (RuntimeException error) {
             failure=error.toString();
@@ -122,11 +158,12 @@ final class GpuRasterizer {
             return false;
         }
         draws++;
+        if(sprite!=null) spriteDraws++;
         if(depthFactor!=0 || depthUnits!=0) offsetDraws++;
         if(blend==CompositingMode.MODULATE || blend==CompositingMode.MODULATE_X2) multiplyDraws++;
         if (ru.playsoftware.j2meloader.BuildConfig.M3G_GPU && (draws&1023)==1)
             diagnostic("draws="+draws+" units="+units+" textureUploads="+textureUploads
-                    +" offsets="+offsetDraws+" multiply="+multiplyDraws+" empty="+emptyDraws
+                    +" offsets="+offsetDraws+" multiply="+multiplyDraws+" sprites="+spriteDraws+" empty="+emptyDraws
                     +" uploads="+uploads+" readbacks="+readbacks+" renderer="+renderer);
         if (!resident || !retainTargets) flush();
         return true;
@@ -181,6 +218,7 @@ final class GpuRasterizer {
     }
 
     private static void destroy() {
+        spriteState.image=null; spriteState.mapping=null; spriteState.flags=null;
         if (instance==null) return;
         // All owned objects die with this detached context; never terminate Android's shared display.
         if (instance.surface!=EGL_NO_SURFACE) eglDestroySurface(instance.display,instance.surface);
@@ -219,9 +257,13 @@ final class GpuRasterizer {
         parallelFogLocation=glGetUniformLocation(program,"parallelFog");
         fogColorLocation=glGetUniformLocation(program,"fogColor");
         fogParamsLocation=glGetUniformLocation(program,"fogParams");
+        spriteLocation=glGetUniformLocation(program,"sprite");
+        spriteLayoutLocation=glGetUniformLocation(program,"spriteLayout");
+        glUniform1i(glGetUniformLocation(program,"spriteIndices"),4);
         packSizeLocation=glGetUniformLocation(packProgram,"size");
         int[] ids=new int[3]; glGenTextures(3,ids,0);
         color=ids[0]; depth=ids[1]; packed=ids[2]; glGenTextures(4,textureIds,0);
+        glGenTextures(1,ids,0); spriteIndices=ids[0];
         glGenFramebuffers(2,ids,0); framebuffer=ids[0]; packFramebuffer=ids[1];
         glGenBuffers(1,ids,0); vbo=ids[0]; glGenVertexArrays(1,ids,0); vao=ids[0];
         check();
@@ -231,7 +273,7 @@ final class GpuRasterizer {
             int left,int top,int right,int bottom,boolean vertexColors,int defaultColor,boolean perspective,
             boolean depthTest,boolean depthWrite,int mask,int alphaFactor,int threshold,Texture2D[] textures,int units,
             Graphics3D.TextureFilter[] filters,Graphics3DPipelines.MipmapMode[] mipModes,
-            int blend,float depthFactor,float depthUnits,Fog fog,boolean parallelFog,float[] fogDepth) {
+            int blend,float depthFactor,float depthUnits,Fog fog,boolean parallelFog,float[] fogDepth,SpriteState sprite) {
         int packWidth=(w+1)/2;
         glActiveTexture(GL_TEXTURE0); glPixelStorei(GL_UNPACK_ALIGNMENT,1); glPixelStorei(GL_PACK_ALIGNMENT,1);
         if (residentPixels==null) {
@@ -250,7 +292,16 @@ final class GpuRasterizer {
         glFramebufferTexture2D(GL_FRAMEBUFFER,GL_DEPTH_ATTACHMENT,GL_TEXTURE_2D,depth,0);
         complete();
         geometry=buffer(geometry,count*3*20*4); FloatBuffer data=geometry.asFloatBuffer();
-        for (int i=0; i<count; i++) {
+        if(sprite!=null) {
+            int z=sprite.flags[13];
+            vertex(data,left,top,z,0,null,0,0,1,1);
+            vertex(data,right,top,z,0,null,0,0,1,1);
+            vertex(data,left,bottom,z,0,null,0,0,1,1);
+            vertex(data,right,top,z,0,null,0,0,1,1);
+            vertex(data,right,bottom,z,0,null,0,0,1,1);
+            vertex(data,left,bottom,z,0,null,0,0,1,1);
+        }
+        for (int i=0; sprite==null && i<count; i++) {
             Triangle t=triangles[i];
             float offset=depthOffset(t,depthFactor,depthUnits);
             vertex(data,t.xA()+ox,t.yA()+oy,t.zA()+offset,vertexColors?t.colorA():defaultColor,
@@ -289,23 +340,47 @@ final class GpuRasterizer {
         glUniform1i(compositeLocation,blend==CompositingMode.ALPHA || blend==CompositingMode.ALPHA_ADD?1:0);
         glUniform1i(fogModeLocation,fog==null?0:fog.getMode()==Fog.LINEAR?1:2);
         glUniform1i(parallelFogLocation,parallelFog?1:0);
+        glUniform1i(spriteLocation,sprite==null?0:1);
+        if(sprite!=null) {
+            int[] p=sprite.flags; float[] f=sprite.mapping;
+            // Preserve CPU DDA rounding at texel boundaries with O(width + height) indices.
+            // The GPU still performs all pixel sampling, fog, blending and depth operations.
+            int size=Math.max(w,h);
+            spriteIndexInput=buffer(spriteIndexInput,size*2*4);
+            IntBuffer indices=spriteIndexInput.asIntBuffer();
+            float u=f[0];
+            for(int x=left;x<right;x++,u+=f[1]) indices.put(x,Math.max(p[8],Math.min(p[8]+p[10]-1,p[8]+(int)u)));
+            for(int y=top;y<bottom;y++) {
+                float v=(y-sprite.oy+.5f-f[2])*f[3];
+                int ty=p[9]+(int)(((p[12]&4)!=0?1-v:v)*p[11]);
+                indices.put(size+y,Math.max(p[9],Math.min(p[9]+p[11]-1,ty)));
+            }
+            glActiveTexture(GL_TEXTURE4);
+            targetTexture(spriteIndices,GL_R32I,GL_RED_INTEGER,GL_INT,size,2,spriteIndexInput,spriteIndexWidth!=size);
+            spriteIndexWidth=size;
+            glUniform4i(spriteLayoutLocation,0,0,p[19],0);
+            if((p[12]&8)!=0) {
+                glUniform1i(fogModeLocation,3);
+                glUniform3f(fogColorLocation,(p[18]>>16)&255,(p[18]>>8)&255,p[18]&255);
+            }
+        }
         if (fog!=null) {
             int c=fog.getColor();
             glUniform3f(fogColorLocation,(c>>16)&255,(c>>8)&255,c&255);
             glUniform3f(fogParamsLocation,fog.getNearDistance(),fog.getFarDistance(),fog.getDensity());
         }
         for (int unit=0;unit<4;unit++) {
-            glUniform1i(modes[unit],unit<units?textures[unit].getBlending():0);
+            glUniform1i(modes[unit],unit>=units?0:sprite!=null?Texture2D.FUNC_REPLACE:textures[unit].getBlending());
             glActiveTexture(GL_TEXTURE0+unit);
             if (unit>=units) { glBindTexture(GL_TEXTURE_2D,0); continue; }
-            Texture2D tex=textures[unit];
-            Image2D image=tex.getImage(); int tw=image.getWidth(), th=image.getHeight();
-            boolean linear=filters[unit]==Graphics3D.TextureFilters.BILINEAR;
-            int mip=mipModes[unit]==null?0:mipModes[unit]==Graphics3DPipelines.MipmapModes.LINEAR?2:1;
+            Texture2D tex=sprite==null?textures[unit]:null;
+            Image2D image=sprite==null?tex.getImage():sprite.image; int tw=image.getWidth(), th=image.getHeight();
+            boolean linear=sprite==null && filters[unit]==Graphics3D.TextureFilters.BILINEAR;
+            int mip=sprite!=null || mipModes[unit]==null?0:mipModes[unit]==Graphics3DPipelines.MipmapModes.LINEAR?2:1;
             int levels=mip==0?1:32-Integer.numberOfLeadingZeros(Math.max(tw,th));
             glBindTexture(GL_TEXTURE_2D,textureIds[unit]);
             for (int level=0;level<levels;level++) {
-                Image2D source=tex.getImageForLOD(level); int sw=source.getWidth(),sh=source.getHeight();
+                Image2D source=sprite!=null?image:tex.getImageForLOD(level); int sw=source.getWidth(),sh=source.getHeight();
                 if (uploadedImages[unit][level]==source && uploadedRevisions[unit][level]==source.revision) continue;
                 textureInput=buffer(textureInput,sw*sh*4); textureInput.asIntBuffer().put(source.image,0,sw*sh);
                 glTexImage2D(GL_TEXTURE_2D,level,GL_RGBA8,sw,sh,0,GL_RGBA,GL_UNSIGNED_BYTE,textureInput);
@@ -318,12 +393,12 @@ final class GpuRasterizer {
                     :(linear?GL_LINEAR_MIPMAP_LINEAR:GL_NEAREST_MIPMAP_LINEAR);
             glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_MIN_FILTER,min);
             glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_MAG_FILTER,linear?GL_LINEAR:GL_NEAREST);
-            glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_WRAP_S,tex.getWrappingS()==Texture2D.WRAP_REPEAT?GL_REPEAT:GL_CLAMP_TO_EDGE);
-            glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_WRAP_T,tex.getWrappingT()==Texture2D.WRAP_REPEAT?GL_REPEAT:GL_CLAMP_TO_EDGE);
+            glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_WRAP_S,tex!=null && tex.getWrappingS()==Texture2D.WRAP_REPEAT?GL_REPEAT:GL_CLAMP_TO_EDGE);
+            glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_WRAP_T,tex!=null && tex.getWrappingT()==Texture2D.WRAP_REPEAT?GL_REPEAT:GL_CLAMP_TO_EDGE);
             glUniform2f(sizes[unit],tw,th);
-            glUniform1i(formats[unit],image.getFormat()==Image2D.RGBA?1:0);
+            glUniform1i(formats[unit],image.getFormat());
             glUniform1i(mips[unit],mip);
-            int c=tex.getBlendColor();
+            int c=tex==null?0:tex.getBlendColor();
             glUniform3f(blendColors[unit],(c>>16)&255,(c>>8)&255,c&255);
         }
         glActiveTexture(GL_TEXTURE0);
@@ -402,14 +477,21 @@ final class GpuRasterizer {
         StringBuilder s=new StringBuilder("#version 300 es\nprecision highp float; precision highp int;\n")
                 .append("in vec4 vertexColor; in vec3 texCoord[4]; in float depthValue; uniform vec2 imageSize[4];\n")
                 .append("uniform int mode[4],rgba[4],mip[4],alphaFactor,threshold,composite,fogMode,parallelFog; out vec4 result;\n")
-                .append("uniform vec3 blendColor[4]; in float fogValue; uniform vec3 fogColor,fogParams;\n");
+                .append("uniform vec3 blendColor[4]; in float fogValue; uniform vec3 fogColor,fogParams;\n")
+                .append("uniform int sprite; uniform ivec4 spriteLayout; uniform highp isampler2D spriteIndices;\n");
         for(int i=0;i<4;i++) s.append("uniform sampler2D image").append(i).append(";\n");
         s.append("vec4 layer(vec4 c,vec4 t,int mode,int rgba,vec3 b){\n")
+                .append("if(mode==226 && rgba<99)return c;\n")
+                .append("if(rgba==96){ c.a=mode==228?t.a:floor((c.a*t.a+128.0)/256.0); return c; }\n")
+                .append("rgba=(rgba==98 || rgba==100)?1:0;\n")
                 .append("if(mode==228){ c.rgb=t.rgb; if(rgba!=0)c.a=t.a; }\n")
                 .append("else if(mode==227){ c.rgb=floor((c.rgb*t.rgb+(rgba!=0?128.0:0.0))/256.0); if(rgba!=0)c.a=floor((c.a*t.a+c.a)/256.0); }\n")
                 .append("else if(mode==226){ c.rgb=rgba!=0?c.rgb+floor((t.rgb-c.rgb)*t.a/256.0):t.rgb; }\n")
                 .append("else { c.rgb=mode==224?min(c.rgb+t.rgb,255.0):c.rgb+floor(((b-c.rgb)*t.rgb+128.0)/256.0); if(rgba!=0)c.a=floor((c.a*t.a+128.0)/256.0); } return c; }\n")
-                .append("void main(){ vec4 c=floor(clamp(vertexColor,0.0,255.0)+0.0001);\n");
+                .append("void main(){ vec4 c=floor(clamp(vertexColor,0.0,255.0)+0.0001);\n")
+                .append("if(sprite!=0){ ivec2 p=ivec2(texelFetch(spriteIndices,ivec2(int(gl_FragCoord.x),0),0).r,\n")
+                .append("texelFetch(spriteIndices,ivec2(int(gl_FragCoord.y),1),0).r);\n")
+                .append("c=floor(texelFetch(image0,p,0).bgra*255.0+0.5); } else {\n");
         // ES3 sampler selection is deliberately static, including on mobile drivers.
         for(int i=0;i<4;i++) s.append("{ int u=").append(i).append("; if(mode[u]!=0){\n")
                 .append("vec3 p=texCoord[u]; vec2 uv=p.xy/p.z; float lod=0.0;\n")
@@ -418,10 +500,10 @@ final class GpuRasterizer {
                 .append("vec4 t=floor(textureLod(image").append(i).append(",uv/imageSize[u],lod).bgra*255.0+0.5);\n")
                 .append("c=layer(c,t,mode[u],rgba[u],blendColor[u]); }}\n");
         return s.append(
-            "float a=floor(c.a*float(alphaFactor)/256.0); if(a<float(threshold))discard; if(a==0.0)c.a=255.0;\n"
+            "} float a=floor(c.a*float(alphaFactor)/256.0); if(a<float(threshold) || (sprite!=0 && a==0.0))discard; if(a==0.0)c.a=255.0;\n"
             +"if(fogMode!=0){ float z=parallelFog!=0?fogValue:1.0/fogValue;\n"
             +"float f=fogMode==1?(fogParams.y-z)/(fogParams.y-fogParams.x):exp(-fogParams.z*z);\n"
-            +"float q=floor(clamp(f*256.0,0.0,255.0)); c.rgb=floor((c.rgb*q+fogColor*(256.0-q))/256.0); }\n"
+            +"float q=fogMode==3?float(spriteLayout.z):floor(clamp(f*256.0,0.0,255.0)); c.rgb=floor((c.rgb*q+fogColor*(256.0-q))/256.0); }\n"
             +"if(composite!=0)c.a=a; result=c.bgra/255.0; gl_FragDepth=floor(depthValue)/65535.0; }").toString();
     }
     private static final String VERTEX=vertexShader(), FRAGMENT=fragmentShader();

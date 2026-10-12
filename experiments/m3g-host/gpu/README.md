@@ -8,7 +8,7 @@ patches, legacy EPL renderer source or new public release binaries are included.
 
 `GpuRasterizer.java` consumes the candidate's already transformed, clipped,
 culled and lit triangles. GLES3 rasterizes one complete submesh per draw. It
-supports untextured color/lighting and up to four RGB/RGBA textures with
+supports untextured color/lighting and up to four textures in all five Image2D formats with
 REPLACE, MODULATE, ADD, BLEND or DECAL, nearest/bilinear filtering, independent repeat/clamp,
 perspective-correct coordinates, alpha rejection, color/alpha masks, viewport
 clipping and depth test/write. It also supports all five framebuffer blend modes,
@@ -19,8 +19,14 @@ cached by image identity and revision, including individual mip revisions;
 switching images may still upload their levels again. This is a bounded slot
 cache, not a persistent cache of every texture used by a game.
 
-Non-RGB/RGBA textures, out-of-range/nonfinite depth offsets, AA,
-dithering, wireframe, half-resolution mode and sprites retain CPU execution.
+Sprite3D shares the same retained framebuffer, with exact CPU crop/flip/nearest
+sample indices, raw image pixels, zero-alpha rejection and sprite fog semantics.
+ALPHA changes only alpha; LUMINANCE/LUMINANCE_ALPHA retain their own combiners.
+DECAL on those three formats remains the CPU candidate's passthrough behavior.
+
+Out-of-range/nonfinite depth offsets, AA,
+dithering, wireframe and half-resolution meshes retain CPU execution.
+Half-resolution sprites also retain CPU execution.
 Oversized or nonfinite geometry and target/texture aliases are rejected before
 GPU execution. Degenerate/nonfinite fog settings also retain CPU execution.
 
@@ -52,6 +58,104 @@ candidate. The existing upstream license asset and notices remain in the APK.
 Framebuffer alpha uses [separate RGB/alpha blend factors](https://registry.khronos.org/OpenGL-Refpages/es3.0/html/glBlendFuncSeparate.xhtml),
 not destination sampling or a per-triangle readback. Normalized hardware blending
 has rounding differences from the software integer pipeline.
+
+## Sprites and Remaining Image Formats: 2026-10-12
+
+Sprite3D now draws into the same GPU color/depth buffers as meshes. Empty crops,
+missing appearances, offscreen and depth-clipped sprites no longer flush a
+pending frame. Unsupported sprite states still flush before CPU drawing;
+Image2D targets still commit immediately. Source/target aliases and images
+over 2048 pixels in either dimension retain CPU execution without constructing
+a Texture2D or generating mipmaps just to draw a sprite.
+
+Sprite pixels use a small R32I row/column lookup on texture unit 4, separate from
+the four mesh texture units. Index preparation is O(width + height), not a CPU
+pixel raster loop. This retains Java's repeated-addition rounding and exact
+crop clamping, including fractional scales, negative viewport origins and
+horizontal/vertical flips. Sampling, alpha rejection, fog, blending and depth
+remain GPU operations. The integer texture format is defined in the
+[Khronos GLES texture API](https://registry.khronos.org/OpenGL-Refpages/es3.0/html/glTexImage2D.xhtml).
+This avoids a multiply-versus-DDA texel-boundary discrepancy without relying on
+driver-specific floating-point contraction or arbitrary coordinate offsets.
+
+Added ALPHA, LUMINANCE and LUMINANCE_ALPHA texture combiners, including filtering,
+mips and mutation/revision tracking. Sprite images use raw converted ARGB pixels,
+not mesh texture combiners. A fully transparent sprite never writes color or
+depth, including when its alpha threshold is zero.
+
+New checks cover all fifteen added format/combiner pairs, mutable base/mip images,
+160 sprite projection/crop/flip/fog/blend/mask combinations, exact fractional
+sampling, transparent occlusion, image-target feedback, oversized fallback and
+empty-sprite residency. REPLACE sprite comparisons are exact. Hardware blending
+uses normalized arithmetic rather than CPU integer truncation: three overlaid
+draws allow six channel levels, or fourteen for MODULATE_X2 because each layer
+also amplifies previous rounding. This is not a pixel-identical renderer claim.
+The dedicated depth, context restoration and mixed mesh/sprite tests remain.
+
+Final non-debuggable research builds pass **112 checks, zero skips** on both
+Retroid Pocket Classic arm64/Android 14 and the Phone emulator x86_64/Android 15.
+The emulator's first run exceeded the old 90-second command limit while still
+making test progress. Instrumentation now has a bounded 300-second timeout
+(`-TestTimeoutSeconds`); ordinary ADB commands remain bounded at 90 seconds.
+The timeout run is not counted as a pass. Scratch sprite image references are
+released when the renderer closes.
+
+Same-APK Retroid measurements (Adreno A12, thermal status 0 before/after):
+
+| Scene | Native CPU ms/frame | GLES3 ms/frame |
+| --- | ---: | ---: |
+| Three sprites 240x320 | 2.175 | 2.781 |
+| Three sprites 320x240 | 1.780 | 2.618 |
+
+All 28 benchmark scenes require actual GPU draws. Each sprite scene records
+672 draws and 224 upload/readback pairs across warmup and measured frames:
+three sprites share each resident frame. **Standalone sprites are still slower
+than native CPU** here; reduced mixed-backend barriers are not proof of faster
+games. The other 26 scene CRCs are unchanged from the depth/blend checkpoint.
+Sprite comparisons against native CPU have maximum channel error 4, mean error
+1.769/1.438 at portrait/landscape sizes, consistent with repeated blending.
+
+![GPU sprite benchmark, not a game screenshot](sprite-layers-gpu.png)
+
+Benchmark APK / instrumentation SHA-256:
+
+```text
+C84C74B69C5F7628BBB599716BC66B4C07E74B885F8CE6283B7ABCC9401D7C44
+C880FF88C9BB103F568E688531BA10AE0B5F3236E545E4BA4859BF0146E43CDA
+```
+
+Those Handheld APKs also passed the final verifier. Phone APK / instrumentation:
+
+```text
+B4A236929CDDB542FC1A18F607205FD4189CA1DA7FD5AAF5F6887171472B1904
+59B9066A63417B5BE317DC0E5DB667BC0DC973DA342FF3D9F779F119D7943F1D
+```
+
+Verified GPU-off APK snapshot: `build/gpu-sprites-verified`. Tests explicitly
+enable GPU; this is not a default-on release configuration.
+
+Local evidence: `build/benchmarks/gpu-sprites-formats` and
+`build/benchmarks/gpu-sprites-native-reference`. GPU remains off by default.
+
+A fresh GPU-enabled Deep: Submarine Odyssey session on Retroid progresses from
+player setup through moving 3D scenery to an in-game tutorial dialogue. Pause,
+options and resume respond to ADB-injected keys. The bounded diagnostic file
+records 128,001 GPU calls, 133,331 empty meshes and 11,330 uploads at its last
+checkpoint; those are not total session counts or FPS. Its sprite counter is
+zero, so this game capture is **not evidence of Sprite3D usage**. Sprite support
+is exercised by the tests and benchmarks above. A CPU fallback remains recorded
+with an empty GPU-failure string. No complete-game, audio or physical-controller
+acceptance is claimed. The isolated research app was stopped after capture.
+
+![Deep tutorial dialogue over a 3D scene on Retroid](retroid-deep-gpu-followup.png)
+
+Game APK SHA-256:
+`15E10BCF7F6D3AF0E41B4FDF610CA1B806C795871CFCD668095F4C9D7F557A16`.
+Local capture/log: `build/gpu-sprites-deep.png`,
+`build/gpu-sprites-deep-session.txt`. No games or APKs are added to Git.
+
+Next work is context-loss recovery and reducing per-draw overhead, followed by
+broader real-game acceptance before any engine switch or public beta.
 
 ## Depth Offsets and Framebuffer Multiplication: 2026-10-12
 

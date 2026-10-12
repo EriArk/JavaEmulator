@@ -148,7 +148,7 @@ public class M3gBenchmark {
                         .put("shadedVertices", shadedVertices == null ? -1 : shadedVertices.getLong(null)-shadedStart)
                         .put("nativeDraws", counter == null ? 0 : counter.getLong(null)-nativeStart));
                 if ("native".equals(raster)) assertTrue("Native path was not exercised", counter.getLong(null)>nativeStart);
-                if ("gpu".equals(raster) && !kind.equals("sprites")) {
+                if ("gpu".equals(raster)) {
                     assertTrue("GPU path was not exercised",gpuDraws.getLong(null)>gpuStart);
                 }
                 if ("gpu".equals(raster) && kind.equals("multi-draw")) {

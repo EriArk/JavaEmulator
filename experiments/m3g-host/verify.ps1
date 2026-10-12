@@ -2,6 +2,7 @@ param(
     [Parameter(Mandatory = $true)][string]$Serial,
     [ValidateSet('candidate', 'baseline')][string]$Engine = 'candidate',
     [ValidateSet('fdroid', 'phone')][string]$Variant = 'fdroid',
+    [ValidateRange(30,600)][int]$TestTimeoutSeconds = 300,
     [string]$Adb = "$env:ANDROID_HOME/platform-tools/adb.exe"
 )
 $ErrorActionPreference = 'Stop'
@@ -20,7 +21,7 @@ foreach ($artifact in @(@{path=$apk; id=$package}, @{path=$test; id="$package.te
     if ($metadata.applicationId -ne $artifact.id) { throw 'Not an isolated research application' }
 }
 
-function Invoke-Adb([string[]]$Arguments) {
+function Invoke-Adb([string[]]$Arguments, [int]$TimeoutMs = 90000) {
     $info = New-Object Diagnostics.ProcessStartInfo
     $info.FileName = $Adb
     $info.Arguments = ((@('-s', $Serial) + $Arguments) | ForEach-Object {
@@ -35,7 +36,7 @@ function Invoke-Adb([string[]]$Arguments) {
     try {
         $stdout = $process.StandardOutput.ReadToEndAsync()
         $stderr = $process.StandardError.ReadToEndAsync()
-        if (-not $process.WaitForExit(90000)) {
+        if (-not $process.WaitForExit($TimeoutMs)) {
             $process.Kill(); $process.WaitForExit()
             throw 'ADB timeout; no test pass can be inferred'
         }
@@ -80,14 +81,15 @@ if ($Engine -eq 'candidate') {
     $classes += ',javax.microedition.m3g.GpuRasterizerTest'
     $classes += ',javax.microedition.m3g.GpuTextureTest'
     $classes += ',javax.microedition.m3g.GpuEffectsTest'
-    $expectedTests += 53
+    $classes += ',javax.microedition.m3g.GpuSpriteTest'
+    $expectedTests += 61
 }
 if ($measured) {
     $classes += ',javax.microedition.shell.M3gTargetMeterTest'
     $expectedTests += 7
 }
 $result = Invoke-Adb @('shell', 'am', 'instrument', '-w', '-r', '-e', 'class',
-    $classes, "$package.test/androidx.test.runner.AndroidJUnitRunner")
+    $classes, "$package.test/androidx.test.runner.AndroidJUnitRunner") -TimeoutMs ($TestTimeoutSeconds * 1000)
 $result | Set-Content -Encoding UTF8 (Join-Path $out 'tests.txt')
 [pscustomobject]@{
     engine = $Engine

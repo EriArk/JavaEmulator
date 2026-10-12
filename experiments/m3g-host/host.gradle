@@ -158,8 +158,7 @@ if (candidate) {
             text = text.replace('public static void initGraphics3D() { instance = null; }',
                     'public static void initGraphics3D() { GpuRasterizer.close(); instance = null; }')
             ['public void bindTarget(Object target, boolean depthBuffer, int hints)',
-             'public void clear(Background background)', 'public void releaseTarget()',
-             'private void renderSprite(Sprite3D sprite, Transform transform, int alphaFactor)'].each { signature ->
+             'public void clear(Background background)', 'public void releaseTarget()'].each { signature ->
                 def barrier = signature + '\n\t{'
                 if (text.count(barrier)!=1) throw new GradleException("GPU barrier drift: ${signature}")
                 text = text.replace(barrier, barrier + '\n        GpuRasterizer.flush();')

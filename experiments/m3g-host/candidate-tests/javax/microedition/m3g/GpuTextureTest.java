@@ -5,6 +5,51 @@ import org.junit.Test;
 import static org.junit.Assert.*;
 
 public class GpuTextureTest {
+    @Test public void alphaAndLuminanceCombinersKeepTheirChannelSemantics() {
+        for(int format:new int[]{Image2D.ALPHA,Image2D.LUMINANCE,Image2D.LUMINANCE_ALPHA})
+            for(int mode:new int[]{Texture2D.FUNC_REPLACE,Texture2D.FUNC_MODULATE,
+                    Texture2D.FUNC_ADD,Texture2D.FUNC_BLEND,Texture2D.FUNC_DECAL}) {
+                byte[] pixel=format==Image2D.ALPHA?new byte[]{(byte)144}:
+                        format==Image2D.LUMINANCE?new byte[]{96}:new byte[]{96,(byte)144};
+                Texture2D texture=new Texture2D(new Image2D(format,1,1,pixel));
+                texture.setBlending(mode); texture.setBlendColor(0xc04080);
+                int expected;
+                if(mode==Texture2D.FUNC_DECAL) expected=0xb0705030;
+                else if(format==Image2D.ALPHA) expected=((mode==Texture2D.FUNC_REPLACE?144:(176*144+128)/256)<<24)|0x705030;
+                else expected=combine(0xb0705030,0x90606060,mode,format==Image2D.LUMINANCE_ALPHA,0xc04080);
+                assertEquals("CPU "+format+"/"+mode,expected,render(quad(texture),false));
+                assertEquals("GPU "+format+"/"+mode,expected,render(quad(texture),true));
+            }
+    }
+
+    @Test public void luminanceMipFilteringAndAlphaMutationMatchCpu() {
+        for(int format:new int[]{Image2D.ALPHA,Image2D.LUMINANCE,Image2D.LUMINANCE_ALPHA}) {
+            Image2D image=new Image2D(format,16,8); int channels=format==Image2D.LUMINANCE_ALPHA?2:1;
+            byte[] data=new byte[16*8*channels];
+            for(int i=0;i<data.length;i++) data[i]=(byte)(40+(i*17)%176);
+            image.set(0,0,16,8,data);
+            Texture2D texture=new Texture2D(image); texture.setBlending(Texture2D.FUNC_MODULATE);
+            Mesh mesh=quad(texture);
+            // Constant coordinates isolate filtering/format semantics from raster sample positions.
+            mesh.getVertexBuffer().setTexCoords(0,coords(),0,new float[]{.37f,.61f,0});
+            for(int filter:new int[]{Texture2D.FILTER_BASE_LEVEL,Texture2D.FILTER_NEAREST,Texture2D.FILTER_LINEAR}) {
+                texture.setFiltering(filter,Texture2D.FILTER_LINEAR);
+                assertChannels(render(mesh,false),render(mesh,true),2);
+            }
+            // Uniform levels make LOD differences observable without spatial sample ambiguity.
+            for(int level=0;level<5;level++) {
+                Image2D mip=texture.getImageForLOD(level);
+                byte[] pixels=new byte[mip.getWidth()*mip.getHeight()*channels];
+                java.util.Arrays.fill(pixels,(byte)(64+level*32));
+                mip.set(0,0,mip.getWidth(),mip.getHeight(),pixels);
+            }
+            mesh.getVertexBuffer().setTexCoords(0,coords(),3,null);
+            assertChannels(render(mesh,false),render(mesh,true),2);
+            java.util.Arrays.fill(data,(byte)192); image.set(0,0,16,8,data);
+            assertChannels(render(mesh,false),render(mesh,true),2);
+        }
+    }
+
     @After public void restore() {
         Graphics3D.getInstance().releaseTarget(); GpuRasterizer.close(); GpuRasterizer.enabled=false;
     }
