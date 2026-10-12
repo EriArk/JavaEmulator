@@ -11,6 +11,16 @@ stated otherwise. **Experimental** means local/private combined builds only.
 
 ## 2026-10-12
 
+- **Separate experiment / not shipped:** added GPU Sprite3D and the remaining
+  alpha/luminance image formats. Sprites and 3D meshes now share the same frame;
+  invisible sprites no longer trigger needless transfers. Preserved exact crop,
+  flip and fractional sampling, and transparent pixels do not block later objects.
+  Final Retroid/Phone emulator builds each pass 112 checks; all 28 benchmark
+  scenes use GPU. Standalone sprites remain slower than CPU, so GPU stays off
+  by default. A fresh Deep session reaches a tutorial dialogue over 3D scenery;
+  screenshots and limits are recorded. No engine/license switch or release APK.
+  [Implementation and evidence](https://github.com/EriArk/JavaEmulator/blob/285d26ce/experiments/m3g-host/gpu/README.md).
+
 - **Separate experiment / not shipped:** moved depth bias and remaining
   framebuffer multiplication modes onto GPU. Fixed needless readbacks for empty
   models and incorrect object ordering after negative CPU depth. Final Retroid

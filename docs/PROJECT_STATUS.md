@@ -35,7 +35,7 @@ bundled. The app UI is English.
 | Public development source | `main`; latest app-code change at this review: [d39ed742](https://github.com/EriArk/JavaEmulator/commit/d39ed742) | Unreleased Java/UI/storage improvements listed below; not all are in the downloadable beta |
 | Private combined test snapshot | `0.1.0-beta.2-experimental.15`, 2026-10-11 | Handheld and Phone debug APKs containing Java plus experimental Mophun; supplied separately to testers, not a GitHub release |
 | Local-only implementation | Ignored optional-engine source and diagnostics | Mophun integration, game-specific experiments and test fixtures; public descriptions below, implementation not published |
-| Separate research branch | [`codex/m3g-replacement`](https://github.com/EriArk/JavaEmulator/tree/codex/m3g-replacement), code checkpoint `333dd8a0` | Off-by-default GLES3 now also handles bounded depth bias and all framebuffer blend modes. Fixed unnecessary empty-mesh readbacks and incorrect ordering after negative CPU depth. 104 checks per device; 26 of 28 benchmark scenes use GPU. Fresh Retroid Asphalt gameplay confirms GPU-biased draws. Some workloads still lose to CPU; no complete-game acceptance, production-engine switch or new public beta |
+| Separate research branch | [`codex/m3g-replacement`](https://github.com/EriArk/JavaEmulator/tree/codex/m3g-replacement), code checkpoint `285d26ce` | Off-by-default GLES3 now handles Sprite3D and all five image formats, sharing retained mesh/sprite color and depth. 112 checks per device; all 28 benchmark scenes use GPU. Fresh Retroid Deep session reaches a tutorial dialogue over 3D scenery. Standalone sprites remain slower than CPU; no complete-game acceptance, production-engine switch or new public beta |
 
 The experimental number is a distribution label: build 15 still reports
 version code **102** and `0.1.0-beta.2` / `0.1.0-beta.2-phone` internally.
@@ -612,6 +612,40 @@ Next implementation: remaining texture formats and GPU Sprite3D, then context
 loss recovery and wider compatibility/performance checks. GPU remains opt-in;
 main's engine, license and release APKs are unchanged.
 [Source, fresh screenshot, checks and timing limits](https://github.com/EriArk/JavaEmulator/blob/333dd8a0/experiments/m3g-host/gpu/README.md).
+
+### GPU Sprites and Image Formats: 2026-10-12
+
+Source checkpoint: [`285d26ce`](https://github.com/EriArk/JavaEmulator/commit/285d26ce),
+**research branch only; GPU off by default**.
+
+- Sprite3D now shares the GPU color/depth buffers with meshes. Invisible sprites
+  no longer force a frame readback; CPU fallbacks and image-target visibility are
+  preserved. Exact row/column indices retain software crop/flip and fractional
+  scaling behavior without a CPU pixel-render loop or sprite mipmap generation.
+- Added ALPHA, LUMINANCE and LUMINANCE_ALPHA texture combiners. Sprite images
+  preserve raw image/zero-alpha behavior rather than using mesh combiner rules.
+- Final isolated Handheld and Phone builds each pass **112 checks, zero skips**
+  on Retroid arm64/Android 14 and emulator x86_64/Android 15. Tests cover mutable
+  textures, transparency/depth, aliases, oversized fallback, invisible sprites
+  and 160 combinations of projection, crop, reflection, fog and blending.
+- All **28 benchmark scenes** now require real GPU calls. The other 26 scene
+  images are unchanged from the previous GPU checkpoint. Sprites differ from
+  CPU by at most four channel levels in these benchmark images due to repeated
+  normalized blending. This does not claim general pixel identity.
+- Standalone three-sprite scenes are **slower on GPU**: 2.781/2.618 ms versus
+  native CPU 2.175/1.780 ms at portrait/landscape sizes. Their three draws share
+  one upload/readback pair. Removing mixed-backend barriers is useful coverage,
+  not proof that complete games are faster.
+- A fresh GPU-enabled Deep session on Retroid reaches an in-game tutorial
+  dialogue over visible moving 3D scenery. Its bounded log records 128,001 GPU
+  calls but zero Sprite3D calls, so game-level sprite usage is not claimed.
+  Controls were ADB-injected; audio/full-game acceptance remains unverified.
+
+Evidence, exact APK hashes and screenshots:
+[GPU report](https://github.com/EriArk/JavaEmulator/blob/285d26ce/experiments/m3g-host/gpu/README.md).
+No APKs or games are committed. Remaining engine work includes context-loss
+recovery, lower per-draw overhead and broader real-game/performance acceptance.
+Main's engine, root licensing and public beta APKs are unchanged.
 
 ## Distribution and Licensing Status
 
