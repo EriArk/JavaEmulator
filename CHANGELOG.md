@@ -11,6 +11,16 @@ stated otherwise. **Experimental** means local/private combined builds only.
 
 ## 2026-10-12
 
+- **Separate experiment / not shipped:** moved depth bias and remaining
+  framebuffer multiplication modes onto GPU. Fixed needless readbacks for empty
+  models and incorrect object ordering after negative CPU depth. Final Retroid
+  and Phone emulator builds each pass 104 checks; all 22 earlier benchmark
+  images remain unchanged. A fresh Asphalt session confirms thousands of
+  GPU-biased draws with visible gameplay. Effects are not uniformly faster than
+  CPU in isolation; no full-game/audio acceptance or release is claimed.
+  GPU stays off by default and main's engine/license/APKs are unchanged.
+  [Implementation, screenshot and remaining limits](https://github.com/EriArk/JavaEmulator/blob/333dd8a0/experiments/m3g-host/gpu/README.md).
+
 - **Separate experiment / not shipped:** added four texture layers, all texture
   blend modes and mipmapping to the experimental GPU renderer. Cached unchanged
   uploads, preserved mutable textures and fixed constant-coordinate mip selection.

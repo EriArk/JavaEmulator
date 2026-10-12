@@ -35,7 +35,7 @@ bundled. The app UI is English.
 | Public development source | `main`; latest app-code change at this review: [d39ed742](https://github.com/EriArk/JavaEmulator/commit/d39ed742) | Unreleased Java/UI/storage improvements listed below; not all are in the downloadable beta |
 | Private combined test snapshot | `0.1.0-beta.2-experimental.15`, 2026-10-11 | Handheld and Phone debug APKs containing Java plus experimental Mophun; supplied separately to testers, not a GitHub release |
 | Local-only implementation | Ignored optional-engine source and diagnostics | Mophun integration, game-specific experiments and test fixtures; public descriptions below, implementation not published |
-| Separate research branch | [`codex/m3g-replacement`](https://github.com/EriArk/JavaEmulator/tree/codex/m3g-replacement), code checkpoint `5433c574` | Off-by-default GLES3 supports four texture layers and mipmapping alongside retained frames, alpha/additive transparency and fog. 98 checks per device, including seventeen explicit GPU checks. Texture-heavy synthetic cases improve about 1.7-2.9x versus native CPU; simple cases can still lose. GPU-enabled Asphalt and Deep reach gameplay on Retroid, with CPU fallback for unsupported draws. No complete-game acceptance, production-engine switch or new public beta |
+| Separate research branch | [`codex/m3g-replacement`](https://github.com/EriArk/JavaEmulator/tree/codex/m3g-replacement), code checkpoint `333dd8a0` | Off-by-default GLES3 now also handles bounded depth bias and all framebuffer blend modes. Fixed unnecessary empty-mesh readbacks and incorrect ordering after negative CPU depth. 104 checks per device; 26 of 28 benchmark scenes use GPU. Fresh Retroid Asphalt gameplay confirms GPU-biased draws. Some workloads still lose to CPU; no complete-game acceptance, production-engine switch or new public beta |
 
 The experimental number is a distribution label: build 15 still reports
 version code **102** and `0.1.0-beta.2` / `0.1.0-beta.2-phone` internally.
@@ -578,6 +578,40 @@ framebuffer blend modes, plus reducing CPU/GPU transitions observed in games.
 Context-loss recovery and broader performance/compatibility acceptance remain.
 Main's engine, root license, public APKs and private combined build are unchanged.
 [Source, screenshots and measured limits](https://github.com/EriArk/JavaEmulator/blob/5433c574/experiments/m3g-host/gpu/README.md).
+
+### GPU Depth Bias and Framebuffer Blending: 2026-10-12
+
+Added bounded depth offsets and MODULATE/MODULATE_X2 to the GPU backend, preserving
+the CPU candidate's depth-bias formula, channel masks and alpha/fog behavior.
+These effects can remain in the resident GPU frame without intermediate CPU
+drawing. Unsupported ranges and nonfinite bias still fall back, not silently clamp.
+
+Fixed two defects in this batch: fully clipped models no longer force readback
+or access a nonexistent first renderable triangle; negative signed depth written
+by extreme CPU bias no longer becomes incorrect unsigned GPU depth. The latter
+was reproduced as a failing Retroid regression and repaired. Affected buffers
+remain on CPU until their depth is safe again, including after clear. Ordinary
+buffers do not incur the added signed-depth scan.
+
+**Verified:** final Handheld/Phone research builds pass 104 checks each, zero skips,
+on Retroid and the emulator. Added six focused checks and extended existing
+fog/alpha/mask cases to both multiplication modes. Six visible draws separated
+by clipped models and blend changes retain one upload/readback pair. All 22
+preceding GPU-run benchmark images are unchanged; 26 of 28 current scenes use
+GPU, and both sprite fallbacks retain exact native CPU images. Isolated effects
+are not uniformly faster than CPU; no new whole-game speedup is claimed.
+
+A fresh GPU-enabled Retroid build reaches a moving Asphalt race with visible
+car, track, shadow and HUD. The recorded session reaches 64,513 GPU draws,
+including 5,740 biased draws; 56,101 empty meshes skip the CPU barrier. These
+are diagnostic checkpoints, not FPS. Sound was disabled and input injected;
+RTX media decoding errors in the log remain outside this renderer verification.
+No complete-game, audio or physical-controller acceptance is implied.
+
+Next implementation: remaining texture formats and GPU Sprite3D, then context
+loss recovery and wider compatibility/performance checks. GPU remains opt-in;
+main's engine, license and release APKs are unchanged.
+[Source, fresh screenshot, checks and timing limits](https://github.com/EriArk/JavaEmulator/blob/333dd8a0/experiments/m3g-host/gpu/README.md).
 
 ## Distribution and Licensing Status
 
