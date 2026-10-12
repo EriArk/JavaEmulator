@@ -11,6 +11,15 @@ stated otherwise. **Experimental** means local/private combined builds only.
 
 ## 2026-10-12
 
+- **Separate experiment / not shipped:** replaced dithered mip-level switching
+  with real level interpolation, including alpha, in Java and native rendering.
+  Corrected detail selection for narrow projections and nearest-level rounding.
+  Precomputed native scales reduce the cost of the higher-quality filter.
+  Both devices pass 74 checks, all 18 Java/native benchmark scenes match, and
+  the standalone probe builds. Filtering costs more than the old approximation;
+  no legacy-GLES performance-parity claim, production switch or new release.
+  [Implementation and limits](https://github.com/EriArk/JavaEmulator/blob/610302b1/experiments/m3g-host/native/README.md).
+
 - **Separate experiment / not shipped:** accelerated mipmapped textures and
   Sprite3D rendering, retaining the shared-buffer Java fallback. Fixed lost
   fractional texture coordinates, rectangular/NPOT mip scaling and stale levels
