@@ -35,7 +35,7 @@ bundled. The app UI is English.
 | Public development source | `main`; latest app-code change at this review: [d39ed742](https://github.com/EriArk/JavaEmulator/commit/d39ed742) | Unreleased Java/UI/storage improvements listed below; not all are in the downloadable beta |
 | Private combined test snapshot | `0.1.0-beta.2-experimental.15`, 2026-10-11 | Handheld and Phone debug APKs containing Java plus experimental Mophun; supplied separately to testers, not a GitHub release |
 | Local-only implementation | Ignored optional-engine source and diagnostics | Mophun integration, game-specific experiments and test fixtures; public descriptions below, implementation not published |
-| Separate research branch | [`codex/m3g-replacement`](https://github.com/EriArk/JavaEmulator/tree/codex/m3g-replacement), code checkpoint `88d48084` | Off-by-default GLES3 now retains consecutive Graphics-target draws and supports alpha/additive transparency plus fog. 92 checks per device, including eleven explicit GPU checks. Sixteen-mesh scenes improve from 21-22 to 5.4-5.7 ms versus per-mesh GPU transfers; eight fallback scenes retain exact CPU pixels. Some scenes still lose to CPU. No real-game GPU acceptance, production-engine switch or new public beta |
+| Separate research branch | [`codex/m3g-replacement`](https://github.com/EriArk/JavaEmulator/tree/codex/m3g-replacement), code checkpoint `5433c574` | Off-by-default GLES3 supports four texture layers and mipmapping alongside retained frames, alpha/additive transparency and fog. 98 checks per device, including seventeen explicit GPU checks. Texture-heavy synthetic cases improve about 1.7-2.9x versus native CPU; simple cases can still lose. GPU-enabled Asphalt and Deep reach gameplay on Retroid, with CPU fallback for unsupported draws. No complete-game acceptance, production-engine switch or new public beta |
 
 The experimental number is a distribution label: build 15 still reports
 version code **102** and `0.1.0-beta.2` / `0.1.0-beta.2-phone` internally.
@@ -546,6 +546,38 @@ Next proposed work: GPU mipmapping and multiple texture layers, followed by
 representative real-game comparison and fixes. These are still implementation
 tasks, not release readiness.
 [Source, exact measurements and artifact hashes](https://github.com/EriArk/JavaEmulator/blob/88d48084/experiments/m3g-host/gpu/README.md).
+
+### GPU Texture Layers and Mipmaps: 2026-10-12
+
+Implemented four independent RGB/RGBA layers and all five texture combiners on
+GLES3, including sparse original texture slots. Added base-level, nearest-mip
+and trilinear sampling using the existing software-generated levels. Mutable
+images and individual mip edits invalidate a bounded upload cache. Cached uniform
+locations and unchanged uploads remove repeated work. Constant UV coordinates no
+longer depend on undefined logarithm behavior in the shader.
+
+**Verified:** final Handheld/Phone research builds pass 98 checks each, zero skips,
+on Retroid Pocket Classic and the Android emulator. Twenty of 22 synthetic cases
+now exercise GPU draws; both sprite fallback cases retain exact native-CPU pixels.
+Same-APK texture-heavy cases cost about 1.7-2.9x less than native CPU, but simple
+nearest-filter and lit-grid cases can still lose. All 22 before/after-cache images
+match. These are bounded renderer timings, not overall game FPS or old-engine
+performance parity. Timing runs preceded the final constant-UV guard; final
+correctness checks include it.
+
+A separate GPU-enabled Retroid build reaches Asphalt 3's moving race, including
+lap 2/3, and Deep: Submarine Odyssey's first playable area after setup/intro.
+Bounded diagnostic files confirm over 125,000 GPU draws per game session.
+Unsupported draws still use CPU. Deep captures change after injected input;
+audio was disabled and physical-button ergonomics/full playthroughs were not
+tested. This Java Deep game is not Mophun's Deep Abyss. Screenshots, artifact
+hashes and reproducible checks are recorded in the research documentation.
+
+GPU stays off by default. Next implementation: depth offsets and remaining
+framebuffer blend modes, plus reducing CPU/GPU transitions observed in games.
+Context-loss recovery and broader performance/compatibility acceptance remain.
+Main's engine, root license, public APKs and private combined build are unchanged.
+[Source, screenshots and measured limits](https://github.com/EriArk/JavaEmulator/blob/5433c574/experiments/m3g-host/gpu/README.md).
 
 ## Distribution and Licensing Status
 
