@@ -35,7 +35,7 @@ bundled. The app UI is English.
 | Public development source | `main`; latest app-code change at this review: [d39ed742](https://github.com/EriArk/JavaEmulator/commit/d39ed742) | Unreleased Java/UI/storage improvements listed below; not all are in the downloadable beta |
 | Private combined test snapshot | `0.1.0-beta.2-experimental.15`, 2026-10-11 | Handheld and Phone debug APKs containing Java plus experimental Mophun; supplied separately to testers, not a GitHub release |
 | Local-only implementation | Ignored optional-engine source and diagnostics | Mophun integration, game-specific experiments and test fixtures; public descriptions below, implementation not published |
-| Separate research branch | [`codex/m3g-replacement`](https://github.com/EriArk/JavaEmulator/tree/codex/m3g-replacement), code checkpoint `285d26ce` | Off-by-default GLES3 now handles Sprite3D and all five image formats, sharing retained mesh/sprite color and depth. 112 checks per device; all 28 benchmark scenes use GPU. Fresh Retroid Deep session reaches a tutorial dialogue over 3D scenery. Standalone sprites remain slower than CPU; no complete-game acceptance, production-engine switch or new public beta |
+| Separate research branch | [`codex/m3g-replacement`](https://github.com/EriArk/JavaEmulator/tree/codex/m3g-replacement), code checkpoint `52ec72d0` | Off-by-default GLES3 now restores pending frames after owned-context loss using bounded replay. Reduced allocation/setup overhead; all 28 benchmark images remain unchanged. Controlled fault checks are not a real OS/driver-reset guarantee. Whole-game performance acceptance, production-engine switch and a new public beta remain pending |
 
 The experimental number is a distribution label: build 15 still reports
 version code **102** and `0.1.0-beta.2` / `0.1.0-beta.2-phone` internally.
@@ -646,6 +646,42 @@ Evidence, exact APK hashes and screenshots:
 No APKs or games are committed. Remaining engine work includes context-loss
 recovery, lower per-draw overhead and broader real-game/performance acceptance.
 Main's engine, root licensing and public beta APKs are unchanged.
+
+### GPU Context Recovery: 2026-10-12
+
+Source checkpoint: [`52ec72d0`](https://github.com/EriArk/JavaEmulator/commit/52ec72d0),
+**research branch only; GPU off by default**.
+
+The renderer now reconstructs its pending frame after loss of its private GPU
+context, preserving texture versions, geometry, transparency, fog and depth.
+Color and depth commit together only after successful readback and restoration
+of the caller's EGL context. Repeated loss is bounded and explicit, not silent
+continuation with missing objects. A journal checkpoints at 8 MiB of accounted
+payload or 256 draws; the direct-buffer reuse pool is capped at 4 MiB/64 buffers.
+These are not application-wide memory limits.
+
+Removed redundant framebuffer, vertex-layout and sampler setup. Fixed an initial
+allocation regression in the journal: the 16-mesh fixture fell from 6.179/6.373
+to 5.626/5.823 ms at portrait/landscape sizes. A same-device rerun of the previous
+checkpoint gave 5.573/5.798 ms. All 28 benchmark images remain unchanged and
+require real GPU calls. This is not a general speedup or game-FPS claim.
+
+Seven added regression cases destroy the private context before/after drawing
+and during readback, comparing complete color/depth with uninterrupted output.
+They cover changed textures/mips, reused geometry, fog, sprites, journal limits,
+caller EGL state, persistent failure and reset. This does not reproduce a real
+system-wide graphics-driver reset. Whole-game/audio/controller acceptance and
+an automatic choice of the fastest renderer remain open.
+
+Final Handheld and Phone artifacts each pass **119 checks, zero skips**, on
+Retroid Pocket Classic arm64/Android 14 and the Phone emulator x86_64/Android 15.
+The final setup/error-classification guards are included in these verified builds;
+timed and final artifacts are identified separately in the report.
+
+[Implementation, artifact hashes, measurements and verification](https://github.com/EriArk/JavaEmulator/blob/a7b5d204/experiments/m3g-host/gpu/README.md).
+Next implementation target: batch GPU submission to reduce per-object context
+switching, then compare representative game scenes and fix observed mismatches.
+Main's application code, root licensing and published APKs are unchanged.
 
 ## Distribution and Licensing Status
 
