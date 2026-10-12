@@ -11,6 +11,15 @@ stated otherwise. **Experimental** means local/private combined builds only.
 
 ## 2026-10-12
 
+- **Separate experiment / not shipped:** added native CPU acceleration for the
+  alternative M3G renderer, keeping the Java fallback and shared color/depth
+  buffers. Fixed independent repeat/clamp texture axes. Same-APK synthetic
+  scenes render 1.74-2.02x faster with identical pixels; this is not game FPS
+  or parity with the faster legacy GLES engine. Retroid Handheld and Phone
+  emulator each pass 63 checks, and Asphalt reaches a moving Retroid race.
+  Production M3G, root licensing and release APKs remain unchanged.
+  [Implementation and measured limits](https://github.com/EriArk/JavaEmulator/blob/1b302bb9/experiments/m3g-host/native/README.md).
+
 - **Separate experiment / not shipped:** fixed a crash with nonconsecutive M3G
   texture units and replaced the external angle approximation with platform
   math. Added two shared raster regressions, two candidate math checks, and
