@@ -1,13 +1,26 @@
 # AbyssME Changelog
 
 User-facing development history, reconstructed from commits, release notes and
-local/private build records through **2026-10-12**. This is not a claim that all
+local/private build records through **2026-10-13**. This is not a claim that all
 listed work is in a public APK. See [current status](docs/PROJECT_STATUS.md) for
 availability, verification, known limits and screenshot guidance.
 
 Labels: **Public source** means implemented on `main` but unreleased unless
 stated otherwise. **Experimental** means local/private combined builds only.
 **Released** means an actual GitHub release asset.
+
+## 2026-10-13
+
+- **Separate experiment / not shipped:** batched GPU rendering of meshes and
+  sprites, reducing repeated context switches and geometry uploads while
+  preserving CPU/2D drawing order and context-loss recovery. Retroid's 16-mesh
+  benchmark costs 23-26% less than immediate GPU submission; all 28 benchmark
+  images are unchanged. Both final variants pass 124 checks without skips.
+  Added fresh Retroid screenshots: Asphalt gameplay and Deep's animated menu,
+  alongside original-engine references. These are not full-game parity or FPS
+  guarantees. GPU remains off by default; main's engine/license and public APKs
+  are unchanged.
+  [Implementation, measurements and screenshots](https://github.com/EriArk/JavaEmulator/blob/33619e43/experiments/m3g-host/gpu/README.md).
 
 ## 2026-10-12
 
