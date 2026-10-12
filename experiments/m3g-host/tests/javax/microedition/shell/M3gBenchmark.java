@@ -27,6 +27,8 @@ public class M3gBenchmark {
         String raster = InstrumentationRegistry.getArguments().getString("benchRaster");
         java.lang.reflect.Field nativeEnabled = null, nativeDraws = null, nativeSprites = null;
         java.lang.reflect.Field gpuEnabled = null, gpuDraws = null, gpuRenderer = null;
+        java.lang.reflect.Field gpuUploads=null, gpuReadbacks=null, gpuRetain=null;
+        String resident=InstrumentationRegistry.getArguments().getString("benchGpuResident");
         try {
             Class<?> backend = Class.forName("javax.microedition.m3g.NativeRasterizer");
             nativeEnabled = backend.getDeclaredField("enabled");
@@ -43,6 +45,13 @@ public class M3gBenchmark {
             gpuEnabled=gpu.getDeclaredField("enabled"); gpuEnabled.setAccessible(true);
             gpuDraws=gpu.getDeclaredField("draws"); gpuDraws.setAccessible(true);
             gpuRenderer=gpu.getDeclaredField("renderer"); gpuRenderer.setAccessible(true);
+            gpuUploads=gpu.getDeclaredField("uploads"); gpuUploads.setAccessible(true);
+            gpuReadbacks=gpu.getDeclaredField("readbacks"); gpuReadbacks.setAccessible(true);
+            gpuRetain=gpu.getDeclaredField("retainTargets"); gpuRetain.setAccessible(true);
+            if(resident!=null) {
+                assertTrue("benchGpuResident must be on or off",resident.equals("on") || resident.equals("off"));
+                gpuRetain.setBoolean(null,resident.equals("on"));
+            }
             gpuEnabled.setBoolean(null,"gpu".equals(raster));
         } catch (ClassNotFoundException baseline) {
             assertNull("No selectable native software backend in this APK", raster);
@@ -65,12 +74,13 @@ public class M3gBenchmark {
                         & android.content.pm.ApplicationInfo.FLAG_DEBUGGABLE) != 0)
                 .put("thermalStart", power.getCurrentThermalStatus())
                 .put("lightingCache", lighting == null ? "default" : lighting)
+                .put("gpuResident",gpuRetain!=null && gpuRetain.getBoolean(null))
                 .put("raster", "gpu".equals(raster) ? "gpu" : nativeEnabled == null ? "legacy" : nativeEnabled.getBoolean(null) ? "native" : "java");
         JSONArray cases = new JSONArray();
         report.put("cases", cases);
         for (int[] size : new int[][]{{240,320},{320,240}}) {
             for (String kind : new String[]{"rgb-nearest","rgb-linear","rgba-alpha","lit-fog","exp-fog","multi-texture",
-                    "mip-nearest","mip-linear","sprites","lighting-grid"}) {
+                    "mip-nearest","mip-linear","sprites","lighting-grid","multi-draw"}) {
                 String name = kind + "-" + size[0] + "x" + size[1];
                 if (kind.equals("multi-texture") && (Integer) Graphics3D.getProperties().get("numTextureUnits") < 4) {
                     assertNull("Candidate must support all four layers", nativeEnabled);
@@ -104,6 +114,8 @@ public class M3gBenchmark {
                 java.lang.reflect.Field counter=kind.equals("sprites") ? nativeSprites : nativeDraws;
                 long nativeStart = counter == null ? 0 : counter.getLong(null);
                 long gpuStart = gpuDraws == null ? 0 : gpuDraws.getLong(null);
+                long uploadStart=gpuUploads==null?0:gpuUploads.getLong(null);
+                long readStart=gpuReadbacks==null?0:gpuReadbacks.getLong(null);
                 long shadedStart = shadedVertices == null ? 0 : shadedVertices.getLong(null);
                 for (int i = 0; i < 64; i++) frame(renderer, target, mesh, background, model);
                 JSONArray wall = new JSONArray(), cpu = new JSONArray();
@@ -130,11 +142,19 @@ public class M3gBenchmark {
                         .put("warmupFrames", 64).put("wallNs", wall).put("threadCpuNs", cpu)
                         .put("pixelCrc32", crc.getValue()).put("changedPixels", changed)
                         .put("gpuDraws", gpuDraws == null ? 0 : gpuDraws.getLong(null)-gpuStart)
+                        .put("gpuUploads",gpuUploads==null?0:gpuUploads.getLong(null)-uploadStart)
+                        .put("gpuReadbacks",gpuReadbacks==null?0:gpuReadbacks.getLong(null)-readStart)
                         .put("shadedVertices", shadedVertices == null ? -1 : shadedVertices.getLong(null)-shadedStart)
                         .put("nativeDraws", counter == null ? 0 : counter.getLong(null)-nativeStart));
                 if ("native".equals(raster)) assertTrue("Native path was not exercised", counter.getLong(null)>nativeStart);
-                if ("gpu".equals(raster) && (kind.startsWith("rgb-") || kind.equals("lighting-grid"))) {
+                if ("gpu".equals(raster) && (kind.startsWith("rgb-") || kind.equals("lighting-grid")
+                        || kind.equals("multi-draw") || kind.equals("rgba-alpha") || kind.endsWith("fog"))) {
                     assertTrue("GPU path was not exercised",gpuDraws.getLong(null)>gpuStart);
+                }
+                if ("gpu".equals(raster) && kind.equals("multi-draw")) {
+                    assertEquals(224*16,gpuDraws.getLong(null)-gpuStart);
+                    assertEquals(gpuRetain.getBoolean(null)?224:224*16,gpuUploads.getLong(null)-uploadStart);
+                    assertEquals(gpuUploads.getLong(null)-uploadStart,gpuReadbacks.getLong(null)-readStart);
                 }
                 renderer.releaseTarget();
             }
@@ -146,6 +166,7 @@ public class M3gBenchmark {
         }
         if (nativeEnabled != null) nativeEnabled.setBoolean(null, true);
         if (gpuEnabled != null) gpuEnabled.setBoolean(null, false);
+        if (gpuRetain != null) gpuRetain.setBoolean(null, true);
         if (lightingCache != null) lightingCache.setBoolean(null, true);
     }
 
@@ -157,6 +178,16 @@ public class M3gBenchmark {
 
     private Node scene(String kind) {
         if (kind.equals("lighting-grid")) return lightingGrid();
+        if (kind.equals("multi-draw")) {
+            Group group=new Group();
+            Mesh source=(Mesh)scene("rgb-linear");
+            for(int y=0;y<4;y++) for(int x=0;x<4;x++) {
+                Mesh mesh=new Mesh(source.getVertexBuffer(),source.getIndexBuffer(0),source.getAppearance(0));
+                mesh.setScale(.25f,.25f,1); mesh.setTranslation((x-1.5f)*.6f,(y-1.5f)*.6f,0);
+                group.addChild(mesh);
+            }
+            return group;
+        }
         int cells = 8, count = cells * cells * 4;
         short[] positions = new short[count * 3], uv = new short[count * 2];
         byte[] normals = new byte[count * 3];

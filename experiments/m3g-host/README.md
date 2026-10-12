@@ -189,6 +189,8 @@ steady-game measurement. A 90-second PSS series cannot prove absence of leaks.
 The candidate now includes an off-by-default GLES3 submesh backend, selected
 explicitly by `benchmark.ps1 -Raster gpu` or a manual `-Pm3gGpu=true` research
 build. Ordinary builds and main's engine are unaffected. Unsupported effects
-retain native-CPU/Java execution. The current verifier requires 87 candidate
-checks (81 earlier checks plus six GPU-specific checks), or 94 with measurement.
+retain native-CPU/Java execution. Consecutive Graphics-target draws share GPU
+color/depth until a CPU-access barrier; alpha blending and fog also run on GPU.
+The current verifier requires 92 candidate checks (81 earlier checks plus eleven
+GPU-specific checks), or 99 with measurement (not rerun in this checkpoint).
 See [scope, device evidence, screenshots and performance limits](gpu/README.md).

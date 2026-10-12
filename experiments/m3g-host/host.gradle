@@ -153,6 +153,13 @@ if (candidate) {
             text = text.replace(gpuHook, rootProject.file('experiments/m3g-host/gpu/mesh-hook.java.inc').getText('UTF-8') + gpuHook)
             text = text.replace('public static void initGraphics3D() { instance = null; }',
                     'public static void initGraphics3D() { GpuRasterizer.close(); instance = null; }')
+            ['public void bindTarget(Object target, boolean depthBuffer, int hints)',
+             'public void clear(Background background)', 'public void releaseTarget()',
+             'private void renderSprite(Sprite3D sprite, Transform transform, int alphaFactor)'].each { signature ->
+                def barrier = signature + '\n\t{'
+                if (text.count(barrier)!=1) throw new GradleException("GPU barrier drift: ${signature}")
+                text = text.replace(barrier, barrier + '\n        GpuRasterizer.flush();')
+            }
             if (text.count(nativeFields) != 1) throw new GradleException('Native state field drift')
             text = text.replace(nativeFields, nativeFields + '\n    private final float[] nativeState = new float[51];\n    private final int[] nativeFlags = new int[45];\n    private final int[][] nativeImages = new int[4][];')
             def nativeHook = 'int rowIdx = (originY + viewy + yStart) * canvasWidth + originX + viewx;'
