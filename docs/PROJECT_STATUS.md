@@ -35,7 +35,7 @@ bundled. The app UI is English.
 | Public development source | `main`; latest app-code change at this review: [d39ed742](https://github.com/EriArk/JavaEmulator/commit/d39ed742) | Unreleased Java/UI/storage improvements listed below; not all are in the downloadable beta |
 | Private combined test snapshot | `0.1.0-beta.2-experimental.15`, 2026-10-11 | Handheld and Phone debug APKs containing Java plus experimental Mophun; supplied separately to testers, not a GitHub release |
 | Local-only implementation | Ignored optional-engine source and diagnostics | Mophun integration, game-specific experiments and test fixtures; public descriptions below, implementation not published |
-| Separate research branch | [`codex/m3g-replacement`](https://github.com/EriArk/JavaEmulator/tree/codex/m3g-replacement), code checkpoint `3605df3a` | Native CPU raster acceleration for 1-4 texture layers and both fog modes, with Java fallback; zero-density fog tint fixed. 66 unmeasured Java-game checks per device. New layered/fog benchmark costs improve about 1.7-1.9x versus Java with exact pixels. Earlier combined-Mophun results remain separate; no production-engine switch or public beta |
+| Separate research branch | [`codex/m3g-replacement`](https://github.com/EriArk/JavaEmulator/tree/codex/m3g-replacement), code checkpoint `b624a71e` | Native CPU raster acceleration includes 1-4 texture layers, both fog modes, mipmaps and Sprite3D; fractional mip coordinates and stale levels fixed. 71 unmeasured Java-game checks per device. All 18 Java/native benchmark scenes match; new mip/sprite workloads improve about 1.3x/1.6x versus Java. Earlier combined-Mophun results remain separate; no production-engine switch or public beta |
 
 The experimental number is a distribution label: build 15 still reports
 version code **102** and `0.1.0-beta.2` / `0.1.0-beta.2-phone` internally.
@@ -413,6 +413,29 @@ are not accepted by this observation.
 Next implementation work is mipmap selection and sprite acceleration, while
 retaining their rendering behavior. Main's engine, licensing and release APKs
 remain unchanged. [Implementation, checks and measured limits](https://github.com/EriArk/JavaEmulator/blob/3605df3a/experiments/m3g-host/native/README.md).
+
+### Mipmaps and sprites: 2026-10-12
+
+Moved mipmapped texture sampling and Sprite3D pixel rendering to native code,
+preserving shared depth/color buffers, alpha, crop, filtering and Java fallback.
+Fixed fractional-coordinate loss, width-only scaling of rectangular/NPOT levels,
+and stale mipmaps after image edits or rendering into a texture. The pinned
+upstream checkout remains unchanged; patches are applied during candidate preparation.
+
+**Verified:** final Handheld Retroid and Phone emulator each pass 71 checks,
+zero skips. Added 64 mipmapped scene comparisons, 160 sprite combinations,
+fractional-sampling/cache invalidation regressions and malformed-packet checks.
+All 18 same-APK benchmark scenes have identical pixels. Mipmap workloads cost
+about 1.27-1.38x less than Java, sprites 1.57-1.65x less; these are synthetic
+rendering costs, not game FPS. Asphalt 3 reaches a running race on Retroid.
+
+The existing spatially dithered mip-level approximation is retained; this is
+not true trilinear filtering. Legacy GLES remains faster, and complete-game,
+audio and production-replacement acceptance are not established by this batch.
+Next: improve remaining filtering/scene-processing gaps with fixes and focused
+comparisons, not a per-title patch collection. Main's engine, licensing and
+release APKs are unchanged.
+[Implementation, artifact hashes and timings](https://github.com/EriArk/JavaEmulator/blob/b624a71e/experiments/m3g-host/native/README.md).
 
 ## Distribution and Licensing Status
 
