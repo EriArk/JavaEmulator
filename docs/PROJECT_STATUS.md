@@ -1,6 +1,7 @@
 # AbyssME - Current Product and Development Status
 
-**Last verified: 2026-10-12.** This is the starting point for website copy,
+**Last updated: 2026-10-13.** Verification dates are recorded per section.
+This is the starting point for website copy,
 announcements, progress posts and project handoffs. It includes work that exists
 only in local experiments or private test builds. Describing that work here
 does not publish its implementation or make it a released feature.
@@ -35,7 +36,7 @@ bundled. The app UI is English.
 | Public development source | `main`; latest app-code change at this review: [d39ed742](https://github.com/EriArk/JavaEmulator/commit/d39ed742) | Unreleased Java/UI/storage improvements listed below; not all are in the downloadable beta |
 | Private combined test snapshot | `0.1.0-beta.2-experimental.15`, 2026-10-11 | Handheld and Phone debug APKs containing Java plus experimental Mophun; supplied separately to testers, not a GitHub release |
 | Local-only implementation | Ignored optional-engine source and diagnostics | Mophun integration, game-specific experiments and test fixtures; public descriptions below, implementation not published |
-| Separate research branch | [`codex/m3g-replacement`](https://github.com/EriArk/JavaEmulator/tree/codex/m3g-replacement), code checkpoint `52ec72d0` | Off-by-default GLES3 now restores pending frames after owned-context loss using bounded replay. Reduced allocation/setup overhead; all 28 benchmark images remain unchanged. Controlled fault checks are not a real OS/driver-reset guarantee. Whole-game performance acceptance, production-engine switch and a new public beta remain pending |
+| Separate research branch | [`codex/m3g-replacement`](https://github.com/EriArk/JavaEmulator/tree/codex/m3g-replacement), code checkpoint `492d3bc0` | Off-by-default GLES3 now batches queued objects and geometry uploads, preserving bounded context recovery and mixed CPU/GPU drawing. Retroid 16-mesh scenes cost 23-26% less than immediate GPU submission; all 28 benchmark images match. Each variant passes 124 checks. Fresh game screenshots are available; whole-game parity, production-engine switch and public beta remain pending |
 
 The experimental number is a distribution label: build 15 still reports
 version code **102** and `0.1.0-beta.2` / `0.1.0-beta.2-phone` internally.
@@ -682,6 +683,41 @@ timed and final artifacts are identified separately in the report.
 Next implementation target: batch GPU submission to reduce per-object context
 switching, then compare representative game scenes and fix observed mismatches.
 Main's application code, root licensing and published APKs are unchanged.
+
+### Batched GPU Submission: 2026-10-13
+
+Source checkpoint: [`492d3bc0`](https://github.com/EriArk/JavaEmulator/commit/492d3bc0),
+**research branch only; GPU off by default**.
+
+The renderer now sends queued meshes and sprites together, sharing a graphics
+context switch and vertex upload. The first draw remains immediate for safe
+startup fallback. Target changes, CPU rendering, clear/release and reset commit
+pending work in order; context recovery replays submitted and queued commands
+without doubling transparency or losing depth.
+
+Added five focused checks for queued mutable state, actual submission counts,
+target changes, reset, repeated failure and translated/clipped LCDUI/3D paint
+order. Final Handheld/Retroid and Phone/emulator builds each pass **124 checks,
+zero skips**. Same-APK immediate/batched comparisons on Retroid preserve all
+**28 image CRCs**. For the 16-mesh scene, graphics-context scopes fall from 17
+to 2 and geometry uploads from 16 to 2 per frame. Measured cost drops from
+5.929 to 4.394 ms at 240x320 and 5.808 to 4.498 ms at 320x240. Sprite scenes
+also improve modestly; single-mesh CPU lighting work does not. This is not a
+general game-FPS gain or performance parity with the original engine.
+
+A separate GPU-enabled build reaches moving Asphalt 3 gameplay with car,
+shadow, track and HUD, and Deep's animated 3D menu/player setup. Original-engine
+sessions were captured too. These are visual smoke checks at different tracks
+or camera positions, not frame-matched comparison. Deep tutorial progression,
+audio, camera and physical button operation were not accepted in this follow-up;
+input was injected through ADB. The earlier Deep tutorial evidence remains a
+separate dated result. Normal app data was not changed.
+
+[Source, raw benchmark reports, exact APK identities and fresh screenshots](https://github.com/EriArk/JavaEmulator/blob/33619e43/experiments/m3g-host/gpu/README.md).
+Remaining work includes production-source/build packaging, common rendering
+costs and game parity, dependency/source notices and signed upgrade/save checks.
+Main's application code, root licensing, private combined build and public APKs
+are unchanged. This does not announce a new beta or finished replacement.
 
 ## Distribution and Licensing Status
 
