@@ -35,7 +35,7 @@ bundled. The app UI is English.
 | Public development source | `main`; latest app-code change at this review: [d39ed742](https://github.com/EriArk/JavaEmulator/commit/d39ed742) | Unreleased Java/UI/storage improvements listed below; not all are in the downloadable beta |
 | Private combined test snapshot | `0.1.0-beta.2-experimental.15`, 2026-10-11 | Handheld and Phone debug APKs containing Java plus experimental Mophun; supplied separately to testers, not a GitHub release |
 | Local-only implementation | Ignored optional-engine source and diagnostics | Mophun integration, game-specific experiments and test fixtures; public descriptions below, implementation not published |
-| Separate research branch | [`codex/m3g-replacement`](https://github.com/EriArk/JavaEmulator/tree/codex/m3g-replacement), code checkpoint `f2cecfec` | Sparse texture crash fixed; platform angle math; 58 unmeasured Java-only checks per device and controlled performance evidence. Earlier combined-build results remain separate; no production-engine switch or public beta |
+| Separate research branch | [`codex/m3g-replacement`](https://github.com/EriArk/JavaEmulator/tree/codex/m3g-replacement), code checkpoint `1b302bb9` | Native CPU raster acceleration with Java fallback, independent texture-wrap fix; 63 unmeasured Java-game checks per device. Same-APK synthetic render cost improves 1.74-2.02x with identical pixels. Earlier combined-Mophun results remain separate; no production-engine switch or public beta |
 
 The experimental number is a distribution label: build 15 still reports
 version code **102** and `0.1.0-beta.2` / `0.1.0-beta.2-phone` internally.
@@ -363,10 +363,33 @@ discarded, and no rendering-quality setting was reduced. All eight candidate
 image CRCs remain unchanged across the compared builds.
 
 [Code checkpoint, raw checks, benchmark data and screenshots](https://github.com/EriArk/JavaEmulator/blob/codex/m3g-replacement/docs/m3g-performance-2026-10-12/README.md).
-Performance parity remains open. Next is a bounded GPU-rasterization prototype
-with image comparisons, retaining software rendering as a reference/fallback,
-plus the existing dependency, packaging, signed-upgrade and save-preservation gates.
+Performance parity remained open. That checkpoint proposed GPU rasterization;
+the implementation below instead accelerates CPU rasterization while preserving
+the shared software buffers. Dependency, packaging, signed-upgrade and
+save-preservation gates remain.
 No production merge, root-license change or release APK was made in this batch.
+
+### Native raster acceleration: 2026-10-12
+
+Moved supported scanline/pixel work into a C++ implementation derived from the
+pinned GPL FreeJ2ME-Plus renderer. Scene setup remains Java; unsupported drawing
+states keep the existing Java path and see the same color/depth buffers. Fixed
+mixed repeat/clamp texture axes in both host and standalone candidate preparation.
+No legacy EPL rendering code was incorporated into the new native implementation.
+
+**Verified:** 63 checks pass on each of Retroid Handheld arm64 and Phone emulator
+x86_64, including exact native/Java pixels across 40 combinations, eight mixed-path
+scenes and malformed-packet rejection. Asphalt reaches a moving Retroid race.
+Same-APK non-debuggable benchmark comparisons reduce eight synthetic frame costs
+from 3.23-4.67 ms to 1.69-2.56 ms, with identical CRCs and no quality reduction.
+This is a rendering improvement, not a measured 1.74-2.02x game-FPS claim.
+
+The earlier legacy GLES baseline remains faster (0.85-0.94 ms). Multitexturing,
+mipmaps and exponential fog still use Java; full replacement acceptance and the
+existing publication gates remain open. Ordinary builds, main's engine and
+release APKs are unchanged. Next implementation work is to accelerate the remaining
+common drawing paths without weakening their rendering behavior.
+[Code, provenance, reproduction and artifact identities](https://github.com/EriArk/JavaEmulator/blob/1b302bb9/experiments/m3g-host/native/README.md).
 
 ## Distribution and Licensing Status
 
