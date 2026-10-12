@@ -11,6 +11,16 @@ stated otherwise. **Experimental** means local/private combined builds only.
 
 ## 2026-10-12
 
+- **Separate experiment / not shipped:** keep consecutive 3D models in one GPU
+  frame and synchronize before CPU drawing or screen output. Added GPU alpha/
+  additive transparency and linear/exponential fog. Retroid and Phone emulator
+  each pass 92 checks. A 16-model fixture falls from 21-22 to 5.4-5.7 ms compared
+  with per-model GPU transfers; all 22 residency comparison images are unchanged.
+  This is not an equivalent game-FPS gain: some scenes remain slower than CPU.
+  Unsupported effects retain CPU fallback; GPU stays off by default. Main's
+  engine/license and published APKs are unchanged.
+  [Implementation, evidence and remaining limits](https://github.com/EriArk/JavaEmulator/blob/88d48084/experiments/m3g-host/gpu/README.md).
+
 - **Separate experiment / not shipped:** added opt-in GLES3 rendering for lit
   geometry and one texture, with perspective, alpha rejection and shared
   color/depth across GPU/CPU draws. Fixed the initial transfer bottleneck using
