@@ -36,7 +36,7 @@ bundled. The app UI is English.
 | Public development source | `main`; latest build change: [b7501f17](https://github.com/EriArk/JavaEmulator/commit/b7501f17) | Unreleased Java/UI/storage improvements listed below; debug builds no longer need a private signing configuration. Not all changes are in the downloadable beta |
 | Private combined test snapshot | `0.1.0-beta.2-experimental.15`, 2026-10-11 | Handheld and Phone debug APKs containing Java plus experimental Mophun; supplied separately to testers, not a GitHub release |
 | Local-only implementation | Ignored optional-engine source and diagnostics | Mophun integration, game-specific experiments and test fixtures; public descriptions below, implementation not published |
-| Separate research branch | [`codex/m3g-replacement`](https://github.com/EriArk/JavaEmulator/tree/codex/m3g-replacement), code checkpoint `0697d76c` | Indexed GPU buffer reuse and four-texture hardware geometry. Retroid and Phone emulator each pass 311 checks; all 30 comparison images match the previous checkpoint. Repeated dense-lighting fixtures cost 14-15% less, multi-object fixtures 6-8% less than that checkpoint. Fresh gameplay captures; timing caveats documented. Native parity, production switch and beta remain pending |
+| Separate research branch | [`codex/m3g-replacement`](https://github.com/EriArk/JavaEmulator/tree/codex/m3g-replacement), code checkpoint `64c4f866` | Indexed GPU geometry now includes flat/two-sided lighting, corrected unlit flat colors and portable face selection. Retroid passes 325 checks; Phone emulator passes 14 focused checks, not the full suite. Synthetic flat/two-sided lighting cost is roughly halved. Fresh gameplay captures and explicit rounding/performance limits. Native parity, production switch and beta remain pending |
 
 The experimental number is a distribution label: build 15 still reports
 version code **102** and `0.1.0-beta.2` / `0.1.0-beta.2-phone` internally.
@@ -977,6 +977,49 @@ flat/two-sided lighting coverage and the remaining fallback/bitmap-transfer
 costs, not per-game special patches. Live public-release state was not rechecked.
 
 [Code, measurements, limitations, hashes and screenshots](https://github.com/EriArk/JavaEmulator/blob/0697d76c/experiments/m3g-host/indexed-20261013.md).
+
+## Hardware Shading Checkpoint, 2026-10-13
+
+Research implementation:
+[`64c4f866`](https://github.com/EriArk/JavaEmulator/commit/64c4f866).
+Flat and two-sided lighting now use indexed GPU geometry instead of CPU
+preparation. Flat colors retain the third vertex through clipping, including
+unlit vertex colors that the inherited renderer previously interpolated.
+Separate ordinary/extended shaders avoid most of the overhead introduced by
+an intermediate combined shader. Immutable uniform groups are reused; oversized
+transient meshes no longer evict reusable small meshes.
+
+A Phone-emulator failure exposed inconsistent face selection after GL winding
+changes. The renderer now uses a fixed GL convention with explicit M3G facing
+and culling, without device-name workarounds. A separate nearest-texel boundary
+comparison was made unambiguous and supplemented with exact expected-color
+checks; cross-driver boundary identity is not claimed.
+
+Final Retroid Pocket Classic: **325 checks passed, zero skips**. Android 15
+Phone emulator: **13 lighting checks and one winding/culling check passed**;
+the full Phone suite was not completed in this batch. Both APK variants build.
+Retroid remains the primary hardware verification target.
+
+Two specialized-shader benchmark repeats cut flat/two-sided fixture costs
+51-63% relative to the preceding CPU-prepared lighting path. The final portable
+renderer repeat retains that improvement. This is synthetic frame cost, not
+game FPS: ordinary fixtures show small mixed changes, not universal acceleration.
+The 30 pre-existing images match the control; four newly accelerated fixtures
+have small color differences and one high-contrast edge sample. The final
+portability correction preserves all 34 specialized-shader images exactly.
+
+Fresh Retroid checks reached Asphalt racing, Constructo gameplay and Tower
+Bloxx construction. Asphalt was checked again after the portable-facing fix,
+with road/car/HUD visible and the speedometer at 95 km/h. These are ADB-driven
+device checks, not manual-controller, audio or complete-game acceptance.
+
+Code and evidence are public on the research branch; game archives and local
+APKs are not published. Main's engine, root license and release APKs are unchanged;
+live release state was not rechecked. Remaining engineering work includes
+CPU-prepared depth-offset draws and the LCDUI bitmap transfer, followed by
+native-engine parity and release acceptance.
+
+[Changes, artifact hashes, raw tests, timings and screenshots](https://github.com/EriArk/JavaEmulator/blob/64c4f866/experiments/m3g-host/lighting-20261013.md).
 
 ## Images and Writing Guidance
 
