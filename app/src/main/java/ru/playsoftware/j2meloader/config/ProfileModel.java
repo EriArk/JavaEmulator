@@ -123,10 +123,15 @@ public class ProfileModel {
 	@SerializedName("VirtualKeyboardType")
 	public int vkType;
 
+	@SerializedName("touchLayout")
 	public Integer touchLayout;
+	@SerializedName("touchSize")
 	public int touchSize;
+	@SerializedName("touchOpacity")
 	public int touchOpacity = 100;
+	@SerializedName("touchPortraitReach")
 	public float touchPortraitReach;
+	@SerializedName("touchLandscapeReach")
 	public float touchLandscapeReach;
 
 	@SerializedName("ButtonShape")
@@ -187,10 +192,15 @@ public class ProfileModel {
 
 	@SerializedName("CompatibilityScore")
 	public int compatibilityScore;
+	@SerializedName("compatibilityConfidence")
 	public String compatibilityConfidence;
+	@SerializedName("compatibilityReasons")
 	public String compatibilityReasons;
+	@SerializedName("suggestedCompatibilityProfile")
 	public String suggestedCompatibilityProfile;
+	@SerializedName("detectedScreenWidth")
 	public int detectedScreenWidth;
+	@SerializedName("detectedScreenHeight")
 	public int detectedScreenHeight;
 
 	public static class KeyMappingProfile {

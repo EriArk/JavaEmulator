@@ -219,7 +219,10 @@ dependencies {
 
     // Audio/Video/Graphics
     implementation 'com.github.billthefarmer:mididriver:v1.21'
-    implementation 'com.github.nikita36078:pngj:2.2.3'
+    implementation('com.github.nikita36078:pngj:2.2.3') {
+        // Published as a runtime dependency upstream, but only used by PNGJ tests.
+        exclude group: 'junit', module: 'junit'
+    }
     implementation 'com.github.nikita36078:mobile-ffmpeg:v4.3.2-compact'
 
     implementation "androidx.camera:camera-core:${cameraxVersion}"
