@@ -36,7 +36,7 @@ bundled. The app UI is English.
 | Public development source | `main`; latest build change: [b7501f17](https://github.com/EriArk/JavaEmulator/commit/b7501f17) | Unreleased Java/UI/storage improvements listed below; debug builds no longer need a private signing configuration. Not all changes are in the downloadable beta |
 | Private combined test snapshot | `0.1.0-beta.2-experimental.15`, 2026-10-11 | Handheld and Phone debug APKs containing Java plus experimental Mophun; supplied separately to testers, not a GitHub release |
 | Local-only implementation | Ignored optional-engine source and diagnostics | Mophun integration, game-specific experiments and test fixtures; public descriptions below, implementation not published |
-| Separate research branch | [`codex/m3g-replacement`](https://github.com/EriArk/JavaEmulator/tree/codex/m3g-replacement), code checkpoint `81c8b2d8` | Faster GPU submission in geometry-heavy scenes; mixed-material state regression fixed. Retroid and Phone emulator each pass 262 checks. Fresh Constructo Combat and Tower Bloxx CPU/GPU gameplay captures. Portrait sprites remain slower in the measured fixture; original native engine remains faster overall. GPU stays opt-in; production switch and beta remain pending |
+| Separate research branch | [`codex/m3g-replacement`](https://github.com/EriArk/JavaEmulator/tree/codex/m3g-replacement), code checkpoint `0dbea9db` | Opt-in GPU geometry/lighting, bounded mesh cache and less depth readback. Retroid and Phone emulator each pass 301 checks. Repeated synthetic lighting scenes cost 60-66% less; multi-object scenes 23-29% less. Fresh Asphalt, Constructo and Tower Bloxx gameplay captures. Native performance parity, production switch and beta remain pending |
 
 The experimental number is a distribution label: build 15 still reports
 version code **102** and `0.1.0-beta.2` / `0.1.0-beta.2-phone` internally.
@@ -913,6 +913,36 @@ APKs are unchanged; no new beta was published.
 
 [Timings, checks and screenshots](https://github.com/EriArk/JavaEmulator/blob/81c8b2d8/experiments/m3g-host/submission-20261013.md).
 [Dependency provenance and remaining scope](https://github.com/EriArk/JavaEmulator/blob/81c8b2d8/experiments/m3g-host/dependencies-20261013.md).
+
+## Hardware Geometry Checkpoint, 2026-10-13
+
+Research implementation: [`0dbea9db`](https://github.com/EriArk/JavaEmulator/commit/0dbea9db).
+An early GPU stage now handles vertex transforms, clipping and smooth lighting,
+instead of receiving only CPU-prepared triangles. Immutable geometry snapshots
+are cached within a fixed memory budget, and target release no longer copies
+depth data that the next bind will clear. CPU fallback still preserves depth.
+The original engine was studied for architecture, not copied into the replacement.
+
+Both final variants pass **301 checks, zero skips**, on Retroid and the Phone
+emulator. Repeated same-APK measurements show 60-66% less time for dense lighting,
+23-29% for multi-object/material scenes and 14-17% for sprites. These are
+synthetic frame costs, not measured game FPS. The earlier portrait sprite
+regression is absent in this fixture. Native reference timings are still lower.
+
+Fresh Retroid runs reach an Asphalt race, a Constructo round and the next floor
+in Tower Bloxx. Logs confirm actual hardware geometry use. This is not full-game,
+manual-controller or audio acceptance. Small rounding differences and the
+up-to-four-channel-level dense-lighting difference are documented, not hidden
+behind a claim of pixel-identical output.
+
+Hardware geometry remains separately opt-in. Flat/two-sided shading, four
+textures and depth-offset cases keep their existing preparation path; CPU posing
+and color readback also remain. Next: indexed/reused GPU buffers and wider
+hardware coverage, with corresponding visual checks. Main's engine, root license
+and release process have not changed; no public APK was published. Live GitHub
+release state was not re-queried during this renderer checkpoint.
+
+[Architecture, measurements, artifact hashes and screenshots](https://github.com/EriArk/JavaEmulator/blob/0dbea9db/experiments/m3g-host/hardware-20261013.md).
 
 ## Images and Writing Guidance
 
