@@ -11,6 +11,21 @@ stated otherwise. **Experimental** means local/private combined builds only.
 
 ## 2026-10-13
 
+- **Public source, unreleased:** ordinary debug builds no longer require a
+  private release-signing configuration. Both variants build, pass their JVM
+  tests and complete lint without it. Release assembly still requires a real
+  signing setup and fails clearly when it is missing. Closed issue #1.
+- **Separate experiment / not shipped:** corrected copied 3D scenes losing
+  alignment links, animation tracks being cloned instead of shared, and resources
+  disappearing from traversal when one of several references is removed. Fixed
+  camera validation while preserving camera-less file loading. Retroid passes
+  140 checks; Phone passes 139 before the final loader guard and all 62 shared
+  checks afterward. Eleven new cases also pass on the original engine.
+  [Scope, results and artifact hashes](https://github.com/EriArk/JavaEmulator/blob/68866a93/experiments/m3g-host/scene-copies-20261013.md).
+- **Local test preparation only:** stored user-provided N-Gage Asphalt 3 and
+  Snakes archives and extracted files outside Git. Neither game was executed or
+  bundled; this does not introduce N-Gage support.
+
 - **Separate experiment / not shipped:** reuse GPU textures across material
   switches with bounded memory and revision-aware updates. Increased the number
   of cached small textures after an Asphalt smoke run exposed repeated uploads,

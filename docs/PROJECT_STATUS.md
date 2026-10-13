@@ -33,10 +33,10 @@ bundled. The app UI is English.
 | Channel | Current identifier | What a reader can obtain |
 | --- | --- | --- |
 | Public download | [v0.1.0-beta.2](https://github.com/EriArk/JavaEmulator/releases/tag/v0.1.0-beta.2), published 2026-07-20 | Handheld and Phone release APKs; Java games, not Mophun |
-| Public development source | `main`; latest app-code change at this review: [d39ed742](https://github.com/EriArk/JavaEmulator/commit/d39ed742) | Unreleased Java/UI/storage improvements listed below; not all are in the downloadable beta |
+| Public development source | `main`; latest build change: [b7501f17](https://github.com/EriArk/JavaEmulator/commit/b7501f17) | Unreleased Java/UI/storage improvements listed below; debug builds no longer need a private signing configuration. Not all changes are in the downloadable beta |
 | Private combined test snapshot | `0.1.0-beta.2-experimental.15`, 2026-10-11 | Handheld and Phone debug APKs containing Java plus experimental Mophun; supplied separately to testers, not a GitHub release |
 | Local-only implementation | Ignored optional-engine source and diagnostics | Mophun integration, game-specific experiments and test fixtures; public descriptions below, implementation not published |
-| Separate research branch | [`codex/m3g-replacement`](https://github.com/EriArk/JavaEmulator/tree/codex/m3g-replacement), code checkpoint `3f2feddd` | Off-by-default GLES3 reuses alternating textures within a bounded cache. Retroid material-switching fixtures cost about 10-11% less; all 30 benchmark images match. Final Retroid: 129 checks; Phone: 129 before capacity tuning plus five affected checks after. Candidate source inputs now use a pinned verified archive, not a maintainer checkout. Fresh Asphalt gameplay capture is available; production switch and beta remain pending |
+| Separate research branch | [`codex/m3g-replacement`](https://github.com/EriArk/JavaEmulator/tree/codex/m3g-replacement), code checkpoint `68866a93` | Corrected scene duplication, shared-resource references and camera handling, following bounded GPU texture reuse. Final Retroid: 140 checks. Phone: 139 before the last loader guard, then all 62 shared checks on the final build. GPU stays opt-in; production switch and beta remain pending |
 
 The experimental number is a distribution label: build 15 still reports
 version code **102** and `0.1.0-beta.2` / `0.1.0-beta.2-phone` internally.
@@ -143,7 +143,7 @@ Current open work, checked on GitHub on 2026-10-11:
 - [#14](https://github.com/EriArk/JavaEmulator/issues/14): compatibility heuristics need broader validation.
 - [#17](https://github.com/EriArk/JavaEmulator/issues/17), [#9](https://github.com/EriArk/JavaEmulator/issues/9), [#3](https://github.com/EriArk/JavaEmulator/issues/3), [#12](https://github.com/EriArk/JavaEmulator/issues/12): implemented UI/input/orientation/contrast changes still have acceptance or release follow-up; open does not mean no implementation.
 - [#7](https://github.com/EriArk/JavaEmulator/issues/7): real external-launcher checks.
-- [#1](https://github.com/EriArk/JavaEmulator/issues/1): clean-clone debug signing setup; [#4](https://github.com/EriArk/JavaEmulator/issues/4): broader regression coverage.
+- [#4](https://github.com/EriArk/JavaEmulator/issues/4): broader regression coverage. Debug signing setup [#1](https://github.com/EriArk/JavaEmulator/issues/1) was fixed and closed on 2026-10-13.
 - [#13](https://github.com/EriArk/JavaEmulator/issues/13): experimental Mophun; [#11](https://github.com/EriArk/JavaEmulator/issues/11): broader themes/skins/customization, not a shipped theme editor.
 
 ## Next Direction: Symbian and N-Gage
@@ -749,14 +749,41 @@ Candidate builds now fetch a revision-pinned archive with SHA-256 verification,
 extract only allowlisted engine source/license files, and embed the source lock.
 Both variants build offline after caching dependencies. All 34 prepared Java
 files match the checkout workflow after newline normalization. Bad hashes and
-missing offline archives fail explicitly. Ordinary builds still have the known
-signing-configuration issue #1; a fresh ordinary build is not claimed here.
+missing offline archives fail explicitly. At this checkpoint ordinary builds
+still had signing issue #1; the subsequent fix is recorded below.
 
 [Source, measured results, APK identities and fresh screenshot](https://github.com/EriArk/JavaEmulator/blob/a7a54bc3/experiments/m3g-host/gpu/README.md).
 Next proposed work: remaining original-engine compatibility/performance gaps
 and the production build transition, including signing setup and complete
 source/dependency notices. GPU is still opt-in; main's engine, root licensing
 and public APKs are unchanged. No new beta or completed replacement is announced.
+
+### Scene Copies and Contributor Builds: 2026-10-13
+
+Research checkpoint `68866a93` fixes shared resources disappearing from reference
+traversal after one slot is cleared, unnecessary animation-track cloning, lost
+alignment links in copied scenes (including skeletons), and camera validation.
+Initially camera-less worlds still load and duplicate correctly. No title-specific
+override was added. Eleven new API checks also pass against the original engine.
+
+Final Retroid: **140/140**, no skips. Phone emulator: **139/139** before the last
+loader guard, then **62/62 shared checks** including all eleven new cases on the
+final APK. The unchanged candidate-only GPU cases were not repeated on final
+Phone. These are API/rendering checks, not new physical-control, audio or full-game
+acceptance. [Evidence and exact artifacts](https://github.com/EriArk/JavaEmulator/blob/68866a93/experiments/m3g-host/scene-copies-20261013.md).
+
+Independent build fix `b7501f17` is on **main**: no release credentials are needed
+for debug builds. Both ordinary debug APKs, both 14-case JVM suites and both lint
+tasks completed without `keystore.properties`. Release assembly without credentials
+fails explicitly before packaging; issue #1 is closed. Existing keys and package
+IDs are unchanged. No release APK was published.
+
+User-provided N-Gage Asphalt 3 and Snakes inputs were archived and extracted into
+ignored local test storage, not Git or APKs. They were not executed; embedded
+Symbian/N-Gage support remains unimplemented. Next renderer work is animation,
+transform and remaining loader compatibility, with fixes in the same batch.
+Production merge, dependency/license review and upgrade/save acceptance remain
+separate gates.
 
 ## Distribution and Licensing Status
 
