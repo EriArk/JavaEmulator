@@ -66,7 +66,53 @@ tasks.register('prepareM3g') {
         }
         copy {
             from new File(m3gPatchDirectory, 'SceneGraphCopies.java')
+            from new File(m3gPatchDirectory, 'AnimationQuaternion.java')
             into new File(output, 'java/javax/microedition/m3g')
+        }
+        [
+            'KeyframeSequence.java': [
+                'private int nextKeyframe;': 'private int[] orderedFrames;',
+                ' || first > last': '',
+                'throw new IllegalArgumentException("Invalid keyframe range");':
+                    'throw new IndexOutOfBoundsException("Invalid keyframe range");',
+                'this.repeat = mode;': 'this.repeat = mode;\n        this.dirty = true;'
+            ],
+            'Object3D.java': ['trackValidity[0] > 0 && weight[0] > 0.0f': 'weight[0] > 0.0f'],
+            'Loader.java': ['sObj.applyToObject3D(seq);': 'seq.validateSequence();\n                sObj.applyToObject3D(seq);'],
+            'AnimationTrack.java': [
+                'else { worldValidity = (int) M3GMath.roundPositive(validity[0] / M3GMath.abs(speed)); }':
+                    'else { worldValidity = speed < 0 ? 0 : (int) Math.floor(validity[0] / (double) speed); }',
+                'validity[0] = M3GMath.max(1, M3GMath.min(worldValidity, timeToDeact));':
+                    'validity[0] = Math.max(0, Math.min(worldValidity, timeToDeact));'
+            ],
+            'AnimationController.java': [
+                '(float) (worldTime - refWorldTime)': '(float) ((long) worldTime - refWorldTime)',
+                'return activationTime - worldTime;': 'return (int) Math.min(Integer.MAX_VALUE, (long) activationTime - worldTime);',
+                'if (worldTime < deactivationTime) { return deactivationTime - worldTime; }':
+                    'if (activationTime == deactivationTime) return Integer.MAX_VALUE;\n        if (worldTime < deactivationTime) { return (int) Math.min(Integer.MAX_VALUE, (long) deactivationTime - worldTime); }'
+            ]
+        ].each { name, replacements ->
+            def target = new File(output, "java/javax/microedition/m3g/${name}")
+            def text = target.getText('UTF-8').replace('\r\n', '\n')
+            replacements.each { before, after ->
+                if (text.count(before) != 1) throw new GradleException("Animation hook drift: ${name}: ${before}")
+                text = text.replace(before, after)
+            }
+            if (name == 'KeyframeSequence.java') {
+                def sampleStart = '\tpublic int getSample(float time, float[] sample)'
+                if (text.count(sampleStart) != 1) throw new GradleException('Keyframe sampling hook drift')
+                text = text.substring(0, text.indexOf(sampleStart)) +
+                        new File(m3gPatchDirectory, 'keyframe-sampling.java.inc').getText('UTF-8') + '\n}\n'
+            }
+            if (name == 'Object3D.java') {
+                def blendStart = '\t\t\t\t// Normalize sum values by weight sum before applying to property'
+                def blendEnd = '\t\t\t\tupdateProperty(property, sumValues);'
+                if (text.count(blendStart) != 1 || text.count(blendEnd) != 1) {
+                    throw new GradleException('Animation weighting hook drift')
+                }
+                text = text.substring(0, text.indexOf(blendStart)) + text.substring(text.indexOf(blendEnd))
+            }
+            target.setText(text, 'UTF-8')
         }
         // Android has no AWT. Keep the MIDP Image path and fail if upstream drifts.
         def image = new File(output, 'java/javax/microedition/m3g/Image2D.java')
