@@ -36,7 +36,7 @@ bundled. The app UI is English.
 | Public development source | `main`; latest build change: [b7501f17](https://github.com/EriArk/JavaEmulator/commit/b7501f17) | Unreleased Java/UI/storage improvements listed below; debug builds no longer need a private signing configuration. Not all changes are in the downloadable beta |
 | Private combined test snapshot | `0.1.0-beta.2-experimental.15`, 2026-10-11 | Handheld and Phone debug APKs containing Java plus experimental Mophun; supplied separately to testers, not a GitHub release |
 | Local-only implementation | Ignored optional-engine source and diagnostics | Mophun integration, game-specific experiments and test fixtures; public descriptions below, implementation not published |
-| Separate research branch | [`codex/m3g-replacement`](https://github.com/EriArk/JavaEmulator/tree/codex/m3g-replacement), code checkpoint `0dbea9db` | Opt-in GPU geometry/lighting, bounded mesh cache and less depth readback. Retroid and Phone emulator each pass 301 checks. Repeated synthetic lighting scenes cost 60-66% less; multi-object scenes 23-29% less. Fresh Asphalt, Constructo and Tower Bloxx gameplay captures. Native performance parity, production switch and beta remain pending |
+| Separate research branch | [`codex/m3g-replacement`](https://github.com/EriArk/JavaEmulator/tree/codex/m3g-replacement), code checkpoint `0697d76c` | Indexed GPU buffer reuse and four-texture hardware geometry. Retroid and Phone emulator each pass 311 checks; all 30 comparison images match the previous checkpoint. Repeated dense-lighting fixtures cost 14-15% less, multi-object fixtures 6-8% less than that checkpoint. Fresh gameplay captures; timing caveats documented. Native parity, production switch and beta remain pending |
 
 The experimental number is a distribution label: build 15 still reports
 version code **102** and `0.1.0-beta.2` / `0.1.0-beta.2-phone` internally.
@@ -935,14 +935,48 @@ manual-controller or audio acceptance. Small rounding differences and the
 up-to-four-channel-level dense-lighting difference are documented, not hidden
 behind a claim of pixel-identical output.
 
-Hardware geometry remains separately opt-in. Flat/two-sided shading, four
-textures and depth-offset cases keep their existing preparation path; CPU posing
-and color readback also remain. Next: indexed/reused GPU buffers and wider
-hardware coverage, with corresponding visual checks. Main's engine, root license
+At this checkpoint hardware geometry remained separately opt-in. Flat/two-sided
+shading, four textures and depth-offset cases kept their existing preparation
+path; CPU posing and color readback also remained. Indexed/reused buffers and
+four-texture coverage are addressed by the follow-up below. Main's engine, root license
 and release process have not changed; no public APK was published. Live GitHub
 release state was not re-queried during this renderer checkpoint.
 
 [Architecture, measurements, artifact hashes and screenshots](https://github.com/EriArk/JavaEmulator/blob/0dbea9db/experiments/m3g-host/hardware-20261013.md).
+
+## Indexed GPU Geometry Checkpoint, 2026-10-13
+
+Research implementation:
+[`0697d76c`](https://github.com/EriArk/JavaEmulator/commit/0697d76c).
+Meshes now reuse compact indexed buffers in video memory across frames, bounded
+to 4 MiB / 64 entries, instead of re-uploading expanded triangles on every
+submission. Immutable revisions preserve queued mutations and context recovery.
+A separate normal attribute allows all four texture units on the hardware path.
+
+Both variants build; **311 checks pass with zero skips** on Retroid and the
+Android 15 Phone emulator. Two before/after pairs retain all 30 fixture images
+exactly. Dense-lighting fixture cost drops 13.7-14.6%; multiple objects and
+alternating materials drop 6.5-8.2%, relative to the immediately preceding GPU
+checkpoint, not the original native engine. One fixture reused a single upload
+across 3584 draws.
+
+No universal speedup is claimed. Portrait depth-offset fallback was 8.4% slower
+with short warmup; with the same longer-warmup harness on both builds, the stable
+repeat was about 1-2% slower. One long run had unexplained timing excursions and
+is preserved in the evidence. These are synthetic costs, not measured game FPS.
+
+Fresh ADB-driven Retroid checks reached the Asphalt race, Constructo gameplay
+and Tower Bloxx construction, with actual hardware-stage execution recorded.
+Screenshots are genuine device captures; audio, physical controls and full-game
+acceptance were not established. Existing Constructo tutorial-font/side-face
+issues are not claimed fixed.
+
+The implementation and evidence are on the research branch; APKs stay local.
+Main's engine and root license remain unchanged. Next engineering targets are
+flat/two-sided lighting coverage and the remaining fallback/bitmap-transfer
+costs, not per-game special patches. Live public-release state was not rechecked.
+
+[Code, measurements, limitations, hashes and screenshots](https://github.com/EriArk/JavaEmulator/blob/0697d76c/experiments/m3g-host/indexed-20261013.md).
 
 ## Images and Writing Guidance
 
