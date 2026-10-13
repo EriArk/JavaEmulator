@@ -11,6 +11,15 @@ stated otherwise. **Experimental** means local/private combined builds only.
 
 ## 2026-10-13
 
+- **Separate experiment / not shipped:** reduced CPU overhead of GPU submission
+  and fixed a mixed-material color-write regression found on Retroid. Repeated
+  geometry/many-draw fixtures cost about 14-21% less; all 30 image checksums are
+  unchanged. Portrait sprites remain slower, so universal speedup or parity with
+  the original engine is not claimed. Retroid and Phone emulator each pass 262
+  checks. Fresh Constructo Combat and Tower Bloxx gameplay captures and pinned
+  audio dependency provenance are recorded. No production engine/license switch
+  or new public APK.
+  [Implementation and evidence](https://github.com/EriArk/JavaEmulator/blob/81c8b2d8/experiments/m3g-host/submission-20261013.md).
 - **Separate experiment / not shipped:** fixed disappearing objects in large 3D
   scenes, camera ranges, spotlight behavior, transparency and CPU/GPU edge
   sampling. Hardened model-file parsing and nested resource loading. Retroid

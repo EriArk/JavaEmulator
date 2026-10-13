@@ -36,7 +36,7 @@ bundled. The app UI is English.
 | Public development source | `main`; latest build change: [b7501f17](https://github.com/EriArk/JavaEmulator/commit/b7501f17) | Unreleased Java/UI/storage improvements listed below; debug builds no longer need a private signing configuration. Not all changes are in the downloadable beta |
 | Private combined test snapshot | `0.1.0-beta.2-experimental.15`, 2026-10-11 | Handheld and Phone debug APKs containing Java plus experimental Mophun; supplied separately to testers, not a GitHub release |
 | Local-only implementation | Ignored optional-engine source and diagnostics | Mophun integration, game-specific experiments and test fixtures; public descriptions below, implementation not published |
-| Separate research branch | [`codex/m3g-replacement`](https://github.com/EriArk/JavaEmulator/tree/codex/m3g-replacement), code checkpoint `a9f51dbe` | Corrected large scenes, cameras, lights, transparency, CPU/GPU pixel sampling and model loading. Retroid and Phone emulator each pass the full 260-check verifier; 70 standalone resources from eight private games load. Fresh Asphalt, DiRT and Deep gameplay. GPU stays opt-in; production switch and beta remain pending |
+| Separate research branch | [`codex/m3g-replacement`](https://github.com/EriArk/JavaEmulator/tree/codex/m3g-replacement), code checkpoint `81c8b2d8` | Faster GPU submission in geometry-heavy scenes; mixed-material state regression fixed. Retroid and Phone emulator each pass 262 checks. Fresh Constructo Combat and Tower Bloxx CPU/GPU gameplay captures. Portrait sprites remain slower in the measured fixture; original native engine remains faster overall. GPU stays opt-in; production switch and beta remain pending |
 
 The experimental number is a distribution label: build 15 still reports
 version code **102** and `0.1.0-beta.2` / `0.1.0-beta.2-phone` internally.
@@ -879,6 +879,40 @@ Public Java/UI source development continues. Combined-source/APK publication
 remains gated by the recorded scope and release review. Do not say "GitHub is
 not updating", "all permissions are settled", or "Mophun is in the public beta".
 This page records project status, not new license terms or a legal opinion.
+
+## GPU Submission and Dependency Checkpoint, 2026-10-13
+
+Research implementation: [`81c8b2d8`](https://github.com/EriArk/JavaEmulator/commit/81c8b2d8).
+Bulk vertex packing and scoped GPU state reuse reduce synthetic geometry/many-draw
+frame costs by roughly 14-21% in repeated Retroid measurements. All 30 before/after
+image checksums are unchanged. New mixed-material tests exposed a color-mask
+state regression on Retroid that the emulator and benchmark images missed;
+the implementation was fixed before this checkpoint.
+
+Both final variants pass **262 checks without skips**, on Retroid and the Phone
+emulator. An earlier exhaustive-prefix emulator attempt timed out and is retained
+as an incomplete run. Two attempted sprite optimizations did not help and were
+removed; rebuilt APKs match the accepted artifacts byte for byte.
+
+Constructo Combat and Tower Bloxx reached gameplay on candidate CPU and GPU
+paths; Tower Bloxx dropped a block, counted occupants and produced the next
+floor. These are bounded game checks, not full-playthrough, audio or FPS claims.
+The original engine also reached Constructo gameplay. Oversized tutorial fonts
+in its detected small-screen profile remain a separate host/profile concern.
+
+The portrait sprite fixture remains about 6% slower than the preceding candidate,
+and the original native engine is still substantially faster. Do not describe
+this as complete performance parity or a universal speedup. A larger GPU
+geometry/presentation redesign is under discussion, not implemented.
+
+The inherited compact MobileFFmpeg AAR was matched exactly to a pinned upstream
+binary/source repository; inspected native configuration identifies its codec
+set and LGPLv3-or-later marking. Complete dependency/source/notice packaging and
+signed release checks remain open. Production engine, root license and public
+APKs are unchanged; no new beta was published.
+
+[Timings, checks and screenshots](https://github.com/EriArk/JavaEmulator/blob/81c8b2d8/experiments/m3g-host/submission-20261013.md).
+[Dependency provenance and remaining scope](https://github.com/EriArk/JavaEmulator/blob/81c8b2d8/experiments/m3g-host/dependencies-20261013.md).
 
 ## Images and Writing Guidance
 
