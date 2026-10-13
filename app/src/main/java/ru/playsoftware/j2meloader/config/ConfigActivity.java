@@ -170,6 +170,7 @@ public class ConfigActivity extends BaseActivity implements View.OnClickListener
 
 		fillScreenSizePresets(display.getWidth(), display.getHeight());
 
+		addFontSizePreset(getString(R.string.font_size_auto), 0, 0, 0);
 		addFontSizePreset("128 x 128", 9, 13, 15);
 		addFontSizePreset("128 x 160", 13, 15, 20);
 		addFontSizePreset("176 x 220", 15, 18, 22);
