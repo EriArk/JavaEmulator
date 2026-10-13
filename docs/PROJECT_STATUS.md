@@ -36,7 +36,7 @@ bundled. The app UI is English.
 | Public development source | `main`; latest build change: [b7501f17](https://github.com/EriArk/JavaEmulator/commit/b7501f17) | Unreleased Java/UI/storage improvements listed below; debug builds no longer need a private signing configuration. Not all changes are in the downloadable beta |
 | Private combined test snapshot | `0.1.0-beta.2-experimental.15`, 2026-10-11 | Handheld and Phone debug APKs containing Java plus experimental Mophun; supplied separately to testers, not a GitHub release |
 | Local-only implementation | Ignored optional-engine source and diagnostics | Mophun integration, game-specific experiments and test fixtures; public descriptions below, implementation not published |
-| Separate research branch | [`codex/m3g-replacement`](https://github.com/EriArk/JavaEmulator/tree/codex/m3g-replacement), code checkpoint `139aa143` | Corrected mutable geometry, skeletal bind/query behavior and scaled-bone lighting, following animation, scene-copy and GPU work. Final Retroid: 184 checks. Final Phone: 106 shared/animation/deformation checks. Fresh Retroid Deep gameplay. GPU stays opt-in; production switch and beta remain pending |
+| Separate research branch | [`codex/m3g-replacement`](https://github.com/EriArk/JavaEmulator/tree/codex/m3g-replacement), code checkpoint `a9f51dbe` | Corrected large scenes, cameras, lights, transparency, CPU/GPU pixel sampling and model loading. Retroid and Phone emulator each pass the full 260-check verifier; 70 standalone resources from eight private games load. Fresh Asphalt, DiRT and Deep gameplay. GPU stays opt-in; production switch and beta remain pending |
 
 The experimental number is a distribution label: build 15 still reports
 version code **102** and `0.1.0-beta.2` / `0.1.0-beta.2-phone` internally.
@@ -837,6 +837,35 @@ and root licensing remain unchanged.
 [Implementation, raw evidence, screenshots and APK identities](https://github.com/EriArk/JavaEmulator/blob/139aa143/experiments/m3g-host/deformation-20261013.md).
 Next: scene-wide light/camera/culling and complex-model loading contracts,
 then broader parity and production-switch acceptance.
+
+### Scene, Loader and Raster Compatibility: 2026-10-13
+
+Research code checkpoint:
+[`a9f51dbe`](https://github.com/EriArk/JavaEmulator/commit/a9f51dbe).
+The candidate preserves objects when scene queues grow, respects camera ranges,
+corrects spotlight animation and disabled light ancestors, and consistently
+handles animated colors and fragment transparency. Pixel-center sampling now
+agrees across Java/native/GPU fixtures, including clipped triangle edges.
+Nested references have isolated path context; section framing, checksums,
+compression and record bounds are checked before interpreting model data.
+
+Both final research variants pass **260 checks without skips**, on Retroid
+Pocket Classic and the Android 15 Phone emulator. This includes prior animation
+and deformation coverage, 76 additional scene/loader/alpha checks and actual GPU
+draw assertions. A final test-only root-order correction passes the 21 loader
+checks on both targets. The unchanged native engine passes 40 of the 47 new
+shared fixtures; the seven differences include nonvisual API return values and
+file-loading behavior, not seven proven visual defects.
+
+All **70 standalone M3G resources from eight supplied games** load through the
+host. This is not eight fully working games. Fresh Retroid runs reached Asphalt
+races on CPU and GPU-enabled builds, plus DiRT racing and Deep: Submarine
+Odyssey gameplay on the GPU-enabled build. No full playthrough, audio-quality or
+sustained-FPS claim. GPU fallback remains possible. Main's engine/license and
+public APKs are unchanged; performance after these fixes and publication
+readiness remain open.
+
+[Implementation, limits, hashes, logs and screenshots](https://github.com/EriArk/JavaEmulator/blob/a9f51dbe/experiments/m3g-host/scene-contracts-20261013.md).
 
 ## Distribution and Licensing Status
 
