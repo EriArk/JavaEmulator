@@ -33,10 +33,10 @@ bundled. The app UI is English.
 | Channel | Current identifier | What a reader can obtain |
 | --- | --- | --- |
 | Public download | [v0.1.0-beta.2](https://github.com/EriArk/JavaEmulator/releases/tag/v0.1.0-beta.2), published 2026-07-20 | Handheld and Phone release APKs; Java games, not Mophun |
-| Public development source | `main`; latest app fix: [9430cb0a](https://github.com/EriArk/JavaEmulator/commit/9430cb0a) | New profiles use resolution-derived font sizes; prior Java/UI/storage improvements remain unreleased. Debug builds do not need a private signing configuration. Not all changes are in the downloadable beta |
+| Public development source | `main`; latest app fix: [a82c0378](https://github.com/EriArk/JavaEmulator/commit/a82c0378) | Screen preparation no longer mistakes anonymous square textures for display dimensions; automatic font sizes and prior Java/UI/storage improvements remain unreleased. Not all changes are in the downloadable beta |
 | Private combined test snapshot | `0.1.0-beta.2-experimental.15`, 2026-10-11 | Handheld and Phone debug APKs containing Java plus experimental Mophun; supplied separately to testers, not a GitHub release |
 | Local-only implementation | Ignored optional-engine source and diagnostics | Mophun integration, game-specific experiments and test fixtures; public descriptions below, implementation not published |
-| Separate research branch | [`codex/m3g-replacement`](https://github.com/EriArk/JavaEmulator/tree/codex/m3g-replacement), code checkpoint `8d43830f`, 2026-10-13 | Specialized GPU programs and partial color readback; same-APK Retroid lighting costs fall 22-34%, sprite costs 9-14%, all 34 pixel CRCs match. Retroid: 370 checks; Phone: 22 focused checks. Original-engine speed parity, production switch and beta remain pending |
+| Separate research branch | [`codex/m3g-replacement`](https://github.com/EriArk/JavaEmulator/tree/codex/m3g-replacement), checkpoint `e9cea5c6`, 2026-10-13 | DiRT/PGR moving gameplay on Retroid matches the original's observed update rates in short captures. Prior shader batch: 370 Retroid checks, 34 unchanged pixel CRCs. Universal speed parity, production switch and beta remain pending |
 
 The experimental number is a distribution label: build 15 still reports
 version code **102** and `0.1.0-beta.2` / `0.1.0-beta.2-phone` internally.
@@ -1124,6 +1124,28 @@ is inferred from synthetic improvements or 60 surface buffers/s.
 No ordinary engine switch, root license change or APK distribution. Live release
 state was not rechecked; full-game, manual controller/audio and sustained thermal
 acceptance remain open. [Implementation, measurements and captures](https://github.com/EriArk/JavaEmulator/blob/8d43830f/experiments/m3g-host/shaders-20261013.md).
+
+## DiRT and PGR on Retroid: 2026-10-13
+
+Two additional Java M3G games reach moving races on the physical Retroid Pocket
+Classic with both the replacement and original engines. DiRT 3D runs at about
+16.6 surface buffers/host updates per second on both; PGR 3D runs at about 13.3
+on both. These are short ADB-driven captures, not independently counted unique
+game FPS or full-game/controller/audio acceptance. PGR still costs more renderer
+time on the candidate; equal observed update rates do not prove universal parity.
+
+Testing also exposed and fixed PGR's cropped menus: anonymous 128x128 car/city
+textures were being mistaken for the display size. The general preparation fix
+is on main as `a82c0378`, separately from the renderer experiment. Explicit
+screen declarations and named screen artwork remain supported; existing profiles
+are preserved. Fresh research preparation now keeps the readable 240x320 default.
+Four new regression cases bring focused compatibility checks to 24/24 on Retroid
+and 24/24 on the Phone emulator. Ordinary main Handheld/Phone builds and 14 fresh
+JVM tests per variant pass. The full renderer suite was not rerun for this fix.
+
+Mophun uses its own framebuffer, not this M3G renderer, so it was intentionally
+excluded from these checks. No engine/license switch or APK distribution.
+See [racing evidence and screenshots](https://github.com/EriArk/JavaEmulator/blob/e9cea5c6/experiments/m3g-host/racing-20261013.md).
 
 ## Images and Writing Guidance
 

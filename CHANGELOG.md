@@ -11,6 +11,20 @@ stated otherwise. **Experimental** means local/private combined builds only.
 
 ## 2026-10-13
 
+- **Public source / unreleased:** screen preparation no longer mistakes anonymous
+  square textures for a phone display. This fixes the cause of PGR 3D's cropped
+  128x128 menus on fresh preparation, without a game-specific override or changing
+  existing settings. Four new regression cases; 24 compatibility checks pass on
+  Retroid and 24 on the Phone emulator. Both ordinary APK variants build and
+  14 fresh JVM cases pass per variant.
+- **Separate experiment / not shipped:** compared DiRT 3D and PGR 3D gameplay
+  against the original engine on Retroid. Both sides sustain about 16.6 and 13.3
+  surface buffers/host updates per second respectively. PGR remains more costly
+  to render, but these short races show no sustained update-rate deficit. Not
+  unique-frame, physical-controller, audio or full-game acceptance. Mophun uses a
+  different renderer and was excluded. No APK distribution or engine/license
+  switch. [Captures and limits](https://github.com/EriArk/JavaEmulator/blob/e9cea5c6/experiments/m3g-host/racing-20261013.md).
+
 - **Separate experiment / not shipped:** specialized GPU programs by texture
   count and sprite/mesh path, reduced readback to color-writing rectangles and
   packed sprite lookup data in bulk. Same-APK Retroid comparison cuts flat/
