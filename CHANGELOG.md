@@ -11,6 +11,16 @@ stated otherwise. **Experimental** means local/private combined builds only.
 
 ## 2026-10-13
 
+- **Separate experiment / not shipped:** moved flat/two-sided lighting to
+  indexed GPU geometry, corrected unlit flat colors and portable front/back
+  selection, reduced repeated shader state updates and fixed mesh-cache churn.
+  Split ordinary/extended shaders after detecting extra overhead. Retroid
+  passes 325 checks; Phone emulator passes 14 focused checks, not the full suite.
+  Synthetic flat/two-sided lighting cost is roughly halved; ordinary-scene
+  timing and pixel-rounding limits remain explicit. Fresh Asphalt, Constructo
+  and Tower Bloxx captures are recorded, with a final Asphalt recheck. No
+  production engine/license switch or public APK.
+  [Implementation, measurements and evidence](https://github.com/EriArk/JavaEmulator/blob/64c4f866/experiments/m3g-host/lighting-20261013.md).
 - **Separate experiment / not shipped:** added compact indexed mesh buffers
   retained in GPU memory, bounded cache eviction and mutation/context-loss
   recovery. Four-texture meshes can now use hardware geometry. Retroid and Phone
