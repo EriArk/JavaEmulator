@@ -11,6 +11,15 @@ stated otherwise. **Experimental** means local/private combined builds only.
 
 ## 2026-10-13
 
+- **Separate experiment / not shipped:** fixed 3D deformations ignoring changed
+  geometry and colors, corrected overlapping bone bindings and lighting on
+  scaled skeletons, and rejected overflowing bone ranges. Added loaded-model
+  and animated-hierarchy coverage. Final Retroid passes 184 checks; Phone
+  emulator passes 106 shared/animation/deformation checks. Fresh Deep:
+  Submarine Odyssey Java gameplay screenshots are recorded. Native comparison
+  differences and an interrupted crash are explicit; no complete-game parity,
+  engine switch, root license change or public APK is claimed.
+  [Implementation and verification](https://github.com/EriArk/JavaEmulator/blob/139aa143/experiments/m3g-host/deformation-20261013.md).
 - **Separate experiment / not shipped:** corrected smooth 3D animation curves,
   looping transitions, long rotations and blending of simultaneous movements.
   Edited curves refresh correctly; reverse/fractional playback updates safely,
