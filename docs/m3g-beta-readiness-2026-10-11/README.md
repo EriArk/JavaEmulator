@@ -10,6 +10,21 @@ publishing a beta with appropriate licensing. This replaces the earlier
 per-batch approval requirement, not the technical or redistribution checks.
 No production-engine switch or root-license transition has occurred here.
 
+### Source-input Update, 2026-10-13
+
+The research build no longer requires the maintainer's FreeJ2ME-Plus checkout.
+A committed revision/URL/SHA-256 lock drives verified archive preparation,
+allowlisted extraction and source/license assets in the APK. Cached offline
+Handheld/Phone assembly and standalone archive-based probe assembly were checked.
+Invalid input is rejected before replacing prepared sources. Generated Java
+matches the earlier pinned-checkout path after line-ending normalization.
+See [build instructions](../../experiments/m3g-probe/README.md).
+
+This advances reproducibility, not production integration or full provenance
+clearance. Ordinary builds still use the old engine. Historical dependency and
+release gates below remain separate; the atan2 snippet mentioned there has since
+been replaced by Java `Math.atan2` in candidate preparation, not relicensed.
+
 ## Changes
 
 - A bounded Asphalt render-state trace identified an RGB replacement texture

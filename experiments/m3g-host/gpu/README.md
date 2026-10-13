@@ -15,9 +15,10 @@ clipping and depth test/write. It also supports all five framebuffer blend modes
 bounded depth offsets and linear/exponential fog with parallel or perspective eye depth. Base-level,
 nearest-mip and trilinear sampling use the candidate's existing mip chains,
 including rectangular, NPOT and one-pixel-wide images. Per-unit uploads are
-cached by image identity and revision, including individual mip revisions;
-switching images may still upload their levels again. This is a bounded slot
-cache, not a persistent cache of every texture used by a game.
+cached by image identity and revision, including individual mip revisions.
+Each unit retains up to 32 images within 2 MiB of RGBA mip storage, evicting
+least-recently-used entries. Oversized images use a transient slot. This is not
+an unbounded cache of every texture used by a game.
 
 Sprite3D shares the same retained framebuffer, with exact CPU crop/flip/nearest
 sample indices, raw image pixels, zero-alpha rejection and sprite fog semantics.
@@ -60,6 +61,87 @@ candidate. The existing upstream license asset and notices remain in the APK.
 Framebuffer alpha uses [separate RGB/alpha blend factors](https://registry.khronos.org/OpenGL-Refpages/es3.0/html/glBlendFuncSeparate.xhtml),
 not destination sampling or a per-triangle readback. Normalized hardware blending
 has rounding differences from the software integer pipeline.
+
+## Texture Reuse and Source Inputs: 2026-10-13
+
+Source checkpoints: `b79fb6b4`, capacity follow-up `3f2feddd`.
+
+Alternating materials no longer overwrite one texture slot on every draw.
+Independent per-unit LRU ownership also keeps sampler changes or eviction in
+one layer from changing another bound layer. Mutable image and individual mip
+revisions are checked at submission, using the queued snapshots. Context loss
+recreates an empty cache and replays from those same snapshots.
+
+Retained cache storage is bounded to **8 MiB / 128 entries** across four units.
+Accounting uses the high-water mip allocation: switching to base-level sampling
+does not pretend the driver freed old mip storage. This bound excludes the four
+transient slots, framebuffer/depth storage, CPU image references, driver overhead
+and the separately bounded replay/geometry buffers. It is not a process-memory
+cap. The initial eight-entry-per-unit cap was too restrictive for larger
+material sets; the follow-up retains 32 entries without raising the byte bound.
+The alternating-image fixture now exercises twelve distinct images, which the
+old cap could not retain. Five checks cover alternating images, mutation/recovery, entry eviction,
+oversized-image bypass and mip-storage accounting through sampler changes.
+
+Retroid same-APK comparison, 64 warmup frames and five 32-frame batches,
+thermal status 0 at both ends of both runs:
+
+| Scene | Cache off ms/frame | Cache on ms/frame | Texture uploads off / on |
+| --- | ---: | ---: | ---: |
+| 16 meshes / 4 materials, 240x320 | 4.750 | 4.294 | 3584 / 4 |
+| 16 meshes / 4 materials, 320x240 | 5.115 | 4.556 | 3584 / 4 |
+| Single-material 16 meshes, 240x320 | 4.488 | 4.412 | 1 / 1 |
+| Single-material 16 meshes, 320x240 | 4.590 | 4.560 | 1 / 1 |
+
+All **30 image CRCs match exactly**. The approximately 10-11% reduction applies to these
+alternating-material fixtures, not overall game FPS. Unchanged single-material
+scenes do not gain meaningful speed. Raw local evidence is under
+`build/benchmarks/gpu-texture-cache32-{off,on}`. Public JSON results and APK
+identities are in [texture-cache-20261013](texture-cache-20261013/).
+
+Final Handheld passes **129 checks, zero skips**, on Retroid Pocket Classic
+arm64/Android 14. Phone emulator x86_64/Android 15 passes 129 checks on the
+initial eight-entry build, followed by all five affected cache checks on the
+final 32-entry build. The latter is a focused rerun, not a second full Phone
+suite. The first emulator attempt exceeded the 300-second runner limit while
+tests continued; the complete run used a 600-second limit. Saved APK roots
+keep verification independent of later game builds. These are GPU-off-default,
+non-debuggable research APKs; tests explicitly enable GPU.
+
+Final APK SHA-256 (not release artifacts):
+
+```text
+6F59C37A098F25C5C532E40268DA27F7BC56B1A4D52B1206DA29CFFC78B4F8EB Handheld
+BD1FB87ADC8645C2FC5B9EA990314AE2AF2BE82184231A7AFE4A31088D8CEDF7 Handheld tests
+50D304C01091B5BC2DD9D4CA1F57BC89138AA669204A9390A172ED9D6BBB1649 Phone
+9B86C9C34CD7A476F0F3ED2DE44AD42BB83C1CE2860D8752B4B7D8C654F76DEC Phone tests
+```
+
+The separate GPU-enabled game build
+`9DAA2BEC412A5BCEBEB2695D50143DBE18056AD79CF515538EE3BAF2E58FA7A3`
+reached an Asphalt Instant Play race on Retroid. Two inspected captures show
+the changing road, car and HUD. A bounded diagnostic sample records 64,513
+accepted GPU commands, 30 texture-level uploads, 58,760 cache hits, zero
+evictions and 181,160 retained bytes. An earlier sample at 28,673 commands
+had 19 uploads and 147,028 bytes. The initial eight-entry trial had repeated
+uploads, but it used a different randomly selected track; do not turn those
+sessions into a controlled speedup/FPS comparison. No full-game, sound or
+physical-controller acceptance is claimed. The research app was stopped after
+the observation; normal installations and saves were not cleared.
+
+![Asphalt gameplay on Retroid with the final texture cache](retroid-texture-cache-asphalt.png)
+
+Candidate preparation now uses a commit-pinned, SHA-256-verified archive without
+a maintainer-local upstream checkout. Handheld and Phone builds succeeded using
+the cached archive with `--offline`; standalone probe assembly also succeeded
+using its own automatic archive fetch. All 34 adapted Java files match the old
+checkout workflow after line-ending normalization. Invalid-hash input is rejected
+before changing extracted sources, and a missing offline archive fails clearly.
+APK assets carry the source lock and upstream license; the host verifier checks
+their presence and source identity. This is source-input reproducibility, not
+byte-identical APKs, completed provenance review or production-switch approval.
+An ordinary-build dry run still hits the pre-existing missing-keystore issue #1
+in a checkout without signing configuration; this batch does not alter it.
 
 ## Batched Submission: 2026-10-13
 
@@ -640,12 +722,15 @@ in the **same** research APK; the bounded benchmark selects one explicitly:
 ```powershell
 ./experiments/m3g-host/benchmark.ps1 -Serial YOUR_DEVICE -Run gpu-a -Raster gpu
 ./experiments/m3g-host/benchmark.ps1 -Serial YOUR_DEVICE -Run gpu-b -Raster gpu -GpuResident off
+./experiments/m3g-host/benchmark.ps1 -Serial YOUR_DEVICE -Run cache-off -Raster gpu -GpuTextureCache off
 ./experiments/m3g-host/benchmark.ps1 -Serial YOUR_DEVICE -Run cpu-a -Raster native
 ```
 
 `-Raster gpu` allows unsupported draws to fall back, but requires real GPU
-draws for all 28 workloads. Reports include GPU/native
-counts, upload/readback counts and driver identity. Residence is on by default
+draws for all 30 workloads. Reports include GPU/native
+counts, texture/geometry/target upload and readback counts, and driver identity.
+`-GpuTextureCache off` restores the old per-unit texture slot for same-APK comparisons.
+Residence is on by default
 when GPU is explicitly selected; `-GpuResident off` compares the same APK using
 the original per-mesh transfer strategy. For a separate manual game experiment, add
 `-Pm3gGpu=true` to a candidate build. Automated verification and benchmark APKs

@@ -20,10 +20,13 @@ pinned at `baca76a4dda6f30abac67fb4a3db009eed05f91c`.
 All 33 inspected M3G Java files have GPLv3-or-later notices. This is a scoped
 source/header check, not a completed historical provenance or whole-project audit.
 
-No upstream engine files or binaries are checked into this harness. The build
-requires a clean checkout at the pinned revision, copies only its M3G Java
-package into ignored generated sources and retains the notices. The upstream
-GPL text is included as `FREEJ2ME-LICENSE.txt` in the probe's assets. The only
+No upstream engine files or binaries are checked into this harness. By default,
+the build fetches the archive pinned in `source-lock.json`, verifies its SHA-256
+before extracting only the M3G Java package and LICENSE, and retains the notices.
+The cache is under the Gradle root's ignored `.gradle/m3g-upstream/` directory.
+No download happens during configuration or ordinary app builds. The upstream
+GPL text is included as `FREEJ2ME-LICENSE.txt`, with the source lock as
+`FREEJ2ME-SOURCE.json`, in the probe's assets. The initial
 Android adaptation removes one `java.awt.Image` type check unavailable on
 Android; the MIDP Image path remains. A second guarded patch corrects the loader's
 section loop: consumed bytes must be compared with the header's total file size,
@@ -56,14 +59,24 @@ The candidate needs no NDK; the baseline uses NDK `22.1.7171670` and builds
 private signing configuration. From the worktree root:
 
 ```powershell
-git clone https://github.com/TASEmulators/freej2me-plus.git local-games/freej2me-plus
-git -C local-games/freej2me-plus checkout --detach baca76a4dda6f30abac67fb4a3db009eed05f91c
-.\gradlew.bat -p experiments/m3g-probe :probe:assembleDebug -Pfreej2meSource=C:/absolute/path/to/local-games/freej2me-plus
+.\gradlew.bat -p experiments/m3g-probe :probe:assembleDebug
 .\experiments\m3g-probe\verify.ps1 -Serial emulator-5554
 .\gradlew.bat -p experiments/m3g-probe :baseline:assembleDebug
 .\experiments\m3g-probe\verify.ps1 -Serial emulator-5554 -Baseline
 .\experiments\m3g-probe\compare.ps1 -Serial emulator-5554
 ```
+
+After dependencies and the pinned archive have been cached, `--offline` uses
+them without a network fetch. A missing offline archive fails with an explicit
+message. `-Pm3gSourceArchive=C:/path/to/archive.zip` supplies the same verified
+archive from another location; its SHA-256 must still match the lock. Invalid
+archives are rejected before replacing extracted sources. Only allowlisted
+M3G Java filenames and LICENSE are extracted, never games or arbitrary paths.
+
+The earlier `-Pfreej2meSource=C:/path/to/freej2me-plus` workflow is optional and
+still checks the exact revision and clean M3G/LICENSE paths. Neither workflow
+modifies upstream files. These are reproducible source inputs, not a claim of
+byte-identical APKs or a completed corresponding-source/provenance review.
 
 The verifier installs only the probe, removes its previous report, launches it
 and checks the expected suite version/count and every result. JSON evidence,

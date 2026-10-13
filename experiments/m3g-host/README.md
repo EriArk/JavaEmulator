@@ -5,13 +5,15 @@
 The [2026-10-12 compatibility/performance report](../../docs/m3g-performance-2026-10-12/README.md)
 records the earlier Java-only checkpoint. The candidate now includes a
 [native raster fast path](native/README.md) with a shared-buffer Java fallback.
-The verifier requires 51 shared checks and 68 candidate checks (tone, math,
-native rasterization, mipmaps, geometry preparation and 38 GPU checks):
-119 for an unmeasured candidate, 126 when measured, and 58 for measured
+The verifier requires 51 shared checks and 78 candidate checks (tone, math,
+native rasterization, mipmaps, geometry preparation and 48 GPU checks):
+129 for an unmeasured candidate, 136 when measured, and 58 for measured
 baseline with two intentional skips. Seven additional timing checks apply
 only when measurement is enabled.
 Both Handheld (`fdroid`) and Phone research builds are supported; pass
 `-Variant phone` to `verify.ps1` for Phone.
+Use `-ApkRoot` to verify a saved `outputs/apk` snapshot independently of later
+builds; slow software-rendered emulators can use `-TestTimeoutSeconds 600`.
 
 Candidate builds replace the inherited EPL tone package with the original
 [ToneControl implementation](tone-java/README.md). Run `:app:testToneCompiler`
@@ -29,13 +31,13 @@ aggregate bitmap-read/write and draw phases in addition to target sessions.
 controlled comparisons. It retains research IDs/debug signing, does not enable
 R8, and is not a public release configuration. Use it for both engines, never
 only one side. `benchmark.ps1 -Serial YOUR_DEVICE -Engine candidate -Run NEW_LABEL`
-runs 28 bounded original scenes and saves PNGs, timings, thermal status and
+runs 30 bounded original scenes and saves PNGs, timings, thermal status and
 APK hashes. This benchmark is opt-in, not part of the normal verifier. Its wall
 cost is not game FPS. Use `-ApkRoot` for saved APK snapshots when alternating
 engines: Gradle can remove the other engine's stale test output directory.
 For a same-APK fast-path comparison, pass `-Raster java`, `-Raster native` or `-Raster gpu`
 with separate run labels. Native runs require a successful native draw in every
-scene; GPU runs now require GPU draws in all 28 scenes, including sprites.
+scene; GPU runs now require GPU draws in all 30 scenes, including sprites.
 Library loading alone is not accepted as proof.
 
 ## Original Setup
@@ -46,12 +48,13 @@ Symbian integration is part of this experiment.
 
 ## Build
 
-Use the repository wrapper, JDK 21, SDK 34 and NDK 22.1.7171670. Prepare the
-clean, pinned FreeJ2ME-Plus checkout described in the
+Use the repository wrapper, JDK 21, SDK 34 and NDK 22.1.7171670. The pinned
+FreeJ2ME-Plus archive is fetched and hash-verified automatically; no maintainer
+checkout is required. Offline/archive-override options are documented in the
 [standalone probe](../m3g-probe/README.md). From the worktree root:
 
 ```powershell
-.\gradlew.bat :app:assembleFdroidDebug :app:assembleFdroidDebugAndroidTest -Pm3gExperiment=candidate -Pfreej2meSource=C:/absolute/path/to/freej2me-plus
+.\gradlew.bat :app:assembleFdroidDebug :app:assembleFdroidDebugAndroidTest -Pm3gExperiment=candidate
 .\experiments\m3g-host\verify.ps1 -Serial YOUR_DEVICE -Engine candidate
 .\gradlew.bat :app:assembleFdroidDebug :app:assembleFdroidDebugAndroidTest -Pm3gExperiment=baseline
 .\experiments\m3g-host\verify.ps1 -Serial YOUR_DEVICE -Engine baseline
@@ -195,7 +198,8 @@ retain native-CPU/Java execution. Consecutive Graphics-target draws share GPU
 color/depth until a CPU-access barrier; all framebuffer blend modes, bounded depth
 offsets, fog, four texture layers and mipmapping also run on GPU. Empty meshes
 do not force readback; signed CPU depth keeps its safe fallback. Revision-aware
-upload caching preserves mutable textures. The current verifier requires 104
-candidate checks (81 earlier checks plus 23 GPU-specific checks), or 111 with
-measurement (not rerun in this checkpoint).
+upload caching preserves mutable textures. Bounded per-unit LRU caches retain
+alternating materials without reuploading each draw. The current verifier
+requires 129 candidate checks (81 earlier checks plus 48 GPU-specific checks),
+or 136 with measurement (not rerun in this checkpoint).
 See [scope, device evidence, screenshots and performance limits](gpu/README.md).
