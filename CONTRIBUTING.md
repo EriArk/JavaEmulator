@@ -31,27 +31,26 @@ your SDK directory. Android Studio can also create an ignored `local.properties`
 with `sdk.dir`. Dependency downloads require Google Maven, Maven Central and
 JitPack access.
 
-### Temporary signing workaround
+### Signing
 
-[Issue #1](https://github.com/EriArk/JavaEmulator/issues/1) tracks a build-system
-bug: even debug tasks currently load `keystore.properties`. Until it is fixed,
-create a disposable local key from the repository root:
+Debug builds use the standard Android debug key automatically. No
+`keystore.properties`, custom key generation or maintainer credentials are needed.
+The former debug-build prerequisite tracked in
+[issue #1](https://github.com/EriArk/JavaEmulator/issues/1) has been removed.
 
-```shell
-keytool -genkeypair -keystore contributor-debug.jks -storepass android -alias androiddebugkey -keypass android -keyalg RSA -keysize 2048 -validity 3650 -dname "CN=AbyssME Local Development"
-```
-
-Copy `keystore.properties.example` to `keystore.properties`:
+For a signed release, copy `keystore.properties.example` to `keystore.properties`:
 
 ```shell
 cp keystore.properties.example keystore.properties
 ```
 
 In PowerShell use `Copy-Item keystore.properties.example keystore.properties`.
-Do not overwrite an existing signing configuration or keystore. Both the key
-and `keystore.properties` are ignored by Git. These public example credentials
-are only for local development, never for distributable releases. You do not
-need the maintainer's private key.
+Fill all four fields with your own release-key details. Do not overwrite an
+existing signing configuration or keystore. Use forward slashes in Windows paths.
+Both keystores and `keystore.properties` are ignored by Git. Release signing
+validation fails explicitly if the settings are incomplete; it does not fall
+back to the debug key. Existing Bitrise signing environment variables remain
+supported. Building a signed APK does not lift the publication hold below.
 
 ### Build and checks
 
