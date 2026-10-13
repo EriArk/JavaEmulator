@@ -13,6 +13,8 @@ final class GpuRasterizer {
     static boolean enabled = ru.playsoftware.j2meloader.BuildConfig.M3G_GPU;
     static boolean retainTargets = true;
     static boolean batchSubmission = true;
+    static boolean textureCacheEnabled = true;
+    static int textureCacheBytes = GpuTextureCache.UNIT_BYTES;
     static long draws, uploads, readbacks, textureUploads, emptyDraws, offsetDraws, multiplyDraws, spriteDraws;
     static long recoveries, replayedDraws, journalBarriers;
     static long submissions, submittedDraws, geometryUploads;
@@ -49,10 +51,8 @@ final class GpuRasterizer {
     private EGLContext context = EGL_NO_CONTEXT;
     private EGLSurface surface = EGL_NO_SURFACE;
     private int program, packProgram, framebuffer, packFramebuffer, color, depth, packed, vbo, vao;
-    private final int[] textureIds = new int[4];
-    private final int[] samplerKeys = {-1,-1,-1,-1};
-    private final Image2D[][] uploadedImages = new Image2D[4][12];
-    private final long[][] uploadedRevisions = new long[4][12];
+    private final GpuTextureCache textures = new GpuTextureCache(textureCacheBytes);
+    static synchronized int cachedTextureBytes() { return instance==null?0:instance.textures.bytes(); }
     private final int[] modes=new int[4], sizes=new int[4], formats=new int[4], mips=new int[4], blendColors=new int[4];
     private int targetSizeLocation, alphaLocation, thresholdLocation, compositeLocation;
     private int fogModeLocation, parallelFogLocation, fogColorLocation, fogParamsLocation, packSizeLocation;
@@ -320,7 +320,7 @@ final class GpuRasterizer {
         glUniform1i(glGetUniformLocation(program,"spriteIndices"),4);
         packSizeLocation=glGetUniformLocation(packProgram,"size");
         int[] ids=new int[3]; glGenTextures(3,ids,0);
-        color=ids[0]; depth=ids[1]; packed=ids[2]; glGenTextures(4,textureIds,0);
+        color=ids[0]; depth=ids[1]; packed=ids[2];
         glGenTextures(1,ids,0); spriteIndices=ids[0];
         glGenFramebuffers(2,ids,0); framebuffer=ids[0]; packFramebuffer=ids[1];
         glGenBuffers(1,ids,0); vbo=ids[0]; glGenVertexArrays(1,ids,0); vao=ids[0];
@@ -468,26 +468,26 @@ final class GpuRasterizer {
             if(tex==null) { glBindTexture(GL_TEXTURE_2D,0); continue; }
             GpuFrame.Image image=tex.levels[0]; int tw=image.width,th=image.height;
             boolean linear=tex.linear; int mip=tex.mip,levels=tex.levels.length;
-            glBindTexture(GL_TEXTURE_2D,textureIds[unit]);
+            GpuTextureCache.Entry cached=textures.select(unit,tex,textureCacheEnabled);
+            glBindTexture(GL_TEXTURE_2D,cached.id);
             for (int level=0;level<levels;level++) {
                 GpuFrame.Image source=tex.levels[level]; int sw=source.width,sh=source.height;
-                if (uploadedImages[unit][level]==source.source && uploadedRevisions[unit][level]==source.revision) continue;
+                if (cached.images[level]==source.source && cached.revisions[level]==source.revision) continue;
                 textureInput=buffer(textureInput,sw*sh*4); textureInput.asIntBuffer().put(source.pixels,0,sw*sh);
                 glTexImage2D(GL_TEXTURE_2D,level,GL_RGBA8,sw,sh,0,GL_RGBA,GL_UNSIGNED_BYTE,textureInput);
-                uploadedImages[unit][level]=source.source; uploadedRevisions[unit][level]=source.revision; textureUploads++;
+                cached.images[level]=source.source; cached.revisions[level]=source.revision; textureUploads++;
             }
-            for(int level=levels;level<12;level++) uploadedImages[unit][level]=null;
             int min=mip==0?(linear?GL_LINEAR:GL_NEAREST):mip==1
                     ?(linear?GL_LINEAR_MIPMAP_NEAREST:GL_NEAREST_MIPMAP_NEAREST)
                     :(linear?GL_LINEAR_MIPMAP_LINEAR:GL_NEAREST_MIPMAP_LINEAR);
             int key=levels | (linear?32:0) | (mip<<6) | (tex.repeatS?256:0) | (tex.repeatT?512:0);
-            if(samplerKeys[unit]!=key) {
+            if(cached.samplerKey!=key) {
                 glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_MAX_LEVEL,levels-1);
                 glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_MIN_FILTER,min);
                 glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_MAG_FILTER,linear?GL_LINEAR:GL_NEAREST);
                 glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_WRAP_S,tex.repeatS?GL_REPEAT:GL_CLAMP_TO_EDGE);
                 glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_WRAP_T,tex.repeatT?GL_REPEAT:GL_CLAMP_TO_EDGE);
-                samplerKeys[unit]=key;
+                cached.samplerKey=key;
             }
             glUniform2f(sizes[unit],tw,th);
             glUniform1i(formats[unit],image.format);

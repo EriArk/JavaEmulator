@@ -29,8 +29,10 @@ public class M3gBenchmark {
         java.lang.reflect.Field gpuEnabled = null, gpuDraws = null, gpuRenderer = null;
         java.lang.reflect.Field gpuUploads=null, gpuReadbacks=null, gpuRetain=null;
         java.lang.reflect.Field gpuBatch=null, gpuSubmissions=null, gpuSubmitted=null, gpuGeometry=null;
+        java.lang.reflect.Field gpuCache=null,gpuTextureUploads=null;
         String resident=InstrumentationRegistry.getArguments().getString("benchGpuResident");
         String batching=InstrumentationRegistry.getArguments().getString("benchGpuBatch");
+        String caching=InstrumentationRegistry.getArguments().getString("benchGpuTextureCache");
         try {
             Class<?> backend = Class.forName("javax.microedition.m3g.NativeRasterizer");
             nativeEnabled = backend.getDeclaredField("enabled");
@@ -54,6 +56,12 @@ public class M3gBenchmark {
             gpuSubmissions=gpu.getDeclaredField("submissions"); gpuSubmissions.setAccessible(true);
             gpuSubmitted=gpu.getDeclaredField("submittedDraws"); gpuSubmitted.setAccessible(true);
             gpuGeometry=gpu.getDeclaredField("geometryUploads"); gpuGeometry.setAccessible(true);
+            gpuCache=gpu.getDeclaredField("textureCacheEnabled"); gpuCache.setAccessible(true);
+            gpuTextureUploads=gpu.getDeclaredField("textureUploads"); gpuTextureUploads.setAccessible(true);
+            if(caching!=null) {
+                assertTrue("benchGpuTextureCache must be on or off",caching.equals("on") || caching.equals("off"));
+                gpuCache.setBoolean(null,caching.equals("on"));
+            }
             if(batching!=null) {
                 assertTrue("benchGpuBatch must be on or off",batching.equals("on") || batching.equals("off"));
                 gpuBatch.setBoolean(null,batching.equals("on"));
@@ -86,13 +94,14 @@ public class M3gBenchmark {
                 .put("lightingCache", lighting == null ? "default" : lighting)
                 .put("gpuResident",gpuRetain!=null && gpuRetain.getBoolean(null))
                 .put("gpuBatch",gpuBatch!=null && gpuBatch.getBoolean(null))
+                .put("gpuTextureCache",gpuCache!=null && gpuCache.getBoolean(null))
                 .put("raster", "gpu".equals(raster) ? "gpu" : nativeEnabled == null ? "legacy" : nativeEnabled.getBoolean(null) ? "native" : "java");
         JSONArray cases = new JSONArray();
         report.put("cases", cases);
         for (int[] size : new int[][]{{240,320},{320,240}}) {
             for (String kind : new String[]{"rgb-nearest","rgb-linear","rgba-alpha","lit-fog","exp-fog","multi-texture",
                     "mip-nearest","mip-linear","sprites","lighting-grid","multi-draw",
-                    "modulate","modulate-x2","depth-offset"}) {
+                    "modulate","modulate-x2","depth-offset","material-churn"}) {
                 String name = kind + "-" + size[0] + "x" + size[1];
                 if (kind.equals("multi-texture") && (Integer) Graphics3D.getProperties().get("numTextureUnits") < 4) {
                     assertNull("Candidate must support all four layers", nativeEnabled);
@@ -131,6 +140,7 @@ public class M3gBenchmark {
                 long submitStart=gpuSubmissions==null?0:gpuSubmissions.getLong(null);
                 long renderedStart=gpuSubmitted==null?0:gpuSubmitted.getLong(null);
                 long geometryStart=gpuGeometry==null?0:gpuGeometry.getLong(null);
+                long textureStart=gpuTextureUploads==null?0:gpuTextureUploads.getLong(null);
                 long shadedStart = shadedVertices == null ? 0 : shadedVertices.getLong(null);
                 for (int i = 0; i < 64; i++) frame(renderer, target, mesh, background, model);
                 JSONArray wall = new JSONArray(), cpu = new JSONArray();
@@ -162,6 +172,7 @@ public class M3gBenchmark {
                         .put("gpuSubmissions",gpuSubmissions==null?0:gpuSubmissions.getLong(null)-submitStart)
                         .put("gpuSubmittedDraws",gpuSubmitted==null?0:gpuSubmitted.getLong(null)-renderedStart)
                         .put("gpuGeometryUploads",gpuGeometry==null?0:gpuGeometry.getLong(null)-geometryStart)
+                        .put("gpuTextureUploads",gpuTextureUploads==null?0:gpuTextureUploads.getLong(null)-textureStart)
                         .put("shadedVertices", shadedVertices == null ? -1 : shadedVertices.getLong(null)-shadedStart)
                         .put("nativeDraws", counter == null ? 0 : counter.getLong(null)-nativeStart));
                 if ("native".equals(raster)) assertTrue("Native path was not exercised", counter.getLong(null)>nativeStart);
@@ -170,7 +181,7 @@ public class M3gBenchmark {
                     assertEquals("Every queued draw must reach GL",gpuDraws.getLong(null)-gpuStart,
                             gpuSubmitted.getLong(null)-renderedStart);
                 }
-                if ("gpu".equals(raster) && kind.equals("multi-draw")) {
+                if ("gpu".equals(raster) && (kind.equals("multi-draw") || kind.equals("material-churn"))) {
                     assertEquals(224*16,gpuDraws.getLong(null)-gpuStart);
                     assertEquals(gpuRetain.getBoolean(null)?224:224*16,gpuUploads.getLong(null)-uploadStart);
                     assertEquals(gpuUploads.getLong(null)-uploadStart,gpuReadbacks.getLong(null)-readStart);
@@ -178,6 +189,8 @@ public class M3gBenchmark {
                         assertEquals(224*(gpuBatch.getBoolean(null)?2:17),gpuSubmissions.getLong(null)-submitStart);
                         assertEquals(224*(gpuBatch.getBoolean(null)?2:16),gpuGeometry.getLong(null)-geometryStart);
                     }
+                    if(kind.equals("material-churn")) assertEquals(gpuCache.getBoolean(null)?4:224*16,
+                            gpuTextureUploads.getLong(null)-textureStart);
                 }
                 renderer.releaseTarget();
             }
@@ -191,6 +204,7 @@ public class M3gBenchmark {
         if (gpuEnabled != null) gpuEnabled.setBoolean(null, false);
         if (gpuRetain != null) gpuRetain.setBoolean(null, true);
         if (gpuBatch != null) gpuBatch.setBoolean(null, true);
+        if (gpuCache != null) gpuCache.setBoolean(null, true);
         if (lightingCache != null) lightingCache.setBoolean(null, true);
     }
 
@@ -202,11 +216,19 @@ public class M3gBenchmark {
 
     private Node scene(String kind) {
         if (kind.equals("lighting-grid")) return lightingGrid();
-        if (kind.equals("multi-draw")) {
+        if (kind.equals("multi-draw") || kind.equals("material-churn")) {
             Group group=new Group();
             Mesh source=(Mesh)scene("rgb-linear");
+            Appearance[] materials=new Appearance[4];
+            for(int i=0;i<4;i++) {
+                byte[] pixels=new byte[64*64*3];
+                for(int p=0;p<pixels.length;p+=3) { pixels[p]=(byte)(64+i*48); pixels[p+1]=(byte)(192-i*32); pixels[p+2]=(byte)(64+(p/3)%64); }
+                Texture2D texture=new Texture2D(new Image2D(Image2D.RGB,64,64,pixels));
+                texture.setBlending(Texture2D.FUNC_REPLACE); texture.setFiltering(Texture2D.FILTER_BASE_LEVEL,Texture2D.FILTER_LINEAR);
+                materials[i]=new Appearance(); materials[i].setTexture(0,texture);
+            }
             for(int y=0;y<4;y++) for(int x=0;x<4;x++) {
-                Mesh mesh=new Mesh(source.getVertexBuffer(),source.getIndexBuffer(0),source.getAppearance(0));
+                Mesh mesh=new Mesh(source.getVertexBuffer(),source.getIndexBuffer(0),kind.equals("material-churn")?materials[x]:source.getAppearance(0));
                 mesh.setScale(.25f,.25f,1); mesh.setTranslation((x-1.5f)*.6f,(y-1.5f)*.6f,0);
                 group.addChild(mesh);
             }

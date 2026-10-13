@@ -7,6 +7,7 @@ param(
     [ValidateSet('on', 'off')][string]$LightingCache,
     [ValidateSet('on', 'off')][string]$GpuResident,
     [ValidateSet('on', 'off')][string]$GpuBatch,
+    [ValidateSet('on', 'off')][string]$GpuTextureCache,
     [ValidateRange(30,600)][int]$TestTimeoutSeconds = 300,
     [string]$Adb = "$env:LOCALAPPDATA/Android/Sdk/platform-tools/adb.exe"
 )
@@ -54,6 +55,7 @@ if ($Raster) { $arguments += @('-e', 'benchRaster', $Raster) }
 if ($LightingCache) { $arguments += @('-e', 'benchLightingCache', $LightingCache) }
 if ($GpuResident) { $arguments += @('-e', 'benchGpuResident', $GpuResident) }
 if ($GpuBatch) { $arguments += @('-e', 'benchGpuBatch', $GpuBatch) }
+if ($GpuTextureCache) { $arguments += @('-e', 'benchGpuTextureCache', $GpuTextureCache) }
 $arguments += "$package.test/androidx.test.runner.AndroidJUnitRunner"
 $result = Invoke-Adb $arguments
 $result | Set-Content -Encoding UTF8 (Join-Path $out 'tests.txt')
@@ -62,7 +64,8 @@ if ($result -notmatch 'OK \(1 test\)' -or $result -match 'FAILURES|INSTRUMENTATI
 }
 Invoke-Adb @('pull', "/sdcard/Android/data/$package/files/m3g-benchmark/$Run/.", $out) | Out-Null
 $report = Get-Content -Raw (Join-Path $out 'report.json') | ConvertFrom-Json
-if ($report.package -ne $package -or $report.cases.Count -ne 28) { throw 'Unexpected benchmark report' }
+$expectedCases = if ($report.PSObject.Properties.Name -contains 'gpuTextureCache') { 30 } else { 28 }
+if ($report.package -ne $package -or $report.cases.Count -ne $expectedCases) { throw 'Unexpected benchmark report' }
 [pscustomobject]@{
     engine = $Engine
     apkSha256 = (Get-FileHash $apk).Hash

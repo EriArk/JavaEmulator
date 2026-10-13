@@ -1,26 +1,29 @@
-def pinnedRevision = 'baca76a4dda6f30abac67fb4a3db009eed05f91c'
+ext.m3gPatchDirectory = rootProject.file('experiments/m3g-probe')
+if (!m3gPatchDirectory.isDirectory()) ext.m3gPatchDirectory = rootProject.projectDir
+apply from: new File(m3gPatchDirectory, 'source.gradle')
+def pinnedRevision = m3gPinnedRevision
 def upstream = providers.gradleProperty('freej2meSource')
 def generated = layout.buildDirectory.dir('generated/m3g')
 
 tasks.register('prepareM3g') {
+    if (!upstream.isPresent()) dependsOn 'prepareM3gUpstream'
     outputs.upToDateWhen { false }
     doLast {
-        if (!upstream.isPresent()) {
-            throw new GradleException('Pass -Pfreej2meSource=<pinned FreeJ2ME-Plus checkout>')
+        def source = upstream.isPresent() ? file(upstream.get()) : m3gArchiveSource.get().asFile
+        if (upstream.isPresent()) {
+            def revision = new ByteArrayOutputStream()
+            exec { workingDir source; commandLine 'git', 'rev-parse', 'HEAD'; standardOutput revision }
+            if (revision.toString('UTF-8').trim() != pinnedRevision) {
+                throw new GradleException("Expected FreeJ2ME-Plus ${pinnedRevision}")
+            }
+            def dirty = new ByteArrayOutputStream()
+            exec {
+                workingDir source
+                commandLine 'git', 'status', '--porcelain', '--', 'src/javax/microedition/m3g', 'LICENSE'
+                standardOutput dirty
+            }
+            if (dirty.size() != 0) throw new GradleException('Upstream M3G sources must be unmodified')
         }
-        def source = file(upstream.get())
-        def revision = new ByteArrayOutputStream()
-        exec { workingDir source; commandLine 'git', 'rev-parse', 'HEAD'; standardOutput revision }
-        if (revision.toString('UTF-8').trim() != pinnedRevision) {
-            throw new GradleException("Expected FreeJ2ME-Plus ${pinnedRevision}")
-        }
-        def dirty = new ByteArrayOutputStream()
-        exec {
-            workingDir source
-            commandLine 'git', 'status', '--porcelain', '--', 'src/javax/microedition/m3g', 'LICENSE'
-            standardOutput dirty
-        }
-        if (dirty.size() != 0) throw new GradleException('Upstream M3G sources must be unmodified')
         def output = generated.get().asFile
         delete output
         copy {
@@ -350,6 +353,7 @@ tasks.register('prepareM3g') {
 
 ''' + contents.substring(end), 'UTF-8')
         copy { from new File(source, 'LICENSE'); into new File(output, 'assets'); rename { 'FREEJ2ME-LICENSE.txt' } }
+        copy { from m3gSourceLock; into new File(output, 'assets'); rename { 'FREEJ2ME-SOURCE.json' } }
     }
 }
 

@@ -2,6 +2,7 @@ param(
     [Parameter(Mandatory = $true)][string]$Serial,
     [ValidateSet('candidate', 'baseline')][string]$Engine = 'candidate',
     [ValidateSet('fdroid', 'phone')][string]$Variant = 'fdroid',
+    [string]$ApkRoot,
     [ValidateRange(30,600)][int]$TestTimeoutSeconds = 300,
     [string]$Adb = "$env:ANDROID_HOME/platform-tools/adb.exe"
 )
@@ -9,7 +10,7 @@ $ErrorActionPreference = 'Stop'
 $root = (Resolve-Path (Join-Path $PSScriptRoot '../..')).Path
 $package = "io.github.eriark.abyssme.m3g$Engine.debug"
 if ($Variant -eq 'phone') { $package = "io.github.eriark.abyssme.m3g$Engine.phone.debug" }
-$build = Join-Path $root "app/build/m3g-$Engine/outputs/apk"
+$build = if ($ApkRoot) { (Resolve-Path $ApkRoot).Path } else { Join-Path $root "app/build/m3g-$Engine/outputs/apk" }
 $suffix = if ($Variant -eq 'phone') { '-phone' } else { '' }
 $apk = Join-Path $build "$Variant/debug/AbyssME-0.1.0-beta.2$suffix-debug.apk"
 $test = Join-Path $build "androidTest/$Variant/debug/app-$Variant-debug-androidTest.apk"
@@ -52,6 +53,16 @@ try {
     $native = @($zip.Entries.FullName -match 'libjavam3g\.so$')
     $notice = $zip.Entries.FullName -contains 'assets/FREEJ2ME-LICENSE.txt'
     if ($Engine -eq 'candidate' -and ($native.Count -ne 0 -or -not $notice)) { throw 'Candidate engine isolation failed' }
+    if ($Engine -eq 'candidate') {
+        $provenance = $zip.GetEntry('assets/FREEJ2ME-SOURCE.json')
+        if ($null -eq $provenance) { throw 'Missing pinned-source provenance' }
+        $reader = [IO.StreamReader]::new($provenance.Open())
+        try { $source = $reader.ReadToEnd() | ConvertFrom-Json } finally { $reader.Dispose() }
+        $lock = Get-Content -Raw (Join-Path $root 'experiments/m3g-probe/source-lock.json') | ConvertFrom-Json
+        if ($source.revision -ne $lock.revision -or $source.sha256 -ne $lock.sha256 -or $source.archive -ne $lock.archive) {
+            throw 'Candidate source identity mismatch'
+        }
+    }
     if ($Engine -eq 'baseline' -and ($native.Count -ne 2 -or $notice)) { throw 'Baseline engine isolation failed' }
     foreach ($entry in $zip.Entries | Where-Object { $_.Name -match '^classes\d*\.dex$' }) {
         $reader = [IO.StreamReader]::new($entry.Open(), [Text.Encoding]::GetEncoding(28591))
@@ -84,7 +95,8 @@ if ($Engine -eq 'candidate') {
     $classes += ',javax.microedition.m3g.GpuSpriteTest'
     $classes += ',javax.microedition.m3g.GpuRecoveryTest'
     $classes += ',javax.microedition.m3g.GpuBatchTest'
-    $expectedTests += 73
+    $classes += ',javax.microedition.m3g.GpuCacheTest'
+    $expectedTests += 78
 }
 if ($measured) {
     $classes += ',javax.microedition.shell.M3gTargetMeterTest'
