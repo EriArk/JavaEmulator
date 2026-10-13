@@ -17,6 +17,8 @@ final class GpuRasterizer {
     static boolean textureCacheEnabled = true;
     static boolean discardReleasedDepth = true;
     static boolean fastClear = true;
+    static boolean specializedPipelines = true, partialReadback = true;
+    static long colorReadPixels, colorCommittedPixels;
     static long clearedUploads;
     private static int[] clearPixels;
     private static short[] clearDepthBuffer;
@@ -60,7 +62,7 @@ final class GpuRasterizer {
     private EGLContext context = EGL_NO_CONTEXT;
     private EGLSurface surface = EGL_NO_SURFACE;
     private int packProgram, framebuffer, packFramebuffer, color, depth, packed, vbo, vao;
-    private Pipeline standardPipeline, lightingPipeline;
+    private final Pipeline[] pipelines = new Pipeline[13];
     static long pipelineCompilations;
     private final GpuTextureCache textures = new GpuTextureCache(textureCacheBytes);
     private final GpuMeshCache meshes = new GpuMeshCache();
@@ -70,6 +72,7 @@ final class GpuRasterizer {
     private ByteBuffer colors, depths, depthInput, textureInput, batchGeometry;
     private int submitted;
     private int width, height;
+    private int readLeft, readTop, readWidth, readHeight;
     private int[] residentPixels;
     private short[] residentDepth;
     private boolean depthDirty;
@@ -82,6 +85,7 @@ final class GpuRasterizer {
     }
     private static final SpriteState spriteState = new SpriteState();
     private static float[] vertexStaging = new float[0];
+    private static int[] spriteIndexStaging = new int[0];
 
     // Valid only until the next CPU access barrier; the journal keeps its own replay state.
     static synchronized void cleared(int[] pixels, short[] depth, int w, int h, int color, int z) {
@@ -219,7 +223,13 @@ final class GpuRasterizer {
         if(frame.draws.isEmpty()) return;
         execute(true,preserveDepth);
         GpuRasterizer gpu=instance;
-        gpu.colors.asIntBuffer().get(frame.pixels,0,frame.width*frame.height);
+        if(gpu.readWidth>0 && gpu.readHeight>0) {
+            IntBuffer source=gpu.colors.asIntBuffer();
+            if(gpu.readWidth==frame.width) source.get(frame.pixels,gpu.readTop*frame.width,gpu.readWidth*gpu.readHeight);
+            else for(int y=0;y<gpu.readHeight;y++)
+                source.get(frame.pixels,(gpu.readTop+y)*frame.width+gpu.readLeft,gpu.readWidth);
+            colorCommittedPixels+=(long)gpu.readWidth*gpu.readHeight;
+        }
         if (gpu.depthDirty && preserveDepth) gpu.depths.asShortBuffer().get(frame.depth,0,frame.width*frame.height);
         if (gpu.depthDirty && !preserveDepth) discardedDepthReadbacks++;
         gpu.residentPixels=null; gpu.residentDepth=null; gpu.depthDirty=false; gpu.submitted=0;
@@ -327,6 +337,7 @@ final class GpuRasterizer {
             clearPixels=null; clearDepthBuffer=null;
             spriteState.image=null; spriteState.mapping=null; spriteState.flags=null;
             vertexStaging=new float[0];
+            spriteIndexStaging=new int[0];
             GpuGeometry.clear();
         }
     }
@@ -355,7 +366,7 @@ final class GpuRasterizer {
             throw new IllegalStateException("Create GPU context");
         current(this);
         renderer=glGetString(GL_RENDERER);
-        standardPipeline=new Pipeline(false); packProgram=program(PACK_VERTEX,PACK_FRAGMENT);
+        packProgram=program(PACK_VERTEX,PACK_FRAGMENT);
         packSizeLocation=glGetUniformLocation(packProgram,"size");
         int[] ids=new int[3]; glGenTextures(3,ids,0);
         color=ids[0]; depth=ids[1]; packed=ids[2];
@@ -418,14 +429,17 @@ final class GpuRasterizer {
         if(sprite!=null) {
             int[] p=sprite.flags; float[] f=sprite.mapping;
             int size=Math.max(w,h);
-            command.indices=frame.acquire(size*8); IntBuffer indices=command.indices.asIntBuffer();
+            command.indices=frame.acquire(size*8);
+            if(spriteIndexStaging.length<size*2) spriteIndexStaging=new int[size*2];
+            int[] indices=spriteIndexStaging;
             float u=f[0];
-            for(int x=left;x<right;x++,u+=f[1]) indices.put(x,Math.max(p[8],Math.min(p[8]+p[10]-1,p[8]+(int)u)));
+            for(int x=left;x<right;x++,u+=f[1]) indices[x]=Math.max(p[8],Math.min(p[8]+p[10]-1,p[8]+(int)u));
             for(int y=top;y<bottom;y++) {
                 float v=(y-sprite.oy+.5f-f[2])*f[3];
                 int ty=p[9]+(int)(((p[12]&4)!=0?1-v:v)*p[11]);
-                indices.put(size+y,Math.max(p[9],Math.min(p[9]+p[11]-1,ty)));
+                indices[size+y]=Math.max(p[9],Math.min(p[9]+p[11]-1,ty));
             }
+            command.indices.asIntBuffer().put(indices,0,size*2);
             command.spriteFog=p[19];
             if((p[12]&8)!=0) { command.fogMode=3; command.fogColor=p[18]; }
         }
@@ -457,11 +471,11 @@ final class GpuRasterizer {
     }
 
     private void render(GpuFrame.Draw command,int firstVertex,GpuFrame.Draw previous) {
-        boolean extended=extendedLighting(command);
-        if(extended && lightingPipeline==null) lightingPipeline=new Pipeline(true);
-        Pipeline pipeline=extended?lightingPipeline:standardPipeline;
+        int programKey=pipelineKey(command);
+        if(pipelines[programKey]==null) pipelines[programKey]=new Pipeline(programKey);
+        Pipeline pipeline=pipelines[programKey];
         // Uniform locations/state belong to a linked program, not the renderer as a whole.
-        if(previous!=null && extended!=extendedLighting(previous)) previous=null;
+        if(previous!=null && programKey!=pipelineKey(previous)) previous=null;
         int w=frame.width,h=frame.height,packWidth=(w+1)/2;
         int count=command.count,blend=command.blend,mask=command.mask;
         if(previous==null) {
@@ -590,7 +604,19 @@ final class GpuRasterizer {
         int w=width,h=height,packWidth=(w+1)/2;
         glActiveTexture(GL_TEXTURE0);
         glBindFramebuffer(GL_FRAMEBUFFER,framebuffer);
-        glReadPixels(0,0,w,h,GL_RGBA,GL_UNSIGNED_BYTE,colors);
+        int left=w,top=h,right=0,bottom=0;
+        for(GpuFrame.Draw draw:frame.draws) if(draw.mask!=0) {
+            int l=Math.max(0,draw.left),t=Math.max(0,draw.top);
+            int r=Math.min(w,draw.right),b=Math.min(h,draw.bottom);
+            if(l<r && t<b) { left=Math.min(left,l); top=Math.min(top,t); right=Math.max(right,r); bottom=Math.max(bottom,b); }
+        }
+        if(!partialReadback) { left=0;top=0;right=w;bottom=h; }
+        readLeft=left;readTop=top;readWidth=Math.max(0,right-left);readHeight=Math.max(0,bottom-top);
+        if(readWidth>0 && readHeight>0) {
+            colors.position(0);
+            glReadPixels(left,top,readWidth,readHeight,GL_RGBA,GL_UNSIGNED_BYTE,colors);
+            colorReadPixels+=(long)readWidth*readHeight;
+        }
         injectLoss(3);
         if (depthDirty && preserveDepth) {
             // ES3 has no portable depth readback. Pack two 16-bit samples into each RGBA pixel.
@@ -655,14 +681,22 @@ final class GpuRasterizer {
         return command.raw!=null && (command.raw.flat || command.raw.twoSided);
     }
 
-    /** Two context-owned variants; ordinary draws retain the smaller varying interface. */
+    private static int pipelineKey(GpuFrame.Draw command) {
+        if(!specializedPipelines) return extendedLighting(command)?12:11;
+        return command.sprite?10:(extendedLighting(command)?5:0)+command.textures.length;
+    }
+
+    /** Ten texture-count variants, a sprite variant and two diagnostic reference variants. */
     private static final class Pipeline {
         final int program;
         final int[] modes=new int[4],sizes=new int[4],formats=new int[4],mips=new int[4],blendColors=new int[4];
         final int targetSize,alpha,threshold,composite,fogMode,parallelFog,fogColor,fogParams,sprite,spriteLayout;
         final GpuGeometry.Uniforms geometry;
-        Pipeline(boolean extended) {
-            program=program(vertexShader(extended),fragmentShader(extended)); pipelineCompilations++;
+        Pipeline(int key) {
+            boolean extended=key==12 || key>=5 && key<10;
+            int units=key>=11?4:key==10?0:key%5;
+            int spriteMode=key>=11?-1:key==10?1:0;
+            program=program(vertexShader(extended,units),fragmentShader(extended,units,spriteMode)); pipelineCompilations++;
             geometry=new GpuGeometry.Uniforms(program); glUseProgram(program);
             for(int unit=0;unit<4;unit++) {
                 modes[unit]=location("mode["+unit+"]"); sizes[unit]=location("imageSize["+unit+"]");
@@ -677,8 +711,9 @@ final class GpuRasterizer {
         private int location(String name) { return glGetUniformLocation(program,name); }
     }
 
-    private static String vertexShader(boolean extended) {
+    private static String vertexShader(boolean extended,int units) {
         StringBuilder s=new StringBuilder("#version 300 es\nlayout(location=0) in vec3 position; layout(location=1) in vec4 color;\n");
+        s.append("#define TEXTURE_UNITS ").append(units).append('\n');
         if(extended) s.append("#define EXTENDED_LIGHTING\n");
         for(int i=0;i<4;i++) s.append("layout(location=").append(i+2).append(") in vec3 uv").append(i).append(";\n");
         s.append("layout(location=6) in float fog; out highp float fogValue;\n")
@@ -691,7 +726,7 @@ final class GpuRasterizer {
         return s.append(GpuGeometry.BODY).append("}").toString();
     }
 
-    private static String fragmentShader(boolean extended) {
+    private static String fragmentShader(boolean extended,int units,int spriteMode) {
         StringBuilder s=new StringBuilder("#version 300 es\n");
         if(extended) s.append("#define EXTENDED_LIGHTING\n");
         s.append("precision highp float; precision highp int;\n")
@@ -700,7 +735,8 @@ final class GpuRasterizer {
                 .append("uniform vec3 blendColor[4]; in float fogValue; uniform vec3 fogColor,fogParams;\n")
                 .append("in float affineWeight; uniform int rawGeometry; uniform vec2 rawDepth,rawOffset;\n")
                 .append("#ifdef EXTENDED_LIGHTING\nuniform int rawShading; in vec4 backColor; flat in vec4 flatFront,flatBack;\n#endif\n")
-                .append("uniform int sprite; uniform ivec4 spriteLayout; uniform highp isampler2D spriteIndices;\n");
+                .append(spriteMode<0?"uniform int sprite;\n":"const int sprite="+spriteMode+";\n")
+                .append("uniform ivec4 spriteLayout; uniform highp isampler2D spriteIndices;\n");
         for(int i=0;i<4;i++) s.append("uniform sampler2D image").append(i).append(";\n");
         s.append("vec4 layer(vec4 c,vec4 t,int mode,int rgba,vec3 b){\n")
                 .append("if(mode==226 && rgba<99)return c;\n")
@@ -719,7 +755,7 @@ final class GpuRasterizer {
                 .append("texelFetch(spriteIndices,ivec2(int(gl_FragCoord.y),1),0).r);\n")
                 .append("c=floor(texelFetch(image0,p,0).bgra*255.0+0.5); } else {\n");
         // ES3 sampler selection is deliberately static, including on mobile drivers.
-        for(int i=0;i<4;i++) s.append("{ int u=").append(i).append("; if(mode[u]!=0){\n")
+        for(int i=0;i<units;i++) s.append("{ int u=").append(i).append("; if(mode[u]!=0){\n")
                 .append("vec3 p=texCoord[u]/affineWeight; vec2 uv=p.xy/p.z; float lod=0.0;\n")
                 .append("if(mip[u]!=0){ vec2 dx=abs((dFdx(p.xy)-uv*dFdx(p.z))/p.z),dy=abs((dFdy(p.xy)-uv*dFdy(p.z))/p.z);\n")
                 .append("lod=floor(0.5*log2(max(1.0,max(dot(dx,dx),dot(dy,dy))))*256.0)/256.0; if(mip[u]==1)lod=floor(lod+127.0/256.0); }\n")

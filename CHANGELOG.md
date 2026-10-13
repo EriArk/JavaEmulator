@@ -11,6 +11,14 @@ stated otherwise. **Experimental** means local/private combined builds only.
 
 ## 2026-10-13
 
+- **Separate experiment / not shipped:** specialized GPU programs by texture
+  count and sprite/mesh path, reduced readback to color-writing rectangles and
+  packed sprite lookup data in bulk. Same-APK Retroid comparison cuts flat/
+  two-sided lighting costs by 22-34% and sprites by 9-14%; all 34 pixel CRCs
+  match. Retroid passes 370 checks; Phone emulator passes 22 focused checks.
+  Original speed parity remains open. No production switch, license change
+  or APK distribution. [Changes and evidence](https://github.com/EriArk/JavaEmulator/blob/codex/m3g-replacement/experiments/m3g-host/shaders-20261013.md).
+
 - **Separate experiment / not shipped:** reduced LCDUI framebuffer copying,
   added an opaque-bitmap NDK read path, whole-frame GPU submission, hardware
   clears and conservative mesh rejection. Fixed depth offsets, write-only depth

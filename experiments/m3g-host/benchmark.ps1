@@ -11,6 +11,8 @@ param(
     [ValidateSet('on', 'off')][string]$GpuGeometry,
     [ValidateSet('on', 'off')][string]$GpuMeshCache,
     [ValidateSet('on', 'off')][string]$GpuDiscardDepth,
+    [ValidateSet('on', 'off')][string]$GpuSpecialized,
+    [ValidateSet('on', 'off')][string]$GpuPartialReads,
     [ValidateRange(64,4096)][int]$Warmup = 64,
     [ValidateRange(30,600)][int]$TestTimeoutSeconds = 300,
     [string]$Adb = "$env:LOCALAPPDATA/Android/Sdk/platform-tools/adb.exe"
@@ -68,6 +70,8 @@ if ($GpuTextureCache) { $arguments += @('-e', 'benchGpuTextureCache', $GpuTextur
 if ($GpuGeometry) { $arguments += @('-e', 'benchGpuGeometry', $GpuGeometry) }
 if ($GpuMeshCache) { $arguments += @('-e', 'benchGpuMeshCache', $GpuMeshCache) }
 if ($GpuDiscardDepth) { $arguments += @('-e', 'benchGpuDiscardDepth', $GpuDiscardDepth) }
+if ($GpuSpecialized) { $arguments += @('-e', 'benchGpuSpecialized', $GpuSpecialized) }
+if ($GpuPartialReads) { $arguments += @('-e', 'benchGpuPartialReads', $GpuPartialReads) }
 $arguments += @('-e', 'benchWarmup', "$Warmup")
 $arguments += "$package.test/androidx.test.runner.AndroidJUnitRunner"
 $result = Invoke-Adb $arguments

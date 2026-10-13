@@ -118,7 +118,7 @@ public class GpuLightingTest {
         assertTrue("Nonempty flat triangle",visible>100);
     }
 
-    private int[] scene(boolean hardware,int mode,int lightKind,boolean mixed,boolean lose) {
+    int[] scene(boolean hardware,int mode,int lightKind,boolean mixed,boolean lose) {
         Graphics3D.initGraphics3D(); GpuRasterizer.enabled=true; GpuGeometry.enabled=hardware;
         Graphics3D g=Graphics3D.getInstance(); Image image=Image.createImage(SIZE,SIZE);
         Camera camera=new Camera(); camera.setPerspective(60,1,1,20); g.setCamera(camera,new Transform());

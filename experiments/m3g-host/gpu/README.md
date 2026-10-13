@@ -26,6 +26,20 @@ revision-aware position bounds, and skips normal inversion for unlit geometry.
 Finite depth offsets now remain on the hardware vertex path. Bounds use weak
 keys and do not independently keep old vertex arrays alive.
 
+The [shader/readback follow-up](../shaders-20261013.md) uses lazy, context-owned
+programs for 0-4 packed texture units in ordinary/extended lighting, plus a
+dedicated sprite program. A maximum of 11 production-research variants and two
+diagnostic generic variants can exist in an owned context. State is reapplied
+at each program switch; recovery recreates only the required programs. There
+is no persistent shader binary cache or game-specific shader list.
+
+Color readback/CPU commit covers the union of color-writing scissors, clamped
+to the target. Depth-only draws read no color; required depth barriers remain
+full-size. CPU buffers are committed only after successful GPU work/recovery.
+Sprites retain exact DDA samples, packed through reusable heap staging and a
+bulk journal copy. `-GpuSpecialized off -GpuPartialReads off` restores generic
+shaders/full color reads in the same benchmark APK without changing quality.
+
 `GpuRasterizer.java` consumes the candidate's already transformed, clipped,
 culled and lit triangles. GLES3 rasterizes one complete submesh per draw. It
 supports untextured color/lighting and up to four textures in all five Image2D formats with

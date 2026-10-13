@@ -36,7 +36,7 @@ bundled. The app UI is English.
 | Public development source | `main`; latest app fix: [9430cb0a](https://github.com/EriArk/JavaEmulator/commit/9430cb0a) | New profiles use resolution-derived font sizes; prior Java/UI/storage improvements remain unreleased. Debug builds do not need a private signing configuration. Not all changes are in the downloadable beta |
 | Private combined test snapshot | `0.1.0-beta.2-experimental.15`, 2026-10-11 | Handheld and Phone debug APKs containing Java plus experimental Mophun; supplied separately to testers, not a GitHub release |
 | Local-only implementation | Ignored optional-engine source and diagnostics | Mophun integration, game-specific experiments and test fixtures; public descriptions below, implementation not published |
-| Separate research branch | [`codex/m3g-replacement`](https://github.com/EriArk/JavaEmulator/tree/codex/m3g-replacement), throughput batch 2026-10-13 | Less framebuffer copying, one warmed GPU submission, mesh culling/cache improvements and depth/quality-hint compatibility fixes. Synthetic frame costs fall 17-34% against the previous candidate; all 34 fixture pixel CRCs match. Final measured Retroid suite: 361 checks; focused Phone suite: 36. Fresh Deep and Asphalt gameplay captures. Original speed parity, production switch and beta remain pending |
+| Separate research branch | [`codex/m3g-replacement`](https://github.com/EriArk/JavaEmulator/tree/codex/m3g-replacement), shader/readback batch 2026-10-13 | Specialized GPU programs and partial color readback; same-APK Retroid lighting costs fall 22-34%, sprite costs 9-14%, all 34 pixel CRCs match. Retroid: 370 checks; Phone: 22 focused checks. Original-engine speed parity, production switch and beta remain pending |
 
 The experimental number is a distribution label: build 15 still reports
 version code **102** and `0.1.0-beta.2` / `0.1.0-beta.2-phone` internally.
@@ -1092,6 +1092,38 @@ remain open. No APK distribution, production engine switch or license change;
 live public release state was not rechecked.
 
 [Implementation, raw checks, artifact identities, timing tables and screenshots](https://github.com/EriArk/JavaEmulator/blob/codex/m3g-replacement/experiments/m3g-host/throughput-20261013.md).
+
+## Specialized Shaders and Partial Readback: 2026-10-13
+
+The research renderer now reuses compact GPU programs for the actual texture
+count and sprite/mesh path instead of always executing the generic four-texture
+program. Color readback covers only the union of color-writing scissors;
+depth-only passes do not copy color. Sprite lookup packing uses bulk copies
+while preserving exact fractional sampling. These are automatic renderer changes,
+not extra user settings, resolution reductions or per-game patches.
+
+Same-APK Retroid comparison records 22-34% lower flat/two-sided lighting costs,
+9-14% lower sprite costs and usually 5-13% lower ordinary-scene costs. All 34
+fixture pixel CRCs match the reference and preceding checkpoint. Four-texture
+fixtures change little. Original-engine cost is still lower: candidate overhead
+ranges from 12% to 57% in the 32 comparable synthetic fixtures. Sequential
+timings are not unique game FPS or native-parity acceptance.
+
+Final Handheld research suite passes 370 checks on Retroid with no skips.
+Phone emulator passes 22 focused lighting/transfer/variant checks across two
+test runs, not a full Phone suite. Coverage includes all ten mesh variants,
+sparse texture slots, program reuse, disjoint rectangles, alpha/color masks,
+depth-only updates and real context-loss recovery. Both app/test variants build.
+The initial recovery-test setup failure and corrected run remain documented.
+
+Fresh Retroid captures show Deep Java opening gameplay with camera movement and
+Tower Bloxx dropping/stacking blocks through its result screen. Deep's separate
+sample is not faster than the preceding checkpoint; no general game-FPS gain
+is inferred from synthetic improvements or 60 surface buffers/s.
+
+No ordinary engine switch, root license change or APK distribution. Live release
+state was not rechecked; full-game, manual controller/audio and sustained thermal
+acceptance remain open. [Implementation, measurements and captures](https://github.com/EriArk/JavaEmulator/blob/codex/m3g-replacement/experiments/m3g-host/shaders-20261013.md).
 
 ## Images and Writing Guidance
 

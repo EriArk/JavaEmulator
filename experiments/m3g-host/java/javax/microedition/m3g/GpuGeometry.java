@@ -350,6 +350,6 @@ final class GpuGeometry {
             +"vertexColor=flatFront*clip.w; backColor=flatBack*clip.w;\n"
             +"#else\nvertexColor=(rawFlags.x>=0?illuminate(eye,safeNormal((rawNormal*vec4(rawVertexNormal,0)).xyz),color):color)*clip.w;\n#endif\n"
             +"vec3 coords[4]; coords[0]=uv0;coords[1]=uv1;coords[2]=uv2;coords[3]=uv3;\n"
-            +"for(int u=0;u<4;u++){vec2 t=(rawTexture[u]*vec4(coords[u],1)).xy; texCoord[u]=rawFlags.w!=0?vec3(t,1):vec3(t,1)*clip.w;}\n"
+            +"for(int u=0;u<TEXTURE_UNITS;u++){vec2 t=(rawTexture[u]*vec4(coords[u],1)).xy; texCoord[u]=rawFlags.w!=0?vec3(t,1):vec3(t,1)*clip.w;}\n"
             +"fogValue=parallelFog!=0?-eye.z*clip.w:1.0; }\n";
 }

@@ -31,6 +31,7 @@ public class M3gBenchmark {
         java.lang.reflect.Field gpuBatch=null, gpuSubmissions=null, gpuSubmitted=null, gpuGeometry=null;
         java.lang.reflect.Field gpuCache=null,gpuTextureUploads=null;
         java.lang.reflect.Field deferred=null;
+        java.lang.reflect.Field specialized=null,partialReads=null,readPixels=null,compiledPipelines=null;
         java.lang.reflect.Field hardwareGeometry=null,hardwareDraws=null;
         java.lang.reflect.Field meshCache=null,meshUploads=null,meshBytes=null,meshHits=null;
         String meshPolicy=InstrumentationRegistry.getArguments().getString("benchGpuMeshCache");
@@ -65,6 +66,19 @@ public class M3gBenchmark {
             gpuBatch=gpu.getDeclaredField("batchSubmission"); gpuBatch.setAccessible(true);
             try { deferred=gpu.getDeclaredField("deferValidatedFrames"); deferred.setAccessible(true); }
             catch(NoSuchFieldException olderCheckpoint) { }
+            try {
+                specialized=gpu.getDeclaredField("specializedPipelines"); specialized.setAccessible(true);
+                partialReads=gpu.getDeclaredField("partialReadback"); partialReads.setAccessible(true);
+                readPixels=gpu.getDeclaredField("colorReadPixels"); readPixels.setAccessible(true);
+                compiledPipelines=gpu.getDeclaredField("pipelineCompilations"); compiledPipelines.setAccessible(true);
+            } catch(NoSuchFieldException olderCheckpoint) { }
+            for(String option:new String[]{"benchGpuSpecialized","benchGpuPartialReads"}) {
+                String value=InstrumentationRegistry.getArguments().getString(option);
+                if(value==null) continue;
+                assertTrue(option+" must be on or off",value.equals("on") || value.equals("off"));
+                java.lang.reflect.Field field=option.equals("benchGpuSpecialized")?specialized:partialReads;
+                assertNotNull("No support for "+option,field); field.setBoolean(null,value.equals("on"));
+            }
             gpuSubmissions=gpu.getDeclaredField("submissions"); gpuSubmissions.setAccessible(true);
             gpuSubmitted=gpu.getDeclaredField("submittedDraws"); gpuSubmitted.setAccessible(true);
             gpuGeometry=gpu.getDeclaredField("geometryUploads"); gpuGeometry.setAccessible(true);
@@ -133,6 +147,8 @@ public class M3gBenchmark {
                 .put("gpuResident",gpuRetain!=null && gpuRetain.getBoolean(null))
                 .put("gpuBatch",gpuBatch!=null && gpuBatch.getBoolean(null))
                 .put("gpuDeferred",deferred!=null && deferred.getBoolean(null))
+                .put("gpuSpecialized",specialized!=null && specialized.getBoolean(null))
+                .put("gpuPartialReads",partialReads!=null && partialReads.getBoolean(null))
                 .put("gpuTextureCache",gpuCache!=null && gpuCache.getBoolean(null))
                 .put("gpuHardwareGeometry",hardwareGeometry!=null && hardwareGeometry.getBoolean(null))
                 .put("gpuMeshCache",meshCache!=null && meshCache.getBoolean(null))
@@ -189,6 +205,8 @@ public class M3gBenchmark {
                 long meshByteStart=meshBytes==null?0:meshBytes.getLong(null);
                 long meshHitStart=meshHits==null?0:meshHits.getLong(null);
                 long depthStart=depthReadbacks==null?0:depthReadbacks.getLong(null);
+                long pixelStart=readPixels==null?0:readPixels.getLong(null);
+                long compileStart=compiledPipelines==null?0:compiledPipelines.getLong(null);
                 long shadedStart = shadedVertices == null ? 0 : shadedVertices.getLong(null);
                 for (int i = 0; i < warmup; i++) frame(renderer, target, mesh, background, model);
                 JSONArray wall = new JSONArray(), cpu = new JSONArray();
@@ -226,6 +244,8 @@ public class M3gBenchmark {
                         .put("gpuMeshUploadBytes",meshBytes==null?0:meshBytes.getLong(null)-meshByteStart)
                         .put("gpuMeshHits",meshHits==null?0:meshHits.getLong(null)-meshHitStart)
                         .put("gpuDepthReadbacks",depthReadbacks==null?0:depthReadbacks.getLong(null)-depthStart)
+                        .put("gpuColorReadPixels",readPixels==null?0:readPixels.getLong(null)-pixelStart)
+                        .put("gpuPipelineCompilations",compiledPipelines==null?0:compiledPipelines.getLong(null)-compileStart)
                         .put("shadedVertices", shadedVertices == null ? -1 : shadedVertices.getLong(null)-shadedStart)
                         .put("nativeDraws", counter == null ? 0 : counter.getLong(null)-nativeStart));
                 if ("native".equals(raster)) assertTrue("Native path was not exercised", counter.getLong(null)>nativeStart);

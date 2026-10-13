@@ -6,13 +6,15 @@ The [2026-10-12 compatibility/performance report](../../docs/m3g-performance-202
 records the earlier Java-only checkpoint. The candidate now includes a
 [native raster fast path](native/README.md) with a shared-buffer Java fallback.
 The verifier requires 62 shared checks, 23 candidate animation checks, 21
-candidate deformation checks and 171
+candidate deformation checks and 180
 candidate implementation checks (tone, math, native rasterization, mipmaps,
 geometry preparation and GPU checks), plus 76 scene/loader/alpha checks:
-353 for an unmeasured candidate, 361 when measured, and 70 for measured baseline
+362 for an unmeasured candidate, 370 when measured, and 70 for measured baseline
 before any engine-specific skips. These are expected totals, not evidence that
 each combination has been executed.
 Eight additional timing checks apply only when measurement is enabled.
+The [shader and readback follow-up](shaders-20261013.md) adds bounded texture-count
+and sprite pipelines, partial color readback and same-APK reference switches.
 The [throughput and compatibility follow-up](throughput-20261013.md) covers lazy
 bitmap transfers, hardware clears, whole-frame submission, conservative mesh
 culling and independent depth-write behavior. Main keeps the original engine.
