@@ -1,0 +1,124 @@
+// Original, revision-guarded compatibility changes to the generated candidate.
+ext.patchM3gSceneContracts = { File output ->
+    def source = new File(output, 'java/javax/microedition/m3g')
+    def patch = { String name, Map replacements ->
+        def file = new File(source, name)
+        def text = file.getText('UTF-8').replace('\r\n', '\n')
+        replacements.each { before, after ->
+            if (text.count(before) != 1) throw new GradleException("Scene contract hook drift: ${name}: ${before}")
+            text = text.replace(before, after)
+        }
+        file.setText(text, 'UTF-8')
+    }
+    patch('Camera.java', [
+        'this.params[2] = M3GMath.max(near, far * 0.0001220703125f); // 1 / 8192': 'this.params[2] = near;',
+        '\tprivate void computeMatrix()': '''    boolean isEmptyProjection() { return projMode != GENERIC && params[2] == params[3]; }
+
+\tprivate void computeMatrix()'''
+    ])
+    def camera = new File(source, 'Camera.java')
+    def text = camera.getText('UTF-8')
+    def start = '\t\t// For perspective, we try to keep depth precision in check.'
+    def end = '\t\tthis.params[2] = near;'
+    if (text.count(start) != 1 || text.count(end) != 2) throw new GradleException('Camera range hook drift')
+    int rangeComment = text.indexOf(start)
+    camera.setText(text.substring(0, rangeComment) + text.substring(text.indexOf(end, rangeComment)), 'UTF-8')
+    patch('Light.java', [
+        'float cutoffCos = 0.0f;': 'float cutoffCos = M3GMath.cos(M3GMath.toRadians(45.0f));',
+        'angle = M3GMath.max(0.0f, M3GMath.min(90.0f, value[0]));':
+            'setSpotAngle(M3GMath.max(0.0f, M3GMath.min(90.0f, value[0])));'
+    ])
+    patch('Graphics3D.java', [
+        'renderIndices = new int[newCapacity];': 'renderIndices = java.util.Arrays.copyOf(renderIndices, newCapacity);',
+        'renderIntData = new int[newCapacity * 3];': 'renderIntData = java.util.Arrays.copyOf(renderIntData, newCapacity * 3);',
+        'renderObjData = new Object[newCapacity * 4];': 'renderObjData = java.util.Arrays.copyOf(renderObjData, newCapacity * 4);',
+        'renderAlphaData = new int[newCapacity];': 'renderAlphaData = java.util.Arrays.copyOf(renderAlphaData, newCapacity);',
+        '\tprivate void positionLights(World world, Group group)\n\t{':
+            '\tprivate void positionLights(World world, Group group)\n\t{\n        if (!group.isRenderingEnabled()) return;',
+        '\t\t\tNode node = group.getChild(i);': '\t\t\tNode node = group.getChild(i);\n            if (!node.isRenderingEnabled()) continue;',
+        'this.currLightTrans.set(index, transform);': 'this.currLightTrans.set(index, new Transform(transform));',
+        'index >= MAX_LIGHTS': 'index >= this.currLights.size()',
+        'index > this.currLights.size()': 'index >= this.currLights.size()',
+        'INV_SPAN_TABLE[i] = M3GMath.fastReciprocal((float) i);': 'INV_SPAN_TABLE[i] = 1.0f / i;',
+        'rHorizon = (yMid - yTop) * M3GMath.fastReciprocal(yBot - yTop);': 'rHorizon = (yMid - yTop) / (yBot - yTop);',
+        'float subY = yStart - (half == 0 ? yTop : yMid);': 'float subY = yStart + 0.5f - (half == 0 ? yTop : yMid);',
+        'float yDiv = half == 0 ? M3GMath.fastReciprocal(yMid - yTop) : M3GMath.fastReciprocal(yBot - yMid);':
+            'float yDiv = 1.0f / (half == 0 ? yMid - yTop : yBot - yMid);',
+        'int ixL = (int) (xL + 0.999999f);': 'int ixL = (int) Math.ceil(xL - 0.5f);',
+        'int ixR = (int) (xR + 0.999999f);': 'int ixR = (int) Math.ceil(xR - 0.5f);',
+        'final float dx = ixL - triScreen.xA();': 'final float dx = ixL + 0.5f - triScreen.xA();',
+        'final float dy = y - triScreen.yA();': 'final float dy = y + 0.5f - triScreen.yA();',
+        'final float diffX = ixL - xL;': 'final float diffX = ixL + 0.5f - xL;',
+        '(x - triScreen.xA()) * fogEyeDx + (y - triScreen.yA()) * fogEyeDy':
+            '(x + 0.5f - triScreen.xA()) * fogEyeDx + (y + 0.5f - triScreen.yA()) * fogEyeDy',
+        'if(alpha == 0) { paintPixel |= 0xFF000000; }': 'paintPixel = (paintPixel & 0x00FFFFFF) | (alpha << 24);',
+        'if (alpha < alphaThreshold || alpha == 0) { continue; }':
+            'if (alpha < alphaThreshold || alpha == 0) { continue; }\n                paintPixel = (paintPixel & 0x00FFFFFF) | (alpha << 24);'
+    ])
+    def graphics = new File(source, 'Graphics3D.java')
+    text = graphics.getText('UTF-8')
+    def projection = 'this.currCam.getProjection(projectionMatrix);'
+    if (text.count(projection) != 2) throw new GradleException('Empty volume hook drift')
+    text = text.replace(projection, 'if (this.currCam.isEmptyProjection()) return;\n        ' + projection)
+    def ceilPattern = /\(int\) \(y(Top|Mid|Bot) \+ 0\.999999f\)/
+    if ((text =~ ceilPattern).count != 4) throw new GradleException('Pixel center bounds hook drift')
+    text = text.replaceAll(ceilPattern) { full, point -> "(int) Math.ceil(y${point} - 0.5f)" }
+    // Remove the obsolete explanation of the upstream alpha override.
+    def alphaComment = '\t\t\t\t/*\n\t\t\t\t * Yes, this is back.'
+    int commentStart = text.indexOf(alphaComment)
+    if (commentStart < 0) throw new GradleException('Alpha comment drift')
+    text = text.substring(0,commentStart) + text.substring(text.indexOf('paintPixel = (paintPixel & 0x00FFFFFF)',commentStart))
+    graphics.setText(text, 'UTF-8')
+    patch('Triangle.java', [
+        '!light.isRenderingEnabled() || (light.getScope() & curScope) == 0':
+            'light == null || !light.isRenderingEnabled() || (light.getScope() & curScope) == 0'
+    ])
+    // Animated components are normalized, including values beyond the valid range.
+    ['Light.java':3, 'Fog.java':3, 'Material.java':4, 'Texture2D.java':3].each { name, expected ->
+        def file = new File(source, name)
+        text = file.getText('UTF-8')
+        def pattern = name == 'Texture2D.java' ?
+            /\(int\)\(value\[([012])\] \* 255\.0f\)/ :
+            /\(int\) \(value\[([012])\] <= 1\.0f \? value\[\1\] \* 255\.0f : value\[\1\]\)/
+        if ((text =~ pattern).count != expected) throw new GradleException("Color animation hook drift: ${name}")
+        text = text.replaceAll(pattern) { full, index -> "Math.round(value[${index}] * 255.0f)" }
+        file.setText(text, 'UTF-8')
+    }
+    copy { from new File(m3gPatchDirectory, 'M3gSectionReader.java'); into source }
+    patch('Loader.java', [
+        'private static String resDir;': 'private String resDir;',
+        'private static Vector<String> activeRefs = new Vector<String>();': 'private Vector<String> activeRefs;',
+        'String canonicalPath = name.startsWith("/") ? name : "/" + name;': '''String canonicalPath = name.startsWith("/") ? name : "/" + name;
+        try { canonicalPath = new java.net.URI(null, null, canonicalPath, null).normalize().getPath(); }
+        catch (java.net.URISyntaxException invalid) { throw new IOException("Invalid resource path", invalid); }''',
+        'appearance.setLayer(readByte());': 'appearance.setLayer((byte) readByte());',
+        'int encoding = readByte();\n\t\t\t\tint vertices = readShort();':
+            'int encoding = readByte();\n                if (encoding > 1) throw new IOException("Invalid vertex encoding");\n\t\t\t\tint vertices = readShort();',
+        'return readByte() == 1;': 'int value = readByte();\n        if (value > 1) throw new IOException("Invalid boolean");\n        return value == 1;',
+        '\tpublic static Object3D[] load(byte[] data, int offset) throws IOException\n\t{': '''\tpublic static Object3D[] load(byte[] data, int offset) throws IOException
+\t{
+        if (data == null) throw new NullPointerException("data");
+        if (offset < 0 || offset >= data.length) throw new IndexOutOfBoundsException("offset");''',
+        '\t\t\tint length = readInt();\n\t\t\tbytesRead = 0;': '''            int length = readInt();
+            if (length < 0 || length > dis.available()) throw new IOException("Invalid object length");
+            DataInputStream remainingSection = dis;
+            byte[] record = new byte[length];
+            dis.readFully(record);
+            dis = new DataInputStream(new ByteArrayInputStream(record));
+            bytesRead = 0;''',
+        '\t\t\telse { Mobile.log(Mobile.LOG_WARNING, Loader.class.getPackage().getName() + "." + Loader.class.getSimpleName() + ": " + "Unsupported objectType " + objectType + "."); }':
+            '\t\t\telse { throw new IOException("Unsupported object type: " + objectType); }',
+        '\t\t\tif (bytesRead != length) { Mobile.log(Mobile.LOG_WARNING, Loader.class.getPackage().getName() + "." + Loader.class.getSimpleName() + ": " + "Length mismatch, expected: " + length + ", bytesRead: " + bytesRead + ", objectType: " + objectType); }':
+            '            if (dis.available() != 0) throw new IOException("Unconsumed object data: " + objectType);\n            dis = remainingSection;',
+        '\t\tfinally\n\t\t{\n\t\t\t// Remove the path':
+            '\t\tfinally\n\t\t{\n            dis.close();\n\t\t\t// Remove the path'
+    ])
+    def loader = new File(source, 'Loader.java')
+    text = loader.getText('UTF-8')
+    start = '\tprivate Object3D[] loadM3G() throws IOException'
+    end = '\tprivate Object3D[] load() throws IOException'
+    if (text.count(start) != 1 || text.count(end) != 1) throw new GradleException('Section reader hook drift')
+    loader.setText(text.substring(0, text.indexOf(start)) +
+        new File(m3gPatchDirectory, 'load-sections.java.inc').getText('UTF-8') + '\n' +
+        text.substring(text.indexOf(end)), 'UTF-8')
+}

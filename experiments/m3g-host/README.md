@@ -8,12 +8,14 @@ records the earlier Java-only checkpoint. The candidate now includes a
 The verifier requires 62 shared checks, 23 candidate animation checks, 21
 candidate deformation checks and 78
 candidate implementation checks (tone, math, native rasterization, mipmaps,
-geometry preparation and 48 GPU checks): 184 for an unmeasured candidate,
-191 when measured, and 69 for measured baseline with two intentional skips.
+geometry preparation and 48 GPU checks), plus 76 scene/loader/alpha checks:
+260 for an unmeasured candidate, 267 when measured, and 69 for measured baseline
+with two intentional skips.
 Seven additional timing checks apply only when measurement is enabled.
-The [deformation report](deformation-20261013.md) records the latest fixes,
-native comparison differences, final device/emulator results and fresh Deep
-gameplay. The preceding [animation report](animation-20261013.md) covers curves
+The [scene compatibility report](scene-contracts-20261013.md) records the latest
+camera, lighting, loader and CPU/GPU fixes, full device/emulator results and a
+private 70-resource corpus. The [deformation report](deformation-20261013.md)
+covers mutable geometry and skeletons. The [animation report](animation-20261013.md) covers curves
 and playback. Measured totals are expected counts, not a new measurement run.
 Both Handheld (`fdroid`) and Phone research builds are supported; pass
 `-Variant phone` to `verify.ps1` for Phone.

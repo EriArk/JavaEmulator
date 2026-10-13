@@ -1,0 +1,6 @@
+1791869968427 pid=30456 draws=1 units=1 textureUploads=8 textureHits=0 textureEvictions=0 textureCacheBytes=87380 offsets=0 multiply=0 sprites=0 empty=6 uploads=1 readbacks=0 recoveries=0 renderer=Adreno (TM) A12
+1791869968433 pid=30456 CPU fallback flags=0 blend=68 format=100 failure=
+1791869974470 pid=30456 draws=1025 units=1 textureUploads=33 textureHits=1005 textureEvictions=0 textureCacheBytes=415056 offsets=11 multiply=0 sprites=0 empty=824 uploads=153 readbacks=152 recoveries=0 renderer=Adreno (TM) A12
+1791869980581 pid=30456 draws=2049 units=1 textureUploads=33 textureHits=2031 textureEvictions=0 textureCacheBytes=415056 offsets=11 multiply=0 sprites=0 empty=1488 uploads=334 readbacks=333 recoveries=0 renderer=Adreno (TM) A12
+1791869985165 pid=30456 draws=3073 units=1 textureUploads=33 textureHits=3054 textureEvictions=0 textureCacheBytes=415056 offsets=11 multiply=0 sprites=0 empty=1791 uploads=472 readbacks=471 recoveries=0 renderer=Adreno (TM) A12
+1791869990912 pid=30456 draws=4097 units=1 textureUploads=33 textureHits=4079 textureEvictions=0 textureCacheBytes=415056 offsets=11 multiply=0 sprites=0 empty=2110 uploads=636 readbacks=635 recoveries=0 renderer=Adreno (TM) A12

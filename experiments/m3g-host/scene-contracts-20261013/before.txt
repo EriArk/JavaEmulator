@@ -1,0 +1,1947 @@
+INSTRUMENTATION_STATUS: class=javax.microedition.shell.M3gSceneContractTest
+INSTRUMENTATION_STATUS: current=1
+INSTRUMENTATION_STATUS: id=AndroidJUnitRunner
+INSTRUMENTATION_STATUS: numtests=44
+INSTRUMENTATION_STATUS: stream=
+javax.microedition.shell.M3gSceneContractTest:
+INSTRUMENTATION_STATUS: test=animatedFogColorClampsAndRounds
+INSTRUMENTATION_STATUS_CODE: 1
+INSTRUMENTATION_STATUS: class=javax.microedition.shell.M3gSceneContractTest
+INSTRUMENTATION_STATUS: current=1
+INSTRUMENTATION_STATUS: id=AndroidJUnitRunner
+INSTRUMENTATION_STATUS: numtests=44
+INSTRUMENTATION_STATUS: stack=java.lang.AssertionError: expected:<16711808> but was:<65663>
+	at org.junit.Assert.fail(Assert.java:88)
+	at org.junit.Assert.failNotEquals(Assert.java:834)
+	at org.junit.Assert.assertEquals(Assert.java:645)
+	at org.junit.Assert.assertEquals(Assert.java:631)
+	at javax.microedition.shell.M3gSceneContractTest.animatedFogColorClampsAndRounds(M3gSceneContractTest.java:127)
+
+INSTRUMENTATION_STATUS: stream=
+Error in animatedFogColorClampsAndRounds(javax.microedition.shell.M3gSceneContractTest):
+java.lang.AssertionError: expected:<16711808> but was:<65663>
+	at org.junit.Assert.fail(Assert.java:88)
+	at org.junit.Assert.failNotEquals(Assert.java:834)
+	at org.junit.Assert.assertEquals(Assert.java:645)
+	at org.junit.Assert.assertEquals(Assert.java:631)
+	at javax.microedition.shell.M3gSceneContractTest.animatedFogColorClampsAndRounds(M3gSceneContractTest.java:127)
+
+INSTRUMENTATION_STATUS: test=animatedFogColorClampsAndRounds
+INSTRUMENTATION_STATUS_CODE: -2
+INSTRUMENTATION_STATUS: class=javax.microedition.shell.M3gSceneContractTest
+INSTRUMENTATION_STATUS: current=2
+INSTRUMENTATION_STATUS: id=AndroidJUnitRunner
+INSTRUMENTATION_STATUS: numtests=44
+INSTRUMENTATION_STATUS: stream=
+INSTRUMENTATION_STATUS: test=animatedMaterialColorsClampAndRound
+INSTRUMENTATION_STATUS_CODE: 1
+INSTRUMENTATION_STATUS: class=javax.microedition.shell.M3gSceneContractTest
+INSTRUMENTATION_STATUS: current=2
+INSTRUMENTATION_STATUS: id=AndroidJUnitRunner
+INSTRUMENTATION_STATUS: numtests=44
+INSTRUMENTATION_STATUS: stack=java.lang.AssertionError: expected:<16711808> but was:<65663>
+	at org.junit.Assert.fail(Assert.java:88)
+	at org.junit.Assert.failNotEquals(Assert.java:834)
+	at org.junit.Assert.assertEquals(Assert.java:645)
+	at org.junit.Assert.assertEquals(Assert.java:631)
+	at javax.microedition.shell.M3gSceneContractTest.animatedMaterialColorsClampAndRound(M3gSceneContractTest.java:117)
+
+INSTRUMENTATION_STATUS: stream=
+Error in animatedMaterialColorsClampAndRound(javax.microedition.shell.M3gSceneContractTest):
+java.lang.AssertionError: expected:<16711808> but was:<65663>
+	at org.junit.Assert.fail(Assert.java:88)
+	at org.junit.Assert.failNotEquals(Assert.java:834)
+	at org.junit.Assert.assertEquals(Assert.java:645)
+	at org.junit.Assert.assertEquals(Assert.java:631)
+	at javax.microedition.shell.M3gSceneContractTest.animatedMaterialColorsClampAndRound(M3gSceneContractTest.java:117)
+
+INSTRUMENTATION_STATUS: test=animatedMaterialColorsClampAndRound
+INSTRUMENTATION_STATUS_CODE: -2
+INSTRUMENTATION_STATUS: class=javax.microedition.shell.M3gSceneContractTest
+INSTRUMENTATION_STATUS: current=3
+INSTRUMENTATION_STATUS: id=AndroidJUnitRunner
+INSTRUMENTATION_STATUS: numtests=44
+INSTRUMENTATION_STATUS: stream=
+INSTRUMENTATION_STATUS: test=perspectiveCanReverseNearAndFar
+INSTRUMENTATION_STATUS_CODE: 1
+INSTRUMENTATION_STATUS: class=javax.microedition.shell.M3gSceneContractTest
+INSTRUMENTATION_STATUS: current=3
+INSTRUMENTATION_STATUS: id=AndroidJUnitRunner
+INSTRUMENTATION_STATUS: numtests=44
+INSTRUMENTATION_STATUS: stream=.
+INSTRUMENTATION_STATUS: test=perspectiveCanReverseNearAndFar
+INSTRUMENTATION_STATUS_CODE: 0
+INSTRUMENTATION_STATUS: class=javax.microedition.shell.M3gSceneContractTest
+INSTRUMENTATION_STATUS: current=4
+INSTRUMENTATION_STATUS: id=AndroidJUnitRunner
+INSTRUMENTATION_STATUS: numtests=44
+INSTRUMENTATION_STATUS: stream=
+INSTRUMENTATION_STATUS: test=parentScopeDoesNotHideChildGeometry
+INSTRUMENTATION_STATUS_CODE: 1
+INSTRUMENTATION_STATUS: class=javax.microedition.shell.M3gSceneContractTest
+INSTRUMENTATION_STATUS: current=4
+INSTRUMENTATION_STATUS: id=AndroidJUnitRunner
+INSTRUMENTATION_STATUS: numtests=44
+INSTRUMENTATION_STATUS: stream=.
+INSTRUMENTATION_STATUS: test=parentScopeDoesNotHideChildGeometry
+INSTRUMENTATION_STATUS_CODE: 0
+INSTRUMENTATION_STATUS: class=javax.microedition.shell.M3gSceneContractTest
+INSTRUMENTATION_STATUS: current=5
+INSTRUMENTATION_STATUS: id=AndroidJUnitRunner
+INSTRUMENTATION_STATUS: numtests=44
+INSTRUMENTATION_STATUS: stream=
+INSTRUMENTATION_STATUS: test=duplicateSpotKeepsItsCone
+INSTRUMENTATION_STATUS_CODE: 1
+INSTRUMENTATION_STATUS: class=javax.microedition.shell.M3gSceneContractTest
+INSTRUMENTATION_STATUS: current=5
+INSTRUMENTATION_STATUS: id=AndroidJUnitRunner
+INSTRUMENTATION_STATUS: numtests=44
+INSTRUMENTATION_STATUS: stream=.
+INSTRUMENTATION_STATUS: test=duplicateSpotKeepsItsCone
+INSTRUMENTATION_STATUS_CODE: 0
+INSTRUMENTATION_STATUS: class=javax.microedition.shell.M3gSceneContractTest
+INSTRUMENTATION_STATUS: current=6
+INSTRUMENTATION_STATUS: id=AndroidJUnitRunner
+INSTRUMENTATION_STATUS: numtests=44
+INSTRUMENTATION_STATUS: stream=
+INSTRUMENTATION_STATUS: test=genericProjectionCopiesItsMatrix
+INSTRUMENTATION_STATUS_CODE: 1
+INSTRUMENTATION_STATUS: class=javax.microedition.shell.M3gSceneContractTest
+INSTRUMENTATION_STATUS: current=6
+INSTRUMENTATION_STATUS: id=AndroidJUnitRunner
+INSTRUMENTATION_STATUS: numtests=44
+INSTRUMENTATION_STATUS: stream=.
+INSTRUMENTATION_STATUS: test=genericProjectionCopiesItsMatrix
+INSTRUMENTATION_STATUS_CODE: 0
+INSTRUMENTATION_STATUS: class=javax.microedition.shell.M3gSceneContractTest
+INSTRUMENTATION_STATUS: current=7
+INSTRUMENTATION_STATUS: id=AndroidJUnitRunner
+INSTRUMENTATION_STATUS: numtests=44
+INSTRUMENTATION_STATUS: stream=
+INSTRUMENTATION_STATUS: test=removedLightSlotDoesNotCrashRendering
+INSTRUMENTATION_STATUS_CODE: 1
+INSTRUMENTATION_STATUS: class=javax.microedition.shell.M3gSceneContractTest
+INSTRUMENTATION_STATUS: current=7
+INSTRUMENTATION_STATUS: id=AndroidJUnitRunner
+INSTRUMENTATION_STATUS: numtests=44
+INSTRUMENTATION_STATUS: stack=java.lang.NullPointerException: Attempt to invoke virtual method 'boolean javax.microedition.m3g.Light.isRenderingEnabled()' on a null object reference
+	at javax.microedition.m3g.Triangle.calculateLighting(Triangle.java:516)
+	at javax.microedition.m3g.Triangle.fromVertAndTris(Triangle.java:241)
+	at javax.microedition.m3g.Graphics3D.renderSubmesh(Graphics3D.java:875)
+	at javax.microedition.m3g.Graphics3D.flushRenderQueue(Graphics3D.java:2394)
+	at javax.microedition.m3g.Graphics3D.render(Graphics3D.java:605)
+	at javax.microedition.shell.M3gSceneContractTest.render(M3gSceneContractTest.java:152)
+	at javax.microedition.shell.M3gSceneContractTest.removedLightSlotDoesNotCrashRendering(M3gSceneContractTest.java:80)
+
+INSTRUMENTATION_STATUS: stream=
+Error in removedLightSlotDoesNotCrashRendering(javax.microedition.shell.M3gSceneContractTest):
+java.lang.NullPointerException: Attempt to invoke virtual method 'boolean javax.microedition.m3g.Light.isRenderingEnabled()' on a null object reference
+	at javax.microedition.m3g.Triangle.calculateLighting(Triangle.java:516)
+	at javax.microedition.m3g.Triangle.fromVertAndTris(Triangle.java:241)
+	at javax.microedition.m3g.Graphics3D.renderSubmesh(Graphics3D.java:875)
+	at javax.microedition.m3g.Graphics3D.flushRenderQueue(Graphics3D.java:2394)
+	at javax.microedition.m3g.Graphics3D.render(Graphics3D.java:605)
+	at javax.microedition.shell.M3gSceneContractTest.render(M3gSceneContractTest.java:152)
+	at javax.microedition.shell.M3gSceneContractTest.removedLightSlotDoesNotCrashRendering(M3gSceneContractTest.java:80)
+
+INSTRUMENTATION_STATUS: test=removedLightSlotDoesNotCrashRendering
+INSTRUMENTATION_STATUS_CODE: -2
+INSTRUMENTATION_STATUS: class=javax.microedition.shell.M3gSceneContractTest
+INSTRUMENTATION_STATUS: current=8
+INSTRUMENTATION_STATUS: id=AndroidJUnitRunner
+INSTRUMENTATION_STATUS: numtests=44
+INSTRUMENTATION_STATUS: stream=
+INSTRUMENTATION_STATUS: test=disabledParentExcludesLights
+INSTRUMENTATION_STATUS_CODE: 1
+INSTRUMENTATION_STATUS: class=javax.microedition.shell.M3gSceneContractTest
+INSTRUMENTATION_STATUS: current=8
+INSTRUMENTATION_STATUS: id=AndroidJUnitRunner
+INSTRUMENTATION_STATUS: numtests=44
+INSTRUMENTATION_STATUS: stack=java.lang.AssertionError: expected:<-16777216> but was:<-1>
+	at org.junit.Assert.fail(Assert.java:88)
+	at org.junit.Assert.failNotEquals(Assert.java:834)
+	at org.junit.Assert.assertEquals(Assert.java:645)
+	at org.junit.Assert.assertEquals(Assert.java:631)
+	at javax.microedition.shell.M3gSceneContractTest.disabledParentExcludesLights(M3gSceneContractTest.java:54)
+
+INSTRUMENTATION_STATUS: stream=
+Error in disabledParentExcludesLights(javax.microedition.shell.M3gSceneContractTest):
+java.lang.AssertionError: expected:<-16777216> but was:<-1>
+	at org.junit.Assert.fail(Assert.java:88)
+	at org.junit.Assert.failNotEquals(Assert.java:834)
+	at org.junit.Assert.assertEquals(Assert.java:645)
+	at org.junit.Assert.assertEquals(Assert.java:631)
+	at javax.microedition.shell.M3gSceneContractTest.disabledParentExcludesLights(M3gSceneContractTest.java:54)
+
+INSTRUMENTATION_STATUS: test=disabledParentExcludesLights
+INSTRUMENTATION_STATUS_CODE: -2
+INSTRUMENTATION_STATUS: class=javax.microedition.shell.M3gSceneContractTest
+INSTRUMENTATION_STATUS: current=9
+INSTRUMENTATION_STATUS: id=AndroidJUnitRunner
+INSTRUMENTATION_STATUS: numtests=44
+INSTRUMENTATION_STATUS: stream=
+INSTRUMENTATION_STATUS: test=animatedTextureColorClampsAndRounds
+INSTRUMENTATION_STATUS_CODE: 1
+INSTRUMENTATION_STATUS: class=javax.microedition.shell.M3gSceneContractTest
+INSTRUMENTATION_STATUS: current=9
+INSTRUMENTATION_STATUS: id=AndroidJUnitRunner
+INSTRUMENTATION_STATUS: numtests=44
+INSTRUMENTATION_STATUS: stack=java.lang.AssertionError: expected:<16711808> but was:<16711807>
+	at org.junit.Assert.fail(Assert.java:88)
+	at org.junit.Assert.failNotEquals(Assert.java:834)
+	at org.junit.Assert.assertEquals(Assert.java:645)
+	at org.junit.Assert.assertEquals(Assert.java:631)
+	at javax.microedition.shell.M3gSceneContractTest.animatedTextureColorClampsAndRounds(M3gSceneContractTest.java:131)
+
+INSTRUMENTATION_STATUS: stream=
+Error in animatedTextureColorClampsAndRounds(javax.microedition.shell.M3gSceneContractTest):
+java.lang.AssertionError: expected:<16711808> but was:<16711807>
+	at org.junit.Assert.fail(Assert.java:88)
+	at org.junit.Assert.failNotEquals(Assert.java:834)
+	at org.junit.Assert.assertEquals(Assert.java:645)
+	at org.junit.Assert.assertEquals(Assert.java:631)
+	at javax.microedition.shell.M3gSceneContractTest.animatedTextureColorClampsAndRounds(M3gSceneContractTest.java:131)
+
+INSTRUMENTATION_STATUS: test=animatedTextureColorClampsAndRounds
+INSTRUMENTATION_STATUS_CODE: -2
+INSTRUMENTATION_STATUS: class=javax.microedition.shell.M3gSceneContractTest
+INSTRUMENTATION_STATUS: current=10
+INSTRUMENTATION_STATUS: id=AndroidJUnitRunner
+INSTRUMENTATION_STATUS: numtests=44
+INSTRUMENTATION_STATUS: stream=
+INSTRUMENTATION_STATUS: test=cameraScopeClipsMesh
+INSTRUMENTATION_STATUS_CODE: 1
+INSTRUMENTATION_STATUS: class=javax.microedition.shell.M3gSceneContractTest
+INSTRUMENTATION_STATUS: current=10
+INSTRUMENTATION_STATUS: id=AndroidJUnitRunner
+INSTRUMENTATION_STATUS: numtests=44
+INSTRUMENTATION_STATUS: stream=.
+INSTRUMENTATION_STATUS: test=cameraScopeClipsMesh
+INSTRUMENTATION_STATUS_CODE: 0
+INSTRUMENTATION_STATUS: class=javax.microedition.shell.M3gSceneContractTest
+INSTRUMENTATION_STATUS: current=11
+INSTRUMENTATION_STATUS: id=AndroidJUnitRunner
+INSTRUMENTATION_STATUS: numtests=44
+INSTRUMENTATION_STATUS: stream=
+INSTRUMENTATION_STATUS: test=collapsedCameraVolumeRendersNothing
+INSTRUMENTATION_STATUS_CODE: 1
+INSTRUMENTATION_STATUS: class=javax.microedition.shell.M3gSceneContractTest
+INSTRUMENTATION_STATUS: current=11
+INSTRUMENTATION_STATUS: id=AndroidJUnitRunner
+INSTRUMENTATION_STATUS: numtests=44
+INSTRUMENTATION_STATUS: stack=java.lang.ArithmeticException: Illegal projection parameters.
+	at javax.microedition.m3g.Camera.getProjection(Camera.java:77)
+	at javax.microedition.m3g.Graphics3D.renderSubmesh(Graphics3D.java:668)
+	at javax.microedition.m3g.Graphics3D.flushRenderQueue(Graphics3D.java:2394)
+	at javax.microedition.m3g.Graphics3D.render(Graphics3D.java:605)
+	at javax.microedition.shell.M3gSceneContractTest.render(M3gSceneContractTest.java:152)
+	at javax.microedition.shell.M3gSceneContractTest.collapsedCameraVolumeRendersNothing(M3gSceneContractTest.java:37)
+
+INSTRUMENTATION_STATUS: stream=
+Error in collapsedCameraVolumeRendersNothing(javax.microedition.shell.M3gSceneContractTest):
+java.lang.ArithmeticException: Illegal projection parameters.
+	at javax.microedition.m3g.Camera.getProjection(Camera.java:77)
+	at javax.microedition.m3g.Graphics3D.renderSubmesh(Graphics3D.java:668)
+	at javax.microedition.m3g.Graphics3D.flushRenderQueue(Graphics3D.java:2394)
+	at javax.microedition.m3g.Graphics3D.render(Graphics3D.java:605)
+	at javax.microedition.shell.M3gSceneContractTest.render(M3gSceneContractTest.java:152)
+	at javax.microedition.shell.M3gSceneContractTest.collapsedCameraVolumeRendersNothing(M3gSceneContractTest.java:37)
+
+INSTRUMENTATION_STATUS: test=collapsedCameraVolumeRendersNothing
+INSTRUMENTATION_STATUS_CODE: -2
+INSTRUMENTATION_STATUS: class=javax.microedition.shell.M3gSceneContractTest
+INSTRUMENTATION_STATUS: current=12
+INSTRUMENTATION_STATUS: id=AndroidJUnitRunner
+INSTRUMENTATION_STATUS: numtests=44
+INSTRUMENTATION_STATUS: stream=
+INSTRUMENTATION_STATUS: test=animatedVertexColorClampsAndRounds
+INSTRUMENTATION_STATUS_CODE: 1
+INSTRUMENTATION_STATUS: class=javax.microedition.shell.M3gSceneContractTest
+INSTRUMENTATION_STATUS: current=12
+INSTRUMENTATION_STATUS: id=AndroidJUnitRunner
+INSTRUMENTATION_STATUS: numtests=44
+INSTRUMENTATION_STATUS: stream=.
+INSTRUMENTATION_STATUS: test=animatedVertexColorClampsAndRounds
+INSTRUMENTATION_STATUS_CODE: 0
+INSTRUMENTATION_STATUS: class=javax.microedition.shell.M3gSceneContractTest
+INSTRUMENTATION_STATUS: current=13
+INSTRUMENTATION_STATUS: id=AndroidJUnitRunner
+INSTRUMENTATION_STATUS: numtests=44
+INSTRUMENTATION_STATUS: stream=
+INSTRUMENTATION_STATUS: test=largeRetainedQueueKeepsEarlierMeshes
+INSTRUMENTATION_STATUS_CODE: 1
+INSTRUMENTATION_STATUS: class=javax.microedition.shell.M3gSceneContractTest
+INSTRUMENTATION_STATUS: current=13
+INSTRUMENTATION_STATUS: id=AndroidJUnitRunner
+INSTRUMENTATION_STATUS: numtests=44
+INSTRUMENTATION_STATUS: stack=java.lang.AssertionError: expected:<-1089504> but was:<-16777216>
+	at org.junit.Assert.fail(Assert.java:88)
+	at org.junit.Assert.failNotEquals(Assert.java:834)
+	at org.junit.Assert.assertEquals(Assert.java:645)
+	at org.junit.Assert.assertEquals(Assert.java:631)
+	at javax.microedition.shell.M3gSceneContractTest.largeRetainedQueueKeepsEarlierMeshes(M3gSceneContractTest.java:49)
+
+INSTRUMENTATION_STATUS: stream=
+Error in largeRetainedQueueKeepsEarlierMeshes(javax.microedition.shell.M3gSceneContractTest):
+java.lang.AssertionError: expected:<-1089504> but was:<-16777216>
+	at org.junit.Assert.fail(Assert.java:88)
+	at org.junit.Assert.failNotEquals(Assert.java:834)
+	at org.junit.Assert.assertEquals(Assert.java:645)
+	at org.junit.Assert.assertEquals(Assert.java:631)
+	at javax.microedition.shell.M3gSceneContractTest.largeRetainedQueueKeepsEarlierMeshes(M3gSceneContractTest.java:49)
+
+INSTRUMENTATION_STATUS: test=largeRetainedQueueKeepsEarlierMeshes
+INSTRUMENTATION_STATUS_CODE: -2
+INSTRUMENTATION_STATUS: class=javax.microedition.shell.M3gSceneContractTest
+INSTRUMENTATION_STATUS: current=14
+INSTRUMENTATION_STATUS: id=AndroidJUnitRunner
+INSTRUMENTATION_STATUS: numtests=44
+INSTRUMENTATION_STATUS: stream=
+INSTRUMENTATION_STATUS: test=animatedLightColorClampsAndRounds
+INSTRUMENTATION_STATUS_CODE: 1
+INSTRUMENTATION_STATUS: class=javax.microedition.shell.M3gSceneContractTest
+INSTRUMENTATION_STATUS: current=14
+INSTRUMENTATION_STATUS: id=AndroidJUnitRunner
+INSTRUMENTATION_STATUS: numtests=44
+INSTRUMENTATION_STATUS: stack=java.lang.AssertionError: expected:<16711808> but was:<65663>
+	at org.junit.Assert.fail(Assert.java:88)
+	at org.junit.Assert.failNotEquals(Assert.java:834)
+	at org.junit.Assert.assertEquals(Assert.java:645)
+	at org.junit.Assert.assertEquals(Assert.java:631)
+	at javax.microedition.shell.M3gSceneContractTest.animatedLightColorClampsAndRounds(M3gSceneContractTest.java:124)
+
+INSTRUMENTATION_STATUS: stream=
+Error in animatedLightColorClampsAndRounds(javax.microedition.shell.M3gSceneContractTest):
+java.lang.AssertionError: expected:<16711808> but was:<65663>
+	at org.junit.Assert.fail(Assert.java:88)
+	at org.junit.Assert.failNotEquals(Assert.java:834)
+	at org.junit.Assert.assertEquals(Assert.java:645)
+	at org.junit.Assert.assertEquals(Assert.java:631)
+	at javax.microedition.shell.M3gSceneContractTest.animatedLightColorClampsAndRounds(M3gSceneContractTest.java:124)
+
+INSTRUMENTATION_STATUS: test=animatedLightColorClampsAndRounds
+INSTRUMENTATION_STATUS_CODE: -2
+INSTRUMENTATION_STATUS: class=javax.microedition.shell.M3gSceneContractTest
+INSTRUMENTATION_STATUS: current=15
+INSTRUMENTATION_STATUS: id=AndroidJUnitRunner
+INSTRUMENTATION_STATUS: numtests=44
+INSTRUMENTATION_STATUS: stream=
+INSTRUMENTATION_STATUS: test=nearPlaneClipsCrossingTriangleWithoutDroppingVisiblePart
+INSTRUMENTATION_STATUS_CODE: 1
+INSTRUMENTATION_STATUS: class=javax.microedition.shell.M3gSceneContractTest
+INSTRUMENTATION_STATUS: current=15
+INSTRUMENTATION_STATUS: id=AndroidJUnitRunner
+INSTRUMENTATION_STATUS: numtests=44
+INSTRUMENTATION_STATUS: stream=.
+INSTRUMENTATION_STATUS: test=nearPlaneClipsCrossingTriangleWithoutDroppingVisiblePart
+INSTRUMENTATION_STATUS_CODE: 0
+INSTRUMENTATION_STATUS: class=javax.microedition.shell.M3gSceneContractTest
+INSTRUMENTATION_STATUS: current=16
+INSTRUMENTATION_STATUS: id=AndroidJUnitRunner
+INSTRUMENTATION_STATUS: numtests=44
+INSTRUMENTATION_STATUS: stream=
+INSTRUMENTATION_STATUS: test=animatedSpotMatchesSetter
+INSTRUMENTATION_STATUS_CODE: 1
+INSTRUMENTATION_STATUS: class=javax.microedition.shell.M3gSceneContractTest
+INSTRUMENTATION_STATUS: current=16
+INSTRUMENTATION_STATUS: id=AndroidJUnitRunner
+INSTRUMENTATION_STATUS: numtests=44
+INSTRUMENTATION_STATUS: stack=java.lang.AssertionError: expected:<-16777216> but was:<-9342607>
+	at org.junit.Assert.fail(Assert.java:88)
+	at org.junit.Assert.failNotEquals(Assert.java:834)
+	at org.junit.Assert.assertEquals(Assert.java:645)
+	at org.junit.Assert.assertEquals(Assert.java:631)
+	at javax.microedition.shell.M3gSceneContractTest.animatedSpotMatchesSetter(M3gSceneContractTest.java:96)
+
+INSTRUMENTATION_STATUS: stream=
+Error in animatedSpotMatchesSetter(javax.microedition.shell.M3gSceneContractTest):
+java.lang.AssertionError: expected:<-16777216> but was:<-9342607>
+	at org.junit.Assert.fail(Assert.java:88)
+	at org.junit.Assert.failNotEquals(Assert.java:834)
+	at org.junit.Assert.assertEquals(Assert.java:645)
+	at org.junit.Assert.assertEquals(Assert.java:631)
+	at javax.microedition.shell.M3gSceneContractTest.animatedSpotMatchesSetter(M3gSceneContractTest.java:96)
+
+INSTRUMENTATION_STATUS: test=animatedSpotMatchesSetter
+INSTRUMENTATION_STATUS_CODE: -2
+INSTRUMENTATION_STATUS: class=javax.microedition.shell.M3gSceneContractTest
+INSTRUMENTATION_STATUS: current=17
+INSTRUMENTATION_STATUS: id=AndroidJUnitRunner
+INSTRUMENTATION_STATUS: numtests=44
+INSTRUMENTATION_STATUS: stream=
+INSTRUMENTATION_STATUS: test=enabledParentIncludesLights
+INSTRUMENTATION_STATUS_CODE: 1
+INSTRUMENTATION_STATUS: class=javax.microedition.shell.M3gSceneContractTest
+INSTRUMENTATION_STATUS: current=17
+INSTRUMENTATION_STATUS: id=AndroidJUnitRunner
+INSTRUMENTATION_STATUS: numtests=44
+INSTRUMENTATION_STATUS: stream=.
+INSTRUMENTATION_STATUS: test=enabledParentIncludesLights
+INSTRUMENTATION_STATUS_CODE: 0
+INSTRUMENTATION_STATUS: class=javax.microedition.shell.M3gSceneContractTest
+INSTRUMENTATION_STATUS: current=18
+INSTRUMENTATION_STATUS: id=AndroidJUnitRunner
+INSTRUMENTATION_STATUS: numtests=44
+INSTRUMENTATION_STATUS: stream=
+INSTRUMENTATION_STATUS: test=collapsedCameraAlsoClipsSprites
+INSTRUMENTATION_STATUS_CODE: 1
+INSTRUMENTATION_STATUS: class=javax.microedition.shell.M3gSceneContractTest
+INSTRUMENTATION_STATUS: current=18
+INSTRUMENTATION_STATUS: id=AndroidJUnitRunner
+INSTRUMENTATION_STATUS: numtests=44
+INSTRUMENTATION_STATUS: stack=java.lang.ArithmeticException: Illegal projection parameters.
+	at javax.microedition.m3g.Camera.getProjection(Camera.java:77)
+	at javax.microedition.m3g.Graphics3D.renderSprite(Graphics3D.java:1410)
+	at javax.microedition.m3g.Graphics3D.flushRenderQueue(Graphics3D.java:2393)
+	at javax.microedition.m3g.Graphics3D.render(Graphics3D.java:605)
+	at javax.microedition.shell.M3gSceneContractTest.render(M3gSceneContractTest.java:152)
+	at javax.microedition.shell.M3gSceneContractTest.collapsedCameraAlsoClipsSprites(M3gSceneContractTest.java:44)
+
+INSTRUMENTATION_STATUS: stream=
+Error in collapsedCameraAlsoClipsSprites(javax.microedition.shell.M3gSceneContractTest):
+java.lang.ArithmeticException: Illegal projection parameters.
+	at javax.microedition.m3g.Camera.getProjection(Camera.java:77)
+	at javax.microedition.m3g.Graphics3D.renderSprite(Graphics3D.java:1410)
+	at javax.microedition.m3g.Graphics3D.flushRenderQueue(Graphics3D.java:2393)
+	at javax.microedition.m3g.Graphics3D.render(Graphics3D.java:605)
+	at javax.microedition.shell.M3gSceneContractTest.render(M3gSceneContractTest.java:152)
+	at javax.microedition.shell.M3gSceneContractTest.collapsedCameraAlsoClipsSprites(M3gSceneContractTest.java:44)
+
+INSTRUMENTATION_STATUS: test=collapsedCameraAlsoClipsSprites
+INSTRUMENTATION_STATUS_CODE: -2
+INSTRUMENTATION_STATUS: class=javax.microedition.shell.M3gSceneContractTest
+INSTRUMENTATION_STATUS: current=19
+INSTRUMENTATION_STATUS: id=AndroidJUnitRunner
+INSTRUMENTATION_STATUS: numtests=44
+INSTRUMENTATION_STATUS: stream=
+INSTRUMENTATION_STATUS: test=animatedMaterialAlphaClamps
+INSTRUMENTATION_STATUS_CODE: 1
+INSTRUMENTATION_STATUS: class=javax.microedition.shell.M3gSceneContractTest
+INSTRUMENTATION_STATUS: current=19
+INSTRUMENTATION_STATUS: id=AndroidJUnitRunner
+INSTRUMENTATION_STATUS: numtests=44
+INSTRUMENTATION_STATUS: stack=java.lang.AssertionError: expected:<255> but was:<1>
+	at org.junit.Assert.fail(Assert.java:88)
+	at org.junit.Assert.failNotEquals(Assert.java:834)
+	at org.junit.Assert.assertEquals(Assert.java:645)
+	at org.junit.Assert.assertEquals(Assert.java:631)
+	at javax.microedition.shell.M3gSceneContractTest.animatedMaterialAlphaClamps(M3gSceneContractTest.java:121)
+
+INSTRUMENTATION_STATUS: stream=
+Error in animatedMaterialAlphaClamps(javax.microedition.shell.M3gSceneContractTest):
+java.lang.AssertionError: expected:<255> but was:<1>
+	at org.junit.Assert.fail(Assert.java:88)
+	at org.junit.Assert.failNotEquals(Assert.java:834)
+	at org.junit.Assert.assertEquals(Assert.java:645)
+	at org.junit.Assert.assertEquals(Assert.java:631)
+	at javax.microedition.shell.M3gSceneContractTest.animatedMaterialAlphaClamps(M3gSceneContractTest.java:121)
+
+INSTRUMENTATION_STATUS: test=animatedMaterialAlphaClamps
+INSTRUMENTATION_STATUS_CODE: -2
+INSTRUMENTATION_STATUS: class=javax.microedition.shell.M3gSceneContractTest
+INSTRUMENTATION_STATUS: current=20
+INSTRUMENTATION_STATUS: id=AndroidJUnitRunner
+INSTRUMENTATION_STATUS: numtests=44
+INSTRUMENTATION_STATUS: stream=
+INSTRUMENTATION_STATUS: test=disabledWorldExcludesLights
+INSTRUMENTATION_STATUS_CODE: 1
+INSTRUMENTATION_STATUS: class=javax.microedition.shell.M3gSceneContractTest
+INSTRUMENTATION_STATUS: current=20
+INSTRUMENTATION_STATUS: id=AndroidJUnitRunner
+INSTRUMENTATION_STATUS: numtests=44
+INSTRUMENTATION_STATUS: stack=java.lang.AssertionError: expected:<0> but was:<1>
+	at org.junit.Assert.fail(Assert.java:88)
+	at org.junit.Assert.failNotEquals(Assert.java:834)
+	at org.junit.Assert.assertEquals(Assert.java:645)
+	at org.junit.Assert.assertEquals(Assert.java:631)
+	at javax.microedition.shell.M3gSceneContractTest.disabledWorldExcludesLights(M3gSceneContractTest.java:62)
+
+INSTRUMENTATION_STATUS: stream=
+Error in disabledWorldExcludesLights(javax.microedition.shell.M3gSceneContractTest):
+java.lang.AssertionError: expected:<0> but was:<1>
+	at org.junit.Assert.fail(Assert.java:88)
+	at org.junit.Assert.failNotEquals(Assert.java:834)
+	at org.junit.Assert.assertEquals(Assert.java:645)
+	at org.junit.Assert.assertEquals(Assert.java:631)
+	at javax.microedition.shell.M3gSceneContractTest.disabledWorldExcludesLights(M3gSceneContractTest.java:62)
+
+INSTRUMENTATION_STATUS: test=disabledWorldExcludesLights
+INSTRUMENTATION_STATUS_CODE: -2
+INSTRUMENTATION_STATUS: class=javax.microedition.shell.M3gSceneContractTest
+INSTRUMENTATION_STATUS: current=21
+INSTRUMENTATION_STATUS: id=AndroidJUnitRunner
+INSTRUMENTATION_STATUS: numtests=44
+INSTRUMENTATION_STATUS: stream=
+INSTRUMENTATION_STATUS: test=oppositeWindingCanBeCulled
+INSTRUMENTATION_STATUS_CODE: 1
+INSTRUMENTATION_STATUS: class=javax.microedition.shell.M3gSceneContractTest
+INSTRUMENTATION_STATUS: current=21
+INSTRUMENTATION_STATUS: id=AndroidJUnitRunner
+INSTRUMENTATION_STATUS: numtests=44
+INSTRUMENTATION_STATUS: stream=.
+INSTRUMENTATION_STATUS: test=oppositeWindingCanBeCulled
+INSTRUMENTATION_STATUS_CODE: 0
+INSTRUMENTATION_STATUS: class=javax.microedition.shell.M3gSceneContractTest
+INSTRUMENTATION_STATUS: current=22
+INSTRUMENTATION_STATUS: id=AndroidJUnitRunner
+INSTRUMENTATION_STATUS: numtests=44
+INSTRUMENTATION_STATUS: stream=
+INSTRUMENTATION_STATUS: test=lightScopesDoNotLeakAcrossMeshes
+INSTRUMENTATION_STATUS_CODE: 1
+INSTRUMENTATION_STATUS: class=javax.microedition.shell.M3gSceneContractTest
+INSTRUMENTATION_STATUS: current=22
+INSTRUMENTATION_STATUS: id=AndroidJUnitRunner
+INSTRUMENTATION_STATUS: numtests=44
+INSTRUMENTATION_STATUS: stream=.
+INSTRUMENTATION_STATUS: test=lightScopesDoNotLeakAcrossMeshes
+INSTRUMENTATION_STATUS_CODE: 0
+INSTRUMENTATION_STATUS: class=javax.microedition.shell.M3gSceneContractTest
+INSTRUMENTATION_STATUS: current=23
+INSTRUMENTATION_STATUS: id=AndroidJUnitRunner
+INSTRUMENTATION_STATUS: numtests=44
+INSTRUMENTATION_STATUS: stream=
+INSTRUMENTATION_STATUS: test=animatedBackgroundColorClampsAndRounds
+INSTRUMENTATION_STATUS_CODE: 1
+INSTRUMENTATION_STATUS: class=javax.microedition.shell.M3gSceneContractTest
+INSTRUMENTATION_STATUS: current=23
+INSTRUMENTATION_STATUS: id=AndroidJUnitRunner
+INSTRUMENTATION_STATUS: numtests=44
+INSTRUMENTATION_STATUS: stream=.
+INSTRUMENTATION_STATUS: test=animatedBackgroundColorClampsAndRounds
+INSTRUMENTATION_STATUS_CODE: 0
+INSTRUMENTATION_STATUS: class=javax.microedition.shell.M3gSceneContractTest
+INSTRUMENTATION_STATUS: current=24
+INSTRUMENTATION_STATUS: id=AndroidJUnitRunner
+INSTRUMENTATION_STATUS: numtests=44
+INSTRUMENTATION_STATUS: stream=
+INSTRUMENTATION_STATUS: test=defaultSpotMatchesExplicitFortyFiveDegrees
+INSTRUMENTATION_STATUS_CODE: 1
+INSTRUMENTATION_STATUS: class=javax.microedition.shell.M3gSceneContractTest
+INSTRUMENTATION_STATUS: current=24
+INSTRUMENTATION_STATUS: id=AndroidJUnitRunner
+INSTRUMENTATION_STATUS: numtests=44
+INSTRUMENTATION_STATUS: stack=java.lang.AssertionError: expected:<-16777216> but was:<-9342607>
+	at org.junit.Assert.fail(Assert.java:88)
+	at org.junit.Assert.failNotEquals(Assert.java:834)
+	at org.junit.Assert.assertEquals(Assert.java:645)
+	at org.junit.Assert.assertEquals(Assert.java:631)
+	at javax.microedition.shell.M3gSceneContractTest.defaultSpotMatchesExplicitFortyFiveDegrees(M3gSceneContractTest.java:90)
+
+INSTRUMENTATION_STATUS: stream=
+Error in defaultSpotMatchesExplicitFortyFiveDegrees(javax.microedition.shell.M3gSceneContractTest):
+java.lang.AssertionError: expected:<-16777216> but was:<-9342607>
+	at org.junit.Assert.fail(Assert.java:88)
+	at org.junit.Assert.failNotEquals(Assert.java:834)
+	at org.junit.Assert.assertEquals(Assert.java:645)
+	at org.junit.Assert.assertEquals(Assert.java:631)
+	at javax.microedition.shell.M3gSceneContractTest.defaultSpotMatchesExplicitFortyFiveDegrees(M3gSceneContractTest.java:90)
+
+INSTRUMENTATION_STATUS: test=defaultSpotMatchesExplicitFortyFiveDegrees
+INSTRUMENTATION_STATUS_CODE: -2
+INSTRUMENTATION_STATUS: class=javax.microedition.shell.M3gSceneContractTest
+INSTRUMENTATION_STATUS: current=25
+INSTRUMENTATION_STATUS: id=AndroidJUnitRunner
+INSTRUMENTATION_STATUS: numtests=44
+INSTRUMENTATION_STATUS: stream=
+INSTRUMENTATION_STATUS: test=perspectivePreservesLargeDepthRange
+INSTRUMENTATION_STATUS_CODE: 1
+INSTRUMENTATION_STATUS: class=javax.microedition.shell.M3gSceneContractTest
+INSTRUMENTATION_STATUS: current=25
+INSTRUMENTATION_STATUS: id=AndroidJUnitRunner
+INSTRUMENTATION_STATUS: numtests=44
+INSTRUMENTATION_STATUS: stack=arrays first differed at element [2]; expected:<0.1> but was:<6.1035156>
+	at org.junit.internal.ComparisonCriteria.arrayEquals(ComparisonCriteria.java:55)
+	at org.junit.Assert.assertArrayEquals(Assert.java:500)
+	at org.junit.Assert.assertArrayEquals(Assert.java:514)
+	at javax.microedition.shell.M3gSceneContractTest.perspectivePreservesLargeDepthRange(M3gSceneContractTest.java:19)
+	... 29 trimmed
+Caused by: java.lang.AssertionError: expected:<0.1> but was:<6.1035156>
+	at org.junit.Assert.fail(Assert.java:88)
+	at org.junit.Assert.failNotEquals(Assert.java:834)
+	at org.junit.Assert.assertEquals(Assert.java:575)
+	at org.junit.Assert.assertEquals(Assert.java:700)
+	at org.junit.internal.InexactComparisonCriteria.assertElementsEqual(InexactComparisonCriteria.java:21)
+	at org.junit.internal.ComparisonCriteria.arrayEquals(ComparisonCriteria.java:53)
+	... 33 more
+
+INSTRUMENTATION_STATUS: stream=
+Error in perspectivePreservesLargeDepthRange(javax.microedition.shell.M3gSceneContractTest):
+arrays first differed at element [2]; expected:<0.1> but was:<6.1035156>
+	at org.junit.internal.ComparisonCriteria.arrayEquals(ComparisonCriteria.java:55)
+	at org.junit.Assert.assertArrayEquals(Assert.java:500)
+	at org.junit.Assert.assertArrayEquals(Assert.java:514)
+	at javax.microedition.shell.M3gSceneContractTest.perspectivePreservesLargeDepthRange(M3gSceneContractTest.java:19)
+	... 29 trimmed
+Caused by: java.lang.AssertionError: expected:<0.1> but was:<6.1035156>
+	at org.junit.Assert.fail(Assert.java:88)
+	at org.junit.Assert.failNotEquals(Assert.java:834)
+	at org.junit.Assert.assertEquals(Assert.java:575)
+	at org.junit.Assert.assertEquals(Assert.java:700)
+	at org.junit.internal.InexactComparisonCriteria.assertElementsEqual(InexactComparisonCriteria.java:21)
+	at org.junit.internal.ComparisonCriteria.arrayEquals(ComparisonCriteria.java:53)
+	... 33 more
+
+INSTRUMENTATION_STATUS: test=perspectivePreservesLargeDepthRange
+INSTRUMENTATION_STATUS_CODE: -2
+INSTRUMENTATION_STATUS: class=javax.microedition.shell.M3gSceneContractTest
+INSTRUMENTATION_STATUS: current=26
+INSTRUMENTATION_STATUS: id=AndroidJUnitRunner
+INSTRUMENTATION_STATUS: numtests=44
+INSTRUMENTATION_STATUS: stream=
+INSTRUMENTATION_STATUS: test=setLightCopiesCallerTransform
+INSTRUMENTATION_STATUS_CODE: 1
+INSTRUMENTATION_STATUS: class=javax.microedition.shell.M3gSceneContractTest
+INSTRUMENTATION_STATUS: current=26
+INSTRUMENTATION_STATUS: id=AndroidJUnitRunner
+INSTRUMENTATION_STATUS: numtests=44
+INSTRUMENTATION_STATUS: stack=arrays first differed at element [0]; expected:<1.0> but was:<0.0>
+	at org.junit.internal.ComparisonCriteria.arrayEquals(ComparisonCriteria.java:55)
+	at org.junit.Assert.assertArrayEquals(Assert.java:500)
+	at org.junit.Assert.assertArrayEquals(Assert.java:514)
+	at javax.microedition.shell.M3gSceneContractTest.setLightCopiesCallerTransform(M3gSceneContractTest.java:85)
+	... 29 trimmed
+Caused by: java.lang.AssertionError: expected:<1.0> but was:<0.0>
+	at org.junit.Assert.fail(Assert.java:88)
+	at org.junit.Assert.failNotEquals(Assert.java:834)
+	at org.junit.Assert.assertEquals(Assert.java:575)
+	at org.junit.Assert.assertEquals(Assert.java:700)
+	at org.junit.internal.InexactComparisonCriteria.assertElementsEqual(InexactComparisonCriteria.java:21)
+	at org.junit.internal.ComparisonCriteria.arrayEquals(ComparisonCriteria.java:53)
+	... 33 more
+
+INSTRUMENTATION_STATUS: stream=
+Error in setLightCopiesCallerTransform(javax.microedition.shell.M3gSceneContractTest):
+arrays first differed at element [0]; expected:<1.0> but was:<0.0>
+	at org.junit.internal.ComparisonCriteria.arrayEquals(ComparisonCriteria.java:55)
+	at org.junit.Assert.assertArrayEquals(Assert.java:500)
+	at org.junit.Assert.assertArrayEquals(Assert.java:514)
+	at javax.microedition.shell.M3gSceneContractTest.setLightCopiesCallerTransform(M3gSceneContractTest.java:85)
+	... 29 trimmed
+Caused by: java.lang.AssertionError: expected:<1.0> but was:<0.0>
+	at org.junit.Assert.fail(Assert.java:88)
+	at org.junit.Assert.failNotEquals(Assert.java:834)
+	at org.junit.Assert.assertEquals(Assert.java:575)
+	at org.junit.Assert.assertEquals(Assert.java:700)
+	at org.junit.internal.InexactComparisonCriteria.assertElementsEqual(InexactComparisonCriteria.java:21)
+	at org.junit.internal.ComparisonCriteria.arrayEquals(ComparisonCriteria.java:53)
+	... 33 more
+
+INSTRUMENTATION_STATUS: test=setLightCopiesCallerTransform
+INSTRUMENTATION_STATUS_CODE: -2
+INSTRUMENTATION_STATUS: class=javax.microedition.shell.M3gLoaderContractTest
+INSTRUMENTATION_STATUS: current=27
+INSTRUMENTATION_STATUS: id=AndroidJUnitRunner
+INSTRUMENTATION_STATUS: numtests=44
+INSTRUMENTATION_STATUS: stream=
+javax.microedition.shell.M3gLoaderContractTest:
+INSTRUMENTATION_STATUS: test=truncatedFileIsRejectedAndNextLoadRecovers
+INSTRUMENTATION_STATUS_CODE: 1
+INSTRUMENTATION_STATUS: class=javax.microedition.shell.M3gLoaderContractTest
+INSTRUMENTATION_STATUS: current=27
+INSTRUMENTATION_STATUS: id=AndroidJUnitRunner
+INSTRUMENTATION_STATUS: numtests=44
+INSTRUMENTATION_STATUS: stream=.
+INSTRUMENTATION_STATUS: test=truncatedFileIsRejectedAndNextLoadRecovers
+INSTRUMENTATION_STATUS_CODE: 0
+INSTRUMENTATION_STATUS: class=javax.microedition.shell.M3gLoaderContractTest
+INSTRUMENTATION_STATUS: current=28
+INSTRUMENTATION_STATUS: id=AndroidJUnitRunner
+INSTRUMENTATION_STATUS: numtests=44
+INSTRUMENTATION_STATUS: stream=
+INSTRUMENTATION_STATUS: test=recordCannotLeaveUnparsedBytes
+INSTRUMENTATION_STATUS_CODE: 1
+INSTRUMENTATION_STATUS: class=javax.microedition.shell.M3gLoaderContractTest
+INSTRUMENTATION_STATUS: current=28
+INSTRUMENTATION_STATUS: id=AndroidJUnitRunner
+INSTRUMENTATION_STATUS: numtests=44
+INSTRUMENTATION_STATUS: stream=.
+INSTRUMENTATION_STATUS: test=recordCannotLeaveUnparsedBytes
+INSTRUMENTATION_STATUS_CODE: 0
+INSTRUMENTATION_STATUS: class=javax.microedition.shell.M3gLoaderContractTest
+INSTRUMENTATION_STATUS: current=29
+INSTRUMENTATION_STATUS: id=AndroidJUnitRunner
+INSTRUMENTATION_STATUS: numtests=44
+INSTRUMENTATION_STATUS: stream=
+INSTRUMENTATION_STATUS: test=negativeOffsetHasApiException
+INSTRUMENTATION_STATUS_CODE: 1
+INSTRUMENTATION_STATUS: class=javax.microedition.shell.M3gLoaderContractTest
+INSTRUMENTATION_STATUS: current=29
+INSTRUMENTATION_STATUS: id=AndroidJUnitRunner
+INSTRUMENTATION_STATUS: numtests=44
+INSTRUMENTATION_STATUS: stack=java.io.IOException: Invalid M3G data.
+	at javax.microedition.m3g.Loader.load(Loader.java:122)
+	at javax.microedition.shell.M3gLoaderContractTest.negativeOffsetHasApiException(M3gLoaderContractTest.java:84)
+
+INSTRUMENTATION_STATUS: stream=
+Error in negativeOffsetHasApiException(javax.microedition.shell.M3gLoaderContractTest):
+java.io.IOException: Invalid M3G data.
+	at javax.microedition.m3g.Loader.load(Loader.java:122)
+	at javax.microedition.shell.M3gLoaderContractTest.negativeOffsetHasApiException(M3gLoaderContractTest.java:84)
+
+INSTRUMENTATION_STATUS: test=negativeOffsetHasApiException
+INSTRUMENTATION_STATUS_CODE: -2
+INSTRUMENTATION_STATUS: class=javax.microedition.shell.M3gLoaderContractTest
+INSTRUMENTATION_STATUS: current=30
+INSTRUMENTATION_STATUS: id=AndroidJUnitRunner
+INSTRUMENTATION_STATUS: numtests=44
+INSTRUMENTATION_STATUS: stream=
+INSTRUMENTATION_STATUS: test=sectionCannotCrossDeclaredFileBoundary
+INSTRUMENTATION_STATUS_CODE: 1
+INSTRUMENTATION_STATUS: class=javax.microedition.shell.M3gLoaderContractTest
+INSTRUMENTATION_STATUS: current=30
+INSTRUMENTATION_STATUS: id=AndroidJUnitRunner
+INSTRUMENTATION_STATUS: numtests=44
+INSTRUMENTATION_STATUS: stack=java.lang.AssertionError: Malformed file accepted
+	at org.junit.Assert.fail(Assert.java:88)
+	at javax.microedition.shell.M3gLoaderContractTest.invalid(M3gLoaderContractTest.java:112)
+	at javax.microedition.shell.M3gLoaderContractTest.sectionCannotCrossDeclaredFileBoundary(M3gLoaderContractTest.java:74)
+
+INSTRUMENTATION_STATUS: stream=
+Error in sectionCannotCrossDeclaredFileBoundary(javax.microedition.shell.M3gLoaderContractTest):
+java.lang.AssertionError: Malformed file accepted
+	at org.junit.Assert.fail(Assert.java:88)
+	at javax.microedition.shell.M3gLoaderContractTest.invalid(M3gLoaderContractTest.java:112)
+	at javax.microedition.shell.M3gLoaderContractTest.sectionCannotCrossDeclaredFileBoundary(M3gLoaderContractTest.java:74)
+
+INSTRUMENTATION_STATUS: test=sectionCannotCrossDeclaredFileBoundary
+INSTRUMENTATION_STATUS_CODE: -2
+INSTRUMENTATION_STATUS: class=javax.microedition.shell.M3gLoaderContractTest
+INSTRUMENTATION_STATUS: current=31
+INSTRUMENTATION_STATUS: id=AndroidJUnitRunner
+INSTRUMENTATION_STATUS: numtests=44
+INSTRUMENTATION_STATUS: stream=
+INSTRUMENTATION_STATUS: test=signedAppearanceLayerLoads
+INSTRUMENTATION_STATUS_CODE: 1
+INSTRUMENTATION_STATUS: class=javax.microedition.shell.M3gLoaderContractTest
+INSTRUMENTATION_STATUS: current=31
+INSTRUMENTATION_STATUS: id=AndroidJUnitRunner
+INSTRUMENTATION_STATUS: numtests=44
+INSTRUMENTATION_STATUS: stack=java.io.IOException: Invalid M3G data.
+	at javax.microedition.m3g.Loader.load(Loader.java:122)
+	at javax.microedition.shell.M3gLoaderContractTest.signedAppearanceLayerLoads(M3gLoaderContractTest.java:54)
+
+INSTRUMENTATION_STATUS: stream=
+Error in signedAppearanceLayerLoads(javax.microedition.shell.M3gLoaderContractTest):
+java.io.IOException: Invalid M3G data.
+	at javax.microedition.m3g.Loader.load(Loader.java:122)
+	at javax.microedition.shell.M3gLoaderContractTest.signedAppearanceLayerLoads(M3gLoaderContractTest.java:54)
+
+INSTRUMENTATION_STATUS: test=signedAppearanceLayerLoads
+INSTRUMENTATION_STATUS_CODE: -2
+INSTRUMENTATION_STATUS: class=javax.microedition.shell.M3gLoaderContractTest
+INSTRUMENTATION_STATUS: current=32
+INSTRUMENTATION_STATUS: id=AndroidJUnitRunner
+INSTRUMENTATION_STATUS: numtests=44
+INSTRUMENTATION_STATUS: stream=
+INSTRUMENTATION_STATUS: test=recordCannotConsumeTheNextObject
+INSTRUMENTATION_STATUS_CODE: 1
+INSTRUMENTATION_STATUS: class=javax.microedition.shell.M3gLoaderContractTest
+INSTRUMENTATION_STATUS: current=32
+INSTRUMENTATION_STATUS: id=AndroidJUnitRunner
+INSTRUMENTATION_STATUS: numtests=44
+INSTRUMENTATION_STATUS: stream=.
+INSTRUMENTATION_STATUS: test=recordCannotConsumeTheNextObject
+INSTRUMENTATION_STATUS_CODE: 0
+INSTRUMENTATION_STATUS: class=javax.microedition.shell.M3gLoaderContractTest
+INSTRUMENTATION_STATUS: current=33
+INSTRUMENTATION_STATUS: id=AndroidJUnitRunner
+INSTRUMENTATION_STATUS: numtests=44
+INSTRUMENTATION_STATUS: stream=
+INSTRUMENTATION_STATUS: test=compressedAndPlainMeshesLoadEqually
+INSTRUMENTATION_STATUS_CODE: 1
+INSTRUMENTATION_STATUS: class=javax.microedition.shell.M3gLoaderContractTest
+INSTRUMENTATION_STATUS: current=33
+INSTRUMENTATION_STATUS: id=AndroidJUnitRunner
+INSTRUMENTATION_STATUS: numtests=44
+INSTRUMENTATION_STATUS: stream=.
+INSTRUMENTATION_STATUS: test=compressedAndPlainMeshesLoadEqually
+INSTRUMENTATION_STATUS_CODE: 0
+INSTRUMENTATION_STATUS: class=javax.microedition.shell.M3gLoaderContractTest
+INSTRUMENTATION_STATUS: current=34
+INSTRUMENTATION_STATUS: id=AndroidJUnitRunner
+INSTRUMENTATION_STATUS: numtests=44
+INSTRUMENTATION_STATUS: stream=
+INSTRUMENTATION_STATUS: test=headerOnlyFileDoesNotConsumeContainerTail
+INSTRUMENTATION_STATUS_CODE: 1
+INSTRUMENTATION_STATUS: class=javax.microedition.shell.M3gLoaderContractTest
+INSTRUMENTATION_STATUS: current=34
+INSTRUMENTATION_STATUS: id=AndroidJUnitRunner
+INSTRUMENTATION_STATUS: numtests=44
+INSTRUMENTATION_STATUS: stack=java.lang.OutOfMemoryError: Failed to allocate a 2122219152 byte allocation with 6291456 free bytes and 509MB until OOM, target footprint 9279208, growth limit 536870912
+	at javax.microedition.m3g.Loader.loadM3G(Loader.java:911)
+	at javax.microedition.m3g.Loader.load(Loader.java:962)
+	at javax.microedition.m3g.Loader.load(Loader.java:117)
+	at javax.microedition.shell.M3gLoaderContractTest.headerOnlyFileDoesNotConsumeContainerTail(M3gLoaderContractTest.java:31)
+
+INSTRUMENTATION_STATUS: stream=
+Error in headerOnlyFileDoesNotConsumeContainerTail(javax.microedition.shell.M3gLoaderContractTest):
+java.lang.OutOfMemoryError: Failed to allocate a 2122219152 byte allocation with 6291456 free bytes and 509MB until OOM, target footprint 9279208, growth limit 536870912
+	at javax.microedition.m3g.Loader.loadM3G(Loader.java:911)
+	at javax.microedition.m3g.Loader.load(Loader.java:962)
+	at javax.microedition.m3g.Loader.load(Loader.java:117)
+	at javax.microedition.shell.M3gLoaderContractTest.headerOnlyFileDoesNotConsumeContainerTail(M3gLoaderContractTest.java:31)
+
+INSTRUMENTATION_STATUS: test=headerOnlyFileDoesNotConsumeContainerTail
+INSTRUMENTATION_STATUS_CODE: -2
+INSTRUMENTATION_STATUS: class=javax.microedition.shell.M3gLoaderContractTest
+INSTRUMENTATION_STATUS: current=35
+INSTRUMENTATION_STATUS: id=AndroidJUnitRunner
+INSTRUMENTATION_STATUS: numtests=44
+INSTRUMENTATION_STATUS: stream=
+INSTRUMENTATION_STATUS: test=incompleteZlibTrailerIsRejected
+INSTRUMENTATION_STATUS_CODE: 1
+INSTRUMENTATION_STATUS: class=javax.microedition.shell.M3gLoaderContractTest
+INSTRUMENTATION_STATUS: current=35
+INSTRUMENTATION_STATUS: id=AndroidJUnitRunner
+INSTRUMENTATION_STATUS: numtests=44
+INSTRUMENTATION_STATUS: stack=java.lang.AssertionError: Malformed file accepted
+	at org.junit.Assert.fail(Assert.java:88)
+	at javax.microedition.shell.M3gLoaderContractTest.invalid(M3gLoaderContractTest.java:112)
+	at javax.microedition.shell.M3gLoaderContractTest.incompleteZlibTrailerIsRejected(M3gLoaderContractTest.java:66)
+
+INSTRUMENTATION_STATUS: stream=
+Error in incompleteZlibTrailerIsRejected(javax.microedition.shell.M3gLoaderContractTest):
+java.lang.AssertionError: Malformed file accepted
+	at org.junit.Assert.fail(Assert.java:88)
+	at javax.microedition.shell.M3gLoaderContractTest.invalid(M3gLoaderContractTest.java:112)
+	at javax.microedition.shell.M3gLoaderContractTest.incompleteZlibTrailerIsRejected(M3gLoaderContractTest.java:66)
+
+INSTRUMENTATION_STATUS: test=incompleteZlibTrailerIsRejected
+INSTRUMENTATION_STATUS_CODE: -2
+INSTRUMENTATION_STATUS: class=javax.microedition.shell.M3gLoaderContractTest
+INSTRUMENTATION_STATUS: current=36
+INSTRUMENTATION_STATUS: id=AndroidJUnitRunner
+INSTRUMENTATION_STATUS: numtests=44
+INSTRUMENTATION_STATUS: stream=
+INSTRUMENTATION_STATUS: test=badHeaderChecksumIsRejected
+INSTRUMENTATION_STATUS_CODE: 1
+INSTRUMENTATION_STATUS: class=javax.microedition.shell.M3gLoaderContractTest
+INSTRUMENTATION_STATUS: current=36
+INSTRUMENTATION_STATUS: id=AndroidJUnitRunner
+INSTRUMENTATION_STATUS: numtests=44
+INSTRUMENTATION_STATUS: stack=java.lang.AssertionError: Malformed file accepted
+	at org.junit.Assert.fail(Assert.java:88)
+	at javax.microedition.shell.M3gLoaderContractTest.invalid(M3gLoaderContractTest.java:112)
+	at javax.microedition.shell.M3gLoaderContractTest.badHeaderChecksumIsRejected(M3gLoaderContractTest.java:37)
+
+INSTRUMENTATION_STATUS: stream=
+Error in badHeaderChecksumIsRejected(javax.microedition.shell.M3gLoaderContractTest):
+java.lang.AssertionError: Malformed file accepted
+	at org.junit.Assert.fail(Assert.java:88)
+	at javax.microedition.shell.M3gLoaderContractTest.invalid(M3gLoaderContractTest.java:112)
+	at javax.microedition.shell.M3gLoaderContractTest.badHeaderChecksumIsRejected(M3gLoaderContractTest.java:37)
+
+INSTRUMENTATION_STATUS: test=badHeaderChecksumIsRejected
+INSTRUMENTATION_STATUS_CODE: -2
+INSTRUMENTATION_STATUS: class=javax.microedition.shell.M3gLoaderContractTest
+INSTRUMENTATION_STATUS: current=37
+INSTRUMENTATION_STATUS: id=AndroidJUnitRunner
+INSTRUMENTATION_STATUS: numtests=44
+INSTRUMENTATION_STATUS: stream=
+INSTRUMENTATION_STATUS: test=invalidBooleanIsRejected
+INSTRUMENTATION_STATUS_CODE: 1
+INSTRUMENTATION_STATUS: class=javax.microedition.shell.M3gLoaderContractTest
+INSTRUMENTATION_STATUS: current=37
+INSTRUMENTATION_STATUS: id=AndroidJUnitRunner
+INSTRUMENTATION_STATUS: numtests=44
+INSTRUMENTATION_STATUS: stack=java.lang.AssertionError: Malformed file accepted
+	at org.junit.Assert.fail(Assert.java:88)
+	at javax.microedition.shell.M3gLoaderContractTest.invalid(M3gLoaderContractTest.java:112)
+	at javax.microedition.shell.M3gLoaderContractTest.invalidBooleanIsRejected(M3gLoaderContractTest.java:81)
+
+INSTRUMENTATION_STATUS: stream=
+Error in invalidBooleanIsRejected(javax.microedition.shell.M3gLoaderContractTest):
+java.lang.AssertionError: Malformed file accepted
+	at org.junit.Assert.fail(Assert.java:88)
+	at javax.microedition.shell.M3gLoaderContractTest.invalid(M3gLoaderContractTest.java:112)
+	at javax.microedition.shell.M3gLoaderContractTest.invalidBooleanIsRejected(M3gLoaderContractTest.java:81)
+
+INSTRUMENTATION_STATUS: test=invalidBooleanIsRejected
+INSTRUMENTATION_STATUS_CODE: -2
+INSTRUMENTATION_STATUS: class=javax.microedition.shell.M3gLoaderContractTest
+INSTRUMENTATION_STATUS: current=38
+INSTRUMENTATION_STATUS: id=AndroidJUnitRunner
+INSTRUMENTATION_STATUS: numtests=44
+INSTRUMENTATION_STATUS: stream=
+INSTRUMENTATION_STATUS: test=unknownRecordIsRejected
+INSTRUMENTATION_STATUS_CODE: 1
+INSTRUMENTATION_STATUS: class=javax.microedition.shell.M3gLoaderContractTest
+INSTRUMENTATION_STATUS: current=38
+INSTRUMENTATION_STATUS: id=AndroidJUnitRunner
+INSTRUMENTATION_STATUS: numtests=44
+INSTRUMENTATION_STATUS: stack=java.lang.AssertionError: Malformed file accepted
+	at org.junit.Assert.fail(Assert.java:88)
+	at javax.microedition.shell.M3gLoaderContractTest.invalid(M3gLoaderContractTest.java:112)
+	at javax.microedition.shell.M3gLoaderContractTest.unknownRecordIsRejected(M3gLoaderContractTest.java:43)
+
+INSTRUMENTATION_STATUS: stream=
+Error in unknownRecordIsRejected(javax.microedition.shell.M3gLoaderContractTest):
+java.lang.AssertionError: Malformed file accepted
+	at org.junit.Assert.fail(Assert.java:88)
+	at javax.microedition.shell.M3gLoaderContractTest.invalid(M3gLoaderContractTest.java:112)
+	at javax.microedition.shell.M3gLoaderContractTest.unknownRecordIsRejected(M3gLoaderContractTest.java:43)
+
+INSTRUMENTATION_STATUS: test=unknownRecordIsRejected
+INSTRUMENTATION_STATUS_CODE: -2
+INSTRUMENTATION_STATUS: class=javax.microedition.shell.M3gLoaderContractTest
+INSTRUMENTATION_STATUS: current=39
+INSTRUMENTATION_STATUS: id=AndroidJUnitRunner
+INSTRUMENTATION_STATUS: numtests=44
+INSTRUMENTATION_STATUS: stream=
+INSTRUMENTATION_STATUS: test=badSectionChecksumIsRejected
+INSTRUMENTATION_STATUS_CODE: 1
+INSTRUMENTATION_STATUS: class=javax.microedition.shell.M3gLoaderContractTest
+INSTRUMENTATION_STATUS: current=39
+INSTRUMENTATION_STATUS: id=AndroidJUnitRunner
+INSTRUMENTATION_STATUS: numtests=44
+INSTRUMENTATION_STATUS: stack=java.lang.AssertionError: Malformed file accepted
+	at org.junit.Assert.fail(Assert.java:88)
+	at javax.microedition.shell.M3gLoaderContractTest.invalid(M3gLoaderContractTest.java:112)
+	at javax.microedition.shell.M3gLoaderContractTest.badSectionChecksumIsRejected(M3gLoaderContractTest.java:34)
+
+INSTRUMENTATION_STATUS: stream=
+Error in badSectionChecksumIsRejected(javax.microedition.shell.M3gLoaderContractTest):
+java.lang.AssertionError: Malformed file accepted
+	at org.junit.Assert.fail(Assert.java:88)
+	at javax.microedition.shell.M3gLoaderContractTest.invalid(M3gLoaderContractTest.java:112)
+	at javax.microedition.shell.M3gLoaderContractTest.badSectionChecksumIsRejected(M3gLoaderContractTest.java:34)
+
+INSTRUMENTATION_STATUS: test=badSectionChecksumIsRejected
+INSTRUMENTATION_STATUS_CODE: -2
+INSTRUMENTATION_STATUS: class=javax.microedition.shell.M3gLoaderContractTest
+INSTRUMENTATION_STATUS: current=40
+INSTRUMENTATION_STATUS: id=AndroidJUnitRunner
+INSTRUMENTATION_STATUS: numtests=44
+INSTRUMENTATION_STATUS: stream=
+INSTRUMENTATION_STATUS: test=offsetAndTrailingContainerBytesAreRespected
+INSTRUMENTATION_STATUS_CODE: 1
+INSTRUMENTATION_STATUS: class=javax.microedition.shell.M3gLoaderContractTest
+INSTRUMENTATION_STATUS: current=40
+INSTRUMENTATION_STATUS: id=AndroidJUnitRunner
+INSTRUMENTATION_STATUS: numtests=44
+INSTRUMENTATION_STATUS: stream=.
+INSTRUMENTATION_STATUS: test=offsetAndTrailingContainerBytesAreRespected
+INSTRUMENTATION_STATUS_CODE: 0
+INSTRUMENTATION_STATUS: class=javax.microedition.shell.M3gLoaderContractTest
+INSTRUMENTATION_STATUS: current=41
+INSTRUMENTATION_STATUS: id=AndroidJUnitRunner
+INSTRUMENTATION_STATUS: numtests=44
+INSTRUMENTATION_STATUS: stream=
+INSTRUMENTATION_STATUS: test=invalidVertexEncodingIsRejected
+INSTRUMENTATION_STATUS_CODE: 1
+INSTRUMENTATION_STATUS: class=javax.microedition.shell.M3gLoaderContractTest
+INSTRUMENTATION_STATUS: current=41
+INSTRUMENTATION_STATUS: id=AndroidJUnitRunner
+INSTRUMENTATION_STATUS: numtests=44
+INSTRUMENTATION_STATUS: stack=java.lang.AssertionError: Malformed file accepted
+	at org.junit.Assert.fail(Assert.java:88)
+	at javax.microedition.shell.M3gLoaderContractTest.invalid(M3gLoaderContractTest.java:112)
+	at javax.microedition.shell.M3gLoaderContractTest.invalidVertexEncodingIsRejected(M3gLoaderContractTest.java:78)
+
+INSTRUMENTATION_STATUS: stream=
+Error in invalidVertexEncodingIsRejected(javax.microedition.shell.M3gLoaderContractTest):
+java.lang.AssertionError: Malformed file accepted
+	at org.junit.Assert.fail(Assert.java:88)
+	at javax.microedition.shell.M3gLoaderContractTest.invalid(M3gLoaderContractTest.java:112)
+	at javax.microedition.shell.M3gLoaderContractTest.invalidVertexEncodingIsRejected(M3gLoaderContractTest.java:78)
+
+INSTRUMENTATION_STATUS: test=invalidVertexEncodingIsRejected
+INSTRUMENTATION_STATUS_CODE: -2
+INSTRUMENTATION_STATUS: class=javax.microedition.shell.M3gLoaderContractTest
+INSTRUMENTATION_STATUS: current=42
+INSTRUMENTATION_STATUS: id=AndroidJUnitRunner
+INSTRUMENTATION_STATUS: numtests=44
+INSTRUMENTATION_STATUS: stream=
+INSTRUMENTATION_STATUS: test=sectionLengthMustMatchPlainPayload
+INSTRUMENTATION_STATUS_CODE: 1
+INSTRUMENTATION_STATUS: class=javax.microedition.shell.M3gLoaderContractTest
+INSTRUMENTATION_STATUS: current=42
+INSTRUMENTATION_STATUS: id=AndroidJUnitRunner
+INSTRUMENTATION_STATUS: numtests=44
+INSTRUMENTATION_STATUS: stream=.
+INSTRUMENTATION_STATUS: test=sectionLengthMustMatchPlainPayload
+INSTRUMENTATION_STATUS_CODE: 0
+INSTRUMENTATION_STATUS: class=javax.microedition.shell.M3gLoaderContractTest
+INSTRUMENTATION_STATUS: current=43
+INSTRUMENTATION_STATUS: id=AndroidJUnitRunner
+INSTRUMENTATION_STATUS: numtests=44
+INSTRUMENTATION_STATUS: stream=
+INSTRUMENTATION_STATUS: test=invalidCompressionSchemeIsRejected
+INSTRUMENTATION_STATUS_CODE: 1
+INSTRUMENTATION_STATUS: class=javax.microedition.shell.M3gLoaderContractTest
+INSTRUMENTATION_STATUS: current=43
+INSTRUMENTATION_STATUS: id=AndroidJUnitRunner
+INSTRUMENTATION_STATUS: numtests=44
+INSTRUMENTATION_STATUS: stream=.
+INSTRUMENTATION_STATUS: test=invalidCompressionSchemeIsRejected
+INSTRUMENTATION_STATUS_CODE: 0
+INSTRUMENTATION_STATUS: class=javax.microedition.shell.M3gLoaderContractTest
+INSTRUMENTATION_STATUS: current=44
+INSTRUMENTATION_STATUS: id=AndroidJUnitRunner
+INSTRUMENTATION_STATUS: numtests=44
+INSTRUMENTATION_STATUS: stream=
+INSTRUMENTATION_STATUS: test=unexpectedCompressedTrailingDataIsRejected
+INSTRUMENTATION_STATUS_CODE: 1
+INSTRUMENTATION_STATUS: class=javax.microedition.shell.M3gLoaderContractTest
+INSTRUMENTATION_STATUS: current=44
+INSTRUMENTATION_STATUS: id=AndroidJUnitRunner
+INSTRUMENTATION_STATUS: numtests=44
+INSTRUMENTATION_STATUS: stack=java.lang.AssertionError: Malformed file accepted
+	at org.junit.Assert.fail(Assert.java:88)
+	at javax.microedition.shell.M3gLoaderContractTest.invalid(M3gLoaderContractTest.java:112)
+	at javax.microedition.shell.M3gLoaderContractTest.unexpectedCompressedTrailingDataIsRejected(M3gLoaderContractTest.java:70)
+
+INSTRUMENTATION_STATUS: stream=
+Error in unexpectedCompressedTrailingDataIsRejected(javax.microedition.shell.M3gLoaderContractTest):
+java.lang.AssertionError: Malformed file accepted
+	at org.junit.Assert.fail(Assert.java:88)
+	at javax.microedition.shell.M3gLoaderContractTest.invalid(M3gLoaderContractTest.java:112)
+	at javax.microedition.shell.M3gLoaderContractTest.unexpectedCompressedTrailingDataIsRejected(M3gLoaderContractTest.java:70)
+
+INSTRUMENTATION_STATUS: test=unexpectedCompressedTrailingDataIsRejected
+INSTRUMENTATION_STATUS_CODE: -2
+INSTRUMENTATION_RESULT: stream=
+
+Time: 0.263
+There were 26 failures:
+1) animatedFogColorClampsAndRounds(javax.microedition.shell.M3gSceneContractTest)
+java.lang.AssertionError: expected:<16711808> but was:<65663>
+	at org.junit.Assert.fail(Assert.java:88)
+	at org.junit.Assert.failNotEquals(Assert.java:834)
+	at org.junit.Assert.assertEquals(Assert.java:645)
+	at org.junit.Assert.assertEquals(Assert.java:631)
+	at javax.microedition.shell.M3gSceneContractTest.animatedFogColorClampsAndRounds(M3gSceneContractTest.java:127)
+	at java.lang.reflect.Method.invoke(Native Method)
+	at org.junit.runners.model.FrameworkMethod$1.runReflectiveCall(FrameworkMethod.java:50)
+	at org.junit.internal.runners.model.ReflectiveCallable.run(ReflectiveCallable.java:12)
+	at org.junit.runners.model.FrameworkMethod.invokeExplosively(FrameworkMethod.java:47)
+	at org.junit.internal.runners.statements.InvokeMethod.evaluate(InvokeMethod.java:17)
+	at androidx.test.internal.runner.junit4.statement.RunBefores.evaluate(RunBefores.java:80)
+	at androidx.test.internal.runner.junit4.statement.RunAfters.evaluate(RunAfters.java:61)
+	at org.junit.runners.ParentRunner.runLeaf(ParentRunner.java:325)
+	at org.junit.runners.BlockJUnit4ClassRunner.runChild(BlockJUnit4ClassRunner.java:78)
+	at org.junit.runners.BlockJUnit4ClassRunner.runChild(BlockJUnit4ClassRunner.java:57)
+	at org.junit.runners.ParentRunner$3.run(ParentRunner.java:290)
+	at org.junit.runners.ParentRunner$1.schedule(ParentRunner.java:71)
+	at org.junit.runners.ParentRunner.runChildren(ParentRunner.java:288)
+	at org.junit.runners.ParentRunner.access$000(ParentRunner.java:58)
+	at org.junit.runners.ParentRunner$2.evaluate(ParentRunner.java:268)
+	at org.junit.runners.ParentRunner.run(ParentRunner.java:363)
+	at org.junit.runners.Suite.runChild(Suite.java:128)
+	at org.junit.runners.Suite.runChild(Suite.java:27)
+	at org.junit.runners.ParentRunner$3.run(ParentRunner.java:290)
+	at org.junit.runners.ParentRunner$1.schedule(ParentRunner.java:71)
+	at org.junit.runners.ParentRunner.runChildren(ParentRunner.java:288)
+	at org.junit.runners.ParentRunner.access$000(ParentRunner.java:58)
+	at org.junit.runners.ParentRunner$2.evaluate(ParentRunner.java:268)
+	at org.junit.runners.ParentRunner.run(ParentRunner.java:363)
+	at org.junit.runner.JUnitCore.run(JUnitCore.java:137)
+	at org.junit.runner.JUnitCore.run(JUnitCore.java:115)
+	at androidx.test.internal.runner.TestExecutor.execute(TestExecutor.java:67)
+	at androidx.test.internal.runner.TestExecutor.execute(TestExecutor.java:58)
+	at androidx.test.runner.AndroidJUnitRunner.onStart(AndroidJUnitRunner.java:446)
+	at android.app.Instrumentation$InstrumentationThread.run(Instrumentation.java:2408)
+2) animatedMaterialColorsClampAndRound(javax.microedition.shell.M3gSceneContractTest)
+java.lang.AssertionError: expected:<16711808> but was:<65663>
+	at org.junit.Assert.fail(Assert.java:88)
+	at org.junit.Assert.failNotEquals(Assert.java:834)
+	at org.junit.Assert.assertEquals(Assert.java:645)
+	at org.junit.Assert.assertEquals(Assert.java:631)
+	at javax.microedition.shell.M3gSceneContractTest.animatedMaterialColorsClampAndRound(M3gSceneContractTest.java:117)
+	at java.lang.reflect.Method.invoke(Native Method)
+	at org.junit.runners.model.FrameworkMethod$1.runReflectiveCall(FrameworkMethod.java:50)
+	at org.junit.internal.runners.model.ReflectiveCallable.run(ReflectiveCallable.java:12)
+	at org.junit.runners.model.FrameworkMethod.invokeExplosively(FrameworkMethod.java:47)
+	at org.junit.internal.runners.statements.InvokeMethod.evaluate(InvokeMethod.java:17)
+	at androidx.test.internal.runner.junit4.statement.RunBefores.evaluate(RunBefores.java:80)
+	at androidx.test.internal.runner.junit4.statement.RunAfters.evaluate(RunAfters.java:61)
+	at org.junit.runners.ParentRunner.runLeaf(ParentRunner.java:325)
+	at org.junit.runners.BlockJUnit4ClassRunner.runChild(BlockJUnit4ClassRunner.java:78)
+	at org.junit.runners.BlockJUnit4ClassRunner.runChild(BlockJUnit4ClassRunner.java:57)
+	at org.junit.runners.ParentRunner$3.run(ParentRunner.java:290)
+	at org.junit.runners.ParentRunner$1.schedule(ParentRunner.java:71)
+	at org.junit.runners.ParentRunner.runChildren(ParentRunner.java:288)
+	at org.junit.runners.ParentRunner.access$000(ParentRunner.java:58)
+	at org.junit.runners.ParentRunner$2.evaluate(ParentRunner.java:268)
+	at org.junit.runners.ParentRunner.run(ParentRunner.java:363)
+	at org.junit.runners.Suite.runChild(Suite.java:128)
+	at org.junit.runners.Suite.runChild(Suite.java:27)
+	at org.junit.runners.ParentRunner$3.run(ParentRunner.java:290)
+	at org.junit.runners.ParentRunner$1.schedule(ParentRunner.java:71)
+	at org.junit.runners.ParentRunner.runChildren(ParentRunner.java:288)
+	at org.junit.runners.ParentRunner.access$000(ParentRunner.java:58)
+	at org.junit.runners.ParentRunner$2.evaluate(ParentRunner.java:268)
+	at org.junit.runners.ParentRunner.run(ParentRunner.java:363)
+	at org.junit.runner.JUnitCore.run(JUnitCore.java:137)
+	at org.junit.runner.JUnitCore.run(JUnitCore.java:115)
+	at androidx.test.internal.runner.TestExecutor.execute(TestExecutor.java:67)
+	at androidx.test.internal.runner.TestExecutor.execute(TestExecutor.java:58)
+	at androidx.test.runner.AndroidJUnitRunner.onStart(AndroidJUnitRunner.java:446)
+	at android.app.Instrumentation$InstrumentationThread.run(Instrumentation.java:2408)
+3) removedLightSlotDoesNotCrashRendering(javax.microedition.shell.M3gSceneContractTest)
+java.lang.NullPointerException: Attempt to invoke virtual method 'boolean javax.microedition.m3g.Light.isRenderingEnabled()' on a null object reference
+	at javax.microedition.m3g.Triangle.calculateLighting(Triangle.java:516)
+	at javax.microedition.m3g.Triangle.fromVertAndTris(Triangle.java:241)
+	at javax.microedition.m3g.Graphics3D.renderSubmesh(Graphics3D.java:875)
+	at javax.microedition.m3g.Graphics3D.flushRenderQueue(Graphics3D.java:2394)
+	at javax.microedition.m3g.Graphics3D.render(Graphics3D.java:605)
+	at javax.microedition.shell.M3gSceneContractTest.render(M3gSceneContractTest.java:152)
+	at javax.microedition.shell.M3gSceneContractTest.removedLightSlotDoesNotCrashRendering(M3gSceneContractTest.java:80)
+	at java.lang.reflect.Method.invoke(Native Method)
+	at org.junit.runners.model.FrameworkMethod$1.runReflectiveCall(FrameworkMethod.java:50)
+	at org.junit.internal.runners.model.ReflectiveCallable.run(ReflectiveCallable.java:12)
+	at org.junit.runners.model.FrameworkMethod.invokeExplosively(FrameworkMethod.java:47)
+	at org.junit.internal.runners.statements.InvokeMethod.evaluate(InvokeMethod.java:17)
+	at androidx.test.internal.runner.junit4.statement.RunBefores.evaluate(RunBefores.java:80)
+	at androidx.test.internal.runner.junit4.statement.RunAfters.evaluate(RunAfters.java:61)
+	at org.junit.runners.ParentRunner.runLeaf(ParentRunner.java:325)
+	at org.junit.runners.BlockJUnit4ClassRunner.runChild(BlockJUnit4ClassRunner.java:78)
+	at org.junit.runners.BlockJUnit4ClassRunner.runChild(BlockJUnit4ClassRunner.java:57)
+	at org.junit.runners.ParentRunner$3.run(ParentRunner.java:290)
+	at org.junit.runners.ParentRunner$1.schedule(ParentRunner.java:71)
+	at org.junit.runners.ParentRunner.runChildren(ParentRunner.java:288)
+	at org.junit.runners.ParentRunner.access$000(ParentRunner.java:58)
+	at org.junit.runners.ParentRunner$2.evaluate(ParentRunner.java:268)
+	at org.junit.runners.ParentRunner.run(ParentRunner.java:363)
+	at org.junit.runners.Suite.runChild(Suite.java:128)
+	at org.junit.runners.Suite.runChild(Suite.java:27)
+	at org.junit.runners.ParentRunner$3.run(ParentRunner.java:290)
+	at org.junit.runners.ParentRunner$1.schedule(ParentRunner.java:71)
+	at org.junit.runners.ParentRunner.runChildren(ParentRunner.java:288)
+	at org.junit.runners.ParentRunner.access$000(ParentRunner.java:58)
+	at org.junit.runners.ParentRunner$2.evaluate(ParentRunner.java:268)
+	at org.junit.runners.ParentRunner.run(ParentRunner.java:363)
+	at org.junit.runner.JUnitCore.run(JUnitCore.java:137)
+	at org.junit.runner.JUnitCore.run(JUnitCore.java:115)
+	at androidx.test.internal.runner.TestExecutor.execute(TestExecutor.java:67)
+	at androidx.test.internal.runner.TestExecutor.execute(TestExecutor.java:58)
+	at androidx.test.runner.AndroidJUnitRunner.onStart(AndroidJUnitRunner.java:446)
+	at android.app.Instrumentation$InstrumentationThread.run(Instrumentation.java:2408)
+4) disabledParentExcludesLights(javax.microedition.shell.M3gSceneContractTest)
+java.lang.AssertionError: expected:<-16777216> but was:<-1>
+	at org.junit.Assert.fail(Assert.java:88)
+	at org.junit.Assert.failNotEquals(Assert.java:834)
+	at org.junit.Assert.assertEquals(Assert.java:645)
+	at org.junit.Assert.assertEquals(Assert.java:631)
+	at javax.microedition.shell.M3gSceneContractTest.disabledParentExcludesLights(M3gSceneContractTest.java:54)
+	at java.lang.reflect.Method.invoke(Native Method)
+	at org.junit.runners.model.FrameworkMethod$1.runReflectiveCall(FrameworkMethod.java:50)
+	at org.junit.internal.runners.model.ReflectiveCallable.run(ReflectiveCallable.java:12)
+	at org.junit.runners.model.FrameworkMethod.invokeExplosively(FrameworkMethod.java:47)
+	at org.junit.internal.runners.statements.InvokeMethod.evaluate(InvokeMethod.java:17)
+	at androidx.test.internal.runner.junit4.statement.RunBefores.evaluate(RunBefores.java:80)
+	at androidx.test.internal.runner.junit4.statement.RunAfters.evaluate(RunAfters.java:61)
+	at org.junit.runners.ParentRunner.runLeaf(ParentRunner.java:325)
+	at org.junit.runners.BlockJUnit4ClassRunner.runChild(BlockJUnit4ClassRunner.java:78)
+	at org.junit.runners.BlockJUnit4ClassRunner.runChild(BlockJUnit4ClassRunner.java:57)
+	at org.junit.runners.ParentRunner$3.run(ParentRunner.java:290)
+	at org.junit.runners.ParentRunner$1.schedule(ParentRunner.java:71)
+	at org.junit.runners.ParentRunner.runChildren(ParentRunner.java:288)
+	at org.junit.runners.ParentRunner.access$000(ParentRunner.java:58)
+	at org.junit.runners.ParentRunner$2.evaluate(ParentRunner.java:268)
+	at org.junit.runners.ParentRunner.run(ParentRunner.java:363)
+	at org.junit.runners.Suite.runChild(Suite.java:128)
+	at org.junit.runners.Suite.runChild(Suite.java:27)
+	at org.junit.runners.ParentRunner$3.run(ParentRunner.java:290)
+	at org.junit.runners.ParentRunner$1.schedule(ParentRunner.java:71)
+	at org.junit.runners.ParentRunner.runChildren(ParentRunner.java:288)
+	at org.junit.runners.ParentRunner.access$000(ParentRunner.java:58)
+	at org.junit.runners.ParentRunner$2.evaluate(ParentRunner.java:268)
+	at org.junit.runners.ParentRunner.run(ParentRunner.java:363)
+	at org.junit.runner.JUnitCore.run(JUnitCore.java:137)
+	at org.junit.runner.JUnitCore.run(JUnitCore.java:115)
+	at androidx.test.internal.runner.TestExecutor.execute(TestExecutor.java:67)
+	at androidx.test.internal.runner.TestExecutor.execute(TestExecutor.java:58)
+	at androidx.test.runner.AndroidJUnitRunner.onStart(AndroidJUnitRunner.java:446)
+	at android.app.Instrumentation$InstrumentationThread.run(Instrumentation.java:2408)
+5) animatedTextureColorClampsAndRounds(javax.microedition.shell.M3gSceneContractTest)
+java.lang.AssertionError: expected:<16711808> but was:<16711807>
+	at org.junit.Assert.fail(Assert.java:88)
+	at org.junit.Assert.failNotEquals(Assert.java:834)
+	at org.junit.Assert.assertEquals(Assert.java:645)
+	at org.junit.Assert.assertEquals(Assert.java:631)
+	at javax.microedition.shell.M3gSceneContractTest.animatedTextureColorClampsAndRounds(M3gSceneContractTest.java:131)
+	at java.lang.reflect.Method.invoke(Native Method)
+	at org.junit.runners.model.FrameworkMethod$1.runReflectiveCall(FrameworkMethod.java:50)
+	at org.junit.internal.runners.model.ReflectiveCallable.run(ReflectiveCallable.java:12)
+	at org.junit.runners.model.FrameworkMethod.invokeExplosively(FrameworkMethod.java:47)
+	at org.junit.internal.runners.statements.InvokeMethod.evaluate(InvokeMethod.java:17)
+	at androidx.test.internal.runner.junit4.statement.RunBefores.evaluate(RunBefores.java:80)
+	at androidx.test.internal.runner.junit4.statement.RunAfters.evaluate(RunAfters.java:61)
+	at org.junit.runners.ParentRunner.runLeaf(ParentRunner.java:325)
+	at org.junit.runners.BlockJUnit4ClassRunner.runChild(BlockJUnit4ClassRunner.java:78)
+	at org.junit.runners.BlockJUnit4ClassRunner.runChild(BlockJUnit4ClassRunner.java:57)
+	at org.junit.runners.ParentRunner$3.run(ParentRunner.java:290)
+	at org.junit.runners.ParentRunner$1.schedule(ParentRunner.java:71)
+	at org.junit.runners.ParentRunner.runChildren(ParentRunner.java:288)
+	at org.junit.runners.ParentRunner.access$000(ParentRunner.java:58)
+	at org.junit.runners.ParentRunner$2.evaluate(ParentRunner.java:268)
+	at org.junit.runners.ParentRunner.run(ParentRunner.java:363)
+	at org.junit.runners.Suite.runChild(Suite.java:128)
+	at org.junit.runners.Suite.runChild(Suite.java:27)
+	at org.junit.runners.ParentRunner$3.run(ParentRunner.java:290)
+	at org.junit.runners.ParentRunner$1.schedule(ParentRunner.java:71)
+	at org.junit.runners.ParentRunner.runChildren(ParentRunner.java:288)
+	at org.junit.runners.ParentRunner.access$000(ParentRunner.java:58)
+	at org.junit.runners.ParentRunner$2.evaluate(ParentRunner.java:268)
+	at org.junit.runners.ParentRunner.run(ParentRunner.java:363)
+	at org.junit.runner.JUnitCore.run(JUnitCore.java:137)
+	at org.junit.runner.JUnitCore.run(JUnitCore.java:115)
+	at androidx.test.internal.runner.TestExecutor.execute(TestExecutor.java:67)
+	at androidx.test.internal.runner.TestExecutor.execute(TestExecutor.java:58)
+	at androidx.test.runner.AndroidJUnitRunner.onStart(AndroidJUnitRunner.java:446)
+	at android.app.Instrumentation$InstrumentationThread.run(Instrumentation.java:2408)
+6) collapsedCameraVolumeRendersNothing(javax.microedition.shell.M3gSceneContractTest)
+java.lang.ArithmeticException: Illegal projection parameters.
+	at javax.microedition.m3g.Camera.getProjection(Camera.java:77)
+	at javax.microedition.m3g.Graphics3D.renderSubmesh(Graphics3D.java:668)
+	at javax.microedition.m3g.Graphics3D.flushRenderQueue(Graphics3D.java:2394)
+	at javax.microedition.m3g.Graphics3D.render(Graphics3D.java:605)
+	at javax.microedition.shell.M3gSceneContractTest.render(M3gSceneContractTest.java:152)
+	at javax.microedition.shell.M3gSceneContractTest.collapsedCameraVolumeRendersNothing(M3gSceneContractTest.java:37)
+	at java.lang.reflect.Method.invoke(Native Method)
+	at org.junit.runners.model.FrameworkMethod$1.runReflectiveCall(FrameworkMethod.java:50)
+	at org.junit.internal.runners.model.ReflectiveCallable.run(ReflectiveCallable.java:12)
+	at org.junit.runners.model.FrameworkMethod.invokeExplosively(FrameworkMethod.java:47)
+	at org.junit.internal.runners.statements.InvokeMethod.evaluate(InvokeMethod.java:17)
+	at androidx.test.internal.runner.junit4.statement.RunBefores.evaluate(RunBefores.java:80)
+	at androidx.test.internal.runner.junit4.statement.RunAfters.evaluate(RunAfters.java:61)
+	at org.junit.runners.ParentRunner.runLeaf(ParentRunner.java:325)
+	at org.junit.runners.BlockJUnit4ClassRunner.runChild(BlockJUnit4ClassRunner.java:78)
+	at org.junit.runners.BlockJUnit4ClassRunner.runChild(BlockJUnit4ClassRunner.java:57)
+	at org.junit.runners.ParentRunner$3.run(ParentRunner.java:290)
+	at org.junit.runners.ParentRunner$1.schedule(ParentRunner.java:71)
+	at org.junit.runners.ParentRunner.runChildren(ParentRunner.java:288)
+	at org.junit.runners.ParentRunner.access$000(ParentRunner.java:58)
+	at org.junit.runners.ParentRunner$2.evaluate(ParentRunner.java:268)
+	at org.junit.runners.ParentRunner.run(ParentRunner.java:363)
+	at org.junit.runners.Suite.runChild(Suite.java:128)
+	at org.junit.runners.Suite.runChild(Suite.java:27)
+	at org.junit.runners.ParentRunner$3.run(ParentRunner.java:290)
+	at org.junit.runners.ParentRunner$1.schedule(ParentRunner.java:71)
+	at org.junit.runners.ParentRunner.runChildren(ParentRunner.java:288)
+	at org.junit.runners.ParentRunner.access$000(ParentRunner.java:58)
+	at org.junit.runners.ParentRunner$2.evaluate(ParentRunner.java:268)
+	at org.junit.runners.ParentRunner.run(ParentRunner.java:363)
+	at org.junit.runner.JUnitCore.run(JUnitCore.java:137)
+	at org.junit.runner.JUnitCore.run(JUnitCore.java:115)
+	at androidx.test.internal.runner.TestExecutor.execute(TestExecutor.java:67)
+	at androidx.test.internal.runner.TestExecutor.execute(TestExecutor.java:58)
+	at androidx.test.runner.AndroidJUnitRunner.onStart(AndroidJUnitRunner.java:446)
+	at android.app.Instrumentation$InstrumentationThread.run(Instrumentation.java:2408)
+7) largeRetainedQueueKeepsEarlierMeshes(javax.microedition.shell.M3gSceneContractTest)
+java.lang.AssertionError: expected:<-1089504> but was:<-16777216>
+	at org.junit.Assert.fail(Assert.java:88)
+	at org.junit.Assert.failNotEquals(Assert.java:834)
+	at org.junit.Assert.assertEquals(Assert.java:645)
+	at org.junit.Assert.assertEquals(Assert.java:631)
+	at javax.microedition.shell.M3gSceneContractTest.largeRetainedQueueKeepsEarlierMeshes(M3gSceneContractTest.java:49)
+	at java.lang.reflect.Method.invoke(Native Method)
+	at org.junit.runners.model.FrameworkMethod$1.runReflectiveCall(FrameworkMethod.java:50)
+	at org.junit.internal.runners.model.ReflectiveCallable.run(ReflectiveCallable.java:12)
+	at org.junit.runners.model.FrameworkMethod.invokeExplosively(FrameworkMethod.java:47)
+	at org.junit.internal.runners.statements.InvokeMethod.evaluate(InvokeMethod.java:17)
+	at androidx.test.internal.runner.junit4.statement.RunBefores.evaluate(RunBefores.java:80)
+	at androidx.test.internal.runner.junit4.statement.RunAfters.evaluate(RunAfters.java:61)
+	at org.junit.runners.ParentRunner.runLeaf(ParentRunner.java:325)
+	at org.junit.runners.BlockJUnit4ClassRunner.runChild(BlockJUnit4ClassRunner.java:78)
+	at org.junit.runners.BlockJUnit4ClassRunner.runChild(BlockJUnit4ClassRunner.java:57)
+	at org.junit.runners.ParentRunner$3.run(ParentRunner.java:290)
+	at org.junit.runners.ParentRunner$1.schedule(ParentRunner.java:71)
+	at org.junit.runners.ParentRunner.runChildren(ParentRunner.java:288)
+	at org.junit.runners.ParentRunner.access$000(ParentRunner.java:58)
+	at org.junit.runners.ParentRunner$2.evaluate(ParentRunner.java:268)
+	at org.junit.runners.ParentRunner.run(ParentRunner.java:363)
+	at org.junit.runners.Suite.runChild(Suite.java:128)
+	at org.junit.runners.Suite.runChild(Suite.java:27)
+	at org.junit.runners.ParentRunner$3.run(ParentRunner.java:290)
+	at org.junit.runners.ParentRunner$1.schedule(ParentRunner.java:71)
+	at org.junit.runners.ParentRunner.runChildren(ParentRunner.java:288)
+	at org.junit.runners.ParentRunner.access$000(ParentRunner.java:58)
+	at org.junit.runners.ParentRunner$2.evaluate(ParentRunner.java:268)
+	at org.junit.runners.ParentRunner.run(ParentRunner.java:363)
+	at org.junit.runner.JUnitCore.run(JUnitCore.java:137)
+	at org.junit.runner.JUnitCore.run(JUnitCore.java:115)
+	at androidx.test.internal.runner.TestExecutor.execute(TestExecutor.java:67)
+	at androidx.test.internal.runner.TestExecutor.execute(TestExecutor.java:58)
+	at androidx.test.runner.AndroidJUnitRunner.onStart(AndroidJUnitRunner.java:446)
+	at android.app.Instrumentation$InstrumentationThread.run(Instrumentation.java:2408)
+8) animatedLightColorClampsAndRounds(javax.microedition.shell.M3gSceneContractTest)
+java.lang.AssertionError: expected:<16711808> but was:<65663>
+	at org.junit.Assert.fail(Assert.java:88)
+	at org.junit.Assert.failNotEquals(Assert.java:834)
+	at org.junit.Assert.assertEquals(Assert.java:645)
+	at org.junit.Assert.assertEquals(Assert.java:631)
+	at javax.microedition.shell.M3gSceneContractTest.animatedLightColorClampsAndRounds(M3gSceneContractTest.java:124)
+	at java.lang.reflect.Method.invoke(Native Method)
+	at org.junit.runners.model.FrameworkMethod$1.runReflectiveCall(FrameworkMethod.java:50)
+	at org.junit.internal.runners.model.ReflectiveCallable.run(ReflectiveCallable.java:12)
+	at org.junit.runners.model.FrameworkMethod.invokeExplosively(FrameworkMethod.java:47)
+	at org.junit.internal.runners.statements.InvokeMethod.evaluate(InvokeMethod.java:17)
+	at androidx.test.internal.runner.junit4.statement.RunBefores.evaluate(RunBefores.java:80)
+	at androidx.test.internal.runner.junit4.statement.RunAfters.evaluate(RunAfters.java:61)
+	at org.junit.runners.ParentRunner.runLeaf(ParentRunner.java:325)
+	at org.junit.runners.BlockJUnit4ClassRunner.runChild(BlockJUnit4ClassRunner.java:78)
+	at org.junit.runners.BlockJUnit4ClassRunner.runChild(BlockJUnit4ClassRunner.java:57)
+	at org.junit.runners.ParentRunner$3.run(ParentRunner.java:290)
+	at org.junit.runners.ParentRunner$1.schedule(ParentRunner.java:71)
+	at org.junit.runners.ParentRunner.runChildren(ParentRunner.java:288)
+	at org.junit.runners.ParentRunner.access$000(ParentRunner.java:58)
+	at org.junit.runners.ParentRunner$2.evaluate(ParentRunner.java:268)
+	at org.junit.runners.ParentRunner.run(ParentRunner.java:363)
+	at org.junit.runners.Suite.runChild(Suite.java:128)
+	at org.junit.runners.Suite.runChild(Suite.java:27)
+	at org.junit.runners.ParentRunner$3.run(ParentRunner.java:290)
+	at org.junit.runners.ParentRunner$1.schedule(ParentRunner.java:71)
+	at org.junit.runners.ParentRunner.runChildren(ParentRunner.java:288)
+	at org.junit.runners.ParentRunner.access$000(ParentRunner.java:58)
+	at org.junit.runners.ParentRunner$2.evaluate(ParentRunner.java:268)
+	at org.junit.runners.ParentRunner.run(ParentRunner.java:363)
+	at org.junit.runner.JUnitCore.run(JUnitCore.java:137)
+	at org.junit.runner.JUnitCore.run(JUnitCore.java:115)
+	at androidx.test.internal.runner.TestExecutor.execute(TestExecutor.java:67)
+	at androidx.test.internal.runner.TestExecutor.execute(TestExecutor.java:58)
+	at androidx.test.runner.AndroidJUnitRunner.onStart(AndroidJUnitRunner.java:446)
+	at android.app.Instrumentation$InstrumentationThread.run(Instrumentation.java:2408)
+9) animatedSpotMatchesSetter(javax.microedition.shell.M3gSceneContractTest)
+java.lang.AssertionError: expected:<-16777216> but was:<-9342607>
+	at org.junit.Assert.fail(Assert.java:88)
+	at org.junit.Assert.failNotEquals(Assert.java:834)
+	at org.junit.Assert.assertEquals(Assert.java:645)
+	at org.junit.Assert.assertEquals(Assert.java:631)
+	at javax.microedition.shell.M3gSceneContractTest.animatedSpotMatchesSetter(M3gSceneContractTest.java:96)
+	at java.lang.reflect.Method.invoke(Native Method)
+	at org.junit.runners.model.FrameworkMethod$1.runReflectiveCall(FrameworkMethod.java:50)
+	at org.junit.internal.runners.model.ReflectiveCallable.run(ReflectiveCallable.java:12)
+	at org.junit.runners.model.FrameworkMethod.invokeExplosively(FrameworkMethod.java:47)
+	at org.junit.internal.runners.statements.InvokeMethod.evaluate(InvokeMethod.java:17)
+	at androidx.test.internal.runner.junit4.statement.RunBefores.evaluate(RunBefores.java:80)
+	at androidx.test.internal.runner.junit4.statement.RunAfters.evaluate(RunAfters.java:61)
+	at org.junit.runners.ParentRunner.runLeaf(ParentRunner.java:325)
+	at org.junit.runners.BlockJUnit4ClassRunner.runChild(BlockJUnit4ClassRunner.java:78)
+	at org.junit.runners.BlockJUnit4ClassRunner.runChild(BlockJUnit4ClassRunner.java:57)
+	at org.junit.runners.ParentRunner$3.run(ParentRunner.java:290)
+	at org.junit.runners.ParentRunner$1.schedule(ParentRunner.java:71)
+	at org.junit.runners.ParentRunner.runChildren(ParentRunner.java:288)
+	at org.junit.runners.ParentRunner.access$000(ParentRunner.java:58)
+	at org.junit.runners.ParentRunner$2.evaluate(ParentRunner.java:268)
+	at org.junit.runners.ParentRunner.run(ParentRunner.java:363)
+	at org.junit.runners.Suite.runChild(Suite.java:128)
+	at org.junit.runners.Suite.runChild(Suite.java:27)
+	at org.junit.runners.ParentRunner$3.run(ParentRunner.java:290)
+	at org.junit.runners.ParentRunner$1.schedule(ParentRunner.java:71)
+	at org.junit.runners.ParentRunner.runChildren(ParentRunner.java:288)
+	at org.junit.runners.ParentRunner.access$000(ParentRunner.java:58)
+	at org.junit.runners.ParentRunner$2.evaluate(ParentRunner.java:268)
+	at org.junit.runners.ParentRunner.run(ParentRunner.java:363)
+	at org.junit.runner.JUnitCore.run(JUnitCore.java:137)
+	at org.junit.runner.JUnitCore.run(JUnitCore.java:115)
+	at androidx.test.internal.runner.TestExecutor.execute(TestExecutor.java:67)
+	at androidx.test.internal.runner.TestExecutor.execute(TestExecutor.java:58)
+	at androidx.test.runner.AndroidJUnitRunner.onStart(AndroidJUnitRunner.java:446)
+	at android.app.Instrumentation$InstrumentationThread.run(Instrumentation.java:2408)
+10) collapsedCameraAlsoClipsSprites(javax.microedition.shell.M3gSceneContractTest)
+java.lang.ArithmeticException: Illegal projection parameters.
+	at javax.microedition.m3g.Camera.getProjection(Camera.java:77)
+	at javax.microedition.m3g.Graphics3D.renderSprite(Graphics3D.java:1410)
+	at javax.microedition.m3g.Graphics3D.flushRenderQueue(Graphics3D.java:2393)
+	at javax.microedition.m3g.Graphics3D.render(Graphics3D.java:605)
+	at javax.microedition.shell.M3gSceneContractTest.render(M3gSceneContractTest.java:152)
+	at javax.microedition.shell.M3gSceneContractTest.collapsedCameraAlsoClipsSprites(M3gSceneContractTest.java:44)
+	at java.lang.reflect.Method.invoke(Native Method)
+	at org.junit.runners.model.FrameworkMethod$1.runReflectiveCall(FrameworkMethod.java:50)
+	at org.junit.internal.runners.model.ReflectiveCallable.run(ReflectiveCallable.java:12)
+	at org.junit.runners.model.FrameworkMethod.invokeExplosively(FrameworkMethod.java:47)
+	at org.junit.internal.runners.statements.InvokeMethod.evaluate(InvokeMethod.java:17)
+	at androidx.test.internal.runner.junit4.statement.RunBefores.evaluate(RunBefores.java:80)
+	at androidx.test.internal.runner.junit4.statement.RunAfters.evaluate(RunAfters.java:61)
+	at org.junit.runners.ParentRunner.runLeaf(ParentRunner.java:325)
+	at org.junit.runners.BlockJUnit4ClassRunner.runChild(BlockJUnit4ClassRunner.java:78)
+	at org.junit.runners.BlockJUnit4ClassRunner.runChild(BlockJUnit4ClassRunner.java:57)
+	at org.junit.runners.ParentRunner$3.run(ParentRunner.java:290)
+	at org.junit.runners.ParentRunner$1.schedule(ParentRunner.java:71)
+	at org.junit.runners.ParentRunner.runChildren(ParentRunner.java:288)
+	at org.junit.runners.ParentRunner.access$000(ParentRunner.java:58)
+	at org.junit.runners.ParentRunner$2.evaluate(ParentRunner.java:268)
+	at org.junit.runners.ParentRunner.run(ParentRunner.java:363)
+	at org.junit.runners.Suite.runChild(Suite.java:128)
+	at org.junit.runners.Suite.runChild(Suite.java:27)
+	at org.junit.runners.ParentRunner$3.run(ParentRunner.java:290)
+	at org.junit.runners.ParentRunner$1.schedule(ParentRunner.java:71)
+	at org.junit.runners.ParentRunner.runChildren(ParentRunner.java:288)
+	at org.junit.runners.ParentRunner.access$000(ParentRunner.java:58)
+	at org.junit.runners.ParentRunner$2.evaluate(ParentRunner.java:268)
+	at org.junit.runners.ParentRunner.run(ParentRunner.java:363)
+	at org.junit.runner.JUnitCore.run(JUnitCore.java:137)
+	at org.junit.runner.JUnitCore.run(JUnitCore.java:115)
+	at androidx.test.internal.runner.TestExecutor.execute(TestExecutor.java:67)
+	at androidx.test.internal.runner.TestExecutor.execute(TestExecutor.java:58)
+	at androidx.test.runner.AndroidJUnitRunner.onStart(AndroidJUnitRunner.java:446)
+	at android.app.Instrumentation$InstrumentationThread.run(Instrumentation.java:2408)
+11) animatedMaterialAlphaClamps(javax.microedition.shell.M3gSceneContractTest)
+java.lang.AssertionError: expected:<255> but was:<1>
+	at org.junit.Assert.fail(Assert.java:88)
+	at org.junit.Assert.failNotEquals(Assert.java:834)
+	at org.junit.Assert.assertEquals(Assert.java:645)
+	at org.junit.Assert.assertEquals(Assert.java:631)
+	at javax.microedition.shell.M3gSceneContractTest.animatedMaterialAlphaClamps(M3gSceneContractTest.java:121)
+	at java.lang.reflect.Method.invoke(Native Method)
+	at org.junit.runners.model.FrameworkMethod$1.runReflectiveCall(FrameworkMethod.java:50)
+	at org.junit.internal.runners.model.ReflectiveCallable.run(ReflectiveCallable.java:12)
+	at org.junit.runners.model.FrameworkMethod.invokeExplosively(FrameworkMethod.java:47)
+	at org.junit.internal.runners.statements.InvokeMethod.evaluate(InvokeMethod.java:17)
+	at androidx.test.internal.runner.junit4.statement.RunBefores.evaluate(RunBefores.java:80)
+	at androidx.test.internal.runner.junit4.statement.RunAfters.evaluate(RunAfters.java:61)
+	at org.junit.runners.ParentRunner.runLeaf(ParentRunner.java:325)
+	at org.junit.runners.BlockJUnit4ClassRunner.runChild(BlockJUnit4ClassRunner.java:78)
+	at org.junit.runners.BlockJUnit4ClassRunner.runChild(BlockJUnit4ClassRunner.java:57)
+	at org.junit.runners.ParentRunner$3.run(ParentRunner.java:290)
+	at org.junit.runners.ParentRunner$1.schedule(ParentRunner.java:71)
+	at org.junit.runners.ParentRunner.runChildren(ParentRunner.java:288)
+	at org.junit.runners.ParentRunner.access$000(ParentRunner.java:58)
+	at org.junit.runners.ParentRunner$2.evaluate(ParentRunner.java:268)
+	at org.junit.runners.ParentRunner.run(ParentRunner.java:363)
+	at org.junit.runners.Suite.runChild(Suite.java:128)
+	at org.junit.runners.Suite.runChild(Suite.java:27)
+	at org.junit.runners.ParentRunner$3.run(ParentRunner.java:290)
+	at org.junit.runners.ParentRunner$1.schedule(ParentRunner.java:71)
+	at org.junit.runners.ParentRunner.runChildren(ParentRunner.java:288)
+	at org.junit.runners.ParentRunner.access$000(ParentRunner.java:58)
+	at org.junit.runners.ParentRunner$2.evaluate(ParentRunner.java:268)
+	at org.junit.runners.ParentRunner.run(ParentRunner.java:363)
+	at org.junit.runner.JUnitCore.run(JUnitCore.java:137)
+	at org.junit.runner.JUnitCore.run(JUnitCore.java:115)
+	at androidx.test.internal.runner.TestExecutor.execute(TestExecutor.java:67)
+	at androidx.test.internal.runner.TestExecutor.execute(TestExecutor.java:58)
+	at androidx.test.runner.AndroidJUnitRunner.onStart(AndroidJUnitRunner.java:446)
+	at android.app.Instrumentation$InstrumentationThread.run(Instrumentation.java:2408)
+12) disabledWorldExcludesLights(javax.microedition.shell.M3gSceneContractTest)
+java.lang.AssertionError: expected:<0> but was:<1>
+	at org.junit.Assert.fail(Assert.java:88)
+	at org.junit.Assert.failNotEquals(Assert.java:834)
+	at org.junit.Assert.assertEquals(Assert.java:645)
+	at org.junit.Assert.assertEquals(Assert.java:631)
+	at javax.microedition.shell.M3gSceneContractTest.disabledWorldExcludesLights(M3gSceneContractTest.java:62)
+	at java.lang.reflect.Method.invoke(Native Method)
+	at org.junit.runners.model.FrameworkMethod$1.runReflectiveCall(FrameworkMethod.java:50)
+	at org.junit.internal.runners.model.ReflectiveCallable.run(ReflectiveCallable.java:12)
+	at org.junit.runners.model.FrameworkMethod.invokeExplosively(FrameworkMethod.java:47)
+	at org.junit.internal.runners.statements.InvokeMethod.evaluate(InvokeMethod.java:17)
+	at androidx.test.internal.runner.junit4.statement.RunBefores.evaluate(RunBefores.java:80)
+	at androidx.test.internal.runner.junit4.statement.RunAfters.evaluate(RunAfters.java:61)
+	at org.junit.runners.ParentRunner.runLeaf(ParentRunner.java:325)
+	at org.junit.runners.BlockJUnit4ClassRunner.runChild(BlockJUnit4ClassRunner.java:78)
+	at org.junit.runners.BlockJUnit4ClassRunner.runChild(BlockJUnit4ClassRunner.java:57)
+	at org.junit.runners.ParentRunner$3.run(ParentRunner.java:290)
+	at org.junit.runners.ParentRunner$1.schedule(ParentRunner.java:71)
+	at org.junit.runners.ParentRunner.runChildren(ParentRunner.java:288)
+	at org.junit.runners.ParentRunner.access$000(ParentRunner.java:58)
+	at org.junit.runners.ParentRunner$2.evaluate(ParentRunner.java:268)
+	at org.junit.runners.ParentRunner.run(ParentRunner.java:363)
+	at org.junit.runners.Suite.runChild(Suite.java:128)
+	at org.junit.runners.Suite.runChild(Suite.java:27)
+	at org.junit.runners.ParentRunner$3.run(ParentRunner.java:290)
+	at org.junit.runners.ParentRunner$1.schedule(ParentRunner.java:71)
+	at org.junit.runners.ParentRunner.runChildren(ParentRunner.java:288)
+	at org.junit.runners.ParentRunner.access$000(ParentRunner.java:58)
+	at org.junit.runners.ParentRunner$2.evaluate(ParentRunner.java:268)
+	at org.junit.runners.ParentRunner.run(ParentRunner.java:363)
+	at org.junit.runner.JUnitCore.run(JUnitCore.java:137)
+	at org.junit.runner.JUnitCore.run(JUnitCore.java:115)
+	at androidx.test.internal.runner.TestExecutor.execute(TestExecutor.java:67)
+	at androidx.test.internal.runner.TestExecutor.execute(TestExecutor.java:58)
+	at androidx.test.runner.AndroidJUnitRunner.onStart(AndroidJUnitRunner.java:446)
+	at android.app.Instrumentation$InstrumentationThread.run(Instrumentation.java:2408)
+13) defaultSpotMatchesExplicitFortyFiveDegrees(javax.microedition.shell.M3gSceneContractTest)
+java.lang.AssertionError: expected:<-16777216> but was:<-9342607>
+	at org.junit.Assert.fail(Assert.java:88)
+	at org.junit.Assert.failNotEquals(Assert.java:834)
+	at org.junit.Assert.assertEquals(Assert.java:645)
+	at org.junit.Assert.assertEquals(Assert.java:631)
+	at javax.microedition.shell.M3gSceneContractTest.defaultSpotMatchesExplicitFortyFiveDegrees(M3gSceneContractTest.java:90)
+	at java.lang.reflect.Method.invoke(Native Method)
+	at org.junit.runners.model.FrameworkMethod$1.runReflectiveCall(FrameworkMethod.java:50)
+	at org.junit.internal.runners.model.ReflectiveCallable.run(ReflectiveCallable.java:12)
+	at org.junit.runners.model.FrameworkMethod.invokeExplosively(FrameworkMethod.java:47)
+	at org.junit.internal.runners.statements.InvokeMethod.evaluate(InvokeMethod.java:17)
+	at androidx.test.internal.runner.junit4.statement.RunBefores.evaluate(RunBefores.java:80)
+	at androidx.test.internal.runner.junit4.statement.RunAfters.evaluate(RunAfters.java:61)
+	at org.junit.runners.ParentRunner.runLeaf(ParentRunner.java:325)
+	at org.junit.runners.BlockJUnit4ClassRunner.runChild(BlockJUnit4ClassRunner.java:78)
+	at org.junit.runners.BlockJUnit4ClassRunner.runChild(BlockJUnit4ClassRunner.java:57)
+	at org.junit.runners.ParentRunner$3.run(ParentRunner.java:290)
+	at org.junit.runners.ParentRunner$1.schedule(ParentRunner.java:71)
+	at org.junit.runners.ParentRunner.runChildren(ParentRunner.java:288)
+	at org.junit.runners.ParentRunner.access$000(ParentRunner.java:58)
+	at org.junit.runners.ParentRunner$2.evaluate(ParentRunner.java:268)
+	at org.junit.runners.ParentRunner.run(ParentRunner.java:363)
+	at org.junit.runners.Suite.runChild(Suite.java:128)
+	at org.junit.runners.Suite.runChild(Suite.java:27)
+	at org.junit.runners.ParentRunner$3.run(ParentRunner.java:290)
+	at org.junit.runners.ParentRunner$1.schedule(ParentRunner.java:71)
+	at org.junit.runners.ParentRunner.runChildren(ParentRunner.java:288)
+	at org.junit.runners.ParentRunner.access$000(ParentRunner.java:58)
+	at org.junit.runners.ParentRunner$2.evaluate(ParentRunner.java:268)
+	at org.junit.runners.ParentRunner.run(ParentRunner.java:363)
+	at org.junit.runner.JUnitCore.run(JUnitCore.java:137)
+	at org.junit.runner.JUnitCore.run(JUnitCore.java:115)
+	at androidx.test.internal.runner.TestExecutor.execute(TestExecutor.java:67)
+	at androidx.test.internal.runner.TestExecutor.execute(TestExecutor.java:58)
+	at androidx.test.runner.AndroidJUnitRunner.onStart(AndroidJUnitRunner.java:446)
+	at android.app.Instrumentation$InstrumentationThread.run(Instrumentation.java:2408)
+14) perspectivePreservesLargeDepthRange(javax.microedition.shell.M3gSceneContractTest)
+arrays first differed at element [2]; expected:<0.1> but was:<6.1035156>
+	at org.junit.internal.ComparisonCriteria.arrayEquals(ComparisonCriteria.java:55)
+	at org.junit.Assert.assertArrayEquals(Assert.java:500)
+	at org.junit.Assert.assertArrayEquals(Assert.java:514)
+	at javax.microedition.shell.M3gSceneContractTest.perspectivePreservesLargeDepthRange(M3gSceneContractTest.java:19)
+	at java.lang.reflect.Method.invoke(Native Method)
+	at org.junit.runners.model.FrameworkMethod$1.runReflectiveCall(FrameworkMethod.java:50)
+	at org.junit.internal.runners.model.ReflectiveCallable.run(ReflectiveCallable.java:12)
+	at org.junit.runners.model.FrameworkMethod.invokeExplosively(FrameworkMethod.java:47)
+	at org.junit.internal.runners.statements.InvokeMethod.evaluate(InvokeMethod.java:17)
+	at androidx.test.internal.runner.junit4.statement.RunBefores.evaluate(RunBefores.java:80)
+	at androidx.test.internal.runner.junit4.statement.RunAfters.evaluate(RunAfters.java:61)
+	at org.junit.runners.ParentRunner.runLeaf(ParentRunner.java:325)
+	at org.junit.runners.BlockJUnit4ClassRunner.runChild(BlockJUnit4ClassRunner.java:78)
+	at org.junit.runners.BlockJUnit4ClassRunner.runChild(BlockJUnit4ClassRunner.java:57)
+	at org.junit.runners.ParentRunner$3.run(ParentRunner.java:290)
+	at org.junit.runners.ParentRunner$1.schedule(ParentRunner.java:71)
+	at org.junit.runners.ParentRunner.runChildren(ParentRunner.java:288)
+	at org.junit.runners.ParentRunner.access$000(ParentRunner.java:58)
+	at org.junit.runners.ParentRunner$2.evaluate(ParentRunner.java:268)
+	at org.junit.runners.ParentRunner.run(ParentRunner.java:363)
+	at org.junit.runners.Suite.runChild(Suite.java:128)
+	at org.junit.runners.Suite.runChild(Suite.java:27)
+	at org.junit.runners.ParentRunner$3.run(ParentRunner.java:290)
+	at org.junit.runners.ParentRunner$1.schedule(ParentRunner.java:71)
+	at org.junit.runners.ParentRunner.runChildren(ParentRunner.java:288)
+	at org.junit.runners.ParentRunner.access$000(ParentRunner.java:58)
+	at org.junit.runners.ParentRunner$2.evaluate(ParentRunner.java:268)
+	at org.junit.runners.ParentRunner.run(ParentRunner.java:363)
+	at org.junit.runner.JUnitCore.run(JUnitCore.java:137)
+	at org.junit.runner.JUnitCore.run(JUnitCore.java:115)
+	at androidx.test.internal.runner.TestExecutor.execute(TestExecutor.java:67)
+	at androidx.test.internal.runner.TestExecutor.execute(TestExecutor.java:58)
+	at androidx.test.runner.AndroidJUnitRunner.onStart(AndroidJUnitRunner.java:446)
+	at android.app.Instrumentation$InstrumentationThread.run(Instrumentation.java:2408)
+Caused by: java.lang.AssertionError: expected:<0.1> but was:<6.1035156>
+	at org.junit.Assert.fail(Assert.java:88)
+	at org.junit.Assert.failNotEquals(Assert.java:834)
+	at org.junit.Assert.assertEquals(Assert.java:575)
+	at org.junit.Assert.assertEquals(Assert.java:700)
+	at org.junit.internal.InexactComparisonCriteria.assertElementsEqual(InexactComparisonCriteria.java:21)
+	at org.junit.internal.ComparisonCriteria.arrayEquals(ComparisonCriteria.java:53)
+	... 33 more
+15) setLightCopiesCallerTransform(javax.microedition.shell.M3gSceneContractTest)
+arrays first differed at element [0]; expected:<1.0> but was:<0.0>
+	at org.junit.internal.ComparisonCriteria.arrayEquals(ComparisonCriteria.java:55)
+	at org.junit.Assert.assertArrayEquals(Assert.java:500)
+	at org.junit.Assert.assertArrayEquals(Assert.java:514)
+	at javax.microedition.shell.M3gSceneContractTest.setLightCopiesCallerTransform(M3gSceneContractTest.java:85)
+	at java.lang.reflect.Method.invoke(Native Method)
+	at org.junit.runners.model.FrameworkMethod$1.runReflectiveCall(FrameworkMethod.java:50)
+	at org.junit.internal.runners.model.ReflectiveCallable.run(ReflectiveCallable.java:12)
+	at org.junit.runners.model.FrameworkMethod.invokeExplosively(FrameworkMethod.java:47)
+	at org.junit.internal.runners.statements.InvokeMethod.evaluate(InvokeMethod.java:17)
+	at androidx.test.internal.runner.junit4.statement.RunBefores.evaluate(RunBefores.java:80)
+	at androidx.test.internal.runner.junit4.statement.RunAfters.evaluate(RunAfters.java:61)
+	at org.junit.runners.ParentRunner.runLeaf(ParentRunner.java:325)
+	at org.junit.runners.BlockJUnit4ClassRunner.runChild(BlockJUnit4ClassRunner.java:78)
+	at org.junit.runners.BlockJUnit4ClassRunner.runChild(BlockJUnit4ClassRunner.java:57)
+	at org.junit.runners.ParentRunner$3.run(ParentRunner.java:290)
+	at org.junit.runners.ParentRunner$1.schedule(ParentRunner.java:71)
+	at org.junit.runners.ParentRunner.runChildren(ParentRunner.java:288)
+	at org.junit.runners.ParentRunner.access$000(ParentRunner.java:58)
+	at org.junit.runners.ParentRunner$2.evaluate(ParentRunner.java:268)
+	at org.junit.runners.ParentRunner.run(ParentRunner.java:363)
+	at org.junit.runners.Suite.runChild(Suite.java:128)
+	at org.junit.runners.Suite.runChild(Suite.java:27)
+	at org.junit.runners.ParentRunner$3.run(ParentRunner.java:290)
+	at org.junit.runners.ParentRunner$1.schedule(ParentRunner.java:71)
+	at org.junit.runners.ParentRunner.runChildren(ParentRunner.java:288)
+	at org.junit.runners.ParentRunner.access$000(ParentRunner.java:58)
+	at org.junit.runners.ParentRunner$2.evaluate(ParentRunner.java:268)
+	at org.junit.runners.ParentRunner.run(ParentRunner.java:363)
+	at org.junit.runner.JUnitCore.run(JUnitCore.java:137)
+	at org.junit.runner.JUnitCore.run(JUnitCore.java:115)
+	at androidx.test.internal.runner.TestExecutor.execute(TestExecutor.java:67)
+	at androidx.test.internal.runner.TestExecutor.execute(TestExecutor.java:58)
+	at androidx.test.runner.AndroidJUnitRunner.onStart(AndroidJUnitRunner.java:446)
+	at android.app.Instrumentation$InstrumentationThread.run(Instrumentation.java:2408)
+Caused by: java.lang.AssertionError: expected:<1.0> but was:<0.0>
+	at org.junit.Assert.fail(Assert.java:88)
+	at org.junit.Assert.failNotEquals(Assert.java:834)
+	at org.junit.Assert.assertEquals(Assert.java:575)
+	at org.junit.Assert.assertEquals(Assert.java:700)
+	at org.junit.internal.InexactComparisonCriteria.assertElementsEqual(InexactComparisonCriteria.java:21)
+	at org.junit.internal.ComparisonCriteria.arrayEquals(ComparisonCriteria.java:53)
+	... 33 more
+16) negativeOffsetHasApiException(javax.microedition.shell.M3gLoaderContractTest)
+java.io.IOException: Invalid M3G data.
+	at javax.microedition.m3g.Loader.load(Loader.java:122)
+	at javax.microedition.shell.M3gLoaderContractTest.negativeOffsetHasApiException(M3gLoaderContractTest.java:84)
+	at java.lang.reflect.Method.invoke(Native Method)
+	at org.junit.runners.model.FrameworkMethod$1.runReflectiveCall(FrameworkMethod.java:50)
+	at org.junit.internal.runners.model.ReflectiveCallable.run(ReflectiveCallable.java:12)
+	at org.junit.runners.model.FrameworkMethod.invokeExplosively(FrameworkMethod.java:47)
+	at org.junit.internal.runners.statements.InvokeMethod.evaluate(InvokeMethod.java:17)
+	at org.junit.runners.ParentRunner.runLeaf(ParentRunner.java:325)
+	at org.junit.runners.BlockJUnit4ClassRunner.runChild(BlockJUnit4ClassRunner.java:78)
+	at org.junit.runners.BlockJUnit4ClassRunner.runChild(BlockJUnit4ClassRunner.java:57)
+	at org.junit.runners.ParentRunner$3.run(ParentRunner.java:290)
+	at org.junit.runners.ParentRunner$1.schedule(ParentRunner.java:71)
+	at org.junit.runners.ParentRunner.runChildren(ParentRunner.java:288)
+	at org.junit.runners.ParentRunner.access$000(ParentRunner.java:58)
+	at org.junit.runners.ParentRunner$2.evaluate(ParentRunner.java:268)
+	at org.junit.runners.ParentRunner.run(ParentRunner.java:363)
+	at org.junit.runners.Suite.runChild(Suite.java:128)
+	at org.junit.runners.Suite.runChild(Suite.java:27)
+	at org.junit.runners.ParentRunner$3.run(ParentRunner.java:290)
+	at org.junit.runners.ParentRunner$1.schedule(ParentRunner.java:71)
+	at org.junit.runners.ParentRunner.runChildren(ParentRunner.java:288)
+	at org.junit.runners.ParentRunner.access$000(ParentRunner.java:58)
+	at org.junit.runners.ParentRunner$2.evaluate(ParentRunner.java:268)
+	at org.junit.runners.ParentRunner.run(ParentRunner.java:363)
+	at org.junit.runner.JUnitCore.run(JUnitCore.java:137)
+	at org.junit.runner.JUnitCore.run(JUnitCore.java:115)
+	at androidx.test.internal.runner.TestExecutor.execute(TestExecutor.java:67)
+	at androidx.test.internal.runner.TestExecutor.execute(TestExecutor.java:58)
+	at androidx.test.runner.AndroidJUnitRunner.onStart(AndroidJUnitRunner.java:446)
+	at android.app.Instrumentation$InstrumentationThread.run(Instrumentation.java:2408)
+17) sectionCannotCrossDeclaredFileBoundary(javax.microedition.shell.M3gLoaderContractTest)
+java.lang.AssertionError: Malformed file accepted
+	at org.junit.Assert.fail(Assert.java:88)
+	at javax.microedition.shell.M3gLoaderContractTest.invalid(M3gLoaderContractTest.java:112)
+	at javax.microedition.shell.M3gLoaderContractTest.sectionCannotCrossDeclaredFileBoundary(M3gLoaderContractTest.java:74)
+	at java.lang.reflect.Method.invoke(Native Method)
+	at org.junit.runners.model.FrameworkMethod$1.runReflectiveCall(FrameworkMethod.java:50)
+	at org.junit.internal.runners.model.ReflectiveCallable.run(ReflectiveCallable.java:12)
+	at org.junit.runners.model.FrameworkMethod.invokeExplosively(FrameworkMethod.java:47)
+	at org.junit.internal.runners.statements.InvokeMethod.evaluate(InvokeMethod.java:17)
+	at org.junit.runners.ParentRunner.runLeaf(ParentRunner.java:325)
+	at org.junit.runners.BlockJUnit4ClassRunner.runChild(BlockJUnit4ClassRunner.java:78)
+	at org.junit.runners.BlockJUnit4ClassRunner.runChild(BlockJUnit4ClassRunner.java:57)
+	at org.junit.runners.ParentRunner$3.run(ParentRunner.java:290)
+	at org.junit.runners.ParentRunner$1.schedule(ParentRunner.java:71)
+	at org.junit.runners.ParentRunner.runChildren(ParentRunner.java:288)
+	at org.junit.runners.ParentRunner.access$000(ParentRunner.java:58)
+	at org.junit.runners.ParentRunner$2.evaluate(ParentRunner.java:268)
+	at org.junit.runners.ParentRunner.run(ParentRunner.java:363)
+	at org.junit.runners.Suite.runChild(Suite.java:128)
+	at org.junit.runners.Suite.runChild(Suite.java:27)
+	at org.junit.runners.ParentRunner$3.run(ParentRunner.java:290)
+	at org.junit.runners.ParentRunner$1.schedule(ParentRunner.java:71)
+	at org.junit.runners.ParentRunner.runChildren(ParentRunner.java:288)
+	at org.junit.runners.ParentRunner.access$000(ParentRunner.java:58)
+	at org.junit.runners.ParentRunner$2.evaluate(ParentRunner.java:268)
+	at org.junit.runners.ParentRunner.run(ParentRunner.java:363)
+	at org.junit.runner.JUnitCore.run(JUnitCore.java:137)
+	at org.junit.runner.JUnitCore.run(JUnitCore.java:115)
+	at androidx.test.internal.runner.TestExecutor.execute(TestExecutor.java:67)
+	at androidx.test.internal.runner.TestExecutor.execute(TestExecutor.java:58)
+	at androidx.test.runner.AndroidJUnitRunner.onStart(AndroidJUnitRunner.java:446)
+	at android.app.Instrumentation$InstrumentationThread.run(Instrumentation.java:2408)
+18) signedAppearanceLayerLoads(javax.microedition.shell.M3gLoaderContractTest)
+java.io.IOException: Invalid M3G data.
+	at javax.microedition.m3g.Loader.load(Loader.java:122)
+	at javax.microedition.shell.M3gLoaderContractTest.signedAppearanceLayerLoads(M3gLoaderContractTest.java:54)
+	at java.lang.reflect.Method.invoke(Native Method)
+	at org.junit.runners.model.FrameworkMethod$1.runReflectiveCall(FrameworkMethod.java:50)
+	at org.junit.internal.runners.model.ReflectiveCallable.run(ReflectiveCallable.java:12)
+	at org.junit.runners.model.FrameworkMethod.invokeExplosively(FrameworkMethod.java:47)
+	at org.junit.internal.runners.statements.InvokeMethod.evaluate(InvokeMethod.java:17)
+	at org.junit.runners.ParentRunner.runLeaf(ParentRunner.java:325)
+	at org.junit.runners.BlockJUnit4ClassRunner.runChild(BlockJUnit4ClassRunner.java:78)
+	at org.junit.runners.BlockJUnit4ClassRunner.runChild(BlockJUnit4ClassRunner.java:57)
+	at org.junit.runners.ParentRunner$3.run(ParentRunner.java:290)
+	at org.junit.runners.ParentRunner$1.schedule(ParentRunner.java:71)
+	at org.junit.runners.ParentRunner.runChildren(ParentRunner.java:288)
+	at org.junit.runners.ParentRunner.access$000(ParentRunner.java:58)
+	at org.junit.runners.ParentRunner$2.evaluate(ParentRunner.java:268)
+	at org.junit.runners.ParentRunner.run(ParentRunner.java:363)
+	at org.junit.runners.Suite.runChild(Suite.java:128)
+	at org.junit.runners.Suite.runChild(Suite.java:27)
+	at org.junit.runners.ParentRunner$3.run(ParentRunner.java:290)
+	at org.junit.runners.ParentRunner$1.schedule(ParentRunner.java:71)
+	at org.junit.runners.ParentRunner.runChildren(ParentRunner.java:288)
+	at org.junit.runners.ParentRunner.access$000(ParentRunner.java:58)
+	at org.junit.runners.ParentRunner$2.evaluate(ParentRunner.java:268)
+	at org.junit.runners.ParentRunner.run(ParentRunner.java:363)
+	at org.junit.runner.JUnitCore.run(JUnitCore.java:137)
+	at org.junit.runner.JUnitCore.run(JUnitCore.java:115)
+	at androidx.test.internal.runner.TestExecutor.execute(TestExecutor.java:67)
+	at androidx.test.internal.runner.TestExecutor.execute(TestExecutor.java:58)
+	at androidx.test.runner.AndroidJUnitRunner.onStart(AndroidJUnitRunner.java:446)
+	at android.app.Instrumentation$InstrumentationThread.run(Instrumentation.java:2408)
+19) headerOnlyFileDoesNotConsumeContainerTail(javax.microedition.shell.M3gLoaderContractTest)
+java.lang.OutOfMemoryError: Failed to allocate a 2122219152 byte allocation with 6291456 free bytes and 509MB until OOM, target footprint 9279208, growth limit 536870912
+	at javax.microedition.m3g.Loader.loadM3G(Loader.java:911)
+	at javax.microedition.m3g.Loader.load(Loader.java:962)
+	at javax.microedition.m3g.Loader.load(Loader.java:117)
+	at javax.microedition.shell.M3gLoaderContractTest.headerOnlyFileDoesNotConsumeContainerTail(M3gLoaderContractTest.java:31)
+	at java.lang.reflect.Method.invoke(Native Method)
+	at org.junit.runners.model.FrameworkMethod$1.runReflectiveCall(FrameworkMethod.java:50)
+	at org.junit.internal.runners.model.ReflectiveCallable.run(ReflectiveCallable.java:12)
+	at org.junit.runners.model.FrameworkMethod.invokeExplosively(FrameworkMethod.java:47)
+	at org.junit.internal.runners.statements.InvokeMethod.evaluate(InvokeMethod.java:17)
+	at org.junit.runners.ParentRunner.runLeaf(ParentRunner.java:325)
+	at org.junit.runners.BlockJUnit4ClassRunner.runChild(BlockJUnit4ClassRunner.java:78)
+	at org.junit.runners.BlockJUnit4ClassRunner.runChild(BlockJUnit4ClassRunner.java:57)
+	at org.junit.runners.ParentRunner$3.run(ParentRunner.java:290)
+	at org.junit.runners.ParentRunner$1.schedule(ParentRunner.java:71)
+	at org.junit.runners.ParentRunner.runChildren(ParentRunner.java:288)
+	at org.junit.runners.ParentRunner.access$000(ParentRunner.java:58)
+	at org.junit.runners.ParentRunner$2.evaluate(ParentRunner.java:268)
+	at org.junit.runners.ParentRunner.run(ParentRunner.java:363)
+	at org.junit.runners.Suite.runChild(Suite.java:128)
+	at org.junit.runners.Suite.runChild(Suite.java:27)
+	at org.junit.runners.ParentRunner$3.run(ParentRunner.java:290)
+	at org.junit.runners.ParentRunner$1.schedule(ParentRunner.java:71)
+	at org.junit.runners.ParentRunner.runChildren(ParentRunner.java:288)
+	at org.junit.runners.ParentRunner.access$000(ParentRunner.java:58)
+	at org.junit.runners.ParentRunner$2.evaluate(ParentRunner.java:268)
+	at org.junit.runners.ParentRunner.run(ParentRunner.java:363)
+	at org.junit.runner.JUnitCore.run(JUnitCore.java:137)
+	at org.junit.runner.JUnitCore.run(JUnitCore.java:115)
+	at androidx.test.internal.runner.TestExecutor.execute(TestExecutor.java:67)
+	at androidx.test.internal.runner.TestExecutor.execute(TestExecutor.java:58)
+	at androidx.test.runner.AndroidJUnitRunner.onStart(AndroidJUnitRunner.java:446)
+	at android.app.Instrumentation$InstrumentationThread.run(Instrumentation.java:2408)
+20) incompleteZlibTrailerIsRejected(javax.microedition.shell.M3gLoaderContractTest)
+java.lang.AssertionError: Malformed file accepted
+	at org.junit.Assert.fail(Assert.java:88)
+	at javax.microedition.shell.M3gLoaderContractTest.invalid(M3gLoaderContractTest.java:112)
+	at javax.microedition.shell.M3gLoaderContractTest.incompleteZlibTrailerIsRejected(M3gLoaderContractTest.java:66)
+	at java.lang.reflect.Method.invoke(Native Method)
+	at org.junit.runners.model.FrameworkMethod$1.runReflectiveCall(FrameworkMethod.java:50)
+	at org.junit.internal.runners.model.ReflectiveCallable.run(ReflectiveCallable.java:12)
+	at org.junit.runners.model.FrameworkMethod.invokeExplosively(FrameworkMethod.java:47)
+	at org.junit.internal.runners.statements.InvokeMethod.evaluate(InvokeMethod.java:17)
+	at org.junit.runners.ParentRunner.runLeaf(ParentRunner.java:325)
+	at org.junit.runners.BlockJUnit4ClassRunner.runChild(BlockJUnit4ClassRunner.java:78)
+	at org.junit.runners.BlockJUnit4ClassRunner.runChild(BlockJUnit4ClassRunner.java:57)
+	at org.junit.runners.ParentRunner$3.run(ParentRunner.java:290)
+	at org.junit.runners.ParentRunner$1.schedule(ParentRunner.java:71)
+	at org.junit.runners.ParentRunner.runChildren(ParentRunner.java:288)
+	at org.junit.runners.ParentRunner.access$000(ParentRunner.java:58)
+	at org.junit.runners.ParentRunner$2.evaluate(ParentRunner.java:268)
+	at org.junit.runners.ParentRunner.run(ParentRunner.java:363)
+	at org.junit.runners.Suite.runChild(Suite.java:128)
+	at org.junit.runners.Suite.runChild(Suite.java:27)
+	at org.junit.runners.ParentRunner$3.run(ParentRunner.java:290)
+	at org.junit.runners.ParentRunner$1.schedule(ParentRunner.java:71)
+	at org.junit.runners.ParentRunner.runChildren(ParentRunner.java:288)
+	at org.junit.runners.ParentRunner.access$000(ParentRunner.java:58)
+	at org.junit.runners.ParentRunner$2.evaluate(ParentRunner.java:268)
+	at org.junit.runners.ParentRunner.run(ParentRunner.java:363)
+	at org.junit.runner.JUnitCore.run(JUnitCore.java:137)
+	at org.junit.runner.JUnitCore.run(JUnitCore.java:115)
+	at androidx.test.internal.runner.TestExecutor.execute(TestExecutor.java:67)
+	at androidx.test.internal.runner.TestExecutor.execute(TestExecutor.java:58)
+	at androidx.test.runner.AndroidJUnitRunner.onStart(AndroidJUnitRunner.java:446)
+	at android.app.Instrumentation$InstrumentationThread.run(Instrumentation.java:2408)
+21) badHeaderChecksumIsRejected(javax.microedition.shell.M3gLoaderContractTest)
+java.lang.AssertionError: Malformed file accepted
+	at org.junit.Assert.fail(Assert.java:88)
+	at javax.microedition.shell.M3gLoaderContractTest.invalid(M3gLoaderContractTest.java:112)
+	at javax.microedition.shell.M3gLoaderContractTest.badHeaderChecksumIsRejected(M3gLoaderContractTest.java:37)
+	at java.lang.reflect.Method.invoke(Native Method)
+	at org.junit.runners.model.FrameworkMethod$1.runReflectiveCall(FrameworkMethod.java:50)
+	at org.junit.internal.runners.model.ReflectiveCallable.run(ReflectiveCallable.java:12)
+	at org.junit.runners.model.FrameworkMethod.invokeExplosively(FrameworkMethod.java:47)
+	at org.junit.internal.runners.statements.InvokeMethod.evaluate(InvokeMethod.java:17)
+	at org.junit.runners.ParentRunner.runLeaf(ParentRunner.java:325)
+	at org.junit.runners.BlockJUnit4ClassRunner.runChild(BlockJUnit4ClassRunner.java:78)
+	at org.junit.runners.BlockJUnit4ClassRunner.runChild(BlockJUnit4ClassRunner.java:57)
+	at org.junit.runners.ParentRunner$3.run(ParentRunner.java:290)
+	at org.junit.runners.ParentRunner$1.schedule(ParentRunner.java:71)
+	at org.junit.runners.ParentRunner.runChildren(ParentRunner.java:288)
+	at org.junit.runners.ParentRunner.access$000(ParentRunner.java:58)
+	at org.junit.runners.ParentRunner$2.evaluate(ParentRunner.java:268)
+	at org.junit.runners.ParentRunner.run(ParentRunner.java:363)
+	at org.junit.runners.Suite.runChild(Suite.java:128)
+	at org.junit.runners.Suite.runChild(Suite.java:27)
+	at org.junit.runners.ParentRunner$3.run(ParentRunner.java:290)
+	at org.junit.runners.ParentRunner$1.schedule(ParentRunner.java:71)
+	at org.junit.runners.ParentRunner.runChildren(ParentRunner.java:288)
+	at org.junit.runners.ParentRunner.access$000(ParentRunner.java:58)
+	at org.junit.runners.ParentRunner$2.evaluate(ParentRunner.java:268)
+	at org.junit.runners.ParentRunner.run(ParentRunner.java:363)
+	at org.junit.runner.JUnitCore.run(JUnitCore.java:137)
+	at org.junit.runner.JUnitCore.run(JUnitCore.java:115)
+	at androidx.test.internal.runner.TestExecutor.execute(TestExecutor.java:67)
+	at androidx.test.internal.runner.TestExecutor.execute(TestExecutor.java:58)
+	at androidx.test.runner.AndroidJUnitRunner.onStart(AndroidJUnitRunner.java:446)
+	at android.app.Instrumentation$InstrumentationThread.run(Instrumentation.java:2408)
+22) invalidBooleanIsRejected(javax.microedition.shell.M3gLoaderContractTest)
+java.lang.AssertionError: Malformed file accepted
+	at org.junit.Assert.fail(Assert.java:88)
+	at javax.microedition.shell.M3gLoaderContractTest.invalid(M3gLoaderContractTest.java:112)
+	at javax.microedition.shell.M3gLoaderContractTest.invalidBooleanIsRejected(M3gLoaderContractTest.java:81)
+	at java.lang.reflect.Method.invoke(Native Method)
+	at org.junit.runners.model.FrameworkMethod$1.runReflectiveCall(FrameworkMethod.java:50)
+	at org.junit.internal.runners.model.ReflectiveCallable.run(ReflectiveCallable.java:12)
+	at org.junit.runners.model.FrameworkMethod.invokeExplosively(FrameworkMethod.java:47)
+	at org.junit.internal.runners.statements.InvokeMethod.evaluate(InvokeMethod.java:17)
+	at org.junit.runners.ParentRunner.runLeaf(ParentRunner.java:325)
+	at org.junit.runners.BlockJUnit4ClassRunner.runChild(BlockJUnit4ClassRunner.java:78)
+	at org.junit.runners.BlockJUnit4ClassRunner.runChild(BlockJUnit4ClassRunner.java:57)
+	at org.junit.runners.ParentRunner$3.run(ParentRunner.java:290)
+	at org.junit.runners.ParentRunner$1.schedule(ParentRunner.java:71)
+	at org.junit.runners.ParentRunner.runChildren(ParentRunner.java:288)
+	at org.junit.runners.ParentRunner.access$000(ParentRunner.java:58)
+	at org.junit.runners.ParentRunner$2.evaluate(ParentRunner.java:268)
+	at org.junit.runners.ParentRunner.run(ParentRunner.java:363)
+	at org.junit.runners.Suite.runChild(Suite.java:128)
+	at org.junit.runners.Suite.runChild(Suite.java:27)
+	at org.junit.runners.ParentRunner$3.run(ParentRunner.java:290)
+	at org.junit.runners.ParentRunner$1.schedule(ParentRunner.java:71)
+	at org.junit.runners.ParentRunner.runChildren(ParentRunner.java:288)
+	at org.junit.runners.ParentRunner.access$000(ParentRunner.java:58)
+	at org.junit.runners.ParentRunner$2.evaluate(ParentRunner.java:268)
+	at org.junit.runners.ParentRunner.run(ParentRunner.java:363)
+	at org.junit.runner.JUnitCore.run(JUnitCore.java:137)
+	at org.junit.runner.JUnitCore.run(JUnitCore.java:115)
+	at androidx.test.internal.runner.TestExecutor.execute(TestExecutor.java:67)
+	at androidx.test.internal.runner.TestExecutor.execute(TestExecutor.java:58)
+	at androidx.test.runner.AndroidJUnitRunner.onStart(AndroidJUnitRunner.java:446)
+	at android.app.Instrumentation$InstrumentationThread.run(Instrumentation.java:2408)
+23) unknownRecordIsRejected(javax.microedition.shell.M3gLoaderContractTest)
+java.lang.AssertionError: Malformed file accepted
+	at org.junit.Assert.fail(Assert.java:88)
+	at javax.microedition.shell.M3gLoaderContractTest.invalid(M3gLoaderContractTest.java:112)
+	at javax.microedition.shell.M3gLoaderContractTest.unknownRecordIsRejected(M3gLoaderContractTest.java:43)
+	at java.lang.reflect.Method.invoke(Native Method)
+	at org.junit.runners.model.FrameworkMethod$1.runReflectiveCall(FrameworkMethod.java:50)
+	at org.junit.internal.runners.model.ReflectiveCallable.run(ReflectiveCallable.java:12)
+	at org.junit.runners.model.FrameworkMethod.invokeExplosively(FrameworkMethod.java:47)
+	at org.junit.internal.runners.statements.InvokeMethod.evaluate(InvokeMethod.java:17)
+	at org.junit.runners.ParentRunner.runLeaf(ParentRunner.java:325)
+	at org.junit.runners.BlockJUnit4ClassRunner.runChild(BlockJUnit4ClassRunner.java:78)
+	at org.junit.runners.BlockJUnit4ClassRunner.runChild(BlockJUnit4ClassRunner.java:57)
+	at org.junit.runners.ParentRunner$3.run(ParentRunner.java:290)
+	at org.junit.runners.ParentRunner$1.schedule(ParentRunner.java:71)
+	at org.junit.runners.ParentRunner.runChildren(ParentRunner.java:288)
+	at org.junit.runners.ParentRunner.access$000(ParentRunner.java:58)
+	at org.junit.runners.ParentRunner$2.evaluate(ParentRunner.java:268)
+	at org.junit.runners.ParentRunner.run(ParentRunner.java:363)
+	at org.junit.runners.Suite.runChild(Suite.java:128)
+	at org.junit.runners.Suite.runChild(Suite.java:27)
+	at org.junit.runners.ParentRunner$3.run(ParentRunner.java:290)
+	at org.junit.runners.ParentRunner$1.schedule(ParentRunner.java:71)
+	at org.junit.runners.ParentRunner.runChildren(ParentRunner.java:288)
+	at org.junit.runners.ParentRunner.access$000(ParentRunner.java:58)
+	at org.junit.runners.ParentRunner$2.evaluate(ParentRunner.java:268)
+	at org.junit.runners.ParentRunner.run(ParentRunner.java:363)
+	at org.junit.runner.JUnitCore.run(JUnitCore.java:137)
+	at org.junit.runner.JUnitCore.run(JUnitCore.java:115)
+	at androidx.test.internal.runner.TestExecutor.execute(TestExecutor.java:67)
+	at androidx.test.internal.runner.TestExecutor.execute(TestExecutor.java:58)
+	at androidx.test.runner.AndroidJUnitRunner.onStart(AndroidJUnitRunner.java:446)
+	at android.app.Instrumentation$InstrumentationThread.run(Instrumentation.java:2408)
+24) badSectionChecksumIsRejected(javax.microedition.shell.M3gLoaderContractTest)
+java.lang.AssertionError: Malformed file accepted
+	at org.junit.Assert.fail(Assert.java:88)
+	at javax.microedition.shell.M3gLoaderContractTest.invalid(M3gLoaderContractTest.java:112)
+	at javax.microedition.shell.M3gLoaderContractTest.badSectionChecksumIsRejected(M3gLoaderContractTest.java:34)
+	at java.lang.reflect.Method.invoke(Native Method)
+	at org.junit.runners.model.FrameworkMethod$1.runReflectiveCall(FrameworkMethod.java:50)
+	at org.junit.internal.runners.model.ReflectiveCallable.run(ReflectiveCallable.java:12)
+	at org.junit.runners.model.FrameworkMethod.invokeExplosively(FrameworkMethod.java:47)
+	at org.junit.internal.runners.statements.InvokeMethod.evaluate(InvokeMethod.java:17)
+	at org.junit.runners.ParentRunner.runLeaf(ParentRunner.java:325)
+	at org.junit.runners.BlockJUnit4ClassRunner.runChild(BlockJUnit4ClassRunner.java:78)
+	at org.junit.runners.BlockJUnit4ClassRunner.runChild(BlockJUnit4ClassRunner.java:57)
+	at org.junit.runners.ParentRunner$3.run(ParentRunner.java:290)
+	at org.junit.runners.ParentRunner$1.schedule(ParentRunner.java:71)
+	at org.junit.runners.ParentRunner.runChildren(ParentRunner.java:288)
+	at org.junit.runners.ParentRunner.access$000(ParentRunner.java:58)
+	at org.junit.runners.ParentRunner$2.evaluate(ParentRunner.java:268)
+	at org.junit.runners.ParentRunner.run(ParentRunner.java:363)
+	at org.junit.runners.Suite.runChild(Suite.java:128)
+	at org.junit.runners.Suite.runChild(Suite.java:27)
+	at org.junit.runners.ParentRunner$3.run(ParentRunner.java:290)
+	at org.junit.runners.ParentRunner$1.schedule(ParentRunner.java:71)
+	at org.junit.runners.ParentRunner.runChildren(ParentRunner.java:288)
+	at org.junit.runners.ParentRunner.access$000(ParentRunner.java:58)
+	at org.junit.runners.ParentRunner$2.evaluate(ParentRunner.java:268)
+	at org.junit.runners.ParentRunner.run(ParentRunner.java:363)
+	at org.junit.runner.JUnitCore.run(JUnitCore.java:137)
+	at org.junit.runner.JUnitCore.run(JUnitCore.java:115)
+	at androidx.test.internal.runner.TestExecutor.execute(TestExecutor.java:67)
+	at androidx.test.internal.runner.TestExecutor.execute(TestExecutor.java:58)
+	at androidx.test.runner.AndroidJUnitRunner.onStart(AndroidJUnitRunner.java:446)
+	at android.app.Instrumentation$InstrumentationThread.run(Instrumentation.java:2408)
+25) invalidVertexEncodingIsRejected(javax.microedition.shell.M3gLoaderContractTest)
+java.lang.AssertionError: Malformed file accepted
+	at org.junit.Assert.fail(Assert.java:88)
+	at javax.microedition.shell.M3gLoaderContractTest.invalid(M3gLoaderContractTest.java:112)
+	at javax.microedition.shell.M3gLoaderContractTest.invalidVertexEncodingIsRejected(M3gLoaderContractTest.java:78)
+	at java.lang.reflect.Method.invoke(Native Method)
+	at org.junit.runners.model.FrameworkMethod$1.runReflectiveCall(FrameworkMethod.java:50)
+	at org.junit.internal.runners.model.ReflectiveCallable.run(ReflectiveCallable.java:12)
+	at org.junit.runners.model.FrameworkMethod.invokeExplosively(FrameworkMethod.java:47)
+	at org.junit.internal.runners.statements.InvokeMethod.evaluate(InvokeMethod.java:17)
+	at org.junit.runners.ParentRunner.runLeaf(ParentRunner.java:325)
+	at org.junit.runners.BlockJUnit4ClassRunner.runChild(BlockJUnit4ClassRunner.java:78)
+	at org.junit.runners.BlockJUnit4ClassRunner.runChild(BlockJUnit4ClassRunner.java:57)
+	at org.junit.runners.ParentRunner$3.run(ParentRunner.java:290)
+	at org.junit.runners.ParentRunner$1.schedule(ParentRunner.java:71)
+	at org.junit.runners.ParentRunner.runChildren(ParentRunner.java:288)
+	at org.junit.runners.ParentRunner.access$000(ParentRunner.java:58)
+	at org.junit.runners.ParentRunner$2.evaluate(ParentRunner.java:268)
+	at org.junit.runners.ParentRunner.run(ParentRunner.java:363)
+	at org.junit.runners.Suite.runChild(Suite.java:128)
+	at org.junit.runners.Suite.runChild(Suite.java:27)
+	at org.junit.runners.ParentRunner$3.run(ParentRunner.java:290)
+	at org.junit.runners.ParentRunner$1.schedule(ParentRunner.java:71)
+	at org.junit.runners.ParentRunner.runChildren(ParentRunner.java:288)
+	at org.junit.runners.ParentRunner.access$000(ParentRunner.java:58)
+	at org.junit.runners.ParentRunner$2.evaluate(ParentRunner.java:268)
+	at org.junit.runners.ParentRunner.run(ParentRunner.java:363)
+	at org.junit.runner.JUnitCore.run(JUnitCore.java:137)
+	at org.junit.runner.JUnitCore.run(JUnitCore.java:115)
+	at androidx.test.internal.runner.TestExecutor.execute(TestExecutor.java:67)
+	at androidx.test.internal.runner.TestExecutor.execute(TestExecutor.java:58)
+	at androidx.test.runner.AndroidJUnitRunner.onStart(AndroidJUnitRunner.java:446)
+	at android.app.Instrumentation$InstrumentationThread.run(Instrumentation.java:2408)
+26) unexpectedCompressedTrailingDataIsRejected(javax.microedition.shell.M3gLoaderContractTest)
+java.lang.AssertionError: Malformed file accepted
+	at org.junit.Assert.fail(Assert.java:88)
+	at javax.microedition.shell.M3gLoaderContractTest.invalid(M3gLoaderContractTest.java:112)
+	at javax.microedition.shell.M3gLoaderContractTest.unexpectedCompressedTrailingDataIsRejected(M3gLoaderContractTest.java:70)
+	at java.lang.reflect.Method.invoke(Native Method)
+	at org.junit.runners.model.FrameworkMethod$1.runReflectiveCall(FrameworkMethod.java:50)
+	at org.junit.internal.runners.model.ReflectiveCallable.run(ReflectiveCallable.java:12)
+	at org.junit.runners.model.FrameworkMethod.invokeExplosively(FrameworkMethod.java:47)
+	at org.junit.internal.runners.statements.InvokeMethod.evaluate(InvokeMethod.java:17)
+	at org.junit.runners.ParentRunner.runLeaf(ParentRunner.java:325)
+	at org.junit.runners.BlockJUnit4ClassRunner.runChild(BlockJUnit4ClassRunner.java:78)
+	at org.junit.runners.BlockJUnit4ClassRunner.runChild(BlockJUnit4ClassRunner.java:57)
+	at org.junit.runners.ParentRunner$3.run(ParentRunner.java:290)
+	at org.junit.runners.ParentRunner$1.schedule(ParentRunner.java:71)
+	at org.junit.runners.ParentRunner.runChildren(ParentRunner.java:288)
+	at org.junit.runners.ParentRunner.access$000(ParentRunner.java:58)
+	at org.junit.runners.ParentRunner$2.evaluate(ParentRunner.java:268)
+	at org.junit.runners.ParentRunner.run(ParentRunner.java:363)
+	at org.junit.runners.Suite.runChild(Suite.java:128)
+	at org.junit.runners.Suite.runChild(Suite.java:27)
+	at org.junit.runners.ParentRunner$3.run(ParentRunner.java:290)
+	at org.junit.runners.ParentRunner$1.schedule(ParentRunner.java:71)
+	at org.junit.runners.ParentRunner.runChildren(ParentRunner.java:288)
+	at org.junit.runners.ParentRunner.access$000(ParentRunner.java:58)
+	at org.junit.runners.ParentRunner$2.evaluate(ParentRunner.java:268)
+	at org.junit.runners.ParentRunner.run(ParentRunner.java:363)
+	at org.junit.runner.JUnitCore.run(JUnitCore.java:137)
+	at org.junit.runner.JUnitCore.run(JUnitCore.java:115)
+	at androidx.test.internal.runner.TestExecutor.execute(TestExecutor.java:67)
+	at androidx.test.internal.runner.TestExecutor.execute(TestExecutor.java:58)
+	at androidx.test.runner.AndroidJUnitRunner.onStart(AndroidJUnitRunner.java:446)
+	at android.app.Instrumentation$InstrumentationThread.run(Instrumentation.java:2408)
+
+FAILURES!!!
+Tests run: 44,  Failures: 26
+
+
+INSTRUMENTATION_CODE: -1

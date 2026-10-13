@@ -603,7 +603,7 @@ final class GpuRasterizer {
                 .append("vec4 t=floor(textureLod(image").append(i).append(",uv/imageSize[u],lod).bgra*255.0+0.5);\n")
                 .append("c=layer(c,t,mode[u],rgba[u],blendColor[u]); }}\n");
         return s.append(
-            "} float a=floor(c.a*float(alphaFactor)/256.0); if(a<float(threshold) || (sprite!=0 && a==0.0))discard; if(a==0.0)c.a=255.0;\n"
+            "} float a=floor(c.a*float(alphaFactor)/256.0); if(a<float(threshold) || (sprite!=0 && a==0.0))discard; c.a=a;\n"
             +"if(fogMode!=0){ float z=parallelFog!=0?fogValue:1.0/fogValue;\n"
             +"float f=fogMode==1?(fogParams.y-z)/(fogParams.y-fogParams.x):exp(-fogParams.z*z);\n"
             +"float q=fogMode==3?float(spriteLayout.z):floor(clamp(f*256.0,0.0,255.0)); c.rgb=floor((c.rgb*q+fogColor*(256.0-q))/256.0); }\n"

@@ -201,20 +201,20 @@ void render(u32* __restrict raster, int16_t* __restrict depth,
     float xL=f[0], xR=f[1], zL=f[2], pwL=f[3];
     int row=p[2], fogFactor=65535, stepFog=0;
     for (int y=p[0]; y<p[1]; ++y, xL+=f[4], xR+=f[5], zL+=f[6], pwL+=f[7], row+=p[3]) {
-        int left=std::max(p[4], narrow(xL+0.999999f));
-        int right=std::min(p[5], narrow(xR+0.999999f));
+        int left=std::max(p[4], narrow(std::ceil(xL-0.5f)));
+        int right=std::min(p[5], narrow(std::ceil(xR-0.5f)));
         if (left >= right) {
             for (int i=0; i<Units; ++i) { textures[i].sL+=textures[i].dsL; textures[i].tL+=textures[i].dtL; }
             continue;
         }
         u32 color[4] = {};
         if (colors) {
-            float dx=left-f[17], dy=y-f[18];
+            float dx=left+0.5f-f[17], dy=y+0.5f-f[18];
             for (int c=0; c<4; ++c) {
                 color[c]=narrow((float((u32(p[8]) >> (24-c*8)) & 255) + dx*f[19+c] + dy*f[23+c])*65536.0f);
             }
         }
-        float diff=left-xL;
+        float diff=left+0.5f-xL;
         float pw=perspective ? pwL+diff*f[9] : 0.0f;
         float inv=perspective ? reciprocal(pw) : 1.0f, stepInv=0.0f;
         float z=usesDepth ? zL+diff*f[8]+f[10] : -32768.0f;
@@ -237,7 +237,7 @@ void render(u32* __restrict raster, int16_t* __restrict depth,
                 invDenom=invDenom*(2.0f-denom*invDenom);
                 stepInv=-f[9]*invDenom;
                 if (fog) {
-                    float eye=parallel ? f[29]+(x-f[17])*f[30]+(y-f[18])*f[31] : inv;
+                    float eye=parallel ? f[29]+(x+0.5f-f[17])*f[30]+(y+0.5f-f[18])*f[31] : inv;
                     float end=parallel ? eye+f[30]*span : inv+stepInv*span;
                     float a=(p[6]&256 ? fastExp(-f[32]*eye) : f[27]-eye*f[28])*256.0f;
                     float b=(p[6]&256 ? fastExp(-f[32]*end) : f[27]-end*f[28])*256.0f;
@@ -271,7 +271,7 @@ void render(u32* __restrict raster, int16_t* __restrict depth,
             }
             int alpha=((pixel >> 24)*p[14]) >> 8;
             if (alpha < p[13]) continue;
-            if (alpha == 0) pixel|=ALPHA;
+            pixel=(pixel&RGB)|(u32(alpha)<<24);
             if (depthWrite) depth[index]=zi;
             if (p[15] == 0) continue;
             if (fog) {
@@ -474,6 +474,7 @@ Java_javax_microedition_m3g_NativeRasterizer_drawSprite(JNIEnv* env, jclass,
                 u32 color=src[ty+tx];
                 int alpha=((color >> 24)*p[14]) >> 8;
                 if (!alpha || alpha<p[15]) continue;
+                color=(color&RGB)|(u32(alpha)<<24);
                 if (p[12]&8) {
                     u32 rb=p[18]&RB;
                     rb=(rb+(int32_t(((color&RB)-rb)*p[19]) >> 8))&RB;

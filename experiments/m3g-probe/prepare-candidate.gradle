@@ -2,6 +2,7 @@ ext.m3gPatchDirectory = rootProject.file('experiments/m3g-probe')
 if (!m3gPatchDirectory.isDirectory()) ext.m3gPatchDirectory = rootProject.projectDir
 apply from: new File(m3gPatchDirectory, 'source.gradle')
 apply from: new File(m3gPatchDirectory, 'deformation-patches.gradle')
+apply from: new File(m3gPatchDirectory, 'scene-contract-patches.gradle')
 def pinnedRevision = m3gPinnedRevision
 def upstream = providers.gradleProperty('freej2meSource')
 def generated = layout.buildDirectory.dir('generated/m3g')
@@ -437,6 +438,7 @@ tasks.register('prepareM3g') {
     }
 
 ''' + contents.substring(end), 'UTF-8')
+        patchM3gSceneContracts(output)
         copy { from new File(source, 'LICENSE'); into new File(output, 'assets'); rename { 'FREEJ2ME-LICENSE.txt' } }
         copy { from m3gSourceLock; into new File(output, 'assets'); rename { 'FREEJ2ME-SOURCE.json' } }
     }

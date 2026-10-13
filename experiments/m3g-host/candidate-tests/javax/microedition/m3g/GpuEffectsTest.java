@@ -50,8 +50,7 @@ public class GpuEffectsTest {
                 comp.setBlending(mode); overlay.getAppearance(0).setCompositingMode(comp);
                 GpuRasterizer.enabled=true; long before=GpuRasterizer.multiplyDraws;
                 g.render(overlay,new Transform()); g.releaseTarget(); assertEquals(before+1,GpuRasterizer.multiplyDraws);
-                // Existing candidate semantics treat zero fragment alpha as opaque after threshold testing.
-                int source=foreground>>>24==0?foreground|0xff000000:foreground;
+                int source=foreground;
                 for(int shift=0;shift<32;shift+=8) {
                     int expected=Math.min(255,(((source>>>shift)&255)*((0xc0a08060>>>shift)&255))
                             >> (mode==CompositingMode.MODULATE?8:7));
