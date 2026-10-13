@@ -1,6 +1,7 @@
 ext.m3gPatchDirectory = rootProject.file('experiments/m3g-probe')
 if (!m3gPatchDirectory.isDirectory()) ext.m3gPatchDirectory = rootProject.projectDir
 apply from: new File(m3gPatchDirectory, 'source.gradle')
+apply from: new File(m3gPatchDirectory, 'deformation-patches.gradle')
 def pinnedRevision = m3gPinnedRevision
 def upstream = providers.gradleProperty('freej2meSource')
 def generated = layout.buildDirectory.dir('generated/m3g')
@@ -114,6 +115,7 @@ tasks.register('prepareM3g') {
             }
             target.setText(text, 'UTF-8')
         }
+        patchM3gDeformation(output)
         // Android has no AWT. Keep the MIDP Image path and fail if upstream drifts.
         def image = new File(output, 'java/javax/microedition/m3g/Image2D.java')
         def oldCheck = ' && !(image instanceof java.awt.Image)'

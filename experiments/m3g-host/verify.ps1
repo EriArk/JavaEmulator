@@ -90,6 +90,8 @@ if ($Engine -eq 'candidate') {
     # The unchanged native baseline has known spec deviations in this comparison suite.
     $classes += ',javax.microedition.shell.M3gAnimationTest'
     $expectedTests += 23
+    $classes += ',javax.microedition.shell.M3gDeformationTest'
+    $expectedTests += 21
     $classes += ',javax.microedition.shell.TonePlaybackTest,javax.microedition.m3g.M3gMathTest,javax.microedition.m3g.NativeRasterizerTest'
     $classes += ',javax.microedition.m3g.MipmapSamplingTest'
     $classes += ',javax.microedition.m3g.GeometryPreparationTest'

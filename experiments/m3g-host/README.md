@@ -5,13 +5,16 @@
 The [2026-10-12 compatibility/performance report](../../docs/m3g-performance-2026-10-12/README.md)
 records the earlier Java-only checkpoint. The candidate now includes a
 [native raster fast path](native/README.md) with a shared-buffer Java fallback.
-The verifier requires 62 shared checks, 23 candidate animation checks and 78
+The verifier requires 62 shared checks, 23 candidate animation checks, 21
+candidate deformation checks and 78
 candidate implementation checks (tone, math, native rasterization, mipmaps,
-geometry preparation and 48 GPU checks): 163 for an unmeasured candidate,
-170 when measured, and 69 for measured baseline with two intentional skips.
+geometry preparation and 48 GPU checks): 184 for an unmeasured candidate,
+191 when measured, and 69 for measured baseline with two intentional skips.
 Seven additional timing checks apply only when measurement is enabled.
-The [animation report](animation-20261013.md) records the latest fixes, native
-comparison differences, final device/emulator results and a fresh game capture.
+The [deformation report](deformation-20261013.md) records the latest fixes,
+native comparison differences, final device/emulator results and fresh Deep
+gameplay. The preceding [animation report](animation-20261013.md) covers curves
+and playback. Measured totals are expected counts, not a new measurement run.
 Both Handheld (`fdroid`) and Phone research builds are supported; pass
 `-Variant phone` to `verify.ps1` for Phone.
 Use `-ApkRoot` to verify a saved `outputs/apk` snapshot independently of later

@@ -1,0 +1,83 @@
+// Guarded changes to the pinned source; never edit upstream or generated Java by hand.
+ext.patchM3gDeformation = { File output ->
+    def source = new File(output, 'java/javax/microedition/m3g')
+    def patch = { String name, Map replacements ->
+        def file = new File(source, name)
+        def text = file.getText('UTF-8').replace('\r\n', '\n')
+        replacements.each { before, after ->
+            if (text.count(before) != 1) throw new GradleException("Deformation hook drift: ${name}: ${before}")
+            text = text.replace(before, after)
+        }
+        file.setText(text, 'UTF-8')
+    }
+    copy { from new File(m3gPatchDirectory, 'DeformationState.java'); into source }
+    patch('VertexArray.java', [
+        'public class VertexArray extends Object3D\n{': 'public class VertexArray extends Object3D\n{\n    long revision;',
+        'System.arraycopy(values, 0,this.vertArrayByteSize,': 'revision++;\n\t\tSystem.arraycopy(values, 0,this.vertArrayByteSize,',
+        'System.arraycopy(values, 0,this.vertArrayShortSize,': 'revision++;\n\t\tSystem.arraycopy(values, 0,this.vertArrayShortSize,'
+    ])
+    def setters = ['public void setColors(VertexArray colors)', 'public void setNormals(VertexArray normals)',
+        'public void setPositions(VertexArray positions, float scale, float[] bias)',
+        'public void setTexCoords(int index, VertexArray texCoords, float scale, float[] bias)',
+        'void updateProperty(int property, float[] value)']
+    def changes = ['public class VertexBuffer extends Object3D\n{':
+        'public class VertexBuffer extends Object3D\n{\n    long revision;',
+        'public void setDefaultColor(int ARGB) { this.defaultColor = ARGB; }':
+        'public void setDefaultColor(int ARGB) { this.defaultColor = ARGB; revision++; }']
+    setters.each { signature -> changes[signature + '\n\t{'] = signature + '\n\t{\n        revision++;' }
+    patch('VertexBuffer.java', changes)
+    patch('MorphingMesh.java', [
+        'private VertexBuffer morphedVertices;': '''private VertexBuffer morphedVertices;
+    private DeformationState baseState;
+    private DeformationState[] targetStates;''',
+        '\t\tif (morphedVertices == null)\n\t\t{': '''        boolean changed = baseState == null || !baseState.matches(base);
+        boolean rebuild = morphedVertices == null || baseState == null || baseState.bufferRevision != base.revision;
+        for (int i = 0; i < targets.length; i++) {
+            changed |= targetStates == null || !targetStates[i].matches(targets[i]);
+            rebuild |= targetStates == null || !targetStates[i].sameLayout(targets[i]);
+        }
+        if (changed || rebuild) {''',
+        '\t\t\tcreateMorphedBuffer(base);': '''            if (rebuild) createMorphedBuffer(base);
+            baseState = new DeformationState(base);
+            targetStates = new DeformationState[targets.length];
+            for (int i = 0; i < targets.length; i++) targetStates[i] = new DeformationState(targets[i]);'''
+    ])
+    patch('SkinnedMesh.java', [
+        'private VertexBuffer skinnedVertices;': 'private VertexBuffer skinnedVertices;\n    private DeformationState baseState;',
+        'firstVertex < 0 || firstVertex + numVertices > 65535': 'firstVertex < 0 || firstVertex > 65535 - numVertices',
+        '\t\tthis.dirtyBits[1] = true;\n\t\tbones.add(data);': '''        // One bind transform per bone, shared by all of its disjoint/overlapping ranges.
+        for (BoneData existing : bones) {
+            if (existing.bone == bone) { data.initialTransform.set(existing.initialTransform); break; }
+        }
+        this.dirtyBits[1] = true;
+        bones.add(data);''',
+        '\t\tif (skinnedVertices == null)': '\t\tif (skinnedVertices == null || baseState == null || !baseState.matches(base))',
+        '\t\t\tskinnedVertices = (VertexBuffer) base.duplicate();': '\t\t\tbaseState = new DeformationState(base);\n\t\t\tskinnedVertices = (VertexBuffer) base.duplicate();',
+        'float[][] skinningMatrices = new float[numBones][16];': '''float[][] skinningMatrices = new float[numBones][16];
+        float[][] normalMatrices = baseNormals != null ? new float[numBones][16] : null;''',
+        'finalSkinning.get(skinningMatrices[b]);': '''finalSkinning.get(skinningMatrices[b]);
+            if (normalMatrices != null) {
+                try {
+                    finalSkinning.invert();
+                    finalSkinning.transpose();
+                    finalSkinning.get(normalMatrices[b]);
+                } catch (ArithmeticException singular) {
+                    // Lighting for a singular transform is undefined; keep rendering positions.
+                    System.arraycopy(skinningMatrices[b], 0, normalMatrices[b], 0, 16);
+                }
+            }''',
+        'float[] m = skinningMatrices[b];': 'float[] m = skinningMatrices[b];\n            float[] n = normalMatrices != null ? normalMatrices[b] : null;',
+        '// Normals only get the rotation and scaling parts of the matrix': '// Normals use the inverse transpose, independently of position translation.',
+        '(m[0] * nx + m[1] * ny + m[2] * nz)': '(n[0] * nx + n[1] * ny + n[2] * nz)',
+        '(m[4] * nx + m[5] * ny + m[6] * nz)': '(n[4] * nx + n[5] * ny + n[6] * nz)',
+        '(m[8] * nx + m[9] * ny + m[10] * nz)': '(n[8] * nx + n[9] * ny + n[10] * nz)'
+    ])
+    def skin = new File(source, 'SkinnedMesh.java')
+    def text = skin.getText('UTF-8')
+    def start = '\tpublic int getBoneVertices(Node bone, int[] indices, float[] weights)'
+    def end = '\tpublic Group getSkeleton()'
+    if (text.count(start) != 1 || text.count(end) != 1) throw new GradleException('Bone query hook drift')
+    text = text.substring(0, text.indexOf(start)) + new File(m3gPatchDirectory, 'bone-vertices.java.inc').getText('UTF-8') +
+        text.substring(text.indexOf(end))
+    skin.setText(text, 'UTF-8')
+}
