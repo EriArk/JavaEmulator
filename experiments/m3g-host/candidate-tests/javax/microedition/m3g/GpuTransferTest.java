@@ -13,6 +13,7 @@ public class GpuTransferTest {
         GpuRasterizer.lossPoint=0; GpuRasterizer.lossesRemaining=0;
         Graphics3D.getInstance().releaseTarget(); GpuRasterizer.close();
         GpuRasterizer.specializedPipelines=true; GpuRasterizer.partialReadback=true;
+        GpuRasterizer.compactSubmission=true;
         GpuRasterizer.enabled=false; GpuGeometry.enabled=false;
     }
 
@@ -139,6 +140,43 @@ public class GpuTransferTest {
             int offset=(mode*5+units)*32*32;
             if(pass==0) System.arraycopy(target.image,0,result,offset,1024);
             else for(int i=0;i<1024;i++) assertEquals(result[offset+i],target.image[i]);
+        }
+        return result;
+    }
+
+    @Test public void compactSubmissionPreservesMutableTexturesAndProgramSwitches() {
+        GpuRasterizer.compactSubmission=false;
+        int[] expected=bindingSequence();
+        GpuRasterizer.compactSubmission=true;
+        long reused=GpuRasterizer.textureBindingReuses;
+        assertArrayEquals(expected,bindingSequence());
+        assertTrue("Unchanged bindings should not call GL again",GpuRasterizer.textureBindingReuses>reused+20);
+    }
+
+    private int[] bindingSequence() {
+        Graphics3D.initGraphics3D(); GpuRasterizer.enabled=true; GpuGeometry.enabled=true;
+        Graphics3D g=Graphics3D.getInstance();
+        Camera camera=new Camera(); camera.setParallel(4,1,1,10); g.setCamera(camera,new Transform());
+        VertexArray p=new VertexArray(4,3,1);
+        p.set(0,4,new byte[]{-1,1,-3,-1,-1,-3,1,1,-3,1,-1,-3});
+        VertexArray uv=new VertexArray(4,2,1); uv.set(0,4,new byte[]{0,0,0,1,1,0,1,1});
+        VertexBuffer v=new VertexBuffer(); v.setPositions(p,1,null); v.setTexCoords(0,uv,1,null);
+        Image2D image=new Image2D(Image2D.RGB,1,1);
+        Texture2D texture=new Texture2D(image); texture.setBlending(Texture2D.FUNC_REPLACE);
+        Appearance a=new Appearance(); a.setTexture(0,texture);
+        TriangleStripArray indices=new TriangleStripArray(0,new int[]{4});
+        int[] result=new int[3*32*32];
+        for(int frame=0;frame<3;frame++) {
+            javax.microedition.lcdui.Image target=javax.microedition.lcdui.Image.createImage(32,32);
+            g.bindTarget(target.getGraphics(),true,0); g.clear(null);
+            for(int draw=0;draw<20;draw++) {
+                if(draw==8) image.set(0,0,1,1,new byte[]{40,100,(byte)(160+frame*20)});
+                texture.setFiltering(Texture2D.FILTER_BASE_LEVEL,draw<10?Texture2D.FILTER_NEAREST:Texture2D.FILTER_LINEAR);
+                a.setTexture(0,draw==12?null:texture);
+                if(draw%4==0) g.setViewport(draw/4%4*8,draw/16*6,8,6);
+                g.render(v,indices,a,new Transform());
+            }
+            g.releaseTarget(); target.getBitmap().getPixels(result,frame*1024,32,0,0,32,32);
         }
         return result;
     }

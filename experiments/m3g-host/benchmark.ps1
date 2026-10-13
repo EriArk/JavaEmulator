@@ -13,11 +13,15 @@ param(
     [ValidateSet('on', 'off')][string]$GpuDiscardDepth,
     [ValidateSet('on', 'off')][string]$GpuSpecialized,
     [ValidateSet('on', 'off')][string]$GpuPartialReads,
+    [ValidateSet('on', 'off')][string]$GpuCompact,
     [ValidateRange(64,4096)][int]$Warmup = 64,
     [ValidateRange(30,600)][int]$TestTimeoutSeconds = 300,
     [string]$Adb = "$env:LOCALAPPDATA/Android/Sdk/platform-tools/adb.exe"
 )
 $ErrorActionPreference = 'Stop'
+if ($GpuCompact -and ($Engine -ne 'candidate' -or $Raster -ne 'gpu')) {
+    throw 'GpuCompact requires the candidate engine and explicit -Raster gpu'
+}
 $root = (Resolve-Path (Join-Path $PSScriptRoot '../..')).Path
 $package = "io.github.eriark.abyssme.m3g$Engine.debug"
 $build = if ($ApkRoot) { (Resolve-Path $ApkRoot).Path } else { Join-Path $root "app/build/m3g-$Engine/outputs/apk" }
@@ -72,6 +76,7 @@ if ($GpuMeshCache) { $arguments += @('-e', 'benchGpuMeshCache', $GpuMeshCache) }
 if ($GpuDiscardDepth) { $arguments += @('-e', 'benchGpuDiscardDepth', $GpuDiscardDepth) }
 if ($GpuSpecialized) { $arguments += @('-e', 'benchGpuSpecialized', $GpuSpecialized) }
 if ($GpuPartialReads) { $arguments += @('-e', 'benchGpuPartialReads', $GpuPartialReads) }
+if ($GpuCompact) { $arguments += @('-e', 'benchGpuCompact', $GpuCompact) }
 $arguments += @('-e', 'benchWarmup', "$Warmup")
 $arguments += "$package.test/androidx.test.runner.AndroidJUnitRunner"
 $result = Invoke-Adb $arguments

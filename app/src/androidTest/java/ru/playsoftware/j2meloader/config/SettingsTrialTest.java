@@ -97,4 +97,42 @@ public class SettingsTrialTest {
         Files.write(config.toPath(), "broken".getBytes());
         assertEquals(240, ProfilesManager.loadConfig(dir).screenWidth);
     }
+
+    @Test public void phonePresetsRemovePreviousVendorButKeepCustomPropertiesAndControls() throws Exception {
+        model.systemProperties = "microedition.profiles: MIDP-1.0\nmicroedition.configuration: CLDC-1.0\n"
+                + "microedition.encoding: UTF-8\nmy.game.option: enabled\n";
+        model.screenWidth = 176; model.screenHeight = 220; model.touchSize = 2;
+        ProfileModel draft = ProfilesManager.copy(model);
+        GamePresets.phone(draft, "Nokia S40");
+        assertTrue(draft.systemProperties.contains("com.nokia.mid.ui.softnotification"));
+        GamePresets.phone(draft, "Sony Ericsson JP-8");
+        assertFalse(draft.systemProperties.contains("com.nokia."));
+        assertTrue(draft.systemProperties.contains("com.sonyericsson.java.platform: JP-8"));
+        assertTrue(draft.systemProperties.contains("MIDP-1.0"));
+        assertTrue(draft.systemProperties.contains("CLDC-1.0"));
+        assertTrue(draft.systemProperties.contains("microedition.encoding: UTF-8"));
+        assertTrue(draft.systemProperties.contains("my.game.option: enabled"));
+        assertEquals(176, draft.screenWidth); assertEquals(220, draft.screenHeight); assertEquals(2, draft.touchSize);
+        SettingsTrial.stage(draft); SettingsTrial.claim(model);
+        assertTrue(ProfilesManager.previewNeedsRestart(model));
+        ProfilesManager.undoPreview(model);
+        assertFalse(model.systemProperties.contains("SonyEricsson"));
+        GamePresets.phone(draft, "Generic MIDP");
+        assertFalse(draft.systemProperties.contains("com.sonyericsson."));
+    }
+
+    @Test public void automaticPhoneIgnoresOldWeakSuggestions() {
+        model.suggestedCompatibilityProfile = "Nokia S40";
+        model.compatibilityConfidence = "low";
+        assertEquals("Generic MIDP", GamePresets.automaticPhone(model));
+        model.compatibilityConfidence = "high";
+        assertEquals("Nokia S40", GamePresets.automaticPhone(model));
+    }
+
+    @Test public void cancelledRestartDoesNotLeaveAPendingTrial() throws Exception {
+        ProfileModel draft = ProfilesManager.copy(model);
+        GamePresets.phone(draft, "Samsung");
+        SettingsTrial.stage(draft); SettingsTrial.discard(dir); SettingsTrial.claim(model);
+        assertFalse(ProfilesManager.isPreview(model));
+    }
 }

@@ -1,0 +1,18 @@
+[
+    {
+        "file":  "presets-delivery-apks\\androidTest\\fdroid\\debug\\app-fdroid-debug-androidTest.apk",
+        "sha256":  "d9f74149efc7a4499cd24687853610070e1a06d9f15a08c645d0361b68c0fed7"
+    },
+    {
+        "file":  "presets-delivery-apks\\androidTest\\phone\\debug\\app-phone-debug-androidTest.apk",
+        "sha256":  "5c3c1242964c02be4b696e359612a23887c3d7838f4766c5abc0aaea4c07c1ed"
+    },
+    {
+        "file":  "presets-delivery-apks\\fdroid\\debug\\AbyssME-0.1.0-beta.2-debug.apk",
+        "sha256":  "5adc96a70a90e048ee5f47c9b40b181a4da486382ae878944424ecb37c44222d"
+    },
+    {
+        "file":  "presets-delivery-apks\\phone\\debug\\AbyssME-0.1.0-beta.2-phone-debug.apk",
+        "sha256":  "e6246c4292eecb7acdbdc1a27fe873b0aecf6690b4d62da3369e8c153ca72f70"
+    }
+]

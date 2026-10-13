@@ -112,7 +112,7 @@ if ($Engine -eq 'candidate') {
     $classes += ',javax.microedition.m3g.GpuLightingTest'
     $classes += ',javax.microedition.m3g.GpuThroughputTest'
     $classes += ',javax.microedition.m3g.GpuTransferTest'
-    $expectedTests += 180
+    $expectedTests += 181
 }
 if ($measured) {
     $classes += ',javax.microedition.shell.M3gTargetMeterTest'

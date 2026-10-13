@@ -126,6 +126,8 @@
             android:windowSoftInputMode="stateHidden" />
         <activity android:name=".config.GameSettingsActivity" android:exported="false"
             android:theme="@style/AppTheme.NoActionBar" />
+        <activity android:name=".config.GameRestartActivity" android:exported="false" android:process=":restart"
+            android:theme="@style/AppTheme.NoActionBar" />
         <activity
             android:name=".config.CompatibilityTestActivity"
             android:exported="false"

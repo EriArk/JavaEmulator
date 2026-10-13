@@ -1,0 +1,21 @@
+﻿{
+    "engine":  "candidate",
+    "run":  "presets-pgr-final",
+    "apkSha256":  "5adc96a70a90e048ee5f47c9b40b181a4da486382ae878944424ecb37c44222d",
+    "processId":  "3434",
+    "layer":  "SurfaceView[io.github.eriark.abyssme.m3gcandidate.debug/javax.microedition.shell.MicroActivity](BLAST)#30180",
+    "elapsedSeconds":  36.093838,
+    "maxPollGapSeconds":  1.3605243999999999,
+    "error":  null,
+    "metrics":  {
+                    "frames":  466,
+                    "spanSeconds":  35.082085507,
+                    "presentedFps":  13.254628203537603,
+                    "intervalP50Ms":  83.314166,
+                    "intervalP95Ms":  83.339479,
+                    "maxIntervalMs":  100.000625,
+                    "intervalsAbove100Ms":  2
+                },
+    "cadenceWindows":  17,
+    "interpretation":  "Surface presentation intervals, not game logic FPS or isolated renderer cost. Inspect captures."
+}

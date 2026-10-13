@@ -73,8 +73,8 @@ final class GpuGeometry {
             this.order=order.clone(); color=buffer.getDefaultColor(); revisions=new long[attributes.length];
             for(int i=0;i<attributes.length;i++) revisions[i]=attributes[i]==null?0:attributes[i].revision;
         }
-        boolean matches(VertexArray[] arrays,int[] currentOrder,int currentColor) {
-            if(color!=currentColor || !Arrays.equals(order,currentOrder)) return false;
+        boolean matches(VertexArray[] arrays,int currentColor) {
+            if(color!=currentColor) return false;
             for(int i=0;i<arrays.length;i++) if(arrays[i]!=attributes[i] || (arrays[i]!=null && arrays[i].revision!=revisions[i])) return false;
             return true;
         }
@@ -124,7 +124,16 @@ final class GpuGeometry {
         if(indices.length==0 || indices.length%3!=0 || indices.length>65536*3) return false;
         // Count the worst-case referenced vertex set before allocating the compact snapshot.
         if((long)Math.min(indices.length,position.getVertexCount())*Mesh.STRIDE+(long)indices.length*6+4096>GpuRasterizer.frame.byteLimit) return false;
-        for(int index:indices) if(index<0 || index>=position.getVertexCount()) return false;
+        Geometry existing=null;
+        for(int i=cache.size()-1;i>=0;i--) {
+            Geometry entry=cache.get(i);
+            if(entry.buffer==vb && entry.indices==ib) { existing=entry; break; }
+        }
+        // getIndexArray exposes mutable storage. Compare it once; reuse validation
+        // only for the same position array (whose vertex count cannot change).
+        boolean sameIndices=existing!=null && Arrays.equals(existing.order,indices);
+        if(!GpuRasterizer.compactSubmission || !sameIndices || existing.attributes[0]!=position)
+            for(int index:indices) if(index<0 || index>=position.getVertexCount()) return false;
         Material material=appearance.getMaterial();
         State state=new State();
         state.lit=normals!=null && material!=null && lights!=null;
@@ -199,14 +208,11 @@ final class GpuGeometry {
         if(!finite(state.texture)) return false;
         VertexArray[] attributes={position,colors,state.lit?normals:null,uv[0],uv[1],uv[2],uv[3]};
         Mesh data=null;
-        for(int i=cache.size()-1;i>=0;i--) {
-            Geometry entry=cache.get(i);
-            if(entry.buffer!=vb || entry.indices!=ib) continue;
-            cache.remove(i); cachedBytes-=entry.bytes();
-            if(entry.matches(attributes,indices,vb.getDefaultColor())) {
-                cache.add(entry); cachedBytes+=entry.bytes(); data=entry.data; cacheHits++;
+        if(existing!=null) {
+            cache.remove(existing); cachedBytes-=existing.bytes();
+            if(sameIndices && existing.matches(attributes,vb.getDefaultColor())) {
+                cache.add(existing); cachedBytes+=existing.bytes(); data=existing.data; cacheHits++;
             }
-            break;
         }
         if(data==null) {
             cacheMisses++;
