@@ -1,5 +1,11 @@
 # M3G and Tone Replacement: Beta Readiness
 
+**Later checkpoint, 2026-10-13:** [optimized-build and upgrade rehearsal](../../experiments/m3g-host/release-20261013.md)
+adds real separate-process profile trials, R8 fixes, and cross-engine RMS
+read/write preservation on Retroid and Phone. The signing identity remains
+research-only; final production signing, source/notice inventory and engine
+switch are still required. The dated observations below are preserved.
+
 Research branch `codex/m3g-replacement`, 2026-10-11. Rendering checkpoint
 `00937d0c`, mainline synchronization `5633e7e9`, tone and sprite fixes
 `81a5e3b5`, final resource/lint checkpoint `ff971cac`. These are isolated

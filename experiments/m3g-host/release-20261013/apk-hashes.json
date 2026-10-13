@@ -1,0 +1,26 @@
+[
+    {
+        "Artifact":  "release-baseline-verified-apks/fdroid/release/AbyssME-0.1.0-beta.2-release.apk",
+        "Sha256":  "42C93CF7D93DB034B475A54C399A234BC2EC53588B5A380C11739997B4B65C4C"
+    },
+    {
+        "Artifact":  "release-baseline-verified-apks/phone/release/AbyssME-0.1.0-beta.2-phone-release.apk",
+        "Sha256":  "03FABBC83594CE1D102269B03CE7BB5C3F12E3786DC7BDC6AE0DD5935D478B5B"
+    },
+    {
+        "Artifact":  "release-checked-apks/androidTest/fdroid/release/app-fdroid-release-androidTest.apk",
+        "Sha256":  "D812880C9FA29A4EA07383B717B00397C8D77E36ED1C17C2BF4D7C14B093D768"
+    },
+    {
+        "Artifact":  "release-checked-apks/androidTest/phone/release/app-phone-release-androidTest.apk",
+        "Sha256":  "3F0BE41643A6E949594DA40EC6336398487E1009DE756E85E69F8BF534419592"
+    },
+    {
+        "Artifact":  "release-checked-apks/fdroid/release/AbyssME-0.1.0-beta.2-release.apk",
+        "Sha256":  "24A541D1BD7AADCD6EA7FBAA5D4CE1D3F59E05A0C92DE8640688075F8B38639B"
+    },
+    {
+        "Artifact":  "release-checked-apks/phone/release/AbyssME-0.1.0-beta.2-phone-release.apk",
+        "Sha256":  "DDE68BEA8D6DDF8E2AD55D4778491F4CC7A67F61F2C3F4070214F93ACF089198"
+    }
+]

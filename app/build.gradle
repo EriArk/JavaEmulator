@@ -4,11 +4,15 @@ plugins {
 
 def midletArchivesBaseName
 def m3gExperiment = providers.gradleProperty('m3gExperiment').orNull
+def m3gReleaseCheck = providers.gradleProperty('m3gReleaseCheck').orNull == 'true'
+if (m3gReleaseCheck && m3gExperiment == null) {
+    throw new GradleException('m3gReleaseCheck requires an isolated candidate or baseline experiment')
+}
 if (m3gExperiment != null && !(m3gExperiment in ['candidate', 'baseline'])) {
     throw new GradleException('m3gExperiment must be candidate or baseline')
 }
 if (m3gExperiment != null) {
-    layout.buildDirectory.set(file("build/m3g-${m3gExperiment}"))
+    layout.buildDirectory.set(file("build/m3g-${m3gExperiment}" + (m3gReleaseCheck ? '-release-check' : '')))
 }
 
 android {
@@ -56,7 +60,8 @@ android {
         release {
             minifyEnabled true
             shrinkResources true
-            signingConfig signingConfigs.release
+            // Rehearsals are deliberately debug-signed and never use production IDs/keys.
+            signingConfig m3gReleaseCheck ? signingConfigs.debug : signingConfigs.release
         }
         debug {
             applicationIdSuffix '.debug'
@@ -72,10 +77,12 @@ android {
 
     flavorDimensions 'default'
     if (m3gExperiment != null) {
+        if (m3gReleaseCheck) testBuildType 'release'
         variantFilter { variant ->
-            variant.ignore = variant.buildType.name != 'debug' || !(variant.flavors*.name in [['fdroid'], ['phone']])
+            variant.ignore = variant.buildType.name != (m3gReleaseCheck ? 'release' : 'debug') || !(variant.flavors*.name in [['fdroid'], ['phone']])
         }
-        defaultConfig.applicationId = "io.github.eriark.abyssme.m3g${m3gExperiment}"
+        // A shared, isolated ID lets the baseline be upgraded to the candidate in place.
+        defaultConfig.applicationId = m3gReleaseCheck ? 'io.github.eriark.abyssme.m3grehearsal' : "io.github.eriark.abyssme.m3g${m3gExperiment}"
     }
     productFlavors {
         play {
@@ -179,7 +186,7 @@ def validateReleaseCredentials = tasks.register('validateReleaseCredentials') {
     }
 }
 android.applicationVariants.all { variant ->
-    if (variant.buildType.name == 'release') {
+    if (variant.buildType.name == 'release' && !m3gReleaseCheck) {
         variant.preBuildProvider.configure { dependsOn validateReleaseCredentials }
     }
 }
@@ -236,7 +243,10 @@ dependencies {
 
     // Audio/Video/Graphics
     implementation 'com.github.billthefarmer:mididriver:v1.21'
-    implementation 'com.github.nikita36078:pngj:2.2.3'
+    implementation('com.github.nikita36078:pngj:2.2.3') {
+        // Published as a runtime dependency upstream, but only used by PNGJ tests.
+        exclude group: 'junit', module: 'junit'
+    }
     implementation 'com.github.nikita36078:mobile-ffmpeg:v4.3.2-compact'
 
     implementation "androidx.camera:camera-core:${cameraxVersion}"

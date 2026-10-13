@@ -1,0 +1,22 @@
+[
+    {
+        "case":  "no-experiment",
+        "rejected":  true,
+        "exitCode":  1
+    },
+    {
+        "case":  "measurement",
+        "rejected":  true,
+        "exitCode":  1
+    },
+    {
+        "case":  "tracing",
+        "rejected":  true,
+        "exitCode":  1
+    },
+    {
+        "case":  "private-engine",
+        "rejected":  true,
+        "exitCode":  1
+    }
+]

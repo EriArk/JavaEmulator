@@ -11,6 +11,21 @@ stated otherwise. **Experimental** means local/private combined builds only.
 
 ## 2026-10-13
 
+- **Public source / unreleased:** fixed an optimized-build crash when restarting
+  a phone-profile trial. Touch settings and preparation hints now have stable
+  JSON names; profile copying remains writable under R8. Also fixed JAR
+  conversion of Java 7/8 exception handlers by retaining stack-map information,
+  and removed a test-only transitive dependency from app runtime.
+  Both ordinary variants build; 14 JVM cases pass each, plus three importer
+  regressions. Five optimized profile checks pass on Retroid and five on Phone;
+  Retroid passes 48 debug settings checks. [Details](docs/RELEASE_PROFILE_SAFETY.md).
+- **Separate experiment / not shipped:** added isolated, optimized upgrade
+  rehearsals. Real MIDlet RMS values survive original-to-replacement engine
+  updates and remain writable on Retroid and Phone; all 11 inspected files
+  retain their hashes. Retroid passes 324 release-compatible renderer checks
+  and the full 363 unmeasured debug suite. Not a production-signed upgrade or
+  release clearance. [Evidence](https://github.com/EriArk/JavaEmulator/blob/codex/m3g-replacement/experiments/m3g-host/release-20261013.md).
+
 - **Public source / unreleased:** More now provides Screen presets and Phone
   profile. Screen size can be tried live; compatibility presets explicitly
   restart the game, with Keep / Undo and automatic rollback. Current custom

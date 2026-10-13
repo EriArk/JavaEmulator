@@ -1,0 +1,6 @@
+
+ru.playsoftware.j2meloader.config.ProfileSerializationTest:.....
+
+Time: 0.23
+
+OK (5 tests)

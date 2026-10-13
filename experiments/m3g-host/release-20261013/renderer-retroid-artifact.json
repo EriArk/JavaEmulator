@@ -1,0 +1,12 @@
+{
+    "engine":  "candidate",
+    "variant":  "fdroid",
+    "releaseCheck":  true,
+    "package":  "io.github.eriark.abyssme.m3grehearsal",
+    "device":  "Retroid Pocket Classic",
+    "sdk":  "34",
+    "apk":  "24A541D1BD7AADCD6EA7FBAA5D4CE1D3F59E05A0C92DE8640688075F8B38639B",
+    "testApk":  "60072335A698FD2FEB7C646C54DFBDE4B9E42BE121541E0C5173620B79F2DB16",
+    "measured":  false,
+    "skipped":  0
+}

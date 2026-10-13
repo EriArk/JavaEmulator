@@ -3,6 +3,7 @@ param(
     [ValidateSet('candidate', 'baseline')][string]$Engine = 'candidate',
     [ValidateSet('fdroid', 'phone')][string]$Variant = 'fdroid',
     [string]$ApkRoot,
+    [switch]$ReleaseCheck,
     [ValidateRange(30,3600)][int]$TestTimeoutSeconds = 300,
     [string]$Adb = "$env:ANDROID_HOME/platform-tools/adb.exe"
 )
@@ -10,12 +11,19 @@ $ErrorActionPreference = 'Stop'
 $root = (Resolve-Path (Join-Path $PSScriptRoot '../..')).Path
 $package = "io.github.eriark.abyssme.m3g$Engine.debug"
 if ($Variant -eq 'phone') { $package = "io.github.eriark.abyssme.m3g$Engine.phone.debug" }
-$build = if ($ApkRoot) { (Resolve-Path $ApkRoot).Path } else { Join-Path $root "app/build/m3g-$Engine/outputs/apk" }
+$kind = if ($ReleaseCheck) { 'release' } else { 'debug' }
+$buildSuffix = if ($ReleaseCheck) { '-release-check' } else { '' }
+if ($ReleaseCheck) {
+    $package = 'io.github.eriark.abyssme.m3grehearsal'
+    if ($Variant -eq 'phone') { $package += '.phone' }
+}
+$build = if ($ApkRoot) { (Resolve-Path $ApkRoot).Path } else { Join-Path $root "app/build/m3g-$Engine$buildSuffix/outputs/apk" }
 $suffix = if ($Variant -eq 'phone') { '-phone' } else { '' }
-$apk = Join-Path $build "$Variant/debug/AbyssME-0.1.0-beta.2$suffix-debug.apk"
-$test = Join-Path $build "androidTest/$Variant/debug/app-$Variant-debug-androidTest.apk"
+$apk = Join-Path $build "$Variant/$kind/AbyssME-0.1.0-beta.2$suffix-$kind.apk"
+$test = Join-Path $build "androidTest/$Variant/$kind/app-$Variant-$kind-androidTest.apk"
 $out = Join-Path $PSScriptRoot ('build/evidence/' + ($Serial -replace '[^a-zA-Z0-9_-]', '_') + '-' + $Engine)
 if ($Variant -eq 'phone') { $out += '-phone' }
+if ($ReleaseCheck) { $out += '-release-check' }
 New-Item -ItemType Directory -Force $out | Out-Null
 foreach ($artifact in @(@{path=$apk; id=$package}, @{path=$test; id="$package.test"})) {
     $metadata = Get-Content -Raw (Join-Path (Split-Path $artifact.path) 'output-metadata.json') | ConvertFrom-Json
@@ -39,6 +47,12 @@ function Invoke-Adb([string[]]$Arguments, [int]$TimeoutMs = 90000) {
         $stderr = $process.StandardError.ReadToEndAsync()
         if (-not $process.WaitForExit($TimeoutMs)) {
             $process.Kill(); $process.WaitForExit()
+            if ($Arguments.Length -ge 3 -and ($Arguments[0..2] -join ' ') -eq 'shell am instrument') {
+                $stdout.Result | Set-Content -Encoding UTF8 (Join-Path $out 'tests-timeout.txt')
+                # Killing the local adb client alone can leave the GPU suite running.
+                try { Invoke-Adb @('shell', 'am', 'force-stop', $package) -TimeoutMs 5000 | Out-Null }
+                catch { Write-Warning "Could not stop the isolated test package: $_" }
+            }
             throw 'ADB timeout; no test pass can be inferred'
         }
         if ($process.ExitCode -ne 0) { throw "ADB failed: $($stderr.Result) $($stdout.Result)" }
@@ -118,12 +132,21 @@ if ($measured) {
     $classes += ',javax.microedition.shell.M3gTargetMeterTest'
     $expectedTests += 8
 }
+if ($ReleaseCheck -and $Engine -eq 'candidate') {
+    # These white-box suites access diagnostic switches/counters deliberately
+    # removed by R8. Keep them in debug checks, not in the optimized APK.
+    $classes = (($classes -split ',') | Where-Object {
+        $_ -notin @('javax.microedition.m3g.GpuThroughputTest', 'javax.microedition.m3g.NativeRasterizerTest')
+    }) -join ','
+    $expectedTests -= 39
+}
 $result = Invoke-Adb @('shell', 'am', 'instrument', '-w', '-r', '-e', 'class',
     $classes, "$package.test/androidx.test.runner.AndroidJUnitRunner") -TimeoutMs ($TestTimeoutSeconds * 1000)
 $result | Set-Content -Encoding UTF8 (Join-Path $out 'tests.txt')
 [pscustomobject]@{
     engine = $Engine
     variant = $Variant
+    releaseCheck = [bool]$ReleaseCheck
     package = $package
     device = (Invoke-Adb @('shell', 'getprop', 'ro.product.model')).Trim()
     sdk = (Invoke-Adb @('shell', 'getprop', 'ro.build.version.sdk')).Trim()

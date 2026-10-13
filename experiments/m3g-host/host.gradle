@@ -2,6 +2,14 @@
 def candidate = providers.gradleProperty('m3gExperiment').get() == 'candidate'
 def measuring = providers.gradleProperty('m3gMeasure').orNull == 'true'
 def tracing = providers.gradleProperty('m3gTrace').orNull == 'true'
+def releaseCheck = providers.gradleProperty('m3gReleaseCheck').orNull == 'true'
+if (releaseCheck && (measuring || tracing || providers.gradleProperty('mophunSource').isPresent())) {
+    throw new GradleException('Release rehearsal excludes measurement, tracing and private engine inputs')
+}
+if (releaseCheck) {
+    android.buildTypes.release.testProguardFiles rootProject.file('experiments/m3g-host/release-test.pro')
+    android.buildTypes.release.proguardFile rootProject.file('experiments/m3g-host/release-runner.pro')
+}
 // Same code/signing/package as the research APK, without ART's debug execution mode.
 if (providers.gradleProperty('m3gNonDebuggable').orNull == 'true') {
     android.buildTypes.debug.debuggable = false
@@ -37,7 +45,7 @@ def instrumentTarget = { String source, boolean alternative ->
     source
 }
 android.applicationVariants.all { variant ->
-    variant.resValue 'string', 'app_name', candidate ? 'AbyssME M3G Candidate' : 'AbyssME M3G Baseline'
+    variant.resValue 'string', 'app_name', releaseCheck ? 'AbyssME Upgrade Check' : candidate ? 'AbyssME M3G Candidate' : 'AbyssME M3G Baseline'
 }
 android.defaultConfig.ndk.abiFilters 'arm64-v8a', 'x86_64'
 android.sourceSets.androidTest.java.srcDir rootProject.file('experiments/m3g-host/tests')
@@ -76,8 +84,8 @@ if (measuring) {
 }
 
 if (candidate) {
-    android.defaultConfig.buildConfigField 'boolean', 'M3G_GPU', providers.gradleProperty('m3gGpu').orNull == 'true' ? 'true' : 'false'
-    android.defaultConfig.buildConfigField 'boolean', 'M3G_GPU_GEOMETRY', providers.gradleProperty('m3gGpuGeometry').orNull == 'true' ? 'true' : 'false'
+    android.defaultConfig.buildConfigField 'boolean', 'M3G_GPU', (releaseCheck || providers.gradleProperty('m3gGpu').orNull == 'true') ? 'true' : 'false'
+    android.defaultConfig.buildConfigField 'boolean', 'M3G_GPU_GEOMETRY', (releaseCheck || providers.gradleProperty('m3gGpuGeometry').orNull == 'true') ? 'true' : 'false'
     android.sourceSets.androidTest.java.srcDir rootProject.file('experiments/m3g-host/candidate-tests')
     def originalTonePlayer = file('src/main/java/javax/microedition/media/TonePlayer.java')
     def originalManager = file('src/main/java/javax/microedition/media/Manager.java')

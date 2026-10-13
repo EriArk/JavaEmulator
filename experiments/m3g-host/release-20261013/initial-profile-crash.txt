@@ -1,0 +1,30 @@
+10-13 19:49:19.829  5622  5622 E AndroidRuntime: FATAL EXCEPTION: main
+10-13 19:49:19.829  5622  5622 E AndroidRuntime: Process: io.github.eriark.abyssme.m3grehearsal:midlet, PID: 5622
+10-13 19:49:19.829  5622  5622 E AndroidRuntime: java.lang.RuntimeException: Unable to start activity ComponentInfo{io.github.eriark.abyssme.m3grehearsal/javax.microedition.shell.MicroActivity}: java.lang.IllegalStateException: java.lang.IllegalAccessException: Cannot set public final  field int ru.playsoftware.j2meloader.config.D.G of class java.lang.Class<ru.playsoftware.j2meloader.config.D>
+10-13 19:49:19.829  5622  5622 E AndroidRuntime: 	at android.app.ActivityThread.performLaunchActivity(ActivityThread.java:3783)
+10-13 19:49:19.829  5622  5622 E AndroidRuntime: 	at android.app.ActivityThread.handleLaunchActivity(ActivityThread.java:3923)
+10-13 19:49:19.829  5622  5622 E AndroidRuntime: 	at android.app.servertransaction.LaunchActivityItem.execute(LaunchActivityItem.java:103)
+10-13 19:49:19.829  5622  5622 E AndroidRuntime: 	at android.app.servertransaction.TransactionExecutor.executeCallbacks(TransactionExecutor.java:139)
+10-13 19:49:19.829  5622  5622 E AndroidRuntime: 	at android.app.servertransaction.TransactionExecutor.execute(TransactionExecutor.java:96)
+10-13 19:49:19.829  5622  5622 E AndroidRuntime: 	at android.app.ActivityThread$H.handleMessage(ActivityThread.java:2444)
+10-13 19:49:19.829  5622  5622 E AndroidRuntime: 	at android.os.Handler.dispatchMessage(Handler.java:106)
+10-13 19:49:19.829  5622  5622 E AndroidRuntime: 	at android.os.Looper.loopOnce(Looper.java:205)
+10-13 19:49:19.829  5622  5622 E AndroidRuntime: 	at android.os.Looper.loop(Looper.java:294)
+10-13 19:49:19.829  5622  5622 E AndroidRuntime: 	at android.app.ActivityThread.main(ActivityThread.java:8223)
+10-13 19:49:19.829  5622  5622 E AndroidRuntime: 	at java.lang.reflect.Method.invoke(Native Method)
+10-13 19:49:19.829  5622  5622 E AndroidRuntime: 	at com.android.internal.os.RuntimeInit$MethodAndArgsCaller.run(RuntimeInit.java:552)
+10-13 19:49:19.829  5622  5622 E AndroidRuntime: 	at com.android.internal.os.ZygoteInit.main(ZygoteInit.java:977)
+10-13 19:49:19.829  5622  5622 E AndroidRuntime: Caused by: java.lang.IllegalStateException: java.lang.IllegalAccessException: Cannot set public final  field int ru.playsoftware.j2meloader.config.D.G of class java.lang.Class<ru.playsoftware.j2meloader.config.D>
+10-13 19:49:19.829  5622  5622 E AndroidRuntime: 	at ru.playsoftware.j2meloader.config.F.c(ProfilesManager.java:49)
+10-13 19:49:19.829  5622  5622 E AndroidRuntime: 	at g4.a.g(LaunchDiagnostics.java:83)
+10-13 19:49:19.829  5622  5622 E AndroidRuntime: 	at javax.microedition.shell.MicroLoader.init(MicroLoader.java:40)
+10-13 19:49:19.829  5622  5622 E AndroidRuntime: 	at javax.microedition.shell.MicroActivity.onCreate(MicroActivity.java:508)
+10-13 19:49:19.829  5622  5622 E AndroidRuntime: 	at android.app.Activity.performCreate(Activity.java:8595)
+10-13 19:49:19.829  5622  5622 E AndroidRuntime: 	at android.app.Activity.performCreate(Activity.java:8573)
+10-13 19:49:19.829  5622  5622 E AndroidRuntime: 	at android.app.Instrumentation.callActivityOnCreate(Instrumentation.java:1457)
+10-13 19:49:19.829  5622  5622 E AndroidRuntime: 	at android.app.ActivityThread.performLaunchActivity(ActivityThread.java:3765)
+10-13 19:49:19.829  5622  5622 E AndroidRuntime: 	... 12 more
+10-13 19:49:19.829  5622  5622 E AndroidRuntime: Caused by: java.lang.IllegalAccessException: Cannot set public final  field int ru.playsoftware.j2meloader.config.D.G of class java.lang.Class<ru.playsoftware.j2meloader.config.D>
+10-13 19:49:19.829  5622  5622 E AndroidRuntime: 	at java.lang.reflect.Field.set(Native Method)
+10-13 19:49:19.829  5622  5622 E AndroidRuntime: 	at ru.playsoftware.j2meloader.config.F.c(ProfilesManager.java:37)
+10-13 19:49:19.829  5622  5622 E AndroidRuntime: 	... 19 more

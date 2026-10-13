@@ -2,6 +2,10 @@
 
 ## Current Checkpoint
 
+The [optimized upgrade checkpoint](release-20261013.md) records R8 profile fixes,
+stack-map import repair, isolated cross-engine RMS updates and separate release/
+debug renderer suites. It does not change the production engine or publish APKs.
+
 The [2026-10-12 compatibility/performance report](../../docs/m3g-performance-2026-10-12/README.md)
 records the earlier Java-only checkpoint. The candidate now includes a
 [native raster fast path](native/README.md) with a shared-buffer Java fallback.
@@ -67,6 +71,29 @@ Symbian integration is part of this experiment.
 
 ## Build
 
+### Optimized Upgrade Rehearsal
+
+`-Pm3gReleaseCheck=true` with `-Pm3gExperiment=baseline|candidate` enables only
+Handheld/Phone **release** variants, retaining R8, resource shrinking and the
+real `:midlet` process. It uses debug signing and isolated shared package IDs
+`io.github.eriark.abyssme.m3grehearsal[.phone]`, never production keys or IDs.
+The candidate automatically enables GPU rendering and hardware geometry.
+Measurement, tracing and private Mophun inputs are rejected in this mode.
+
+Build `:app:assembleFdroidRelease :app:assemblePhoneRelease` and corresponding
+`ReleaseAndroidTest` tasks. Pass `-ReleaseCheck` to `verify.ps1`; optional
+`-Variant phone` selects Phone. Snapshot `outputs/apk` before changing engines:
+Gradle may remove outputs from an earlier configuration even with separate
+build directories. `-ApkRoot` accepts that saved snapshot.
+
+The test APK is kept unoptimized; rehearsal-only app rules retain AndroidX
+Trace and Kotlin APIs used by the external runner. App/profile/renderer
+optimization remains enabled. These are not final release APKs.
+Use the [RMS MIDlet fixture](upgrade-probe/README.md) for a reproducible
+before/after save check without private game payloads.
+
+### Debug Research
+
 Use the repository wrapper, JDK 21, SDK 34 and NDK 22.1.7171670. The pinned
 FreeJ2ME-Plus archive is fetched and hash-verified automatically; no maintainer
 checkout is required. Offline/archive-override options are documented in the
@@ -79,7 +106,7 @@ checkout is required. Offline/archive-override options are documented in the
 .\experiments\m3g-host\verify.ps1 -Serial YOUR_DEVICE -Engine baseline
 ```
 
-Set `ANDROID_HOME` or pass `-Adb` to the verifier. Only `fdroidDebug` and `phoneDebug` are enabled
+Set `ANDROID_HOME` or pass `-Adb` to the verifier. By default only `fdroidDebug` and `phoneDebug` are enabled
 in research mode; private signing configuration is not required. Build outputs
 are separated under `app/build/m3g-candidate` and `app/build/m3g-baseline`.
 Both support arm64-v8a and x86_64. Application IDs are isolated:

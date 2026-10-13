@@ -1,0 +1,8 @@
+Manifest-Version: 1.0
+MIDlet-Name: RMS Upgrade Probe
+MIDlet-Version: 1.0.0
+MIDlet-Vendor: AbyssME
+MIDlet-1: RMS Upgrade Probe,,UpgradeProbe
+MicroEdition-Configuration: CLDC-1.1
+MicroEdition-Profile: MIDP-2.0
+
