@@ -6,13 +6,15 @@ The [2026-10-12 compatibility/performance report](../../docs/m3g-performance-202
 records the earlier Java-only checkpoint. The candidate now includes a
 [native raster fast path](native/README.md) with a shared-buffer Java fallback.
 The verifier requires 62 shared checks, 23 candidate animation checks, 21
-candidate deformation checks and 78
+candidate deformation checks and 80
 candidate implementation checks (tone, math, native rasterization, mipmaps,
-geometry preparation and 48 GPU checks), plus 76 scene/loader/alpha checks:
-260 for an unmeasured candidate, 267 when measured, and 69 for measured baseline
+geometry preparation and 50 GPU checks), plus 76 scene/loader/alpha checks:
+262 for an unmeasured candidate, 269 when measured, and 69 for measured baseline
 with two intentional skips.
 Seven additional timing checks apply only when measurement is enabled.
-The [scene compatibility report](scene-contracts-20261013.md) records the latest
+The [GPU submission report](submission-20261013.md) records bulk vertex packing,
+scoped state reuse, mixed-material regression coverage and fresh timings.
+The [scene compatibility report](scene-contracts-20261013.md) records the preceding
 camera, lighting, loader and CPU/GPU fixes, full device/emulator results and a
 private 70-resource corpus. The [deformation report](deformation-20261013.md)
 covers mutable geometry and skeletons. The [animation report](animation-20261013.md) covers curves
@@ -20,7 +22,8 @@ and playback. Measured totals are expected counts, not a new measurement run.
 Both Handheld (`fdroid`) and Phone research builds are supported; pass
 `-Variant phone` to `verify.ps1` for Phone.
 Use `-ApkRoot` to verify a saved `outputs/apk` snapshot independently of later
-builds; slow software-rendered emulators can use `-TestTimeoutSeconds 600`.
+builds; slow software-rendered emulators can use `-TestTimeoutSeconds 900`
+(maximum 1200).
 
 Candidate builds replace the inherited EPL tone package with the original
 [ToneControl implementation](tone-java/README.md). Run `:app:testToneCompiler`

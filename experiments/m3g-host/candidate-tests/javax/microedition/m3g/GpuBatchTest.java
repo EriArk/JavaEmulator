@@ -10,7 +10,7 @@ import static org.junit.Assert.*;
 
 public class GpuBatchTest {
     @After public void restore() {
-        GpuRasterizer.lossesRemaining=0;
+        GpuRasterizer.lossesRemaining=0; GpuRasterizer.lossPoint=0;
         GpuRasterizer.close(); Graphics3D.getInstance().releaseTarget();
         GpuRasterizer.enabled=false; GpuRasterizer.batchSubmission=true;
     }
@@ -109,6 +109,67 @@ public class GpuBatchTest {
         PolygonMode polygon=new PolygonMode(); polygon.setCulling(PolygonMode.CULL_NONE);
         Appearance style=new Appearance(); style.setPolygonMode(polygon);
         return new Mesh(vertices,new TriangleStripArray(0,new int[]{4}),style);
+    }
+
+    @Test public void changingMeshSpriteAndMaterialStateMatchesImmediateDraws() {
+        // The first divergent prefix and the complete sequence. Exhaustively
+        // rebuilding every prefix needlessly recompiles shaders on software GL.
+        for(int steps:new int[]{11,20})
+            assertArrayEquals("after command "+steps,stateChanges(false,false,steps),stateChanges(true,false,steps));
+    }
+
+    @Test public void replayReinitializesEveryStateAfterMixedQueuedDraws() {
+        int[] expected=stateChanges(false,false,20);
+        long recovered=GpuRasterizer.recoveries;
+        assertArrayEquals(expected,stateChanges(true,true,20));
+        assertEquals(recovered+1,GpuRasterizer.recoveries);
+    }
+
+    private int[] stateChanges(boolean batch,boolean lose,int steps) {
+        Graphics3D.initGraphics3D(); GpuRasterizer.enabled=true; GpuRasterizer.batchSubmission=batch;
+        Graphics3D g=Graphics3D.getInstance(); Image image=Image.createImage(47,35);
+        Camera camera=new Camera(); camera.setParallel(4,47f/35,1,10); g.setCamera(camera,new Transform());
+        g.bindTarget(image.getGraphics(),true,0);
+        Background bg=new Background(); bg.setColor(0xff183048); g.clear(bg);
+        int[] blends={CompositingMode.REPLACE,CompositingMode.ALPHA,CompositingMode.ALPHA_ADD,
+                CompositingMode.MODULATE,CompositingMode.MODULATE_X2};
+        long before=GpuRasterizer.draws;
+        for(int i=0;i<steps;i++) {
+            Mesh mesh=quad(0xc0c08040+i*256); Appearance a=mesh.getAppearance(0);
+            VertexArray uv=new VertexArray(4,2,1); uv.set(0,4,new byte[]{0,0,0,1,1,0,1,1});
+            int units=i%5;
+            for(int u=0;u<units;u++) {
+                int side=1+(i%2),format=i%2==0?Image2D.RGB:Image2D.RGBA;
+                byte[] pixels=new byte[side*side*(format==Image2D.RGB?3:4)]; Arrays.fill(pixels,(byte)(96+i*5));
+                Texture2D t=new Texture2D(new Image2D(format,side,side,pixels));
+                t.setBlendColor(0x408020+i*256);
+                t.setBlending(i%2==0?Texture2D.FUNC_BLEND:Texture2D.FUNC_MODULATE);
+                t.setFiltering(i%2==0?Texture2D.FILTER_BASE_LEVEL:Texture2D.FILTER_LINEAR,Texture2D.FILTER_LINEAR);
+                a.setTexture(u,t); mesh.getVertexBuffer().setTexCoords(u,uv,1,null);
+            }
+            CompositingMode c=new CompositingMode(); c.setBlending(blends[i%blends.length]);
+            c.setDepthTestEnable(i%3!=0); c.setDepthWriteEnable(i%4!=0);
+            c.setColorWriteEnable(i%6!=0); c.setAlphaWriteEnable(i%4!=0); c.setAlphaThreshold(i%2==0?0:.1f);
+            a.setCompositingMode(c);
+            if(i%3!=0) {
+                Fog f=new Fog(); f.setMode(i%2==0?Fog.LINEAR:Fog.EXPONENTIAL);
+                f.setColor(0x205080+i*512); f.setLinear(1,6); f.setDensity(.1f*i); a.setFog(f);
+            }
+            mesh.setAlphaFactor(.5f+.02f*i);
+            Transform transform=new Transform(); transform.postTranslate((i%3-1)*.5f,0,-4+i*.05f);
+            g.setViewport(i%3,i%2,44,33);
+            g.render(mesh,transform);
+            if(i%4==0) {
+                Sprite3D sprite=new Sprite3D(true,new Image2D(Image2D.RGBA,1,1,new byte[]{64,-96,32,-96}),a);
+                sprite.setScale(.5f,.5f,1); sprite.setAlphaFactor(.7f); g.render(sprite,transform);
+            }
+        }
+        if(lose) { GpuRasterizer.lossPoint=2; GpuRasterizer.lossesRemaining=1; }
+        g.releaseTarget();
+        assertEquals(before+steps+(steps+3)/4,GpuRasterizer.draws);
+        int[] pixels=new int[47*35]; image.getBitmap().getPixels(pixels,0,47,0,0,47,35);
+        if(steps==20) assertNotEquals(0xff183048,pixels[17*47+23]);
+        return pixels;
     }
 
     private void sprite(int[] pixels,short[] depth,int w,int h,int color,int z) {

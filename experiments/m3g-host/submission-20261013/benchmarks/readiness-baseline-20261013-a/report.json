@@ -1,0 +1,864 @@
+{
+  "package": "io.github.eriark.abyssme.m3gbaseline.debug",
+  "device": "Retroid Pocket Classic",
+  "sdk": 34,
+  "debuggable": false,
+  "thermalStart": 0,
+  "lightingCache": "default",
+  "gpuResident": false,
+  "gpuBatch": false,
+  "gpuTextureCache": false,
+  "raster": "legacy",
+  "cases": [
+    {
+      "name": "rgb-nearest-240x320",
+      "framesPerBatch": 32,
+      "warmupFrames": 64,
+      "wallNs": [
+        27955417,
+        28746145,
+        27711667,
+        27686406,
+        28701666
+      ],
+      "threadCpuNs": [
+        23552187,
+        23941666,
+        23378127,
+        23069430,
+        23545518
+      ],
+      "pixelCrc32": 872342303,
+      "changedPixels": 75056,
+      "gpuDraws": 0,
+      "gpuUploads": 0,
+      "gpuReadbacks": 0,
+      "gpuSubmissions": 0,
+      "gpuSubmittedDraws": 0,
+      "gpuGeometryUploads": 0,
+      "gpuTextureUploads": 0,
+      "shadedVertices": -1,
+      "nativeDraws": 0
+    },
+    {
+      "name": "rgb-linear-240x320",
+      "framesPerBatch": 32,
+      "warmupFrames": 64,
+      "wallNs": [
+        27426406,
+        27804948,
+        27427500,
+        27393802,
+        27615313
+      ],
+      "threadCpuNs": [
+        23110834,
+        23353174,
+        23152341,
+        23090780,
+        23391095
+      ],
+      "pixelCrc32": 1229419491,
+      "changedPixels": 75056,
+      "gpuDraws": 0,
+      "gpuUploads": 0,
+      "gpuReadbacks": 0,
+      "gpuSubmissions": 0,
+      "gpuSubmittedDraws": 0,
+      "gpuGeometryUploads": 0,
+      "gpuTextureUploads": 0,
+      "shadedVertices": -1,
+      "nativeDraws": 0
+    },
+    {
+      "name": "rgba-alpha-240x320",
+      "framesPerBatch": 32,
+      "warmupFrames": 64,
+      "wallNs": [
+        29412812,
+        29827344,
+        29112448,
+        29301354,
+        29680417
+      ],
+      "threadCpuNs": [
+        23277709,
+        23765675,
+        23061606,
+        23188278,
+        23502499
+      ],
+      "pixelCrc32": 1189977107,
+      "changedPixels": 75056,
+      "gpuDraws": 0,
+      "gpuUploads": 0,
+      "gpuReadbacks": 0,
+      "gpuSubmissions": 0,
+      "gpuSubmittedDraws": 0,
+      "gpuGeometryUploads": 0,
+      "gpuTextureUploads": 0,
+      "shadedVertices": -1,
+      "nativeDraws": 0
+    },
+    {
+      "name": "lit-fog-240x320",
+      "framesPerBatch": 32,
+      "warmupFrames": 64,
+      "wallNs": [
+        28003438,
+        27685885,
+        28647552,
+        29111874,
+        27782916
+      ],
+      "threadCpuNs": [
+        23449010,
+        23309796,
+        24061920,
+        24304636,
+        23245159
+      ],
+      "pixelCrc32": 1790699753,
+      "changedPixels": 75056,
+      "gpuDraws": 0,
+      "gpuUploads": 0,
+      "gpuReadbacks": 0,
+      "gpuSubmissions": 0,
+      "gpuSubmittedDraws": 0,
+      "gpuGeometryUploads": 0,
+      "gpuTextureUploads": 0,
+      "shadedVertices": -1,
+      "nativeDraws": 0
+    },
+    {
+      "name": "exp-fog-240x320",
+      "framesPerBatch": 32,
+      "warmupFrames": 64,
+      "wallNs": [
+        28059687,
+        27316823,
+        27266511,
+        28776667,
+        27668646
+      ],
+      "threadCpuNs": [
+        23221930,
+        22970728,
+        22865834,
+        24007439,
+        22884844
+      ],
+      "pixelCrc32": 795248806,
+      "changedPixels": 75056,
+      "gpuDraws": 0,
+      "gpuUploads": 0,
+      "gpuReadbacks": 0,
+      "gpuSubmissions": 0,
+      "gpuSubmittedDraws": 0,
+      "gpuGeometryUploads": 0,
+      "gpuTextureUploads": 0,
+      "shadedVertices": -1,
+      "nativeDraws": 0
+    },
+    {
+      "name": "multi-texture-240x320",
+      "skipped": "Requires four texture units"
+    },
+    {
+      "name": "mip-nearest-240x320",
+      "framesPerBatch": 32,
+      "warmupFrames": 64,
+      "wallNs": [
+        27076042,
+        27488125,
+        26947240,
+        27112136,
+        27565000
+      ],
+      "threadCpuNs": [
+        22803955,
+        23161505,
+        22533597,
+        22734847,
+        23251094
+      ],
+      "pixelCrc32": 1437458855,
+      "changedPixels": 75056,
+      "gpuDraws": 0,
+      "gpuUploads": 0,
+      "gpuReadbacks": 0,
+      "gpuSubmissions": 0,
+      "gpuSubmittedDraws": 0,
+      "gpuGeometryUploads": 0,
+      "gpuTextureUploads": 0,
+      "shadedVertices": -1,
+      "nativeDraws": 0
+    },
+    {
+      "name": "mip-linear-240x320",
+      "framesPerBatch": 32,
+      "warmupFrames": 64,
+      "wallNs": [
+        28557865,
+        28993907,
+        28857552,
+        28718594,
+        28889271
+      ],
+      "threadCpuNs": [
+        22778541,
+        23227759,
+        22713485,
+        22765621,
+        23108543
+      ],
+      "pixelCrc32": 68510643,
+      "changedPixels": 75056,
+      "gpuDraws": 0,
+      "gpuUploads": 0,
+      "gpuReadbacks": 0,
+      "gpuSubmissions": 0,
+      "gpuSubmittedDraws": 0,
+      "gpuGeometryUploads": 0,
+      "gpuTextureUploads": 0,
+      "shadedVertices": -1,
+      "nativeDraws": 0
+    },
+    {
+      "name": "sprites-240x320",
+      "framesPerBatch": 32,
+      "warmupFrames": 64,
+      "wallNs": [
+        30827292,
+        30191614,
+        31043020,
+        30562552,
+        30387969
+      ],
+      "threadCpuNs": [
+        24617552,
+        24042397,
+        24607602,
+        24240471,
+        24009946
+      ],
+      "pixelCrc32": 4258428714,
+      "changedPixels": 76800,
+      "gpuDraws": 0,
+      "gpuUploads": 0,
+      "gpuReadbacks": 0,
+      "gpuSubmissions": 0,
+      "gpuSubmittedDraws": 0,
+      "gpuGeometryUploads": 0,
+      "gpuTextureUploads": 0,
+      "shadedVertices": -1,
+      "nativeDraws": 0
+    },
+    {
+      "name": "lighting-grid-240x320",
+      "framesPerBatch": 32,
+      "warmupFrames": 64,
+      "wallNs": [
+        27208646,
+        27036406,
+        27344323,
+        28836250,
+        28339843
+      ],
+      "threadCpuNs": [
+        23114847,
+        23049842,
+        23226826,
+        24570992,
+        24187450
+      ],
+      "pixelCrc32": 1242143210,
+      "changedPixels": 73784,
+      "gpuDraws": 0,
+      "gpuUploads": 0,
+      "gpuReadbacks": 0,
+      "gpuSubmissions": 0,
+      "gpuSubmittedDraws": 0,
+      "gpuGeometryUploads": 0,
+      "gpuTextureUploads": 0,
+      "shadedVertices": -1,
+      "nativeDraws": 0
+    },
+    {
+      "name": "multi-draw-240x320",
+      "framesPerBatch": 32,
+      "warmupFrames": 64,
+      "wallNs": [
+        41271927,
+        40779739,
+        40574792,
+        40940000,
+        40615677
+      ],
+      "threadCpuNs": [
+        30615314,
+        30131349,
+        29981718,
+        30010208,
+        29913494
+      ],
+      "pixelCrc32": 3588201952,
+      "changedPixels": 72232,
+      "gpuDraws": 0,
+      "gpuUploads": 0,
+      "gpuReadbacks": 0,
+      "gpuSubmissions": 0,
+      "gpuSubmittedDraws": 0,
+      "gpuGeometryUploads": 0,
+      "gpuTextureUploads": 0,
+      "shadedVertices": -1,
+      "nativeDraws": 0
+    },
+    {
+      "name": "modulate-240x320",
+      "framesPerBatch": 32,
+      "warmupFrames": 64,
+      "wallNs": [
+        29237135,
+        29687136,
+        28854219,
+        28848958,
+        29485313
+      ],
+      "threadCpuNs": [
+        22737340,
+        23344220,
+        22679525,
+        22587710,
+        23053232
+      ],
+      "pixelCrc32": 3607651723,
+      "changedPixels": 75056,
+      "gpuDraws": 0,
+      "gpuUploads": 0,
+      "gpuReadbacks": 0,
+      "gpuSubmissions": 0,
+      "gpuSubmittedDraws": 0,
+      "gpuGeometryUploads": 0,
+      "gpuTextureUploads": 0,
+      "shadedVertices": -1,
+      "nativeDraws": 0
+    },
+    {
+      "name": "modulate-x2-240x320",
+      "framesPerBatch": 32,
+      "warmupFrames": 64,
+      "wallNs": [
+        29064167,
+        29762396,
+        29077760,
+        29366719,
+        29441146
+      ],
+      "threadCpuNs": [
+        22706405,
+        23344530,
+        22721926,
+        22622131,
+        23074738
+      ],
+      "pixelCrc32": 4083662195,
+      "changedPixels": 75056,
+      "gpuDraws": 0,
+      "gpuUploads": 0,
+      "gpuReadbacks": 0,
+      "gpuSubmissions": 0,
+      "gpuSubmittedDraws": 0,
+      "gpuGeometryUploads": 0,
+      "gpuTextureUploads": 0,
+      "shadedVertices": -1,
+      "nativeDraws": 0
+    },
+    {
+      "name": "depth-offset-240x320",
+      "framesPerBatch": 32,
+      "warmupFrames": 64,
+      "wallNs": [
+        26687709,
+        27210625,
+        26872396,
+        27720208,
+        27731563
+      ],
+      "threadCpuNs": [
+        22677294,
+        23005725,
+        22537704,
+        22681778,
+        23077814
+      ],
+      "pixelCrc32": 872342303,
+      "changedPixels": 75056,
+      "gpuDraws": 0,
+      "gpuUploads": 0,
+      "gpuReadbacks": 0,
+      "gpuSubmissions": 0,
+      "gpuSubmittedDraws": 0,
+      "gpuGeometryUploads": 0,
+      "gpuTextureUploads": 0,
+      "shadedVertices": -1,
+      "nativeDraws": 0
+    },
+    {
+      "name": "material-churn-240x320",
+      "framesPerBatch": 32,
+      "warmupFrames": 64,
+      "wallNs": [
+        41699427,
+        41888958,
+        41085781,
+        40873386,
+        41425000
+      ],
+      "threadCpuNs": [
+        30872289,
+        30662135,
+        30178749,
+        29932920,
+        30397967
+      ],
+      "pixelCrc32": 1625623741,
+      "changedPixels": 72232,
+      "gpuDraws": 0,
+      "gpuUploads": 0,
+      "gpuReadbacks": 0,
+      "gpuSubmissions": 0,
+      "gpuSubmittedDraws": 0,
+      "gpuGeometryUploads": 0,
+      "gpuTextureUploads": 0,
+      "shadedVertices": -1,
+      "nativeDraws": 0
+    },
+    {
+      "name": "rgb-nearest-320x240",
+      "framesPerBatch": 32,
+      "warmupFrames": 64,
+      "wallNs": [
+        26844167,
+        27443125,
+        26978073,
+        26895989,
+        27495729
+      ],
+      "threadCpuNs": [
+        22634323,
+        23165469,
+        22716149,
+        22516303,
+        23113432
+      ],
+      "pixelCrc32": 730439091,
+      "changedPixels": 55326,
+      "gpuDraws": 0,
+      "gpuUploads": 0,
+      "gpuReadbacks": 0,
+      "gpuSubmissions": 0,
+      "gpuSubmittedDraws": 0,
+      "gpuGeometryUploads": 0,
+      "gpuTextureUploads": 0,
+      "shadedVertices": -1,
+      "nativeDraws": 0
+    },
+    {
+      "name": "rgb-linear-320x240",
+      "framesPerBatch": 32,
+      "warmupFrames": 64,
+      "wallNs": [
+        28017135,
+        27413021,
+        27106927,
+        27144010,
+        27572083
+      ],
+      "threadCpuNs": [
+        23004894,
+        22909375,
+        22468438,
+        22552970,
+        22791405
+      ],
+      "pixelCrc32": 2917360496,
+      "changedPixels": 55326,
+      "gpuDraws": 0,
+      "gpuUploads": 0,
+      "gpuReadbacks": 0,
+      "gpuSubmissions": 0,
+      "gpuSubmittedDraws": 0,
+      "gpuGeometryUploads": 0,
+      "gpuTextureUploads": 0,
+      "shadedVertices": -1,
+      "nativeDraws": 0
+    },
+    {
+      "name": "rgba-alpha-320x240",
+      "framesPerBatch": 32,
+      "warmupFrames": 64,
+      "wallNs": [
+        27494115,
+        27667552,
+        27403386,
+        27272552,
+        28154427
+      ],
+      "threadCpuNs": [
+        22773695,
+        23045363,
+        22509843,
+        22762974,
+        23453436
+      ],
+      "pixelCrc32": 1048022258,
+      "changedPixels": 55326,
+      "gpuDraws": 0,
+      "gpuUploads": 0,
+      "gpuReadbacks": 0,
+      "gpuSubmissions": 0,
+      "gpuSubmittedDraws": 0,
+      "gpuGeometryUploads": 0,
+      "gpuTextureUploads": 0,
+      "shadedVertices": -1,
+      "nativeDraws": 0
+    },
+    {
+      "name": "lit-fog-320x240",
+      "framesPerBatch": 32,
+      "warmupFrames": 64,
+      "wallNs": [
+        28108125,
+        27020157,
+        27290469,
+        27401875,
+        26868125
+      ],
+      "threadCpuNs": [
+        23081299,
+        22559421,
+        22640308,
+        22859272,
+        22393330
+      ],
+      "pixelCrc32": 119171253,
+      "changedPixels": 55326,
+      "gpuDraws": 0,
+      "gpuUploads": 0,
+      "gpuReadbacks": 0,
+      "gpuSubmissions": 0,
+      "gpuSubmittedDraws": 0,
+      "gpuGeometryUploads": 0,
+      "gpuTextureUploads": 0,
+      "shadedVertices": -1,
+      "nativeDraws": 0
+    },
+    {
+      "name": "exp-fog-320x240",
+      "framesPerBatch": 32,
+      "warmupFrames": 64,
+      "wallNs": [
+        28314740,
+        27117240,
+        27050000,
+        27208854,
+        27095104
+      ],
+      "threadCpuNs": [
+        23269583,
+        22551407,
+        22439742,
+        22875628,
+        22411772
+      ],
+      "pixelCrc32": 1007232412,
+      "changedPixels": 55326,
+      "gpuDraws": 0,
+      "gpuUploads": 0,
+      "gpuReadbacks": 0,
+      "gpuSubmissions": 0,
+      "gpuSubmittedDraws": 0,
+      "gpuGeometryUploads": 0,
+      "gpuTextureUploads": 0,
+      "shadedVertices": -1,
+      "nativeDraws": 0
+    },
+    {
+      "name": "multi-texture-320x240",
+      "skipped": "Requires four texture units"
+    },
+    {
+      "name": "mip-nearest-320x240",
+      "framesPerBatch": 32,
+      "warmupFrames": 64,
+      "wallNs": [
+        25991250,
+        27923750,
+        26342760,
+        26271510,
+        26952448
+      ],
+      "threadCpuNs": [
+        22262342,
+        23499219,
+        22114482,
+        22238388,
+        22604118
+      ],
+      "pixelCrc32": 3262498391,
+      "changedPixels": 55326,
+      "gpuDraws": 0,
+      "gpuUploads": 0,
+      "gpuReadbacks": 0,
+      "gpuSubmissions": 0,
+      "gpuSubmittedDraws": 0,
+      "gpuGeometryUploads": 0,
+      "gpuTextureUploads": 0,
+      "shadedVertices": -1,
+      "nativeDraws": 0
+    },
+    {
+      "name": "mip-linear-320x240",
+      "framesPerBatch": 32,
+      "warmupFrames": 64,
+      "wallNs": [
+        26374427,
+        26414271,
+        26154063,
+        26039635,
+        26785833
+      ],
+      "threadCpuNs": [
+        22432451,
+        22706765,
+        22354424,
+        22038540,
+        22634687
+      ],
+      "pixelCrc32": 409157160,
+      "changedPixels": 55326,
+      "gpuDraws": 0,
+      "gpuUploads": 0,
+      "gpuReadbacks": 0,
+      "gpuSubmissions": 0,
+      "gpuSubmittedDraws": 0,
+      "gpuGeometryUploads": 0,
+      "gpuTextureUploads": 0,
+      "shadedVertices": -1,
+      "nativeDraws": 0
+    },
+    {
+      "name": "sprites-320x240",
+      "framesPerBatch": 32,
+      "warmupFrames": 64,
+      "wallNs": [
+        30248177,
+        29790781,
+        30480677,
+        29687760,
+        30135573
+      ],
+      "threadCpuNs": [
+        24096619,
+        23634373,
+        24248338,
+        23604006,
+        23780835
+      ],
+      "pixelCrc32": 2290692943,
+      "changedPixels": 71148,
+      "gpuDraws": 0,
+      "gpuUploads": 0,
+      "gpuReadbacks": 0,
+      "gpuSubmissions": 0,
+      "gpuSubmittedDraws": 0,
+      "gpuGeometryUploads": 0,
+      "gpuTextureUploads": 0,
+      "shadedVertices": -1,
+      "nativeDraws": 0
+    },
+    {
+      "name": "lighting-grid-320x240",
+      "framesPerBatch": 32,
+      "warmupFrames": 64,
+      "wallNs": [
+        27118750,
+        27695052,
+        26584427,
+        27152031,
+        27150157
+      ],
+      "threadCpuNs": [
+        22905107,
+        23345577,
+        22854847,
+        22824326,
+        22799896
+      ],
+      "pixelCrc32": 1068210953,
+      "changedPixels": 53800,
+      "gpuDraws": 0,
+      "gpuUploads": 0,
+      "gpuReadbacks": 0,
+      "gpuSubmissions": 0,
+      "gpuSubmittedDraws": 0,
+      "gpuGeometryUploads": 0,
+      "gpuTextureUploads": 0,
+      "shadedVertices": -1,
+      "nativeDraws": 0
+    },
+    {
+      "name": "multi-draw-320x240",
+      "framesPerBatch": 32,
+      "warmupFrames": 64,
+      "wallNs": [
+        39623958,
+        39397969,
+        39261355,
+        39355313,
+        39056771
+      ],
+      "threadCpuNs": [
+        30024273,
+        29244218,
+        29461828,
+        29540524,
+        29279379
+      ],
+      "pixelCrc32": 1828156340,
+      "changedPixels": 53982,
+      "gpuDraws": 0,
+      "gpuUploads": 0,
+      "gpuReadbacks": 0,
+      "gpuSubmissions": 0,
+      "gpuSubmittedDraws": 0,
+      "gpuGeometryUploads": 0,
+      "gpuTextureUploads": 0,
+      "shadedVertices": -1,
+      "nativeDraws": 0
+    },
+    {
+      "name": "modulate-320x240",
+      "framesPerBatch": 32,
+      "warmupFrames": 64,
+      "wallNs": [
+        27706615,
+        28115416,
+        27103958,
+        27804636,
+        27971979
+      ],
+      "threadCpuNs": [
+        22133334,
+        22624638,
+        22292915,
+        22316142,
+        22597032
+      ],
+      "pixelCrc32": 3546298024,
+      "changedPixels": 55326,
+      "gpuDraws": 0,
+      "gpuUploads": 0,
+      "gpuReadbacks": 0,
+      "gpuSubmissions": 0,
+      "gpuSubmittedDraws": 0,
+      "gpuGeometryUploads": 0,
+      "gpuTextureUploads": 0,
+      "shadedVertices": -1,
+      "nativeDraws": 0
+    },
+    {
+      "name": "modulate-x2-320x240",
+      "framesPerBatch": 32,
+      "warmupFrames": 64,
+      "wallNs": [
+        27358802,
+        27847292,
+        27580990,
+        27543020,
+        27683021
+      ],
+      "threadCpuNs": [
+        22050107,
+        22724013,
+        22257608,
+        22254586,
+        22690467
+      ],
+      "pixelCrc32": 2634695232,
+      "changedPixels": 55326,
+      "gpuDraws": 0,
+      "gpuUploads": 0,
+      "gpuReadbacks": 0,
+      "gpuSubmissions": 0,
+      "gpuSubmittedDraws": 0,
+      "gpuGeometryUploads": 0,
+      "gpuTextureUploads": 0,
+      "shadedVertices": -1,
+      "nativeDraws": 0
+    },
+    {
+      "name": "depth-offset-320x240",
+      "framesPerBatch": 32,
+      "warmupFrames": 64,
+      "wallNs": [
+        26725521,
+        26978385,
+        26343229,
+        26350729,
+        27308333
+      ],
+      "threadCpuNs": [
+        21985575,
+        22692705,
+        22021771,
+        21835785,
+        22688022
+      ],
+      "pixelCrc32": 730439091,
+      "changedPixels": 55326,
+      "gpuDraws": 0,
+      "gpuUploads": 0,
+      "gpuReadbacks": 0,
+      "gpuSubmissions": 0,
+      "gpuSubmittedDraws": 0,
+      "gpuGeometryUploads": 0,
+      "gpuTextureUploads": 0,
+      "shadedVertices": -1,
+      "nativeDraws": 0
+    },
+    {
+      "name": "material-churn-320x240",
+      "framesPerBatch": 32,
+      "warmupFrames": 64,
+      "wallNs": [
+        40333854,
+        39998438,
+        39739375,
+        39654531,
+        40030104
+      ],
+      "threadCpuNs": [
+        30316925,
+        30057605,
+        29673595,
+        29582974,
+        29942342
+      ],
+      "pixelCrc32": 253414768,
+      "changedPixels": 53982,
+      "gpuDraws": 0,
+      "gpuUploads": 0,
+      "gpuReadbacks": 0,
+      "gpuSubmissions": 0,
+      "gpuSubmittedDraws": 0,
+      "gpuGeometryUploads": 0,
+      "gpuTextureUploads": 0,
+      "shadedVertices": -1,
+      "nativeDraws": 0
+    }
+  ],
+  "thermalEnd": 0,
+  "gpuRenderer": "none"
+}

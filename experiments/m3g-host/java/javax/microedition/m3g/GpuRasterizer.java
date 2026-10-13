@@ -71,6 +71,7 @@ final class GpuRasterizer {
         int ox, oy;
     }
     private static final SpriteState spriteState = new SpriteState();
+    private static float[] vertexStaging = new float[0];
 
     static synchronized boolean sprite(int[] pixels, short[] depth, int w, int h, Image2D image,
             float[] mapping, int[] flags, int ox, int oy, int blend, boolean resident) {
@@ -215,9 +216,11 @@ final class GpuRasterizer {
                     int start=instance.submitted;
                     instance.uploadGeometry(start);
                     int firstVertex=0;
+                    GpuFrame.Draw previous=null;
                     for(int i=start;i<frame.draws.size();i++) {
                         GpuFrame.Draw saved=frame.draws.get(i);
-                        injectLoss(1); instance.render(saved,firstVertex); injectLoss(2);
+                        injectLoss(1); instance.render(saved,firstVertex,previous); injectLoss(2);
+                        previous=saved;
                         firstVertex+=saved.count*3;
                         instance.submitted=i+1; submittedDraws++;
                         if(attempt!=0) replayedDraws++;
@@ -272,6 +275,7 @@ final class GpuRasterizer {
         finally {
             destroyGpu(); frame.close(); failed=false; frameLost=false;
             spriteState.image=null; spriteState.mapping=null; spriteState.flags=null;
+            vertexStaging=new float[0];
         }
     }
 
@@ -349,29 +353,35 @@ final class GpuRasterizer {
             command.fogColor=fog.getColor(); command.fogNear=fog.getNearDistance();
             command.fogFar=fog.getFarDistance(); command.fogDensity=fog.getDensity();
         }
-        command.geometry=frame.acquire(count*240); FloatBuffer data=command.geometry.asFloatBuffer();
+        command.geometry=frame.acquire(count*240);
+        int floats=count*60;
+        if(vertexStaging.length<floats) vertexStaging=new float[floats];
+        float[] data=vertexStaging;
         if(sprite!=null) {
             int z=sprite.flags[13];
-            vertex(data,left,top,z,0,null,0,0,1,1);
-            vertex(data,right,top,z,0,null,0,0,1,1);
-            vertex(data,left,bottom,z,0,null,0,0,1,1);
-            vertex(data,right,top,z,0,null,0,0,1,1);
-            vertex(data,right,bottom,z,0,null,0,0,1,1);
-            vertex(data,left,bottom,z,0,null,0,0,1,1);
+            vertex(data,0,left,top,z,0,null,0,0,1,1);
+            vertex(data,20,right,top,z,0,null,0,0,1,1);
+            vertex(data,40,left,bottom,z,0,null,0,0,1,1);
+            vertex(data,60,right,top,z,0,null,0,0,1,1);
+            vertex(data,80,right,bottom,z,0,null,0,0,1,1);
+            vertex(data,100,left,bottom,z,0,null,0,0,1,1);
         }
         for (int i=0; sprite==null && i<count; i++) {
             Triangle t=triangles[i];
             float offset=depthOffset(t,depthFactor,depthUnits);
-            vertex(data,t.xA()+ox,t.yA()+oy,t.zA()+offset,vertexColors?t.colorA():defaultColor,
+            vertex(data,i*60,t.xA()+ox,t.yA()+oy,t.zA()+offset,vertexColors?t.colorA():defaultColor,
                     t,0,units,perspective?t.iwA():1,
                     parallelFog?fogDepth[i*3]:t.iwA());
-            vertex(data,t.xB()+ox,t.yB()+oy,t.zB()+offset,vertexColors?t.colorB():defaultColor,
+            vertex(data,i*60+20,t.xB()+ox,t.yB()+oy,t.zB()+offset,vertexColors?t.colorB():defaultColor,
                     t,1,units,perspective?t.iwB():1,
                     parallelFog?fogDepth[i*3+1]:t.iwB());
-            vertex(data,t.xC()+ox,t.yC()+oy,t.zC()+offset,vertexColors?t.colorC():defaultColor,
+            vertex(data,i*60+40,t.xC()+ox,t.yC()+oy,t.zC()+offset,vertexColors?t.colorC():defaultColor,
                     t,2,units,perspective?t.iwC():1,
                     parallelFog?fogDepth[i*3+2]:t.iwC());
         }
+        // One bulk transfer instead of a checked direct-buffer write per component.
+        // Each queued command still owns its snapshot for delayed submission/replay.
+        command.geometry.asFloatBuffer().put(data,0,floats);
         if(sprite!=null) {
             int[] p=sprite.flags; float[] f=sprite.mapping;
             int size=Math.max(w,h);
@@ -408,10 +418,12 @@ final class GpuRasterizer {
         check(); geometryUploads++;
     }
 
-    private void render(GpuFrame.Draw command,int firstVertex) {
+    private void render(GpuFrame.Draw command,int firstVertex,GpuFrame.Draw previous) {
         int w=frame.width,h=frame.height,packWidth=(w+1)/2;
         int count=command.count,blend=command.blend,mask=command.mask;
-        glActiveTexture(GL_TEXTURE0); glPixelStorei(GL_UNPACK_ALIGNMENT,1); glPixelStorei(GL_PACK_ALIGNMENT,1);
+        if(previous==null) {
+            glActiveTexture(GL_TEXTURE0); glPixelStorei(GL_UNPACK_ALIGNMENT,1); glPixelStorei(GL_PACK_ALIGNMENT,1);
+        }
         if (residentPixels==null) {
             colors=buffer(colors,w*h*4); depths=buffer(depths,packWidth*h*4); depthInput=buffer(depthInput,w*h*2);
             colors.asIntBuffer().put(frame.pixels,0,w*h); depthInput.asShortBuffer().put(frame.depth,0,w*h);
@@ -428,29 +440,41 @@ final class GpuRasterizer {
             }
             check(); residentPixels=frame.pixels; residentDepth=frame.depth; uploads++;
         }
-        glBindFramebuffer(GL_FRAMEBUFFER,framebuffer);
-        glBindVertexArray(vao); glBindBuffer(GL_ARRAY_BUFFER,vbo);
-        glViewport(0,0,w,h); glDisable(GL_BLEND);
-        if (blend!=CompositingMode.REPLACE) {
-            glEnable(GL_BLEND); glBlendEquation(GL_FUNC_ADD);
-            if(blend==CompositingMode.MODULATE || blend==CompositingMode.MODULATE_X2)
-                glBlendFuncSeparate(GL_DST_COLOR,blend==CompositingMode.MODULATE?GL_ZERO:GL_SRC_COLOR,
-                        GL_DST_ALPHA,blend==CompositingMode.MODULATE?GL_ZERO:GL_SRC_ALPHA);
-            else glBlendFuncSeparate(GL_SRC_ALPHA,blend==CompositingMode.ALPHA?GL_ONE_MINUS_SRC_ALPHA:GL_ONE,
-                        GL_ONE,GL_ONE_MINUS_SRC_ALPHA);
+        // Reuse state only inside this uninterrupted submission. A new EGL scope,
+        // readback or context replay always starts with a complete setup.
+        if(previous==null) {
+            glBindFramebuffer(GL_FRAMEBUFFER,framebuffer);
+            glBindVertexArray(vao); glBindBuffer(GL_ARRAY_BUFFER,vbo);
+            glViewport(0,0,w,h); glEnable(GL_SCISSOR_TEST);
+            glUseProgram(program); glUniform2f(targetSizeLocation,w,h);
         }
-        glEnable(GL_SCISSOR_TEST); glScissor(command.left,command.top,
-                Math.max(0,command.right-command.left),Math.max(0,command.bottom-command.top));
-        if (command.depthTest) glEnable(GL_DEPTH_TEST); else glDisable(GL_DEPTH_TEST);
-        glDepthMask(command.depthWrite);
+        if(previous==null || previous.blend!=blend) {
+            if(blend==CompositingMode.REPLACE) glDisable(GL_BLEND);
+            else {
+                glEnable(GL_BLEND); glBlendEquation(GL_FUNC_ADD);
+                if(blend==CompositingMode.MODULATE || blend==CompositingMode.MODULATE_X2)
+                    glBlendFuncSeparate(GL_DST_COLOR,blend==CompositingMode.MODULATE?GL_ZERO:GL_SRC_COLOR,
+                            GL_DST_ALPHA,blend==CompositingMode.MODULATE?GL_ZERO:GL_SRC_ALPHA);
+                else glBlendFuncSeparate(GL_SRC_ALPHA,blend==CompositingMode.ALPHA?GL_ONE_MINUS_SRC_ALPHA:GL_ONE,
+                            GL_ONE,GL_ONE_MINUS_SRC_ALPHA);
+            }
+            glUniform1i(compositeLocation,blend==CompositingMode.ALPHA || blend==CompositingMode.ALPHA_ADD?1:0);
+        }
+        if(previous==null || previous.left!=command.left || previous.top!=command.top
+                || previous.right!=command.right || previous.bottom!=command.bottom)
+            glScissor(command.left,command.top,Math.max(0,command.right-command.left),Math.max(0,command.bottom-command.top));
+        if(previous==null || previous.depthTest!=command.depthTest) {
+            if(command.depthTest) glEnable(GL_DEPTH_TEST); else glDisable(GL_DEPTH_TEST);
+        }
+        if(previous==null || previous.depthWrite!=command.depthWrite) glDepthMask(command.depthWrite);
+        // Reassert even unchanged masks: skipping this changes mixed-material
+        // output on the Retroid GPU (covered by GpuBatchTest's prefix checks).
         glColorMask((mask&0xffffff)!=0,(mask&0xffffff)!=0,(mask&0xffffff)!=0,(mask&0xff000000)!=0);
-        glUseProgram(program); glUniform2f(targetSizeLocation,w,h);
-        glUniform1i(alphaLocation,command.alpha);
-        glUniform1i(thresholdLocation,command.threshold);
-        glUniform1i(compositeLocation,blend==CompositingMode.ALPHA || blend==CompositingMode.ALPHA_ADD?1:0);
-        glUniform1i(fogModeLocation,command.fogMode);
-        glUniform1i(parallelFogLocation,command.parallelFog?1:0);
-        glUniform1i(spriteLocation,command.sprite?1:0);
+        if(previous==null || previous.alpha!=command.alpha) glUniform1i(alphaLocation,command.alpha);
+        if(previous==null || previous.threshold!=command.threshold) glUniform1i(thresholdLocation,command.threshold);
+        if(previous==null || previous.fogMode!=command.fogMode) glUniform1i(fogModeLocation,command.fogMode);
+        if(previous==null || previous.parallelFog!=command.parallelFog) glUniform1i(parallelFogLocation,command.parallelFog?1:0);
+        if(previous==null || previous.sprite!=command.sprite) glUniform1i(spriteLocation,command.sprite?1:0);
         if(command.sprite) {
             int size=Math.max(w,h);
             glActiveTexture(GL_TEXTURE4);
@@ -458,14 +482,16 @@ final class GpuRasterizer {
             spriteIndexWidth=size;
             glUniform4i(spriteLayoutLocation,0,0,command.spriteFog,0);
         }
-        if (command.fogMode!=0) {
+        if (command.fogMode!=0 && (previous==null || previous.fogMode==0 || previous.fogColor!=command.fogColor
+                || previous.fogNear!=command.fogNear || previous.fogFar!=command.fogFar || previous.fogDensity!=command.fogDensity)) {
             int c=command.fogColor;
             glUniform3f(fogColorLocation,(c>>16)&255,(c>>8)&255,c&255);
             glUniform3f(fogParamsLocation,command.fogNear,command.fogFar,command.fogDensity);
         }
         for (int unit=0;unit<4;unit++) {
             GpuFrame.Texture tex=unit<command.textures.length?command.textures[unit]:null;
-            glUniform1i(modes[unit],tex==null?0:tex.mode);
+            GpuFrame.Texture old=previous!=null && unit<previous.textures.length?previous.textures[unit]:null;
+            if(previous==null || (old==null?0:old.mode)!=(tex==null?0:tex.mode)) glUniform1i(modes[unit],tex==null?0:tex.mode);
             glActiveTexture(GL_TEXTURE0+unit);
             if(tex==null) { glBindTexture(GL_TEXTURE_2D,0); continue; }
             GpuFrame.Image image=tex.levels[0]; int tw=image.width,th=image.height;
@@ -491,11 +517,11 @@ final class GpuRasterizer {
                 glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_WRAP_T,tex.repeatT?GL_REPEAT:GL_CLAMP_TO_EDGE);
                 cached.samplerKey=key;
             }
-            glUniform2f(sizes[unit],tw,th);
-            glUniform1i(formats[unit],image.format);
-            glUniform1i(mips[unit],mip);
+            if(old==null || old.levels[0].width!=tw || old.levels[0].height!=th) glUniform2f(sizes[unit],tw,th);
+            if(old==null || old.levels[0].format!=image.format) glUniform1i(formats[unit],image.format);
+            if(old==null || old.mip!=mip) glUniform1i(mips[unit],mip);
             int c=tex.blendColor;
-            glUniform3f(blendColors[unit],(c>>16)&255,(c>>8)&255,c&255);
+            if(old==null || old.blendColor!=c) glUniform3f(blendColors[unit],(c>>16)&255,(c>>8)&255,c&255);
         }
         glActiveTexture(GL_TEXTURE0);
         glDrawArrays(GL_TRIANGLES,firstVertex,count*3);
@@ -522,14 +548,15 @@ final class GpuRasterizer {
         check();
     }
 
-    private static void vertex(FloatBuffer out,float x,float y,float z,int c,Triangle t,int corner,int units,float iw,float fog) {
-        out.put(x).put(y).put(z).put((c>>16)&255).put((c>>8)&255).put(c&255).put(c>>>24);
+    private static void vertex(float[] out,int offset,float x,float y,float z,int c,Triangle t,int corner,int units,float iw,float fog) {
+        out[offset++]=x; out[offset++]=y; out[offset++]=z;
+        out[offset++]=(c>>16)&255; out[offset++]=(c>>8)&255; out[offset++]=c&255; out[offset++]=c>>>24;
         for(int unit=0;unit<4;unit++) {
-            out.put(unit>=units?0:corner==0?t.sA(unit):corner==1?t.sB(unit):t.sC(unit));
-            out.put(unit>=units?0:corner==0?t.tA(unit):corner==1?t.tB(unit):t.tC(unit));
-            out.put(iw);
+            out[offset++]=unit>=units?0:corner==0?t.sA(unit):corner==1?t.sB(unit):t.sC(unit);
+            out[offset++]=unit>=units?0:corner==0?t.tA(unit):corner==1?t.tB(unit):t.tC(unit);
+            out[offset++]=iw;
         }
-        out.put(fog);
+        out[offset]=fog;
     }
     private static ByteBuffer buffer(ByteBuffer old,int size) {
         ByteBuffer result=old!=null && old.capacity()>=size?old:ByteBuffer.allocateDirect(size).order(ByteOrder.nativeOrder());
