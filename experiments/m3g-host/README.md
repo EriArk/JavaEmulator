@@ -200,6 +200,13 @@ offsets, fog, four texture layers and mipmapping also run on GPU. Empty meshes
 do not force readback; signed CPU depth keeps its safe fallback. Revision-aware
 upload caching preserves mutable textures. Bounded per-unit LRU caches retain
 alternating materials without reuploading each draw. The current verifier
-requires 129 candidate checks (81 earlier checks plus 48 GPU-specific checks),
-or 136 with measurement (not rerun in this checkpoint).
+requires 140 candidate checks (92 API/host/CPU checks plus 48 GPU-specific checks),
+or 147 with measurement (not rerun in this checkpoint).
 See [scope, device evidence, screenshots and performance limits](gpu/README.md).
+
+## Scene References and Copies
+
+Shared-resource slots, animation-track identity, skeleton/alignment remapping
+and camera handling are corrected in generated candidate sources. Eleven new
+public-API cases run against both engines. See the
+[dated comparison and verification boundaries](scene-copies-20261013.md).

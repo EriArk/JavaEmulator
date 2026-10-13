@@ -31,6 +31,43 @@ tasks.register('prepareM3g') {
             include '*.java'
             into new File(output, 'java/javax/microedition/m3g')
         }
+        // References are per slot, not a set. Node links need the complete clone map.
+        [
+            'Object3D.java': [
+                'public final Object3D duplicate() { return this.duplicateImpl(); }': '''public final Object3D duplicate() {
+        Object3D copy = duplicateImpl();
+        if (this instanceof Node) SceneGraphCopies.remap((Node) this, (Node) copy);
+        return copy;
+    }''',
+                'AnimationTrack trackCopy = (AnimationTrack) origTrack.duplicate();':
+                    'AnimationTrack trackCopy = origTrack;',
+                'if (!curReferences.contains(obj)) { curReferences.addElement(obj); }':
+                    'curReferences.addElement(obj);'
+            ],
+            'AnimationTrack.java': ['addReference(copy.sequence);': 'copy.addReference(copy.sequence);'],
+            'World.java': [
+                'copy.setActiveCamera((copyCamera instanceof Camera) ? (Camera) copyCamera : this.camera);':
+                    'if (this.camera != null) copy.setActiveCamera((copyCamera instanceof Camera) ? (Camera) copyCamera : this.camera);',
+                'removeReference(this.camera);':
+                    'if (camera == null) throw new NullPointerException("camera");\n\t\tremoveReference(this.camera);'
+            ],
+            'Loader.java': [
+                'world.setActiveCamera((Camera) getObject(readInt()));':
+                    'Camera camera = (Camera) getObject(readInt());\n                if (camera != null) world.setActiveCamera(camera);'
+            ]
+        ].each { name, replacements ->
+            def target = new File(output, "java/javax/microedition/m3g/${name}")
+            def text = target.getText('UTF-8')
+            replacements.each { before, after ->
+                if (text.count(before) != 1) throw new GradleException("Scene copy hook drift: ${name}: ${before}")
+                text = text.replace(before, after)
+            }
+            target.setText(text, 'UTF-8')
+        }
+        copy {
+            from new File(m3gPatchDirectory, 'SceneGraphCopies.java')
+            into new File(output, 'java/javax/microedition/m3g')
+        }
         // Android has no AWT. Keep the MIDP Image path and fail if upstream drifts.
         def image = new File(output, 'java/javax/microedition/m3g/Image2D.java')
         def oldCheck = ' && !(image instanceof java.awt.Image)'
