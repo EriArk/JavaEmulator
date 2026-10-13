@@ -24,7 +24,7 @@ def instrumentTarget = { String source, boolean alternative ->
     def patches = alternative ? [
         'private int[] androidFrameBuffer;': 'private int[] androidFrameBuffer;\n\tprivate long researchTargetStart;',
         'this.hints = hints;': 'this.hints = hints;\n\t\tresearchTargetStart = System.nanoTime();',
-        'finally { this.target = null; }': 'finally { this.target = null; if (researchTargetStart != 0) org.abyssme.research.FrameMeter.recordTarget(System.nanoTime() - researchTargetStart); researchTargetStart = 0; }'
+        'finally { androidTarget = null; this.target = null; }': 'finally { androidTarget = null; this.target = null; if (researchTargetStart != 0) org.abyssme.research.FrameMeter.recordTarget(System.nanoTime() - researchTargetStart); researchTargetStart = 0; }'
     ] : [
         'private java.lang.Object currentTarget = null;': 'private java.lang.Object currentTarget = null;\n\tprivate long researchTargetStart;',
         'depthEnabled = depth;': 'depthEnabled = depth;\n\t\tresearchTargetStart = System.nanoTime();',
@@ -138,16 +138,60 @@ if (candidate) {
             def source = new File(m3gGenerated.get().asFile, 'java/javax/microedition/m3g/Graphics3D.java')
             def text = source.getText('UTF-8')
             def patches = [
-                'private static Graphics3D instance = null;': 'private static Graphics3D instance = null;\n\tprivate int[] androidFrameBuffer;',
-                'rasterData = ((PlatformGraphics) pgrp).getFrameBuffer();': 'rasterData = androidFrameBuffer = PlatformGraphics.read(pgrp, androidFrameBuffer);',
+                'private static Graphics3D instance = null;': 'private static Graphics3D instance = null;\n\tprivate PlatformGraphics androidTarget;\n\tprivate int[] androidFrameBuffer;',
+                'rasterData = ((PlatformGraphics) pgrp).getFrameBuffer();': 'androidTarget = new PlatformGraphics(pgrp, androidFrameBuffer);\n\t\t\trasterData = androidFrameBuffer = androidTarget.pixels();',
                 'final PlatformGraphics pgrp = (PlatformGraphics) this.target;': 'final PlatformGraphics pgrp = new PlatformGraphics((Graphics) this.target);',
-                'this.target = null;': 'try { if (this.target instanceof Graphics) PlatformGraphics.flush((Graphics) this.target, rasterData); } finally { this.target = null; }',
+                'this.target = null;': 'try { if (this.target instanceof Graphics) androidTarget.flush(); } finally { androidTarget = null; this.target = null; }',
                 'public static Graphics3D getInstance()': 'public static void initGraphics3D() { instance = null; }\n\tpublic static Graphics3D getInstance()'
             ]
             patches.each { before, after ->
                 if (text.count(before) != 1) throw new GradleException("Host patch drift: ${before}")
                 text = text.replace(before, after)
             }
+            def transferHooks = [
+                'public static final boolean SUPPORT_TRUE_COLOR = true;': 'public static final boolean SUPPORT_TRUE_COLOR = false;',
+                'public static final boolean SUPPORT_DITHERING = true;': 'public static final boolean SUPPORT_DITHERING = false;',
+                'depthOffset = (depthFactor * m) + (depthUnits * 1e-7f);': 'depthOffset = (depthFactor * m) + depthUnits;',
+                'final boolean usesDepthWrite = usesDepth && compositingMode.isDepthWriteEnabled();': 'final boolean usesDepthWrite = isDepthBufferEnabled() && compositingMode.isDepthWriteEnabled();',
+                'final boolean hasDepthOffset = usesDepth &&': 'final boolean hasDepthOffset = (usesDepth || usesDepthWrite) &&',
+                'float zStep  = usesDepth ?': 'float zStep  = (usesDepth || usesDepthWrite) ?',
+                'float z  = usesDepth ?': 'float z  = (usesDepth || usesDepthWrite) ?',
+                'final boolean depthWrite = depthTest && compositingMode.isDepthWriteEnabled();': 'final boolean depthWrite = isDepthBufferEnabled() && compositingMode.isDepthWriteEnabled();',
+                'if(this.depthBuffer[rasterIdx] < (short) z)': 'short fragmentDepth = (usesDepth || usesDepthWrite) ? (short)Math.max(0, Math.min(32200, z)) : Short.MIN_VALUE;\n                if(usesDepth && this.depthBuffer[rasterIdx] < fragmentDepth)',
+                'this.depthBuffer[rasterIdx] = (short) z;': 'this.depthBuffer[rasterIdx] = fragmentDepth;',
+                'if (clearColor)\n\t\t{': '''if (clearColor)
+        {
+            if (this.target instanceof Graphics && background != null && background.getImage() != null
+                    && background.getImage().getFormat() != Image2D.RGB)
+                throw new IllegalArgumentException("MIDP background must be RGB");
+            if (androidTarget != null) androidTarget.prepareClear(originX + viewx + viewClipL,
+                    originY + viewy + viewClipT, originX + viewx + viewClipR, originY + viewy + viewClipB);''',
+                'this.currAlphaFactor = alphaFactor;': 'this.currAlphaFactor = alphaFactor;\n        if (androidTarget != null) androidTarget.prepare(false);',
+                'Image2D i2d = (Image2D) target;': 'Image2D i2d = (Image2D) target;\n            if (!i2d.isMutable()) throw new IllegalArgumentException("Immutable render target");\n            androidTarget = null;'
+            ]
+            transferHooks.each { before, after ->
+                if (text.count(before) != 1) throw new GradleException("Target transfer hook drift: ${before}")
+                text = text.replace(before, after)
+            }
+            // The Android target is already RGB888: a low-color dither/true-color
+            // quality switch is unavailable, just as reported by getProperties().
+            if (text.count('Mobile.m3gDitheringMode == MODE_APP_CONTROLLED && (this.hints & DITHER) != 0') != 2)
+                throw new GradleException('Dithering capability hook drift')
+            text = text.replace('Mobile.m3gDitheringMode == MODE_APP_CONTROLLED && (this.hints & DITHER) != 0',
+                    'SUPPORT_DITHERING && Mobile.m3gDitheringMode == MODE_APP_CONTROLLED && (this.hints & DITHER) != 0')
+            def clearEnd = '\n\t}\n\n\tpublic Camera getCamera(Transform transform)'
+            if (text.count(clearEnd) != 1) throw new GradleException('GPU clear hook drift')
+            text = text.replace(clearEnd, '''
+        if (this.target instanceof Graphics && clearColor && clearDepth
+                && (background == null || background.getImage() == null)
+                && originX + viewx + viewClipL == 0 && originY + viewy + viewClipT == 0
+                && originX + viewx + viewClipR == canvasWidth && originY + viewy + viewClipB == canvasHeight)
+            GpuRasterizer.cleared(rasterData, this.depthBuffer, canvasWidth, canvasHeight,
+                    0xff000000 | color, DEPTH_CLEAR_VALUE);
+''' + clearEnd)
+            def spriteTransfer = 'private void renderSprite(Sprite3D sprite, Transform transform, int alphaFactor)\n\t{'
+            if (text.count(spriteTransfer) != 1) throw new GradleException('Sprite transfer hook drift')
+            text = text.replace(spriteTransfer, spriteTransfer + '\n        if (androidTarget != null) androidTarget.prepare(false);')
             def nativeFields = 'private int[] androidFrameBuffer;'
             def geometryHook = '// This one is also used by all position calculations'
             if (text.count(geometryHook)!=1) throw new GradleException('GPU geometry hook drift')
@@ -201,8 +245,8 @@ if (candidate) {
     private void ''' + name + 'Measured(' + args[0] + ')')
                 }
                 def adapter = rootProject.file('experiments/m3g-host/java/org/recompile/mobile/PlatformGraphics.java').getText('UTF-8')
-                ['bitmap.getPixels(pixels, 0, width, 0, 0, width, height);',
-                 'bitmap.setPixels(pixels, 0, bitmap.getWidth(), 0, 0, bitmap.getWidth(), bitmap.getHeight());'].eachWithIndex { hook, phase ->
+                ['BitmapTransfer.read(bitmap, pixels, stride, x, y, width, height);',
+                 'bitmap.setPixels(pixels, y * stride + x, stride, x, y, width, height);'].eachWithIndex { hook, phase ->
                     if (adapter.count(hook) != 1) throw new GradleException('Bitmap timing hook drift')
                     adapter = adapter.replace(hook, 'long start = System.nanoTime();\n        ' + hook + '\n        org.abyssme.research.FrameMeter.recordPhase(' + phase + ', System.nanoTime() - start);')
                 }

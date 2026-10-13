@@ -36,7 +36,7 @@ bundled. The app UI is English.
 | Public development source | `main`; latest app fix: [9430cb0a](https://github.com/EriArk/JavaEmulator/commit/9430cb0a) | New profiles use resolution-derived font sizes; prior Java/UI/storage improvements remain unreleased. Debug builds do not need a private signing configuration. Not all changes are in the downloadable beta |
 | Private combined test snapshot | `0.1.0-beta.2-experimental.15`, 2026-10-11 | Handheld and Phone debug APKs containing Java plus experimental Mophun; supplied separately to testers, not a GitHub release |
 | Local-only implementation | Ignored optional-engine source and diagnostics | Mophun integration, game-specific experiments and test fixtures; public descriptions below, implementation not published |
-| Separate research branch | [`codex/m3g-replacement`](https://github.com/EriArk/JavaEmulator/tree/codex/m3g-replacement), code checkpoint `01a8837b` | GPU diagnostic lifecycle fix; six timed Retroid gameplay samples across Asphalt, Constructo and Deep on candidate/original engines. Roughly 60 surface buffers/s without >100 ms gaps, not unique game FPS. Final measured Retroid suite: 332 checks; focused font/compatibility/meter suite: 31 on each device/emulator. Native parity, production switch and beta remain pending |
+| Separate research branch | [`codex/m3g-replacement`](https://github.com/EriArk/JavaEmulator/tree/codex/m3g-replacement), throughput batch 2026-10-13 | Less framebuffer copying, one warmed GPU submission, mesh culling/cache improvements and depth/quality-hint compatibility fixes. Synthetic frame costs fall 17-34% against the previous candidate; all 34 fixture pixel CRCs match. Final measured Retroid suite: 361 checks; focused Phone suite: 36. Fresh Deep and Asphalt gameplay captures. Original speed parity, production switch and beta remain pending |
 
 The experimental number is a distribution label: build 15 still reports
 version code **102** and `0.1.0-beta.2` / `0.1.0-beta.2-phone` internally.
@@ -1057,6 +1057,41 @@ No production engine switch, root license change or release APK. Live release
 state was not rechecked. Next work targets remaining framebuffer transfer and
 CPU-prepared draw costs, followed by matched gameplay/native-parity acceptance.
 [Fixes, limits, timings, screenshots and raw checks](https://github.com/EriArk/JavaEmulator/blob/01a8837b/experiments/m3g-host/gameplay-20261013.md).
+
+## M3G Throughput and Compatibility: 2026-10-13
+
+The research renderer now avoids unnecessary LCDUI copies, reads opaque Android
+bitmaps through an NDK bridge and submits warmed GPU frames in one scope. Full
+solid clears avoid framebuffer uploads; larger bounded small-mesh caches and
+conservative off-camera rejection reduce repeated setup. Transparent pixels,
+partial clips and CPU fallback retain their preservation/conversion behavior.
+
+Read-only comparison with the original engine informed these changes and
+exposed compatibility fixes: truthful RGB888 quality hints, immutable/background
+validation, meaningful depth-offset units and independent depth testing/writing
+for both meshes and sprites. No EPL implementation was copied into the candidate.
+
+On Retroid, 34 synthetic fixtures cost 17-34% less than the preceding candidate,
+with identical before/after pixel CRCs. Candidate frame costs remain 19-83%
+higher than the original engine in these synthetic fixtures; native
+parity is not reached, particularly in extended lighting and sprites.
+
+Deep: Submarine Odyssey Java's final gameplay sample records a largest-window
+target P95 of 4.186 ms versus 4.010 ms in a fresh original sample. Bitmap import
+falls from 0.370 to 0.096 ms/update against the intermediate candidate. These
+are different camera/particle states, not a controlled game-FPS ratio. Asphalt
+also reaches the second lap with visible track movement and smoke. Both final
+35-second captures maintain about 60 surface buffers/s without >100 ms gaps;
+repeated buffers prevent treating that as 60 unique game frames.
+
+Final measured research APK passes 361 checks on physical Retroid with no skips.
+Phone emulator passes all 36 focused new renderer/meter checks; its earlier full
+attempt exceeded 600 seconds and is not reported as a full pass. Both app/test
+variants build. Manual buttons, audio, sustained thermal and full-game acceptance
+remain open. No APK distribution, production engine switch or license change;
+live public release state was not rechecked.
+
+[Implementation, raw checks, artifact identities, timing tables and screenshots](https://github.com/EriArk/JavaEmulator/blob/codex/m3g-replacement/experiments/m3g-host/throughput-20261013.md).
 
 ## Images and Writing Guidance
 

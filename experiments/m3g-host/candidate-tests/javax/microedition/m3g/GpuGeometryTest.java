@@ -36,11 +36,11 @@ public class GpuGeometryTest {
         assertEquals(recovered+1,GpuRasterizer.recoveries);
     }
 
-    @Test public void depthOffsetStaysOnPreparedPath() {
+    @Test public void depthOffsetUsesHardwareAndMatchesPreparedPath() {
         int[] expected=render(false,false,8,1,false,false);
         long draws=GpuGeometry.draws;
-        assertArrayEquals(expected,render(true,false,8,1,false,false));
-        assertEquals(draws,GpuGeometry.draws);
+        compare(expected,render(true,false,8,1,false,false),3,0.025);
+        assertEquals(draws+2,GpuGeometry.draws);
     }
 
     @Test public void nearPlaneClippingAndOffscreenGeometryRemainVisible() {
@@ -123,7 +123,7 @@ public class GpuGeometryTest {
         Mesh mesh=new Mesh(vb,new TriangleStripArray(0,new int[]{4}),style);
         long draws=GpuGeometry.draws;
         g.render(mesh,transform); transform.postTranslate(.12f,0,-.01f); g.render(mesh,transform);
-        if(hardware && mode!=8) assertEquals("hardware stage must run",draws+2,GpuGeometry.draws);
+        if(hardware) assertEquals("hardware stage must run",draws+2,GpuGeometry.draws);
         if(mutate) {
             points.set(0,4,new short[12]); material.setColor(Material.DIFFUSE,0xff000000);
             transform.postScale(0,0,0); vb.setDefaultColor(0xff000000);

@@ -3,19 +3,48 @@ package org.recompile.mobile;
 import android.graphics.Bitmap;
 import javax.microedition.lcdui.Graphics;
 
-/** Copies the shared MIDP bitmap at bind/release so 2D and 3D retain paint order. */
+/** Imports only when needed; the bound clip is the only region committed to MIDP. */
 public final class PlatformGraphics {
-    public PlatformGraphics(Graphics target) { }
-    public static int[] read(Graphics target, int[] reuse) {
-        Bitmap bitmap = target.getBitmap();
-        int width = bitmap.getWidth(), height = bitmap.getHeight();
-        int[] pixels = reuse != null && reuse.length == width * height ? reuse : new int[width * height];
-        bitmap.getPixels(pixels, 0, width, 0, 0, width, height);
-        return pixels;
+    public static boolean lazyRead = true;
+    public static long imports, exports, skippedImports;
+    private final Bitmap bitmap;
+    private final int[] pixels;
+    private final int stride, x, y, width, height;
+    private boolean ready;
+
+    public PlatformGraphics(Graphics target) { this(target, null); }
+
+    public PlatformGraphics(Graphics target, int[] reuse) {
+        bitmap = target.getBitmap();
+        stride = bitmap.getWidth();
+        int size = stride * bitmap.getHeight();
+        pixels = reuse != null && reuse.length == size ? reuse : new int[size];
+        x = Math.max(0, Math.min(stride, target.getClipX() + target.getTranslateX()));
+        y = Math.max(0, Math.min(bitmap.getHeight(), target.getClipY() + target.getTranslateY()));
+        width = Math.max(0, Math.min(stride, target.getClipX() + target.getTranslateX() + target.getClipWidth()) - x);
+        height = Math.max(0, Math.min(bitmap.getHeight(), target.getClipY() + target.getTranslateY() + target.getClipHeight()) - y);
+        if (!lazyRead) prepare(false);
     }
-    public static void flush(Graphics target, int[] pixels) {
-        Bitmap bitmap = target.getBitmap();
-        bitmap.setPixels(pixels, 0, bitmap.getWidth(), 0, 0, bitmap.getWidth(), bitmap.getHeight());
+
+    public int[] pixels() { return pixels; }
+
+    public void prepareClear(int left, int top, int right, int bottom) {
+        prepare(left <= x && top <= y && right >= x + width && bottom >= y + height);
+    }
+
+    public void prepare(boolean discard) {
+        if (ready) return;
+        if (width > 0 && height > 0 && !discard) {
+            BitmapTransfer.read(bitmap, pixels, stride, x, y, width, height);
+            imports++;
+        } else skippedImports++;
+        ready = true;
+    }
+
+    public void flush() {
+        if (!ready || width == 0 || height == 0) return;
+        bitmap.setPixels(pixels, y * stride + x, stride, x, y, width, height);
+        exports++;
     }
     public int getColor() { throw new UnsupportedOperationException("Debug wireframe is not supported"); }
     public void setColor(int color) { throw new UnsupportedOperationException("Debug wireframe is not supported"); }

@@ -9,6 +9,7 @@ include $(BUILD_SHARED_LIBRARY)
 
 include $(CLEAR_VARS)
 LOCAL_MODULE := abyssm3graster
-LOCAL_SRC_FILES := raster.cpp
+LOCAL_SRC_FILES := raster.cpp bitmap.cpp
+LOCAL_LDLIBS := -ljnigraphics
 LOCAL_CPPFLAGS := -std=c++17 -O3 -fwrapv -fno-fast-math -ffp-contract=off -Wall -Wextra
 include $(BUILD_SHARED_LIBRARY)

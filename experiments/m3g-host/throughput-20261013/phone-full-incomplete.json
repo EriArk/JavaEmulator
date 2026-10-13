@@ -1,0 +1,39 @@
+﻿{
+    "device":  "Android 15 Phone emulator",
+    "scope":  "Attempted full measured candidate suite",
+    "expectedTests":  355,
+    "timeoutSeconds":  600,
+    "result":  "incomplete",
+    "reason":  "ADB timeout; no test pass can be inferred",
+    "finishedMarkers":  1538,
+    "lastMarker":  {
+                       "value":  "10-13 14:21:12.658  6430  6444 I TestRunner: started: unlitPerspectiveParallelAndViewportMatchPreparedPath(javax.microedition.m3g.GpuGeometryTest)",
+                       "PSPath":  "C:\\Users\\EriArk\\Documents\\JavaGameEmu-M3G\\experiments\\m3g-host\\build\\phone-full-partial-logcat.txt",
+                       "PSParentPath":  "C:\\Users\\EriArk\\Documents\\JavaGameEmu-M3G\\experiments\\m3g-host\\build",
+                       "PSChildName":  "phone-full-partial-logcat.txt",
+                       "PSDrive":  {
+                                       "CurrentLocation":  "Users\\EriArk\\Documents\\JavaGameEmu-M3G",
+                                       "Name":  "C",
+                                       "Provider":  "Microsoft.PowerShell.Core\\FileSystem",
+                                       "Root":  "C:\\",
+                                       "Description":  "Acer",
+                                       "MaximumSize":  null,
+                                       "Credential":  "System.Management.Automation.PSCredential",
+                                       "DisplayRoot":  null
+                                   },
+                       "PSProvider":  {
+                                          "ImplementingType":  "Microsoft.PowerShell.Commands.FileSystemProvider",
+                                          "HelpFile":  "System.Management.Automation.dll-Help.xml",
+                                          "Name":  "FileSystem",
+                                          "PSSnapIn":  "Microsoft.PowerShell.Core",
+                                          "ModuleName":  "Microsoft.PowerShell.Core",
+                                          "Module":  null,
+                                          "Description":  "",
+                                          "Capabilities":  52,
+                                          "Home":  "C:\\Users\\EriArk",
+                                          "Drives":  "C D"
+                                      },
+                       "ReadCount":  3347
+                   },
+    "followup":  "Final APK focused suite: 36 tests; raw output in phone-focused-tests.txt"
+}

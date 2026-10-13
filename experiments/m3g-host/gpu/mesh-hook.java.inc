@@ -1,6 +1,6 @@
         if (GpuRasterizer.enabled && !Mobile.halfResM3GRaster && !Mobile.M3GRenderWireframe
                 && !doAntiAlias && Mobile.m3gDitheringMode != MODE_FORCE_ENABLE
-                && !(Mobile.m3gDitheringMode == MODE_APP_CONTROLLED && (hints & DITHER) != 0)
+                && !(SUPPORT_DITHERING && Mobile.m3gDitheringMode == MODE_APP_CONTROLLED && (hints & DITHER) != 0)
                 && GpuRasterizer.draw(rasterData, depthBuffer, canvasWidth, canvasHeight,
                     trisScreen, renderableTriangles[0], originX + viewx, originY + viewy,
                     originX + viewx + viewClipL, originY + viewy + viewClipT,

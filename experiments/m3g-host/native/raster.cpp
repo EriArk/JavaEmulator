@@ -217,7 +217,7 @@ void render(u32* __restrict raster, int16_t* __restrict depth,
         float diff=left+0.5f-xL;
         float pw=perspective ? pwL+diff*f[9] : 0.0f;
         float inv=perspective ? reciprocal(pw) : 1.0f, stepInv=0.0f;
-        float z=usesDepth ? zL+diff*f[8]+f[10] : -32768.0f;
+        float z=(usesDepth || depthWrite) ? zL+diff*f[8]+f[10] : -32768.0f;
         float s[4], t[4];
         for (int i=0; i<Units; ++i) {
             Texture& tex=textures[i];
@@ -248,8 +248,8 @@ void render(u32* __restrict raster, int16_t* __restrict depth,
                 }
                 next+=span;
             }
-            int16_t zi=static_cast<int16_t>(narrow(z));
-            if (depth[index] < zi) {
+            int16_t zi=(usesDepth || depthWrite)?static_cast<int16_t>(std::max(0,std::min(32200,narrow(z)))):SHRT_MIN;
+            if (usesDepth && depth[index] < zi) {
                 if (colors) for (int c=0;c<4;++c) color[c]+=p[9+c];
                 for (int i=0; i<Units; ++i) { s[i]+=textures[i].stepS; t[i]+=textures[i].stepT; }
                 continue;
@@ -448,18 +448,18 @@ Java_javax_microedition_m3g_NativeRasterizer_drawSprite(JNIEnv* env, jclass,
             || int64_t(p[6])*p[7]>env->GetArrayLength(image)
             || p[8]<0 || p[9]<0 || p[10]<=0 || p[11]<=0
             || int64_t(p[8])+p[10]>p[6] || int64_t(p[9])+p[11]>p[7]
-            || p[12]<0 || p[12]>15 || (writeDepth && !useDepth)
+            || p[12]<0 || p[12]>15
             || p[13]<SHRT_MIN || p[13]>SHRT_MAX || p[14]<0 || p[14]>256
             || p[15]<0 || p[15]>255 || p[17]<0 || p[17]>4 || p[19]<0 || p[19]>255
-            || (useDepth && (!depth || env->GetArrayLength(depth)<length))) return false;
+            || ((useDepth || writeDepth) && (!depth || env->GetArrayLength(depth)<length))) return false;
     if (p[0]==p[1] || p[2]==p[3]) return true;
     int64_t first=int64_t(p[4])+p[0];
     int64_t last=int64_t(p[4])+int64_t(p[3]-p[2]-1)*p[5]+p[1];
     if (first<0 || last>length) return false;
     auto* raster=static_cast<u32*>(env->GetPrimitiveArrayCritical(pixels,nullptr));
     if (!raster) return false;
-    auto* z=useDepth ? static_cast<int16_t*>(env->GetPrimitiveArrayCritical(depth,nullptr)) : nullptr;
-    auto* src=(!useDepth || z) ? static_cast<u32*>(env->GetPrimitiveArrayCritical(image,nullptr)) : nullptr;
+    auto* z=(useDepth || writeDepth) ? static_cast<int16_t*>(env->GetPrimitiveArrayCritical(depth,nullptr)) : nullptr;
+    auto* src=(!(useDepth || writeDepth) || z) ? static_cast<u32*>(env->GetPrimitiveArrayCritical(image,nullptr)) : nullptr;
     if (src) {
         int row=p[4];
         for (int y=p[2]; y<p[3]; ++y,row+=p[5]) {

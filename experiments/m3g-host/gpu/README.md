@@ -8,17 +8,23 @@ patches, legacy EPL renderer source or new public release binaries are included.
 
 An additional **opt-in hardware geometry stage** is now available with
 `-Pm3gGpu=true -Pm3gGpuGeometry=true`. It bypasses CPU triangle preparation for
-supported smooth, one-sided meshes. See the [architecture and verification
+supported meshes, including flat and two-sided lighting. See the [architecture and verification
 checkpoint](../hardware-20261013.md) for capabilities, fallbacks and measurements.
 The prepared-triangle path below remains available; neither path is the
 production default.
 
 The [indexed residency follow-up](../indexed-20261013.md) adds compact indexed
-mesh snapshots, a context-owned 4 MiB / 64-entry VBO/EBO/VAO cache and a separate
+mesh snapshots, a context-owned 4 MiB / 256-entry VBO/EBO/VAO cache and a separate
 normal attribute. Hardware geometry now supports four texture units. Prepared
 triangles and Sprite3D retain the streaming path; mixed draws and context replay
 are covered explicitly. These are bounded per-mesh caches, not whole-game RAM
 preloading.
+
+The [throughput follow-up](../throughput-20261013.md) raises the entry limit
+without raising the byte limit, rejects fully off-camera meshes using bounded
+revision-aware position bounds, and skips normal inversion for unlit geometry.
+Finite depth offsets now remain on the hardware vertex path. Bounds use weak
+keys and do not independently keep old vertex arrays alive.
 
 `GpuRasterizer.java` consumes the candidate's already transformed, clipped,
 culled and lit triangles. GLES3 rasterizes one complete submesh per draw. It
@@ -40,7 +46,9 @@ ALPHA changes only alpha; LUMINANCE/LUMINANCE_ALPHA retain their own combiners.
 DECAL on those three formats remains the CPU candidate's passthrough behavior.
 
 Out-of-range/nonfinite depth offsets, AA,
-dithering, wireframe and half-resolution meshes retain CPU execution.
+explicitly forced software dithering, wireframe and half-resolution meshes retain CPU execution.
+Android RGB888 targets report no low-color dithering or higher-precision
+true-color capability; application hints no longer spuriously force CPU work.
 Half-resolution sprites also retain CPU execution.
 Oversized or nonfinite geometry and target/texture aliases are rejected before
 GPU execution. Degenerate/nonfinite fog settings also retain CPU execution.
@@ -50,15 +58,23 @@ on the GPU. Barriers before CPU mesh/sprite rendering, clear, bind, release or
 renderer reset read both buffers, check GL status and restore the caller's EGL
 context before committing CPU arrays. Depth dirtiness accumulates across draws,
 including draws with depth writes disabled. Image2D targets commit immediately
-so image sampling and mutation do not observe stale pixels. The first draw is
-submitted immediately for safe startup fallback; later draws share one EGL
-scope and combined vertex upload at the next barrier. Without the additional
+so image sampling and mutation do not observe stale pixels. An uninitialized
+backend submits its first draw immediately for safe startup fallback. Once
+validated, a whole frame shares one EGL scope at the next barrier, including
+its first draw. The replay journal also handles loss before that deferred draw.
+Without the additional
 hardware geometry flag, transformation, clipping and lighting still happen on CPU.
 
 `releaseTarget` now commits color without packing/reading depth that the next
 `bindTarget` always reinitializes. Other CPU barriers still preserve depth,
 including fallbacks, partial clears and immediate Image2D draws. This does not
 remove the color readback required by the Android bitmap/LCDUI bridge.
+
+Full solid clears of a Graphics target use GL clear instead of uploading two
+uniform arrays. CPU buffers remain initialized for startup fallback and the
+journal retains clear values for context replay. Partial clears and CPU barriers
+invalidate this shortcut. Depth testing and writing are independent; a write-only
+pass uses an always-pass GL test, and its depth is read back before CPU work.
 
 Unsupported states flush pending work before CPU fallback. GPU startup failure
 before a resident target exists can fall back. Owned-context loss now gets one

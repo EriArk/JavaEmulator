@@ -171,11 +171,11 @@ public class GpuMeshCacheTest {
 
     @Test public void entryCountIsBoundedEvenForManyTinyMeshes() {
         setup();
-        for(int i=0;i<70;i++) {
+        for(int i=0;i<GpuGeometry.CACHE_ENTRIES+6;i++) {
             vertices=new VertexBuffer(); vertices.setPositions(points,1,null); vertices.setDefaultColor(0xff30a060+i);
             begin(); draw(); assertEquals(vertices.getDefaultColor(),pixels()[32*64+32]);
-            assertTrue(GpuRasterizer.cachedMeshBytes()<=64*380);
+            assertTrue(GpuRasterizer.cachedMeshBytes()<=GpuGeometry.CACHE_ENTRIES*380);
         }
-        assertEquals(64*380,GpuRasterizer.cachedMeshBytes());
+        assertEquals(GpuGeometry.CACHE_ENTRIES*380,GpuRasterizer.cachedMeshBytes());
     }
 }

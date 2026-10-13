@@ -30,6 +30,7 @@ public class M3gBenchmark {
         java.lang.reflect.Field gpuUploads=null, gpuReadbacks=null, gpuRetain=null;
         java.lang.reflect.Field gpuBatch=null, gpuSubmissions=null, gpuSubmitted=null, gpuGeometry=null;
         java.lang.reflect.Field gpuCache=null,gpuTextureUploads=null;
+        java.lang.reflect.Field deferred=null;
         java.lang.reflect.Field hardwareGeometry=null,hardwareDraws=null;
         java.lang.reflect.Field meshCache=null,meshUploads=null,meshBytes=null,meshHits=null;
         String meshPolicy=InstrumentationRegistry.getArguments().getString("benchGpuMeshCache");
@@ -62,6 +63,8 @@ public class M3gBenchmark {
             gpuReadbacks=gpu.getDeclaredField("readbacks"); gpuReadbacks.setAccessible(true);
             gpuRetain=gpu.getDeclaredField("retainTargets"); gpuRetain.setAccessible(true);
             gpuBatch=gpu.getDeclaredField("batchSubmission"); gpuBatch.setAccessible(true);
+            try { deferred=gpu.getDeclaredField("deferValidatedFrames"); deferred.setAccessible(true); }
+            catch(NoSuchFieldException olderCheckpoint) { }
             gpuSubmissions=gpu.getDeclaredField("submissions"); gpuSubmissions.setAccessible(true);
             gpuSubmitted=gpu.getDeclaredField("submittedDraws"); gpuSubmitted.setAccessible(true);
             gpuGeometry=gpu.getDeclaredField("geometryUploads"); gpuGeometry.setAccessible(true);
@@ -129,6 +132,7 @@ public class M3gBenchmark {
                 .put("lightingCache", lighting == null ? "default" : lighting)
                 .put("gpuResident",gpuRetain!=null && gpuRetain.getBoolean(null))
                 .put("gpuBatch",gpuBatch!=null && gpuBatch.getBoolean(null))
+                .put("gpuDeferred",deferred!=null && deferred.getBoolean(null))
                 .put("gpuTextureCache",gpuCache!=null && gpuCache.getBoolean(null))
                 .put("gpuHardwareGeometry",hardwareGeometry!=null && hardwareGeometry.getBoolean(null))
                 .put("gpuMeshCache",meshCache!=null && meshCache.getBoolean(null))
@@ -235,8 +239,9 @@ public class M3gBenchmark {
                     assertEquals(gpuRetain.getBoolean(null)?totalFrames:totalFrames*16,gpuUploads.getLong(null)-uploadStart);
                     assertEquals(gpuUploads.getLong(null)-uploadStart,gpuReadbacks.getLong(null)-readStart);
                     if(gpuRetain.getBoolean(null)) {
-                        assertEquals(totalFrames*(gpuBatch.getBoolean(null)?2:17),gpuSubmissions.getLong(null)-submitStart);
-                        assertEquals(hardwareGeometry.getBoolean(null)&&meshCache!=null?0:totalFrames*(gpuBatch.getBoolean(null)?2:16),gpuGeometry.getLong(null)-geometryStart);
+                        boolean defer=deferred!=null && deferred.getBoolean(null) && gpuBatch.getBoolean(null);
+                        assertEquals(defer?totalFrames+1:totalFrames*(gpuBatch.getBoolean(null)?2:17),gpuSubmissions.getLong(null)-submitStart);
+                        assertEquals(hardwareGeometry.getBoolean(null)&&meshCache!=null?0:defer?totalFrames+1:totalFrames*(gpuBatch.getBoolean(null)?2:16),gpuGeometry.getLong(null)-geometryStart);
                         if(hardwareGeometry.getBoolean(null) && meshCache!=null) {
                             assertEquals(meshCache.getBoolean(null)?1:totalFrames*16,meshUploads.getLong(null)-meshUploadStart);
                             assertEquals(meshCache.getBoolean(null)?totalFrames*16-1:0,meshHits.getLong(null)-meshHitStart);

@@ -17,6 +17,14 @@ candidate. The original upstream checkout is never edited. The candidate-only
 NDK configuration builds `abyssm3graster` alongside the existing `micro3d` helper,
 without linking `javam3g`. Missing native libraries retain the Java path.
 
+`bitmap.cpp` is a separate new Android bitmap bridge, also GPL-3.0-or-later.
+It reads only the bound region of ordinary opaque sRGB RGBA8888 bitmaps, using
+the public NDK lock/unlock API and a channel swap. Any partially transparent
+pixel, other color space or bitmap format uses Android's `getPixels` conversion
+for the entire requested region. It never writes the bitmap. Java references,
+array pins, stride and bounds are checked; absence of the library keeps the
+existing Android path. See the [throughput report](../throughput-20261013.md).
+
 Triangle setup, transforms, lighting and scene traversal remain in Java. The
 native loop handles untextured or up to four textures, nearest/linear
 sampling, independent repeat/clamp axes, vertex colors, depth, alpha rejection,

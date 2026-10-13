@@ -72,9 +72,19 @@ public class M3gTargetMeterTest {
         assertArrayEquals(new long[3], (long[]) field("phaseCalls").get(null));
     }
 
-    @Test public void candidateCopiesAreObservedOncePerTarget() throws Exception {
+    @Test public void candidateUnusedTargetAvoidsCopies() throws Exception {
         org.junit.Assume.assumeTrue(InstrumentationRegistryCompat.isCandidate());
         renderer.bindTarget(Image.createImage(16, 16).getGraphics());
+        renderer.releaseTarget();
+        renderer.releaseTarget();
+        assertArrayEquals(new long[]{0, 0, 0}, (long[]) field("phaseCalls").get(null));
+    }
+
+    @Test public void candidatePartialClearCopiesAreObservedOncePerTarget() throws Exception {
+        org.junit.Assume.assumeTrue(InstrumentationRegistryCompat.isCandidate());
+        renderer.bindTarget(Image.createImage(16, 16).getGraphics());
+        renderer.setViewport(1, 1, 8, 8);
+        renderer.clear(null);
         renderer.releaseTarget();
         renderer.releaseTarget();
         assertArrayEquals(new long[]{1, 1, 0}, (long[]) field("phaseCalls").get(null));

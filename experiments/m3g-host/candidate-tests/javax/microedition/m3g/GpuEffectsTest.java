@@ -32,12 +32,12 @@ public class GpuEffectsTest {
             Graphics3D.initGraphics3D(); Graphics3D g=Graphics3D.getInstance(); Image2D target=bind(g);
             GpuRasterizer.enabled=true; Mesh first=mesh(0xff20c060,false);
             CompositingMode mode=new CompositingMode(); mode.setDepthWriteEnable(write); mode.setDepthTestEnable(test);
-            mode.setDepthOffset(0,test?-100000000f:Float.POSITIVE_INFINITY);
+            mode.setDepthOffset(0,-1);
             first.getAppearance(0).setCompositingMode(mode); long before=GpuRasterizer.draws;
             g.render(first,new Transform()); assertEquals(before+1,GpuRasterizer.draws);
             // A CPU draw at the original depth must observe the biased GPU depth only if written.
             GpuRasterizer.enabled=false; g.render(mesh(0xffa02040,false),new Transform()); g.releaseTarget();
-            assertEquals(write && test?0xff20c060:0xffa02040,target.image[15*32+16]);
+            assertEquals(write?0xff20c060:0xffa02040,target.image[15*32+16]);
         }
     }
 

@@ -13,6 +13,8 @@ final class GpuFrame {
     int[] pixels;
     short[] depth;
     int width, height, bytes;
+    boolean solidClear;
+    int clearColor, clearDepth;
     final ArrayList<Draw> draws = new ArrayList<>();
     private final IdentityHashMap<Image2D, Image> images = new IdentityHashMap<>();
     private final ArrayList<ByteBuffer> buffers = new ArrayList<>();
@@ -103,7 +105,7 @@ final class GpuFrame {
 
     void clear() {
         for(Draw draw:draws) { if(draw.raw==null) recycle(draw.geometry); recycle(draw.indices); }
-        draws.clear(); images.clear(); bytes=0; pixels=null; depth=null;
+        draws.clear(); images.clear(); bytes=0; pixels=null; depth=null; solidClear=false;
     }
 
     void close() { clear(); buffers.clear(); pooledBytes=0; }

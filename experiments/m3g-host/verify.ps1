@@ -110,11 +110,12 @@ if ($Engine -eq 'candidate') {
     $classes += ',javax.microedition.m3g.GpuReleaseTest'
     $classes += ',javax.microedition.m3g.GpuMeshCacheTest'
     $classes += ',javax.microedition.m3g.GpuLightingTest'
-    $expectedTests += 143
+    $classes += ',javax.microedition.m3g.GpuThroughputTest'
+    $expectedTests += 171
 }
 if ($measured) {
     $classes += ',javax.microedition.shell.M3gTargetMeterTest'
-    $expectedTests += 7
+    $expectedTests += 8
 }
 $result = Invoke-Adb @('shell', 'am', 'instrument', '-w', '-r', '-e', 'class',
     $classes, "$package.test/androidx.test.runner.AndroidJUnitRunner") -TimeoutMs ($TestTimeoutSeconds * 1000)

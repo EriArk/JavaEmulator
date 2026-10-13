@@ -1,0 +1,274 @@
+﻿[
+    {
+        "name":  "rgb-nearest-240x320",
+        "before":  1.8836920625,
+        "after":  1.4211598374999999,
+        "native":  0.86199641875,
+        "saving":  24.554556140462591,
+        "crcSame":  true
+    },
+    {
+        "name":  "rgb-linear-240x320",
+        "before":  1.87634146875,
+        "after":  1.37388608125,
+        "native":  0.8550511,
+        "saving":  26.7784620160173,
+        "crcSame":  true
+    },
+    {
+        "name":  "rgba-alpha-240x320",
+        "before":  1.8118772875,
+        "after":  1.34361881875,
+        "native":  0.94863868125000006,
+        "saving":  25.843829048494548,
+        "crcSame":  true
+    },
+    {
+        "name":  "lit-fog-240x320",
+        "before":  1.7632858062499999,
+        "after":  1.29746451875,
+        "native":  0.8603860625,
+        "saving":  26.417798285954973,
+        "crcSame":  true
+    },
+    {
+        "name":  "exp-fog-240x320",
+        "before":  1.80907683125,
+        "after":  1.25357681875,
+        "native":  0.869043625,
+        "saving":  30.70626978933624,
+        "crcSame":  true
+    },
+    {
+        "name":  "multi-texture-240x320",
+        "before":  2.0628801937500003,
+        "after":  1.576328125,
+        "native":  null,
+        "saving":  23.586055565617848,
+        "crcSame":  true
+    },
+    {
+        "name":  "mip-nearest-240x320",
+        "before":  1.75973958125,
+        "after":  1.2645859312499999,
+        "native":  0.838775725,
+        "saving":  28.137893542650016,
+        "crcSame":  true
+    },
+    {
+        "name":  "mip-linear-240x320",
+        "before":  1.7832073625,
+        "after":  1.26967545,
+        "native":  0.898245125,
+        "saving":  28.798216253439225,
+        "crcSame":  true
+    },
+    {
+        "name":  "sprites-240x320",
+        "before":  2.37234505,
+        "after":  1.7159192749999999,
+        "native":  0.95271354375,
+        "saving":  27.669911465872133,
+        "crcSame":  true
+    },
+    {
+        "name":  "lighting-grid-240x320",
+        "before":  1.674107425,
+        "after":  1.2444007124999998,
+        "native":  0.86071940625,
+        "saving":  25.66780996745177,
+        "crcSame":  true
+    },
+    {
+        "name":  "lighting-flat-240x320",
+        "before":  1.9561289,
+        "after":  1.4905354875,
+        "native":  0.8522040875,
+        "saving":  23.801775665192604,
+        "crcSame":  true
+    },
+    {
+        "name":  "lighting-two-sided-240x320",
+        "before":  2.0363558,
+        "after":  1.6153069750000002,
+        "native":  0.88781804375,
+        "saving":  20.676584367034469,
+        "crcSame":  true
+    },
+    {
+        "name":  "multi-draw-240x320",
+        "before":  2.700657225,
+        "after":  1.89255501875,
+        "native":  1.304590825,
+        "saving":  29.922427724977208,
+        "crcSame":  true
+    },
+    {
+        "name":  "modulate-240x320",
+        "before":  1.6249505249999998,
+        "after":  1.14069921875,
+        "native":  0.9149515,
+        "saving":  29.800987710071968,
+        "crcSame":  true
+    },
+    {
+        "name":  "modulate-x2-240x320",
+        "before":  1.7259703687499999,
+        "after":  1.14221614375,
+        "native":  0.95908821875,
+        "saving":  33.821798772986611,
+        "crcSame":  true
+    },
+    {
+        "name":  "depth-offset-240x320",
+        "before":  1.74036034375,
+        "after":  1.157389975,
+        "native":  0.8430084625,
+        "saving":  33.497107127473292,
+        "crcSame":  true
+    },
+    {
+        "name":  "material-churn-240x320",
+        "before":  2.68167253125,
+        "after":  1.8707818999999999,
+        "native":  1.2861022125,
+        "saving":  30.238242059779829,
+        "crcSame":  true
+    },
+    {
+        "name":  "rgb-nearest-320x240",
+        "before":  1.55605664375,
+        "after":  1.07504589375,
+        "native":  0.8363785875,
+        "saving":  30.912161966083318,
+        "crcSame":  true
+    },
+    {
+        "name":  "rgb-linear-320x240",
+        "before":  1.57886295625,
+        "after":  1.0826002562500001,
+        "native":  0.8541748125,
+        "saving":  31.431651368823477,
+        "crcSame":  true
+    },
+    {
+        "name":  "rgba-alpha-320x240",
+        "before":  1.5873222687500002,
+        "after":  1.0880807250000002,
+        "native":  0.865203775,
+        "saving":  31.4518074608219,
+        "crcSame":  true
+    },
+    {
+        "name":  "lit-fog-320x240",
+        "before":  1.56392349375,
+        "after":  1.12577603125,
+        "native":  0.85913801875000007,
+        "saving":  28.015914093687744,
+        "crcSame":  true
+    },
+    {
+        "name":  "exp-fog-320x240",
+        "before":  1.6213958375,
+        "after":  1.1106028562499999,
+        "native":  0.87683300624999994,
+        "saving":  31.503286824615408,
+        "crcSame":  true
+    },
+    {
+        "name":  "multi-texture-320x240",
+        "before":  1.9166136062499999,
+        "after":  1.4058981000000002,
+        "native":  null,
+        "saving":  26.646764093950758,
+        "crcSame":  true
+    },
+    {
+        "name":  "mip-nearest-320x240",
+        "before":  1.57896548125,
+        "after":  1.1254986999999999,
+        "native":  0.85656445625,
+        "saving":  28.719233361011142,
+        "crcSame":  true
+    },
+    {
+        "name":  "mip-linear-320x240",
+        "before":  1.58392871875,
+        "after":  1.12692740625,
+        "native":  0.82647134999999994,
+        "saving":  28.852391341237549,
+        "crcSame":  true
+    },
+    {
+        "name":  "sprites-320x240",
+        "before":  2.0433958312500002,
+        "after":  1.45642578125,
+        "native":  0.9503860625,
+        "saving":  28.725224991818386,
+        "crcSame":  true
+    },
+    {
+        "name":  "lighting-grid-320x240",
+        "before":  1.6245983125,
+        "after":  1.1858255249999998,
+        "native":  0.8483483,
+        "saving":  27.008078496942311,
+        "crcSame":  true
+    },
+    {
+        "name":  "lighting-flat-320x240",
+        "before":  1.850236325,
+        "after":  1.4513053375,
+        "native":  0.84523990625,
+        "saving":  21.5610828795073,
+        "crcSame":  true
+    },
+    {
+        "name":  "lighting-two-sided-320x240",
+        "before":  1.94752896875,
+        "after":  1.619764325,
+        "native":  0.88455109375,
+        "saving":  16.8297698781021,
+        "crcSame":  true
+    },
+    {
+        "name":  "multi-draw-320x240",
+        "before":  2.5304375,
+        "after":  1.80812923125,
+        "native":  1.2447207,
+        "saving":  28.544797836342539,
+        "crcSame":  true
+    },
+    {
+        "name":  "modulate-320x240",
+        "before":  1.54037206875,
+        "after":  1.0556201187499998,
+        "native":  0.8633095625,
+        "saving":  31.469796150833385,
+        "crcSame":  true
+    },
+    {
+        "name":  "modulate-x2-320x240",
+        "before":  1.5701709,
+        "after":  1.07186003125,
+        "native":  0.87215885625,
+        "saving":  31.736091195550753,
+        "crcSame":  true
+    },
+    {
+        "name":  "depth-offset-320x240",
+        "before":  1.61059505625,
+        "after":  1.08361979375,
+        "native":  0.84673763125,
+        "saving":  32.719289709417922,
+        "crcSame":  true
+    },
+    {
+        "name":  "material-churn-320x240",
+        "before":  2.545658525,
+        "after":  1.803194975,
+        "native":  1.26719628125,
+        "saving":  29.165873690777122,
+        "crcSame":  true
+    }
+]

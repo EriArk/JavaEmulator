@@ -1,0 +1,8 @@
+﻿{
+    "package":  "io.github.eriark.abyssme.m3gcandidate.phone.debug",
+    "device":  "Android 15 emulator x86_64 SwiftShader",
+    "apk":  "C39D37F88B34599ED8223B9C763CE6380A53D11B41489633863BAB9431A7436F",
+    "testApk":  "B00FB8F46148CC0C1604202B88C028E1EB8152BA69E4B57D11B0137383357BF5",
+    "passed":  36,
+    "skipped":  0
+}

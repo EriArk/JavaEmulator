@@ -14,10 +14,51 @@ final class GpuGeometry {
     static long draws, vertices;
     static long cacheHits, cacheMisses;
     static long uniformReuses;
+    static long culledDraws, boundsBuilds;
+    static boolean frustumCulling = true;
     static final int CACHE_BYTES=4*1024*1024;
+    static final int CACHE_ENTRIES=256;
     private static final ArrayList<Geometry> cache=new ArrayList<>();
     private static int cachedBytes;
     private static float[] staging = new float[0];
+    private static final java.util.WeakHashMap<VertexArray,Bounds> bounds = new java.util.WeakHashMap<>();
+
+    private static final class Bounds {
+        final long revision;
+        final double[] center=new double[3], extent=new double[3];
+        Bounds(VertexArray points) {
+            revision=points.revision; boundsBuilds++;
+            for(int axis=0;axis<3;axis++) {
+                float min=Float.POSITIVE_INFINITY,max=Float.NEGATIVE_INFINITY;
+                for(int vertex=0;vertex<points.getVertexCount();vertex++) {
+                    float value=component(points,vertex,axis);
+                    min=Math.min(min,value); max=Math.max(max,value);
+                }
+                center[axis]=((double)min+max)*.5; extent[axis]=((double)max-min)*.5;
+            }
+        }
+    }
+
+    // Test the full position bounds against homogeneous clip planes, without dividing by W.
+    // A conservative tolerance keeps crossing/tangent geometry on the normal clipping path.
+    private static boolean outside(VertexArray points,float[] clip) {
+        Bounds box=bounds.get(points);
+        if(box==null || box.revision!=points.revision) {
+            box=new Bounds(points); bounds.put(points,box);
+            if(bounds.size()>CACHE_ENTRIES) bounds.remove(bounds.keySet().iterator().next());
+        }
+        for(int plane=0;plane<3;plane++) for(int sign=-1;sign<=1;sign+=2) {
+            double distance=(double)clip[15]+sign*(double)clip[12+plane];
+            double magnitude=Math.abs(distance)+1;
+            for(int axis=0;axis<3;axis++) {
+                double coefficient=(double)clip[axis*4+3]+sign*(double)clip[axis*4+plane];
+                double midpoint=coefficient*box.center[axis],radius=Math.abs(coefficient)*box.extent[axis];
+                distance+=midpoint+radius; magnitude+=Math.abs(midpoint)+radius;
+            }
+            if(distance < -1e-5*magnitude) return true;
+        }
+        return false;
+    }
 
     private static final class Geometry {
         final VertexBuffer buffer;
@@ -52,7 +93,7 @@ final class GpuGeometry {
     }
 
     static int cachedBytes() { return cachedBytes; }
-    static void clear() { cache.clear();cachedBytes=0;staging=new float[0]; }
+    static void clear() { cache.clear();bounds.clear();cachedBytes=0;staging=new float[0]; }
 
     static final class State {
         Mesh mesh;
@@ -61,18 +102,21 @@ final class GpuGeometry {
         final float[] material = new float[16], light = new float[8*20];
         int culling, winding, lights;
         boolean lit, tracking, local, perspective, flat, twoSided;
-        float near, far, shininess;
+        float near, far, shininess, depthFactor, depthUnits;
     }
 
     static boolean draw(VertexBuffer vb, IndexBuffer ib, Appearance appearance, Transform model,
             Transform camera, Transform projection, ArrayList<Light> lights, ArrayList<Transform> lightTransforms,
             int scope, boolean perspective, Fog fog, boolean parallel, int[] pixels, short[] depth,
             int w, int h, int ox, int oy, int vw, int vh, int left, int top, int right, int bottom,
-            float near, float far, boolean depthTest, int alpha, boolean resident) {
+            float near, float far, boolean depthBuffer, int alpha, boolean resident) {
         PolygonMode polygon=appearance.getPolygonMode();
         CompositingMode comp=appearance.getCompositingMode();
         if(comp==null) comp=new CompositingMode();
-        if(depthTest && (comp.getDepthOffsetFactor()!=0 || comp.getDepthOffsetUnits()!=0)) return false;
+        boolean depthTest=depthBuffer && comp.isDepthTestEnabled(),depthWrite=depthBuffer && comp.isDepthWriteEnabled();
+        float depthFactor=depthBuffer?comp.getDepthOffsetFactor():0,depthUnits=depthBuffer?comp.getDepthOffsetUnits():0;
+        if(!Float.isFinite(depthFactor) || !Float.isFinite(depthUnits)
+                || Math.abs(depthFactor)>1e20f || Math.abs(depthUnits)>1e20f) return false;
         if(vw<=0 || vh<=0 || w<=0 || h<=0 || w>2048 || h>2048 || near<0 || far>1 || !Float.isFinite(near+far)) return false;
         float[] sb=new float[4]; VertexArray position=vb.getPositions(sb), normals=vb.getNormals(), colors=vb.getColors();
         if(position==null || position.getComponentCount()!=3) return false;
@@ -90,17 +134,21 @@ final class GpuGeometry {
         state.winding=polygon==null?PolygonMode.WINDING_CCW:polygon.getWinding();
         state.local=polygon!=null && polygon.isLocalCameraLightingEnabled();
         state.perspective=perspective; state.near=near; state.far=far;
+        state.depthFactor=depthFactor; state.depthUnits=depthUnits;
         state.viewport[0]=ox; state.viewport[1]=oy; state.viewport[2]=vw; state.viewport[3]=vh;
         Transform eye=new Transform();
         if(camera!=null) eye.postMultiply(camera);
         if(model!=null) eye.postMultiply(model);
-        Transform normal=new Transform(eye);
-        try { normal.invert(); normal.transpose(); } catch(ArithmeticException ignored) { normal.setIdentity(); }
-        matrix(normal,state.normal,0);
+        if(state.lit) {
+            Transform normal=new Transform(eye);
+            try { normal.invert(); normal.transpose(); } catch(ArithmeticException ignored) { normal.setIdentity(); }
+            matrix(normal,state.normal,0);
+        }
         eye.postTranslate(sb[1],sb[2],sb[3]); eye.postScale(sb[0],sb[0],sb[0]);
         matrix(eye,state.eye,0);
         Transform clip=new Transform(projection); clip.postMultiply(eye); matrix(clip,state.clip,0);
         if(!finite(state.clip) || !finite(state.eye) || !finite(state.normal)) return false;
+        if(frustumCulling && outside(position,state.clip)) { culledDraws++; return true; }
         if(state.lit) {
             state.tracking=material.isVertexColorTrackingEnabled(); state.shininess=material.getShininess();
             int[] properties={Material.AMBIENT,Material.DIFFUSE,Material.SPECULAR,Material.EMISSIVE};
@@ -192,13 +240,13 @@ final class GpuGeometry {
             data=new Mesh(vertexData,indexData);
             Geometry entry=new Geometry(vb,ib,attributes,indices,data);
             if(entry.bytes()<=CACHE_BYTES) {
-                while(!cache.isEmpty() && (cache.size()>=32 || cachedBytes+entry.bytes()>CACHE_BYTES)) cachedBytes-=cache.remove(0).bytes();
+                while(!cache.isEmpty() && (cache.size()>=CACHE_ENTRIES || cachedBytes+entry.bytes()>CACHE_BYTES)) cachedBytes-=cache.remove(0).bytes();
                 cache.add(entry); cachedBytes+=entry.bytes();
             }
         }
         state.mesh=data;
         boolean result=GpuRasterizer.raw(pixels,depth,w,h,indices.length/3,left,top,right,bottom,
-                depthTest,depthTest&&comp.isDepthWriteEnabled(),(comp.isColorWriteEnabled()?0xffffff:0)|(comp.isAlphaWriteEnabled()?0xff000000:0),
+                depthTest,depthWrite,(comp.isColorWriteEnabled()?0xffffff:0)|(comp.isAlphaWriteEnabled()?0xff000000:0),
                 alpha,(int)(comp.getAlphaThreshold()*255),textures,units,filters,mip,comp.getBlending(),fog,parallel,resident,state,data.vertices);
         if(result) { draws++; vertices+=indices.length; }
         return result;
@@ -215,18 +263,26 @@ final class GpuGeometry {
     }
     private static boolean finite(float[] values) { for(float value:values) if(!Float.isFinite(value)) return false; return true; }
     private static void matrix(Transform transform,float[] out,int at) {
+        if(at==0 && out.length==16) {
+            transform.get(out);
+            for(int row=0;row<4;row++) for(int col=row+1;col<4;col++) {
+                float value=out[row*4+col]; out[row*4+col]=out[col*4+row]; out[col*4+row]=value;
+            }
+            return;
+        }
         float[] m=new float[16]; transform.get(m);
         for(int row=0;row<4;row++) for(int col=0;col<4;col++) out[at+col*4+row]=m[row*4+col];
     }
 
     static final class Uniforms {
-        final int raw,clip,eye,normal,texture,viewport,material,light,flags,depth,shine,shading;
+        final int raw,clip,eye,normal,texture,viewport,material,light,flags,depth,offset,shine,shading;
         Uniforms(int program) {
             raw=glGetUniformLocation(program,"rawGeometry"); clip=glGetUniformLocation(program,"rawClip");
             eye=glGetUniformLocation(program,"rawEye"); normal=glGetUniformLocation(program,"rawNormal");
             texture=glGetUniformLocation(program,"rawTexture"); viewport=glGetUniformLocation(program,"rawViewport");
             material=glGetUniformLocation(program,"rawMaterial"); light=glGetUniformLocation(program,"rawLight");
             flags=glGetUniformLocation(program,"rawFlags"); depth=glGetUniformLocation(program,"rawDepth");
+            offset=glGetUniformLocation(program,"rawOffset");
             shine=glGetUniformLocation(program,"rawShininess");
             shading=glGetUniformLocation(program,"rawShading");
         }
@@ -249,6 +305,8 @@ final class GpuGeometry {
                     || state.local!=old.local || state.perspective!=old.perspective)
                 glUniform4i(flags,state.lit?state.lights:-1,state.tracking?1:0,state.local?1:0,state.perspective?1:0);
             if(old==null || state.near!=old.near || state.far!=old.far) glUniform2f(depth,state.near,state.far);
+            if(old==null || state.depthFactor!=old.depthFactor || state.depthUnits!=old.depthUnits)
+                glUniform2f(offset,state.depthFactor,state.depthUnits);
             if(old==null || state.shininess!=old.shininess) glUniform1f(shine,state.shininess);
             if(old==null || state.flat!=old.flat || state.twoSided!=old.twoSided || state.winding!=old.winding)
                 glUniform1i(shading,(state.flat?1:0)|(state.twoSided?2:0)|(state.winding==PolygonMode.WINDING_CCW?4:0));
