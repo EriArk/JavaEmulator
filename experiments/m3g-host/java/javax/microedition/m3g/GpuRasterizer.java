@@ -54,6 +54,8 @@ final class GpuRasterizer {
     private EGLSurface surface = EGL_NO_SURFACE;
     private int program, packProgram, framebuffer, packFramebuffer, color, depth, packed, vbo, vao;
     private final GpuTextureCache textures = new GpuTextureCache(textureCacheBytes);
+    private final GpuMeshCache meshes = new GpuMeshCache();
+    static synchronized int cachedMeshBytes() { return instance==null?0:instance.meshes.bytes(); }
     static synchronized int cachedTextureBytes() { return instance==null?0:instance.textures.bytes(); }
     private final int[] modes=new int[4], sizes=new int[4], formats=new int[4], mips=new int[4], blendColors=new int[4];
     private int targetSizeLocation, alphaLocation, thresholdLocation, compositeLocation;
@@ -249,7 +251,7 @@ final class GpuRasterizer {
                         GpuFrame.Draw saved=frame.draws.get(i);
                         injectLoss(1); instance.render(saved,firstVertex,previous); injectLoss(2);
                         previous=saved;
-                        firstVertex+=saved.count*3;
+                        if(saved.raw==null) firstVertex+=saved.count*3;
                         instance.submitted=i+1; submittedDraws++;
                         if(attempt!=0) replayedDraws++;
                     }
@@ -432,13 +434,18 @@ final class GpuRasterizer {
     private void uploadGeometry(int start) {
         int end=frame.draws.size();
         if(start==end) return;
+        int bytes=0,prepared=0;
+        ByteBuffer single=null;
+        for(int i=start;i<end;i++) if(frame.draws.get(i).raw==null) {
+            single=frame.draws.get(i).geometry; bytes+=single.remaining(); prepared++;
+        }
+        if(prepared==0) return;
         ByteBuffer data;
-        if(end-start==1) data=frame.draws.get(start).geometry;
+        if(prepared==1) data=single;
         else {
-            int bytes=0;
-            for(int i=start;i<end;i++) bytes+=frame.draws.get(i).geometry.remaining();
             batchGeometry=buffer(batchGeometry,bytes);
             for(int i=start;i<end;i++) {
+                if(frame.draws.get(i).raw!=null) continue;
                 ByteBuffer source=frame.draws.get(i).geometry;
                 batchGeometry.put(source); source.rewind();
             }
@@ -556,7 +563,8 @@ final class GpuRasterizer {
             if(old==null || old.blendColor!=c) glUniform3f(blendColors[unit],(c>>16)&255,(c>>8)&255,c&255);
         }
         glActiveTexture(GL_TEXTURE0);
-        glDrawArrays(GL_TRIANGLES,firstVertex,count*3);
+        if(command.raw!=null) meshes.draw(command.raw.mesh,count*3);
+        else { glBindVertexArray(vao); glDrawArrays(GL_TRIANGLES,firstVertex,count*3); }
         depthDirty|=command.depthWrite && command.depthTest;
         check();
     }

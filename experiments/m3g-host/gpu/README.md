@@ -13,6 +13,13 @@ checkpoint](../hardware-20261013.md) for capabilities, fallbacks and measurement
 The prepared-triangle path below remains available; neither path is the
 production default.
 
+The [indexed residency follow-up](../indexed-20261013.md) adds compact indexed
+mesh snapshots, a context-owned 4 MiB / 64-entry VBO/EBO/VAO cache and a separate
+normal attribute. Hardware geometry now supports four texture units. Prepared
+triangles and Sprite3D retain the streaming path; mixed draws and context replay
+are covered explicitly. These are bounded per-mesh caches, not whole-game RAM
+preloading.
+
 `GpuRasterizer.java` consumes the candidate's already transformed, clipped,
 culled and lit triangles. GLES3 rasterizes one complete submesh per draw. It
 supports untextured color/lighting and up to four textures in all five Image2D formats with

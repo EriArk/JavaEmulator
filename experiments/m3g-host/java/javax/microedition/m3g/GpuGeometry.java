@@ -25,8 +25,8 @@ final class GpuGeometry {
         final long[] revisions;
         final int[] order;
         final int color;
-        final ByteBuffer data;
-        Geometry(VertexBuffer buffer,IndexBuffer indices,VertexArray[] attributes,int[] order,ByteBuffer data) {
+        final Mesh data;
+        Geometry(VertexBuffer buffer,IndexBuffer indices,VertexArray[] attributes,int[] order,Mesh data) {
             this.buffer=buffer;this.indices=indices;this.attributes=attributes;this.data=data;
             this.order=order.clone(); color=buffer.getDefaultColor(); revisions=new long[attributes.length];
             for(int i=0;i<attributes.length;i++) revisions[i]=attributes[i]==null?0:attributes[i].revision;
@@ -36,15 +36,27 @@ final class GpuGeometry {
             for(int i=0;i<arrays.length;i++) if(arrays[i]!=attributes[i] || (arrays[i]!=null && arrays[i].revision!=revisions[i])) return false;
             return true;
         }
-        int bytes() { return data.capacity()+order.length*4; }
+        int bytes() { return data.bytes()+order.length*4; }
+    }
+
+    /** Identity denotes an immutable mesh revision, independent of any GL context. */
+    static final class Mesh {
+        static final int STRIDE=92;
+        final ByteBuffer vertices, indices;
+        Mesh(ByteBuffer vertices,ByteBuffer indices) {
+            this.vertices=vertices.asReadOnlyBuffer().order(ByteOrder.nativeOrder());
+            this.indices=indices.asReadOnlyBuffer().order(ByteOrder.nativeOrder());
+        }
+        int bytes() { return vertices.capacity()+indices.capacity(); }
     }
 
     static int cachedBytes() { return cachedBytes; }
     static void clear() { cache.clear();cachedBytes=0;staging=new float[0]; }
 
     static final class State {
+        Mesh mesh;
         final float[] clip = new float[16], eye = new float[16], normal = new float[16];
-        final float[] texture = new float[48], viewport = new float[4];
+        final float[] texture = new float[64], viewport = new float[4];
         final float[] material = new float[16], light = new float[8*20];
         int culling, winding, lights;
         boolean lit, tracking, local, perspective;
@@ -67,7 +79,8 @@ final class GpuGeometry {
         if(position==null || position.getComponentCount()!=3) return false;
         int[] indices=ib.getIndexArray();
         if(indices.length==0 || indices.length%3!=0 || indices.length>65536*3) return false;
-        if((long)indices.length*80+4096>GpuRasterizer.frame.byteLimit) return false;
+        // Count the worst-case referenced vertex set before allocating the compact snapshot.
+        if((long)Math.min(indices.length,position.getVertexCount())*Mesh.STRIDE+(long)indices.length*6+4096>GpuRasterizer.frame.byteLimit) return false;
         for(int index:indices) if(index<0 || index>=position.getVertexCount()) return false;
         Material material=appearance.getMaterial();
         State state=new State();
@@ -112,16 +125,15 @@ final class GpuGeometry {
             }
             if(!finite(state.light) || !finite(state.material) || !Float.isFinite(state.shininess)) return false;
         }
-        Texture2D[] textures=new Texture2D[3]; VertexArray[] uv=new VertexArray[3];
-        Graphics3D.TextureFilter[] filters=new Graphics3D.TextureFilter[3];
-        Graphics3DPipelines.MipmapMode[] mip=new Graphics3DPipelines.MipmapMode[3];
+        Texture2D[] textures=new Texture2D[4]; VertexArray[] uv=new VertexArray[4];
+        Graphics3D.TextureFilter[] filters=new Graphics3D.TextureFilter[4];
+        Graphics3DPipelines.MipmapMode[] mip=new Graphics3DPipelines.MipmapMode[4];
         int units=0;
         if(!Mobile.M3GRenderUntexturedPolygons) for(int i=0;i<4;i++) {
             Texture2D texture=appearance.getTexture(i);
             VertexArray coords=texture==null?null:vb.getTexCoords(i,sb);
             if(coords==null) continue;
-            // Attribute 5 carries the normal; the four-texture case uses the old path.
-            if(units==3 || coords.getComponentCount()>3 || texture.getImage()==null) return false;
+            if(coords.getComponentCount()>3 || texture.getImage()==null) return false;
             uv[units]=coords; textures[units]=texture;
             Transform t=new Transform(); texture.getCompositeTransform(t);
             Transform scale=new Transform(); scale.postScale(texture.getImage().getWidth(),texture.getImage().getHeight(),1);
@@ -136,8 +148,8 @@ final class GpuGeometry {
             units++;
         }
         if(!finite(state.texture)) return false;
-        VertexArray[] attributes={position,colors,state.lit?normals:null,uv[0],uv[1],uv[2]};
-        ByteBuffer data=null;
+        VertexArray[] attributes={position,colors,state.lit?normals:null,uv[0],uv[1],uv[2],uv[3]};
+        Mesh data=null;
         for(int i=cache.size()-1;i>=0;i--) {
             Geometry entry=cache.get(i);
             if(entry.buffer!=vb || entry.indices!=ib) continue;
@@ -149,10 +161,15 @@ final class GpuGeometry {
         }
         if(data==null) {
             cacheMisses++;
-            int floats=indices.length*20;
+            int[] remap=new int[position.getVertexCount()]; Arrays.fill(remap,-1);
+            int unique=0;
+            for(int index:indices) if(remap[index]<0) remap[index]=unique++;
+            if(unique>65536) return false;
+            int floats=unique*23;
             if(staging.length<floats) staging=new float[floats];
-            for(int i=0;i<indices.length;i++) {
-                int vertex=indices[i], at=i*20;
+            for(int vertex=0;vertex<remap.length;vertex++) {
+                if(remap[vertex]<0) continue;
+                int at=remap[vertex]*23;
                 for(int c=0;c<3;c++) staging[at+c]=component(position,vertex,c);
                 int color=vb.getDefaultColor();
                 if(colors!=null) {
@@ -161,23 +178,27 @@ final class GpuGeometry {
                     color=((count==4?values[base+3]&255:255)<<24) | ((values[base]&255)<<16) | ((values[base+1]&255)<<8) | (values[base+2]&255);
                 }
                 color(color,staging,at+3,1);
-                for(int u=0;u<3;u++) for(int c=0;c<3;c++) staging[at+7+u*3+c]=u<units?component(uv[u],vertex,c):0;
-                for(int c=0;c<3;c++) staging[at+16+c]=state.lit?component(normals,vertex,c):0;
-                staging[at+19]=0;
+                for(int u=0;u<4;u++) for(int c=0;c<3;c++) staging[at+7+u*3+c]=u<units?component(uv[u],vertex,c):0;
+                for(int c=0;c<3;c++) staging[at+19+c]=state.lit?component(normals,vertex,c):0;
+                staging[at+22]=0;
             }
-            data=ByteBuffer.allocateDirect(floats*4).order(ByteOrder.nativeOrder());
-            data.asFloatBuffer().put(staging,0,floats);
+            ByteBuffer vertexData=ByteBuffer.allocateDirect(floats*4).order(ByteOrder.nativeOrder());
+            vertexData.asFloatBuffer().put(staging,0,floats);
+            ByteBuffer indexData=ByteBuffer.allocateDirect(indices.length*2).order(ByteOrder.nativeOrder());
+            for(int index:indices) indexData.putShort((short)remap[index]);
+            indexData.flip();
             // Immutable command snapshots may outlive an eviction or a mutable mesh revision.
-            data=data.asReadOnlyBuffer().order(ByteOrder.nativeOrder());
+            data=new Mesh(vertexData,indexData);
             Geometry entry=new Geometry(vb,ib,attributes,indices,data);
             if(entry.bytes()<=CACHE_BYTES) {
                 while(!cache.isEmpty() && (cache.size()>=32 || cachedBytes+entry.bytes()>CACHE_BYTES)) cachedBytes-=cache.remove(0).bytes();
                 cache.add(entry); cachedBytes+=entry.bytes();
             }
         }
+        state.mesh=data;
         boolean result=GpuRasterizer.raw(pixels,depth,w,h,indices.length/3,left,top,right,bottom,
                 depthTest,depthTest&&comp.isDepthWriteEnabled(),(comp.isColorWriteEnabled()?0xffffff:0)|(comp.isAlphaWriteEnabled()?0xff000000:0),
-                alpha,(int)(comp.getAlphaThreshold()*255),textures,units,filters,mip,comp.getBlending(),fog,parallel,resident,state,data);
+                alpha,(int)(comp.getAlphaThreshold()*255),textures,units,filters,mip,comp.getBlending(),fog,parallel,resident,state,data.vertices);
         if(result) { draws++; vertices+=indices.length; }
         return result;
     }
@@ -211,7 +232,7 @@ final class GpuGeometry {
             glUniform1i(raw,state==null?0:1);
             if(state==null) { glDisable(GL_CULL_FACE); return; }
             glUniformMatrix4fv(clip,1,false,state.clip,0); glUniformMatrix4fv(eye,1,false,state.eye,0);
-            glUniformMatrix4fv(normal,1,false,state.normal,0); glUniformMatrix4fv(texture,3,false,state.texture,0);
+            glUniformMatrix4fv(normal,1,false,state.normal,0); glUniformMatrix4fv(texture,4,false,state.texture,0);
             glUniform4fv(viewport,1,state.viewport,0); glUniform4fv(material,4,state.material,0);
             glUniform4fv(light,40,state.light,0);
             glUniform4i(flags,state.lit?state.lights:-1,state.tracking?1:0,state.local?1:0,state.perspective?1:0);
@@ -225,7 +246,7 @@ final class GpuGeometry {
         }
     }
 
-    static final String DECLARATIONS = "uniform int rawGeometry; uniform mat4 rawClip,rawEye,rawNormal,rawTexture[3];\n"
+    static final String DECLARATIONS = "layout(location=7) in vec3 rawVertexNormal; uniform int rawGeometry; uniform mat4 rawClip,rawEye,rawNormal,rawTexture[4];\n"
             +"uniform vec4 rawViewport,rawMaterial[4],rawLight[40]; uniform ivec4 rawFlags; uniform float rawShininess;\n"
             +"vec3 safeNormal(vec3 v){ float d=dot(v,v); return d>1e-30?v*inversesqrt(d):vec3(0,0,1); }\n"
             +"vec4 illuminate(vec3 p,vec3 n,vec4 base){\n"
@@ -244,8 +265,8 @@ final class GpuGeometry {
     static final String BODY = "if(rawGeometry!=0){ vec4 p=vec4(position,1); vec4 clip=rawClip*p; vec3 eye=(rawEye*p).xyz;\n"
             +"vec2 screen=(vec2(clip.x,-clip.y)+clip.ww)*0.5*rawViewport.zw+rawViewport.xy*clip.w;\n"
             +"gl_Position=vec4(screen/targetSize*2.0-clip.ww,clip.z,clip.w); affineWeight=clip.w;\n"
-            +"vertexColor=(rawFlags.x>=0?illuminate(eye,safeNormal((rawNormal*vec4(uv3,0)).xyz),color):color)*clip.w;\n"
-            +"vec3 coords[3]; coords[0]=uv0;coords[1]=uv1;coords[2]=uv2;\n"
-            +"for(int u=0;u<3;u++){vec2 t=(rawTexture[u]*vec4(coords[u],1)).xy; texCoord[u]=rawFlags.w!=0?vec3(t,1):vec3(t,1)*clip.w;}\n"
-            +"texCoord[3]=vec3(0,0,1); fogValue=parallelFog!=0?-eye.z*clip.w:1.0; }\n";
+            +"vertexColor=(rawFlags.x>=0?illuminate(eye,safeNormal((rawNormal*vec4(rawVertexNormal,0)).xyz),color):color)*clip.w;\n"
+            +"vec3 coords[4]; coords[0]=uv0;coords[1]=uv1;coords[2]=uv2;coords[3]=uv3;\n"
+            +"for(int u=0;u<4;u++){vec2 t=(rawTexture[u]*vec4(coords[u],1)).xy; texCoord[u]=rawFlags.w!=0?vec3(t,1):vec3(t,1)*clip.w;}\n"
+            +"fogValue=parallelFog!=0?-eye.z*clip.w:1.0; }\n";
 }

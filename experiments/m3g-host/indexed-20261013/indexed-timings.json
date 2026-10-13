@@ -1,0 +1,212 @@
+﻿[
+    {
+        "scene":  "rgb-nearest-240x320",
+        "beforeMs":  1.993,
+        "afterMs":  1.986,
+        "saving":  0.3,
+        "changed":  0
+    },
+    {
+        "scene":  "rgb-linear-240x320",
+        "beforeMs":  1.913,
+        "afterMs":  1.887,
+        "saving":  1.3,
+        "changed":  0
+    },
+    {
+        "scene":  "rgba-alpha-240x320",
+        "beforeMs":  1.912,
+        "afterMs":  1.880,
+        "saving":  1.7,
+        "changed":  0
+    },
+    {
+        "scene":  "lit-fog-240x320",
+        "beforeMs":  1.959,
+        "afterMs":  1.921,
+        "saving":  2.0,
+        "changed":  0
+    },
+    {
+        "scene":  "exp-fog-240x320",
+        "beforeMs":  1.981,
+        "afterMs":  1.907,
+        "saving":  3.7,
+        "changed":  0
+    },
+    {
+        "scene":  "multi-texture-240x320",
+        "beforeMs":  2.417,
+        "afterMs":  2.246,
+        "saving":  7.1,
+        "changed":  0
+    },
+    {
+        "scene":  "mip-nearest-240x320",
+        "beforeMs":  1.831,
+        "afterMs":  1.853,
+        "saving":  -1.2,
+        "changed":  0
+    },
+    {
+        "scene":  "mip-linear-240x320",
+        "beforeMs":  1.875,
+        "afterMs":  1.835,
+        "saving":  2.1,
+        "changed":  0
+    },
+    {
+        "scene":  "sprites-240x320",
+        "beforeMs":  2.621,
+        "afterMs":  2.633,
+        "saving":  -0.5,
+        "changed":  0
+    },
+    {
+        "scene":  "lighting-grid-240x320",
+        "beforeMs":  1.985,
+        "afterMs":  1.714,
+        "saving":  13.7,
+        "changed":  0
+    },
+    {
+        "scene":  "multi-draw-240x320",
+        "beforeMs":  2.877,
+        "afterMs":  2.688,
+        "saving":  6.5,
+        "changed":  0
+    },
+    {
+        "scene":  "modulate-240x320",
+        "beforeMs":  1.684,
+        "afterMs":  1.661,
+        "saving":  1.4,
+        "changed":  0
+    },
+    {
+        "scene":  "modulate-x2-240x320",
+        "beforeMs":  1.686,
+        "afterMs":  1.645,
+        "saving":  2.4,
+        "changed":  0
+    },
+    {
+        "scene":  "depth-offset-240x320",
+        "beforeMs":  1.819,
+        "afterMs":  1.971,
+        "saving":  -8.4,
+        "changed":  0
+    },
+    {
+        "scene":  "material-churn-240x320",
+        "beforeMs":  2.927,
+        "afterMs":  2.706,
+        "saving":  7.5,
+        "changed":  0
+    },
+    {
+        "scene":  "rgb-nearest-320x240",
+        "beforeMs":  1.589,
+        "afterMs":  1.539,
+        "saving":  3.2,
+        "changed":  0
+    },
+    {
+        "scene":  "rgb-linear-320x240",
+        "beforeMs":  1.570,
+        "afterMs":  1.558,
+        "saving":  0.8,
+        "changed":  0
+    },
+    {
+        "scene":  "rgba-alpha-320x240",
+        "beforeMs":  1.571,
+        "afterMs":  1.544,
+        "saving":  1.7,
+        "changed":  0
+    },
+    {
+        "scene":  "lit-fog-320x240",
+        "beforeMs":  1.594,
+        "afterMs":  1.596,
+        "saving":  -0.1,
+        "changed":  0
+    },
+    {
+        "scene":  "exp-fog-320x240",
+        "beforeMs":  1.613,
+        "afterMs":  1.572,
+        "saving":  2.6,
+        "changed":  0
+    },
+    {
+        "scene":  "multi-texture-320x240",
+        "beforeMs":  2.099,
+        "afterMs":  1.932,
+        "saving":  8.0,
+        "changed":  0
+    },
+    {
+        "scene":  "mip-nearest-320x240",
+        "beforeMs":  1.620,
+        "afterMs":  1.582,
+        "saving":  2.4,
+        "changed":  0
+    },
+    {
+        "scene":  "mip-linear-320x240",
+        "beforeMs":  1.611,
+        "afterMs":  1.593,
+        "saving":  1.1,
+        "changed":  0
+    },
+    {
+        "scene":  "sprites-320x240",
+        "beforeMs":  2.295,
+        "afterMs":  2.178,
+        "saving":  5.1,
+        "changed":  0
+    },
+    {
+        "scene":  "lighting-grid-320x240",
+        "beforeMs":  1.836,
+        "afterMs":  1.568,
+        "saving":  14.6,
+        "changed":  0
+    },
+    {
+        "scene":  "multi-draw-320x240",
+        "beforeMs":  2.746,
+        "afterMs":  2.522,
+        "saving":  8.2,
+        "changed":  0
+    },
+    {
+        "scene":  "modulate-320x240",
+        "beforeMs":  1.561,
+        "afterMs":  1.593,
+        "saving":  -2.0,
+        "changed":  0
+    },
+    {
+        "scene":  "modulate-x2-320x240",
+        "beforeMs":  1.583,
+        "afterMs":  1.537,
+        "saving":  2.9,
+        "changed":  0
+    },
+    {
+        "scene":  "depth-offset-320x240",
+        "beforeMs":  1.640,
+        "afterMs":  1.660,
+        "saving":  -1.2,
+        "changed":  0
+    },
+    {
+        "scene":  "material-churn-320x240",
+        "beforeMs":  2.794,
+        "afterMs":  2.565,
+        "saving":  8.2,
+        "changed":  0
+    }
+]

@@ -58,7 +58,7 @@ final class GpuFrame {
         float fogNear, fogFar, fogDensity;
         boolean depthTest, depthWrite, parallelFog, sprite;
         Texture[] textures;
-        int storage(int w,int h) { return count*240+(sprite?Math.max(w,h)*8:0)+(raw==null?1024:4096); }
+        int storage(int w,int h) { return raw!=null?raw.mesh.bytes()+4096:count*240+(sprite?Math.max(w,h)*8:0)+1024; }
     }
 
     long required(Draw draw,int w,int h) {

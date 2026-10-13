@@ -31,6 +31,11 @@ public class M3gBenchmark {
         java.lang.reflect.Field gpuBatch=null, gpuSubmissions=null, gpuSubmitted=null, gpuGeometry=null;
         java.lang.reflect.Field gpuCache=null,gpuTextureUploads=null;
         java.lang.reflect.Field hardwareGeometry=null,hardwareDraws=null;
+        java.lang.reflect.Field meshCache=null,meshUploads=null,meshBytes=null,meshHits=null;
+        String meshPolicy=InstrumentationRegistry.getArguments().getString("benchGpuMeshCache");
+        int warmup=Integer.parseInt(InstrumentationRegistry.getArguments().getString("benchWarmup","64"));
+        assertTrue("benchWarmup must be 64..4096",warmup>=64 && warmup<=4096);
+        int totalFrames=warmup+160;
         java.lang.reflect.Field discardDepth=null,depthReadbacks=null;
         String depthPolicy=InstrumentationRegistry.getArguments().getString("benchGpuDiscardDepth");
         String geometry=InstrumentationRegistry.getArguments().getString("benchGpuGeometry");
@@ -65,6 +70,19 @@ public class M3gBenchmark {
             Class<?> stage=Class.forName("javax.microedition.m3g.GpuGeometry");
             hardwareGeometry=stage.getDeclaredField("enabled"); hardwareGeometry.setAccessible(true);
             hardwareDraws=stage.getDeclaredField("draws"); hardwareDraws.setAccessible(true);
+            try {
+                Class<?> meshes=Class.forName("javax.microedition.m3g.GpuMeshCache");
+                meshCache=meshes.getDeclaredField("enabled"); meshCache.setAccessible(true);
+                meshUploads=meshes.getDeclaredField("uploads"); meshUploads.setAccessible(true);
+                meshBytes=meshes.getDeclaredField("uploadedBytes"); meshBytes.setAccessible(true);
+                meshHits=meshes.getDeclaredField("hits"); meshHits.setAccessible(true);
+            } catch(ClassNotFoundException legacyGeometry) {
+                assertNull("Legacy renderer has no resident mesh cache",meshPolicy);
+            }
+            if(meshPolicy!=null) {
+                assertTrue("benchGpuMeshCache must be on or off",meshPolicy.equals("on") || meshPolicy.equals("off"));
+                meshCache.setBoolean(null,meshPolicy.equals("on"));
+            }
             discardDepth=gpu.getDeclaredField("discardReleasedDepth");discardDepth.setAccessible(true);
             depthReadbacks=gpu.getDeclaredField("depthReadbacks");depthReadbacks.setAccessible(true);
             if(depthPolicy!=null) {
@@ -113,6 +131,7 @@ public class M3gBenchmark {
                 .put("gpuBatch",gpuBatch!=null && gpuBatch.getBoolean(null))
                 .put("gpuTextureCache",gpuCache!=null && gpuCache.getBoolean(null))
                 .put("gpuHardwareGeometry",hardwareGeometry!=null && hardwareGeometry.getBoolean(null))
+                .put("gpuMeshCache",meshCache!=null && meshCache.getBoolean(null))
                 .put("gpuDiscardDepth",discardDepth!=null && discardDepth.getBoolean(null))
                 .put("raster", "gpu".equals(raster) ? "gpu" : nativeEnabled == null ? "legacy" : nativeEnabled.getBoolean(null) ? "native" : "java");
         JSONArray cases = new JSONArray();
@@ -161,9 +180,12 @@ public class M3gBenchmark {
                 long geometryStart=gpuGeometry==null?0:gpuGeometry.getLong(null);
                 long textureStart=gpuTextureUploads==null?0:gpuTextureUploads.getLong(null);
                 long hardwareStart=hardwareDraws==null?0:hardwareDraws.getLong(null);
+                long meshUploadStart=meshUploads==null?0:meshUploads.getLong(null);
+                long meshByteStart=meshBytes==null?0:meshBytes.getLong(null);
+                long meshHitStart=meshHits==null?0:meshHits.getLong(null);
                 long depthStart=depthReadbacks==null?0:depthReadbacks.getLong(null);
                 long shadedStart = shadedVertices == null ? 0 : shadedVertices.getLong(null);
-                for (int i = 0; i < 64; i++) frame(renderer, target, mesh, background, model);
+                for (int i = 0; i < warmup; i++) frame(renderer, target, mesh, background, model);
                 JSONArray wall = new JSONArray(), cpu = new JSONArray();
                 for (int batch = 0; batch < 5; batch++) {
                     long start = System.nanoTime(), thread = Debug.threadCpuTimeNanos();
@@ -185,7 +207,7 @@ public class M3gBenchmark {
                     assertTrue(bitmap.compress(Bitmap.CompressFormat.PNG, 100, out));
                 }
                 cases.put(new JSONObject().put("name", name).put("framesPerBatch", 32)
-                        .put("warmupFrames", 64).put("wallNs", wall).put("threadCpuNs", cpu)
+                        .put("warmupFrames", warmup).put("wallNs", wall).put("threadCpuNs", cpu)
                         .put("pixelCrc32", crc.getValue()).put("changedPixels", changed)
                         .put("gpuDraws", gpuDraws == null ? 0 : gpuDraws.getLong(null)-gpuStart)
                         .put("gpuUploads",gpuUploads==null?0:gpuUploads.getLong(null)-uploadStart)
@@ -195,6 +217,9 @@ public class M3gBenchmark {
                         .put("gpuGeometryUploads",gpuGeometry==null?0:gpuGeometry.getLong(null)-geometryStart)
                         .put("gpuTextureUploads",gpuTextureUploads==null?0:gpuTextureUploads.getLong(null)-textureStart)
                         .put("gpuHardwareDraws",hardwareDraws==null?0:hardwareDraws.getLong(null)-hardwareStart)
+                        .put("gpuMeshUploads",meshUploads==null?0:meshUploads.getLong(null)-meshUploadStart)
+                        .put("gpuMeshUploadBytes",meshBytes==null?0:meshBytes.getLong(null)-meshByteStart)
+                        .put("gpuMeshHits",meshHits==null?0:meshHits.getLong(null)-meshHitStart)
                         .put("gpuDepthReadbacks",depthReadbacks==null?0:depthReadbacks.getLong(null)-depthStart)
                         .put("shadedVertices", shadedVertices == null ? -1 : shadedVertices.getLong(null)-shadedStart)
                         .put("nativeDraws", counter == null ? 0 : counter.getLong(null)-nativeStart));
@@ -205,14 +230,18 @@ public class M3gBenchmark {
                             gpuSubmitted.getLong(null)-renderedStart);
                 }
                 if ("gpu".equals(raster) && (kind.equals("multi-draw") || kind.equals("material-churn"))) {
-                    assertEquals(224*16,gpuDraws.getLong(null)-gpuStart);
-                    assertEquals(gpuRetain.getBoolean(null)?224:224*16,gpuUploads.getLong(null)-uploadStart);
+                    assertEquals(totalFrames*16,gpuDraws.getLong(null)-gpuStart);
+                    assertEquals(gpuRetain.getBoolean(null)?totalFrames:totalFrames*16,gpuUploads.getLong(null)-uploadStart);
                     assertEquals(gpuUploads.getLong(null)-uploadStart,gpuReadbacks.getLong(null)-readStart);
                     if(gpuRetain.getBoolean(null)) {
-                        assertEquals(224*(gpuBatch.getBoolean(null)?2:17),gpuSubmissions.getLong(null)-submitStart);
-                        assertEquals(224*(gpuBatch.getBoolean(null)?2:16),gpuGeometry.getLong(null)-geometryStart);
+                        assertEquals(totalFrames*(gpuBatch.getBoolean(null)?2:17),gpuSubmissions.getLong(null)-submitStart);
+                        assertEquals(hardwareGeometry.getBoolean(null)&&meshCache!=null?0:totalFrames*(gpuBatch.getBoolean(null)?2:16),gpuGeometry.getLong(null)-geometryStart);
+                        if(hardwareGeometry.getBoolean(null) && meshCache!=null) {
+                            assertEquals(meshCache.getBoolean(null)?1:totalFrames*16,meshUploads.getLong(null)-meshUploadStart);
+                            assertEquals(meshCache.getBoolean(null)?totalFrames*16-1:0,meshHits.getLong(null)-meshHitStart);
+                        }
                     }
-                    if(kind.equals("material-churn")) assertEquals(gpuCache.getBoolean(null)?4:224*16,
+                    if(kind.equals("material-churn")) assertEquals(gpuCache.getBoolean(null)?4:totalFrames*16,
                             gpuTextureUploads.getLong(null)-textureStart);
                 }
                 renderer.releaseTarget();
@@ -229,6 +258,7 @@ public class M3gBenchmark {
         if (gpuBatch != null) gpuBatch.setBoolean(null, true);
         if (gpuCache != null) gpuCache.setBoolean(null, true);
         if (hardwareGeometry != null) hardwareGeometry.setBoolean(null, false);
+        if (meshCache != null) meshCache.setBoolean(null,true);
         if (discardDepth != null) discardDepth.setBoolean(null,true);
         if (lightingCache != null) lightingCache.setBoolean(null, true);
     }
