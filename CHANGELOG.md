@@ -11,6 +11,17 @@ stated otherwise. **Experimental** means local/private combined builds only.
 
 ## 2026-10-13
 
+- **Separate experiment / not shipped:** reduced LCDUI framebuffer copying,
+  added an opaque-bitmap NDK read path, whole-frame GPU submission, hardware
+  clears and conservative mesh rejection. Fixed depth offsets, write-only depth
+  passes, render-target validation and RGB888 quality hints after original-engine
+  review. Retroid synthetic costs fall 17-34%; all 34 before/after pixel CRCs
+  match. Final Retroid suite passes 361 checks and Phone focused suite passes 36;
+  the full Phone attempt timed out. Fresh Deep and Asphalt gameplay captures
+  are recorded, including Asphalt lap progression. Original speed parity is
+  still pending. No engine/license switch or APK distribution.
+  [Implementation and evidence](https://github.com/EriArk/JavaEmulator/blob/525ab8a4/experiments/m3g-host/throughput-20261013.md).
+
 - **Public source / unreleased:** new game profiles now choose font sizes from
   the prepared virtual resolution instead of using 240x320 sizes everywhere.
   Advanced adds an Automatic font preset; saved explicit sizes stay unchanged.
