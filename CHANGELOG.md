@@ -11,6 +11,14 @@ stated otherwise. **Experimental** means local/private combined builds only.
 
 ## 2026-10-13
 
+- **Separate experiment / not shipped:** corrected smooth 3D animation curves,
+  looping transitions, long rotations and blending of simultaneous movements.
+  Edited curves refresh correctly; reverse/fractional playback updates safely,
+  circular key ranges load, and invalid sequence files are rejected. Final
+  Retroid passes 163 checks; Phone passes 85 shared/animation checks. A fresh
+  GPU-enabled Retroid build reaches an Asphalt race, with screenshots recorded.
+  No full-game/audio/FPS guarantee, production engine switch or release APK.
+  [Implementation, native comparison differences and evidence](https://github.com/EriArk/JavaEmulator/blob/beff7fc9/experiments/m3g-host/animation-20261013.md).
 - **Public source, unreleased:** ordinary debug builds no longer require a
   private release-signing configuration. Both variants build, pass their JVM
   tests and complete lint without it. Release assembly still requires a real

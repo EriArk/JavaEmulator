@@ -36,7 +36,7 @@ bundled. The app UI is English.
 | Public development source | `main`; latest build change: [b7501f17](https://github.com/EriArk/JavaEmulator/commit/b7501f17) | Unreleased Java/UI/storage improvements listed below; debug builds no longer need a private signing configuration. Not all changes are in the downloadable beta |
 | Private combined test snapshot | `0.1.0-beta.2-experimental.15`, 2026-10-11 | Handheld and Phone debug APKs containing Java plus experimental Mophun; supplied separately to testers, not a GitHub release |
 | Local-only implementation | Ignored optional-engine source and diagnostics | Mophun integration, game-specific experiments and test fixtures; public descriptions below, implementation not published |
-| Separate research branch | [`codex/m3g-replacement`](https://github.com/EriArk/JavaEmulator/tree/codex/m3g-replacement), code checkpoint `68866a93` | Corrected scene duplication, shared-resource references and camera handling, following bounded GPU texture reuse. Final Retroid: 140 checks. Phone: 139 before the last loader guard, then all 62 shared checks on the final build. GPU stays opt-in; production switch and beta remain pending |
+| Separate research branch | [`codex/m3g-replacement`](https://github.com/EriArk/JavaEmulator/tree/codex/m3g-replacement), code checkpoint `beff7fc9` | Corrected animation curves, loop transitions, long rotations, weighted tracks and sequence loading, following scene-copy and GPU work. Final Retroid: 163 checks. Final Phone: 85 shared/animation checks. Fresh Retroid Asphalt race capture. GPU stays opt-in; production switch and beta remain pending |
 
 The experimental number is a distribution label: build 15 still reports
 version code **102** and `0.1.0-beta.2` / `0.1.0-beta.2-phone` internally.
@@ -784,6 +784,32 @@ Symbian/N-Gage support remains unimplemented. Next renderer work is animation,
 transform and remaining loader compatibility, with fixes in the same batch.
 Production merge, dependency/license review and upgrade/save acceptance remain
 separate gates.
+
+### Animation Compatibility: 2026-10-13
+
+Research checkpoint `beff7fc9` fixes missing smooth-curve calculations, broken
+loop transitions and circular key ranges, incorrect long rotations and unwanted
+normalization of weighted animation tracks. Edited curves invalidate their
+caches. Reverse/fractional playback no longer reports an unsafe long pause
+between updates, and invalid sequence files are rejected at load time.
+These are shared engine fixes, not per-game exceptions.
+
+Final candidate: **163/163 on Retroid**, and **85/85 shared/animation checks on
+the Phone emulator**, no skips. The 23 new public-API cases also ran on the
+unchanged native engine: 19 passed, four comparison differences remain recorded.
+This is not a native-baseline pass. The candidate's 78 other implementation/GPU
+cases were included on Retroid but not repeated on the final Phone build.
+
+A separate GPU-enabled candidate reached a moving Asphalt 3 Java race on Retroid,
+with two fresh captures showing the starting camera and later gameplay. Sound
+was disabled; no new audio, physical-control, full-race or FPS acceptance is
+claimed. Ordinary packages and saves were not replaced or cleared.
+[Fixes, raw checks, screenshots and exact artifacts](https://github.com/EriArk/JavaEmulator/blob/beff7fc9/experiments/m3g-host/animation-20261013.md).
+
+Next implementation work: animated hierarchy/deformation and remaining loader
+contracts, followed by real-game comparison. Production merge, dependency/license
+review and upgrade/save acceptance remain separate gates. Main's renderer,
+root license and public APKs are unchanged.
 
 ## Distribution and Licensing Status
 
