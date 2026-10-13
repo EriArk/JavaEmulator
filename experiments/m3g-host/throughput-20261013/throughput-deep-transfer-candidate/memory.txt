@@ -1,0 +1,144 @@
+Applications Memory Usage (in Kilobytes):
+Uptime: 946329131 Realtime: 950140499
+
+** MEMINFO in pid 22816 [io.github.eriark.abyssme.m3gcandidate.debug] **
+                   Pss  Private  Private  SwapPss      Rss     Heap     Heap     Heap
+                 Total    Dirty    Clean    Dirty    Total     Size    Alloc     Free
+                ------   ------   ------   ------   ------   ------   ------   ------
+  Native Heap    16756    16688        0       15    19688    29720    15175     9837
+  Dalvik Heap    18634    18152        4       56    34200    18790     9395     9395
+ Dalvik Other     4571     3432        0        2    19240
+        Stack      940      940        0        0      948
+       Ashmem       15        0        0        0      480
+      Gfx dev        0        0        0        0        4
+    Other dev       24        0       24        0      332
+     .so mmap     2283      248      140        9    40824
+    .jar mmap     1368        0        0        0    37628
+    .apk mmap    15518        8    15028        0    17604
+    .ttf mmap      186        0        0        0      856
+    .dex mmap      364       12      352        0      364
+   Other mmap     5027     4028      936        0     6444
+      Unknown      652      548       96        3     1408
+        TOTAL    66423    44056    16580       85   180020    48510    24570    19232
+
+ App Summary
+                       Pss(KB)                        Rss(KB)
+                        ------                         ------
+           Java Heap:    18152                          34200
+         Native Heap:    16688                          19688
+                Code:    15788                          98908
+               Stack:      940                            948
+            Graphics:        0                              4
+       Private Other:     9068
+              System:     5787
+             Unknown:                                   26272
+
+           TOTAL PSS:    66423            TOTAL RSS:   180020       TOTAL SWAP PSS:       85
+
+ Objects
+               Views:       47         ViewRootImpl:        1
+         AppContexts:        5           Activities:        1
+              Assets:       13        AssetManagers:        0
+       Local Binders:       24        Proxy Binders:       35
+       Parcel memory:        8         Parcel count:       34
+    Death Recipients:        1             WebViews:        0
+
+ SQL
+         MEMORY_USED:        0
+  PAGECACHE_OVERFLOW:        0          MALLOC_SIZE:       46
+Applications Memory Usage (in Kilobytes):
+Uptime: 946359221 Realtime: 950170588
+
+** MEMINFO in pid 22816 [io.github.eriark.abyssme.m3gcandidate.debug] **
+                   Pss  Private  Private  SwapPss      Rss     Heap     Heap     Heap
+                 Total    Dirty    Clean    Dirty    Total     Size    Alloc     Free
+                ------   ------   ------   ------   ------   ------   ------   ------
+  Native Heap    18580    18512        0       15    21512    29720    15253     9760
+  Dalvik Heap    14980    13532      968       29    30548    18852     9426     9426
+ Dalvik Other     4394     3236        0        2    19080
+        Stack      940      940        0        0      948
+       Ashmem       15        0        0        0      480
+      Gfx dev        0        0        0        0        4
+    Other dev       24        0       24        0      332
+     .so mmap     2285      248      140        9    40888
+    .jar mmap     1374        0        0        0    37756
+    .apk mmap    15518        8    15028        0    17604
+    .ttf mmap      186        0        0        0      856
+    .dex mmap      364       12      352        0      364
+   Other mmap     4875     3876      936        0     6292
+      Unknown      660      548      104        3     1416
+        TOTAL    64253    40912    17552       58   178080    48572    24679    19186
+
+ App Summary
+                       Pss(KB)                        Rss(KB)
+                        ------                         ------
+           Java Heap:    13532                          30548
+         Native Heap:    18512                          21512
+                Code:    15788                          99140
+               Stack:      940                            948
+            Graphics:        0                              4
+       Private Other:     9692
+              System:     5789
+             Unknown:                                   25928
+
+           TOTAL PSS:    64253            TOTAL RSS:   178080       TOTAL SWAP PSS:       58
+
+ Objects
+               Views:       47         ViewRootImpl:        1
+         AppContexts:        5           Activities:        1
+              Assets:       13        AssetManagers:        0
+       Local Binders:       24        Proxy Binders:       35
+       Parcel memory:        8         Parcel count:       34
+    Death Recipients:        1             WebViews:        0
+
+ SQL
+         MEMORY_USED:        0
+  PAGECACHE_OVERFLOW:        0          MALLOC_SIZE:       46
+Applications Memory Usage (in Kilobytes):
+Uptime: 946364190 Realtime: 950175557
+
+** MEMINFO in pid 22816 [io.github.eriark.abyssme.m3gcandidate.debug] **
+                   Pss  Private  Private  SwapPss      Rss     Heap     Heap     Heap
+                 Total    Dirty    Clean    Dirty    Total     Size    Alloc     Free
+                ------   ------   ------   ------   ------   ------   ------   ------
+  Native Heap    18580    18512        0       15    21512    29720    15213     9800
+  Dalvik Heap    13116    11668      968       29    28684    18789     9395     9394
+ Dalvik Other     4538     3380        0        2    19224
+        Stack      940      940        0        0      948
+       Ashmem       15        0        0        0      480
+      Gfx dev        0        0        0        0        4
+    Other dev       24        0       24        0      332
+     .so mmap     2285      248      140        9    40888
+    .jar mmap     1374        0        0        0    37756
+    .apk mmap    15518        8    15028        0    17604
+    .ttf mmap      186        0        0        0      856
+    .dex mmap      364       12      352        0      364
+   Other mmap     5115     4116      936        0     6532
+      Unknown      660      548      104        3     1416
+        TOTAL    62773    39432    17552       58   176600    48509    24608    19194
+
+ App Summary
+                       Pss(KB)                        Rss(KB)
+                        ------                         ------
+           Java Heap:    11668                          28684
+         Native Heap:    18512                          21512
+                Code:    15788                          99140
+               Stack:      940                            948
+            Graphics:        0                              4
+       Private Other:    10076
+              System:     5789
+             Unknown:                                   26312
+
+           TOTAL PSS:    62773            TOTAL RSS:   176600       TOTAL SWAP PSS:       58
+
+ Objects
+               Views:       47         ViewRootImpl:        1
+         AppContexts:        5           Activities:        1
+              Assets:       13        AssetManagers:        0
+       Local Binders:       24        Proxy Binders:       35
+       Parcel memory:        8         Parcel count:       34
+    Death Recipients:        1             WebViews:        0
+
+ SQL
+         MEMORY_USED:        0
+  PAGECACHE_OVERFLOW:        0          MALLOC_SIZE:       46

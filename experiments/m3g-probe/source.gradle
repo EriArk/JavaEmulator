@@ -1,0 +1,66 @@
+// Pinned, verified input only. No download happens during Gradle configuration.
+def lockFile = new File(m3gPatchDirectory, 'source-lock.json')
+def lock = new groovy.json.JsonSlurper().parse(lockFile)
+def override = providers.gradleProperty('m3gSourceArchive')
+def archive = override.isPresent() ? file(override.get()) :
+        rootProject.file('.gradle/m3g-upstream/' + lock.revision + '.zip')
+def extracted = layout.buildDirectory.dir('upstream/freej2me')
+tasks.register('prepareM3gUpstream') {
+    outputs.upToDateWhen { false }
+    doLast {
+        if (!archive.isFile()) {
+            if (override.isPresent() || gradle.startParameter.offline) {
+                throw new GradleException('Pinned M3G archive missing; fetch once online or supply -Pm3gSourceArchive=<verified zip>')
+            }
+            archive.parentFile.mkdirs()
+            def temporary = new File(archive.parentFile, archive.name + '.' + UUID.randomUUID() + '.part')
+            try {
+                def connection = new URL(lock.archive).openConnection()
+                connection.connectTimeout = 30000
+                connection.readTimeout = 30000
+                connection.inputStream.withCloseable { input ->
+                    temporary.withOutputStream { output ->
+                        byte[] bytes = new byte[65536]
+                        long total = 0
+                        int size
+                        while ((size = input.read(bytes)) != -1) {
+                            total += size
+                            if (total > 64 * 1024 * 1024) throw new GradleException('M3G archive exceeds size limit')
+                            output.write(bytes, 0, size)
+                        }
+                    }
+                }
+                def digest = java.security.MessageDigest.getInstance('SHA-256')
+                temporary.withInputStream { input -> byte[] bytes = new byte[65536]; int size
+                    while ((size = input.read(bytes)) != -1) digest.update(bytes, 0, size) }
+                if (digest.digest().encodeHex().toString() != lock.sha256) throw new GradleException('M3G archive SHA-256 mismatch')
+                java.nio.file.Files.move(temporary.toPath(), archive.toPath(), java.nio.file.StandardCopyOption.REPLACE_EXISTING)
+            } finally { temporary.delete() }
+        }
+        def digest = java.security.MessageDigest.getInstance('SHA-256')
+        archive.withInputStream { input -> byte[] bytes = new byte[65536]; int size
+            while ((size = input.read(bytes)) != -1) digest.update(bytes, 0, size) }
+        if (digest.digest().encodeHex().toString() != lock.sha256) throw new GradleException('M3G archive SHA-256 mismatch')
+        def destination = extracted.get().asFile
+        delete destination
+        String prefix = 'freej2me-plus-' + lock.revision + '/'
+        int sources = 0
+        boolean license = false
+        new java.util.zip.ZipFile(archive).withCloseable { zip ->
+            zip.entries().each { entry ->
+                if (!entry.name.startsWith(prefix)) return
+                String relative = entry.name.substring(prefix.length())
+                if (relative != 'LICENSE' && !(relative ==~ /src\/javax\/microedition\/m3g\/[A-Za-z0-9_]+\.java/)) return
+                def target = new File(destination, relative)
+                target.parentFile.mkdirs()
+                zip.getInputStream(entry).withCloseable { input -> target.withOutputStream { output -> output << input } }
+                if (relative == 'LICENSE') license = true
+                else sources++
+            }
+        }
+        if (!license || sources == 0) throw new GradleException('Pinned M3G sources/license missing from archive')
+    }
+}
+ext.m3gPinnedRevision = lock.revision
+ext.m3gArchiveSource = extracted
+ext.m3gSourceLock = lockFile

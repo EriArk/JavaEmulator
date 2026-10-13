@@ -23,8 +23,8 @@ bundled. The app UI is English.
 - **Handheld:** controller-first, landscape-only, no on-screen keypad.
 - **Phone:** portrait and landscape, touch input and on-screen controls.
 - Both variants have independent app data and can coexist.
-- Experimental Mophun support is being developed inside the same app, not as
-  a separate end-user product. It is not in the public release or source tree.
+- Experimental Mophun support is integrated in the same app. Its source is now
+  included in the production-switch batch; the older public beta.2 has no Mophun.
 - Embedded Symbian / N-Gage support is the next research direction. The EKA2L1
   source audit is documented; no integration has been built or shipped.
 
@@ -35,8 +35,8 @@ bundled. The app UI is English.
 | Public download | [v0.1.0-beta.2](https://github.com/EriArk/JavaEmulator/releases/tag/v0.1.0-beta.2), published 2026-07-20 | Handheld and Phone release APKs; Java games, not Mophun |
 | Public development source | `main`; optimized-profile/import fixes, 2026-10-13 | Stable profile persistence and restart trials under R8; framed JAR import fix. Reversible presets and prior Java/UI/storage improvements remain unreleased. [Evidence](RELEASE_PROFILE_SAFETY.md). Not all changes are in the downloadable beta |
 | Private combined test snapshot | `0.1.0-beta.2-experimental.15`, 2026-10-11 | Handheld and Phone debug APKs containing Java plus experimental Mophun; supplied separately to testers, not a GitHub release |
-| Local-only implementation | Ignored optional-engine source and diagnostics | Mophun integration, game-specific experiments and test fixtures; public descriptions below, implementation not published |
-| Separate research branch | [`codex/m3g-replacement`](https://github.com/EriArk/JavaEmulator/tree/codex/m3g-replacement), optimized-upgrade batch, 2026-10-13 | Original-to-candidate RMS read/write survives isolated updates on Retroid and Phone. Retroid passes 324 release-compatible and 363 unmeasured debug renderer checks. Prior measured suite/34 CRC comparisons remain recorded below. Production switch, final signing/compliance and beta remain pending |
+| Local-only material | Ignored diagnostics, game fixtures and signing keys | Private test inputs remain local; the promoted Mophun runtime is no longer private-only |
+| Production-switch batch | [`codex/m3g-replacement`](https://github.com/EriArk/JavaEmulator/tree/codex/m3g-replacement), 2026-10-13 | Ordinary builds use the replacement M3G/tone and include Mophun. Old EPL engine sources removed; combined GPLv3 scope and dependency notices added. Version 0.2.0-beta.1 / code 200 prepared. Publication is a separate gate; see [report](releases/v0.2.0-beta.1-checks.md) |
 
 The experimental number is a distribution label: build 15 still reports
 version code **102** and `0.1.0-beta.2` / `0.1.0-beta.2-phone` internally.
@@ -80,12 +80,14 @@ See [beta.2 release notes](releases/v0.1.0-beta.2.md) for the released scope.
 | Automatic preparation | Weak or conflicting vendor hints retain Generic; anonymous images alone no longer set display size. Existing settings and explicit display declarations remain preserved | [Preset checks](GAME_PRESETS.md), [checks](LOCAL_TESTING.md); static heuristics, not running multiple models or guaranteeing the best profile |
 | Automatic game fonts | New profiles follow the prepared virtual resolution; Advanced font presets include Automatic. Existing explicit values are preserved | `9430cb0a`; four new Android font tests, readable Constructo tutorial on Retroid; not in a released APK |
 
-## Local and Private Work: Experimental Mophun
+## Experimental Mophun
 
-This summary was checked against the maintainer's local integration notes and
-dated test-build READMEs on 2026-10-11. The source is intentionally absent from
-the public checkout; a reader does not need access to private files to understand
-the scope. Do not describe these items as public-release features.
+The scope below was originally recorded from private builds on 2026-10-11.
+On 2026-10-13 the runtime and 25 fixture-free checks were selectively promoted
+to `engines/mophun`. Games, preview activities, keys and private diagnostics were
+not promoted. Signed-build import and startup checks are recorded in the new
+[production report](releases/v0.2.0-beta.1-checks.md). This is not broad platform
+compatibility or a claim that the older beta.2 download contains Mophun.
 
 - Direct `.mpn` import, game launch, per-game profiles and controls use the same
   AbyssME library and mapper. Reimport preserves the existing game data.
@@ -165,7 +167,8 @@ and backups through the menu. Firmware is user-supplied, not bundled.
 **Current evidence: source review only.** No EKA2L1 native build, imported
 firmware, Symbian game session or new APK resulted from this batch. Original
 N-Gage and N-Gage 2 need separate acceptance; do not advertise either as shipped.
-EKA2L1's GPL terms require a separate review of the existing EPL M3G combination.
+The old EPL M3G implementation is now removed in the production-switch batch;
+EKA2L1 and its own dependencies still need a separate integration review.
 
 The Symbian prototype's next step remains an isolated native build/bootstrap
 and dependency inventory, followed by environment import and one controlled
@@ -173,12 +176,13 @@ game session. The maintainer then prioritized the separate M3G alternative
 experiment below. #20 source-identity aliases remains open; it has not been
 fixed or silently dropped. The maintainer confirms each next implementation batch.
 
-## Separate Experiment: Alternative M3G
+## M3G Development History
 
-On 2026-10-11 the maintainer explicitly retained the current engine in `main`
-while developing an alternative only in `codex/m3g-replacement`. Licensing
-discussions remain a possible route; no engine removal or root-license change
-has taken effect.
+The dated entries below describe earlier isolated experiments, not the current
+production configuration. On 2026-10-11 the maintainer retained the old engine
+while developing a replacement separately. On 2026-10-13 the maintainer approved
+removing it entirely. The ordinary build now uses `engines/m3g`; the old engine
+remains only in Git history. See the production report above for current checks.
 
 The initial branch work produced two standalone Android test APKs: one using pinned
 FreeJ2ME-Plus M3G software-renderer sources, the other using the unchanged

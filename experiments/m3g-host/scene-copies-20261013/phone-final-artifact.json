@@ -1,0 +1,11 @@
+﻿{
+    "engine":  "candidate",
+    "variant":  "phone",
+    "device":  "Android emulator x86_64",
+    "sdk":  35,
+    "scope":  "62 shared API/host/raster cases",
+    "tests":  62,
+    "skipped":  0,
+    "apk":  "8A0B6756D0B5335E3D730BE66BA095D52C7ADBE0B8B537BF1B30E3BEB0C92F90",
+    "testApk":  "5C178AAB3BC8D4113244087511902BA4C5C165EE2BD15481C6CEF40017F6ADD7"
+}

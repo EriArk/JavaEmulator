@@ -1,0 +1,60 @@
+plugins { id 'com.android.application' }
+
+def repository = rootProject.file('../..')
+def sharedHost = rootProject.file('probe/src/main/java')
+def generated = layout.buildDirectory.dir('generated/baseline')
+tasks.register('prepareBaseline') {
+    outputs.upToDateWhen { false }
+    doLast {
+        if (!new File(repository, 'app/src/main/cpp/m3g/src/m3g_core.c').isFile()) {
+            throw new GradleException('Legacy baseline removed. Run this comparison in a separate checkout at 05562126.')
+        }
+        def expected = [
+            'app/src/main/java/javax/microedition/m3g': 'af43b288fbf407f15cb50bb94ee2a405f2376109',
+            'app/src/main/cpp/m3g': '2a7723dffafbb4699f8da6ab0f675b17a9d3c69f'
+        ]
+        expected.each { path, hash ->
+            def result = new ByteArrayOutputStream()
+            exec { workingDir repository; commandLine 'git', 'rev-parse', "HEAD:${path}"; standardOutput result }
+            if (result.toString().trim() != hash) throw new GradleException("Baseline tree changed: ${path}")
+        }
+        def dirty = new ByteArrayOutputStream()
+        exec {
+            workingDir repository
+            commandLine(['git', 'status', '--porcelain', '--'] + expected.keySet().toList())
+            standardOutput dirty
+        }
+        if (dirty.size() != 0) throw new GradleException('Baseline engine must be unmodified')
+        copy {
+            from repository.toPath().resolve('app/src/main/assets/licenses.html')
+            into new File(generated.get().asFile, 'assets')
+        }
+    }
+}
+android {
+    namespace 'io.github.eriark.m3gprobe'
+    compileSdk 34
+    ndkVersion '22.1.7171670'
+    buildFeatures { buildConfig true }
+    compileOptions {
+        sourceCompatibility JavaVersion.VERSION_11
+        targetCompatibility JavaVersion.VERSION_11
+    }
+    defaultConfig {
+        applicationId 'io.github.eriark.m3gprobe.baseline'
+        minSdk 29
+        targetSdk 34
+        versionCode 2
+        versionName '0.2-scenes-baseline'
+        buildConfigField 'boolean', 'BASELINE', 'true'
+        ndk { abiFilters 'arm64-v8a', 'x86_64' }
+        externalNativeBuild { ndkBuild { targets 'javam3g' } }
+    }
+    externalNativeBuild { ndkBuild { path repository.toPath().resolve('app/src/main/cpp/Android.mk') } }
+    sourceSets {
+        main.manifest.srcFile rootProject.file('probe/src/main/AndroidManifest.xml')
+        main.java.srcDirs sharedHost, repository.toPath().resolve('app/src/main/java/javax/microedition/m3g')
+        main.assets.srcDir generated.map { new File(it.asFile, 'assets') }
+    }
+}
+tasks.named('preBuild').configure { dependsOn 'prepareBaseline' }

@@ -1,0 +1,21 @@
+﻿{
+    "engine":  "candidate",
+    "run":  "racing-dirt-final",
+    "apkSha256":  "3e8c2e5a861db8dc46f7e13e7303c7c29f0dfaa0ffc19cd9337ce0c124a541df",
+    "processId":  "27329",
+    "layer":  "SurfaceView[io.github.eriark.abyssme.m3gcandidate.debug/javax.microedition.shell.MicroActivity](BLAST)#29430",
+    "elapsedSeconds":  36.096690699999996,
+    "maxPollGapSeconds":  1.2604575999999987,
+    "error":  null,
+    "metrics":  {
+                    "frames":  584,
+                    "spanSeconds":  35.132078841,
+                    "presentedFps":  16.594520427855372,
+                    "intervalP50Ms":  66.659323,
+                    "intervalP95Ms":  66.671771,
+                    "maxIntervalMs":  83.340677,
+                    "intervalsAbove100Ms":  0
+                },
+    "cadenceWindows":  16,
+    "interpretation":  "Surface presentation intervals, not game logic FPS or isolated renderer cost. Inspect captures."
+}

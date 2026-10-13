@@ -1,0 +1,128 @@
+﻿{
+    "note":  "Descriptive pixel comparison, not a conformance or performance pass/fail threshold.",
+    "device":  "Retroid Pocket Classic",
+    "abi":  "arm64-v8a",
+    "candidateApk":  "116CC24FBE662FCEE433A4733F62C7794B88637E59F6E1C47765E6C0C9942389",
+    "baselineApk":  "F5343B49116C11FB71847B6B95F9B931F634C53A68B2D4A658747984658C2A71",
+    "frames":  [
+                   {
+                       "frame":  "scene_raw_api",
+                       "differentPixels":  185,
+                       "totalPixels":  25600,
+                       "meanAbsoluteRgbError":  0.968359,
+                       "geometryIntersectionOverUnion":  0.957676
+                   },
+                   {
+                       "frame":  "scene_raw",
+                       "differentPixels":  185,
+                       "totalPixels":  25600,
+                       "meanAbsoluteRgbError":  0.968359,
+                       "geometryIntersectionOverUnion":  0.957676
+                   },
+                   {
+                       "frame":  "scene_zlib_api",
+                       "differentPixels":  185,
+                       "totalPixels":  25600,
+                       "meanAbsoluteRgbError":  0.968359,
+                       "geometryIntersectionOverUnion":  0.957676
+                   },
+                   {
+                       "frame":  "scene_zlib",
+                       "differentPixels":  185,
+                       "totalPixels":  25600,
+                       "meanAbsoluteRgbError":  0.968359,
+                       "geometryIntersectionOverUnion":  0.957676
+                   },
+                   {
+                       "frame":  "scene_multisection_api",
+                       "differentPixels":  185,
+                       "totalPixels":  25600,
+                       "meanAbsoluteRgbError":  0.968359,
+                       "geometryIntersectionOverUnion":  0.957676
+                   },
+                   {
+                       "frame":  "scene_multisection",
+                       "differentPixels":  185,
+                       "totalPixels":  25600,
+                       "meanAbsoluteRgbError":  0.968359,
+                       "geometryIntersectionOverUnion":  0.957676
+                   },
+                   {
+                       "frame":  "scene_zlib_multisection_api",
+                       "differentPixels":  185,
+                       "totalPixels":  25600,
+                       "meanAbsoluteRgbError":  0.968359,
+                       "geometryIntersectionOverUnion":  0.957676
+                   },
+                   {
+                       "frame":  "scene_zlib_multisection",
+                       "differentPixels":  185,
+                       "totalPixels":  25600,
+                       "meanAbsoluteRgbError":  0.968359,
+                       "geometryIntersectionOverUnion":  0.957676
+                   },
+                   {
+                       "frame":  "scene_offset",
+                       "differentPixels":  185,
+                       "totalPixels":  25600,
+                       "meanAbsoluteRgbError":  0.968359,
+                       "geometryIntersectionOverUnion":  0.957676
+                   },
+                   {
+                       "frame":  "translation_start",
+                       "differentPixels":  184,
+                       "totalPixels":  25600,
+                       "meanAbsoluteRgbError":  0.963125,
+                       "geometryIntersectionOverUnion":  0.957895
+                   },
+                   {
+                       "frame":  "translation_end",
+                       "differentPixels":  184,
+                       "totalPixels":  25600,
+                       "meanAbsoluteRgbError":  0.963125,
+                       "geometryIntersectionOverUnion":  0.957895
+                   },
+                   {
+                       "frame":  "rotation_start",
+                       "differentPixels":  185,
+                       "totalPixels":  25600,
+                       "meanAbsoluteRgbError":  0.968359,
+                       "geometryIntersectionOverUnion":  0.957676
+                   },
+                   {
+                       "frame":  "rotation_mid",
+                       "differentPixels":  185,
+                       "totalPixels":  25600,
+                       "meanAbsoluteRgbError":  0.968359,
+                       "geometryIntersectionOverUnion":  0.957676
+                   },
+                   {
+                       "frame":  "morph_start",
+                       "differentPixels":  185,
+                       "totalPixels":  25600,
+                       "meanAbsoluteRgbError":  0.968359,
+                       "geometryIntersectionOverUnion":  0.957676
+                   },
+                   {
+                       "frame":  "morph_end",
+                       "differentPixels":  178,
+                       "totalPixels":  25600,
+                       "meanAbsoluteRgbError":  0.931719,
+                       "geometryIntersectionOverUnion":  0.959127
+                   },
+                   {
+                       "frame":  "skin_start",
+                       "differentPixels":  185,
+                       "totalPixels":  25600,
+                       "meanAbsoluteRgbError":  0.968359,
+                       "geometryIntersectionOverUnion":  0.957676
+                   },
+                   {
+                       "frame":  "skin_end",
+                       "differentPixels":  221,
+                       "totalPixels":  25600,
+                       "meanAbsoluteRgbError":  1.156797,
+                       "geometryIntersectionOverUnion":  0.949254
+                   }
+               ]
+}

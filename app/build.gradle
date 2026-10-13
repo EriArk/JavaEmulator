@@ -3,6 +3,17 @@ plugins {
 }
 
 def midletArchivesBaseName
+def m3gExperiment = providers.gradleProperty('m3gExperiment').orNull
+def m3gReleaseCheck = providers.gradleProperty('m3gReleaseCheck').orNull == 'true'
+if (m3gReleaseCheck && m3gExperiment == null) {
+    throw new GradleException('m3gReleaseCheck requires an isolated candidate or baseline experiment')
+}
+if (m3gExperiment != null && m3gExperiment != 'candidate') {
+    throw new GradleException('The legacy engine was removed. For baseline comparisons use a separate checkout at 05562126. Only m3gExperiment=candidate remains supported.')
+}
+if (m3gExperiment != null) {
+    layout.buildDirectory.set(file("build/m3g-${m3gExperiment}" + (m3gReleaseCheck ? '-release-check' : '')))
+}
 
 android {
     compileSdk COMPILE_SDK
@@ -13,8 +24,8 @@ android {
         applicationId "io.github.eriark.abyssme"
         minSdk MIN_SDK
         targetSdk TARGET_SDK
-        versionCode 102
-        versionName "0.1.0-beta.2"
+        versionCode 200
+        versionName "0.2.0-beta.1"
         resValue 'string', 'app_name', rootProject.name
         buildConfigField 'boolean', 'HANDHELD_MODE', 'true'
         vectorDrawables.useSupportLibrary = true
@@ -34,7 +45,7 @@ android {
                 def keystoreName = System.getenv('BITRISEIO_ANDROID_KEYSTORE_NAME')
                 if (keystoreName) storeFile rootProject.file(keystoreName)
                 storePassword System.getenv('BITRISEIO_ANDROID_KEYSTORE_PASSWORD')
-            } else if (rootProject.file('keystore.properties').isFile()) {
+            } else if (m3gExperiment == null && rootProject.file('keystore.properties').isFile()) {
                 Properties keystoreProps = new Properties()
                 rootProject.file('keystore.properties').withInputStream { keystoreProps.load(it) }
                 keyAlias keystoreProps['keyAlias']
@@ -49,7 +60,8 @@ android {
         release {
             minifyEnabled true
             shrinkResources true
-            signingConfig signingConfigs.release
+            // Rehearsals are deliberately debug-signed and never use production IDs/keys.
+            signingConfig m3gReleaseCheck ? signingConfigs.debug : signingConfigs.release
         }
         debug {
             applicationIdSuffix '.debug'
@@ -64,6 +76,14 @@ android {
     }
 
     flavorDimensions 'default'
+    if (m3gExperiment != null) {
+        if (m3gReleaseCheck) testBuildType 'release'
+        variantFilter { variant ->
+            variant.ignore = variant.buildType.name != (m3gReleaseCheck ? 'release' : 'debug') || !(variant.flavors*.name in [['fdroid'], ['phone']])
+        }
+        // A shared, isolated ID lets the baseline be upgraded to the candidate in place.
+        defaultConfig.applicationId = m3gReleaseCheck ? 'io.github.eriark.abyssme.m3grehearsal' : "io.github.eriark.abyssme.m3g${m3gExperiment}"
+    }
     productFlavors {
         play {
             buildConfigField 'boolean', 'FULL_EMULATOR', 'true'
@@ -128,7 +148,7 @@ android {
 
     externalNativeBuild {
         ndkBuild {
-            path 'src/main/cpp/Android.mk'
+            path '../engines/m3g/native/Android.mk'
         }
     }
 
@@ -153,6 +173,13 @@ android {
     }
 }
 
+if (m3gExperiment != null) {
+    apply from: rootProject.file('experiments/m3g-host/host.gradle')
+} else {
+    apply from: rootProject.file('engines/m3g/production.gradle')
+    apply from: rootProject.file('engines/mophun/production.gradle')
+}
+
 def validateReleaseCredentials = tasks.register('validateReleaseCredentials') {
     doLast {
         def signing = android.signingConfigs.release
@@ -161,15 +188,21 @@ def validateReleaseCredentials = tasks.register('validateReleaseCredentials') {
         }
     }
 }
+apply from: rootProject.file('tools/release-inventory.gradle')
 android.applicationVariants.all { variant ->
-    if (variant.buildType.name == 'release') {
+    if (variant.buildType.name == 'release' && !m3gReleaseCheck) {
         variant.preBuildProvider.configure { dependsOn validateReleaseCredentials }
     }
 }
 
 static def generateVersionCode() {
-    def result = "git rev-list HEAD --count".execute().text.trim()
-    return result.toInteger()
+    try {
+        def result = "git rev-list HEAD --count".execute().text.trim()
+        return result.isInteger() ? result.toInteger() : 0
+    } catch (IOException ignored) {
+        // Source release archives do not require Git or its history to build.
+        return 0
+    }
 }
 
 def getMidletManifestProperties() {

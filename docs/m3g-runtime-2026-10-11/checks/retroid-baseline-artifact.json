@@ -1,0 +1,8 @@
+﻿{
+    "engine":  "baseline",
+    "package":  "io.github.eriark.abyssme.m3gbaseline.debug",
+    "device":  "Retroid Pocket Classic",
+    "sdk":  "34",
+    "apk":  "012C98D4585A3969658DD70A3CB4617BFCED6D168B456371ABA7F57AC65C8DD2",
+    "testApk":  "24FB816D71A4B5F522B8D111EA8644A94004293092922DEF6282549D3207FED6"
+}

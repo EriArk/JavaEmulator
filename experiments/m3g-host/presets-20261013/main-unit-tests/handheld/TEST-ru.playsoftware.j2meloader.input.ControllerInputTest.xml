@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testsuite name="ru.playsoftware.j2meloader.input.ControllerInputTest" tests="12" skipped="0" failures="0" errors="0" timestamp="2026-10-13T16:15:22" hostname="LAPTOP-MN5PLG4I" time="0.008">
+  <properties/>
+  <testcase name="triggerAxisAndButtonShareOneOutput" classname="ru.playsoftware.j2meloader.input.ControllerInputTest" time="0.003"/>
+  <testcase name="allDiagonalIdsAreDistinct" classname="ru.playsoftware.j2meloader.input.ControllerInputTest" time="0.0"/>
+  <testcase name="removingDevicePreservesOtherHeldSource" classname="ru.playsoftware.j2meloader.input.ControllerInputTest" time="0.0"/>
+  <testcase name="dpadTransitionsUseExclusiveDigit" classname="ru.playsoftware.j2meloader.input.ControllerInputTest" time="0.001"/>
+  <testcase name="oldProfilesKeepTwoDirections" classname="ru.playsoftware.j2meloader.input.ControllerInputTest" time="0.0"/>
+  <testcase name="twoDevicesCannotMakeACombinedDiagonal" classname="ru.playsoftware.j2meloader.input.ControllerInputTest" time="0.0"/>
+  <testcase name="hatAndKeyEventsDoNotDoublePress" classname="ru.playsoftware.j2meloader.input.ControllerInputTest" time="0.0"/>
+  <testcase name="repeatAfterPauseDoesNotRepress" classname="ru.playsoftware.j2meloader.input.ControllerInputTest" time="0.0"/>
+  <testcase name="clearReleasesOldBindingBeforeProfileChange" classname="ru.playsoftware.j2meloader.input.ControllerInputTest" time="0.0"/>
+  <testcase name="stickDiagonalIsAtomicAndCustomizable" classname="ru.playsoftware.j2meloader.input.ControllerInputTest" time="0.0"/>
+  <testcase name="explicitUnboundDiagonalSuppressesCardinals" classname="ru.playsoftware.j2meloader.input.ControllerInputTest" time="0.001"/>
+  <testcase name="axisHysteresisAvoidsBoundaryChatter" classname="ru.playsoftware.j2meloader.input.ControllerInputTest" time="0.0"/>
+  <system-out><![CDATA[]]></system-out>
+  <system-err><![CDATA[]]></system-err>
+</testsuite>

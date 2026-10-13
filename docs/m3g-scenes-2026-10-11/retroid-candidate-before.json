@@ -1,0 +1,121 @@
+﻿{
+  "engine": "FreeJ2ME-Plus",
+  "suiteVersion": 2,
+  "upstream": "baca76a4dda6f30abac67fb4a3db009eed05f91c",
+  "device": "Retroid Pocket Classic",
+  "sdk": 34,
+  "abi": "arm64-v8a",
+  "tests": [
+    {
+      "name": "transform_inverse",
+      "passed": true,
+      "elapsedMs": 0.070209
+    },
+    {
+      "name": "immediate_triangle",
+      "passed": true,
+      "elapsedMs": 19.204323
+    },
+    {
+      "name": "retained_matches_immediate",
+      "passed": true,
+      "elapsedMs": 43.184219
+    },
+    {
+      "name": "depth_order",
+      "passed": true,
+      "elapsedMs": 19.59151
+    },
+    {
+      "name": "texture_checker",
+      "passed": true,
+      "elapsedMs": 18.502916
+    },
+    {
+      "name": "translated_clip",
+      "passed": true,
+      "elapsedMs": 15.584427
+    },
+    {
+      "name": "png_loader",
+      "passed": true,
+      "elapsedMs": 2.166146
+    },
+    {
+      "name": "release_and_rebind",
+      "passed": true,
+      "elapsedMs": 18.739843
+    },
+    {
+      "name": "scene_raw",
+      "passed": true,
+      "elapsedMs": 24.281406
+    },
+    {
+      "name": "scene_zlib",
+      "passed": true,
+      "elapsedMs": 27.430521
+    },
+    {
+      "name": "scene_multisection",
+      "passed": false,
+      "error": "java.lang.AssertionError: World root missing; returned 1 objects",
+      "elapsedMs": 1.691511
+    },
+    {
+      "name": "scene_zlib_multisection",
+      "passed": false,
+      "error": "java.lang.AssertionError: World root missing; returned 1 objects",
+      "elapsedMs": 1.667761
+    },
+    {
+      "name": "scene_offset",
+      "passed": true,
+      "elapsedMs": 10.542031
+    },
+    {
+      "name": "scene_truncated_rejected",
+      "passed": true,
+      "elapsedMs": 1.490364
+    },
+    {
+      "name": "animation_translation",
+      "passed": true,
+      "elapsedMs": 28.855052
+    },
+    {
+      "name": "animation_orientation",
+      "passed": true,
+      "elapsedMs": 8.132291
+    },
+    {
+      "name": "morph_vertices",
+      "passed": true,
+      "elapsedMs": 10.555677
+    },
+    {
+      "name": "skin_bone",
+      "passed": true,
+      "elapsedMs": 3.436406
+    }
+  ],
+  "frames": [
+    "immediate",
+    "retained",
+    "texture",
+    "clip",
+    "scene_raw_api",
+    "scene_raw",
+    "scene_zlib_api",
+    "scene_zlib",
+    "scene_offset",
+    "translation_start",
+    "translation_end",
+    "rotation_start",
+    "rotation_mid",
+    "morph_start",
+    "morph_end",
+    "skin_start",
+    "skin_end"
+  ]
+}

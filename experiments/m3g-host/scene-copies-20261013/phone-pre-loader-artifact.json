@@ -1,0 +1,11 @@
+﻿{
+    "engine":  "candidate",
+    "variant":  "phone",
+    "package":  "io.github.eriark.abyssme.m3gcandidate.phone.debug",
+    "device":  "sdk_gphone64_x86_64",
+    "sdk":  "35",
+    "apk":  "D87B7C6F0D5E36DB3FD74B27B1E0A5B0AC3EE62BAF870A884821591513DF8AB8",
+    "testApk":  "035A45E9A663939698F0A0858512368A1359880EF11601402966D5D717BE3530",
+    "measured":  false,
+    "skipped":  0
+}

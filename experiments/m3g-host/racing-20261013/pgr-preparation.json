@@ -1,0 +1,26 @@
+﻿[
+    {
+        "phase":  "before",
+        "width":  128,
+        "height":  128,
+        "detectedWidth":  128,
+        "detectedHeight":  128,
+        "reasons":  "resources suggest 128x128, static analysis, not a gameplay test",
+        "fpsLimit":  0,
+        "graphicsMode":  1,
+        "parallelRedraw":  false,
+        "filter":  false
+    },
+    {
+        "phase":  "after",
+        "width":  240,
+        "height":  320,
+        "detectedWidth":  0,
+        "detectedHeight":  0,
+        "reasons":  "no screen-size evidence, static analysis, not a gameplay test",
+        "fpsLimit":  0,
+        "graphicsMode":  1,
+        "parallelRedraw":  false,
+        "filter":  false
+    }
+]

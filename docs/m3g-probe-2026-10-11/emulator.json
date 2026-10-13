@@ -1,0 +1,48 @@
+﻿{
+  "upstream": "baca76a4dda6f30abac67fb4a3db009eed05f91c",
+  "device": "sdk_gphone64_x86_64",
+  "sdk": 35,
+  "abi": "x86_64",
+  "tests": [
+    {
+      "name": "transform_inverse",
+      "passed": true,
+      "elapsedMs": 0.0602
+    },
+    {
+      "name": "immediate_triangle",
+      "passed": true,
+      "elapsedMs": 129.4395
+    },
+    {
+      "name": "retained_matches_immediate",
+      "passed": true,
+      "elapsedMs": 379.304
+    },
+    {
+      "name": "depth_order",
+      "passed": true,
+      "elapsedMs": 354.0358
+    },
+    {
+      "name": "texture_checker",
+      "passed": true,
+      "elapsedMs": 59.3085
+    },
+    {
+      "name": "translated_clip",
+      "passed": true,
+      "elapsedMs": 34.8699
+    },
+    {
+      "name": "png_loader",
+      "passed": true,
+      "elapsedMs": 8.9863
+    },
+    {
+      "name": "release_and_rebind",
+      "passed": true,
+      "elapsedMs": 579.1303
+    }
+  ]
+}

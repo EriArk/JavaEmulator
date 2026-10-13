@@ -15,11 +15,10 @@ by a maintainer; this document does not enable any automation.
 
 ## Prepare
 
-For a combined Wolphun/M3G release, first complete the permission and component
-notice checks in [licensing status](LICENSING.md). The positive upstream response
-and the clarification request are linked there. Archive the author's actual
-permission and verify its scope before changing release licensing or publishing
-combined sources/binaries; a request drafted by us is not that permission.
+Use the replacement M3G/tone build and preserve the component notices described
+in [licensing](LICENSING.md). There is no EPL linking exception: the old code
+was removed. Build from a clean source checkout or run `:app:clean` when changing
+source sets; stale compiler outputs must not survive into a release.
 
 1. Agree on the version and scope. Record the source commit and update the app
    version separately as part of the release work. Do not reuse a published tag
@@ -35,6 +34,10 @@ combined sources/binaries; a request drafted by us is not that permission.
    test results. Compute SHA-256 after the final build, using the exact asset
    filenames in the checksum list. Keep the APKs in local build output until
    uploading them; no copy into the Git tree is needed.
+6. Run `:app:verifyProductionApks`. Prepare the matching app source archive and
+   dependency source/notice bundle using `:app:releaseDependencyInventory` and
+   the pinned additional native sources. Resolve missing-source entries; do not
+   confuse a POM's declared license with a completed source inventory.
 
 ## Publish
 

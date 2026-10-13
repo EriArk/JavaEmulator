@@ -1,0 +1,90 @@
+[
+    {
+        "Device":  "retroid",
+        "Path":  "/configs/PGR/config.json",
+        "Bytes":  4559,
+        "Before":  "78C77C021361AEE46AB3C0C416E8131010FE9B0CB63048F94D57828008E785FB",
+        "After":  "78C77C021361AEE46AB3C0C416E8131010FE9B0CB63048F94D57828008E785FB",
+        "Match":  true
+    },
+    {
+        "Device":  "retroid",
+        "Path":  "/configs/RMS Upgrade Probe/config.json",
+        "Bytes":  5065,
+        "Before":  "41DC122728FEC357D322EF90054D8BA5C3DDC7EFB312AC571928BDE1BB87DDEF",
+        "After":  "41DC122728FEC357D322EF90054D8BA5C3DDC7EFB312AC571928BDE1BB87DDEF",
+        "Match":  true
+    },
+    {
+        "Device":  "retroid",
+        "Path":  "/data/PGR/PGR.rsh",
+        "Bytes":  39,
+        "Before":  "9D8FC8E2F9D8DBB4088BE47324A993C583BB42AB868976BD5544969748458E40",
+        "After":  "9D8FC8E2F9D8DBB4088BE47324A993C583BB42AB868976BD5544969748458E40",
+        "Match":  true
+    },
+    {
+        "Device":  "retroid",
+        "Path":  "/data/RMS Upgrade Probe/UpgradeCounter.1.rsr",
+        "Bytes":  13,
+        "Before":  "663FEA6EBEBC373C16AE2A8B9252E951BBF81EF10D43FDA22B4A7041306660B1",
+        "After":  "663FEA6EBEBC373C16AE2A8B9252E951BBF81EF10D43FDA22B4A7041306660B1",
+        "Match":  true
+    },
+    {
+        "Device":  "retroid",
+        "Path":  "/data/RMS Upgrade Probe/UpgradeCounter.rsh",
+        "Bytes":  50,
+        "Before":  "4F098CFDFFA54B6B276AD28FED35DB324D3C02D5855538B9F5BE5CDD109104AD",
+        "After":  "4F098CFDFFA54B6B276AD28FED35DB324D3C02D5855538B9F5BE5CDD109104AD",
+        "Match":  true
+    },
+    {
+        "Device":  "phone",
+        "Path":  "/configs/RMS Upgrade Probe/config.json",
+        "Bytes":  5063,
+        "Before":  "B13D4C54B131CFE15613819CCC0C661D3F3FA2437877FF8077970F3129C83A75",
+        "After":  "B13D4C54B131CFE15613819CCC0C661D3F3FA2437877FF8077970F3129C83A75",
+        "Match":  true
+    },
+    {
+        "Device":  "phone",
+        "Path":  "/configs/Sudoku J2ME/config.json",
+        "Bytes":  4825,
+        "Before":  "6B1134229B92AC8E1434A0FD8F4B8788547CE9241EC23DBEC4F9EB68BB39DAC5",
+        "After":  "6B1134229B92AC8E1434A0FD8F4B8788547CE9241EC23DBEC4F9EB68BB39DAC5",
+        "Match":  true
+    },
+    {
+        "Device":  "phone",
+        "Path":  "/data/RMS Upgrade Probe/UpgradeCounter.1.rsr",
+        "Bytes":  13,
+        "Before":  "86A88D5B0C4B002BDB90F3254EF157B206932E244038CCCF6A68B86356CBC401",
+        "After":  "86A88D5B0C4B002BDB90F3254EF157B206932E244038CCCF6A68B86356CBC401",
+        "Match":  true
+    },
+    {
+        "Device":  "phone",
+        "Path":  "/data/RMS Upgrade Probe/UpgradeCounter.rsh",
+        "Bytes":  50,
+        "Before":  "50F3E9157DA7F4DBFEB1A2C72105183502FD3A8F66A0085FAE03A451BCF8217E",
+        "After":  "50F3E9157DA7F4DBFEB1A2C72105183502FD3A8F66A0085FAE03A451BCF8217E",
+        "Match":  true
+    },
+    {
+        "Device":  "phone",
+        "Path":  "/data/Sudoku J2ME/Moves.1.rsr",
+        "Bytes":  16,
+        "Before":  "2DF263C57940D5AE3069C596E2D5B7F1265ECDFEA8CF6F8A79B192AD6395831F",
+        "After":  "2DF263C57940D5AE3069C596E2D5B7F1265ECDFEA8CF6F8A79B192AD6395831F",
+        "Match":  true
+    },
+    {
+        "Device":  "phone",
+        "Path":  "/data/Sudoku J2ME/Moves.rsh",
+        "Bytes":  41,
+        "Before":  "0C78001E9AD0F1628A6298B4ADA753ABA32338C8A78F621E8D6DA03203D5710E",
+        "After":  "0C78001E9AD0F1628A6298B4ADA753ABA32338C8A78F621E8D6DA03203D5710E",
+        "Match":  true
+    }
+]

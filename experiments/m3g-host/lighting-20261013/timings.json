@@ -1,0 +1,206 @@
+﻿[
+    {
+        "scene":  "rgb-nearest-240x320",
+        "beforeMs":  1.856065915625,
+        "afterMs":  1.8509729781250002,
+        "changePercent":  -0.27439421505053296
+    },
+    {
+        "scene":  "rgb-linear-240x320",
+        "beforeMs":  1.82136393125,
+        "afterMs":  1.8247703406250002,
+        "changePercent":  0.18702519120725736
+    },
+    {
+        "scene":  "rgba-alpha-240x320",
+        "beforeMs":  1.705398428125,
+        "afterMs":  1.7266569031249999,
+        "changePercent":  1.2465400840888874
+    },
+    {
+        "scene":  "lit-fog-240x320",
+        "beforeMs":  1.725669590625,
+        "afterMs":  1.7277986593749999,
+        "changePercent":  0.12337638453887578
+    },
+    {
+        "scene":  "exp-fog-240x320",
+        "beforeMs":  1.7181302062500001,
+        "afterMs":  1.7255756843749999,
+        "changePercent":  0.43334772288592394
+    },
+    {
+        "scene":  "multi-texture-240x320",
+        "beforeMs":  2.0653499281250003,
+        "afterMs":  2.105618490625,
+        "changePercent":  1.9497210594505265
+    },
+    {
+        "scene":  "mip-nearest-240x320",
+        "beforeMs":  1.7241673125,
+        "afterMs":  1.72668261875,
+        "changePercent":  0.14588527643253357
+    },
+    {
+        "scene":  "mip-linear-240x320",
+        "beforeMs":  1.72823193125,
+        "afterMs":  1.7422506531250002,
+        "changePercent":  0.811159753590518
+    },
+    {
+        "scene":  "sprites-240x320",
+        "beforeMs":  2.1868601874999998,
+        "afterMs":  2.170998703125,
+        "changePercent":  -0.72530857096687607
+    },
+    {
+        "scene":  "lighting-grid-240x320",
+        "beforeMs":  1.6542164625,
+        "afterMs":  1.673483078125,
+        "changePercent":  1.16469736952578
+    },
+    {
+        "scene":  "lighting-flat-240x320",
+        "beforeMs":  4.019574703125,
+        "afterMs":  1.90587663125,
+        "changePercent":  -52.585117281978
+    },
+    {
+        "scene":  "lighting-two-sided-240x320",
+        "beforeMs":  4.20932585,
+        "afterMs":  2.0553348031249996,
+        "changePercent":  -51.17187700911775
+    },
+    {
+        "scene":  "multi-draw-240x320",
+        "beforeMs":  2.56162271875,
+        "afterMs":  2.626981125,
+        "changePercent":  2.5514454479031556
+    },
+    {
+        "scene":  "modulate-240x320",
+        "beforeMs":  1.6303185187499998,
+        "afterMs":  1.627533684375,
+        "changePercent":  -0.17081535558677308
+    },
+    {
+        "scene":  "modulate-x2-240x320",
+        "beforeMs":  1.62174055625,
+        "afterMs":  1.63942464375,
+        "changePercent":  1.0904387530944692
+    },
+    {
+        "scene":  "depth-offset-240x320",
+        "beforeMs":  1.70612076875,
+        "afterMs":  1.7656897812499999,
+        "changePercent":  3.4914886209165275
+    },
+    {
+        "scene":  "material-churn-240x320",
+        "beforeMs":  2.57874966875,
+        "afterMs":  2.6444394625000003,
+        "changePercent":  2.5473505453455836
+    },
+    {
+        "scene":  "rgb-nearest-320x240",
+        "beforeMs":  1.557482096875,
+        "afterMs":  1.5580297875,
+        "changePercent":  0.035165131342362876
+    },
+    {
+        "scene":  "rgb-linear-320x240",
+        "beforeMs":  1.560387209375,
+        "afterMs":  1.5495455656250001,
+        "changePercent":  -0.69480470519508453
+    },
+    {
+        "scene":  "rgba-alpha-320x240",
+        "beforeMs":  1.53377880625,
+        "afterMs":  1.569731440625,
+        "changePercent":  2.3440560156716472
+    },
+    {
+        "scene":  "lit-fog-320x240",
+        "beforeMs":  1.587345215625,
+        "afterMs":  1.546721353125,
+        "changePercent":  -2.5592329948217918
+    },
+    {
+        "scene":  "exp-fog-320x240",
+        "beforeMs":  1.5867906937499998,
+        "afterMs":  1.5973797156250003,
+        "changePercent":  0.66732316471909137
+    },
+    {
+        "scene":  "multi-texture-320x240",
+        "beforeMs":  1.93847445,
+        "afterMs":  1.933692384375,
+        "changePercent":  -0.2466922184607534
+    },
+    {
+        "scene":  "mip-nearest-320x240",
+        "beforeMs":  1.5976883124999999,
+        "afterMs":  1.569179521875,
+        "changePercent":  -1.7843774910258015
+    },
+    {
+        "scene":  "mip-linear-320x240",
+        "beforeMs":  1.5698885062499999,
+        "afterMs":  1.5822648031250002,
+        "changePercent":  0.78835514915409632
+    },
+    {
+        "scene":  "sprites-320x240",
+        "beforeMs":  2.03455843125,
+        "afterMs":  2.0256586875,
+        "changePercent":  -0.43742876160759447
+    },
+    {
+        "scene":  "lighting-grid-320x240",
+        "beforeMs":  1.5885530593750001,
+        "afterMs":  1.603074215625,
+        "changePercent":  0.91411213269219083
+    },
+    {
+        "scene":  "lighting-flat-320x240",
+        "beforeMs":  4.895404784375,
+        "afterMs":  1.8212477125,
+        "changePercent":  -62.796790199801222
+    },
+    {
+        "scene":  "lighting-two-sided-320x240",
+        "beforeMs":  5.0706079125,
+        "afterMs":  1.91751660625,
+        "changePercent":  -62.1836939605809
+    },
+    {
+        "scene":  "multi-draw-320x240",
+        "beforeMs":  2.435129871875,
+        "afterMs":  2.4881005906249998,
+        "changePercent":  2.1752728411652766
+    },
+    {
+        "scene":  "modulate-320x240",
+        "beforeMs":  1.5553123281249999,
+        "afterMs":  1.5459581656249999,
+        "changePercent":  -0.60143305822547566
+    },
+    {
+        "scene":  "modulate-x2-320x240",
+        "beforeMs":  1.5383813437499998,
+        "afterMs":  1.56086881875,
+        "changePercent":  1.4617620716320001
+    },
+    {
+        "scene":  "depth-offset-320x240",
+        "beforeMs":  1.6114361968750002,
+        "afterMs":  1.59917285,
+        "changePercent":  -0.76101969775670408
+    },
+    {
+        "scene":  "material-churn-320x240",
+        "beforeMs":  2.4831835937499998,
+        "afterMs":  2.5540738843749997,
+        "changePercent":  2.8548147146036928
+    }
+]

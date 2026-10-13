@@ -1,0 +1,149 @@
+INSTRUMENTATION_STATUS: class=javax.microedition.shell.M3gDeformationTest
+INSTRUMENTATION_STATUS: current=1
+INSTRUMENTATION_STATUS: id=AndroidJUnitRunner
+INSTRUMENTATION_STATUS: numtests=16
+INSTRUMENTATION_STATUS: stream=
+javax.microedition.shell.M3gDeformationTest:
+INSTRUMENTATION_STATUS: test=overlappingBoneRangesReturnUniqueVertices
+INSTRUMENTATION_STATUS_CODE: 1
+INSTRUMENTATION_STATUS: class=javax.microedition.shell.M3gDeformationTest
+INSTRUMENTATION_STATUS: current=1
+INSTRUMENTATION_STATUS: id=AndroidJUnitRunner
+INSTRUMENTATION_STATUS: numtests=16
+INSTRUMENTATION_STATUS: stream=.
+INSTRUMENTATION_STATUS: test=overlappingBoneRangesReturnUniqueVertices
+INSTRUMENTATION_STATUS_CODE: 0
+INSTRUMENTATION_STATUS: class=javax.microedition.shell.M3gDeformationTest
+INSTRUMENTATION_STATUS: current=2
+INSTRUMENTATION_STATUS: id=AndroidJUnitRunner
+INSTRUMENTATION_STATUS: numtests=16
+INSTRUMENTATION_STATUS: stream=
+INSTRUMENTATION_STATUS: test=morphReadsEditedTargetArrayWithoutAnotherWeightCall
+INSTRUMENTATION_STATUS_CODE: 1
+INSTRUMENTATION_STATUS: class=javax.microedition.shell.M3gDeformationTest
+INSTRUMENTATION_STATUS: current=2
+INSTRUMENTATION_STATUS: id=AndroidJUnitRunner
+INSTRUMENTATION_STATUS: numtests=16
+INSTRUMENTATION_STATUS: stack=java.lang.AssertionError: expected:<6.0> but was:<4.0>
+	at org.junit.Assert.fail(Assert.java:88)
+	at org.junit.Assert.failNotEquals(Assert.java:834)
+	at org.junit.Assert.assertEquals(Assert.java:575)
+	at org.junit.Assert.assertEquals(Assert.java:700)
+	at javax.microedition.shell.M3gDeformationTest.distance(M3gDeformationTest.java:204)
+	at javax.microedition.shell.M3gDeformationTest.morphReadsEditedTargetArrayWithoutAnotherWeightCall(M3gDeformationTest.java:37)
+
+INSTRUMENTATION_STATUS: stream=
+Error in morphReadsEditedTargetArrayWithoutAnotherWeightCall(javax.microedition.shell.M3gDeformationTest):
+java.lang.AssertionError: expected:<6.0> but was:<4.0>
+	at org.junit.Assert.fail(Assert.java:88)
+	at org.junit.Assert.failNotEquals(Assert.java:834)
+	at org.junit.Assert.assertEquals(Assert.java:575)
+	at org.junit.Assert.assertEquals(Assert.java:700)
+	at javax.microedition.shell.M3gDeformationTest.distance(M3gDeformationTest.java:204)
+	at javax.microedition.shell.M3gDeformationTest.morphReadsEditedTargetArrayWithoutAnotherWeightCall(M3gDeformationTest.java:37)
+
+INSTRUMENTATION_STATUS: test=morphReadsEditedTargetArrayWithoutAnotherWeightCall
+INSTRUMENTATION_STATUS_CODE: -2
+INSTRUMENTATION_STATUS: class=javax.microedition.shell.M3gDeformationTest
+INSTRUMENTATION_STATUS: current=3
+INSTRUMENTATION_STATUS: id=AndroidJUnitRunner
+INSTRUMENTATION_STATUS: numtests=16
+INSTRUMENTATION_STATUS: stream=
+INSTRUMENTATION_STATUS: test=ancestorAnimationMovesSkinAndItsAttachment
+INSTRUMENTATION_STATUS_CODE: 1
+INSTRUMENTATION_STATUS: class=javax.microedition.shell.M3gDeformationTest
+INSTRUMENTATION_STATUS: current=3
+INSTRUMENTATION_STATUS: id=AndroidJUnitRunner
+INSTRUMENTATION_STATUS: numtests=16
+INSTRUMENTATION_STATUS: stack=java.lang.AssertionError
+	at org.junit.Assert.fail(Assert.java:86)
+	at org.junit.Assert.assertTrue(Assert.java:41)
+	at org.junit.Assert.assertTrue(Assert.java:52)
+	at javax.microedition.shell.M3gDeformationTest.distance(M3gDeformationTest.java:203)
+	at javax.microedition.shell.M3gDeformationTest.ancestorAnimationMovesSkinAndItsAttachment(M3gDeformationTest.java:177)
+
+INSTRUMENTATION_STATUS: stream=
+Error in ancestorAnimationMovesSkinAndItsAttachment(javax.microedition.shell.M3gDeformationTest):
+java.lang.AssertionError
+	at org.junit.Assert.fail(Assert.java:86)
+	at org.junit.Assert.assertTrue(Assert.java:41)
+	at org.junit.Assert.assertTrue(Assert.java:52)
+	at javax.microedition.shell.M3gDeformationTest.distance(M3gDeformationTest.java:203)
+	at javax.microedition.shell.M3gDeformationTest.ancestorAnimationMovesSkinAndItsAttachment(M3gDeformationTest.java:177)
+
+INSTRUMENTATION_STATUS: test=ancestorAnimationMovesSkinAndItsAttachment
+INSTRUMENTATION_STATUS_CODE: -2
+INSTRUMENTATION_STATUS: class=javax.microedition.shell.M3gDeformationTest
+INSTRUMENTATION_STATUS: current=4
+INSTRUMENTATION_STATUS: id=AndroidJUnitRunner
+INSTRUMENTATION_STATUS: numtests=16
+INSTRUMENTATION_STATUS: stream=
+INSTRUMENTATION_STATUS: test=morphVertexColorMutationRefreshesWithoutWeights
+INSTRUMENTATION_STATUS_CODE: 1
+INSTRUMENTATION_STATUS: class=javax.microedition.shell.M3gDeformationTest
+INSTRUMENTATION_STATUS: current=4
+INSTRUMENTATION_STATUS: id=AndroidJUnitRunner
+INSTRUMENTATION_STATUS: numtests=16
+INSTRUMENTATION_STATUS: stream=.
+INSTRUMENTATION_STATUS: test=morphVertexColorMutationRefreshesWithoutWeights
+INSTRUMENTATION_STATUS_CODE: 0
+INSTRUMENTATION_STATUS: class=javax.microedition.shell.M3gDeformationTest
+INSTRUMENTATION_STATUS: current=5
+INSTRUMENTATION_STATUS: id=AndroidJUnitRunner
+INSTRUMENTATION_STATUS: numtests=16
+INSTRUMENTATION_STATUS: stream=
+INSTRUMENTATION_STATUS: test=skinRebuildsPositionStorageAfterResize
+INSTRUMENTATION_STATUS_CODE: 1
+INSTRUMENTATION_STATUS: class=javax.microedition.shell.M3gDeformationTest
+INSTRUMENTATION_STATUS: current=5
+INSTRUMENTATION_STATUS: id=AndroidJUnitRunner
+INSTRUMENTATION_STATUS: numtests=16
+INSTRUMENTATION_STATUS: stream=.
+INSTRUMENTATION_STATUS: test=skinRebuildsPositionStorageAfterResize
+INSTRUMENTATION_STATUS_CODE: 0
+INSTRUMENTATION_STATUS: class=javax.microedition.shell.M3gDeformationTest
+INSTRUMENTATION_STATUS: current=6
+INSTRUMENTATION_STATUS: id=AndroidJUnitRunner
+INSTRUMENTATION_STATUS: numtests=16
+INSTRUMENTATION_STATUS: stream=
+INSTRUMENTATION_STATUS: test=morphRevalidatesChangedTargetLayoutAndRecovers
+INSTRUMENTATION_STATUS_CODE: 1
+INSTRUMENTATION_STATUS: class=javax.microedition.shell.M3gDeformationTest
+INSTRUMENTATION_STATUS: current=6
+INSTRUMENTATION_STATUS: id=AndroidJUnitRunner
+INSTRUMENTATION_STATUS: numtests=16
+INSTRUMENTATION_STATUS: stack=java.lang.AssertionError: Invalid target layout
+	at org.junit.Assert.fail(Assert.java:88)
+	at javax.microedition.shell.M3gDeformationTest.morphRevalidatesChangedTargetLayoutAndRecovers(M3gDeformationTest.java:61)
+
+INSTRUMENTATION_STATUS: stream=
+Error in morphRevalidatesChangedTargetLayoutAndRecovers(javax.microedition.shell.M3gDeformationTest):
+java.lang.AssertionError: Invalid target layout
+	at org.junit.Assert.fail(Assert.java:88)
+	at javax.microedition.shell.M3gDeformationTest.morphRevalidatesChangedTargetLayoutAndRecovers(M3gDeformationTest.java:61)
+
+INSTRUMENTATION_STATUS: test=morphRevalidatesChangedTargetLayoutAndRecovers
+INSTRUMENTATION_STATUS_CODE: -2
+INSTRUMENTATION_STATUS: class=javax.microedition.shell.M3gDeformationTest
+INSTRUMENTATION_STATUS: current=7
+INSTRUMENTATION_STATUS: id=AndroidJUnitRunner
+INSTRUMENTATION_STATUS: numtests=16
+INSTRUMENTATION_STATUS: stream=
+INSTRUMENTATION_STATUS: test=skinRangeValidationIsDeferredAndRecoverable
+INSTRUMENTATION_STATUS_CODE: 1
+INSTRUMENTATION_STATUS: class=javax.microedition.shell.M3gDeformationTest
+INSTRUMENTATION_STATUS: current=7
+INSTRUMENTATION_STATUS: id=AndroidJUnitRunner
+INSTRUMENTATION_STATUS: numtests=16
+INSTRUMENTATION_STATUS: stream=.
+INSTRUMENTATION_STATUS: test=skinRangeValidationIsDeferredAndRecoverable
+INSTRUMENTATION_STATUS_CODE: 0
+INSTRUMENTATION_STATUS: class=javax.microedition.shell.M3gDeformationTest
+INSTRUMENTATION_STATUS: current=8
+INSTRUMENTATION_STATUS: id=AndroidJUnitRunner
+INSTRUMENTATION_STATUS: numtests=16
+INSTRUMENTATION_STATUS: stream=
+INSTRUMENTATION_STATUS: test=overflowingBoneRangeIsRejectedWithoutChangingMesh
+INSTRUMENTATION_STATUS_CODE: 1
+INSTRUMENTATION_RESULT: shortMsg=Process crashed.
+INSTRUMENTATION_CODE: 0

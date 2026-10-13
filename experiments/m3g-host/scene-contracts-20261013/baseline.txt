@@ -1,0 +1,982 @@
+INSTRUMENTATION_STATUS: class=javax.microedition.shell.M3gSceneContractTest
+INSTRUMENTATION_STATUS: current=1
+INSTRUMENTATION_STATUS: id=AndroidJUnitRunner
+INSTRUMENTATION_STATUS: numtests=47
+INSTRUMENTATION_STATUS: stream=
+javax.microedition.shell.M3gSceneContractTest:
+INSTRUMENTATION_STATUS: test=animatedFogColorClampsAndRounds
+INSTRUMENTATION_STATUS_CODE: 1
+INSTRUMENTATION_STATUS: class=javax.microedition.shell.M3gSceneContractTest
+INSTRUMENTATION_STATUS: current=1
+INSTRUMENTATION_STATUS: id=AndroidJUnitRunner
+INSTRUMENTATION_STATUS: numtests=47
+INSTRUMENTATION_STATUS: stream=.
+INSTRUMENTATION_STATUS: test=animatedFogColorClampsAndRounds
+INSTRUMENTATION_STATUS_CODE: 0
+INSTRUMENTATION_STATUS: class=javax.microedition.shell.M3gSceneContractTest
+INSTRUMENTATION_STATUS: current=2
+INSTRUMENTATION_STATUS: id=AndroidJUnitRunner
+INSTRUMENTATION_STATUS: numtests=47
+INSTRUMENTATION_STATUS: stream=
+INSTRUMENTATION_STATUS: test=animatedMaterialColorsClampAndRound
+INSTRUMENTATION_STATUS_CODE: 1
+INSTRUMENTATION_STATUS: class=javax.microedition.shell.M3gSceneContractTest
+INSTRUMENTATION_STATUS: current=2
+INSTRUMENTATION_STATUS: id=AndroidJUnitRunner
+INSTRUMENTATION_STATUS: numtests=47
+INSTRUMENTATION_STATUS: stream=.
+INSTRUMENTATION_STATUS: test=animatedMaterialColorsClampAndRound
+INSTRUMENTATION_STATUS_CODE: 0
+INSTRUMENTATION_STATUS: class=javax.microedition.shell.M3gSceneContractTest
+INSTRUMENTATION_STATUS: current=3
+INSTRUMENTATION_STATUS: id=AndroidJUnitRunner
+INSTRUMENTATION_STATUS: numtests=47
+INSTRUMENTATION_STATUS: stream=
+INSTRUMENTATION_STATUS: test=perspectiveCanReverseNearAndFar
+INSTRUMENTATION_STATUS_CODE: 1
+INSTRUMENTATION_STATUS: class=javax.microedition.shell.M3gSceneContractTest
+INSTRUMENTATION_STATUS: current=3
+INSTRUMENTATION_STATUS: id=AndroidJUnitRunner
+INSTRUMENTATION_STATUS: numtests=47
+INSTRUMENTATION_STATUS: stream=.
+INSTRUMENTATION_STATUS: test=perspectiveCanReverseNearAndFar
+INSTRUMENTATION_STATUS_CODE: 0
+INSTRUMENTATION_STATUS: class=javax.microedition.shell.M3gSceneContractTest
+INSTRUMENTATION_STATUS: current=4
+INSTRUMENTATION_STATUS: id=AndroidJUnitRunner
+INSTRUMENTATION_STATUS: numtests=47
+INSTRUMENTATION_STATUS: stream=
+INSTRUMENTATION_STATUS: test=parentScopeDoesNotHideChildGeometry
+INSTRUMENTATION_STATUS_CODE: 1
+INSTRUMENTATION_STATUS: class=javax.microedition.shell.M3gSceneContractTest
+INSTRUMENTATION_STATUS: current=4
+INSTRUMENTATION_STATUS: id=AndroidJUnitRunner
+INSTRUMENTATION_STATUS: numtests=47
+INSTRUMENTATION_STATUS: stream=.
+INSTRUMENTATION_STATUS: test=parentScopeDoesNotHideChildGeometry
+INSTRUMENTATION_STATUS_CODE: 0
+INSTRUMENTATION_STATUS: class=javax.microedition.shell.M3gSceneContractTest
+INSTRUMENTATION_STATUS: current=5
+INSTRUMENTATION_STATUS: id=AndroidJUnitRunner
+INSTRUMENTATION_STATUS: numtests=47
+INSTRUMENTATION_STATUS: stream=
+INSTRUMENTATION_STATUS: test=duplicateSpotKeepsItsCone
+INSTRUMENTATION_STATUS_CODE: 1
+INSTRUMENTATION_STATUS: class=javax.microedition.shell.M3gSceneContractTest
+INSTRUMENTATION_STATUS: current=5
+INSTRUMENTATION_STATUS: id=AndroidJUnitRunner
+INSTRUMENTATION_STATUS: numtests=47
+INSTRUMENTATION_STATUS: stream=.
+INSTRUMENTATION_STATUS: test=duplicateSpotKeepsItsCone
+INSTRUMENTATION_STATUS_CODE: 0
+INSTRUMENTATION_STATUS: class=javax.microedition.shell.M3gSceneContractTest
+INSTRUMENTATION_STATUS: current=6
+INSTRUMENTATION_STATUS: id=AndroidJUnitRunner
+INSTRUMENTATION_STATUS: numtests=47
+INSTRUMENTATION_STATUS: stream=
+INSTRUMENTATION_STATUS: test=genericProjectionCopiesItsMatrix
+INSTRUMENTATION_STATUS_CODE: 1
+INSTRUMENTATION_STATUS: class=javax.microedition.shell.M3gSceneContractTest
+INSTRUMENTATION_STATUS: current=6
+INSTRUMENTATION_STATUS: id=AndroidJUnitRunner
+INSTRUMENTATION_STATUS: numtests=47
+INSTRUMENTATION_STATUS: stream=.
+INSTRUMENTATION_STATUS: test=genericProjectionCopiesItsMatrix
+INSTRUMENTATION_STATUS_CODE: 0
+INSTRUMENTATION_STATUS: class=javax.microedition.shell.M3gSceneContractTest
+INSTRUMENTATION_STATUS: current=7
+INSTRUMENTATION_STATUS: id=AndroidJUnitRunner
+INSTRUMENTATION_STATUS: numtests=47
+INSTRUMENTATION_STATUS: stream=
+INSTRUMENTATION_STATUS: test=removedLightSlotDoesNotCrashRendering
+INSTRUMENTATION_STATUS_CODE: 1
+INSTRUMENTATION_STATUS: class=javax.microedition.shell.M3gSceneContractTest
+INSTRUMENTATION_STATUS: current=7
+INSTRUMENTATION_STATUS: id=AndroidJUnitRunner
+INSTRUMENTATION_STATUS: numtests=47
+INSTRUMENTATION_STATUS: stream=.
+INSTRUMENTATION_STATUS: test=removedLightSlotDoesNotCrashRendering
+INSTRUMENTATION_STATUS_CODE: 0
+INSTRUMENTATION_STATUS: class=javax.microedition.shell.M3gSceneContractTest
+INSTRUMENTATION_STATUS: current=8
+INSTRUMENTATION_STATUS: id=AndroidJUnitRunner
+INSTRUMENTATION_STATUS: numtests=47
+INSTRUMENTATION_STATUS: stream=
+INSTRUMENTATION_STATUS: test=disabledParentExcludesLights
+INSTRUMENTATION_STATUS_CODE: 1
+INSTRUMENTATION_STATUS: class=javax.microedition.shell.M3gSceneContractTest
+INSTRUMENTATION_STATUS: current=8
+INSTRUMENTATION_STATUS: id=AndroidJUnitRunner
+INSTRUMENTATION_STATUS: numtests=47
+INSTRUMENTATION_STATUS: stream=.
+INSTRUMENTATION_STATUS: test=disabledParentExcludesLights
+INSTRUMENTATION_STATUS_CODE: 0
+INSTRUMENTATION_STATUS: class=javax.microedition.shell.M3gSceneContractTest
+INSTRUMENTATION_STATUS: current=9
+INSTRUMENTATION_STATUS: id=AndroidJUnitRunner
+INSTRUMENTATION_STATUS: numtests=47
+INSTRUMENTATION_STATUS: stream=
+INSTRUMENTATION_STATUS: test=animatedTextureColorClampsAndRounds
+INSTRUMENTATION_STATUS_CODE: 1
+INSTRUMENTATION_STATUS: class=javax.microedition.shell.M3gSceneContractTest
+INSTRUMENTATION_STATUS: current=9
+INSTRUMENTATION_STATUS: id=AndroidJUnitRunner
+INSTRUMENTATION_STATUS: numtests=47
+INSTRUMENTATION_STATUS: stack=java.lang.AssertionError: expected:<16711808> but was:<-65408>
+	at org.junit.Assert.fail(Assert.java:88)
+	at org.junit.Assert.failNotEquals(Assert.java:834)
+	at org.junit.Assert.assertEquals(Assert.java:645)
+	at org.junit.Assert.assertEquals(Assert.java:631)
+	at javax.microedition.shell.M3gSceneContractTest.animatedTextureColorClampsAndRounds(M3gSceneContractTest.java:131)
+
+INSTRUMENTATION_STATUS: stream=
+Error in animatedTextureColorClampsAndRounds(javax.microedition.shell.M3gSceneContractTest):
+java.lang.AssertionError: expected:<16711808> but was:<-65408>
+	at org.junit.Assert.fail(Assert.java:88)
+	at org.junit.Assert.failNotEquals(Assert.java:834)
+	at org.junit.Assert.assertEquals(Assert.java:645)
+	at org.junit.Assert.assertEquals(Assert.java:631)
+	at javax.microedition.shell.M3gSceneContractTest.animatedTextureColorClampsAndRounds(M3gSceneContractTest.java:131)
+
+INSTRUMENTATION_STATUS: test=animatedTextureColorClampsAndRounds
+INSTRUMENTATION_STATUS_CODE: -2
+INSTRUMENTATION_STATUS: class=javax.microedition.shell.M3gSceneContractTest
+INSTRUMENTATION_STATUS: current=10
+INSTRUMENTATION_STATUS: id=AndroidJUnitRunner
+INSTRUMENTATION_STATUS: numtests=47
+INSTRUMENTATION_STATUS: stream=
+INSTRUMENTATION_STATUS: test=cameraScopeClipsMesh
+INSTRUMENTATION_STATUS_CODE: 1
+INSTRUMENTATION_STATUS: class=javax.microedition.shell.M3gSceneContractTest
+INSTRUMENTATION_STATUS: current=10
+INSTRUMENTATION_STATUS: id=AndroidJUnitRunner
+INSTRUMENTATION_STATUS: numtests=47
+INSTRUMENTATION_STATUS: stream=.
+INSTRUMENTATION_STATUS: test=cameraScopeClipsMesh
+INSTRUMENTATION_STATUS_CODE: 0
+INSTRUMENTATION_STATUS: class=javax.microedition.shell.M3gSceneContractTest
+INSTRUMENTATION_STATUS: current=11
+INSTRUMENTATION_STATUS: id=AndroidJUnitRunner
+INSTRUMENTATION_STATUS: numtests=47
+INSTRUMENTATION_STATUS: stream=
+INSTRUMENTATION_STATUS: test=collapsedCameraVolumeRendersNothing
+INSTRUMENTATION_STATUS_CODE: 1
+INSTRUMENTATION_STATUS: class=javax.microedition.shell.M3gSceneContractTest
+INSTRUMENTATION_STATUS: current=11
+INSTRUMENTATION_STATUS: id=AndroidJUnitRunner
+INSTRUMENTATION_STATUS: numtests=47
+INSTRUMENTATION_STATUS: stream=.
+INSTRUMENTATION_STATUS: test=collapsedCameraVolumeRendersNothing
+INSTRUMENTATION_STATUS_CODE: 0
+INSTRUMENTATION_STATUS: class=javax.microedition.shell.M3gSceneContractTest
+INSTRUMENTATION_STATUS: current=12
+INSTRUMENTATION_STATUS: id=AndroidJUnitRunner
+INSTRUMENTATION_STATUS: numtests=47
+INSTRUMENTATION_STATUS: stream=
+INSTRUMENTATION_STATUS: test=animatedVertexColorClampsAndRounds
+INSTRUMENTATION_STATUS_CODE: 1
+INSTRUMENTATION_STATUS: class=javax.microedition.shell.M3gSceneContractTest
+INSTRUMENTATION_STATUS: current=12
+INSTRUMENTATION_STATUS: id=AndroidJUnitRunner
+INSTRUMENTATION_STATUS: numtests=47
+INSTRUMENTATION_STATUS: stream=.
+INSTRUMENTATION_STATUS: test=animatedVertexColorClampsAndRounds
+INSTRUMENTATION_STATUS_CODE: 0
+INSTRUMENTATION_STATUS: class=javax.microedition.shell.M3gSceneContractTest
+INSTRUMENTATION_STATUS: current=13
+INSTRUMENTATION_STATUS: id=AndroidJUnitRunner
+INSTRUMENTATION_STATUS: numtests=47
+INSTRUMENTATION_STATUS: stream=
+INSTRUMENTATION_STATUS: test=largeRetainedQueueKeepsEarlierMeshes
+INSTRUMENTATION_STATUS_CODE: 1
+INSTRUMENTATION_STATUS: class=javax.microedition.shell.M3gSceneContractTest
+INSTRUMENTATION_STATUS: current=13
+INSTRUMENTATION_STATUS: id=AndroidJUnitRunner
+INSTRUMENTATION_STATUS: numtests=47
+INSTRUMENTATION_STATUS: stream=.
+INSTRUMENTATION_STATUS: test=largeRetainedQueueKeepsEarlierMeshes
+INSTRUMENTATION_STATUS_CODE: 0
+INSTRUMENTATION_STATUS: class=javax.microedition.shell.M3gSceneContractTest
+INSTRUMENTATION_STATUS: current=14
+INSTRUMENTATION_STATUS: id=AndroidJUnitRunner
+INSTRUMENTATION_STATUS: numtests=47
+INSTRUMENTATION_STATUS: stream=
+INSTRUMENTATION_STATUS: test=animatedLightColorClampsAndRounds
+INSTRUMENTATION_STATUS_CODE: 1
+INSTRUMENTATION_STATUS: class=javax.microedition.shell.M3gSceneContractTest
+INSTRUMENTATION_STATUS: current=14
+INSTRUMENTATION_STATUS: id=AndroidJUnitRunner
+INSTRUMENTATION_STATUS: numtests=47
+INSTRUMENTATION_STATUS: stack=java.lang.AssertionError: expected:<16711808> but was:<-65408>
+	at org.junit.Assert.fail(Assert.java:88)
+	at org.junit.Assert.failNotEquals(Assert.java:834)
+	at org.junit.Assert.assertEquals(Assert.java:645)
+	at org.junit.Assert.assertEquals(Assert.java:631)
+	at javax.microedition.shell.M3gSceneContractTest.animatedLightColorClampsAndRounds(M3gSceneContractTest.java:124)
+
+INSTRUMENTATION_STATUS: stream=
+Error in animatedLightColorClampsAndRounds(javax.microedition.shell.M3gSceneContractTest):
+java.lang.AssertionError: expected:<16711808> but was:<-65408>
+	at org.junit.Assert.fail(Assert.java:88)
+	at org.junit.Assert.failNotEquals(Assert.java:834)
+	at org.junit.Assert.assertEquals(Assert.java:645)
+	at org.junit.Assert.assertEquals(Assert.java:631)
+	at javax.microedition.shell.M3gSceneContractTest.animatedLightColorClampsAndRounds(M3gSceneContractTest.java:124)
+
+INSTRUMENTATION_STATUS: test=animatedLightColorClampsAndRounds
+INSTRUMENTATION_STATUS_CODE: -2
+INSTRUMENTATION_STATUS: class=javax.microedition.shell.M3gSceneContractTest
+INSTRUMENTATION_STATUS: current=15
+INSTRUMENTATION_STATUS: id=AndroidJUnitRunner
+INSTRUMENTATION_STATUS: numtests=47
+INSTRUMENTATION_STATUS: stream=
+INSTRUMENTATION_STATUS: test=nearPlaneClipsCrossingTriangleWithoutDroppingVisiblePart
+INSTRUMENTATION_STATUS_CODE: 1
+INSTRUMENTATION_STATUS: class=javax.microedition.shell.M3gSceneContractTest
+INSTRUMENTATION_STATUS: current=15
+INSTRUMENTATION_STATUS: id=AndroidJUnitRunner
+INSTRUMENTATION_STATUS: numtests=47
+INSTRUMENTATION_STATUS: stream=.
+INSTRUMENTATION_STATUS: test=nearPlaneClipsCrossingTriangleWithoutDroppingVisiblePart
+INSTRUMENTATION_STATUS_CODE: 0
+INSTRUMENTATION_STATUS: class=javax.microedition.shell.M3gSceneContractTest
+INSTRUMENTATION_STATUS: current=16
+INSTRUMENTATION_STATUS: id=AndroidJUnitRunner
+INSTRUMENTATION_STATUS: numtests=47
+INSTRUMENTATION_STATUS: stream=
+INSTRUMENTATION_STATUS: test=animatedSpotMatchesSetter
+INSTRUMENTATION_STATUS_CODE: 1
+INSTRUMENTATION_STATUS: class=javax.microedition.shell.M3gSceneContractTest
+INSTRUMENTATION_STATUS: current=16
+INSTRUMENTATION_STATUS: id=AndroidJUnitRunner
+INSTRUMENTATION_STATUS: numtests=47
+INSTRUMENTATION_STATUS: stream=.
+INSTRUMENTATION_STATUS: test=animatedSpotMatchesSetter
+INSTRUMENTATION_STATUS_CODE: 0
+INSTRUMENTATION_STATUS: class=javax.microedition.shell.M3gSceneContractTest
+INSTRUMENTATION_STATUS: current=17
+INSTRUMENTATION_STATUS: id=AndroidJUnitRunner
+INSTRUMENTATION_STATUS: numtests=47
+INSTRUMENTATION_STATUS: stream=
+INSTRUMENTATION_STATUS: test=enabledParentIncludesLights
+INSTRUMENTATION_STATUS_CODE: 1
+INSTRUMENTATION_STATUS: class=javax.microedition.shell.M3gSceneContractTest
+INSTRUMENTATION_STATUS: current=17
+INSTRUMENTATION_STATUS: id=AndroidJUnitRunner
+INSTRUMENTATION_STATUS: numtests=47
+INSTRUMENTATION_STATUS: stream=.
+INSTRUMENTATION_STATUS: test=enabledParentIncludesLights
+INSTRUMENTATION_STATUS_CODE: 0
+INSTRUMENTATION_STATUS: class=javax.microedition.shell.M3gSceneContractTest
+INSTRUMENTATION_STATUS: current=18
+INSTRUMENTATION_STATUS: id=AndroidJUnitRunner
+INSTRUMENTATION_STATUS: numtests=47
+INSTRUMENTATION_STATUS: stream=
+INSTRUMENTATION_STATUS: test=collapsedCameraAlsoClipsSprites
+INSTRUMENTATION_STATUS_CODE: 1
+INSTRUMENTATION_STATUS: class=javax.microedition.shell.M3gSceneContractTest
+INSTRUMENTATION_STATUS: current=18
+INSTRUMENTATION_STATUS: id=AndroidJUnitRunner
+INSTRUMENTATION_STATUS: numtests=47
+INSTRUMENTATION_STATUS: stream=.
+INSTRUMENTATION_STATUS: test=collapsedCameraAlsoClipsSprites
+INSTRUMENTATION_STATUS_CODE: 0
+INSTRUMENTATION_STATUS: class=javax.microedition.shell.M3gSceneContractTest
+INSTRUMENTATION_STATUS: current=19
+INSTRUMENTATION_STATUS: id=AndroidJUnitRunner
+INSTRUMENTATION_STATUS: numtests=47
+INSTRUMENTATION_STATUS: stream=
+INSTRUMENTATION_STATUS: test=animatedMaterialAlphaClamps
+INSTRUMENTATION_STATUS_CODE: 1
+INSTRUMENTATION_STATUS: class=javax.microedition.shell.M3gSceneContractTest
+INSTRUMENTATION_STATUS: current=19
+INSTRUMENTATION_STATUS: id=AndroidJUnitRunner
+INSTRUMENTATION_STATUS: numtests=47
+INSTRUMENTATION_STATUS: stream=.
+INSTRUMENTATION_STATUS: test=animatedMaterialAlphaClamps
+INSTRUMENTATION_STATUS_CODE: 0
+INSTRUMENTATION_STATUS: class=javax.microedition.shell.M3gSceneContractTest
+INSTRUMENTATION_STATUS: current=20
+INSTRUMENTATION_STATUS: id=AndroidJUnitRunner
+INSTRUMENTATION_STATUS: numtests=47
+INSTRUMENTATION_STATUS: stream=
+INSTRUMENTATION_STATUS: test=disabledWorldExcludesLights
+INSTRUMENTATION_STATUS_CODE: 1
+INSTRUMENTATION_STATUS: class=javax.microedition.shell.M3gSceneContractTest
+INSTRUMENTATION_STATUS: current=20
+INSTRUMENTATION_STATUS: id=AndroidJUnitRunner
+INSTRUMENTATION_STATUS: numtests=47
+INSTRUMENTATION_STATUS: stream=.
+INSTRUMENTATION_STATUS: test=disabledWorldExcludesLights
+INSTRUMENTATION_STATUS_CODE: 0
+INSTRUMENTATION_STATUS: class=javax.microedition.shell.M3gSceneContractTest
+INSTRUMENTATION_STATUS: current=21
+INSTRUMENTATION_STATUS: id=AndroidJUnitRunner
+INSTRUMENTATION_STATUS: numtests=47
+INSTRUMENTATION_STATUS: stream=
+INSTRUMENTATION_STATUS: test=oppositeWindingCanBeCulled
+INSTRUMENTATION_STATUS_CODE: 1
+INSTRUMENTATION_STATUS: class=javax.microedition.shell.M3gSceneContractTest
+INSTRUMENTATION_STATUS: current=21
+INSTRUMENTATION_STATUS: id=AndroidJUnitRunner
+INSTRUMENTATION_STATUS: numtests=47
+INSTRUMENTATION_STATUS: stream=.
+INSTRUMENTATION_STATUS: test=oppositeWindingCanBeCulled
+INSTRUMENTATION_STATUS_CODE: 0
+INSTRUMENTATION_STATUS: class=javax.microedition.shell.M3gSceneContractTest
+INSTRUMENTATION_STATUS: current=22
+INSTRUMENTATION_STATUS: id=AndroidJUnitRunner
+INSTRUMENTATION_STATUS: numtests=47
+INSTRUMENTATION_STATUS: stream=
+INSTRUMENTATION_STATUS: test=lightScopesDoNotLeakAcrossMeshes
+INSTRUMENTATION_STATUS_CODE: 1
+INSTRUMENTATION_STATUS: class=javax.microedition.shell.M3gSceneContractTest
+INSTRUMENTATION_STATUS: current=22
+INSTRUMENTATION_STATUS: id=AndroidJUnitRunner
+INSTRUMENTATION_STATUS: numtests=47
+INSTRUMENTATION_STATUS: stream=.
+INSTRUMENTATION_STATUS: test=lightScopesDoNotLeakAcrossMeshes
+INSTRUMENTATION_STATUS_CODE: 0
+INSTRUMENTATION_STATUS: class=javax.microedition.shell.M3gSceneContractTest
+INSTRUMENTATION_STATUS: current=23
+INSTRUMENTATION_STATUS: id=AndroidJUnitRunner
+INSTRUMENTATION_STATUS: numtests=47
+INSTRUMENTATION_STATUS: stream=
+INSTRUMENTATION_STATUS: test=animatedBackgroundColorClampsAndRounds
+INSTRUMENTATION_STATUS_CODE: 1
+INSTRUMENTATION_STATUS: class=javax.microedition.shell.M3gSceneContractTest
+INSTRUMENTATION_STATUS: current=23
+INSTRUMENTATION_STATUS: id=AndroidJUnitRunner
+INSTRUMENTATION_STATUS: numtests=47
+INSTRUMENTATION_STATUS: stream=.
+INSTRUMENTATION_STATUS: test=animatedBackgroundColorClampsAndRounds
+INSTRUMENTATION_STATUS_CODE: 0
+INSTRUMENTATION_STATUS: class=javax.microedition.shell.M3gSceneContractTest
+INSTRUMENTATION_STATUS: current=24
+INSTRUMENTATION_STATUS: id=AndroidJUnitRunner
+INSTRUMENTATION_STATUS: numtests=47
+INSTRUMENTATION_STATUS: stream=
+INSTRUMENTATION_STATUS: test=defaultSpotMatchesExplicitFortyFiveDegrees
+INSTRUMENTATION_STATUS_CODE: 1
+INSTRUMENTATION_STATUS: class=javax.microedition.shell.M3gSceneContractTest
+INSTRUMENTATION_STATUS: current=24
+INSTRUMENTATION_STATUS: id=AndroidJUnitRunner
+INSTRUMENTATION_STATUS: numtests=47
+INSTRUMENTATION_STATUS: stream=.
+INSTRUMENTATION_STATUS: test=defaultSpotMatchesExplicitFortyFiveDegrees
+INSTRUMENTATION_STATUS_CODE: 0
+INSTRUMENTATION_STATUS: class=javax.microedition.shell.M3gSceneContractTest
+INSTRUMENTATION_STATUS: current=25
+INSTRUMENTATION_STATUS: id=AndroidJUnitRunner
+INSTRUMENTATION_STATUS: numtests=47
+INSTRUMENTATION_STATUS: stream=
+INSTRUMENTATION_STATUS: test=perspectivePreservesLargeDepthRange
+INSTRUMENTATION_STATUS_CODE: 1
+INSTRUMENTATION_STATUS: class=javax.microedition.shell.M3gSceneContractTest
+INSTRUMENTATION_STATUS: current=25
+INSTRUMENTATION_STATUS: id=AndroidJUnitRunner
+INSTRUMENTATION_STATUS: numtests=47
+INSTRUMENTATION_STATUS: stream=.
+INSTRUMENTATION_STATUS: test=perspectivePreservesLargeDepthRange
+INSTRUMENTATION_STATUS_CODE: 0
+INSTRUMENTATION_STATUS: class=javax.microedition.shell.M3gSceneContractTest
+INSTRUMENTATION_STATUS: current=26
+INSTRUMENTATION_STATUS: id=AndroidJUnitRunner
+INSTRUMENTATION_STATUS: numtests=47
+INSTRUMENTATION_STATUS: stream=
+INSTRUMENTATION_STATUS: test=setLightCopiesCallerTransform
+INSTRUMENTATION_STATUS_CODE: 1
+INSTRUMENTATION_STATUS: class=javax.microedition.shell.M3gSceneContractTest
+INSTRUMENTATION_STATUS: current=26
+INSTRUMENTATION_STATUS: id=AndroidJUnitRunner
+INSTRUMENTATION_STATUS: numtests=47
+INSTRUMENTATION_STATUS: stream=.
+INSTRUMENTATION_STATUS: test=setLightCopiesCallerTransform
+INSTRUMENTATION_STATUS_CODE: 0
+INSTRUMENTATION_STATUS: class=javax.microedition.shell.M3gLoaderContractTest
+INSTRUMENTATION_STATUS: current=27
+INSTRUMENTATION_STATUS: id=AndroidJUnitRunner
+INSTRUMENTATION_STATUS: numtests=47
+INSTRUMENTATION_STATUS: stream=
+javax.microedition.shell.M3gLoaderContractTest:
+INSTRUMENTATION_STATUS: test=truncatedFileIsRejectedAndNextLoadRecovers
+INSTRUMENTATION_STATUS_CODE: 1
+INSTRUMENTATION_STATUS: class=javax.microedition.shell.M3gLoaderContractTest
+INSTRUMENTATION_STATUS: current=27
+INSTRUMENTATION_STATUS: id=AndroidJUnitRunner
+INSTRUMENTATION_STATUS: numtests=47
+INSTRUMENTATION_STATUS: stream=.
+INSTRUMENTATION_STATUS: test=truncatedFileIsRejectedAndNextLoadRecovers
+INSTRUMENTATION_STATUS_CODE: 0
+INSTRUMENTATION_STATUS: class=javax.microedition.shell.M3gLoaderContractTest
+INSTRUMENTATION_STATUS: current=28
+INSTRUMENTATION_STATUS: id=AndroidJUnitRunner
+INSTRUMENTATION_STATUS: numtests=47
+INSTRUMENTATION_STATUS: stream=
+INSTRUMENTATION_STATUS: test=recordCannotLeaveUnparsedBytes
+INSTRUMENTATION_STATUS_CODE: 1
+INSTRUMENTATION_STATUS: class=javax.microedition.shell.M3gLoaderContractTest
+INSTRUMENTATION_STATUS: current=28
+INSTRUMENTATION_STATUS: id=AndroidJUnitRunner
+INSTRUMENTATION_STATUS: numtests=47
+INSTRUMENTATION_STATUS: stream=.
+INSTRUMENTATION_STATUS: test=recordCannotLeaveUnparsedBytes
+INSTRUMENTATION_STATUS_CODE: 0
+INSTRUMENTATION_STATUS: class=javax.microedition.shell.M3gLoaderContractTest
+INSTRUMENTATION_STATUS: current=29
+INSTRUMENTATION_STATUS: id=AndroidJUnitRunner
+INSTRUMENTATION_STATUS: numtests=47
+INSTRUMENTATION_STATUS: stream=
+INSTRUMENTATION_STATUS: test=negativeOffsetHasApiException
+INSTRUMENTATION_STATUS_CODE: 1
+INSTRUMENTATION_STATUS: class=javax.microedition.shell.M3gLoaderContractTest
+INSTRUMENTATION_STATUS: current=29
+INSTRUMENTATION_STATUS: id=AndroidJUnitRunner
+INSTRUMENTATION_STATUS: numtests=47
+INSTRUMENTATION_STATUS: stream=.
+INSTRUMENTATION_STATUS: test=negativeOffsetHasApiException
+INSTRUMENTATION_STATUS_CODE: 0
+INSTRUMENTATION_STATUS: class=javax.microedition.shell.M3gLoaderContractTest
+INSTRUMENTATION_STATUS: current=30
+INSTRUMENTATION_STATUS: id=AndroidJUnitRunner
+INSTRUMENTATION_STATUS: numtests=47
+INSTRUMENTATION_STATUS: stream=
+INSTRUMENTATION_STATUS: test=sectionCannotCrossDeclaredFileBoundary
+INSTRUMENTATION_STATUS_CODE: 1
+INSTRUMENTATION_STATUS: class=javax.microedition.shell.M3gLoaderContractTest
+INSTRUMENTATION_STATUS: current=30
+INSTRUMENTATION_STATUS: id=AndroidJUnitRunner
+INSTRUMENTATION_STATUS: numtests=47
+INSTRUMENTATION_STATUS: stream=.
+INSTRUMENTATION_STATUS: test=sectionCannotCrossDeclaredFileBoundary
+INSTRUMENTATION_STATUS_CODE: 0
+INSTRUMENTATION_STATUS: class=javax.microedition.shell.M3gLoaderContractTest
+INSTRUMENTATION_STATUS: current=31
+INSTRUMENTATION_STATUS: id=AndroidJUnitRunner
+INSTRUMENTATION_STATUS: numtests=47
+INSTRUMENTATION_STATUS: stream=
+INSTRUMENTATION_STATUS: test=signedAppearanceLayerLoads
+INSTRUMENTATION_STATUS_CODE: 1
+INSTRUMENTATION_STATUS: class=javax.microedition.shell.M3gLoaderContractTest
+INSTRUMENTATION_STATUS: current=31
+INSTRUMENTATION_STATUS: id=AndroidJUnitRunner
+INSTRUMENTATION_STATUS: numtests=47
+INSTRUMENTATION_STATUS: stream=.
+INSTRUMENTATION_STATUS: test=signedAppearanceLayerLoads
+INSTRUMENTATION_STATUS_CODE: 0
+INSTRUMENTATION_STATUS: class=javax.microedition.shell.M3gLoaderContractTest
+INSTRUMENTATION_STATUS: current=32
+INSTRUMENTATION_STATUS: id=AndroidJUnitRunner
+INSTRUMENTATION_STATUS: numtests=47
+INSTRUMENTATION_STATUS: stream=
+INSTRUMENTATION_STATUS: test=recordCannotConsumeTheNextObject
+INSTRUMENTATION_STATUS_CODE: 1
+INSTRUMENTATION_STATUS: class=javax.microedition.shell.M3gLoaderContractTest
+INSTRUMENTATION_STATUS: current=32
+INSTRUMENTATION_STATUS: id=AndroidJUnitRunner
+INSTRUMENTATION_STATUS: numtests=47
+INSTRUMENTATION_STATUS: stream=.
+INSTRUMENTATION_STATUS: test=recordCannotConsumeTheNextObject
+INSTRUMENTATION_STATUS_CODE: 0
+INSTRUMENTATION_STATUS: class=javax.microedition.shell.M3gLoaderContractTest
+INSTRUMENTATION_STATUS: current=33
+INSTRUMENTATION_STATUS: id=AndroidJUnitRunner
+INSTRUMENTATION_STATUS: numtests=47
+INSTRUMENTATION_STATUS: stream=
+INSTRUMENTATION_STATUS: test=compressedAndPlainMeshesLoadEqually
+INSTRUMENTATION_STATUS_CODE: 1
+INSTRUMENTATION_STATUS: class=javax.microedition.shell.M3gLoaderContractTest
+INSTRUMENTATION_STATUS: current=33
+INSTRUMENTATION_STATUS: id=AndroidJUnitRunner
+INSTRUMENTATION_STATUS: numtests=47
+INSTRUMENTATION_STATUS: stream=.
+INSTRUMENTATION_STATUS: test=compressedAndPlainMeshesLoadEqually
+INSTRUMENTATION_STATUS_CODE: 0
+INSTRUMENTATION_STATUS: class=javax.microedition.shell.M3gLoaderContractTest
+INSTRUMENTATION_STATUS: current=34
+INSTRUMENTATION_STATUS: id=AndroidJUnitRunner
+INSTRUMENTATION_STATUS: numtests=47
+INSTRUMENTATION_STATUS: stream=
+INSTRUMENTATION_STATUS: test=headerOnlyFileDoesNotConsumeContainerTail
+INSTRUMENTATION_STATUS_CODE: 1
+INSTRUMENTATION_STATUS: class=javax.microedition.shell.M3gLoaderContractTest
+INSTRUMENTATION_STATUS: current=34
+INSTRUMENTATION_STATUS: id=AndroidJUnitRunner
+INSTRUMENTATION_STATUS: numtests=47
+INSTRUMENTATION_STATUS: stack=java.lang.NullPointerException: Attempt to get length of null array
+	at javax.microedition.shell.M3gLoaderContractTest.headerOnlyFileDoesNotConsumeContainerTail(M3gLoaderContractTest.java:31)
+
+INSTRUMENTATION_STATUS: stream=
+Error in headerOnlyFileDoesNotConsumeContainerTail(javax.microedition.shell.M3gLoaderContractTest):
+java.lang.NullPointerException: Attempt to get length of null array
+	at javax.microedition.shell.M3gLoaderContractTest.headerOnlyFileDoesNotConsumeContainerTail(M3gLoaderContractTest.java:31)
+
+INSTRUMENTATION_STATUS: test=headerOnlyFileDoesNotConsumeContainerTail
+INSTRUMENTATION_STATUS_CODE: -2
+INSTRUMENTATION_STATUS: class=javax.microedition.shell.M3gLoaderContractTest
+INSTRUMENTATION_STATUS: current=35
+INSTRUMENTATION_STATUS: id=AndroidJUnitRunner
+INSTRUMENTATION_STATUS: numtests=47
+INSTRUMENTATION_STATUS: stream=
+INSTRUMENTATION_STATUS: test=externalRelativeParentSegmentsResolve
+INSTRUMENTATION_STATUS_CODE: 1
+INSTRUMENTATION_STATUS: class=javax.microedition.shell.M3gLoaderContractTest
+INSTRUMENTATION_STATUS: current=35
+INSTRUMENTATION_STATUS: id=AndroidJUnitRunner
+INSTRUMENTATION_STATUS: numtests=47
+INSTRUMENTATION_STATUS: stack=java.io.IOException: Load error java.lang.NullPointerException: Attempt to invoke virtual method 'int java.io.InputStream.read()' on a null object reference
+	at javax.microedition.m3g.Loader.load(Loader.java:128)
+	at javax.microedition.shell.M3gLoaderContractTest.externalRelativeParentSegmentsResolve(M3gLoaderContractTest.java:95)
+
+INSTRUMENTATION_STATUS: stream=
+Error in externalRelativeParentSegmentsResolve(javax.microedition.shell.M3gLoaderContractTest):
+java.io.IOException: Load error java.lang.NullPointerException: Attempt to invoke virtual method 'int java.io.InputStream.read()' on a null object reference
+	at javax.microedition.m3g.Loader.load(Loader.java:128)
+	at javax.microedition.shell.M3gLoaderContractTest.externalRelativeParentSegmentsResolve(M3gLoaderContractTest.java:95)
+
+INSTRUMENTATION_STATUS: test=externalRelativeParentSegmentsResolve
+INSTRUMENTATION_STATUS_CODE: -2
+INSTRUMENTATION_STATUS: class=javax.microedition.shell.M3gLoaderContractTest
+INSTRUMENTATION_STATUS: current=36
+INSTRUMENTATION_STATUS: id=AndroidJUnitRunner
+INSTRUMENTATION_STATUS: numtests=47
+INSTRUMENTATION_STATUS: stream=
+INSTRUMENTATION_STATUS: test=incompleteZlibTrailerIsRejected
+INSTRUMENTATION_STATUS_CODE: 1
+INSTRUMENTATION_STATUS: class=javax.microedition.shell.M3gLoaderContractTest
+INSTRUMENTATION_STATUS: current=36
+INSTRUMENTATION_STATUS: id=AndroidJUnitRunner
+INSTRUMENTATION_STATUS: numtests=47
+INSTRUMENTATION_STATUS: stream=.
+INSTRUMENTATION_STATUS: test=incompleteZlibTrailerIsRejected
+INSTRUMENTATION_STATUS_CODE: 0
+INSTRUMENTATION_STATUS: class=javax.microedition.shell.M3gLoaderContractTest
+INSTRUMENTATION_STATUS: current=37
+INSTRUMENTATION_STATUS: id=AndroidJUnitRunner
+INSTRUMENTATION_STATUS: numtests=47
+INSTRUMENTATION_STATUS: stream=
+INSTRUMENTATION_STATUS: test=badHeaderChecksumIsRejected
+INSTRUMENTATION_STATUS_CODE: 1
+INSTRUMENTATION_STATUS: class=javax.microedition.shell.M3gLoaderContractTest
+INSTRUMENTATION_STATUS: current=37
+INSTRUMENTATION_STATUS: id=AndroidJUnitRunner
+INSTRUMENTATION_STATUS: numtests=47
+INSTRUMENTATION_STATUS: stream=.
+INSTRUMENTATION_STATUS: test=badHeaderChecksumIsRejected
+INSTRUMENTATION_STATUS_CODE: 0
+INSTRUMENTATION_STATUS: class=javax.microedition.shell.M3gLoaderContractTest
+INSTRUMENTATION_STATUS: current=38
+INSTRUMENTATION_STATUS: id=AndroidJUnitRunner
+INSTRUMENTATION_STATUS: numtests=47
+INSTRUMENTATION_STATUS: stream=
+INSTRUMENTATION_STATUS: test=invalidBooleanIsRejected
+INSTRUMENTATION_STATUS_CODE: 1
+INSTRUMENTATION_STATUS: class=javax.microedition.shell.M3gLoaderContractTest
+INSTRUMENTATION_STATUS: current=38
+INSTRUMENTATION_STATUS: id=AndroidJUnitRunner
+INSTRUMENTATION_STATUS: numtests=47
+INSTRUMENTATION_STATUS: stream=.
+INSTRUMENTATION_STATUS: test=invalidBooleanIsRejected
+INSTRUMENTATION_STATUS_CODE: 0
+INSTRUMENTATION_STATUS: class=javax.microedition.shell.M3gLoaderContractTest
+INSTRUMENTATION_STATUS: current=39
+INSTRUMENTATION_STATUS: id=AndroidJUnitRunner
+INSTRUMENTATION_STATUS: numtests=47
+INSTRUMENTATION_STATUS: stream=
+INSTRUMENTATION_STATUS: test=unknownRecordIsRejected
+INSTRUMENTATION_STATUS_CODE: 1
+INSTRUMENTATION_STATUS: class=javax.microedition.shell.M3gLoaderContractTest
+INSTRUMENTATION_STATUS: current=39
+INSTRUMENTATION_STATUS: id=AndroidJUnitRunner
+INSTRUMENTATION_STATUS: numtests=47
+INSTRUMENTATION_STATUS: stream=.
+INSTRUMENTATION_STATUS: test=unknownRecordIsRejected
+INSTRUMENTATION_STATUS_CODE: 0
+INSTRUMENTATION_STATUS: class=javax.microedition.shell.M3gLoaderContractTest
+INSTRUMENTATION_STATUS: current=40
+INSTRUMENTATION_STATUS: id=AndroidJUnitRunner
+INSTRUMENTATION_STATUS: numtests=47
+INSTRUMENTATION_STATUS: stream=
+INSTRUMENTATION_STATUS: test=externalCyclesFailAndNextResourceStillLoads
+INSTRUMENTATION_STATUS_CODE: 1
+INSTRUMENTATION_STATUS: class=javax.microedition.shell.M3gLoaderContractTest
+INSTRUMENTATION_STATUS: current=40
+INSTRUMENTATION_STATUS: id=AndroidJUnitRunner
+INSTRUMENTATION_STATUS: numtests=47
+INSTRUMENTATION_STATUS: stream=.
+INSTRUMENTATION_STATUS: test=externalCyclesFailAndNextResourceStillLoads
+INSTRUMENTATION_STATUS_CODE: 0
+INSTRUMENTATION_STATUS: class=javax.microedition.shell.M3gLoaderContractTest
+INSTRUMENTATION_STATUS: current=41
+INSTRUMENTATION_STATUS: id=AndroidJUnitRunner
+INSTRUMENTATION_STATUS: numtests=47
+INSTRUMENTATION_STATUS: stream=
+INSTRUMENTATION_STATUS: test=badSectionChecksumIsRejected
+INSTRUMENTATION_STATUS_CODE: 1
+INSTRUMENTATION_STATUS: class=javax.microedition.shell.M3gLoaderContractTest
+INSTRUMENTATION_STATUS: current=41
+INSTRUMENTATION_STATUS: id=AndroidJUnitRunner
+INSTRUMENTATION_STATUS: numtests=47
+INSTRUMENTATION_STATUS: stream=.
+INSTRUMENTATION_STATUS: test=badSectionChecksumIsRejected
+INSTRUMENTATION_STATUS_CODE: 0
+INSTRUMENTATION_STATUS: class=javax.microedition.shell.M3gLoaderContractTest
+INSTRUMENTATION_STATUS: current=42
+INSTRUMENTATION_STATUS: id=AndroidJUnitRunner
+INSTRUMENTATION_STATUS: numtests=47
+INSTRUMENTATION_STATUS: stream=
+INSTRUMENTATION_STATUS: test=offsetAndTrailingContainerBytesAreRespected
+INSTRUMENTATION_STATUS_CODE: 1
+INSTRUMENTATION_STATUS: class=javax.microedition.shell.M3gLoaderContractTest
+INSTRUMENTATION_STATUS: current=42
+INSTRUMENTATION_STATUS: id=AndroidJUnitRunner
+INSTRUMENTATION_STATUS: numtests=47
+INSTRUMENTATION_STATUS: stream=.
+INSTRUMENTATION_STATUS: test=offsetAndTrailingContainerBytesAreRespected
+INSTRUMENTATION_STATUS_CODE: 0
+INSTRUMENTATION_STATUS: class=javax.microedition.shell.M3gLoaderContractTest
+INSTRUMENTATION_STATUS: current=43
+INSTRUMENTATION_STATUS: id=AndroidJUnitRunner
+INSTRUMENTATION_STATUS: numtests=47
+INSTRUMENTATION_STATUS: stream=
+INSTRUMENTATION_STATUS: test=nestedExternalLoadDoesNotChangeSiblingDirectory
+INSTRUMENTATION_STATUS_CODE: 1
+INSTRUMENTATION_STATUS: class=javax.microedition.shell.M3gLoaderContractTest
+INSTRUMENTATION_STATUS: current=43
+INSTRUMENTATION_STATUS: id=AndroidJUnitRunner
+INSTRUMENTATION_STATUS: numtests=47
+INSTRUMENTATION_STATUS: stack=java.io.IOException: Load error java.lang.StringIndexOutOfBoundsException: begin 0, end -1, length 12
+	at javax.microedition.m3g.Loader.load(Loader.java:128)
+	at javax.microedition.shell.M3gLoaderContractTest.nestedExternalLoadDoesNotChangeSiblingDirectory(M3gLoaderContractTest.java:89)
+
+INSTRUMENTATION_STATUS: stream=
+Error in nestedExternalLoadDoesNotChangeSiblingDirectory(javax.microedition.shell.M3gLoaderContractTest):
+java.io.IOException: Load error java.lang.StringIndexOutOfBoundsException: begin 0, end -1, length 12
+	at javax.microedition.m3g.Loader.load(Loader.java:128)
+	at javax.microedition.shell.M3gLoaderContractTest.nestedExternalLoadDoesNotChangeSiblingDirectory(M3gLoaderContractTest.java:89)
+
+INSTRUMENTATION_STATUS: test=nestedExternalLoadDoesNotChangeSiblingDirectory
+INSTRUMENTATION_STATUS_CODE: -2
+INSTRUMENTATION_STATUS: class=javax.microedition.shell.M3gLoaderContractTest
+INSTRUMENTATION_STATUS: current=44
+INSTRUMENTATION_STATUS: id=AndroidJUnitRunner
+INSTRUMENTATION_STATUS: numtests=47
+INSTRUMENTATION_STATUS: stream=
+INSTRUMENTATION_STATUS: test=invalidVertexEncodingIsRejected
+INSTRUMENTATION_STATUS_CODE: 1
+INSTRUMENTATION_STATUS: class=javax.microedition.shell.M3gLoaderContractTest
+INSTRUMENTATION_STATUS: current=44
+INSTRUMENTATION_STATUS: id=AndroidJUnitRunner
+INSTRUMENTATION_STATUS: numtests=47
+INSTRUMENTATION_STATUS: stack=java.lang.AssertionError: Malformed file accepted
+	at org.junit.Assert.fail(Assert.java:88)
+	at javax.microedition.shell.M3gLoaderContractTest.invalid(M3gLoaderContractTest.java:142)
+	at javax.microedition.shell.M3gLoaderContractTest.invalidVertexEncodingIsRejected(M3gLoaderContractTest.java:78)
+
+INSTRUMENTATION_STATUS: stream=
+Error in invalidVertexEncodingIsRejected(javax.microedition.shell.M3gLoaderContractTest):
+java.lang.AssertionError: Malformed file accepted
+	at org.junit.Assert.fail(Assert.java:88)
+	at javax.microedition.shell.M3gLoaderContractTest.invalid(M3gLoaderContractTest.java:142)
+	at javax.microedition.shell.M3gLoaderContractTest.invalidVertexEncodingIsRejected(M3gLoaderContractTest.java:78)
+
+INSTRUMENTATION_STATUS: test=invalidVertexEncodingIsRejected
+INSTRUMENTATION_STATUS_CODE: -2
+INSTRUMENTATION_STATUS: class=javax.microedition.shell.M3gLoaderContractTest
+INSTRUMENTATION_STATUS: current=45
+INSTRUMENTATION_STATUS: id=AndroidJUnitRunner
+INSTRUMENTATION_STATUS: numtests=47
+INSTRUMENTATION_STATUS: stream=
+INSTRUMENTATION_STATUS: test=sectionLengthMustMatchPlainPayload
+INSTRUMENTATION_STATUS_CODE: 1
+INSTRUMENTATION_STATUS: class=javax.microedition.shell.M3gLoaderContractTest
+INSTRUMENTATION_STATUS: current=45
+INSTRUMENTATION_STATUS: id=AndroidJUnitRunner
+INSTRUMENTATION_STATUS: numtests=47
+INSTRUMENTATION_STATUS: stream=.
+INSTRUMENTATION_STATUS: test=sectionLengthMustMatchPlainPayload
+INSTRUMENTATION_STATUS_CODE: 0
+INSTRUMENTATION_STATUS: class=javax.microedition.shell.M3gLoaderContractTest
+INSTRUMENTATION_STATUS: current=46
+INSTRUMENTATION_STATUS: id=AndroidJUnitRunner
+INSTRUMENTATION_STATUS: numtests=47
+INSTRUMENTATION_STATUS: stream=
+INSTRUMENTATION_STATUS: test=invalidCompressionSchemeIsRejected
+INSTRUMENTATION_STATUS_CODE: 1
+INSTRUMENTATION_STATUS: class=javax.microedition.shell.M3gLoaderContractTest
+INSTRUMENTATION_STATUS: current=46
+INSTRUMENTATION_STATUS: id=AndroidJUnitRunner
+INSTRUMENTATION_STATUS: numtests=47
+INSTRUMENTATION_STATUS: stream=.
+INSTRUMENTATION_STATUS: test=invalidCompressionSchemeIsRejected
+INSTRUMENTATION_STATUS_CODE: 0
+INSTRUMENTATION_STATUS: class=javax.microedition.shell.M3gLoaderContractTest
+INSTRUMENTATION_STATUS: current=47
+INSTRUMENTATION_STATUS: id=AndroidJUnitRunner
+INSTRUMENTATION_STATUS: numtests=47
+INSTRUMENTATION_STATUS: stream=
+INSTRUMENTATION_STATUS: test=unexpectedCompressedTrailingDataIsRejected
+INSTRUMENTATION_STATUS_CODE: 1
+INSTRUMENTATION_STATUS: class=javax.microedition.shell.M3gLoaderContractTest
+INSTRUMENTATION_STATUS: current=47
+INSTRUMENTATION_STATUS: id=AndroidJUnitRunner
+INSTRUMENTATION_STATUS: numtests=47
+INSTRUMENTATION_STATUS: stack=java.lang.AssertionError: Malformed file accepted
+	at org.junit.Assert.fail(Assert.java:88)
+	at javax.microedition.shell.M3gLoaderContractTest.invalid(M3gLoaderContractTest.java:142)
+	at javax.microedition.shell.M3gLoaderContractTest.unexpectedCompressedTrailingDataIsRejected(M3gLoaderContractTest.java:70)
+
+INSTRUMENTATION_STATUS: stream=
+Error in unexpectedCompressedTrailingDataIsRejected(javax.microedition.shell.M3gLoaderContractTest):
+java.lang.AssertionError: Malformed file accepted
+	at org.junit.Assert.fail(Assert.java:88)
+	at javax.microedition.shell.M3gLoaderContractTest.invalid(M3gLoaderContractTest.java:142)
+	at javax.microedition.shell.M3gLoaderContractTest.unexpectedCompressedTrailingDataIsRejected(M3gLoaderContractTest.java:70)
+
+INSTRUMENTATION_STATUS: test=unexpectedCompressedTrailingDataIsRejected
+INSTRUMENTATION_STATUS_CODE: -2
+INSTRUMENTATION_RESULT: stream=
+
+Time: 0.36
+There were 7 failures:
+1) animatedTextureColorClampsAndRounds(javax.microedition.shell.M3gSceneContractTest)
+java.lang.AssertionError: expected:<16711808> but was:<-65408>
+	at org.junit.Assert.fail(Assert.java:88)
+	at org.junit.Assert.failNotEquals(Assert.java:834)
+	at org.junit.Assert.assertEquals(Assert.java:645)
+	at org.junit.Assert.assertEquals(Assert.java:631)
+	at javax.microedition.shell.M3gSceneContractTest.animatedTextureColorClampsAndRounds(M3gSceneContractTest.java:131)
+	at java.lang.reflect.Method.invoke(Native Method)
+	at org.junit.runners.model.FrameworkMethod$1.runReflectiveCall(FrameworkMethod.java:50)
+	at org.junit.internal.runners.model.ReflectiveCallable.run(ReflectiveCallable.java:12)
+	at org.junit.runners.model.FrameworkMethod.invokeExplosively(FrameworkMethod.java:47)
+	at org.junit.internal.runners.statements.InvokeMethod.evaluate(InvokeMethod.java:17)
+	at androidx.test.internal.runner.junit4.statement.RunBefores.evaluate(RunBefores.java:80)
+	at androidx.test.internal.runner.junit4.statement.RunAfters.evaluate(RunAfters.java:61)
+	at org.junit.runners.ParentRunner.runLeaf(ParentRunner.java:325)
+	at org.junit.runners.BlockJUnit4ClassRunner.runChild(BlockJUnit4ClassRunner.java:78)
+	at org.junit.runners.BlockJUnit4ClassRunner.runChild(BlockJUnit4ClassRunner.java:57)
+	at org.junit.runners.ParentRunner$3.run(ParentRunner.java:290)
+	at org.junit.runners.ParentRunner$1.schedule(ParentRunner.java:71)
+	at org.junit.runners.ParentRunner.runChildren(ParentRunner.java:288)
+	at org.junit.runners.ParentRunner.access$000(ParentRunner.java:58)
+	at org.junit.runners.ParentRunner$2.evaluate(ParentRunner.java:268)
+	at org.junit.runners.ParentRunner.run(ParentRunner.java:363)
+	at org.junit.runners.Suite.runChild(Suite.java:128)
+	at org.junit.runners.Suite.runChild(Suite.java:27)
+	at org.junit.runners.ParentRunner$3.run(ParentRunner.java:290)
+	at org.junit.runners.ParentRunner$1.schedule(ParentRunner.java:71)
+	at org.junit.runners.ParentRunner.runChildren(ParentRunner.java:288)
+	at org.junit.runners.ParentRunner.access$000(ParentRunner.java:58)
+	at org.junit.runners.ParentRunner$2.evaluate(ParentRunner.java:268)
+	at org.junit.runners.ParentRunner.run(ParentRunner.java:363)
+	at org.junit.runner.JUnitCore.run(JUnitCore.java:137)
+	at org.junit.runner.JUnitCore.run(JUnitCore.java:115)
+	at androidx.test.internal.runner.TestExecutor.execute(TestExecutor.java:67)
+	at androidx.test.internal.runner.TestExecutor.execute(TestExecutor.java:58)
+	at androidx.test.runner.AndroidJUnitRunner.onStart(AndroidJUnitRunner.java:446)
+	at android.app.Instrumentation$InstrumentationThread.run(Instrumentation.java:2408)
+2) animatedLightColorClampsAndRounds(javax.microedition.shell.M3gSceneContractTest)
+java.lang.AssertionError: expected:<16711808> but was:<-65408>
+	at org.junit.Assert.fail(Assert.java:88)
+	at org.junit.Assert.failNotEquals(Assert.java:834)
+	at org.junit.Assert.assertEquals(Assert.java:645)
+	at org.junit.Assert.assertEquals(Assert.java:631)
+	at javax.microedition.shell.M3gSceneContractTest.animatedLightColorClampsAndRounds(M3gSceneContractTest.java:124)
+	at java.lang.reflect.Method.invoke(Native Method)
+	at org.junit.runners.model.FrameworkMethod$1.runReflectiveCall(FrameworkMethod.java:50)
+	at org.junit.internal.runners.model.ReflectiveCallable.run(ReflectiveCallable.java:12)
+	at org.junit.runners.model.FrameworkMethod.invokeExplosively(FrameworkMethod.java:47)
+	at org.junit.internal.runners.statements.InvokeMethod.evaluate(InvokeMethod.java:17)
+	at androidx.test.internal.runner.junit4.statement.RunBefores.evaluate(RunBefores.java:80)
+	at androidx.test.internal.runner.junit4.statement.RunAfters.evaluate(RunAfters.java:61)
+	at org.junit.runners.ParentRunner.runLeaf(ParentRunner.java:325)
+	at org.junit.runners.BlockJUnit4ClassRunner.runChild(BlockJUnit4ClassRunner.java:78)
+	at org.junit.runners.BlockJUnit4ClassRunner.runChild(BlockJUnit4ClassRunner.java:57)
+	at org.junit.runners.ParentRunner$3.run(ParentRunner.java:290)
+	at org.junit.runners.ParentRunner$1.schedule(ParentRunner.java:71)
+	at org.junit.runners.ParentRunner.runChildren(ParentRunner.java:288)
+	at org.junit.runners.ParentRunner.access$000(ParentRunner.java:58)
+	at org.junit.runners.ParentRunner$2.evaluate(ParentRunner.java:268)
+	at org.junit.runners.ParentRunner.run(ParentRunner.java:363)
+	at org.junit.runners.Suite.runChild(Suite.java:128)
+	at org.junit.runners.Suite.runChild(Suite.java:27)
+	at org.junit.runners.ParentRunner$3.run(ParentRunner.java:290)
+	at org.junit.runners.ParentRunner$1.schedule(ParentRunner.java:71)
+	at org.junit.runners.ParentRunner.runChildren(ParentRunner.java:288)
+	at org.junit.runners.ParentRunner.access$000(ParentRunner.java:58)
+	at org.junit.runners.ParentRunner$2.evaluate(ParentRunner.java:268)
+	at org.junit.runners.ParentRunner.run(ParentRunner.java:363)
+	at org.junit.runner.JUnitCore.run(JUnitCore.java:137)
+	at org.junit.runner.JUnitCore.run(JUnitCore.java:115)
+	at androidx.test.internal.runner.TestExecutor.execute(TestExecutor.java:67)
+	at androidx.test.internal.runner.TestExecutor.execute(TestExecutor.java:58)
+	at androidx.test.runner.AndroidJUnitRunner.onStart(AndroidJUnitRunner.java:446)
+	at android.app.Instrumentation$InstrumentationThread.run(Instrumentation.java:2408)
+3) headerOnlyFileDoesNotConsumeContainerTail(javax.microedition.shell.M3gLoaderContractTest)
+java.lang.NullPointerException: Attempt to get length of null array
+	at javax.microedition.shell.M3gLoaderContractTest.headerOnlyFileDoesNotConsumeContainerTail(M3gLoaderContractTest.java:31)
+	at java.lang.reflect.Method.invoke(Native Method)
+	at org.junit.runners.model.FrameworkMethod$1.runReflectiveCall(FrameworkMethod.java:50)
+	at org.junit.internal.runners.model.ReflectiveCallable.run(ReflectiveCallable.java:12)
+	at org.junit.runners.model.FrameworkMethod.invokeExplosively(FrameworkMethod.java:47)
+	at org.junit.internal.runners.statements.InvokeMethod.evaluate(InvokeMethod.java:17)
+	at org.junit.runners.ParentRunner.runLeaf(ParentRunner.java:325)
+	at org.junit.runners.BlockJUnit4ClassRunner.runChild(BlockJUnit4ClassRunner.java:78)
+	at org.junit.runners.BlockJUnit4ClassRunner.runChild(BlockJUnit4ClassRunner.java:57)
+	at org.junit.runners.ParentRunner$3.run(ParentRunner.java:290)
+	at org.junit.runners.ParentRunner$1.schedule(ParentRunner.java:71)
+	at org.junit.runners.ParentRunner.runChildren(ParentRunner.java:288)
+	at org.junit.runners.ParentRunner.access$000(ParentRunner.java:58)
+	at org.junit.runners.ParentRunner$2.evaluate(ParentRunner.java:268)
+	at org.junit.runners.ParentRunner.run(ParentRunner.java:363)
+	at org.junit.runners.Suite.runChild(Suite.java:128)
+	at org.junit.runners.Suite.runChild(Suite.java:27)
+	at org.junit.runners.ParentRunner$3.run(ParentRunner.java:290)
+	at org.junit.runners.ParentRunner$1.schedule(ParentRunner.java:71)
+	at org.junit.runners.ParentRunner.runChildren(ParentRunner.java:288)
+	at org.junit.runners.ParentRunner.access$000(ParentRunner.java:58)
+	at org.junit.runners.ParentRunner$2.evaluate(ParentRunner.java:268)
+	at org.junit.runners.ParentRunner.run(ParentRunner.java:363)
+	at org.junit.runner.JUnitCore.run(JUnitCore.java:137)
+	at org.junit.runner.JUnitCore.run(JUnitCore.java:115)
+	at androidx.test.internal.runner.TestExecutor.execute(TestExecutor.java:67)
+	at androidx.test.internal.runner.TestExecutor.execute(TestExecutor.java:58)
+	at androidx.test.runner.AndroidJUnitRunner.onStart(AndroidJUnitRunner.java:446)
+	at android.app.Instrumentation$InstrumentationThread.run(Instrumentation.java:2408)
+4) externalRelativeParentSegmentsResolve(javax.microedition.shell.M3gLoaderContractTest)
+java.io.IOException: Load error java.lang.NullPointerException: Attempt to invoke virtual method 'int java.io.InputStream.read()' on a null object reference
+	at javax.microedition.m3g.Loader.load(Loader.java:128)
+	at javax.microedition.shell.M3gLoaderContractTest.externalRelativeParentSegmentsResolve(M3gLoaderContractTest.java:95)
+	at java.lang.reflect.Method.invoke(Native Method)
+	at org.junit.runners.model.FrameworkMethod$1.runReflectiveCall(FrameworkMethod.java:50)
+	at org.junit.internal.runners.model.ReflectiveCallable.run(ReflectiveCallable.java:12)
+	at org.junit.runners.model.FrameworkMethod.invokeExplosively(FrameworkMethod.java:47)
+	at org.junit.internal.runners.statements.InvokeMethod.evaluate(InvokeMethod.java:17)
+	at org.junit.runners.ParentRunner.runLeaf(ParentRunner.java:325)
+	at org.junit.runners.BlockJUnit4ClassRunner.runChild(BlockJUnit4ClassRunner.java:78)
+	at org.junit.runners.BlockJUnit4ClassRunner.runChild(BlockJUnit4ClassRunner.java:57)
+	at org.junit.runners.ParentRunner$3.run(ParentRunner.java:290)
+	at org.junit.runners.ParentRunner$1.schedule(ParentRunner.java:71)
+	at org.junit.runners.ParentRunner.runChildren(ParentRunner.java:288)
+	at org.junit.runners.ParentRunner.access$000(ParentRunner.java:58)
+	at org.junit.runners.ParentRunner$2.evaluate(ParentRunner.java:268)
+	at org.junit.runners.ParentRunner.run(ParentRunner.java:363)
+	at org.junit.runners.Suite.runChild(Suite.java:128)
+	at org.junit.runners.Suite.runChild(Suite.java:27)
+	at org.junit.runners.ParentRunner$3.run(ParentRunner.java:290)
+	at org.junit.runners.ParentRunner$1.schedule(ParentRunner.java:71)
+	at org.junit.runners.ParentRunner.runChildren(ParentRunner.java:288)
+	at org.junit.runners.ParentRunner.access$000(ParentRunner.java:58)
+	at org.junit.runners.ParentRunner$2.evaluate(ParentRunner.java:268)
+	at org.junit.runners.ParentRunner.run(ParentRunner.java:363)
+	at org.junit.runner.JUnitCore.run(JUnitCore.java:137)
+	at org.junit.runner.JUnitCore.run(JUnitCore.java:115)
+	at androidx.test.internal.runner.TestExecutor.execute(TestExecutor.java:67)
+	at androidx.test.internal.runner.TestExecutor.execute(TestExecutor.java:58)
+	at androidx.test.runner.AndroidJUnitRunner.onStart(AndroidJUnitRunner.java:446)
+	at android.app.Instrumentation$InstrumentationThread.run(Instrumentation.java:2408)
+5) nestedExternalLoadDoesNotChangeSiblingDirectory(javax.microedition.shell.M3gLoaderContractTest)
+java.io.IOException: Load error java.lang.StringIndexOutOfBoundsException: begin 0, end -1, length 12
+	at javax.microedition.m3g.Loader.load(Loader.java:128)
+	at javax.microedition.shell.M3gLoaderContractTest.nestedExternalLoadDoesNotChangeSiblingDirectory(M3gLoaderContractTest.java:89)
+	at java.lang.reflect.Method.invoke(Native Method)
+	at org.junit.runners.model.FrameworkMethod$1.runReflectiveCall(FrameworkMethod.java:50)
+	at org.junit.internal.runners.model.ReflectiveCallable.run(ReflectiveCallable.java:12)
+	at org.junit.runners.model.FrameworkMethod.invokeExplosively(FrameworkMethod.java:47)
+	at org.junit.internal.runners.statements.InvokeMethod.evaluate(InvokeMethod.java:17)
+	at org.junit.runners.ParentRunner.runLeaf(ParentRunner.java:325)
+	at org.junit.runners.BlockJUnit4ClassRunner.runChild(BlockJUnit4ClassRunner.java:78)
+	at org.junit.runners.BlockJUnit4ClassRunner.runChild(BlockJUnit4ClassRunner.java:57)
+	at org.junit.runners.ParentRunner$3.run(ParentRunner.java:290)
+	at org.junit.runners.ParentRunner$1.schedule(ParentRunner.java:71)
+	at org.junit.runners.ParentRunner.runChildren(ParentRunner.java:288)
+	at org.junit.runners.ParentRunner.access$000(ParentRunner.java:58)
+	at org.junit.runners.ParentRunner$2.evaluate(ParentRunner.java:268)
+	at org.junit.runners.ParentRunner.run(ParentRunner.java:363)
+	at org.junit.runners.Suite.runChild(Suite.java:128)
+	at org.junit.runners.Suite.runChild(Suite.java:27)
+	at org.junit.runners.ParentRunner$3.run(ParentRunner.java:290)
+	at org.junit.runners.ParentRunner$1.schedule(ParentRunner.java:71)
+	at org.junit.runners.ParentRunner.runChildren(ParentRunner.java:288)
+	at org.junit.runners.ParentRunner.access$000(ParentRunner.java:58)
+	at org.junit.runners.ParentRunner$2.evaluate(ParentRunner.java:268)
+	at org.junit.runners.ParentRunner.run(ParentRunner.java:363)
+	at org.junit.runner.JUnitCore.run(JUnitCore.java:137)
+	at org.junit.runner.JUnitCore.run(JUnitCore.java:115)
+	at androidx.test.internal.runner.TestExecutor.execute(TestExecutor.java:67)
+	at androidx.test.internal.runner.TestExecutor.execute(TestExecutor.java:58)
+	at androidx.test.runner.AndroidJUnitRunner.onStart(AndroidJUnitRunner.java:446)
+	at android.app.Instrumentation$InstrumentationThread.run(Instrumentation.java:2408)
+6) invalidVertexEncodingIsRejected(javax.microedition.shell.M3gLoaderContractTest)
+java.lang.AssertionError: Malformed file accepted
+	at org.junit.Assert.fail(Assert.java:88)
+	at javax.microedition.shell.M3gLoaderContractTest.invalid(M3gLoaderContractTest.java:142)
+	at javax.microedition.shell.M3gLoaderContractTest.invalidVertexEncodingIsRejected(M3gLoaderContractTest.java:78)
+	at java.lang.reflect.Method.invoke(Native Method)
+	at org.junit.runners.model.FrameworkMethod$1.runReflectiveCall(FrameworkMethod.java:50)
+	at org.junit.internal.runners.model.ReflectiveCallable.run(ReflectiveCallable.java:12)
+	at org.junit.runners.model.FrameworkMethod.invokeExplosively(FrameworkMethod.java:47)
+	at org.junit.internal.runners.statements.InvokeMethod.evaluate(InvokeMethod.java:17)
+	at org.junit.runners.ParentRunner.runLeaf(ParentRunner.java:325)
+	at org.junit.runners.BlockJUnit4ClassRunner.runChild(BlockJUnit4ClassRunner.java:78)
+	at org.junit.runners.BlockJUnit4ClassRunner.runChild(BlockJUnit4ClassRunner.java:57)
+	at org.junit.runners.ParentRunner$3.run(ParentRunner.java:290)
+	at org.junit.runners.ParentRunner$1.schedule(ParentRunner.java:71)
+	at org.junit.runners.ParentRunner.runChildren(ParentRunner.java:288)
+	at org.junit.runners.ParentRunner.access$000(ParentRunner.java:58)
+	at org.junit.runners.ParentRunner$2.evaluate(ParentRunner.java:268)
+	at org.junit.runners.ParentRunner.run(ParentRunner.java:363)
+	at org.junit.runners.Suite.runChild(Suite.java:128)
+	at org.junit.runners.Suite.runChild(Suite.java:27)
+	at org.junit.runners.ParentRunner$3.run(ParentRunner.java:290)
+	at org.junit.runners.ParentRunner$1.schedule(ParentRunner.java:71)
+	at org.junit.runners.ParentRunner.runChildren(ParentRunner.java:288)
+	at org.junit.runners.ParentRunner.access$000(ParentRunner.java:58)
+	at org.junit.runners.ParentRunner$2.evaluate(ParentRunner.java:268)
+	at org.junit.runners.ParentRunner.run(ParentRunner.java:363)
+	at org.junit.runner.JUnitCore.run(JUnitCore.java:137)
+	at org.junit.runner.JUnitCore.run(JUnitCore.java:115)
+	at androidx.test.internal.runner.TestExecutor.execute(TestExecutor.java:67)
+	at androidx.test.internal.runner.TestExecutor.execute(TestExecutor.java:58)
+	at androidx.test.runner.AndroidJUnitRunner.onStart(AndroidJUnitRunner.java:446)
+	at android.app.Instrumentation$InstrumentationThread.run(Instrumentation.java:2408)
+7) unexpectedCompressedTrailingDataIsRejected(javax.microedition.shell.M3gLoaderContractTest)
+java.lang.AssertionError: Malformed file accepted
+	at org.junit.Assert.fail(Assert.java:88)
+	at javax.microedition.shell.M3gLoaderContractTest.invalid(M3gLoaderContractTest.java:142)
+	at javax.microedition.shell.M3gLoaderContractTest.unexpectedCompressedTrailingDataIsRejected(M3gLoaderContractTest.java:70)
+	at java.lang.reflect.Method.invoke(Native Method)
+	at org.junit.runners.model.FrameworkMethod$1.runReflectiveCall(FrameworkMethod.java:50)
+	at org.junit.internal.runners.model.ReflectiveCallable.run(ReflectiveCallable.java:12)
+	at org.junit.runners.model.FrameworkMethod.invokeExplosively(FrameworkMethod.java:47)
+	at org.junit.internal.runners.statements.InvokeMethod.evaluate(InvokeMethod.java:17)
+	at org.junit.runners.ParentRunner.runLeaf(ParentRunner.java:325)
+	at org.junit.runners.BlockJUnit4ClassRunner.runChild(BlockJUnit4ClassRunner.java:78)
+	at org.junit.runners.BlockJUnit4ClassRunner.runChild(BlockJUnit4ClassRunner.java:57)
+	at org.junit.runners.ParentRunner$3.run(ParentRunner.java:290)
+	at org.junit.runners.ParentRunner$1.schedule(ParentRunner.java:71)
+	at org.junit.runners.ParentRunner.runChildren(ParentRunner.java:288)
+	at org.junit.runners.ParentRunner.access$000(ParentRunner.java:58)
+	at org.junit.runners.ParentRunner$2.evaluate(ParentRunner.java:268)
+	at org.junit.runners.ParentRunner.run(ParentRunner.java:363)
+	at org.junit.runners.Suite.runChild(Suite.java:128)
+	at org.junit.runners.Suite.runChild(Suite.java:27)
+	at org.junit.runners.ParentRunner$3.run(ParentRunner.java:290)
+	at org.junit.runners.ParentRunner$1.schedule(ParentRunner.java:71)
+	at org.junit.runners.ParentRunner.runChildren(ParentRunner.java:288)
+	at org.junit.runners.ParentRunner.access$000(ParentRunner.java:58)
+	at org.junit.runners.ParentRunner$2.evaluate(ParentRunner.java:268)
+	at org.junit.runners.ParentRunner.run(ParentRunner.java:363)
+	at org.junit.runner.JUnitCore.run(JUnitCore.java:137)
+	at org.junit.runner.JUnitCore.run(JUnitCore.java:115)
+	at androidx.test.internal.runner.TestExecutor.execute(TestExecutor.java:67)
+	at androidx.test.internal.runner.TestExecutor.execute(TestExecutor.java:58)
+	at androidx.test.runner.AndroidJUnitRunner.onStart(AndroidJUnitRunner.java:446)
+	at android.app.Instrumentation$InstrumentationThread.run(Instrumentation.java:2408)
+
+FAILURES!!!
+Tests run: 47,  Failures: 7
+
+
+INSTRUMENTATION_CODE: -1

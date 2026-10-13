@@ -1,0 +1,990 @@
+INSTRUMENTATION_STATUS: class=javax.microedition.shell.M3gDeformationTest
+INSTRUMENTATION_STATUS: current=1
+INSTRUMENTATION_STATUS: id=AndroidJUnitRunner
+INSTRUMENTATION_STATUS: numtests=16
+INSTRUMENTATION_STATUS: stream=
+javax.microedition.shell.M3gDeformationTest:
+INSTRUMENTATION_STATUS: test=overlappingBoneRangesReturnUniqueVertices
+INSTRUMENTATION_STATUS_CODE: 1
+INSTRUMENTATION_STATUS: class=javax.microedition.shell.M3gDeformationTest
+INSTRUMENTATION_STATUS: current=1
+INSTRUMENTATION_STATUS: id=AndroidJUnitRunner
+INSTRUMENTATION_STATUS: numtests=16
+INSTRUMENTATION_STATUS: stack=java.lang.AssertionError: expected:<3> but was:<4>
+	at org.junit.Assert.fail(Assert.java:88)
+	at org.junit.Assert.failNotEquals(Assert.java:834)
+	at org.junit.Assert.assertEquals(Assert.java:645)
+	at org.junit.Assert.assertEquals(Assert.java:631)
+	at javax.microedition.shell.M3gDeformationTest.overlappingBoneRangesReturnUniqueVertices(M3gDeformationTest.java:118)
+
+INSTRUMENTATION_STATUS: stream=
+Error in overlappingBoneRangesReturnUniqueVertices(javax.microedition.shell.M3gDeformationTest):
+java.lang.AssertionError: expected:<3> but was:<4>
+	at org.junit.Assert.fail(Assert.java:88)
+	at org.junit.Assert.failNotEquals(Assert.java:834)
+	at org.junit.Assert.assertEquals(Assert.java:645)
+	at org.junit.Assert.assertEquals(Assert.java:631)
+	at javax.microedition.shell.M3gDeformationTest.overlappingBoneRangesReturnUniqueVertices(M3gDeformationTest.java:118)
+
+INSTRUMENTATION_STATUS: test=overlappingBoneRangesReturnUniqueVertices
+INSTRUMENTATION_STATUS_CODE: -2
+INSTRUMENTATION_STATUS: class=javax.microedition.shell.M3gDeformationTest
+INSTRUMENTATION_STATUS: current=2
+INSTRUMENTATION_STATUS: id=AndroidJUnitRunner
+INSTRUMENTATION_STATUS: numtests=16
+INSTRUMENTATION_STATUS: stream=
+INSTRUMENTATION_STATUS: test=morphReadsEditedTargetArrayWithoutAnotherWeightCall
+INSTRUMENTATION_STATUS_CODE: 1
+INSTRUMENTATION_STATUS: class=javax.microedition.shell.M3gDeformationTest
+INSTRUMENTATION_STATUS: current=2
+INSTRUMENTATION_STATUS: id=AndroidJUnitRunner
+INSTRUMENTATION_STATUS: numtests=16
+INSTRUMENTATION_STATUS: stack=java.lang.AssertionError: expected:<6.0> but was:<4.0>
+	at org.junit.Assert.fail(Assert.java:88)
+	at org.junit.Assert.failNotEquals(Assert.java:834)
+	at org.junit.Assert.assertEquals(Assert.java:575)
+	at org.junit.Assert.assertEquals(Assert.java:700)
+	at javax.microedition.shell.M3gDeformationTest.distance(M3gDeformationTest.java:204)
+	at javax.microedition.shell.M3gDeformationTest.morphReadsEditedTargetArrayWithoutAnotherWeightCall(M3gDeformationTest.java:37)
+
+INSTRUMENTATION_STATUS: stream=
+Error in morphReadsEditedTargetArrayWithoutAnotherWeightCall(javax.microedition.shell.M3gDeformationTest):
+java.lang.AssertionError: expected:<6.0> but was:<4.0>
+	at org.junit.Assert.fail(Assert.java:88)
+	at org.junit.Assert.failNotEquals(Assert.java:834)
+	at org.junit.Assert.assertEquals(Assert.java:575)
+	at org.junit.Assert.assertEquals(Assert.java:700)
+	at javax.microedition.shell.M3gDeformationTest.distance(M3gDeformationTest.java:204)
+	at javax.microedition.shell.M3gDeformationTest.morphReadsEditedTargetArrayWithoutAnotherWeightCall(M3gDeformationTest.java:37)
+
+INSTRUMENTATION_STATUS: test=morphReadsEditedTargetArrayWithoutAnotherWeightCall
+INSTRUMENTATION_STATUS_CODE: -2
+INSTRUMENTATION_STATUS: class=javax.microedition.shell.M3gDeformationTest
+INSTRUMENTATION_STATUS: current=3
+INSTRUMENTATION_STATUS: id=AndroidJUnitRunner
+INSTRUMENTATION_STATUS: numtests=16
+INSTRUMENTATION_STATUS: stream=
+INSTRUMENTATION_STATUS: test=ancestorAnimationMovesSkinAndItsAttachment
+INSTRUMENTATION_STATUS_CODE: 1
+INSTRUMENTATION_STATUS: class=javax.microedition.shell.M3gDeformationTest
+INSTRUMENTATION_STATUS: current=3
+INSTRUMENTATION_STATUS: id=AndroidJUnitRunner
+INSTRUMENTATION_STATUS: numtests=16
+INSTRUMENTATION_STATUS: stream=.
+INSTRUMENTATION_STATUS: test=ancestorAnimationMovesSkinAndItsAttachment
+INSTRUMENTATION_STATUS_CODE: 0
+INSTRUMENTATION_STATUS: class=javax.microedition.shell.M3gDeformationTest
+INSTRUMENTATION_STATUS: current=4
+INSTRUMENTATION_STATUS: id=AndroidJUnitRunner
+INSTRUMENTATION_STATUS: numtests=16
+INSTRUMENTATION_STATUS: stream=
+INSTRUMENTATION_STATUS: test=morphVertexColorMutationRefreshesWithoutWeights
+INSTRUMENTATION_STATUS_CODE: 1
+INSTRUMENTATION_STATUS: class=javax.microedition.shell.M3gDeformationTest
+INSTRUMENTATION_STATUS: current=4
+INSTRUMENTATION_STATUS: id=AndroidJUnitRunner
+INSTRUMENTATION_STATUS: numtests=16
+INSTRUMENTATION_STATUS: stack=java.lang.NullPointerException: Attempt to invoke virtual method 'java.lang.Object java.lang.ref.WeakReference.get()' on a null object reference
+	at javax.microedition.util.ContextHolder.getActivity(ContextHolder.java:196)
+	at javax.microedition.m3g.GpuRasterizer.diagnostic(GpuRasterizer.java:35)
+	at javax.microedition.m3g.GpuRasterizer.draw(GpuRasterizer.java:162)
+	at javax.microedition.m3g.GpuRasterizer.draw(GpuRasterizer.java:94)
+	at javax.microedition.m3g.Graphics3D.renderSubmesh(Graphics3D.java:964)
+	at javax.microedition.m3g.Graphics3D.flushRenderQueue(Graphics3D.java:2394)
+	at javax.microedition.m3g.Graphics3D.render(Graphics3D.java:605)
+	at javax.microedition.shell.M3gDeformationTest.color(M3gDeformationTest.java:215)
+	at javax.microedition.shell.M3gDeformationTest.morphVertexColorMutationRefreshesWithoutWeights(M3gDeformationTest.java:89)
+
+INSTRUMENTATION_STATUS: stream=
+Error in morphVertexColorMutationRefreshesWithoutWeights(javax.microedition.shell.M3gDeformationTest):
+java.lang.NullPointerException: Attempt to invoke virtual method 'java.lang.Object java.lang.ref.WeakReference.get()' on a null object reference
+	at javax.microedition.util.ContextHolder.getActivity(ContextHolder.java:196)
+	at javax.microedition.m3g.GpuRasterizer.diagnostic(GpuRasterizer.java:35)
+	at javax.microedition.m3g.GpuRasterizer.draw(GpuRasterizer.java:162)
+	at javax.microedition.m3g.GpuRasterizer.draw(GpuRasterizer.java:94)
+	at javax.microedition.m3g.Graphics3D.renderSubmesh(Graphics3D.java:964)
+	at javax.microedition.m3g.Graphics3D.flushRenderQueue(Graphics3D.java:2394)
+	at javax.microedition.m3g.Graphics3D.render(Graphics3D.java:605)
+	at javax.microedition.shell.M3gDeformationTest.color(M3gDeformationTest.java:215)
+	at javax.microedition.shell.M3gDeformationTest.morphVertexColorMutationRefreshesWithoutWeights(M3gDeformationTest.java:89)
+
+INSTRUMENTATION_STATUS: test=morphVertexColorMutationRefreshesWithoutWeights
+INSTRUMENTATION_STATUS_CODE: -2
+INSTRUMENTATION_STATUS: class=javax.microedition.shell.M3gDeformationTest
+INSTRUMENTATION_STATUS: current=5
+INSTRUMENTATION_STATUS: id=AndroidJUnitRunner
+INSTRUMENTATION_STATUS: numtests=16
+INSTRUMENTATION_STATUS: stream=
+INSTRUMENTATION_STATUS: test=skinRebuildsPositionStorageAfterResize
+INSTRUMENTATION_STATUS_CODE: 1
+INSTRUMENTATION_STATUS: class=javax.microedition.shell.M3gDeformationTest
+INSTRUMENTATION_STATUS: current=5
+INSTRUMENTATION_STATUS: id=AndroidJUnitRunner
+INSTRUMENTATION_STATUS: numtests=16
+INSTRUMENTATION_STATUS: stack=java.lang.IndexOutOfBoundsException: Tried to get a range of values that's out of bounds.
+	at javax.microedition.m3g.VertexArray.set(VertexArray.java:149)
+	at javax.microedition.m3g.SkinnedMesh.applySkinning(SkinnedMesh.java:549)
+	at javax.microedition.m3g.SkinnedMesh.getPosedVertexBuffer(SkinnedMesh.java:260)
+	at javax.microedition.m3g.Group.pickMesh(Group.java:308)
+	at javax.microedition.m3g.Group.traverseForPick(Group.java:278)
+	at javax.microedition.m3g.Group.traverseForPick(Group.java:296)
+	at javax.microedition.m3g.Group.pick(Group.java:244)
+	at javax.microedition.shell.M3gDeformationTest.distance(M3gDeformationTest.java:203)
+	at javax.microedition.shell.M3gDeformationTest.skinRebuildsPositionStorageAfterResize(M3gDeformationTest.java:109)
+
+INSTRUMENTATION_STATUS: stream=
+Error in skinRebuildsPositionStorageAfterResize(javax.microedition.shell.M3gDeformationTest):
+java.lang.IndexOutOfBoundsException: Tried to get a range of values that's out of bounds.
+	at javax.microedition.m3g.VertexArray.set(VertexArray.java:149)
+	at javax.microedition.m3g.SkinnedMesh.applySkinning(SkinnedMesh.java:549)
+	at javax.microedition.m3g.SkinnedMesh.getPosedVertexBuffer(SkinnedMesh.java:260)
+	at javax.microedition.m3g.Group.pickMesh(Group.java:308)
+	at javax.microedition.m3g.Group.traverseForPick(Group.java:278)
+	at javax.microedition.m3g.Group.traverseForPick(Group.java:296)
+	at javax.microedition.m3g.Group.pick(Group.java:244)
+	at javax.microedition.shell.M3gDeformationTest.distance(M3gDeformationTest.java:203)
+	at javax.microedition.shell.M3gDeformationTest.skinRebuildsPositionStorageAfterResize(M3gDeformationTest.java:109)
+
+INSTRUMENTATION_STATUS: test=skinRebuildsPositionStorageAfterResize
+INSTRUMENTATION_STATUS_CODE: -2
+INSTRUMENTATION_STATUS: class=javax.microedition.shell.M3gDeformationTest
+INSTRUMENTATION_STATUS: current=6
+INSTRUMENTATION_STATUS: id=AndroidJUnitRunner
+INSTRUMENTATION_STATUS: numtests=16
+INSTRUMENTATION_STATUS: stream=
+INSTRUMENTATION_STATUS: test=morphRevalidatesChangedTargetLayoutAndRecovers
+INSTRUMENTATION_STATUS_CODE: 1
+INSTRUMENTATION_STATUS: class=javax.microedition.shell.M3gDeformationTest
+INSTRUMENTATION_STATUS: current=6
+INSTRUMENTATION_STATUS: id=AndroidJUnitRunner
+INSTRUMENTATION_STATUS: numtests=16
+INSTRUMENTATION_STATUS: stack=java.lang.AssertionError: Invalid target layout
+	at org.junit.Assert.fail(Assert.java:88)
+	at javax.microedition.shell.M3gDeformationTest.morphRevalidatesChangedTargetLayoutAndRecovers(M3gDeformationTest.java:61)
+
+INSTRUMENTATION_STATUS: stream=
+Error in morphRevalidatesChangedTargetLayoutAndRecovers(javax.microedition.shell.M3gDeformationTest):
+java.lang.AssertionError: Invalid target layout
+	at org.junit.Assert.fail(Assert.java:88)
+	at javax.microedition.shell.M3gDeformationTest.morphRevalidatesChangedTargetLayoutAndRecovers(M3gDeformationTest.java:61)
+
+INSTRUMENTATION_STATUS: test=morphRevalidatesChangedTargetLayoutAndRecovers
+INSTRUMENTATION_STATUS_CODE: -2
+INSTRUMENTATION_STATUS: class=javax.microedition.shell.M3gDeformationTest
+INSTRUMENTATION_STATUS: current=7
+INSTRUMENTATION_STATUS: id=AndroidJUnitRunner
+INSTRUMENTATION_STATUS: numtests=16
+INSTRUMENTATION_STATUS: stream=
+INSTRUMENTATION_STATUS: test=skinRangeValidationIsDeferredAndRecoverable
+INSTRUMENTATION_STATUS_CODE: 1
+INSTRUMENTATION_STATUS: class=javax.microedition.shell.M3gDeformationTest
+INSTRUMENTATION_STATUS: current=7
+INSTRUMENTATION_STATUS: id=AndroidJUnitRunner
+INSTRUMENTATION_STATUS: numtests=16
+INSTRUMENTATION_STATUS: stack=java.lang.IndexOutOfBoundsException: Tried to get a range of values that's out of bounds.
+	at javax.microedition.m3g.VertexArray.set(VertexArray.java:149)
+	at javax.microedition.m3g.SkinnedMesh.applySkinning(SkinnedMesh.java:549)
+	at javax.microedition.m3g.SkinnedMesh.getPosedVertexBuffer(SkinnedMesh.java:260)
+	at javax.microedition.m3g.Group.pickMesh(Group.java:308)
+	at javax.microedition.m3g.Group.traverseForPick(Group.java:278)
+	at javax.microedition.m3g.Group.traverseForPick(Group.java:296)
+	at javax.microedition.m3g.Group.pick(Group.java:244)
+	at javax.microedition.shell.M3gDeformationTest.distance(M3gDeformationTest.java:203)
+	at javax.microedition.shell.M3gDeformationTest.skinRangeValidationIsDeferredAndRecoverable(M3gDeformationTest.java:186)
+
+INSTRUMENTATION_STATUS: stream=
+Error in skinRangeValidationIsDeferredAndRecoverable(javax.microedition.shell.M3gDeformationTest):
+java.lang.IndexOutOfBoundsException: Tried to get a range of values that's out of bounds.
+	at javax.microedition.m3g.VertexArray.set(VertexArray.java:149)
+	at javax.microedition.m3g.SkinnedMesh.applySkinning(SkinnedMesh.java:549)
+	at javax.microedition.m3g.SkinnedMesh.getPosedVertexBuffer(SkinnedMesh.java:260)
+	at javax.microedition.m3g.Group.pickMesh(Group.java:308)
+	at javax.microedition.m3g.Group.traverseForPick(Group.java:278)
+	at javax.microedition.m3g.Group.traverseForPick(Group.java:296)
+	at javax.microedition.m3g.Group.pick(Group.java:244)
+	at javax.microedition.shell.M3gDeformationTest.distance(M3gDeformationTest.java:203)
+	at javax.microedition.shell.M3gDeformationTest.skinRangeValidationIsDeferredAndRecoverable(M3gDeformationTest.java:186)
+
+INSTRUMENTATION_STATUS: test=skinRangeValidationIsDeferredAndRecoverable
+INSTRUMENTATION_STATUS_CODE: -2
+INSTRUMENTATION_STATUS: class=javax.microedition.shell.M3gDeformationTest
+INSTRUMENTATION_STATUS: current=8
+INSTRUMENTATION_STATUS: id=AndroidJUnitRunner
+INSTRUMENTATION_STATUS: numtests=16
+INSTRUMENTATION_STATUS: stream=
+INSTRUMENTATION_STATUS: test=overflowingBoneRangeIsRejectedWithoutChangingMesh
+INSTRUMENTATION_STATUS_CODE: 1
+INSTRUMENTATION_STATUS: class=javax.microedition.shell.M3gDeformationTest
+INSTRUMENTATION_STATUS: current=8
+INSTRUMENTATION_STATUS: id=AndroidJUnitRunner
+INSTRUMENTATION_STATUS: numtests=16
+INSTRUMENTATION_STATUS: stack=java.lang.AssertionError: Overflowing range
+	at org.junit.Assert.fail(Assert.java:88)
+	at javax.microedition.shell.M3gDeformationTest.overflowingBoneRangeIsRejectedWithoutChangingMesh(M3gDeformationTest.java:142)
+
+INSTRUMENTATION_STATUS: stream=
+Error in overflowingBoneRangeIsRejectedWithoutChangingMesh(javax.microedition.shell.M3gDeformationTest):
+java.lang.AssertionError: Overflowing range
+	at org.junit.Assert.fail(Assert.java:88)
+	at javax.microedition.shell.M3gDeformationTest.overflowingBoneRangeIsRejectedWithoutChangingMesh(M3gDeformationTest.java:142)
+
+INSTRUMENTATION_STATUS: test=overflowingBoneRangeIsRejectedWithoutChangingMesh
+INSTRUMENTATION_STATUS_CODE: -2
+INSTRUMENTATION_STATUS: class=javax.microedition.shell.M3gDeformationTest
+INSTRUMENTATION_STATUS: current=9
+INSTRUMENTATION_STATUS: id=AndroidJUnitRunner
+INSTRUMENTATION_STATUS: numtests=16
+INSTRUMENTATION_STATUS: stream=
+INSTRUMENTATION_STATUS: test=morphRefreshesBaseScaleAndIgnoresTargetScale
+INSTRUMENTATION_STATUS_CODE: 1
+INSTRUMENTATION_STATUS: class=javax.microedition.shell.M3gDeformationTest
+INSTRUMENTATION_STATUS: current=9
+INSTRUMENTATION_STATUS: id=AndroidJUnitRunner
+INSTRUMENTATION_STATUS: numtests=16
+INSTRUMENTATION_STATUS: stack=java.lang.AssertionError: expected:<7.0> but was:<3.0>
+	at org.junit.Assert.fail(Assert.java:88)
+	at org.junit.Assert.failNotEquals(Assert.java:834)
+	at org.junit.Assert.assertEquals(Assert.java:575)
+	at org.junit.Assert.assertEquals(Assert.java:700)
+	at javax.microedition.shell.M3gDeformationTest.distance(M3gDeformationTest.java:204)
+	at javax.microedition.shell.M3gDeformationTest.morphRefreshesBaseScaleAndIgnoresTargetScale(M3gDeformationTest.java:54)
+
+INSTRUMENTATION_STATUS: stream=
+Error in morphRefreshesBaseScaleAndIgnoresTargetScale(javax.microedition.shell.M3gDeformationTest):
+java.lang.AssertionError: expected:<7.0> but was:<3.0>
+	at org.junit.Assert.fail(Assert.java:88)
+	at org.junit.Assert.failNotEquals(Assert.java:834)
+	at org.junit.Assert.assertEquals(Assert.java:575)
+	at org.junit.Assert.assertEquals(Assert.java:700)
+	at javax.microedition.shell.M3gDeformationTest.distance(M3gDeformationTest.java:204)
+	at javax.microedition.shell.M3gDeformationTest.morphRefreshesBaseScaleAndIgnoresTargetScale(M3gDeformationTest.java:54)
+
+INSTRUMENTATION_STATUS: test=morphRefreshesBaseScaleAndIgnoresTargetScale
+INSTRUMENTATION_STATUS_CODE: -2
+INSTRUMENTATION_STATUS: class=javax.microedition.shell.M3gDeformationTest
+INSTRUMENTATION_STATUS: current=10
+INSTRUMENTATION_STATUS: id=AndroidJUnitRunner
+INSTRUMENTATION_STATUS: numtests=16
+INSTRUMENTATION_STATUS: stream=
+INSTRUMENTATION_STATUS: test=morphRebuildsWhenBothVertexCountsChange
+INSTRUMENTATION_STATUS_CODE: 1
+INSTRUMENTATION_STATUS: class=javax.microedition.shell.M3gDeformationTest
+INSTRUMENTATION_STATUS: current=10
+INSTRUMENTATION_STATUS: id=AndroidJUnitRunner
+INSTRUMENTATION_STATUS: numtests=16
+INSTRUMENTATION_STATUS: stack=java.lang.AssertionError: expected:<8.0> but was:<4.0>
+	at org.junit.Assert.fail(Assert.java:88)
+	at org.junit.Assert.failNotEquals(Assert.java:834)
+	at org.junit.Assert.assertEquals(Assert.java:575)
+	at org.junit.Assert.assertEquals(Assert.java:700)
+	at javax.microedition.shell.M3gDeformationTest.distance(M3gDeformationTest.java:204)
+	at javax.microedition.shell.M3gDeformationTest.morphRebuildsWhenBothVertexCountsChange(M3gDeformationTest.java:73)
+
+INSTRUMENTATION_STATUS: stream=
+Error in morphRebuildsWhenBothVertexCountsChange(javax.microedition.shell.M3gDeformationTest):
+java.lang.AssertionError: expected:<8.0> but was:<4.0>
+	at org.junit.Assert.fail(Assert.java:88)
+	at org.junit.Assert.failNotEquals(Assert.java:834)
+	at org.junit.Assert.assertEquals(Assert.java:575)
+	at org.junit.Assert.assertEquals(Assert.java:700)
+	at javax.microedition.shell.M3gDeformationTest.distance(M3gDeformationTest.java:204)
+	at javax.microedition.shell.M3gDeformationTest.morphRebuildsWhenBothVertexCountsChange(M3gDeformationTest.java:73)
+
+INSTRUMENTATION_STATUS: test=morphRebuildsWhenBothVertexCountsChange
+INSTRUMENTATION_STATUS_CODE: -2
+INSTRUMENTATION_STATUS: class=javax.microedition.shell.M3gDeformationTest
+INSTRUMENTATION_STATUS: current=11
+INSTRUMENTATION_STATUS: id=AndroidJUnitRunner
+INSTRUMENTATION_STATUS: numtests=16
+INSTRUMENTATION_STATUS: stream=
+INSTRUMENTATION_STATUS: test=skinDuplicateHasIndependentPoseAndSharedSource
+INSTRUMENTATION_STATUS_CODE: 1
+INSTRUMENTATION_STATUS: class=javax.microedition.shell.M3gDeformationTest
+INSTRUMENTATION_STATUS: current=11
+INSTRUMENTATION_STATUS: id=AndroidJUnitRunner
+INSTRUMENTATION_STATUS: numtests=16
+INSTRUMENTATION_STATUS: stream=.
+INSTRUMENTATION_STATUS: test=skinDuplicateHasIndependentPoseAndSharedSource
+INSTRUMENTATION_STATUS_CODE: 0
+INSTRUMENTATION_STATUS: class=javax.microedition.shell.M3gDeformationTest
+INSTRUMENTATION_STATUS: current=12
+INSTRUMENTATION_STATUS: id=AndroidJUnitRunner
+INSTRUMENTATION_STATUS: numtests=16
+INSTRUMENTATION_STATUS: stream=
+INSTRUMENTATION_STATUS: test=skinRefreshesDefaultColorAndReplacementColorArray
+INSTRUMENTATION_STATUS_CODE: 1
+INSTRUMENTATION_STATUS: class=javax.microedition.shell.M3gDeformationTest
+INSTRUMENTATION_STATUS: current=12
+INSTRUMENTATION_STATUS: id=AndroidJUnitRunner
+INSTRUMENTATION_STATUS: numtests=16
+INSTRUMENTATION_STATUS: stack=java.lang.AssertionError: expected:<255.0> but was:<0.0>
+	at org.junit.Assert.fail(Assert.java:88)
+	at org.junit.Assert.failNotEquals(Assert.java:834)
+	at org.junit.Assert.assertEquals(Assert.java:575)
+	at org.junit.Assert.assertEquals(Assert.java:700)
+	at javax.microedition.shell.M3gDeformationTest.color(M3gDeformationTest.java:220)
+	at javax.microedition.shell.M3gDeformationTest.skinRefreshesDefaultColorAndReplacementColorArray(M3gDeformationTest.java:99)
+
+INSTRUMENTATION_STATUS: stream=
+Error in skinRefreshesDefaultColorAndReplacementColorArray(javax.microedition.shell.M3gDeformationTest):
+java.lang.AssertionError: expected:<255.0> but was:<0.0>
+	at org.junit.Assert.fail(Assert.java:88)
+	at org.junit.Assert.failNotEquals(Assert.java:834)
+	at org.junit.Assert.assertEquals(Assert.java:575)
+	at org.junit.Assert.assertEquals(Assert.java:700)
+	at javax.microedition.shell.M3gDeformationTest.color(M3gDeformationTest.java:220)
+	at javax.microedition.shell.M3gDeformationTest.skinRefreshesDefaultColorAndReplacementColorArray(M3gDeformationTest.java:99)
+
+INSTRUMENTATION_STATUS: test=skinRefreshesDefaultColorAndReplacementColorArray
+INSTRUMENTATION_STATUS_CODE: -2
+INSTRUMENTATION_STATUS: class=javax.microedition.shell.M3gDeformationTest
+INSTRUMENTATION_STATUS: current=13
+INSTRUMENTATION_STATUS: id=AndroidJUnitRunner
+INSTRUMENTATION_STATUS: numtests=16
+INSTRUMENTATION_STATUS: stream=
+INSTRUMENTATION_STATUS: test=morphDefaultColorsRefreshAfterFirstRender
+INSTRUMENTATION_STATUS_CODE: 1
+INSTRUMENTATION_STATUS: class=javax.microedition.shell.M3gDeformationTest
+INSTRUMENTATION_STATUS: current=13
+INSTRUMENTATION_STATUS: id=AndroidJUnitRunner
+INSTRUMENTATION_STATUS: numtests=16
+INSTRUMENTATION_STATUS: stack=java.lang.AssertionError: expected:<255.0> but was:<0.0>
+	at org.junit.Assert.fail(Assert.java:88)
+	at org.junit.Assert.failNotEquals(Assert.java:834)
+	at org.junit.Assert.assertEquals(Assert.java:575)
+	at org.junit.Assert.assertEquals(Assert.java:700)
+	at javax.microedition.shell.M3gDeformationTest.color(M3gDeformationTest.java:220)
+	at javax.microedition.shell.M3gDeformationTest.morphDefaultColorsRefreshAfterFirstRender(M3gDeformationTest.java:81)
+
+INSTRUMENTATION_STATUS: stream=
+Error in morphDefaultColorsRefreshAfterFirstRender(javax.microedition.shell.M3gDeformationTest):
+java.lang.AssertionError: expected:<255.0> but was:<0.0>
+	at org.junit.Assert.fail(Assert.java:88)
+	at org.junit.Assert.failNotEquals(Assert.java:834)
+	at org.junit.Assert.assertEquals(Assert.java:575)
+	at org.junit.Assert.assertEquals(Assert.java:700)
+	at javax.microedition.shell.M3gDeformationTest.color(M3gDeformationTest.java:220)
+	at javax.microedition.shell.M3gDeformationTest.morphDefaultColorsRefreshAfterFirstRender(M3gDeformationTest.java:81)
+
+INSTRUMENTATION_STATUS: test=morphDefaultColorsRefreshAfterFirstRender
+INSTRUMENTATION_STATUS_CODE: -2
+INSTRUMENTATION_STATUS: class=javax.microedition.shell.M3gDeformationTest
+INSTRUMENTATION_STATUS: current=14
+INSTRUMENTATION_STATUS: id=AndroidJUnitRunner
+INSTRUMENTATION_STATUS: numtests=16
+INSTRUMENTATION_STATUS: stream=
+INSTRUMENTATION_STATUS: test=morphReadsEditedBaseArray
+INSTRUMENTATION_STATUS_CODE: 1
+INSTRUMENTATION_STATUS: class=javax.microedition.shell.M3gDeformationTest
+INSTRUMENTATION_STATUS: current=14
+INSTRUMENTATION_STATUS: id=AndroidJUnitRunner
+INSTRUMENTATION_STATUS: numtests=16
+INSTRUMENTATION_STATUS: stack=java.lang.AssertionError: expected:<5.0> but was:<3.0>
+	at org.junit.Assert.fail(Assert.java:88)
+	at org.junit.Assert.failNotEquals(Assert.java:834)
+	at org.junit.Assert.assertEquals(Assert.java:575)
+	at org.junit.Assert.assertEquals(Assert.java:700)
+	at javax.microedition.shell.M3gDeformationTest.distance(M3gDeformationTest.java:204)
+	at javax.microedition.shell.M3gDeformationTest.morphReadsEditedBaseArray(M3gDeformationTest.java:45)
+
+INSTRUMENTATION_STATUS: stream=
+Error in morphReadsEditedBaseArray(javax.microedition.shell.M3gDeformationTest):
+java.lang.AssertionError: expected:<5.0> but was:<3.0>
+	at org.junit.Assert.fail(Assert.java:88)
+	at org.junit.Assert.failNotEquals(Assert.java:834)
+	at org.junit.Assert.assertEquals(Assert.java:575)
+	at org.junit.Assert.assertEquals(Assert.java:700)
+	at javax.microedition.shell.M3gDeformationTest.distance(M3gDeformationTest.java:204)
+	at javax.microedition.shell.M3gDeformationTest.morphReadsEditedBaseArray(M3gDeformationTest.java:45)
+
+INSTRUMENTATION_STATUS: test=morphReadsEditedBaseArray
+INSTRUMENTATION_STATUS_CODE: -2
+INSTRUMENTATION_STATUS: class=javax.microedition.shell.M3gDeformationTest
+INSTRUMENTATION_STATUS: current=15
+INSTRUMENTATION_STATUS: id=AndroidJUnitRunner
+INSTRUMENTATION_STATUS: numtests=16
+INSTRUMENTATION_STATUS: stream=
+INSTRUMENTATION_STATUS: test=singleNullBoneQueryDoesNotWriteOrValidateOtherArray
+INSTRUMENTATION_STATUS_CODE: 1
+INSTRUMENTATION_STATUS: class=javax.microedition.shell.M3gDeformationTest
+INSTRUMENTATION_STATUS: current=15
+INSTRUMENTATION_STATUS: id=AndroidJUnitRunner
+INSTRUMENTATION_STATUS: numtests=16
+INSTRUMENTATION_STATUS: stack=java.lang.IllegalArgumentException: Indices array length too small (needed 3)
+	at javax.microedition.m3g.SkinnedMesh.getBoneVertices(SkinnedMesh.java:173)
+	at javax.microedition.shell.M3gDeformationTest.singleNullBoneQueryDoesNotWriteOrValidateOtherArray(M3gDeformationTest.java:135)
+
+INSTRUMENTATION_STATUS: stream=
+Error in singleNullBoneQueryDoesNotWriteOrValidateOtherArray(javax.microedition.shell.M3gDeformationTest):
+java.lang.IllegalArgumentException: Indices array length too small (needed 3)
+	at javax.microedition.m3g.SkinnedMesh.getBoneVertices(SkinnedMesh.java:173)
+	at javax.microedition.shell.M3gDeformationTest.singleNullBoneQueryDoesNotWriteOrValidateOtherArray(M3gDeformationTest.java:135)
+
+INSTRUMENTATION_STATUS: test=singleNullBoneQueryDoesNotWriteOrValidateOtherArray
+INSTRUMENTATION_STATUS_CODE: -2
+INSTRUMENTATION_STATUS: class=javax.microedition.shell.M3gDeformationTest
+INSTRUMENTATION_STATUS: current=16
+INSTRUMENTATION_STATUS: id=AndroidJUnitRunner
+INSTRUMENTATION_STATUS: numtests=16
+INSTRUMENTATION_STATUS: stream=
+INSTRUMENTATION_STATUS: test=repeatedBoneUsesOneReportedBindPose
+INSTRUMENTATION_STATUS_CODE: 1
+INSTRUMENTATION_STATUS: class=javax.microedition.shell.M3gDeformationTest
+INSTRUMENTATION_STATUS: current=16
+INSTRUMENTATION_STATUS: id=AndroidJUnitRunner
+INSTRUMENTATION_STATUS: numtests=16
+INSTRUMENTATION_STATUS: stack=java.lang.AssertionError: expected:<8.0> but was:<9.0>
+	at org.junit.Assert.fail(Assert.java:88)
+	at org.junit.Assert.failNotEquals(Assert.java:834)
+	at org.junit.Assert.assertEquals(Assert.java:575)
+	at org.junit.Assert.assertEquals(Assert.java:700)
+	at javax.microedition.shell.M3gDeformationTest.repeatedBoneUsesOneReportedBindPose(M3gDeformationTest.java:159)
+
+INSTRUMENTATION_STATUS: stream=
+Error in repeatedBoneUsesOneReportedBindPose(javax.microedition.shell.M3gDeformationTest):
+java.lang.AssertionError: expected:<8.0> but was:<9.0>
+	at org.junit.Assert.fail(Assert.java:88)
+	at org.junit.Assert.failNotEquals(Assert.java:834)
+	at org.junit.Assert.assertEquals(Assert.java:575)
+	at org.junit.Assert.assertEquals(Assert.java:700)
+	at javax.microedition.shell.M3gDeformationTest.repeatedBoneUsesOneReportedBindPose(M3gDeformationTest.java:159)
+
+INSTRUMENTATION_STATUS: test=repeatedBoneUsesOneReportedBindPose
+INSTRUMENTATION_STATUS_CODE: -2
+INSTRUMENTATION_RESULT: stream=
+
+Time: 0.133
+There were 14 failures:
+1) overlappingBoneRangesReturnUniqueVertices(javax.microedition.shell.M3gDeformationTest)
+java.lang.AssertionError: expected:<3> but was:<4>
+	at org.junit.Assert.fail(Assert.java:88)
+	at org.junit.Assert.failNotEquals(Assert.java:834)
+	at org.junit.Assert.assertEquals(Assert.java:645)
+	at org.junit.Assert.assertEquals(Assert.java:631)
+	at javax.microedition.shell.M3gDeformationTest.overlappingBoneRangesReturnUniqueVertices(M3gDeformationTest.java:118)
+	at java.lang.reflect.Method.invoke(Native Method)
+	at org.junit.runners.model.FrameworkMethod$1.runReflectiveCall(FrameworkMethod.java:50)
+	at org.junit.internal.runners.model.ReflectiveCallable.run(ReflectiveCallable.java:12)
+	at org.junit.runners.model.FrameworkMethod.invokeExplosively(FrameworkMethod.java:47)
+	at org.junit.internal.runners.statements.InvokeMethod.evaluate(InvokeMethod.java:17)
+	at androidx.test.internal.runner.junit4.statement.RunBefores.evaluate(RunBefores.java:80)
+	at org.junit.runners.ParentRunner.runLeaf(ParentRunner.java:325)
+	at org.junit.runners.BlockJUnit4ClassRunner.runChild(BlockJUnit4ClassRunner.java:78)
+	at org.junit.runners.BlockJUnit4ClassRunner.runChild(BlockJUnit4ClassRunner.java:57)
+	at org.junit.runners.ParentRunner$3.run(ParentRunner.java:290)
+	at org.junit.runners.ParentRunner$1.schedule(ParentRunner.java:71)
+	at org.junit.runners.ParentRunner.runChildren(ParentRunner.java:288)
+	at org.junit.runners.ParentRunner.access$000(ParentRunner.java:58)
+	at org.junit.runners.ParentRunner$2.evaluate(ParentRunner.java:268)
+	at org.junit.runners.ParentRunner.run(ParentRunner.java:363)
+	at androidx.test.ext.junit.runners.AndroidJUnit4.run(AndroidJUnit4.java:162)
+	at org.junit.runners.Suite.runChild(Suite.java:128)
+	at org.junit.runners.Suite.runChild(Suite.java:27)
+	at org.junit.runners.ParentRunner$3.run(ParentRunner.java:290)
+	at org.junit.runners.ParentRunner$1.schedule(ParentRunner.java:71)
+	at org.junit.runners.ParentRunner.runChildren(ParentRunner.java:288)
+	at org.junit.runners.ParentRunner.access$000(ParentRunner.java:58)
+	at org.junit.runners.ParentRunner$2.evaluate(ParentRunner.java:268)
+	at org.junit.runners.ParentRunner.run(ParentRunner.java:363)
+	at org.junit.runner.JUnitCore.run(JUnitCore.java:137)
+	at org.junit.runner.JUnitCore.run(JUnitCore.java:115)
+	at androidx.test.internal.runner.TestExecutor.execute(TestExecutor.java:67)
+	at androidx.test.internal.runner.TestExecutor.execute(TestExecutor.java:58)
+	at androidx.test.runner.AndroidJUnitRunner.onStart(AndroidJUnitRunner.java:446)
+	at android.app.Instrumentation$InstrumentationThread.run(Instrumentation.java:2408)
+2) morphReadsEditedTargetArrayWithoutAnotherWeightCall(javax.microedition.shell.M3gDeformationTest)
+java.lang.AssertionError: expected:<6.0> but was:<4.0>
+	at org.junit.Assert.fail(Assert.java:88)
+	at org.junit.Assert.failNotEquals(Assert.java:834)
+	at org.junit.Assert.assertEquals(Assert.java:575)
+	at org.junit.Assert.assertEquals(Assert.java:700)
+	at javax.microedition.shell.M3gDeformationTest.distance(M3gDeformationTest.java:204)
+	at javax.microedition.shell.M3gDeformationTest.morphReadsEditedTargetArrayWithoutAnotherWeightCall(M3gDeformationTest.java:37)
+	at java.lang.reflect.Method.invoke(Native Method)
+	at org.junit.runners.model.FrameworkMethod$1.runReflectiveCall(FrameworkMethod.java:50)
+	at org.junit.internal.runners.model.ReflectiveCallable.run(ReflectiveCallable.java:12)
+	at org.junit.runners.model.FrameworkMethod.invokeExplosively(FrameworkMethod.java:47)
+	at org.junit.internal.runners.statements.InvokeMethod.evaluate(InvokeMethod.java:17)
+	at androidx.test.internal.runner.junit4.statement.RunBefores.evaluate(RunBefores.java:80)
+	at org.junit.runners.ParentRunner.runLeaf(ParentRunner.java:325)
+	at org.junit.runners.BlockJUnit4ClassRunner.runChild(BlockJUnit4ClassRunner.java:78)
+	at org.junit.runners.BlockJUnit4ClassRunner.runChild(BlockJUnit4ClassRunner.java:57)
+	at org.junit.runners.ParentRunner$3.run(ParentRunner.java:290)
+	at org.junit.runners.ParentRunner$1.schedule(ParentRunner.java:71)
+	at org.junit.runners.ParentRunner.runChildren(ParentRunner.java:288)
+	at org.junit.runners.ParentRunner.access$000(ParentRunner.java:58)
+	at org.junit.runners.ParentRunner$2.evaluate(ParentRunner.java:268)
+	at org.junit.runners.ParentRunner.run(ParentRunner.java:363)
+	at androidx.test.ext.junit.runners.AndroidJUnit4.run(AndroidJUnit4.java:162)
+	at org.junit.runners.Suite.runChild(Suite.java:128)
+	at org.junit.runners.Suite.runChild(Suite.java:27)
+	at org.junit.runners.ParentRunner$3.run(ParentRunner.java:290)
+	at org.junit.runners.ParentRunner$1.schedule(ParentRunner.java:71)
+	at org.junit.runners.ParentRunner.runChildren(ParentRunner.java:288)
+	at org.junit.runners.ParentRunner.access$000(ParentRunner.java:58)
+	at org.junit.runners.ParentRunner$2.evaluate(ParentRunner.java:268)
+	at org.junit.runners.ParentRunner.run(ParentRunner.java:363)
+	at org.junit.runner.JUnitCore.run(JUnitCore.java:137)
+	at org.junit.runner.JUnitCore.run(JUnitCore.java:115)
+	at androidx.test.internal.runner.TestExecutor.execute(TestExecutor.java:67)
+	at androidx.test.internal.runner.TestExecutor.execute(TestExecutor.java:58)
+	at androidx.test.runner.AndroidJUnitRunner.onStart(AndroidJUnitRunner.java:446)
+	at android.app.Instrumentation$InstrumentationThread.run(Instrumentation.java:2408)
+3) morphVertexColorMutationRefreshesWithoutWeights(javax.microedition.shell.M3gDeformationTest)
+java.lang.NullPointerException: Attempt to invoke virtual method 'java.lang.Object java.lang.ref.WeakReference.get()' on a null object reference
+	at javax.microedition.util.ContextHolder.getActivity(ContextHolder.java:196)
+	at javax.microedition.m3g.GpuRasterizer.diagnostic(GpuRasterizer.java:35)
+	at javax.microedition.m3g.GpuRasterizer.draw(GpuRasterizer.java:162)
+	at javax.microedition.m3g.GpuRasterizer.draw(GpuRasterizer.java:94)
+	at javax.microedition.m3g.Graphics3D.renderSubmesh(Graphics3D.java:964)
+	at javax.microedition.m3g.Graphics3D.flushRenderQueue(Graphics3D.java:2394)
+	at javax.microedition.m3g.Graphics3D.render(Graphics3D.java:605)
+	at javax.microedition.shell.M3gDeformationTest.color(M3gDeformationTest.java:215)
+	at javax.microedition.shell.M3gDeformationTest.morphVertexColorMutationRefreshesWithoutWeights(M3gDeformationTest.java:89)
+	at java.lang.reflect.Method.invoke(Native Method)
+	at org.junit.runners.model.FrameworkMethod$1.runReflectiveCall(FrameworkMethod.java:50)
+	at org.junit.internal.runners.model.ReflectiveCallable.run(ReflectiveCallable.java:12)
+	at org.junit.runners.model.FrameworkMethod.invokeExplosively(FrameworkMethod.java:47)
+	at org.junit.internal.runners.statements.InvokeMethod.evaluate(InvokeMethod.java:17)
+	at androidx.test.internal.runner.junit4.statement.RunBefores.evaluate(RunBefores.java:80)
+	at org.junit.runners.ParentRunner.runLeaf(ParentRunner.java:325)
+	at org.junit.runners.BlockJUnit4ClassRunner.runChild(BlockJUnit4ClassRunner.java:78)
+	at org.junit.runners.BlockJUnit4ClassRunner.runChild(BlockJUnit4ClassRunner.java:57)
+	at org.junit.runners.ParentRunner$3.run(ParentRunner.java:290)
+	at org.junit.runners.ParentRunner$1.schedule(ParentRunner.java:71)
+	at org.junit.runners.ParentRunner.runChildren(ParentRunner.java:288)
+	at org.junit.runners.ParentRunner.access$000(ParentRunner.java:58)
+	at org.junit.runners.ParentRunner$2.evaluate(ParentRunner.java:268)
+	at org.junit.runners.ParentRunner.run(ParentRunner.java:363)
+	at androidx.test.ext.junit.runners.AndroidJUnit4.run(AndroidJUnit4.java:162)
+	at org.junit.runners.Suite.runChild(Suite.java:128)
+	at org.junit.runners.Suite.runChild(Suite.java:27)
+	at org.junit.runners.ParentRunner$3.run(ParentRunner.java:290)
+	at org.junit.runners.ParentRunner$1.schedule(ParentRunner.java:71)
+	at org.junit.runners.ParentRunner.runChildren(ParentRunner.java:288)
+	at org.junit.runners.ParentRunner.access$000(ParentRunner.java:58)
+	at org.junit.runners.ParentRunner$2.evaluate(ParentRunner.java:268)
+	at org.junit.runners.ParentRunner.run(ParentRunner.java:363)
+	at org.junit.runner.JUnitCore.run(JUnitCore.java:137)
+	at org.junit.runner.JUnitCore.run(JUnitCore.java:115)
+	at androidx.test.internal.runner.TestExecutor.execute(TestExecutor.java:67)
+	at androidx.test.internal.runner.TestExecutor.execute(TestExecutor.java:58)
+	at androidx.test.runner.AndroidJUnitRunner.onStart(AndroidJUnitRunner.java:446)
+	at android.app.Instrumentation$InstrumentationThread.run(Instrumentation.java:2408)
+4) skinRebuildsPositionStorageAfterResize(javax.microedition.shell.M3gDeformationTest)
+java.lang.IndexOutOfBoundsException: Tried to get a range of values that's out of bounds.
+	at javax.microedition.m3g.VertexArray.set(VertexArray.java:149)
+	at javax.microedition.m3g.SkinnedMesh.applySkinning(SkinnedMesh.java:549)
+	at javax.microedition.m3g.SkinnedMesh.getPosedVertexBuffer(SkinnedMesh.java:260)
+	at javax.microedition.m3g.Group.pickMesh(Group.java:308)
+	at javax.microedition.m3g.Group.traverseForPick(Group.java:278)
+	at javax.microedition.m3g.Group.traverseForPick(Group.java:296)
+	at javax.microedition.m3g.Group.pick(Group.java:244)
+	at javax.microedition.shell.M3gDeformationTest.distance(M3gDeformationTest.java:203)
+	at javax.microedition.shell.M3gDeformationTest.skinRebuildsPositionStorageAfterResize(M3gDeformationTest.java:109)
+	at java.lang.reflect.Method.invoke(Native Method)
+	at org.junit.runners.model.FrameworkMethod$1.runReflectiveCall(FrameworkMethod.java:50)
+	at org.junit.internal.runners.model.ReflectiveCallable.run(ReflectiveCallable.java:12)
+	at org.junit.runners.model.FrameworkMethod.invokeExplosively(FrameworkMethod.java:47)
+	at org.junit.internal.runners.statements.InvokeMethod.evaluate(InvokeMethod.java:17)
+	at androidx.test.internal.runner.junit4.statement.RunBefores.evaluate(RunBefores.java:80)
+	at org.junit.runners.ParentRunner.runLeaf(ParentRunner.java:325)
+	at org.junit.runners.BlockJUnit4ClassRunner.runChild(BlockJUnit4ClassRunner.java:78)
+	at org.junit.runners.BlockJUnit4ClassRunner.runChild(BlockJUnit4ClassRunner.java:57)
+	at org.junit.runners.ParentRunner$3.run(ParentRunner.java:290)
+	at org.junit.runners.ParentRunner$1.schedule(ParentRunner.java:71)
+	at org.junit.runners.ParentRunner.runChildren(ParentRunner.java:288)
+	at org.junit.runners.ParentRunner.access$000(ParentRunner.java:58)
+	at org.junit.runners.ParentRunner$2.evaluate(ParentRunner.java:268)
+	at org.junit.runners.ParentRunner.run(ParentRunner.java:363)
+	at androidx.test.ext.junit.runners.AndroidJUnit4.run(AndroidJUnit4.java:162)
+	at org.junit.runners.Suite.runChild(Suite.java:128)
+	at org.junit.runners.Suite.runChild(Suite.java:27)
+	at org.junit.runners.ParentRunner$3.run(ParentRunner.java:290)
+	at org.junit.runners.ParentRunner$1.schedule(ParentRunner.java:71)
+	at org.junit.runners.ParentRunner.runChildren(ParentRunner.java:288)
+	at org.junit.runners.ParentRunner.access$000(ParentRunner.java:58)
+	at org.junit.runners.ParentRunner$2.evaluate(ParentRunner.java:268)
+	at org.junit.runners.ParentRunner.run(ParentRunner.java:363)
+	at org.junit.runner.JUnitCore.run(JUnitCore.java:137)
+	at org.junit.runner.JUnitCore.run(JUnitCore.java:115)
+	at androidx.test.internal.runner.TestExecutor.execute(TestExecutor.java:67)
+	at androidx.test.internal.runner.TestExecutor.execute(TestExecutor.java:58)
+	at androidx.test.runner.AndroidJUnitRunner.onStart(AndroidJUnitRunner.java:446)
+	at android.app.Instrumentation$InstrumentationThread.run(Instrumentation.java:2408)
+5) morphRevalidatesChangedTargetLayoutAndRecovers(javax.microedition.shell.M3gDeformationTest)
+java.lang.AssertionError: Invalid target layout
+	at org.junit.Assert.fail(Assert.java:88)
+	at javax.microedition.shell.M3gDeformationTest.morphRevalidatesChangedTargetLayoutAndRecovers(M3gDeformationTest.java:61)
+	at java.lang.reflect.Method.invoke(Native Method)
+	at org.junit.runners.model.FrameworkMethod$1.runReflectiveCall(FrameworkMethod.java:50)
+	at org.junit.internal.runners.model.ReflectiveCallable.run(ReflectiveCallable.java:12)
+	at org.junit.runners.model.FrameworkMethod.invokeExplosively(FrameworkMethod.java:47)
+	at org.junit.internal.runners.statements.InvokeMethod.evaluate(InvokeMethod.java:17)
+	at androidx.test.internal.runner.junit4.statement.RunBefores.evaluate(RunBefores.java:80)
+	at org.junit.runners.ParentRunner.runLeaf(ParentRunner.java:325)
+	at org.junit.runners.BlockJUnit4ClassRunner.runChild(BlockJUnit4ClassRunner.java:78)
+	at org.junit.runners.BlockJUnit4ClassRunner.runChild(BlockJUnit4ClassRunner.java:57)
+	at org.junit.runners.ParentRunner$3.run(ParentRunner.java:290)
+	at org.junit.runners.ParentRunner$1.schedule(ParentRunner.java:71)
+	at org.junit.runners.ParentRunner.runChildren(ParentRunner.java:288)
+	at org.junit.runners.ParentRunner.access$000(ParentRunner.java:58)
+	at org.junit.runners.ParentRunner$2.evaluate(ParentRunner.java:268)
+	at org.junit.runners.ParentRunner.run(ParentRunner.java:363)
+	at androidx.test.ext.junit.runners.AndroidJUnit4.run(AndroidJUnit4.java:162)
+	at org.junit.runners.Suite.runChild(Suite.java:128)
+	at org.junit.runners.Suite.runChild(Suite.java:27)
+	at org.junit.runners.ParentRunner$3.run(ParentRunner.java:290)
+	at org.junit.runners.ParentRunner$1.schedule(ParentRunner.java:71)
+	at org.junit.runners.ParentRunner.runChildren(ParentRunner.java:288)
+	at org.junit.runners.ParentRunner.access$000(ParentRunner.java:58)
+	at org.junit.runners.ParentRunner$2.evaluate(ParentRunner.java:268)
+	at org.junit.runners.ParentRunner.run(ParentRunner.java:363)
+	at org.junit.runner.JUnitCore.run(JUnitCore.java:137)
+	at org.junit.runner.JUnitCore.run(JUnitCore.java:115)
+	at androidx.test.internal.runner.TestExecutor.execute(TestExecutor.java:67)
+	at androidx.test.internal.runner.TestExecutor.execute(TestExecutor.java:58)
+	at androidx.test.runner.AndroidJUnitRunner.onStart(AndroidJUnitRunner.java:446)
+	at android.app.Instrumentation$InstrumentationThread.run(Instrumentation.java:2408)
+6) skinRangeValidationIsDeferredAndRecoverable(javax.microedition.shell.M3gDeformationTest)
+java.lang.IndexOutOfBoundsException: Tried to get a range of values that's out of bounds.
+	at javax.microedition.m3g.VertexArray.set(VertexArray.java:149)
+	at javax.microedition.m3g.SkinnedMesh.applySkinning(SkinnedMesh.java:549)
+	at javax.microedition.m3g.SkinnedMesh.getPosedVertexBuffer(SkinnedMesh.java:260)
+	at javax.microedition.m3g.Group.pickMesh(Group.java:308)
+	at javax.microedition.m3g.Group.traverseForPick(Group.java:278)
+	at javax.microedition.m3g.Group.traverseForPick(Group.java:296)
+	at javax.microedition.m3g.Group.pick(Group.java:244)
+	at javax.microedition.shell.M3gDeformationTest.distance(M3gDeformationTest.java:203)
+	at javax.microedition.shell.M3gDeformationTest.skinRangeValidationIsDeferredAndRecoverable(M3gDeformationTest.java:186)
+	at java.lang.reflect.Method.invoke(Native Method)
+	at org.junit.runners.model.FrameworkMethod$1.runReflectiveCall(FrameworkMethod.java:50)
+	at org.junit.internal.runners.model.ReflectiveCallable.run(ReflectiveCallable.java:12)
+	at org.junit.runners.model.FrameworkMethod.invokeExplosively(FrameworkMethod.java:47)
+	at org.junit.internal.runners.statements.InvokeMethod.evaluate(InvokeMethod.java:17)
+	at androidx.test.internal.runner.junit4.statement.RunBefores.evaluate(RunBefores.java:80)
+	at org.junit.runners.ParentRunner.runLeaf(ParentRunner.java:325)
+	at org.junit.runners.BlockJUnit4ClassRunner.runChild(BlockJUnit4ClassRunner.java:78)
+	at org.junit.runners.BlockJUnit4ClassRunner.runChild(BlockJUnit4ClassRunner.java:57)
+	at org.junit.runners.ParentRunner$3.run(ParentRunner.java:290)
+	at org.junit.runners.ParentRunner$1.schedule(ParentRunner.java:71)
+	at org.junit.runners.ParentRunner.runChildren(ParentRunner.java:288)
+	at org.junit.runners.ParentRunner.access$000(ParentRunner.java:58)
+	at org.junit.runners.ParentRunner$2.evaluate(ParentRunner.java:268)
+	at org.junit.runners.ParentRunner.run(ParentRunner.java:363)
+	at androidx.test.ext.junit.runners.AndroidJUnit4.run(AndroidJUnit4.java:162)
+	at org.junit.runners.Suite.runChild(Suite.java:128)
+	at org.junit.runners.Suite.runChild(Suite.java:27)
+	at org.junit.runners.ParentRunner$3.run(ParentRunner.java:290)
+	at org.junit.runners.ParentRunner$1.schedule(ParentRunner.java:71)
+	at org.junit.runners.ParentRunner.runChildren(ParentRunner.java:288)
+	at org.junit.runners.ParentRunner.access$000(ParentRunner.java:58)
+	at org.junit.runners.ParentRunner$2.evaluate(ParentRunner.java:268)
+	at org.junit.runners.ParentRunner.run(ParentRunner.java:363)
+	at org.junit.runner.JUnitCore.run(JUnitCore.java:137)
+	at org.junit.runner.JUnitCore.run(JUnitCore.java:115)
+	at androidx.test.internal.runner.TestExecutor.execute(TestExecutor.java:67)
+	at androidx.test.internal.runner.TestExecutor.execute(TestExecutor.java:58)
+	at androidx.test.runner.AndroidJUnitRunner.onStart(AndroidJUnitRunner.java:446)
+	at android.app.Instrumentation$InstrumentationThread.run(Instrumentation.java:2408)
+7) overflowingBoneRangeIsRejectedWithoutChangingMesh(javax.microedition.shell.M3gDeformationTest)
+java.lang.AssertionError: Overflowing range
+	at org.junit.Assert.fail(Assert.java:88)
+	at javax.microedition.shell.M3gDeformationTest.overflowingBoneRangeIsRejectedWithoutChangingMesh(M3gDeformationTest.java:142)
+	at java.lang.reflect.Method.invoke(Native Method)
+	at org.junit.runners.model.FrameworkMethod$1.runReflectiveCall(FrameworkMethod.java:50)
+	at org.junit.internal.runners.model.ReflectiveCallable.run(ReflectiveCallable.java:12)
+	at org.junit.runners.model.FrameworkMethod.invokeExplosively(FrameworkMethod.java:47)
+	at org.junit.internal.runners.statements.InvokeMethod.evaluate(InvokeMethod.java:17)
+	at androidx.test.internal.runner.junit4.statement.RunBefores.evaluate(RunBefores.java:80)
+	at org.junit.runners.ParentRunner.runLeaf(ParentRunner.java:325)
+	at org.junit.runners.BlockJUnit4ClassRunner.runChild(BlockJUnit4ClassRunner.java:78)
+	at org.junit.runners.BlockJUnit4ClassRunner.runChild(BlockJUnit4ClassRunner.java:57)
+	at org.junit.runners.ParentRunner$3.run(ParentRunner.java:290)
+	at org.junit.runners.ParentRunner$1.schedule(ParentRunner.java:71)
+	at org.junit.runners.ParentRunner.runChildren(ParentRunner.java:288)
+	at org.junit.runners.ParentRunner.access$000(ParentRunner.java:58)
+	at org.junit.runners.ParentRunner$2.evaluate(ParentRunner.java:268)
+	at org.junit.runners.ParentRunner.run(ParentRunner.java:363)
+	at androidx.test.ext.junit.runners.AndroidJUnit4.run(AndroidJUnit4.java:162)
+	at org.junit.runners.Suite.runChild(Suite.java:128)
+	at org.junit.runners.Suite.runChild(Suite.java:27)
+	at org.junit.runners.ParentRunner$3.run(ParentRunner.java:290)
+	at org.junit.runners.ParentRunner$1.schedule(ParentRunner.java:71)
+	at org.junit.runners.ParentRunner.runChildren(ParentRunner.java:288)
+	at org.junit.runners.ParentRunner.access$000(ParentRunner.java:58)
+	at org.junit.runners.ParentRunner$2.evaluate(ParentRunner.java:268)
+	at org.junit.runners.ParentRunner.run(ParentRunner.java:363)
+	at org.junit.runner.JUnitCore.run(JUnitCore.java:137)
+	at org.junit.runner.JUnitCore.run(JUnitCore.java:115)
+	at androidx.test.internal.runner.TestExecutor.execute(TestExecutor.java:67)
+	at androidx.test.internal.runner.TestExecutor.execute(TestExecutor.java:58)
+	at androidx.test.runner.AndroidJUnitRunner.onStart(AndroidJUnitRunner.java:446)
+	at android.app.Instrumentation$InstrumentationThread.run(Instrumentation.java:2408)
+8) morphRefreshesBaseScaleAndIgnoresTargetScale(javax.microedition.shell.M3gDeformationTest)
+java.lang.AssertionError: expected:<7.0> but was:<3.0>
+	at org.junit.Assert.fail(Assert.java:88)
+	at org.junit.Assert.failNotEquals(Assert.java:834)
+	at org.junit.Assert.assertEquals(Assert.java:575)
+	at org.junit.Assert.assertEquals(Assert.java:700)
+	at javax.microedition.shell.M3gDeformationTest.distance(M3gDeformationTest.java:204)
+	at javax.microedition.shell.M3gDeformationTest.morphRefreshesBaseScaleAndIgnoresTargetScale(M3gDeformationTest.java:54)
+	at java.lang.reflect.Method.invoke(Native Method)
+	at org.junit.runners.model.FrameworkMethod$1.runReflectiveCall(FrameworkMethod.java:50)
+	at org.junit.internal.runners.model.ReflectiveCallable.run(ReflectiveCallable.java:12)
+	at org.junit.runners.model.FrameworkMethod.invokeExplosively(FrameworkMethod.java:47)
+	at org.junit.internal.runners.statements.InvokeMethod.evaluate(InvokeMethod.java:17)
+	at androidx.test.internal.runner.junit4.statement.RunBefores.evaluate(RunBefores.java:80)
+	at org.junit.runners.ParentRunner.runLeaf(ParentRunner.java:325)
+	at org.junit.runners.BlockJUnit4ClassRunner.runChild(BlockJUnit4ClassRunner.java:78)
+	at org.junit.runners.BlockJUnit4ClassRunner.runChild(BlockJUnit4ClassRunner.java:57)
+	at org.junit.runners.ParentRunner$3.run(ParentRunner.java:290)
+	at org.junit.runners.ParentRunner$1.schedule(ParentRunner.java:71)
+	at org.junit.runners.ParentRunner.runChildren(ParentRunner.java:288)
+	at org.junit.runners.ParentRunner.access$000(ParentRunner.java:58)
+	at org.junit.runners.ParentRunner$2.evaluate(ParentRunner.java:268)
+	at org.junit.runners.ParentRunner.run(ParentRunner.java:363)
+	at androidx.test.ext.junit.runners.AndroidJUnit4.run(AndroidJUnit4.java:162)
+	at org.junit.runners.Suite.runChild(Suite.java:128)
+	at org.junit.runners.Suite.runChild(Suite.java:27)
+	at org.junit.runners.ParentRunner$3.run(ParentRunner.java:290)
+	at org.junit.runners.ParentRunner$1.schedule(ParentRunner.java:71)
+	at org.junit.runners.ParentRunner.runChildren(ParentRunner.java:288)
+	at org.junit.runners.ParentRunner.access$000(ParentRunner.java:58)
+	at org.junit.runners.ParentRunner$2.evaluate(ParentRunner.java:268)
+	at org.junit.runners.ParentRunner.run(ParentRunner.java:363)
+	at org.junit.runner.JUnitCore.run(JUnitCore.java:137)
+	at org.junit.runner.JUnitCore.run(JUnitCore.java:115)
+	at androidx.test.internal.runner.TestExecutor.execute(TestExecutor.java:67)
+	at androidx.test.internal.runner.TestExecutor.execute(TestExecutor.java:58)
+	at androidx.test.runner.AndroidJUnitRunner.onStart(AndroidJUnitRunner.java:446)
+	at android.app.Instrumentation$InstrumentationThread.run(Instrumentation.java:2408)
+9) morphRebuildsWhenBothVertexCountsChange(javax.microedition.shell.M3gDeformationTest)
+java.lang.AssertionError: expected:<8.0> but was:<4.0>
+	at org.junit.Assert.fail(Assert.java:88)
+	at org.junit.Assert.failNotEquals(Assert.java:834)
+	at org.junit.Assert.assertEquals(Assert.java:575)
+	at org.junit.Assert.assertEquals(Assert.java:700)
+	at javax.microedition.shell.M3gDeformationTest.distance(M3gDeformationTest.java:204)
+	at javax.microedition.shell.M3gDeformationTest.morphRebuildsWhenBothVertexCountsChange(M3gDeformationTest.java:73)
+	at java.lang.reflect.Method.invoke(Native Method)
+	at org.junit.runners.model.FrameworkMethod$1.runReflectiveCall(FrameworkMethod.java:50)
+	at org.junit.internal.runners.model.ReflectiveCallable.run(ReflectiveCallable.java:12)
+	at org.junit.runners.model.FrameworkMethod.invokeExplosively(FrameworkMethod.java:47)
+	at org.junit.internal.runners.statements.InvokeMethod.evaluate(InvokeMethod.java:17)
+	at androidx.test.internal.runner.junit4.statement.RunBefores.evaluate(RunBefores.java:80)
+	at org.junit.runners.ParentRunner.runLeaf(ParentRunner.java:325)
+	at org.junit.runners.BlockJUnit4ClassRunner.runChild(BlockJUnit4ClassRunner.java:78)
+	at org.junit.runners.BlockJUnit4ClassRunner.runChild(BlockJUnit4ClassRunner.java:57)
+	at org.junit.runners.ParentRunner$3.run(ParentRunner.java:290)
+	at org.junit.runners.ParentRunner$1.schedule(ParentRunner.java:71)
+	at org.junit.runners.ParentRunner.runChildren(ParentRunner.java:288)
+	at org.junit.runners.ParentRunner.access$000(ParentRunner.java:58)
+	at org.junit.runners.ParentRunner$2.evaluate(ParentRunner.java:268)
+	at org.junit.runners.ParentRunner.run(ParentRunner.java:363)
+	at androidx.test.ext.junit.runners.AndroidJUnit4.run(AndroidJUnit4.java:162)
+	at org.junit.runners.Suite.runChild(Suite.java:128)
+	at org.junit.runners.Suite.runChild(Suite.java:27)
+	at org.junit.runners.ParentRunner$3.run(ParentRunner.java:290)
+	at org.junit.runners.ParentRunner$1.schedule(ParentRunner.java:71)
+	at org.junit.runners.ParentRunner.runChildren(ParentRunner.java:288)
+	at org.junit.runners.ParentRunner.access$000(ParentRunner.java:58)
+	at org.junit.runners.ParentRunner$2.evaluate(ParentRunner.java:268)
+	at org.junit.runners.ParentRunner.run(ParentRunner.java:363)
+	at org.junit.runner.JUnitCore.run(JUnitCore.java:137)
+	at org.junit.runner.JUnitCore.run(JUnitCore.java:115)
+	at androidx.test.internal.runner.TestExecutor.execute(TestExecutor.java:67)
+	at androidx.test.internal.runner.TestExecutor.execute(TestExecutor.java:58)
+	at androidx.test.runner.AndroidJUnitRunner.onStart(AndroidJUnitRunner.java:446)
+	at android.app.Instrumentation$InstrumentationThread.run(Instrumentation.java:2408)
+10) skinRefreshesDefaultColorAndReplacementColorArray(javax.microedition.shell.M3gDeformationTest)
+java.lang.AssertionError: expected:<255.0> but was:<0.0>
+	at org.junit.Assert.fail(Assert.java:88)
+	at org.junit.Assert.failNotEquals(Assert.java:834)
+	at org.junit.Assert.assertEquals(Assert.java:575)
+	at org.junit.Assert.assertEquals(Assert.java:700)
+	at javax.microedition.shell.M3gDeformationTest.color(M3gDeformationTest.java:220)
+	at javax.microedition.shell.M3gDeformationTest.skinRefreshesDefaultColorAndReplacementColorArray(M3gDeformationTest.java:99)
+	at java.lang.reflect.Method.invoke(Native Method)
+	at org.junit.runners.model.FrameworkMethod$1.runReflectiveCall(FrameworkMethod.java:50)
+	at org.junit.internal.runners.model.ReflectiveCallable.run(ReflectiveCallable.java:12)
+	at org.junit.runners.model.FrameworkMethod.invokeExplosively(FrameworkMethod.java:47)
+	at org.junit.internal.runners.statements.InvokeMethod.evaluate(InvokeMethod.java:17)
+	at androidx.test.internal.runner.junit4.statement.RunBefores.evaluate(RunBefores.java:80)
+	at org.junit.runners.ParentRunner.runLeaf(ParentRunner.java:325)
+	at org.junit.runners.BlockJUnit4ClassRunner.runChild(BlockJUnit4ClassRunner.java:78)
+	at org.junit.runners.BlockJUnit4ClassRunner.runChild(BlockJUnit4ClassRunner.java:57)
+	at org.junit.runners.ParentRunner$3.run(ParentRunner.java:290)
+	at org.junit.runners.ParentRunner$1.schedule(ParentRunner.java:71)
+	at org.junit.runners.ParentRunner.runChildren(ParentRunner.java:288)
+	at org.junit.runners.ParentRunner.access$000(ParentRunner.java:58)
+	at org.junit.runners.ParentRunner$2.evaluate(ParentRunner.java:268)
+	at org.junit.runners.ParentRunner.run(ParentRunner.java:363)
+	at androidx.test.ext.junit.runners.AndroidJUnit4.run(AndroidJUnit4.java:162)
+	at org.junit.runners.Suite.runChild(Suite.java:128)
+	at org.junit.runners.Suite.runChild(Suite.java:27)
+	at org.junit.runners.ParentRunner$3.run(ParentRunner.java:290)
+	at org.junit.runners.ParentRunner$1.schedule(ParentRunner.java:71)
+	at org.junit.runners.ParentRunner.runChildren(ParentRunner.java:288)
+	at org.junit.runners.ParentRunner.access$000(ParentRunner.java:58)
+	at org.junit.runners.ParentRunner$2.evaluate(ParentRunner.java:268)
+	at org.junit.runners.ParentRunner.run(ParentRunner.java:363)
+	at org.junit.runner.JUnitCore.run(JUnitCore.java:137)
+	at org.junit.runner.JUnitCore.run(JUnitCore.java:115)
+	at androidx.test.internal.runner.TestExecutor.execute(TestExecutor.java:67)
+	at androidx.test.internal.runner.TestExecutor.execute(TestExecutor.java:58)
+	at androidx.test.runner.AndroidJUnitRunner.onStart(AndroidJUnitRunner.java:446)
+	at android.app.Instrumentation$InstrumentationThread.run(Instrumentation.java:2408)
+11) morphDefaultColorsRefreshAfterFirstRender(javax.microedition.shell.M3gDeformationTest)
+java.lang.AssertionError: expected:<255.0> but was:<0.0>
+	at org.junit.Assert.fail(Assert.java:88)
+	at org.junit.Assert.failNotEquals(Assert.java:834)
+	at org.junit.Assert.assertEquals(Assert.java:575)
+	at org.junit.Assert.assertEquals(Assert.java:700)
+	at javax.microedition.shell.M3gDeformationTest.color(M3gDeformationTest.java:220)
+	at javax.microedition.shell.M3gDeformationTest.morphDefaultColorsRefreshAfterFirstRender(M3gDeformationTest.java:81)
+	at java.lang.reflect.Method.invoke(Native Method)
+	at org.junit.runners.model.FrameworkMethod$1.runReflectiveCall(FrameworkMethod.java:50)
+	at org.junit.internal.runners.model.ReflectiveCallable.run(ReflectiveCallable.java:12)
+	at org.junit.runners.model.FrameworkMethod.invokeExplosively(FrameworkMethod.java:47)
+	at org.junit.internal.runners.statements.InvokeMethod.evaluate(InvokeMethod.java:17)
+	at androidx.test.internal.runner.junit4.statement.RunBefores.evaluate(RunBefores.java:80)
+	at org.junit.runners.ParentRunner.runLeaf(ParentRunner.java:325)
+	at org.junit.runners.BlockJUnit4ClassRunner.runChild(BlockJUnit4ClassRunner.java:78)
+	at org.junit.runners.BlockJUnit4ClassRunner.runChild(BlockJUnit4ClassRunner.java:57)
+	at org.junit.runners.ParentRunner$3.run(ParentRunner.java:290)
+	at org.junit.runners.ParentRunner$1.schedule(ParentRunner.java:71)
+	at org.junit.runners.ParentRunner.runChildren(ParentRunner.java:288)
+	at org.junit.runners.ParentRunner.access$000(ParentRunner.java:58)
+	at org.junit.runners.ParentRunner$2.evaluate(ParentRunner.java:268)
+	at org.junit.runners.ParentRunner.run(ParentRunner.java:363)
+	at androidx.test.ext.junit.runners.AndroidJUnit4.run(AndroidJUnit4.java:162)
+	at org.junit.runners.Suite.runChild(Suite.java:128)
+	at org.junit.runners.Suite.runChild(Suite.java:27)
+	at org.junit.runners.ParentRunner$3.run(ParentRunner.java:290)
+	at org.junit.runners.ParentRunner$1.schedule(ParentRunner.java:71)
+	at org.junit.runners.ParentRunner.runChildren(ParentRunner.java:288)
+	at org.junit.runners.ParentRunner.access$000(ParentRunner.java:58)
+	at org.junit.runners.ParentRunner$2.evaluate(ParentRunner.java:268)
+	at org.junit.runners.ParentRunner.run(ParentRunner.java:363)
+	at org.junit.runner.JUnitCore.run(JUnitCore.java:137)
+	at org.junit.runner.JUnitCore.run(JUnitCore.java:115)
+	at androidx.test.internal.runner.TestExecutor.execute(TestExecutor.java:67)
+	at androidx.test.internal.runner.TestExecutor.execute(TestExecutor.java:58)
+	at androidx.test.runner.AndroidJUnitRunner.onStart(AndroidJUnitRunner.java:446)
+	at android.app.Instrumentation$InstrumentationThread.run(Instrumentation.java:2408)
+12) morphReadsEditedBaseArray(javax.microedition.shell.M3gDeformationTest)
+java.lang.AssertionError: expected:<5.0> but was:<3.0>
+	at org.junit.Assert.fail(Assert.java:88)
+	at org.junit.Assert.failNotEquals(Assert.java:834)
+	at org.junit.Assert.assertEquals(Assert.java:575)
+	at org.junit.Assert.assertEquals(Assert.java:700)
+	at javax.microedition.shell.M3gDeformationTest.distance(M3gDeformationTest.java:204)
+	at javax.microedition.shell.M3gDeformationTest.morphReadsEditedBaseArray(M3gDeformationTest.java:45)
+	at java.lang.reflect.Method.invoke(Native Method)
+	at org.junit.runners.model.FrameworkMethod$1.runReflectiveCall(FrameworkMethod.java:50)
+	at org.junit.internal.runners.model.ReflectiveCallable.run(ReflectiveCallable.java:12)
+	at org.junit.runners.model.FrameworkMethod.invokeExplosively(FrameworkMethod.java:47)
+	at org.junit.internal.runners.statements.InvokeMethod.evaluate(InvokeMethod.java:17)
+	at androidx.test.internal.runner.junit4.statement.RunBefores.evaluate(RunBefores.java:80)
+	at org.junit.runners.ParentRunner.runLeaf(ParentRunner.java:325)
+	at org.junit.runners.BlockJUnit4ClassRunner.runChild(BlockJUnit4ClassRunner.java:78)
+	at org.junit.runners.BlockJUnit4ClassRunner.runChild(BlockJUnit4ClassRunner.java:57)
+	at org.junit.runners.ParentRunner$3.run(ParentRunner.java:290)
+	at org.junit.runners.ParentRunner$1.schedule(ParentRunner.java:71)
+	at org.junit.runners.ParentRunner.runChildren(ParentRunner.java:288)
+	at org.junit.runners.ParentRunner.access$000(ParentRunner.java:58)
+	at org.junit.runners.ParentRunner$2.evaluate(ParentRunner.java:268)
+	at org.junit.runners.ParentRunner.run(ParentRunner.java:363)
+	at androidx.test.ext.junit.runners.AndroidJUnit4.run(AndroidJUnit4.java:162)
+	at org.junit.runners.Suite.runChild(Suite.java:128)
+	at org.junit.runners.Suite.runChild(Suite.java:27)
+	at org.junit.runners.ParentRunner$3.run(ParentRunner.java:290)
+	at org.junit.runners.ParentRunner$1.schedule(ParentRunner.java:71)
+	at org.junit.runners.ParentRunner.runChildren(ParentRunner.java:288)
+	at org.junit.runners.ParentRunner.access$000(ParentRunner.java:58)
+	at org.junit.runners.ParentRunner$2.evaluate(ParentRunner.java:268)
+	at org.junit.runners.ParentRunner.run(ParentRunner.java:363)
+	at org.junit.runner.JUnitCore.run(JUnitCore.java:137)
+	at org.junit.runner.JUnitCore.run(JUnitCore.java:115)
+	at androidx.test.internal.runner.TestExecutor.execute(TestExecutor.java:67)
+	at androidx.test.internal.runner.TestExecutor.execute(TestExecutor.java:58)
+	at androidx.test.runner.AndroidJUnitRunner.onStart(AndroidJUnitRunner.java:446)
+	at android.app.Instrumentation$InstrumentationThread.run(Instrumentation.java:2408)
+13) singleNullBoneQueryDoesNotWriteOrValidateOtherArray(javax.microedition.shell.M3gDeformationTest)
+java.lang.IllegalArgumentException: Indices array length too small (needed 3)
+	at javax.microedition.m3g.SkinnedMesh.getBoneVertices(SkinnedMesh.java:173)
+	at javax.microedition.shell.M3gDeformationTest.singleNullBoneQueryDoesNotWriteOrValidateOtherArray(M3gDeformationTest.java:135)
+	at java.lang.reflect.Method.invoke(Native Method)
+	at org.junit.runners.model.FrameworkMethod$1.runReflectiveCall(FrameworkMethod.java:50)
+	at org.junit.internal.runners.model.ReflectiveCallable.run(ReflectiveCallable.java:12)
+	at org.junit.runners.model.FrameworkMethod.invokeExplosively(FrameworkMethod.java:47)
+	at org.junit.internal.runners.statements.InvokeMethod.evaluate(InvokeMethod.java:17)
+	at androidx.test.internal.runner.junit4.statement.RunBefores.evaluate(RunBefores.java:80)
+	at org.junit.runners.ParentRunner.runLeaf(ParentRunner.java:325)
+	at org.junit.runners.BlockJUnit4ClassRunner.runChild(BlockJUnit4ClassRunner.java:78)
+	at org.junit.runners.BlockJUnit4ClassRunner.runChild(BlockJUnit4ClassRunner.java:57)
+	at org.junit.runners.ParentRunner$3.run(ParentRunner.java:290)
+	at org.junit.runners.ParentRunner$1.schedule(ParentRunner.java:71)
+	at org.junit.runners.ParentRunner.runChildren(ParentRunner.java:288)
+	at org.junit.runners.ParentRunner.access$000(ParentRunner.java:58)
+	at org.junit.runners.ParentRunner$2.evaluate(ParentRunner.java:268)
+	at org.junit.runners.ParentRunner.run(ParentRunner.java:363)
+	at androidx.test.ext.junit.runners.AndroidJUnit4.run(AndroidJUnit4.java:162)
+	at org.junit.runners.Suite.runChild(Suite.java:128)
+	at org.junit.runners.Suite.runChild(Suite.java:27)
+	at org.junit.runners.ParentRunner$3.run(ParentRunner.java:290)
+	at org.junit.runners.ParentRunner$1.schedule(ParentRunner.java:71)
+	at org.junit.runners.ParentRunner.runChildren(ParentRunner.java:288)
+	at org.junit.runners.ParentRunner.access$000(ParentRunner.java:58)
+	at org.junit.runners.ParentRunner$2.evaluate(ParentRunner.java:268)
+	at org.junit.runners.ParentRunner.run(ParentRunner.java:363)
+	at org.junit.runner.JUnitCore.run(JUnitCore.java:137)
+	at org.junit.runner.JUnitCore.run(JUnitCore.java:115)
+	at androidx.test.internal.runner.TestExecutor.execute(TestExecutor.java:67)
+	at androidx.test.internal.runner.TestExecutor.execute(TestExecutor.java:58)
+	at androidx.test.runner.AndroidJUnitRunner.onStart(AndroidJUnitRunner.java:446)
+	at android.app.Instrumentation$InstrumentationThread.run(Instrumentation.java:2408)
+14) repeatedBoneUsesOneReportedBindPose(javax.microedition.shell.M3gDeformationTest)
+java.lang.AssertionError: expected:<8.0> but was:<9.0>
+	at org.junit.Assert.fail(Assert.java:88)
+	at org.junit.Assert.failNotEquals(Assert.java:834)
+	at org.junit.Assert.assertEquals(Assert.java:575)
+	at org.junit.Assert.assertEquals(Assert.java:700)
+	at javax.microedition.shell.M3gDeformationTest.repeatedBoneUsesOneReportedBindPose(M3gDeformationTest.java:159)
+	at java.lang.reflect.Method.invoke(Native Method)
+	at org.junit.runners.model.FrameworkMethod$1.runReflectiveCall(FrameworkMethod.java:50)
+	at org.junit.internal.runners.model.ReflectiveCallable.run(ReflectiveCallable.java:12)
+	at org.junit.runners.model.FrameworkMethod.invokeExplosively(FrameworkMethod.java:47)
+	at org.junit.internal.runners.statements.InvokeMethod.evaluate(InvokeMethod.java:17)
+	at androidx.test.internal.runner.junit4.statement.RunBefores.evaluate(RunBefores.java:80)
+	at org.junit.runners.ParentRunner.runLeaf(ParentRunner.java:325)
+	at org.junit.runners.BlockJUnit4ClassRunner.runChild(BlockJUnit4ClassRunner.java:78)
+	at org.junit.runners.BlockJUnit4ClassRunner.runChild(BlockJUnit4ClassRunner.java:57)
+	at org.junit.runners.ParentRunner$3.run(ParentRunner.java:290)
+	at org.junit.runners.ParentRunner$1.schedule(ParentRunner.java:71)
+	at org.junit.runners.ParentRunner.runChildren(ParentRunner.java:288)
+	at org.junit.runners.ParentRunner.access$000(ParentRunner.java:58)
+	at org.junit.runners.ParentRunner$2.evaluate(ParentRunner.java:268)
+	at org.junit.runners.ParentRunner.run(ParentRunner.java:363)
+	at androidx.test.ext.junit.runners.AndroidJUnit4.run(AndroidJUnit4.java:162)
+	at org.junit.runners.Suite.runChild(Suite.java:128)
+	at org.junit.runners.Suite.runChild(Suite.java:27)
+	at org.junit.runners.ParentRunner$3.run(ParentRunner.java:290)
+	at org.junit.runners.ParentRunner$1.schedule(ParentRunner.java:71)
+	at org.junit.runners.ParentRunner.runChildren(ParentRunner.java:288)
+	at org.junit.runners.ParentRunner.access$000(ParentRunner.java:58)
+	at org.junit.runners.ParentRunner$2.evaluate(ParentRunner.java:268)
+	at org.junit.runners.ParentRunner.run(ParentRunner.java:363)
+	at org.junit.runner.JUnitCore.run(JUnitCore.java:137)
+	at org.junit.runner.JUnitCore.run(JUnitCore.java:115)
+	at androidx.test.internal.runner.TestExecutor.execute(TestExecutor.java:67)
+	at androidx.test.internal.runner.TestExecutor.execute(TestExecutor.java:58)
+	at androidx.test.runner.AndroidJUnitRunner.onStart(AndroidJUnitRunner.java:446)
+	at android.app.Instrumentation$InstrumentationThread.run(Instrumentation.java:2408)
+
+FAILURES!!!
+Tests run: 16,  Failures: 14
+
+
+INSTRUMENTATION_CODE: -1

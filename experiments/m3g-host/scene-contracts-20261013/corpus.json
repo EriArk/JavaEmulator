@@ -1,0 +1,567 @@
+{
+  "resources": 70,
+  "failures": 0,
+  "games": [
+    {
+      "archive": "3DGoldenWarrior.jar",
+      "resources": [
+        {
+          "resource": "armour.m3g",
+          "roots": [
+            "World"
+          ],
+          "loaded": true
+        },
+        {
+          "resource": "BasicScene.m3g",
+          "roots": [
+            "World"
+          ],
+          "loaded": true
+        },
+        {
+          "resource": "bat.m3g",
+          "roots": [
+            "World"
+          ],
+          "loaded": true
+        },
+        {
+          "resource": "Collectables.m3g",
+          "roots": [
+            "World"
+          ],
+          "loaded": true
+        },
+        {
+          "resource": "crossbow.m3g",
+          "roots": [
+            "World"
+          ],
+          "loaded": true
+        },
+        {
+          "resource": "doorlocks.m3g",
+          "roots": [
+            "World"
+          ],
+          "loaded": true
+        },
+        {
+          "resource": "fountain.m3g",
+          "roots": [
+            "World"
+          ],
+          "loaded": true
+        },
+        {
+          "resource": "ghost.m3g",
+          "roots": [
+            "World"
+          ],
+          "loaded": true
+        },
+        {
+          "resource": "InEyesCamera.m3g",
+          "roots": [
+            "World"
+          ],
+          "loaded": true
+        },
+        {
+          "resource": "intro.m3g",
+          "roots": [
+            "World"
+          ],
+          "loaded": true
+        },
+        {
+          "resource": "scenery.m3g",
+          "roots": [
+            "World"
+          ],
+          "loaded": true
+        },
+        {
+          "resource": "scroll.m3g",
+          "roots": [
+            "World"
+          ],
+          "loaded": true
+        },
+        {
+          "resource": "Skeleton.m3g",
+          "roots": [
+            "World"
+          ],
+          "loaded": true
+        },
+        {
+          "resource": "WarriorArm.m3g",
+          "roots": [
+            "World"
+          ],
+          "loaded": true
+        }
+      ]
+    },
+    {
+      "archive": "3D_Racing_Fever_GT_103.jar",
+      "resources": [
+        {
+          "resource": "48",
+          "roots": [
+            "AnimationController",
+            "CompositingMode",
+            "PolygonMode",
+            "World"
+          ],
+          "loaded": true
+        },
+        {
+          "resource": "49",
+          "roots": [
+            "AnimationController",
+            "World"
+          ],
+          "loaded": true
+        },
+        {
+          "resource": "50",
+          "roots": [
+            "AnimationController",
+            "CompositingMode",
+            "PolygonMode",
+            "World"
+          ],
+          "loaded": true
+        },
+        {
+          "resource": "53",
+          "roots": [
+            "AnimationController",
+            "CompositingMode",
+            "PolygonMode",
+            "World"
+          ],
+          "loaded": true
+        },
+        {
+          "resource": "54",
+          "roots": [
+            "AnimationController",
+            "CompositingMode",
+            "PolygonMode",
+            "World"
+          ],
+          "loaded": true
+        }
+      ]
+    },
+    {
+      "archive": "Airburster3D.jar",
+      "resources": [
+        {
+          "resource": "mesh\/acc_01.m3g",
+          "roots": [
+            "World"
+          ],
+          "loaded": true
+        },
+        {
+          "resource": "mesh\/acc_02.m3g",
+          "roots": [
+            "World"
+          ],
+          "loaded": true
+        },
+        {
+          "resource": "mesh\/acc_03.m3g",
+          "roots": [
+            "World"
+          ],
+          "loaded": true
+        },
+        {
+          "resource": "mesh\/acc_04.m3g",
+          "roots": [
+            "World"
+          ],
+          "loaded": true
+        },
+        {
+          "resource": "mesh\/goal.m3g",
+          "roots": [
+            "World"
+          ],
+          "loaded": true
+        },
+        {
+          "resource": "mesh\/track_01.m3g",
+          "roots": [
+            "World"
+          ],
+          "loaded": true
+        },
+        {
+          "resource": "mesh\/track_02.m3g",
+          "roots": [
+            "World"
+          ],
+          "loaded": true
+        },
+        {
+          "resource": "mesh\/track_03.m3g",
+          "roots": [
+            "World"
+          ],
+          "loaded": true
+        },
+        {
+          "resource": "mesh\/track_04.m3g",
+          "roots": [
+            "World"
+          ],
+          "loaded": true
+        }
+      ]
+    },
+    {
+      "archive": "BeachPingPong3D.jar",
+      "resources": [
+        {
+          "resource": "0",
+          "roots": [
+            "AnimationController",
+            "CompositingMode",
+            "PolygonMode",
+            "World"
+          ],
+          "loaded": true
+        },
+        {
+          "resource": "1",
+          "roots": [
+            "AnimationController",
+            "CompositingMode",
+            "PolygonMode",
+            "World"
+          ],
+          "loaded": true
+        },
+        {
+          "resource": "2",
+          "roots": [
+            "AnimationController",
+            "CompositingMode",
+            "PolygonMode",
+            "World"
+          ],
+          "loaded": true
+        },
+        {
+          "resource": "3",
+          "roots": [
+            "CompositingMode",
+            "Material",
+            "PolygonMode",
+            "World"
+          ],
+          "loaded": true
+        },
+        {
+          "resource": "4",
+          "roots": [
+            "CompositingMode",
+            "Material",
+            "PolygonMode",
+            "World"
+          ],
+          "loaded": true
+        },
+        {
+          "resource": "5",
+          "roots": [
+            "AnimationController",
+            "CompositingMode",
+            "PolygonMode",
+            "World"
+          ],
+          "loaded": true
+        }
+      ]
+    },
+    {
+      "archive": "BimmerStreetRacing3D.jar",
+      "resources": [
+        {
+          "resource": "res\/cp.m3g",
+          "roots": [
+            "World"
+          ],
+          "loaded": true
+        },
+        {
+          "resource": "res\/flame.m3g",
+          "roots": [
+            "World"
+          ],
+          "loaded": true
+        },
+        {
+          "resource": "res\/M3.m3g",
+          "roots": [
+            "World"
+          ],
+          "loaded": true
+        },
+        {
+          "resource": "res\/M346.m3g",
+          "roots": [
+            "World"
+          ],
+          "loaded": true
+        },
+        {
+          "resource": "res\/M5.m3g",
+          "roots": [
+            "World"
+          ],
+          "loaded": true
+        },
+        {
+          "resource": "res\/M539.m3g",
+          "roots": [
+            "World"
+          ],
+          "loaded": true
+        },
+        {
+          "resource": "res\/M6.m3g",
+          "roots": [
+            "World"
+          ],
+          "loaded": true
+        },
+        {
+          "resource": "res\/rot.m3g",
+          "roots": [
+            "World"
+          ],
+          "loaded": true
+        },
+        {
+          "resource": "res\/trasa1.m3g",
+          "roots": [
+            "World"
+          ],
+          "loaded": true
+        },
+        {
+          "resource": "res\/trasa2.m3g",
+          "roots": [
+            "World"
+          ],
+          "loaded": true
+        },
+        {
+          "resource": "res\/trasa3.m3g",
+          "roots": [
+            "World"
+          ],
+          "loaded": true
+        }
+      ]
+    },
+    {
+      "archive": "ColinMcRaeDiRT3D.jar",
+      "resources": [
+        {
+          "resource": "Att.m3g",
+          "roots": [
+            "World"
+          ],
+          "loaded": true
+        },
+        {
+          "resource": "Bah.m3g",
+          "roots": [
+            "World"
+          ],
+          "loaded": true
+        },
+        {
+          "resource": "Cc4.m3g",
+          "roots": [
+            "World"
+          ],
+          "loaded": true
+        },
+        {
+          "resource": "Cli.m3g",
+          "roots": [
+            "World"
+          ],
+          "loaded": true
+        },
+        {
+          "resource": "Evx.m3g",
+          "roots": [
+            "World"
+          ],
+          "loaded": true
+        },
+        {
+          "resource": "Mc.m3g",
+          "roots": [
+            "World"
+          ],
+          "loaded": true
+        },
+        {
+          "resource": "McB.m3g",
+          "roots": [
+            "World"
+          ],
+          "loaded": true
+        },
+        {
+          "resource": "Subaru.m3g",
+          "roots": [
+            "World"
+          ],
+          "loaded": true
+        },
+        {
+          "resource": "t0_2.m3g",
+          "roots": [
+            "World"
+          ],
+          "loaded": true
+        },
+        {
+          "resource": "t1_2.m3g",
+          "roots": [
+            "World"
+          ],
+          "loaded": true
+        },
+        {
+          "resource": "t2_2.m3g",
+          "roots": [
+            "World"
+          ],
+          "loaded": true
+        },
+        {
+          "resource": "t3_2.m3g",
+          "roots": [
+            "World"
+          ],
+          "loaded": true
+        },
+        {
+          "resource": "t4_2.m3g",
+          "roots": [
+            "World"
+          ],
+          "loaded": true
+        },
+        {
+          "resource": "t5_2.m3g",
+          "roots": [
+            "World"
+          ],
+          "loaded": true
+        },
+        {
+          "resource": "t6_2.m3g",
+          "roots": [
+            "World"
+          ],
+          "loaded": true
+        },
+        {
+          "resource": "t7_2.m3g",
+          "roots": [
+            "World"
+          ],
+          "loaded": true
+        }
+      ]
+    },
+    {
+      "archive": "Deep3D.jar",
+      "resources": [
+        {
+          "resource": "data\/3d\/torpedo.m3g",
+          "roots": [
+            "Group"
+          ],
+          "loaded": true
+        },
+        {
+          "resource": "data\/3d\/trash.m3g",
+          "roots": [
+            "Group"
+          ],
+          "loaded": true
+        }
+      ]
+    },
+    {
+      "archive": "Ducati3DExtreme.jar",
+      "resources": [
+        {
+          "resource": "bikes.m3g",
+          "roots": [
+            "World"
+          ],
+          "loaded": true
+        },
+        {
+          "resource": "heads.m3g",
+          "roots": [
+            "World"
+          ],
+          "loaded": true
+        },
+        {
+          "resource": "menu_background.m3g",
+          "roots": [
+            "World"
+          ],
+          "loaded": true
+        },
+        {
+          "resource": "splash.m3g",
+          "roots": [
+            "World"
+          ],
+          "loaded": true
+        },
+        {
+          "resource": "texture999.m3g",
+          "roots": [
+            "Image2D"
+          ],
+          "loaded": true
+        },
+        {
+          "resource": "texturemonster.m3g",
+          "roots": [
+            "Image2D"
+          ],
+          "loaded": true
+        },
+        {
+          "resource": "track_sections.m3g",
+          "roots": [
+            "World"
+          ],
+          "loaded": true
+        }
+      ]
+    }
+  ]
+}

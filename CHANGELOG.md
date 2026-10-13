@@ -11,6 +11,17 @@ stated otherwise. **Experimental** means local/private combined builds only.
 
 ## 2026-10-13
 
+- **Production-switch batch / release preparation:** ordinary builds now use
+  the FreeJ2ME-derived M3G replacement and independent tone compiler. Removed
+  the inherited EPL Java/native M3G and tone sources; Mascot Capsule remains.
+  Promoted the Mophun runtime and fixture-free checks into the same app, without
+  private games or preview activities. Added GPLv3 combined-app licensing,
+  retained component notices, source inventory and an APK contamination guard.
+  Prepared Handheld/Phone 0.2.0-beta.1 (code 200) with the existing release key.
+  Actual Phone beta.2 upgrade retains the library and RMS read/write; Retroid
+  passes 363 production renderer checks and both devices pass 25 Mophun checks.
+  This entry alone does not announce publication. [Report](docs/releases/v0.2.0-beta.1-checks.md).
+
 - **Public source / unreleased:** fixed an optimized-build crash when restarting
   a phone-profile trial. Touch settings and preparation hints now have stable
   JSON names; profile copying remains writable under R8. Also fixed JAR

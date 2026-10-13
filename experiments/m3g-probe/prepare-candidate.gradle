@@ -1,0 +1,447 @@
+ext.m3gPatchDirectory = rootProject.file('experiments/m3g-probe')
+if (!m3gPatchDirectory.isDirectory()) ext.m3gPatchDirectory = rootProject.projectDir
+apply from: new File(m3gPatchDirectory, 'source.gradle')
+apply from: new File(m3gPatchDirectory, 'deformation-patches.gradle')
+apply from: new File(m3gPatchDirectory, 'scene-contract-patches.gradle')
+def pinnedRevision = m3gPinnedRevision
+def upstream = providers.gradleProperty('freej2meSource')
+def generated = layout.buildDirectory.dir('generated/m3g')
+
+tasks.register('prepareM3g') {
+    if (!upstream.isPresent()) dependsOn 'prepareM3gUpstream'
+    outputs.upToDateWhen { false }
+    doLast {
+        def source = upstream.isPresent() ? file(upstream.get()) : m3gArchiveSource.get().asFile
+        if (upstream.isPresent()) {
+            def revision = new ByteArrayOutputStream()
+            exec { workingDir source; commandLine 'git', 'rev-parse', 'HEAD'; standardOutput revision }
+            if (revision.toString('UTF-8').trim() != pinnedRevision) {
+                throw new GradleException("Expected FreeJ2ME-Plus ${pinnedRevision}")
+            }
+            def dirty = new ByteArrayOutputStream()
+            exec {
+                workingDir source
+                commandLine 'git', 'status', '--porcelain', '--', 'src/javax/microedition/m3g', 'LICENSE'
+                standardOutput dirty
+            }
+            if (dirty.size() != 0) throw new GradleException('Upstream M3G sources must be unmodified')
+        }
+        def output = generated.get().asFile
+        delete output
+        copy {
+            from new File(source, 'src/javax/microedition/m3g')
+            include '*.java'
+            into new File(output, 'java/javax/microedition/m3g')
+        }
+        // References are per slot, not a set. Node links need the complete clone map.
+        [
+            'Object3D.java': [
+                'public final Object3D duplicate() { return this.duplicateImpl(); }': '''public final Object3D duplicate() {
+        Object3D copy = duplicateImpl();
+        if (this instanceof Node) SceneGraphCopies.remap((Node) this, (Node) copy);
+        return copy;
+    }''',
+                'AnimationTrack trackCopy = (AnimationTrack) origTrack.duplicate();':
+                    'AnimationTrack trackCopy = origTrack;',
+                'if (!curReferences.contains(obj)) { curReferences.addElement(obj); }':
+                    'curReferences.addElement(obj);'
+            ],
+            'AnimationTrack.java': ['addReference(copy.sequence);': 'copy.addReference(copy.sequence);'],
+            'World.java': [
+                'copy.setActiveCamera((copyCamera instanceof Camera) ? (Camera) copyCamera : this.camera);':
+                    'if (this.camera != null) copy.setActiveCamera((copyCamera instanceof Camera) ? (Camera) copyCamera : this.camera);',
+                'removeReference(this.camera);':
+                    'if (camera == null) throw new NullPointerException("camera");\n\t\tremoveReference(this.camera);'
+            ],
+            'Loader.java': [
+                'world.setActiveCamera((Camera) getObject(readInt()));':
+                    'Camera camera = (Camera) getObject(readInt());\n                if (camera != null) world.setActiveCamera(camera);'
+            ]
+        ].each { name, replacements ->
+            def target = new File(output, "java/javax/microedition/m3g/${name}")
+            def text = target.getText('UTF-8')
+            replacements.each { before, after ->
+                if (text.count(before) != 1) throw new GradleException("Scene copy hook drift: ${name}: ${before}")
+                text = text.replace(before, after)
+            }
+            target.setText(text, 'UTF-8')
+        }
+        copy {
+            from new File(m3gPatchDirectory, 'SceneGraphCopies.java')
+            from new File(m3gPatchDirectory, 'AnimationQuaternion.java')
+            into new File(output, 'java/javax/microedition/m3g')
+        }
+        [
+            'KeyframeSequence.java': [
+                'private int nextKeyframe;': 'private int[] orderedFrames;',
+                ' || first > last': '',
+                'throw new IllegalArgumentException("Invalid keyframe range");':
+                    'throw new IndexOutOfBoundsException("Invalid keyframe range");',
+                'this.repeat = mode;': 'this.repeat = mode;\n        this.dirty = true;'
+            ],
+            'Object3D.java': ['trackValidity[0] > 0 && weight[0] > 0.0f': 'weight[0] > 0.0f'],
+            'Loader.java': ['sObj.applyToObject3D(seq);': 'seq.validateSequence();\n                sObj.applyToObject3D(seq);'],
+            'AnimationTrack.java': [
+                'else { worldValidity = (int) M3GMath.roundPositive(validity[0] / M3GMath.abs(speed)); }':
+                    'else { worldValidity = speed < 0 ? 0 : (int) Math.floor(validity[0] / (double) speed); }',
+                'validity[0] = M3GMath.max(1, M3GMath.min(worldValidity, timeToDeact));':
+                    'validity[0] = Math.max(0, Math.min(worldValidity, timeToDeact));'
+            ],
+            'AnimationController.java': [
+                '(float) (worldTime - refWorldTime)': '(float) ((long) worldTime - refWorldTime)',
+                'return activationTime - worldTime;': 'return (int) Math.min(Integer.MAX_VALUE, (long) activationTime - worldTime);',
+                'if (worldTime < deactivationTime) { return deactivationTime - worldTime; }':
+                    'if (activationTime == deactivationTime) { return Integer.MAX_VALUE; }\n        if (worldTime < deactivationTime) { return (int) Math.min(Integer.MAX_VALUE, (long) deactivationTime - worldTime); }'
+            ]
+        ].each { name, replacements ->
+            def target = new File(output, "java/javax/microedition/m3g/${name}")
+            def text = target.getText('UTF-8').replace('\r\n', '\n')
+            replacements.each { before, after ->
+                if (text.count(before) != 1) throw new GradleException("Animation hook drift: ${name}: ${before}")
+                text = text.replace(before, after)
+            }
+            if (name == 'KeyframeSequence.java') {
+                def sampleStart = '\tpublic int getSample(float time, float[] sample)'
+                if (text.count(sampleStart) != 1) throw new GradleException('Keyframe sampling hook drift')
+                text = text.substring(0, text.indexOf(sampleStart)) +
+                        new File(m3gPatchDirectory, 'keyframe-sampling.java.inc').getText('UTF-8') + '\n}\n'
+            }
+            if (name == 'Object3D.java') {
+                def blendStart = '\t\t\t\t// Normalize sum values by weight sum before applying to property'
+                def blendEnd = '\t\t\t\tupdateProperty(property, sumValues);'
+                if (text.count(blendStart) != 1 || text.count(blendEnd) != 1) {
+                    throw new GradleException('Animation weighting hook drift')
+                }
+                text = text.substring(0, text.indexOf(blendStart)) + text.substring(text.indexOf(blendEnd))
+            }
+            target.setText(text, 'UTF-8')
+        }
+        patchM3gDeformation(output)
+        // Android has no AWT. Keep the MIDP Image path and fail if upstream drifts.
+        def image = new File(output, 'java/javax/microedition/m3g/Image2D.java')
+        def oldCheck = ' && !(image instanceof java.awt.Image)'
+        def contents = image.getText('UTF-8')
+        if (contents.count(oldCheck) != 1) throw new GradleException('Image2D adaptation no longer matches')
+        image.setText(contents.replace(oldCheck, ''), 'UTF-8')
+        // available() shrinks while 'read' grows; comparing them skips later sections.
+        // Keep the header's end boundary, including for embedded files with trailing data.
+        def loader = new File(output, 'java/javax/microedition/m3g/Loader.java')
+        def oldBoundary = 'while ((bounded ? read < Math.min(dis.available(), totalFileSize) : dis.available() > 0))'
+        def newBoundary = 'while (bounded ? read < totalFileSize : dis.available() > 0)'
+        contents = loader.getText('UTF-8')
+        if (contents.count(oldBoundary) != 1) throw new GradleException('Loader boundary patch no longer matches')
+        loader.setText(contents.replace(oldBoundary, newBoundary), 'UTF-8')
+        // Clamp the continuous texel position before splitting neighbors/fraction.
+        // Clamping only the first neighbor blends an edge with the next texel.
+        def raster = new File(output, 'java/javax/microedition/m3g/Graphics3D.java')
+        contents = raster.getText('UTF-8')
+        contents = contents.replace('\r\n', '\n')
+        // Zero-density exponential fog is an identity, including sprites.
+        def fogSelection = 'final Fog fog = Mobile.m3gDisableFog ? null : appearance.getFog();'
+        if (contents.count(fogSelection) != 2) throw new GradleException('Zero-density fog hook drift')
+        contents = contents.replace(fogSelection, '''Fog fog = Mobile.m3gDisableFog ? null : appearance.getFog();
+        if (fog != null && fog.getMode() == Fog.EXPONENTIAL && fog.getDensity() == 0f) fog = null;''')
+        // Compact texture and coordinate state together; API unit numbers may have gaps.
+        def packedStart = '// joint-increment ACTIVE_TEXTURE_UNITS alongside assignment.'
+        def packedEnd = 'texRepeatS[i], texRepeatT[i], t.isNPOT());'
+        if (contents.count(packedStart) != 1 || contents.count(packedEnd) != 1) {
+            throw new GradleException('Texture unit packing hook drift')
+        }
+        int start = contents.indexOf(packedStart)
+        int end = contents.indexOf(packedEnd, start) + packedEnd.length()
+        def packed = contents.substring(start, end)
+                .replace(packedStart, '// Preserve API order in a dense raster pipeline.')
+                .replace('textures[ACTIVE_TEXTURE_UNITS++] = t;', 'int unit = ACTIVE_TEXTURE_UNITS++;\n\t\t\t\t\ttextures[unit] = t;')
+                .replace('[i]', '[unit]')
+                .replace('texVerts[unit]', 'texScratch[unit]')
+        def scratchField = 'final float[][] texVerts = new float[NUM_TEXTURE_UNITS][];'
+        if (contents.count(scratchField)!=1) throw new GradleException('Texture scratch field drift')
+        // Apply after splicing; inserting a field here would change the saved offsets.
+        contents = contents.substring(0, start) + packed + contents.substring(end)
+        contents = contents.replace(scratchField, scratchField + '\n    private final float[][] texScratch = new float[NUM_TEXTURE_UNITS][];')
+        def activeTex = 'textr[unit].transform(texCoords, texScratch[unit], true);'
+        if (contents.count(activeTex)!=1) throw new GradleException('Active texture scratch hook drift')
+        contents = contents.replace(activeTex, activeTex + '\n                    texVerts[unit] = texScratch[unit];')
+        def unusedUnit = '''\t\t\t\telse
+\t\t\t\t{
+\t\t\t\t\t// Clear the references if this unit is unused or was disabled.
+\t\t\t\t\ttextures[i] = null;
+\t\t\t\t\ttexVerts[i] = null;
+\t\t\t\t}'''
+        if (contents.count(unusedUnit)!=1) throw new GradleException('Texture scratch reuse drift')
+        contents = contents.replace(unusedUnit,'')
+        def textureDone = '\t\t// Texturing mode we\'ll use per-pixel, saves some really complex'
+        if (contents.count(textureDone)!=1) throw new GradleException('Texture cleanup hook drift')
+        contents = contents.replace(textureDone, '''        // Keep dense coordinate scratch, release only unused texture objects.
+        for (int unit = ACTIVE_TEXTURE_UNITS; unit < textures.length; unit++) {
+            textures[unit] = null; texVerts[unit] = null;
+        }
+''' + textureDone)
+        def lightCount = 'final int numLights = (this.currLights != null) ? this.currLights.size() : 0;'
+        if (contents.count(lightCount)!=1) throw new GradleException('Unlit light setup drift')
+        contents = contents.replace(lightCount, 'final int numLights = (vertNorms != null && material != null && this.currLights != null) ? this.currLights.size() : 0;')
+        def spriteClip = 'if (clip[3] <= 0f || clip[7] <= 0f || clip[11] <= 0f) { return; }'
+        if (contents.count(spriteClip) != 1) throw new GradleException('Sprite clip hook drift')
+        contents = contents.replace(spriteClip, spriteClip + '''
+        // A billboard has constant eye depth: reject its origin outside the frustum.
+        if (clip[2] < -clip[3] || clip[2] > clip[3]) { return; }''')
+        def maskPatches = [
+            'private int currAlphaFactor = 256;': 'private int currAlphaFactor = 256;\n    private int colorWriteMask = -1;',
+            'if(!colorEnabled) { continue; }': 'if(colorWriteMask == 0) { continue; }',
+            'rasterData[rasterIdx] = compBlender == null ? paintPixel : compBlender.blend(rasterData[rasterIdx],\n\t\t\t\t\tpaintPixel, alpha);': 'rasterData[rasterIdx] = compositePixel(rasterData[rasterIdx], paintPixel, alpha);',
+            'rasterData[rasterIdx] = compBlender == null ? paintPixel : compBlender.blend(rasterData[rasterIdx], paintPixel, alpha);': 'rasterData[rasterIdx] = compositePixel(rasterData[rasterIdx], paintPixel, alpha);',
+            'private final Graphics3DPipelines.CompositingBlender getCompositingBlender(int blendMode)': '''private int compositePixel(int background, int foreground, int alpha) {
+        int pixel = compBlender == null ? foreground : compBlender.blend(background, foreground, alpha);
+        return (pixel & colorWriteMask) | (background & ~colorWriteMask);
+    }
+    private final Graphics3DPipelines.CompositingBlender getCompositingBlender(int blendMode)'''
+        ]
+        maskPatches.each { before, after ->
+            if (contents.count(before) != 1) throw new GradleException("Color mask patch drift: ${before}")
+            contents = contents.replace(before, after)
+        }
+        def maskHook = 'compBlender = getCompositingBlender(compositingMode.getBlending());'
+        if (contents.count(maskHook) != 2) throw new GradleException('Color mask setup drift')
+        contents = contents.replace(maskHook, maskHook + '''
+        colorWriteMask = (compositingMode.isColorWriteEnabled() ? 0x00FFFFFF : 0)
+                | (compositingMode.isAlphaWriteEnabled() ? 0xFF000000 : 0);''')
+        // RGB/LUMINANCE replace color only, not the incoming fragment alpha.
+        def rgbCase = 'case ((Texture2D.FUNC_REPLACE & 7) << 3) | (Image2D.LUMINANCE & 7):'
+        if (contents.count(rgbCase) != 1) throw new GradleException('RGB alpha patch drift')
+        contents = contents.replace(rgbCase, rgbCase + '\n\t\t\t\treturn Graphics3DPipelines.TextureBlenders.REPLACE_RGB;')
+        def pipelines = new File(output, 'java/javax/microedition/m3g/Graphics3DPipelines.java')
+        def pipelineText = pipelines.getText('UTF-8').replace('\r\n', '\n')
+        def pipelineHook = 'static class TextureBlenders\n\t{'
+        if (pipelineText.count(pipelineHook) != 1) throw new GradleException('RGB blender patch drift')
+        pipelineText = pipelineText.replace(pipelineHook, pipelineHook + '''
+        static final TextureBlender REPLACE_RGB = new TextureBlender() {
+            public int blend(int bg, int fg, int texBlendColor) {
+                return (bg & 0xFF000000) | (fg & 0x00FFFFFF);
+            }
+        };''')
+        def wrapperHook = 'static class TextureWrappers\n\t{'
+        if (pipelineText.count(wrapperHook) != 1) throw new GradleException('Mixed wrap hook drift')
+        pipelineText = pipelineText.replace(wrapperHook, wrapperHook + '''
+        private static int repeat(int coordinate, int size) {
+            if ((size & (size - 1)) == 0) return coordinate & (size - 1);
+            int value = coordinate % size;
+            return value < 0 ? value + size : value;
+        }
+        private static int clamp(int coordinate, int size) {
+            return Math.max(0, Math.min(size - 1, coordinate));
+        }
+        static final TextureWrapper REPEAT_S = new TextureWrapper() {
+            public int wrap(int s, int t, int w, int h) {
+                return (clamp(t, h) << 16) | repeat(s, w);
+            }
+        };
+        static final TextureWrapper REPEAT_T = new TextureWrapper() {
+            public int wrap(int s, int t, int w, int h) {
+                return (repeat(t, h) << 16) | clamp(s, w);
+            }
+        };''')
+        def wrapSelection = 'if (!repeatS && !repeatT) { return Graphics3DPipelines.TextureWrappers.CLAMP; }'
+        if (contents.count(wrapSelection) != 1) throw new GradleException('Mixed wrap selection drift')
+        contents = contents.replace(wrapSelection, wrapSelection + '''
+        if (!repeatT) return Graphics3DPipelines.TextureWrappers.REPEAT_S;
+        if (!repeatS) return Graphics3DPipelines.TextureWrappers.REPEAT_T;''')
+        pipelines.setText(pipelineText, 'UTF-8')
+        def filterPatches = [
+            'final int sFixed = (int) (s * 256.0f) - 128;': 'int sFixed = (int) (s * 256.0f) - 128;',
+            'final int tFixed = (int) (t * 256.0f) - 128;': '''int tFixed = (int) (t * 256.0f) - 128;
+                if (!texRepeatS[unitIdx]) sFixed = Math.max(0, Math.min((texW - 1) << 8, sFixed));
+                if (!texRepeatT[unitIdx]) tFixed = Math.max(0, Math.min((texH - 1) << 8, tFixed));'''
+        ]
+        filterPatches.each { before, after ->
+            if (contents.count(before) != 1) throw new GradleException("Texture clamp patch drift: ${before}")
+            contents = contents.replace(before, after)
+        }
+        // Parallel projection has w=1: recover eye depth before viewport/depth mapping.
+        def fogPatches = [
+            'private int currAlphaFactor = 256;': '''private int currAlphaFactor = 256;
+    private boolean parallelFog;
+    private float[] parallelFogDepth = new float[0];
+    private final float[] fogProjection = new float[16];
+    private float fogEyeA, fogEyeDx, fogEyeDy;''',
+            'Triangle.transform(trisScreen, renderableTriangles[0], tr, textr, hasTexture);': '''parallelFog = fog != null && projType == Camera.PARALLEL;
+        if (parallelFog) {
+            projectionMatrix.get(fogProjection);
+            int count = renderableTriangles[0] * 3;
+            if (parallelFogDepth.length < count) parallelFogDepth = new float[count];
+            for (int i = 0; i < renderableTriangles[0]; i++) {
+                Triangle triangle = trisScreen[i];
+                parallelFogDepth[i * 3] = (fogProjection[11] - triangle.zA()) / fogProjection[10];
+                parallelFogDepth[i * 3 + 1] = (fogProjection[11] - triangle.zB()) / fogProjection[10];
+                parallelFogDepth[i * 3 + 2] = (fogProjection[11] - triangle.zC()) / fogProjection[10];
+            }
+        }
+        Triangle.transform(trisScreen, renderableTriangles[0], tr, textr, hasTexture);''',
+            'final float invDet = M3GMath.fastReciprocal(denominator);': '''final float invDet = M3GMath.fastReciprocal(denominator);
+            if (parallelFog) {
+                fogEyeA = parallelFogDepth[tri_id * 3];
+                float db = parallelFogDepth[tri_id * 3 + 1] - fogEyeA;
+                float dc = parallelFogDepth[tri_id * 3 + 2] - fogEyeA;
+                fogEyeDx = (db * dyC - dc * dyB) * invDet;
+                fogEyeDy = (dc * dxB - db * dxC) * invDet;
+            }''',
+            'float zEyeStart = invPw;': 'float zEyeStart = parallelFog ? fogEyeA + (x - triScreen.xA()) * fogEyeDx + (y - triScreen.yA()) * fogEyeDy : invPw;',
+            'float zEyeEnd = invPw + stepInvPw * spanLen;': 'float zEyeEnd = parallelFog ? zEyeStart + fogEyeDx * spanLen : invPw + stepInvPw * spanLen;'
+        ]
+        fogPatches.each { before, after ->
+            if (contents.count(before) != 1) throw new GradleException("Parallel fog patch drift: ${before}")
+            contents = contents.replace(before, after)
+        }
+        // Shared host/standalone sampling: interpolate raw texels before material blending.
+        def patchSource = rootProject.file('experiments/m3g-probe')
+        if (!patchSource.isDirectory()) patchSource = rootProject.projectDir
+        def modeStart = '\tstatic class TexturingModes'
+        def modeEnd = '\t// This one is also faster staying here.'
+        if (contents.count(modeStart)!=1 || contents.count(modeEnd)!=1) throw new GradleException('Texturing block drift')
+        contents = contents.substring(0,contents.indexOf(modeStart)) + new File(patchSource,'texturing.java.inc').getText('UTF-8') + '\n' + contents.substring(contents.indexOf(modeEnd))
+        def filterSignature = 'void filterTexture(float s, float t, int unitIdx, Image2D targetImage)'
+        if (contents.count(filterSignature)!=3) throw new GradleException('Raw texture sampler drift')
+        contents = contents.replace(filterSignature, 'int sampleTexture(float s, float t, int unitIdx, Image2D targetImage)')
+        def nearestBlend = 'paintPixel = texBlenders[unitIdx] == null ? pixel :\n\t\t\t\t\ttexBlenders[unitIdx].blend(paintPixel, pixel, textures[unitIdx].getBlendColor());'
+        def linearBlend = 'paintPixel = texBlenders[unitIdx] == null ? (ag << 8) | rb \n\t\t\t\t\t: texBlenders[unitIdx].blend(paintPixel, (ag << 8) | rb, textures[unitIdx].getBlendColor());'
+        if (contents.count(nearestBlend)!=1 || contents.count(linearBlend)!=1) throw new GradleException('Sample/blend split drift')
+        contents = contents.replace(nearestBlend,'return pixel;').replace(linearBlend,'return (ag << 8) | rb;')
+        copy {
+            from new File(patchSource,'MipmapSampling.java')
+            into new File(output,'java/javax/microedition/m3g')
+        }
+        def mipStart = '\tinterface MipmapMode'
+        if (pipelineText.count(mipStart)!=1) throw new GradleException('Mipmap mode marker drift')
+        pipelineText = pipelineText.substring(0,pipelineText.indexOf(mipStart)) + '''
+    interface MipmapMode { }
+    static class MipmapModes {
+        static final MipmapMode NEAREST = new MipmapMode() { };
+        static final MipmapMode LINEAR = new MipmapMode() { };
+    }
+}
+'''
+        pipelines.setText(pipelineText,'UTF-8')
+        def releaseImage = 'this.target = null;'
+        if (contents.count(releaseImage) != 1) throw new GradleException('Image target revision hook drift')
+        contents = contents.replace(releaseImage, 'if (this.target instanceof Image2D) ((Image2D) this.target).revision++;\n\t\t\t' + releaseImage)
+        raster.setText(contents, 'UTF-8')
+        def imageSource = new File(output, 'java/javax/microedition/m3g/Image2D.java')
+        def imageText = imageSource.getText('UTF-8').replace('\r\n', '\n')
+        [
+            'private boolean mutable;': 'private boolean mutable;\n\tlong revision;',
+            'int srcOffset = 0;\n\t\tfor (int row = 0; row < h; row++)': 'revision++;\n\t\tint srcOffset = 0;\n\t\tfor (int row = 0; row < h; row++)'
+        ].each { before, after ->
+            if (imageText.count(before) != 1) throw new GradleException("Image revision hook drift: ${before}")
+            imageText = imageText.replace(before, after)
+        }
+        def pixelWrite = 'this.image[this.isPOT ? (y << this.widthShift) + x : (y * this.width) + x] = argb;'
+        if (imageText.count(pixelWrite) != 1) throw new GradleException('Pixel revision hook drift')
+        imageText = imageText.replace(pixelWrite, 'revision++;\n\t\t' + pixelWrite)
+        imageSource.setText(imageText, 'UTF-8')
+        def textureSource = new File(output, 'java/javax/microedition/m3g/Texture2D.java')
+        def textureText = textureSource.getText('UTF-8')
+        [
+            'private Image2D[] mipmaps;': 'private Image2D[] mipmaps;\n\tprivate long mipRevision;',
+            'if (texImage == null) return;': 'if (texImage == null) return;\n\t\tmipRevision = texImage.revision;',
+            'return mipmaps[lod >= mipmaps.length ? mipmaps.length - 1 : lod];': '''if (lod <= 0) { return texImage; }
+        if (mipRevision != texImage.revision) generateMipmaps();
+        return mipmaps[lod >= mipmaps.length ? mipmaps.length - 1 : lod];'''
+        ].each { before, after ->
+            if (textureText.count(before) != 1) throw new GradleException("Mipmap revision hook drift: ${before}")
+            textureText = textureText.replace(before, after)
+        }
+        textureSource.setText(textureText, 'UTF-8')
+        // An empty light list does not disable emissive color or diffuse alpha.
+        def triangle = new File(output, 'java/javax/microedition/m3g/Triangle.java')
+        contents = triangle.getText('UTF-8')
+        def oldLighting = 'lights != null && !lights.isEmpty()'
+        if (contents.count(oldLighting) != 1) throw new GradleException('Material lighting patch drift')
+        contents = contents.replace(oldLighting, 'lights != null').replace('\r\n','\n')
+        // Lighting results are reusable only within one draw and one normal orientation.
+        def oldMatrixCopy = '\t\tnormalMatrix.get(L_MAT);'
+        if (contents.count(oldMatrixCopy)!=1) throw new GradleException('Normal matrix copy drift')
+        contents = contents.replace(oldMatrixCopy,'')
+        def lightingFields = 'private static final float[] L_MAT = new float[16];'
+        if (contents.count(lightingFields)!=1) throw new GradleException('Lighting cache fields drift')
+        contents = contents.replace(lightingFields,lightingFields + '''
+    static boolean cacheLighting = true;
+    static long shadedVertices;
+    private static int[] litColors = new int[0], litEpochs = new int[0];
+    private static int lightingEpoch;
+''')
+        def lightSetup = 'if(hasLighting)\n\t\t{'
+        if (contents.count(lightSetup)!=1) throw new GradleException('Lighting draw setup drift')
+        contents = contents.replace(lightSetup,lightSetup + '''
+            normalMatrix.get(L_MAT);
+            int slots = vertNorms.getVertexCount() * 2;
+            if (litColors.length < slots) {
+                litColors = new int[slots]; litEpochs = new int[slots];
+            }
+            if (lightingEpoch == Integer.MAX_VALUE) {
+                java.util.Arrays.fill(litEpochs, 0); lightingEpoch = 0;
+            }
+            lightingEpoch++;
+''')
+        def trackerStart = '\t\t// Track the vertex indices and calculated colors of the prior non-culled'
+        def trackerEnd = '\t\t// Track the indices of the previously processed triangle in the strip'
+        if (contents.count(trackerStart)!=1 || contents.count(trackerEnd)!=1) throw new GradleException('Lighting tracker drift')
+        contents = contents.substring(0,contents.indexOf(trackerStart)) + contents.substring(contents.indexOf(trackerEnd))
+        def updateStart = '\t\t\t\t// Update light tracker with current triangle\'s indices and colors'
+        def updateEnd = 'lastColor2 = Triangle.inC[2];'
+        if (contents.count(updateStart)!=1 || contents.count(updateEnd)!=1) throw new GradleException('Lighting tracker update drift')
+        contents = contents.substring(0,contents.indexOf(updateStart)) + contents.substring(contents.indexOf(updateEnd)+updateEnd.length())
+        [
+            'lastIdx0, lastIdx1, lastIdx2, lastColor0, lastColor1, lastColor2, Triangle.inC);': 'Triangle.inC);',
+            'int curScope, int[] tris, int triOffset, int prev0,\n\t\tint prev1, int prev2, int color0, int color1, int color2, int[] outColors)': 'int curScope, int[] tris, int triOffset, int[] outColors)'
+        ].each { before, after ->
+            if (contents.count(before)!=1) throw new GradleException("Lighting signature drift: ${before}")
+            contents = contents.replace(before,after)
+        }
+        def reuseStart = '\t\t\tif(shadingMode != PolygonMode.SHADE_FLAT)'
+        def reuseEnd = '\t\t\t// Vertex color tracking is enabled?'
+        if (contents.count(reuseStart)!=1 || contents.count(reuseEnd)!=1) throw new GradleException('Lighting reuse drift')
+        contents = contents.substring(0,contents.indexOf(reuseStart)) + '''
+            int cacheKey = (vertIndex << 1) | (flipNormals ? 1 : 0);
+            if (cacheLighting && litEpochs[cacheKey] == lightingEpoch) {
+                outColors[v] = litColors[cacheKey];
+                if (shadingMode == PolygonMode.SHADE_FLAT) outColors[0] = outColors[1] = outColors[v];
+                continue;
+            }
+            shadedVertices++;
+''' + contents.substring(contents.indexOf(reuseEnd))
+        def outputColor = 'outColors[v] = ((lightAlpha & 0xFF) << 24) | (ir << 16) | (ig << 8) | ib;'
+        if (contents.count(outputColor)!=1) throw new GradleException('Lighting output drift')
+        contents = contents.replace(outputColor,outputColor + '''
+            if (cacheLighting) {
+                litColors[cacheKey] = outColors[v]; litEpochs[cacheKey] = lightingEpoch;
+            }
+''')
+        triangle.setText(contents,'UTF-8')
+        def transformSource = new File(output,'java/javax/microedition/m3g/Transform.java')
+        def transformText = transformSource.getText('UTF-8').replace('\r\n','\n')
+        def transformStart = '\t\t// Fill the `out` array with raw data'
+        def transformEnd = '\t\tthis.transform(out);'
+        if (transformText.count(transformStart)!=1 || transformText.count(transformEnd)!=1) throw new GradleException('Packed transform drift')
+        transformText = transformText.substring(0,transformText.indexOf(transformStart)) + new File(patchSource,'vertex-transform.java.inc').getText('UTF-8') + transformText.substring(transformText.indexOf(transformEnd)+transformEnd.length())
+        transformSource.setText(transformText,'UTF-8')
+        // Do not carry the externally sourced approximation into candidate builds.
+        def math = new File(output, 'java/javax/microedition/m3g/M3GMath.java')
+        contents = math.getText('UTF-8').replace('\r\n', '\n')
+        def angleStart = '\t// Much faster atan2 approximation heavily based on https://gist.github.com/volkansalma/2972237'
+        def angleEnd = '\t// Fast float reciprocal (1 / x) using two Newton-Raphson steps'
+        if (contents.count(angleStart) != 1 || contents.count(angleEnd) != 1) {
+            throw new GradleException('atan2 replacement hook drift')
+        }
+        start = contents.indexOf(angleStart)
+        end = contents.indexOf(angleEnd, start)
+        math.setText(contents.substring(0, start) + '''    public static final float atan2(float y, float x) {
+        return (float) Math.atan2(y, x);
+    }
+
+''' + contents.substring(end), 'UTF-8')
+        patchM3gSceneContracts(output)
+        copy { from new File(source, 'LICENSE'); into new File(output, 'assets'); rename { 'FREEJ2ME-LICENSE.txt' } }
+        copy { from m3gSourceLock; into new File(output, 'assets'); rename { 'FREEJ2ME-SOURCE.json' } }
+    }
+}
+
+ext.m3gGenerated = generated

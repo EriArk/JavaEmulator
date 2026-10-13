@@ -1,0 +1,549 @@
+INSTRUMENTATION_STATUS: class=javax.microedition.shell.M3gAnimationTest
+INSTRUMENTATION_STATUS: current=1
+INSTRUMENTATION_STATUS: id=AndroidJUnitRunner
+INSTRUMENTATION_STATUS: numtests=23
+INSTRUMENTATION_STATUS: stream=
+javax.microedition.shell.M3gAnimationTest:
+INSTRUMENTATION_STATUS: test=slerpBetweenDifferentAxesProducesTheExpectedTransform
+INSTRUMENTATION_STATUS_CODE: 1
+INSTRUMENTATION_STATUS: class=javax.microedition.shell.M3gAnimationTest
+INSTRUMENTATION_STATUS: current=1
+INSTRUMENTATION_STATUS: id=AndroidJUnitRunner
+INSTRUMENTATION_STATUS: numtests=23
+INSTRUMENTATION_STATUS: stream=.
+INSTRUMENTATION_STATUS: test=slerpBetweenDifferentAxesProducesTheExpectedTransform
+INSTRUMENTATION_STATUS_CODE: 0
+INSTRUMENTATION_STATUS: class=javax.microedition.shell.M3gAnimationTest
+INSTRUMENTATION_STATUS: current=2
+INSTRUMENTATION_STATUS: id=AndroidJUnitRunner
+INSTRUMENTATION_STATUS: numtests=23
+INSTRUMENTATION_STATUS: stream=
+INSTRUMENTATION_STATUS: test=splineUsesTimeWeightedTangents
+INSTRUMENTATION_STATUS_CODE: 1
+INSTRUMENTATION_STATUS: class=javax.microedition.shell.M3gAnimationTest
+INSTRUMENTATION_STATUS: current=2
+INSTRUMENTATION_STATUS: id=AndroidJUnitRunner
+INSTRUMENTATION_STATUS: numtests=23
+INSTRUMENTATION_STATUS: stream=.
+INSTRUMENTATION_STATUS: test=splineUsesTimeWeightedTangents
+INSTRUMENTATION_STATUS_CODE: 0
+INSTRUMENTATION_STATUS: class=javax.microedition.shell.M3gAnimationTest
+INSTRUMENTATION_STATUS: current=3
+INSTRUMENTATION_STATUS: id=AndroidJUnitRunner
+INSTRUMENTATION_STATUS: numtests=23
+INSTRUMENTATION_STATUS: stream=
+INSTRUMENTATION_STATUS: test=loopInterpolatesAcrossTheLastToFirstGap
+INSTRUMENTATION_STATUS_CODE: 1
+INSTRUMENTATION_STATUS: class=javax.microedition.shell.M3gAnimationTest
+INSTRUMENTATION_STATUS: current=3
+INSTRUMENTATION_STATUS: id=AndroidJUnitRunner
+INSTRUMENTATION_STATUS: numtests=23
+INSTRUMENTATION_STATUS: stream=.
+INSTRUMENTATION_STATUS: test=loopInterpolatesAcrossTheLastToFirstGap
+INSTRUMENTATION_STATUS_CODE: 0
+INSTRUMENTATION_STATUS: class=javax.microedition.shell.M3gAnimationTest
+INSTRUMENTATION_STATUS: current=4
+INSTRUMENTATION_STATUS: id=AndroidJUnitRunner
+INSTRUMENTATION_STATUS: numtests=23
+INSTRUMENTATION_STATUS: stream=
+INSTRUMENTATION_STATUS: test=loaderPreservesCircularRanges
+INSTRUMENTATION_STATUS_CODE: 1
+INSTRUMENTATION_STATUS: class=javax.microedition.shell.M3gAnimationTest
+INSTRUMENTATION_STATUS: current=4
+INSTRUMENTATION_STATUS: id=AndroidJUnitRunner
+INSTRUMENTATION_STATUS: numtests=23
+INSTRUMENTATION_STATUS: stream=.
+INSTRUMENTATION_STATUS: test=loaderPreservesCircularRanges
+INSTRUMENTATION_STATUS_CODE: 0
+INSTRUMENTATION_STATUS: class=javax.microedition.shell.M3gAnimationTest
+INSTRUMENTATION_STATUS: current=5
+INSTRUMENTATION_STATUS: id=AndroidJUnitRunner
+INSTRUMENTATION_STATUS: numtests=23
+INSTRUMENTATION_STATUS: stream=
+INSTRUMENTATION_STATUS: test=coincidentFramesPreserveCutsAndRandomAccess
+INSTRUMENTATION_STATUS_CODE: 1
+INSTRUMENTATION_STATUS: class=javax.microedition.shell.M3gAnimationTest
+INSTRUMENTATION_STATUS: current=5
+INSTRUMENTATION_STATUS: id=AndroidJUnitRunner
+INSTRUMENTATION_STATUS: numtests=23
+INSTRUMENTATION_STATUS: stream=.
+INSTRUMENTATION_STATUS: test=coincidentFramesPreserveCutsAndRandomAccess
+INSTRUMENTATION_STATUS_CODE: 0
+INSTRUMENTATION_STATUS: class=javax.microedition.shell.M3gAnimationTest
+INSTRUMENTATION_STATUS: current=6
+INSTRUMENTATION_STATUS: id=AndroidJUnitRunner
+INSTRUMENTATION_STATUS: numtests=23
+INSTRUMENTATION_STATUS: stream=
+INSTRUMENTATION_STATUS: test=controllerPositionDoesNotWrapAcrossSignedWorldTimes
+INSTRUMENTATION_STATUS_CODE: 1
+INSTRUMENTATION_STATUS: class=javax.microedition.shell.M3gAnimationTest
+INSTRUMENTATION_STATUS: current=6
+INSTRUMENTATION_STATUS: id=AndroidJUnitRunner
+INSTRUMENTATION_STATUS: numtests=23
+INSTRUMENTATION_STATUS: stream=.
+INSTRUMENTATION_STATUS: test=controllerPositionDoesNotWrapAcrossSignedWorldTimes
+INSTRUMENTATION_STATUS_CODE: 0
+INSTRUMENTATION_STATUS: class=javax.microedition.shell.M3gAnimationTest
+INSTRUMENTATION_STATUS: current=7
+INSTRUMENTATION_STATUS: id=AndroidJUnitRunner
+INSTRUMENTATION_STATUS: numtests=23
+INSTRUMENTATION_STATUS: stream=
+INSTRUMENTATION_STATUS: test=unsetDurationIsRejectedWhenAnimationIsApplied
+INSTRUMENTATION_STATUS_CODE: 1
+INSTRUMENTATION_STATUS: class=javax.microedition.shell.M3gAnimationTest
+INSTRUMENTATION_STATUS: current=7
+INSTRUMENTATION_STATUS: id=AndroidJUnitRunner
+INSTRUMENTATION_STATUS: numtests=23
+INSTRUMENTATION_STATUS: stack=java.lang.AssertionError: Invalid active sequence
+	at org.junit.Assert.fail(Assert.java:88)
+	at javax.microedition.shell.M3gAnimationTest.expectInvalid(M3gAnimationTest.java:266)
+	at javax.microedition.shell.M3gAnimationTest.unsetDurationIsRejectedWhenAnimationIsApplied(M3gAnimationTest.java:115)
+
+INSTRUMENTATION_STATUS: stream=
+Error in unsetDurationIsRejectedWhenAnimationIsApplied(javax.microedition.shell.M3gAnimationTest):
+java.lang.AssertionError: Invalid active sequence
+	at org.junit.Assert.fail(Assert.java:88)
+	at javax.microedition.shell.M3gAnimationTest.expectInvalid(M3gAnimationTest.java:266)
+	at javax.microedition.shell.M3gAnimationTest.unsetDurationIsRejectedWhenAnimationIsApplied(M3gAnimationTest.java:115)
+
+INSTRUMENTATION_STATUS: test=unsetDurationIsRejectedWhenAnimationIsApplied
+INSTRUMENTATION_STATUS_CODE: -2
+INSTRUMENTATION_STATUS: class=javax.microedition.shell.M3gAnimationTest
+INSTRUMENTATION_STATUS: current=8
+INSTRUMENTATION_STATUS: id=AndroidJUnitRunner
+INSTRUMENTATION_STATUS: numtests=23
+INSTRUMENTATION_STATUS: stream=
+INSTRUMENTATION_STATUS: test=stoppedControllerAndIntervalBoundariesPreserveState
+INSTRUMENTATION_STATUS_CODE: 1
+INSTRUMENTATION_STATUS: class=javax.microedition.shell.M3gAnimationTest
+INSTRUMENTATION_STATUS: current=8
+INSTRUMENTATION_STATUS: id=AndroidJUnitRunner
+INSTRUMENTATION_STATUS: numtests=23
+INSTRUMENTATION_STATUS: stream=.
+INSTRUMENTATION_STATUS: test=stoppedControllerAndIntervalBoundariesPreserveState
+INSTRUMENTATION_STATUS_CODE: 0
+INSTRUMENTATION_STATUS: class=javax.microedition.shell.M3gAnimationTest
+INSTRUMENTATION_STATUS: current=9
+INSTRUMENTATION_STATUS: id=AndroidJUnitRunner
+INSTRUMENTATION_STATUS: numtests=23
+INSTRUMENTATION_STATUS: stream=
+INSTRUMENTATION_STATUS: test=loaderRejectsInvalidSequencesBeforeAnimation
+INSTRUMENTATION_STATUS_CODE: 1
+INSTRUMENTATION_STATUS: class=javax.microedition.shell.M3gAnimationTest
+INSTRUMENTATION_STATUS: current=9
+INSTRUMENTATION_STATUS: id=AndroidJUnitRunner
+INSTRUMENTATION_STATUS: numtests=23
+INSTRUMENTATION_STATUS: stack=java.lang.AssertionError: Invalid sequence file
+	at org.junit.Assert.fail(Assert.java:88)
+	at javax.microedition.shell.M3gAnimationTest.loaderRejectsInvalidSequencesBeforeAnimation(M3gAnimationTest.java:220)
+
+INSTRUMENTATION_STATUS: stream=
+Error in loaderRejectsInvalidSequencesBeforeAnimation(javax.microedition.shell.M3gAnimationTest):
+java.lang.AssertionError: Invalid sequence file
+	at org.junit.Assert.fail(Assert.java:88)
+	at javax.microedition.shell.M3gAnimationTest.loaderRejectsInvalidSequencesBeforeAnimation(M3gAnimationTest.java:220)
+
+INSTRUMENTATION_STATUS: test=loaderRejectsInvalidSequencesBeforeAnimation
+INSTRUMENTATION_STATUS_CODE: -2
+INSTRUMENTATION_STATUS: class=javax.microedition.shell.M3gAnimationTest
+INSTRUMENTATION_STATUS: current=10
+INSTRUMENTATION_STATUS: id=AndroidJUnitRunner
+INSTRUMENTATION_STATUS: numtests=23
+INSTRUMENTATION_STATUS: stream=
+INSTRUMENTATION_STATUS: test=reversePlaybackDoesNotSleepThroughAnEarlierKeyframe
+INSTRUMENTATION_STATUS_CODE: 1
+INSTRUMENTATION_STATUS: class=javax.microedition.shell.M3gAnimationTest
+INSTRUMENTATION_STATUS: current=10
+INSTRUMENTATION_STATUS: id=AndroidJUnitRunner
+INSTRUMENTATION_STATUS: numtests=23
+INSTRUMENTATION_STATUS: stack=java.lang.AssertionError
+	at org.junit.Assert.fail(Assert.java:86)
+	at org.junit.Assert.assertTrue(Assert.java:41)
+	at org.junit.Assert.assertTrue(Assert.java:52)
+	at javax.microedition.shell.M3gAnimationTest.reversePlaybackDoesNotSleepThroughAnEarlierKeyframe(M3gAnimationTest.java:135)
+
+INSTRUMENTATION_STATUS: stream=
+Error in reversePlaybackDoesNotSleepThroughAnEarlierKeyframe(javax.microedition.shell.M3gAnimationTest):
+java.lang.AssertionError
+	at org.junit.Assert.fail(Assert.java:86)
+	at org.junit.Assert.assertTrue(Assert.java:41)
+	at org.junit.Assert.assertTrue(Assert.java:52)
+	at javax.microedition.shell.M3gAnimationTest.reversePlaybackDoesNotSleepThroughAnEarlierKeyframe(M3gAnimationTest.java:135)
+
+INSTRUMENTATION_STATUS: test=reversePlaybackDoesNotSleepThroughAnEarlierKeyframe
+INSTRUMENTATION_STATUS_CODE: -2
+INSTRUMENTATION_STATUS: class=javax.microedition.shell.M3gAnimationTest
+INSTRUMENTATION_STATUS: current=11
+INSTRUMENTATION_STATUS: id=AndroidJUnitRunner
+INSTRUMENTATION_STATUS: numtests=23
+INSTRUMENTATION_STATUS: stream=
+INSTRUMENTATION_STATUS: test=slerpDoesNotReverseAQuaternionEncodedLongRotation
+INSTRUMENTATION_STATUS_CODE: 1
+INSTRUMENTATION_STATUS: class=javax.microedition.shell.M3gAnimationTest
+INSTRUMENTATION_STATUS: current=11
+INSTRUMENTATION_STATUS: id=AndroidJUnitRunner
+INSTRUMENTATION_STATUS: numtests=23
+INSTRUMENTATION_STATUS: stream=.
+INSTRUMENTATION_STATUS: test=slerpDoesNotReverseAQuaternionEncodedLongRotation
+INSTRUMENTATION_STATUS_CODE: 0
+INSTRUMENTATION_STATUS: class=javax.microedition.shell.M3gAnimationTest
+INSTRUMENTATION_STATUS: current=12
+INSTRUMENTATION_STATUS: id=AndroidJUnitRunner
+INSTRUMENTATION_STATUS: numtests=23
+INSTRUMENTATION_STATUS: stream=
+INSTRUMENTATION_STATUS: test=squadUsesQuaternionTangentsAndConstantEndpoints
+INSTRUMENTATION_STATUS_CODE: 1
+INSTRUMENTATION_STATUS: class=javax.microedition.shell.M3gAnimationTest
+INSTRUMENTATION_STATUS: current=12
+INSTRUMENTATION_STATUS: id=AndroidJUnitRunner
+INSTRUMENTATION_STATUS: numtests=23
+INSTRUMENTATION_STATUS: stream=.
+INSTRUMENTATION_STATUS: test=squadUsesQuaternionTangentsAndConstantEndpoints
+INSTRUMENTATION_STATUS_CODE: 0
+INSTRUMENTATION_STATUS: class=javax.microedition.shell.M3gAnimationTest
+INSTRUMENTATION_STATUS: current=13
+INSTRUMENTATION_STATUS: id=AndroidJUnitRunner
+INSTRUMENTATION_STATUS: numtests=23
+INSTRUMENTATION_STATUS: stream=
+INSTRUMENTATION_STATUS: test=decreasingTimesAreRejectedButCanBeRepaired
+INSTRUMENTATION_STATUS_CODE: 1
+INSTRUMENTATION_STATUS: class=javax.microedition.shell.M3gAnimationTest
+INSTRUMENTATION_STATUS: current=13
+INSTRUMENTATION_STATUS: id=AndroidJUnitRunner
+INSTRUMENTATION_STATUS: numtests=23
+INSTRUMENTATION_STATUS: stream=.
+INSTRUMENTATION_STATUS: test=decreasingTimesAreRejectedButCanBeRepaired
+INSTRUMENTATION_STATUS_CODE: 0
+INSTRUMENTATION_STATUS: class=javax.microedition.shell.M3gAnimationTest
+INSTRUMENTATION_STATUS: current=14
+INSTRUMENTATION_STATUS: id=AndroidJUnitRunner
+INSTRUMENTATION_STATUS: numtests=23
+INSTRUMENTATION_STATUS: stream=
+INSTRUMENTATION_STATUS: test=multipleTracksBlendWithoutChangingTheirControllers
+INSTRUMENTATION_STATUS_CODE: 1
+INSTRUMENTATION_STATUS: class=javax.microedition.shell.M3gAnimationTest
+INSTRUMENTATION_STATUS: current=14
+INSTRUMENTATION_STATUS: id=AndroidJUnitRunner
+INSTRUMENTATION_STATUS: numtests=23
+INSTRUMENTATION_STATUS: stream=.
+INSTRUMENTATION_STATUS: test=multipleTracksBlendWithoutChangingTheirControllers
+INSTRUMENTATION_STATUS_CODE: 0
+INSTRUMENTATION_STATUS: class=javax.microedition.shell.M3gAnimationTest
+INSTRUMENTATION_STATUS: current=15
+INSTRUMENTATION_STATUS: id=AndroidJUnitRunner
+INSTRUMENTATION_STATUS: numtests=23
+INSTRUMENTATION_STATUS: stream=
+INSTRUMENTATION_STATUS: test=circularValidRangeIgnoresUnusedFrames
+INSTRUMENTATION_STATUS_CODE: 1
+INSTRUMENTATION_STATUS: class=javax.microedition.shell.M3gAnimationTest
+INSTRUMENTATION_STATUS: current=15
+INSTRUMENTATION_STATUS: id=AndroidJUnitRunner
+INSTRUMENTATION_STATUS: numtests=23
+INSTRUMENTATION_STATUS: stream=.
+INSTRUMENTATION_STATUS: test=circularValidRangeIgnoresUnusedFrames
+INSTRUMENTATION_STATUS_CODE: 0
+INSTRUMENTATION_STATUS: class=javax.microedition.shell.M3gAnimationTest
+INSTRUMENTATION_STATUS: current=16
+INSTRUMENTATION_STATUS: id=AndroidJUnitRunner
+INSTRUMENTATION_STATUS: numtests=23
+INSTRUMENTATION_STATUS: stream=
+INSTRUMENTATION_STATUS: test=durationMustCoverTheLastValidKeyframe
+INSTRUMENTATION_STATUS_CODE: 1
+INSTRUMENTATION_STATUS: class=javax.microedition.shell.M3gAnimationTest
+INSTRUMENTATION_STATUS: current=16
+INSTRUMENTATION_STATUS: id=AndroidJUnitRunner
+INSTRUMENTATION_STATUS: numtests=23
+INSTRUMENTATION_STATUS: stream=.
+INSTRUMENTATION_STATUS: test=durationMustCoverTheLastValidKeyframe
+INSTRUMENTATION_STATUS_CODE: 0
+INSTRUMENTATION_STATUS: class=javax.microedition.shell.M3gAnimationTest
+INSTRUMENTATION_STATUS: current=17
+INSTRUMENTATION_STATUS: id=AndroidJUnitRunner
+INSTRUMENTATION_STATUS: numtests=23
+INSTRUMENTATION_STATUS: stream=
+INSTRUMENTATION_STATUS: test=editsAndCopiesHaveIndependentSplineCaches
+INSTRUMENTATION_STATUS_CODE: 1
+INSTRUMENTATION_STATUS: class=javax.microedition.shell.M3gAnimationTest
+INSTRUMENTATION_STATUS: current=17
+INSTRUMENTATION_STATUS: id=AndroidJUnitRunner
+INSTRUMENTATION_STATUS: numtests=23
+INSTRUMENTATION_STATUS: stream=.
+INSTRUMENTATION_STATUS: test=editsAndCopiesHaveIndependentSplineCaches
+INSTRUMENTATION_STATUS_CODE: 0
+INSTRUMENTATION_STATUS: class=javax.microedition.shell.M3gAnimationTest
+INSTRUMENTATION_STATUS: current=18
+INSTRUMENTATION_STATUS: id=AndroidJUnitRunner
+INSTRUMENTATION_STATUS: numtests=23
+INSTRUMENTATION_STATUS: stream=
+INSTRUMENTATION_STATUS: test=stepLoopUsesPreviousCycleBeforeFirstKey
+INSTRUMENTATION_STATUS_CODE: 1
+INSTRUMENTATION_STATUS: class=javax.microedition.shell.M3gAnimationTest
+INSTRUMENTATION_STATUS: current=18
+INSTRUMENTATION_STATUS: id=AndroidJUnitRunner
+INSTRUMENTATION_STATUS: numtests=23
+INSTRUMENTATION_STATUS: stream=.
+INSTRUMENTATION_STATUS: test=stepLoopUsesPreviousCycleBeforeFirstKey
+INSTRUMENTATION_STATUS_CODE: 0
+INSTRUMENTATION_STATUS: class=javax.microedition.shell.M3gAnimationTest
+INSTRUMENTATION_STATUS: current=19
+INSTRUMENTATION_STATUS: id=AndroidJUnitRunner
+INSTRUMENTATION_STATUS: numtests=23
+INSTRUMENTATION_STATUS: stream=
+INSTRUMENTATION_STATUS: test=validRangeRejectsBadIndicesWithTheSpecifiedException
+INSTRUMENTATION_STATUS_CODE: 1
+INSTRUMENTATION_STATUS: class=javax.microedition.shell.M3gAnimationTest
+INSTRUMENTATION_STATUS: current=19
+INSTRUMENTATION_STATUS: id=AndroidJUnitRunner
+INSTRUMENTATION_STATUS: numtests=23
+INSTRUMENTATION_STATUS: stream=.
+INSTRUMENTATION_STATUS: test=validRangeRejectsBadIndicesWithTheSpecifiedException
+INSTRUMENTATION_STATUS_CODE: 0
+INSTRUMENTATION_STATUS: class=javax.microedition.shell.M3gAnimationTest
+INSTRUMENTATION_STATUS: current=20
+INSTRUMENTATION_STATUS: id=AndroidJUnitRunner
+INSTRUMENTATION_STATUS: numtests=23
+INSTRUMENTATION_STATUS: stream=
+INSTRUMENTATION_STATUS: test=changingRepeatModeRebuildsSplineEndpoints
+INSTRUMENTATION_STATUS_CODE: 1
+INSTRUMENTATION_STATUS: class=javax.microedition.shell.M3gAnimationTest
+INSTRUMENTATION_STATUS: current=20
+INSTRUMENTATION_STATUS: id=AndroidJUnitRunner
+INSTRUMENTATION_STATUS: numtests=23
+INSTRUMENTATION_STATUS: stack=arrays first differed at element [0]; expected:<0.9375> but was:<2.25>
+	at org.junit.internal.ComparisonCriteria.arrayEquals(ComparisonCriteria.java:55)
+	at org.junit.Assert.assertArrayEquals(Assert.java:500)
+	at org.junit.Assert.assertArrayEquals(Assert.java:514)
+	at javax.microedition.shell.M3gAnimationTest.assertScale(M3gAnimationTest.java:273)
+	at javax.microedition.shell.M3gAnimationTest.changingRepeatModeRebuildsSplineEndpoints(M3gAnimationTest.java:73)
+	... 29 trimmed
+Caused by: java.lang.AssertionError: expected:<0.9375> but was:<2.25>
+	at org.junit.Assert.fail(Assert.java:88)
+	at org.junit.Assert.failNotEquals(Assert.java:834)
+	at org.junit.Assert.assertEquals(Assert.java:575)
+	at org.junit.Assert.assertEquals(Assert.java:700)
+	at org.junit.internal.InexactComparisonCriteria.assertElementsEqual(InexactComparisonCriteria.java:21)
+	at org.junit.internal.ComparisonCriteria.arrayEquals(ComparisonCriteria.java:53)
+	... 34 more
+
+INSTRUMENTATION_STATUS: stream=
+Error in changingRepeatModeRebuildsSplineEndpoints(javax.microedition.shell.M3gAnimationTest):
+arrays first differed at element [0]; expected:<0.9375> but was:<2.25>
+	at org.junit.internal.ComparisonCriteria.arrayEquals(ComparisonCriteria.java:55)
+	at org.junit.Assert.assertArrayEquals(Assert.java:500)
+	at org.junit.Assert.assertArrayEquals(Assert.java:514)
+	at javax.microedition.shell.M3gAnimationTest.assertScale(M3gAnimationTest.java:273)
+	at javax.microedition.shell.M3gAnimationTest.changingRepeatModeRebuildsSplineEndpoints(M3gAnimationTest.java:73)
+	... 29 trimmed
+Caused by: java.lang.AssertionError: expected:<0.9375> but was:<2.25>
+	at org.junit.Assert.fail(Assert.java:88)
+	at org.junit.Assert.failNotEquals(Assert.java:834)
+	at org.junit.Assert.assertEquals(Assert.java:575)
+	at org.junit.Assert.assertEquals(Assert.java:700)
+	at org.junit.internal.InexactComparisonCriteria.assertElementsEqual(InexactComparisonCriteria.java:21)
+	at org.junit.internal.ComparisonCriteria.arrayEquals(ComparisonCriteria.java:53)
+	... 34 more
+
+INSTRUMENTATION_STATUS: test=changingRepeatModeRebuildsSplineEndpoints
+INSTRUMENTATION_STATUS_CODE: -2
+INSTRUMENTATION_STATUS: class=javax.microedition.shell.M3gAnimationTest
+INSTRUMENTATION_STATUS: current=21
+INSTRUMENTATION_STATUS: id=AndroidJUnitRunner
+INSTRUMENTATION_STATUS: numtests=23
+INSTRUMENTATION_STATUS: stream=
+INSTRUMENTATION_STATUS: test=squadLoopClosesAcrossTheBoundary
+INSTRUMENTATION_STATUS_CODE: 1
+INSTRUMENTATION_STATUS: class=javax.microedition.shell.M3gAnimationTest
+INSTRUMENTATION_STATUS: current=21
+INSTRUMENTATION_STATUS: id=AndroidJUnitRunner
+INSTRUMENTATION_STATUS: numtests=23
+INSTRUMENTATION_STATUS: stream=.
+INSTRUMENTATION_STATUS: test=squadLoopClosesAcrossTheBoundary
+INSTRUMENTATION_STATUS_CODE: 0
+INSTRUMENTATION_STATUS: class=javax.microedition.shell.M3gAnimationTest
+INSTRUMENTATION_STATUS: current=22
+INSTRUMENTATION_STATUS: id=AndroidJUnitRunner
+INSTRUMENTATION_STATUS: numtests=23
+INSTRUMENTATION_STATUS: stream=
+INSTRUMENTATION_STATUS: test=singleKeyLoopIsConstantAtAnyTime
+INSTRUMENTATION_STATUS_CODE: 1
+INSTRUMENTATION_STATUS: class=javax.microedition.shell.M3gAnimationTest
+INSTRUMENTATION_STATUS: current=22
+INSTRUMENTATION_STATUS: id=AndroidJUnitRunner
+INSTRUMENTATION_STATUS: numtests=23
+INSTRUMENTATION_STATUS: stream=.
+INSTRUMENTATION_STATUS: test=singleKeyLoopIsConstantAtAnyTime
+INSTRUMENTATION_STATUS_CODE: 0
+INSTRUMENTATION_STATUS: class=javax.microedition.shell.M3gAnimationTest
+INSTRUMENTATION_STATUS: current=23
+INSTRUMENTATION_STATUS: id=AndroidJUnitRunner
+INSTRUMENTATION_STATUS: numtests=23
+INSTRUMENTATION_STATUS: stream=
+INSTRUMENTATION_STATUS: test=fractionalSpeedDoesNotOverstateContinuousValidity
+INSTRUMENTATION_STATUS_CODE: 1
+INSTRUMENTATION_STATUS: class=javax.microedition.shell.M3gAnimationTest
+INSTRUMENTATION_STATUS: current=23
+INSTRUMENTATION_STATUS: id=AndroidJUnitRunner
+INSTRUMENTATION_STATUS: numtests=23
+INSTRUMENTATION_STATUS: stream=.
+INSTRUMENTATION_STATUS: test=fractionalSpeedDoesNotOverstateContinuousValidity
+INSTRUMENTATION_STATUS_CODE: 0
+INSTRUMENTATION_RESULT: stream=
+
+Time: 0.12
+There were 4 failures:
+1) unsetDurationIsRejectedWhenAnimationIsApplied(javax.microedition.shell.M3gAnimationTest)
+java.lang.AssertionError: Invalid active sequence
+	at org.junit.Assert.fail(Assert.java:88)
+	at javax.microedition.shell.M3gAnimationTest.expectInvalid(M3gAnimationTest.java:266)
+	at javax.microedition.shell.M3gAnimationTest.unsetDurationIsRejectedWhenAnimationIsApplied(M3gAnimationTest.java:115)
+	at java.lang.reflect.Method.invoke(Native Method)
+	at org.junit.runners.model.FrameworkMethod$1.runReflectiveCall(FrameworkMethod.java:50)
+	at org.junit.internal.runners.model.ReflectiveCallable.run(ReflectiveCallable.java:12)
+	at org.junit.runners.model.FrameworkMethod.invokeExplosively(FrameworkMethod.java:47)
+	at org.junit.internal.runners.statements.InvokeMethod.evaluate(InvokeMethod.java:17)
+	at androidx.test.internal.runner.junit4.statement.RunBefores.evaluate(RunBefores.java:80)
+	at org.junit.runners.ParentRunner.runLeaf(ParentRunner.java:325)
+	at org.junit.runners.BlockJUnit4ClassRunner.runChild(BlockJUnit4ClassRunner.java:78)
+	at org.junit.runners.BlockJUnit4ClassRunner.runChild(BlockJUnit4ClassRunner.java:57)
+	at org.junit.runners.ParentRunner$3.run(ParentRunner.java:290)
+	at org.junit.runners.ParentRunner$1.schedule(ParentRunner.java:71)
+	at org.junit.runners.ParentRunner.runChildren(ParentRunner.java:288)
+	at org.junit.runners.ParentRunner.access$000(ParentRunner.java:58)
+	at org.junit.runners.ParentRunner$2.evaluate(ParentRunner.java:268)
+	at org.junit.runners.ParentRunner.run(ParentRunner.java:363)
+	at androidx.test.ext.junit.runners.AndroidJUnit4.run(AndroidJUnit4.java:162)
+	at org.junit.runners.Suite.runChild(Suite.java:128)
+	at org.junit.runners.Suite.runChild(Suite.java:27)
+	at org.junit.runners.ParentRunner$3.run(ParentRunner.java:290)
+	at org.junit.runners.ParentRunner$1.schedule(ParentRunner.java:71)
+	at org.junit.runners.ParentRunner.runChildren(ParentRunner.java:288)
+	at org.junit.runners.ParentRunner.access$000(ParentRunner.java:58)
+	at org.junit.runners.ParentRunner$2.evaluate(ParentRunner.java:268)
+	at org.junit.runners.ParentRunner.run(ParentRunner.java:363)
+	at org.junit.runner.JUnitCore.run(JUnitCore.java:137)
+	at org.junit.runner.JUnitCore.run(JUnitCore.java:115)
+	at androidx.test.internal.runner.TestExecutor.execute(TestExecutor.java:67)
+	at androidx.test.internal.runner.TestExecutor.execute(TestExecutor.java:58)
+	at androidx.test.runner.AndroidJUnitRunner.onStart(AndroidJUnitRunner.java:446)
+	at android.app.Instrumentation$InstrumentationThread.run(Instrumentation.java:2408)
+2) loaderRejectsInvalidSequencesBeforeAnimation(javax.microedition.shell.M3gAnimationTest)
+java.lang.AssertionError: Invalid sequence file
+	at org.junit.Assert.fail(Assert.java:88)
+	at javax.microedition.shell.M3gAnimationTest.loaderRejectsInvalidSequencesBeforeAnimation(M3gAnimationTest.java:220)
+	at java.lang.reflect.Method.invoke(Native Method)
+	at org.junit.runners.model.FrameworkMethod$1.runReflectiveCall(FrameworkMethod.java:50)
+	at org.junit.internal.runners.model.ReflectiveCallable.run(ReflectiveCallable.java:12)
+	at org.junit.runners.model.FrameworkMethod.invokeExplosively(FrameworkMethod.java:47)
+	at org.junit.internal.runners.statements.InvokeMethod.evaluate(InvokeMethod.java:17)
+	at androidx.test.internal.runner.junit4.statement.RunBefores.evaluate(RunBefores.java:80)
+	at org.junit.runners.ParentRunner.runLeaf(ParentRunner.java:325)
+	at org.junit.runners.BlockJUnit4ClassRunner.runChild(BlockJUnit4ClassRunner.java:78)
+	at org.junit.runners.BlockJUnit4ClassRunner.runChild(BlockJUnit4ClassRunner.java:57)
+	at org.junit.runners.ParentRunner$3.run(ParentRunner.java:290)
+	at org.junit.runners.ParentRunner$1.schedule(ParentRunner.java:71)
+	at org.junit.runners.ParentRunner.runChildren(ParentRunner.java:288)
+	at org.junit.runners.ParentRunner.access$000(ParentRunner.java:58)
+	at org.junit.runners.ParentRunner$2.evaluate(ParentRunner.java:268)
+	at org.junit.runners.ParentRunner.run(ParentRunner.java:363)
+	at androidx.test.ext.junit.runners.AndroidJUnit4.run(AndroidJUnit4.java:162)
+	at org.junit.runners.Suite.runChild(Suite.java:128)
+	at org.junit.runners.Suite.runChild(Suite.java:27)
+	at org.junit.runners.ParentRunner$3.run(ParentRunner.java:290)
+	at org.junit.runners.ParentRunner$1.schedule(ParentRunner.java:71)
+	at org.junit.runners.ParentRunner.runChildren(ParentRunner.java:288)
+	at org.junit.runners.ParentRunner.access$000(ParentRunner.java:58)
+	at org.junit.runners.ParentRunner$2.evaluate(ParentRunner.java:268)
+	at org.junit.runners.ParentRunner.run(ParentRunner.java:363)
+	at org.junit.runner.JUnitCore.run(JUnitCore.java:137)
+	at org.junit.runner.JUnitCore.run(JUnitCore.java:115)
+	at androidx.test.internal.runner.TestExecutor.execute(TestExecutor.java:67)
+	at androidx.test.internal.runner.TestExecutor.execute(TestExecutor.java:58)
+	at androidx.test.runner.AndroidJUnitRunner.onStart(AndroidJUnitRunner.java:446)
+	at android.app.Instrumentation$InstrumentationThread.run(Instrumentation.java:2408)
+3) reversePlaybackDoesNotSleepThroughAnEarlierKeyframe(javax.microedition.shell.M3gAnimationTest)
+java.lang.AssertionError
+	at org.junit.Assert.fail(Assert.java:86)
+	at org.junit.Assert.assertTrue(Assert.java:41)
+	at org.junit.Assert.assertTrue(Assert.java:52)
+	at javax.microedition.shell.M3gAnimationTest.reversePlaybackDoesNotSleepThroughAnEarlierKeyframe(M3gAnimationTest.java:135)
+	at java.lang.reflect.Method.invoke(Native Method)
+	at org.junit.runners.model.FrameworkMethod$1.runReflectiveCall(FrameworkMethod.java:50)
+	at org.junit.internal.runners.model.ReflectiveCallable.run(ReflectiveCallable.java:12)
+	at org.junit.runners.model.FrameworkMethod.invokeExplosively(FrameworkMethod.java:47)
+	at org.junit.internal.runners.statements.InvokeMethod.evaluate(InvokeMethod.java:17)
+	at androidx.test.internal.runner.junit4.statement.RunBefores.evaluate(RunBefores.java:80)
+	at org.junit.runners.ParentRunner.runLeaf(ParentRunner.java:325)
+	at org.junit.runners.BlockJUnit4ClassRunner.runChild(BlockJUnit4ClassRunner.java:78)
+	at org.junit.runners.BlockJUnit4ClassRunner.runChild(BlockJUnit4ClassRunner.java:57)
+	at org.junit.runners.ParentRunner$3.run(ParentRunner.java:290)
+	at org.junit.runners.ParentRunner$1.schedule(ParentRunner.java:71)
+	at org.junit.runners.ParentRunner.runChildren(ParentRunner.java:288)
+	at org.junit.runners.ParentRunner.access$000(ParentRunner.java:58)
+	at org.junit.runners.ParentRunner$2.evaluate(ParentRunner.java:268)
+	at org.junit.runners.ParentRunner.run(ParentRunner.java:363)
+	at androidx.test.ext.junit.runners.AndroidJUnit4.run(AndroidJUnit4.java:162)
+	at org.junit.runners.Suite.runChild(Suite.java:128)
+	at org.junit.runners.Suite.runChild(Suite.java:27)
+	at org.junit.runners.ParentRunner$3.run(ParentRunner.java:290)
+	at org.junit.runners.ParentRunner$1.schedule(ParentRunner.java:71)
+	at org.junit.runners.ParentRunner.runChildren(ParentRunner.java:288)
+	at org.junit.runners.ParentRunner.access$000(ParentRunner.java:58)
+	at org.junit.runners.ParentRunner$2.evaluate(ParentRunner.java:268)
+	at org.junit.runners.ParentRunner.run(ParentRunner.java:363)
+	at org.junit.runner.JUnitCore.run(JUnitCore.java:137)
+	at org.junit.runner.JUnitCore.run(JUnitCore.java:115)
+	at androidx.test.internal.runner.TestExecutor.execute(TestExecutor.java:67)
+	at androidx.test.internal.runner.TestExecutor.execute(TestExecutor.java:58)
+	at androidx.test.runner.AndroidJUnitRunner.onStart(AndroidJUnitRunner.java:446)
+	at android.app.Instrumentation$InstrumentationThread.run(Instrumentation.java:2408)
+4) changingRepeatModeRebuildsSplineEndpoints(javax.microedition.shell.M3gAnimationTest)
+arrays first differed at element [0]; expected:<0.9375> but was:<2.25>
+	at org.junit.internal.ComparisonCriteria.arrayEquals(ComparisonCriteria.java:55)
+	at org.junit.Assert.assertArrayEquals(Assert.java:500)
+	at org.junit.Assert.assertArrayEquals(Assert.java:514)
+	at javax.microedition.shell.M3gAnimationTest.assertScale(M3gAnimationTest.java:273)
+	at javax.microedition.shell.M3gAnimationTest.changingRepeatModeRebuildsSplineEndpoints(M3gAnimationTest.java:73)
+	at java.lang.reflect.Method.invoke(Native Method)
+	at org.junit.runners.model.FrameworkMethod$1.runReflectiveCall(FrameworkMethod.java:50)
+	at org.junit.internal.runners.model.ReflectiveCallable.run(ReflectiveCallable.java:12)
+	at org.junit.runners.model.FrameworkMethod.invokeExplosively(FrameworkMethod.java:47)
+	at org.junit.internal.runners.statements.InvokeMethod.evaluate(InvokeMethod.java:17)
+	at androidx.test.internal.runner.junit4.statement.RunBefores.evaluate(RunBefores.java:80)
+	at org.junit.runners.ParentRunner.runLeaf(ParentRunner.java:325)
+	at org.junit.runners.BlockJUnit4ClassRunner.runChild(BlockJUnit4ClassRunner.java:78)
+	at org.junit.runners.BlockJUnit4ClassRunner.runChild(BlockJUnit4ClassRunner.java:57)
+	at org.junit.runners.ParentRunner$3.run(ParentRunner.java:290)
+	at org.junit.runners.ParentRunner$1.schedule(ParentRunner.java:71)
+	at org.junit.runners.ParentRunner.runChildren(ParentRunner.java:288)
+	at org.junit.runners.ParentRunner.access$000(ParentRunner.java:58)
+	at org.junit.runners.ParentRunner$2.evaluate(ParentRunner.java:268)
+	at org.junit.runners.ParentRunner.run(ParentRunner.java:363)
+	at androidx.test.ext.junit.runners.AndroidJUnit4.run(AndroidJUnit4.java:162)
+	at org.junit.runners.Suite.runChild(Suite.java:128)
+	at org.junit.runners.Suite.runChild(Suite.java:27)
+	at org.junit.runners.ParentRunner$3.run(ParentRunner.java:290)
+	at org.junit.runners.ParentRunner$1.schedule(ParentRunner.java:71)
+	at org.junit.runners.ParentRunner.runChildren(ParentRunner.java:288)
+	at org.junit.runners.ParentRunner.access$000(ParentRunner.java:58)
+	at org.junit.runners.ParentRunner$2.evaluate(ParentRunner.java:268)
+	at org.junit.runners.ParentRunner.run(ParentRunner.java:363)
+	at org.junit.runner.JUnitCore.run(JUnitCore.java:137)
+	at org.junit.runner.JUnitCore.run(JUnitCore.java:115)
+	at androidx.test.internal.runner.TestExecutor.execute(TestExecutor.java:67)
+	at androidx.test.internal.runner.TestExecutor.execute(TestExecutor.java:58)
+	at androidx.test.runner.AndroidJUnitRunner.onStart(AndroidJUnitRunner.java:446)
+	at android.app.Instrumentation$InstrumentationThread.run(Instrumentation.java:2408)
+Caused by: java.lang.AssertionError: expected:<0.9375> but was:<2.25>
+	at org.junit.Assert.fail(Assert.java:88)
+	at org.junit.Assert.failNotEquals(Assert.java:834)
+	at org.junit.Assert.assertEquals(Assert.java:575)
+	at org.junit.Assert.assertEquals(Assert.java:700)
+	at org.junit.internal.InexactComparisonCriteria.assertElementsEqual(InexactComparisonCriteria.java:21)
+	at org.junit.internal.ComparisonCriteria.arrayEquals(ComparisonCriteria.java:53)
+	... 34 more
+
+FAILURES!!!
+Tests run: 23,  Failures: 4
+
+
+INSTRUMENTATION_CODE: -1

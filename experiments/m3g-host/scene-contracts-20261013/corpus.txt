@@ -1,0 +1,23 @@
+INSTRUMENTATION_STATUS: class=javax.microedition.shell.M3gGameResourceProbe
+INSTRUMENTATION_STATUS: current=1
+INSTRUMENTATION_STATUS: id=AndroidJUnitRunner
+INSTRUMENTATION_STATUS: numtests=1
+INSTRUMENTATION_STATUS: stream=
+javax.microedition.shell.M3gGameResourceProbe:
+INSTRUMENTATION_STATUS: test=loadStandaloneM3gResourcesFromSuppliedArchives
+INSTRUMENTATION_STATUS_CODE: 1
+INSTRUMENTATION_STATUS: class=javax.microedition.shell.M3gGameResourceProbe
+INSTRUMENTATION_STATUS: current=1
+INSTRUMENTATION_STATUS: id=AndroidJUnitRunner
+INSTRUMENTATION_STATUS: numtests=1
+INSTRUMENTATION_STATUS: stream=.
+INSTRUMENTATION_STATUS: test=loadStandaloneM3gResourcesFromSuppliedArchives
+INSTRUMENTATION_STATUS_CODE: 0
+INSTRUMENTATION_RESULT: stream=
+
+Time: 0.546
+
+OK (1 test)
+
+
+INSTRUMENTATION_CODE: -1

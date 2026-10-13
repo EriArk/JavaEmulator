@@ -1,0 +1,80 @@
+﻿{
+  "engine": "Existing EPL M3G",
+  "suiteVersion": 2,
+  "javaTree": "af43b288fbf407f15cb50bb94ee2a405f2376109",
+  "nativeTree": "2a7723dffafbb4699f8da6ab0f675b17a9d3c69f",
+  "device": "Retroid Pocket Classic",
+  "sdk": 34,
+  "abi": "arm64-v8a",
+  "tests": [
+    {
+      "name": "scene_raw",
+      "passed": true,
+      "elapsedMs": 36.584167
+    },
+    {
+      "name": "scene_zlib",
+      "passed": true,
+      "elapsedMs": 22.840989
+    },
+    {
+      "name": "scene_multisection",
+      "passed": true,
+      "elapsedMs": 22.422761
+    },
+    {
+      "name": "scene_zlib_multisection",
+      "passed": true,
+      "elapsedMs": 21.73276
+    },
+    {
+      "name": "scene_offset",
+      "passed": true,
+      "elapsedMs": 4.442552
+    },
+    {
+      "name": "scene_truncated_rejected",
+      "passed": true,
+      "elapsedMs": 0.555312
+    },
+    {
+      "name": "animation_translation",
+      "passed": true,
+      "elapsedMs": 16.256614
+    },
+    {
+      "name": "animation_orientation",
+      "passed": true,
+      "elapsedMs": 13.520573
+    },
+    {
+      "name": "morph_vertices",
+      "passed": true,
+      "elapsedMs": 3.384844
+    },
+    {
+      "name": "skin_bone",
+      "passed": true,
+      "elapsedMs": 3.173802
+    }
+  ],
+  "frames": [
+    "scene_raw_api",
+    "scene_raw",
+    "scene_zlib_api",
+    "scene_zlib",
+    "scene_multisection_api",
+    "scene_multisection",
+    "scene_zlib_multisection_api",
+    "scene_zlib_multisection",
+    "scene_offset",
+    "translation_start",
+    "translation_end",
+    "rotation_start",
+    "rotation_mid",
+    "morph_start",
+    "morph_end",
+    "skin_start",
+    "skin_end"
+  ]
+}

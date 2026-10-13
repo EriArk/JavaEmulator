@@ -1,0 +1,73 @@
+INSTRUMENTATION_STATUS: class=javax.microedition.m3g.GpuLightingTest
+INSTRUMENTATION_STATUS: current=1
+INSTRUMENTATION_STATUS: id=AndroidJUnitRunner
+INSTRUMENTATION_STATUS: numtests=1
+INSTRUMENTATION_STATUS: stream=
+javax.microedition.m3g.GpuLightingTest:
+INSTRUMENTATION_STATUS: test=twoSidedLightingFollowsWindingWithoutCulling
+INSTRUMENTATION_STATUS_CODE: 1
+INSTRUMENTATION_STATUS: class=javax.microedition.m3g.GpuLightingTest
+INSTRUMENTATION_STATUS: current=1
+INSTRUMENTATION_STATUS: id=AndroidJUnitRunner
+INSTRUMENTATION_STATUS: numtests=1
+INSTRUMENTATION_STATUS: stack=java.lang.AssertionError: Different pixels=1560, max channel error=123, renderer=Android Emulator OpenGL ES Translator (Google SwiftShader) 20,64:ff1e4549/ff101018 39,64:ff101018/ff101018 58,64:ff101018/ff244a45 77,64:ff234945/ff234945 20,31:ff1e4448/ff101018 39,31:ff101018/ff101018 58,31:ff101018/ff204944 77,31:ff214944/ff214944
+	at org.junit.Assert.fail(Assert.java:88)
+	at org.junit.Assert.assertTrue(Assert.java:41)
+	at javax.microedition.m3g.GpuLightingTest.compare(GpuLightingTest.java:166)
+	at javax.microedition.m3g.GpuLightingTest.twoSidedLightingFollowsWindingWithoutCulling(GpuLightingTest.java:23)
+
+INSTRUMENTATION_STATUS: stream=
+Error in twoSidedLightingFollowsWindingWithoutCulling(javax.microedition.m3g.GpuLightingTest):
+java.lang.AssertionError: Different pixels=1560, max channel error=123, renderer=Android Emulator OpenGL ES Translator (Google SwiftShader) 20,64:ff1e4549/ff101018 39,64:ff101018/ff101018 58,64:ff101018/ff244a45 77,64:ff234945/ff234945 20,31:ff1e4448/ff101018 39,31:ff101018/ff101018 58,31:ff101018/ff204944 77,31:ff214944/ff214944
+	at org.junit.Assert.fail(Assert.java:88)
+	at org.junit.Assert.assertTrue(Assert.java:41)
+	at javax.microedition.m3g.GpuLightingTest.compare(GpuLightingTest.java:166)
+	at javax.microedition.m3g.GpuLightingTest.twoSidedLightingFollowsWindingWithoutCulling(GpuLightingTest.java:23)
+
+INSTRUMENTATION_STATUS: test=twoSidedLightingFollowsWindingWithoutCulling
+INSTRUMENTATION_STATUS_CODE: -2
+INSTRUMENTATION_RESULT: stream=
+
+Time: 4.641
+There was 1 failure:
+1) twoSidedLightingFollowsWindingWithoutCulling(javax.microedition.m3g.GpuLightingTest)
+java.lang.AssertionError: Different pixels=1560, max channel error=123, renderer=Android Emulator OpenGL ES Translator (Google SwiftShader) 20,64:ff1e4549/ff101018 39,64:ff101018/ff101018 58,64:ff101018/ff244a45 77,64:ff234945/ff234945 20,31:ff1e4448/ff101018 39,31:ff101018/ff101018 58,31:ff101018/ff204944 77,31:ff214944/ff214944
+	at org.junit.Assert.fail(Assert.java:88)
+	at org.junit.Assert.assertTrue(Assert.java:41)
+	at javax.microedition.m3g.GpuLightingTest.compare(GpuLightingTest.java:166)
+	at javax.microedition.m3g.GpuLightingTest.twoSidedLightingFollowsWindingWithoutCulling(GpuLightingTest.java:23)
+	at java.lang.reflect.Method.invoke(Native Method)
+	at org.junit.runners.model.FrameworkMethod$1.runReflectiveCall(FrameworkMethod.java:50)
+	at org.junit.internal.runners.model.ReflectiveCallable.run(ReflectiveCallable.java:12)
+	at org.junit.runners.model.FrameworkMethod.invokeExplosively(FrameworkMethod.java:47)
+	at org.junit.internal.runners.statements.InvokeMethod.evaluate(InvokeMethod.java:17)
+	at androidx.test.internal.runner.junit4.statement.RunAfters.evaluate(RunAfters.java:61)
+	at org.junit.runners.ParentRunner.runLeaf(ParentRunner.java:325)
+	at org.junit.runners.BlockJUnit4ClassRunner.runChild(BlockJUnit4ClassRunner.java:78)
+	at org.junit.runners.BlockJUnit4ClassRunner.runChild(BlockJUnit4ClassRunner.java:57)
+	at org.junit.runners.ParentRunner$3.run(ParentRunner.java:290)
+	at org.junit.runners.ParentRunner$1.schedule(ParentRunner.java:71)
+	at org.junit.runners.ParentRunner.runChildren(ParentRunner.java:288)
+	at org.junit.runners.ParentRunner.access$000(ParentRunner.java:58)
+	at org.junit.runners.ParentRunner$2.evaluate(ParentRunner.java:268)
+	at org.junit.runners.ParentRunner.run(ParentRunner.java:363)
+	at org.junit.runners.Suite.runChild(Suite.java:128)
+	at org.junit.runners.Suite.runChild(Suite.java:27)
+	at org.junit.runners.ParentRunner$3.run(ParentRunner.java:290)
+	at org.junit.runners.ParentRunner$1.schedule(ParentRunner.java:71)
+	at org.junit.runners.ParentRunner.runChildren(ParentRunner.java:288)
+	at org.junit.runners.ParentRunner.access$000(ParentRunner.java:58)
+	at org.junit.runners.ParentRunner$2.evaluate(ParentRunner.java:268)
+	at org.junit.runners.ParentRunner.run(ParentRunner.java:363)
+	at org.junit.runner.JUnitCore.run(JUnitCore.java:137)
+	at org.junit.runner.JUnitCore.run(JUnitCore.java:115)
+	at androidx.test.internal.runner.TestExecutor.execute(TestExecutor.java:67)
+	at androidx.test.internal.runner.TestExecutor.execute(TestExecutor.java:58)
+	at androidx.test.runner.AndroidJUnitRunner.onStart(AndroidJUnitRunner.java:446)
+	at android.app.Instrumentation$InstrumentationThread.run(Instrumentation.java:2594)
+
+FAILURES!!!
+Tests run: 1,  Failures: 1
+
+
+INSTRUMENTATION_CODE: -1

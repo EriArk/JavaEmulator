@@ -1,0 +1,42 @@
+﻿[
+    {
+        "task":  "testFdroidDebugUnitTest",
+        "suite":  "ru.playsoftware.j2meloader.catalog.SourceIdentityTest",
+        "tests":  "2",
+        "failures":  "0",
+        "errors":  "0",
+        "timestamp":  "2026-10-11T20:06:45"
+    },
+    {
+        "task":  "testFdroidDebugUnitTest",
+        "suite":  "ru.playsoftware.j2meloader.input.ControllerInputTest",
+        "tests":  "12",
+        "failures":  "0",
+        "errors":  "0",
+        "timestamp":  "2026-10-11T20:06:45"
+    },
+    {
+        "task":  "testPhoneDebugUnitTest",
+        "suite":  "ru.playsoftware.j2meloader.catalog.SourceIdentityTest",
+        "tests":  "2",
+        "failures":  "0",
+        "errors":  "0",
+        "timestamp":  "2026-10-11T20:06:47"
+    },
+    {
+        "task":  "testPhoneDebugUnitTest",
+        "suite":  "ru.playsoftware.j2meloader.input.ControllerInputTest",
+        "tests":  "12",
+        "failures":  "0",
+        "errors":  "0",
+        "timestamp":  "2026-10-11T20:06:47"
+    },
+    {
+        "task":  "testToneCompiler",
+        "suite":  "javax.microedition.media.tone.ToneSequenceTest",
+        "tests":  "14",
+        "failures":  "0",
+        "errors":  "0",
+        "timestamp":  "2026-10-11T20:02:48"
+    }
+]

@@ -1,0 +1,10 @@
+
+ru.playsoftware.j2meloader.config.CompatibilityProfileTest:...........................
+ru.playsoftware.j2meloader.config.SettingsTrialTest:.............
+ru.playsoftware.j2meloader.config.GamePresetsUiTest:...
+
+Time: 4.04
+
+OK (43 tests)
+
+

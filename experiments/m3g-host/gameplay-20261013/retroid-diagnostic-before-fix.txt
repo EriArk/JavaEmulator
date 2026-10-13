@@ -1,0 +1,515 @@
+INSTRUMENTATION_STATUS: class=javax.microedition.lcdui.FontProfileTest
+INSTRUMENTATION_STATUS: current=1
+INSTRUMENTATION_STATUS: id=AndroidJUnitRunner
+INSTRUMENTATION_STATUS: numtests=31
+INSTRUMENTATION_STATUS: stream=
+javax.microedition.lcdui.FontProfileTest:
+INSTRUMENTATION_STATUS: test=existingExplicitSizesSurviveLoadingAndResolutionChanges
+INSTRUMENTATION_STATUS_CODE: 1
+INSTRUMENTATION_STATUS: class=javax.microedition.lcdui.FontProfileTest
+INSTRUMENTATION_STATUS: current=1
+INSTRUMENTATION_STATUS: id=AndroidJUnitRunner
+INSTRUMENTATION_STATUS: numtests=31
+INSTRUMENTATION_STATUS: stream=.
+INSTRUMENTATION_STATUS: test=existingExplicitSizesSurviveLoadingAndResolutionChanges
+INSTRUMENTATION_STATUS_CODE: 0
+INSTRUMENTATION_STATUS: class=javax.microedition.lcdui.FontProfileTest
+INSTRUMENTATION_STATUS: current=2
+INSTRUMENTATION_STATUS: id=AndroidJUnitRunner
+INSTRUMENTATION_STATUS: numtests=31
+INSTRUMENTATION_STATUS: stream=
+INSTRUMENTATION_STATUS: test=automaticSizesPersistAndCanMixWithExplicitOverrides
+INSTRUMENTATION_STATUS_CODE: 1
+INSTRUMENTATION_STATUS: class=javax.microedition.lcdui.FontProfileTest
+INSTRUMENTATION_STATUS: current=2
+INSTRUMENTATION_STATUS: id=AndroidJUnitRunner
+INSTRUMENTATION_STATUS: numtests=31
+INSTRUMENTATION_STATUS: stream=.
+INSTRUMENTATION_STATUS: test=automaticSizesPersistAndCanMixWithExplicitOverrides
+INSTRUMENTATION_STATUS_CODE: 0
+INSTRUMENTATION_STATUS: class=javax.microedition.lcdui.FontProfileTest
+INSTRUMENTATION_STATUS: current=3
+INSTRUMENTATION_STATUS: id=AndroidJUnitRunner
+INSTRUMENTATION_STATUS: numtests=31
+INSTRUMENTATION_STATUS: stream=
+INSTRUMENTATION_STATUS: test=orientationKeepsSameVirtualFontSize
+INSTRUMENTATION_STATUS_CODE: 1
+INSTRUMENTATION_STATUS: class=javax.microedition.lcdui.FontProfileTest
+INSTRUMENTATION_STATUS: current=3
+INSTRUMENTATION_STATUS: id=AndroidJUnitRunner
+INSTRUMENTATION_STATUS: numtests=31
+INSTRUMENTATION_STATUS: stream=.
+INSTRUMENTATION_STATUS: test=orientationKeepsSameVirtualFontSize
+INSTRUMENTATION_STATUS_CODE: 0
+INSTRUMENTATION_STATUS: class=javax.microedition.lcdui.FontProfileTest
+INSTRUMENTATION_STATUS: current=4
+INSTRUMENTATION_STATUS: id=AndroidJUnitRunner
+INSTRUMENTATION_STATUS: numtests=31
+INSTRUMENTATION_STATUS: stream=
+INSTRUMENTATION_STATUS: test=newProfilesFollowPreparedResolution
+INSTRUMENTATION_STATUS_CODE: 1
+INSTRUMENTATION_STATUS: class=javax.microedition.lcdui.FontProfileTest
+INSTRUMENTATION_STATUS: current=4
+INSTRUMENTATION_STATUS: id=AndroidJUnitRunner
+INSTRUMENTATION_STATUS: numtests=31
+INSTRUMENTATION_STATUS: stream=.
+INSTRUMENTATION_STATUS: test=newProfilesFollowPreparedResolution
+INSTRUMENTATION_STATUS_CODE: 0
+INSTRUMENTATION_STATUS: class=javax.microedition.shell.M3gTargetMeterTest
+INSTRUMENTATION_STATUS: current=5
+INSTRUMENTATION_STATUS: id=AndroidJUnitRunner
+INSTRUMENTATION_STATUS: numtests=31
+INSTRUMENTATION_STATUS: stream=
+javax.microedition.shell.M3gTargetMeterTest:
+INSTRUMENTATION_STATUS: test=invalidPhaseSamplesAreIgnored
+INSTRUMENTATION_STATUS_CODE: 1
+INSTRUMENTATION_STATUS: class=javax.microedition.shell.M3gTargetMeterTest
+INSTRUMENTATION_STATUS: current=5
+INSTRUMENTATION_STATUS: id=AndroidJUnitRunner
+INSTRUMENTATION_STATUS: numtests=31
+INSTRUMENTATION_STATUS: stream=.
+INSTRUMENTATION_STATUS: test=invalidPhaseSamplesAreIgnored
+INSTRUMENTATION_STATUS_CODE: 0
+INSTRUMENTATION_STATUS: class=javax.microedition.shell.M3gTargetMeterTest
+INSTRUMENTATION_STATUS: current=6
+INSTRUMENTATION_STATUS: id=AndroidJUnitRunner
+INSTRUMENTATION_STATUS: numtests=31
+INSTRUMENTATION_STATUS: stream=
+INSTRUMENTATION_STATUS: test=candidateCopiesAreObservedOncePerTarget
+INSTRUMENTATION_STATUS_CODE: 1
+INSTRUMENTATION_STATUS: class=javax.microedition.shell.M3gTargetMeterTest
+INSTRUMENTATION_STATUS: current=6
+INSTRUMENTATION_STATUS: id=AndroidJUnitRunner
+INSTRUMENTATION_STATUS: numtests=31
+INSTRUMENTATION_STATUS: stream=.
+INSTRUMENTATION_STATUS: test=candidateCopiesAreObservedOncePerTarget
+INSTRUMENTATION_STATUS_CODE: 0
+INSTRUMENTATION_STATUS: class=javax.microedition.shell.M3gTargetMeterTest
+INSTRUMENTATION_STATUS: current=7
+INSTRUMENTATION_STATUS: id=AndroidJUnitRunner
+INSTRUMENTATION_STATUS: numtests=31
+INSTRUMENTATION_STATUS: stream=
+INSTRUMENTATION_STATUS: test=phaseTotalsAccumulateWithoutPerDrawStorage
+INSTRUMENTATION_STATUS_CODE: 1
+INSTRUMENTATION_STATUS: class=javax.microedition.shell.M3gTargetMeterTest
+INSTRUMENTATION_STATUS: current=7
+INSTRUMENTATION_STATUS: id=AndroidJUnitRunner
+INSTRUMENTATION_STATUS: numtests=31
+INSTRUMENTATION_STATUS: stream=.
+INSTRUMENTATION_STATUS: test=phaseTotalsAccumulateWithoutPerDrawStorage
+INSTRUMENTATION_STATUS_CODE: 0
+INSTRUMENTATION_STATUS: class=javax.microedition.shell.M3gTargetMeterTest
+INSTRUMENTATION_STATUS: current=8
+INSTRUMENTATION_STATUS: id=AndroidJUnitRunner
+INSTRUMENTATION_STATUS: numtests=31
+INSTRUMENTATION_STATUS: stream=
+INSTRUMENTATION_STATUS: test=failedBindingDoesNotRecordSession
+INSTRUMENTATION_STATUS_CODE: 1
+INSTRUMENTATION_STATUS: class=javax.microedition.shell.M3gTargetMeterTest
+INSTRUMENTATION_STATUS: current=8
+INSTRUMENTATION_STATUS: id=AndroidJUnitRunner
+INSTRUMENTATION_STATUS: numtests=31
+INSTRUMENTATION_STATUS: stream=.
+INSTRUMENTATION_STATUS: test=failedBindingDoesNotRecordSession
+INSTRUMENTATION_STATUS_CODE: 0
+INSTRUMENTATION_STATUS: class=javax.microedition.shell.M3gTargetMeterTest
+INSTRUMENTATION_STATUS: current=9
+INSTRUMENTATION_STATUS: id=AndroidJUnitRunner
+INSTRUMENTATION_STATUS: numtests=31
+INSTRUMENTATION_STATUS: stream=
+INSTRUMENTATION_STATUS: test=candidateImmediateDrawIsObservedOnce
+INSTRUMENTATION_STATUS_CODE: 1
+INSTRUMENTATION_STATUS: class=javax.microedition.shell.M3gTargetMeterTest
+INSTRUMENTATION_STATUS: current=9
+INSTRUMENTATION_STATUS: id=AndroidJUnitRunner
+INSTRUMENTATION_STATUS: numtests=31
+INSTRUMENTATION_STATUS: stack=java.lang.NullPointerException: Attempt to invoke virtual method 'java.lang.Object java.lang.ref.WeakReference.get()' on a null object reference
+	at javax.microedition.util.ContextHolder.getActivity(ContextHolder.java:196)
+	at javax.microedition.m3g.GpuRasterizer.diagnostic(GpuRasterizer.java:37)
+	at javax.microedition.m3g.GpuRasterizer.draw(GpuRasterizer.java:177)
+	at javax.microedition.m3g.GpuRasterizer.raw(GpuRasterizer.java:108)
+	at javax.microedition.m3g.GpuGeometry.draw(GpuGeometry.java:200)
+	at javax.microedition.m3g.Graphics3D.renderSubmeshMeasured(Graphics3D.java:682)
+	at javax.microedition.m3g.Graphics3D.renderSubmesh(Graphics3D.java:618)
+	at javax.microedition.m3g.Graphics3D.render(Graphics3D.java:614)
+	at javax.microedition.m3g.Graphics3D.render(Graphics3D.java:611)
+	at javax.microedition.shell.M3gTargetMeterTest.candidateImmediateDrawIsObservedOnce(M3gTargetMeterTest.java:93)
+
+INSTRUMENTATION_STATUS: stream=
+Error in candidateImmediateDrawIsObservedOnce(javax.microedition.shell.M3gTargetMeterTest):
+java.lang.NullPointerException: Attempt to invoke virtual method 'java.lang.Object java.lang.ref.WeakReference.get()' on a null object reference
+	at javax.microedition.util.ContextHolder.getActivity(ContextHolder.java:196)
+	at javax.microedition.m3g.GpuRasterizer.diagnostic(GpuRasterizer.java:37)
+	at javax.microedition.m3g.GpuRasterizer.draw(GpuRasterizer.java:177)
+	at javax.microedition.m3g.GpuRasterizer.raw(GpuRasterizer.java:108)
+	at javax.microedition.m3g.GpuGeometry.draw(GpuGeometry.java:200)
+	at javax.microedition.m3g.Graphics3D.renderSubmeshMeasured(Graphics3D.java:682)
+	at javax.microedition.m3g.Graphics3D.renderSubmesh(Graphics3D.java:618)
+	at javax.microedition.m3g.Graphics3D.render(Graphics3D.java:614)
+	at javax.microedition.m3g.Graphics3D.render(Graphics3D.java:611)
+	at javax.microedition.shell.M3gTargetMeterTest.candidateImmediateDrawIsObservedOnce(M3gTargetMeterTest.java:93)
+
+INSTRUMENTATION_STATUS: test=candidateImmediateDrawIsObservedOnce
+INSTRUMENTATION_STATUS_CODE: -2
+INSTRUMENTATION_STATUS: class=javax.microedition.shell.M3gTargetMeterTest
+INSTRUMENTATION_STATUS: current=10
+INSTRUMENTATION_STATUS: id=AndroidJUnitRunner
+INSTRUMENTATION_STATUS: numtests=31
+INSTRUMENTATION_STATUS: stream=
+INSTRUMENTATION_STATUS: test=repeatedReleaseDoesNotRecordAnotherSession
+INSTRUMENTATION_STATUS_CODE: 1
+INSTRUMENTATION_STATUS: class=javax.microedition.shell.M3gTargetMeterTest
+INSTRUMENTATION_STATUS: current=10
+INSTRUMENTATION_STATUS: id=AndroidJUnitRunner
+INSTRUMENTATION_STATUS: numtests=31
+INSTRUMENTATION_STATUS: stream=.
+INSTRUMENTATION_STATUS: test=repeatedReleaseDoesNotRecordAnotherSession
+INSTRUMENTATION_STATUS_CODE: 0
+INSTRUMENTATION_STATUS: class=javax.microedition.shell.M3gTargetMeterTest
+INSTRUMENTATION_STATUS: current=11
+INSTRUMENTATION_STATUS: id=AndroidJUnitRunner
+INSTRUMENTATION_STATUS: numtests=31
+INSTRUMENTATION_STATUS: stream=
+INSTRUMENTATION_STATUS: test=successfulTargetSessionIncludesHeldInterval
+INSTRUMENTATION_STATUS_CODE: 1
+INSTRUMENTATION_STATUS: class=javax.microedition.shell.M3gTargetMeterTest
+INSTRUMENTATION_STATUS: current=11
+INSTRUMENTATION_STATUS: id=AndroidJUnitRunner
+INSTRUMENTATION_STATUS: numtests=31
+INSTRUMENTATION_STATUS: stream=.
+INSTRUMENTATION_STATUS: test=successfulTargetSessionIncludesHeldInterval
+INSTRUMENTATION_STATUS_CODE: 0
+INSTRUMENTATION_STATUS: class=ru.playsoftware.j2meloader.config.CompatibilityProfileTest
+INSTRUMENTATION_STATUS: current=12
+INSTRUMENTATION_STATUS: id=AndroidJUnitRunner
+INSTRUMENTATION_STATUS: numtests=31
+INSTRUMENTATION_STATUS: stream=
+ru.playsoftware.j2meloader.config.CompatibilityProfileTest:
+INSTRUMENTATION_STATUS: test=publisherAloneIsWeakEvidence
+INSTRUMENTATION_STATUS_CODE: 1
+INSTRUMENTATION_STATUS: class=ru.playsoftware.j2meloader.config.CompatibilityProfileTest
+INSTRUMENTATION_STATUS: current=12
+INSTRUMENTATION_STATUS: id=AndroidJUnitRunner
+INSTRUMENTATION_STATUS: numtests=31
+INSTRUMENTATION_STATUS: stream=.
+INSTRUMENTATION_STATUS: test=publisherAloneIsWeakEvidence
+INSTRUMENTATION_STATUS_CODE: 0
+INSTRUMENTATION_STATUS: class=ru.playsoftware.j2meloader.config.CompatibilityProfileTest
+INSTRUMENTATION_STATUS: current=13
+INSTRUMENTATION_STATUS: id=AndroidJUnitRunner
+INSTRUMENTATION_STATUS: numtests=31
+INSTRUMENTATION_STATUS: stream=
+INSTRUMENTATION_STATUS: test=commaSeparatedDeclaredScreenIsSupported
+INSTRUMENTATION_STATUS_CODE: 1
+INSTRUMENTATION_STATUS: class=ru.playsoftware.j2meloader.config.CompatibilityProfileTest
+INSTRUMENTATION_STATUS: current=13
+INSTRUMENTATION_STATUS: id=AndroidJUnitRunner
+INSTRUMENTATION_STATUS: numtests=31
+INSTRUMENTATION_STATUS: stream=.
+INSTRUMENTATION_STATUS: test=commaSeparatedDeclaredScreenIsSupported
+INSTRUMENTATION_STATUS_CODE: 0
+INSTRUMENTATION_STATUS: class=ru.playsoftware.j2meloader.config.CompatibilityProfileTest
+INSTRUMENTATION_STATUS: current=14
+INSTRUMENTATION_STATUS: id=AndroidJUnitRunner
+INSTRUMENTATION_STATUS: numtests=31
+INSTRUMENTATION_STATUS: stream=
+INSTRUMENTATION_STATUS: test=vendorAliasesAndSharedApisDoNotBreakTies
+INSTRUMENTATION_STATUS_CODE: 1
+INSTRUMENTATION_STATUS: class=ru.playsoftware.j2meloader.config.CompatibilityProfileTest
+INSTRUMENTATION_STATUS: current=14
+INSTRUMENTATION_STATUS: id=AndroidJUnitRunner
+INSTRUMENTATION_STATUS: numtests=31
+INSTRUMENTATION_STATUS: stream=.
+INSTRUMENTATION_STATUS: test=vendorAliasesAndSharedApisDoNotBreakTies
+INSTRUMENTATION_STATUS_CODE: 0
+INSTRUMENTATION_STATUS: class=ru.playsoftware.j2meloader.config.CompatibilityProfileTest
+INSTRUMENTATION_STATUS: current=15
+INSTRUMENTATION_STATUS: id=AndroidJUnitRunner
+INSTRUMENTATION_STATUS: numtests=31
+INSTRUMENTATION_STATUS: stream=
+INSTRUMENTATION_STATUS: test=ambiguousArtworkIsIndependentOfZipOrder
+INSTRUMENTATION_STATUS_CODE: 1
+INSTRUMENTATION_STATUS: class=ru.playsoftware.j2meloader.config.CompatibilityProfileTest
+INSTRUMENTATION_STATUS: current=15
+INSTRUMENTATION_STATUS: id=AndroidJUnitRunner
+INSTRUMENTATION_STATUS: numtests=31
+INSTRUMENTATION_STATUS: stream=.
+INSTRUMENTATION_STATUS: test=ambiguousArtworkIsIndependentOfZipOrder
+INSTRUMENTATION_STATUS_CODE: 0
+INSTRUMENTATION_STATUS: class=ru.playsoftware.j2meloader.config.CompatibilityProfileTest
+INSTRUMENTATION_STATUS: current=16
+INSTRUMENTATION_STATUS: id=AndroidJUnitRunner
+INSTRUMENTATION_STATUS: numtests=31
+INSTRUMENTATION_STATUS: stream=
+INSTRUMENTATION_STATUS: test=reanalysisPreservesExistingProfileAndPersistsDetectedSize
+INSTRUMENTATION_STATUS_CODE: 1
+INSTRUMENTATION_STATUS: class=ru.playsoftware.j2meloader.config.CompatibilityProfileTest
+INSTRUMENTATION_STATUS: current=16
+INSTRUMENTATION_STATUS: id=AndroidJUnitRunner
+INSTRUMENTATION_STATUS: numtests=31
+INSTRUMENTATION_STATUS: stream=.
+INSTRUMENTATION_STATUS: test=reanalysisPreservesExistingProfileAndPersistsDetectedSize
+INSTRUMENTATION_STATUS_CODE: 0
+INSTRUMENTATION_STATUS: class=ru.playsoftware.j2meloader.config.CompatibilityProfileTest
+INSTRUMENTATION_STATUS: current=17
+INSTRUMENTATION_STATUS: id=AndroidJUnitRunner
+INSTRUMENTATION_STATUS: numtests=31
+INSTRUMENTATION_STATUS: stream=
+INSTRUMENTATION_STATUS: test=cancellationDoesNotSaveAProfile
+INSTRUMENTATION_STATUS_CODE: 1
+INSTRUMENTATION_STATUS: class=ru.playsoftware.j2meloader.config.CompatibilityProfileTest
+INSTRUMENTATION_STATUS: current=17
+INSTRUMENTATION_STATUS: id=AndroidJUnitRunner
+INSTRUMENTATION_STATUS: numtests=31
+INSTRUMENTATION_STATUS: stream=.
+INSTRUMENTATION_STATUS: test=cancellationDoesNotSaveAProfile
+INSTRUMENTATION_STATUS_CODE: 0
+INSTRUMENTATION_STATUS: class=ru.playsoftware.j2meloader.config.CompatibilityProfileTest
+INSTRUMENTATION_STATUS: current=18
+INSTRUMENTATION_STATUS: id=AndroidJUnitRunner
+INSTRUMENTATION_STATUS: numtests=31
+INSTRUMENTATION_STATUS: stream=
+INSTRUMENTATION_STATUS: test=targetWebsiteIsNotDeviceOrScreenEvidence
+INSTRUMENTATION_STATUS_CODE: 1
+INSTRUMENTATION_STATUS: class=ru.playsoftware.j2meloader.config.CompatibilityProfileTest
+INSTRUMENTATION_STATUS: current=18
+INSTRUMENTATION_STATUS: id=AndroidJUnitRunner
+INSTRUMENTATION_STATUS: numtests=31
+INSTRUMENTATION_STATUS: stream=.
+INSTRUMENTATION_STATUS: test=targetWebsiteIsNotDeviceOrScreenEvidence
+INSTRUMENTATION_STATUS_CODE: 0
+INSTRUMENTATION_STATUS: class=ru.playsoftware.j2meloader.config.CompatibilityProfileTest
+INSTRUMENTATION_STATUS: current=19
+INSTRUMENTATION_STATUS: id=AndroidJUnitRunner
+INSTRUMENTATION_STATUS: numtests=31
+INSTRUMENTATION_STATUS: stream=
+INSTRUMENTATION_STATUS: test=wideAndTallTouchResolutionsAreSupported
+INSTRUMENTATION_STATUS_CODE: 1
+INSTRUMENTATION_STATUS: class=ru.playsoftware.j2meloader.config.CompatibilityProfileTest
+INSTRUMENTATION_STATUS: current=19
+INSTRUMENTATION_STATUS: id=AndroidJUnitRunner
+INSTRUMENTATION_STATUS: numtests=31
+INSTRUMENTATION_STATUS: stream=.
+INSTRUMENTATION_STATUS: test=wideAndTallTouchResolutionsAreSupported
+INSTRUMENTATION_STATUS_CODE: 0
+INSTRUMENTATION_STATUS: class=ru.playsoftware.j2meloader.config.CompatibilityProfileTest
+INSTRUMENTATION_STATUS: current=20
+INSTRUMENTATION_STATUS: id=AndroidJUnitRunner
+INSTRUMENTATION_STATUS: numtests=31
+INSTRUMENTATION_STATUS: stream=
+INSTRUMENTATION_STATUS: test=unusualBackgroundDoesNotBecomeScreenSize
+INSTRUMENTATION_STATUS_CODE: 1
+INSTRUMENTATION_STATUS: class=ru.playsoftware.j2meloader.config.CompatibilityProfileTest
+INSTRUMENTATION_STATUS: current=20
+INSTRUMENTATION_STATUS: id=AndroidJUnitRunner
+INSTRUMENTATION_STATUS: numtests=31
+INSTRUMENTATION_STATUS: stream=.
+INSTRUMENTATION_STATUS: test=unusualBackgroundDoesNotBecomeScreenSize
+INSTRUMENTATION_STATUS_CODE: 0
+INSTRUMENTATION_STATUS: class=ru.playsoftware.j2meloader.config.CompatibilityProfileTest
+INSTRUMENTATION_STATUS: current=21
+INSTRUMENTATION_STATUS: id=AndroidJUnitRunner
+INSTRUMENTATION_STATUS: numtests=31
+INSTRUMENTATION_STATUS: stream=
+INSTRUMENTATION_STATUS: test=declaredSamsungWinsOverIncidentalNokiaApi
+INSTRUMENTATION_STATUS_CODE: 1
+INSTRUMENTATION_STATUS: class=ru.playsoftware.j2meloader.config.CompatibilityProfileTest
+INSTRUMENTATION_STATUS: current=21
+INSTRUMENTATION_STATUS: id=AndroidJUnitRunner
+INSTRUMENTATION_STATUS: numtests=31
+INSTRUMENTATION_STATUS: stream=.
+INSTRUMENTATION_STATUS: test=declaredSamsungWinsOverIncidentalNokiaApi
+INSTRUMENTATION_STATUS_CODE: 0
+INSTRUMENTATION_STATUS: class=ru.playsoftware.j2meloader.config.CompatibilityProfileTest
+INSTRUMENTATION_STATUS: current=22
+INSTRUMENTATION_STATUS: id=AndroidJUnitRunner
+INSTRUMENTATION_STATUS: numtests=31
+INSTRUMENTATION_STATUS: stream=
+INSTRUMENTATION_STATUS: test=conflictingDeclaredSizesDoNotPickTheLargest
+INSTRUMENTATION_STATUS_CODE: 1
+INSTRUMENTATION_STATUS: class=ru.playsoftware.j2meloader.config.CompatibilityProfileTest
+INSTRUMENTATION_STATUS: current=22
+INSTRUMENTATION_STATUS: id=AndroidJUnitRunner
+INSTRUMENTATION_STATUS: numtests=31
+INSTRUMENTATION_STATUS: stream=.
+INSTRUMENTATION_STATUS: test=conflictingDeclaredSizesDoNotPickTheLargest
+INSTRUMENTATION_STATUS_CODE: 0
+INSTRUMENTATION_STATUS: class=ru.playsoftware.j2meloader.config.CompatibilityProfileTest
+INSTRUMENTATION_STATUS: current=23
+INSTRUMENTATION_STATUS: id=AndroidJUnitRunner
+INSTRUMENTATION_STATUS: numtests=31
+INSTRUMENTATION_STATUS: stream=
+INSTRUMENTATION_STATUS: test=noHintsUseNeutralDefaults
+INSTRUMENTATION_STATUS_CODE: 1
+INSTRUMENTATION_STATUS: class=ru.playsoftware.j2meloader.config.CompatibilityProfileTest
+INSTRUMENTATION_STATUS: current=23
+INSTRUMENTATION_STATUS: id=AndroidJUnitRunner
+INSTRUMENTATION_STATUS: numtests=31
+INSTRUMENTATION_STATUS: stream=.
+INSTRUMENTATION_STATUS: test=noHintsUseNeutralDefaults
+INSTRUMENTATION_STATUS_CODE: 0
+INSTRUMENTATION_STATUS: class=ru.playsoftware.j2meloader.config.CompatibilityProfileTest
+INSTRUMENTATION_STATUS: current=24
+INSTRUMENTATION_STATUS: id=AndroidJUnitRunner
+INSTRUMENTATION_STATUS: numtests=31
+INSTRUMENTATION_STATUS: stream=
+INSTRUMENTATION_STATUS: test=importedOrTemplateProfileIsNotReset
+INSTRUMENTATION_STATUS_CODE: 1
+INSTRUMENTATION_STATUS: class=ru.playsoftware.j2meloader.config.CompatibilityProfileTest
+INSTRUMENTATION_STATUS: current=24
+INSTRUMENTATION_STATUS: id=AndroidJUnitRunner
+INSTRUMENTATION_STATUS: numtests=31
+INSTRUMENTATION_STATUS: stream=.
+INSTRUMENTATION_STATUS: test=importedOrTemplateProfileIsNotReset
+INSTRUMENTATION_STATUS_CODE: 0
+INSTRUMENTATION_STATUS: class=ru.playsoftware.j2meloader.config.CompatibilityProfileTest
+INSTRUMENTATION_STATUS: current=25
+INSTRUMENTATION_STATUS: id=AndroidJUnitRunner
+INSTRUMENTATION_STATUS: numtests=31
+INSTRUMENTATION_STATUS: stream=
+INSTRUMENTATION_STATUS: test=declaredSizeWinsOverLargeArtwork
+INSTRUMENTATION_STATUS_CODE: 1
+INSTRUMENTATION_STATUS: class=ru.playsoftware.j2meloader.config.CompatibilityProfileTest
+INSTRUMENTATION_STATUS: current=25
+INSTRUMENTATION_STATUS: id=AndroidJUnitRunner
+INSTRUMENTATION_STATUS: numtests=31
+INSTRUMENTATION_STATUS: stream=.
+INSTRUMENTATION_STATUS: test=declaredSizeWinsOverLargeArtwork
+INSTRUMENTATION_STATUS_CODE: 0
+INSTRUMENTATION_STATUS: class=ru.playsoftware.j2meloader.config.CompatibilityProfileTest
+INSTRUMENTATION_STATUS: current=26
+INSTRUMENTATION_STATUS: id=AndroidJUnitRunner
+INSTRUMENTATION_STATUS: numtests=31
+INSTRUMENTATION_STATUS: stream=
+INSTRUMENTATION_STATUS: test=manualPropertiesAndDisplayArePreserved
+INSTRUMENTATION_STATUS_CODE: 1
+INSTRUMENTATION_STATUS: class=ru.playsoftware.j2meloader.config.CompatibilityProfileTest
+INSTRUMENTATION_STATUS: current=26
+INSTRUMENTATION_STATUS: id=AndroidJUnitRunner
+INSTRUMENTATION_STATUS: numtests=31
+INSTRUMENTATION_STATUS: stream=.
+INSTRUMENTATION_STATUS: test=manualPropertiesAndDisplayArePreserved
+INSTRUMENTATION_STATUS_CODE: 0
+INSTRUMENTATION_STATUS: class=ru.playsoftware.j2meloader.config.CompatibilityProfileTest
+INSTRUMENTATION_STATUS: current=27
+INSTRUMENTATION_STATUS: id=AndroidJUnitRunner
+INSTRUMENTATION_STATUS: numtests=31
+INSTRUMENTATION_STATUS: stream=
+INSTRUMENTATION_STATUS: test=jarUrlUsesFilenameNotHostOrQuery
+INSTRUMENTATION_STATUS_CODE: 1
+INSTRUMENTATION_STATUS: class=ru.playsoftware.j2meloader.config.CompatibilityProfileTest
+INSTRUMENTATION_STATUS: current=27
+INSTRUMENTATION_STATUS: id=AndroidJUnitRunner
+INSTRUMENTATION_STATUS: numtests=31
+INSTRUMENTATION_STATUS: stream=.
+INSTRUMENTATION_STATUS: test=jarUrlUsesFilenameNotHostOrQuery
+INSTRUMENTATION_STATUS_CODE: 0
+INSTRUMENTATION_STATUS: class=ru.playsoftware.j2meloader.config.CompatibilityProfileTest
+INSTRUMENTATION_STATUS: current=28
+INSTRUMENTATION_STATUS: id=AndroidJUnitRunner
+INSTRUMENTATION_STATUS: numtests=31
+INSTRUMENTATION_STATUS: stream=
+INSTRUMENTATION_STATUS: test=midpOneDeclarationSurvivesNeutralSelection
+INSTRUMENTATION_STATUS_CODE: 1
+INSTRUMENTATION_STATUS: class=ru.playsoftware.j2meloader.config.CompatibilityProfileTest
+INSTRUMENTATION_STATUS: current=28
+INSTRUMENTATION_STATUS: id=AndroidJUnitRunner
+INSTRUMENTATION_STATUS: numtests=31
+INSTRUMENTATION_STATUS: stream=.
+INSTRUMENTATION_STATUS: test=midpOneDeclarationSurvivesNeutralSelection
+INSTRUMENTATION_STATUS_CODE: 0
+INSTRUMENTATION_STATUS: class=ru.playsoftware.j2meloader.config.CompatibilityProfileTest
+INSTRUMENTATION_STATUS: current=29
+INSTRUMENTATION_STATUS: id=AndroidJUnitRunner
+INSTRUMENTATION_STATUS: numtests=31
+INSTRUMENTATION_STATUS: stream=
+INSTRUMENTATION_STATUS: test=distributorBrandingDoesNotChooseADevice
+INSTRUMENTATION_STATUS_CODE: 1
+INSTRUMENTATION_STATUS: class=ru.playsoftware.j2meloader.config.CompatibilityProfileTest
+INSTRUMENTATION_STATUS: current=29
+INSTRUMENTATION_STATUS: id=AndroidJUnitRunner
+INSTRUMENTATION_STATUS: numtests=31
+INSTRUMENTATION_STATUS: stream=.
+INSTRUMENTATION_STATUS: test=distributorBrandingDoesNotChooseADevice
+INSTRUMENTATION_STATUS_CODE: 0
+INSTRUMENTATION_STATUS: class=ru.playsoftware.j2meloader.config.CompatibilityProfileTest
+INSTRUMENTATION_STATUS: current=30
+INSTRUMENTATION_STATUS: id=AndroidJUnitRunner
+INSTRUMENTATION_STATUS: numtests=31
+INSTRUMENTATION_STATUS: stream=
+INSTRUMENTATION_STATUS: test=saveFailureIsNotReportedAsSuccessfulPreparation
+INSTRUMENTATION_STATUS_CODE: 1
+INSTRUMENTATION_STATUS: class=ru.playsoftware.j2meloader.config.CompatibilityProfileTest
+INSTRUMENTATION_STATUS: current=30
+INSTRUMENTATION_STATUS: id=AndroidJUnitRunner
+INSTRUMENTATION_STATUS: numtests=31
+INSTRUMENTATION_STATUS: stream=.
+INSTRUMENTATION_STATUS: test=saveFailureIsNotReportedAsSuccessfulPreparation
+INSTRUMENTATION_STATUS_CODE: 0
+INSTRUMENTATION_STATUS: class=ru.playsoftware.j2meloader.config.CompatibilityProfileTest
+INSTRUMENTATION_STATUS: current=31
+INSTRUMENTATION_STATUS: id=AndroidJUnitRunner
+INSTRUMENTATION_STATUS: numtests=31
+INSTRUMENTATION_STATUS: stream=
+INSTRUMENTATION_STATUS: test=screenArtworkBeatsAtlasWithoutAreaBias
+INSTRUMENTATION_STATUS_CODE: 1
+INSTRUMENTATION_STATUS: class=ru.playsoftware.j2meloader.config.CompatibilityProfileTest
+INSTRUMENTATION_STATUS: current=31
+INSTRUMENTATION_STATUS: id=AndroidJUnitRunner
+INSTRUMENTATION_STATUS: numtests=31
+INSTRUMENTATION_STATUS: stream=.
+INSTRUMENTATION_STATUS: test=screenArtworkBeatsAtlasWithoutAreaBias
+INSTRUMENTATION_STATUS_CODE: 0
+INSTRUMENTATION_RESULT: stream=
+
+Time: 0.565
+There was 1 failure:
+1) candidateImmediateDrawIsObservedOnce(javax.microedition.shell.M3gTargetMeterTest)
+java.lang.NullPointerException: Attempt to invoke virtual method 'java.lang.Object java.lang.ref.WeakReference.get()' on a null object reference
+	at javax.microedition.util.ContextHolder.getActivity(ContextHolder.java:196)
+	at javax.microedition.m3g.GpuRasterizer.diagnostic(GpuRasterizer.java:37)
+	at javax.microedition.m3g.GpuRasterizer.draw(GpuRasterizer.java:177)
+	at javax.microedition.m3g.GpuRasterizer.raw(GpuRasterizer.java:108)
+	at javax.microedition.m3g.GpuGeometry.draw(GpuGeometry.java:200)
+	at javax.microedition.m3g.Graphics3D.renderSubmeshMeasured(Graphics3D.java:682)
+	at javax.microedition.m3g.Graphics3D.renderSubmesh(Graphics3D.java:618)
+	at javax.microedition.m3g.Graphics3D.render(Graphics3D.java:614)
+	at javax.microedition.m3g.Graphics3D.render(Graphics3D.java:611)
+	at javax.microedition.shell.M3gTargetMeterTest.candidateImmediateDrawIsObservedOnce(M3gTargetMeterTest.java:93)
+	at java.lang.reflect.Method.invoke(Native Method)
+	at org.junit.runners.model.FrameworkMethod$1.runReflectiveCall(FrameworkMethod.java:50)
+	at org.junit.internal.runners.model.ReflectiveCallable.run(ReflectiveCallable.java:12)
+	at org.junit.runners.model.FrameworkMethod.invokeExplosively(FrameworkMethod.java:47)
+	at org.junit.internal.runners.statements.InvokeMethod.evaluate(InvokeMethod.java:17)
+	at androidx.test.internal.runner.junit4.statement.RunBefores.evaluate(RunBefores.java:80)
+	at androidx.test.internal.runner.junit4.statement.RunAfters.evaluate(RunAfters.java:61)
+	at org.junit.runners.ParentRunner.runLeaf(ParentRunner.java:325)
+	at org.junit.runners.BlockJUnit4ClassRunner.runChild(BlockJUnit4ClassRunner.java:78)
+	at org.junit.runners.BlockJUnit4ClassRunner.runChild(BlockJUnit4ClassRunner.java:57)
+	at org.junit.runners.ParentRunner$3.run(ParentRunner.java:290)
+	at org.junit.runners.ParentRunner$1.schedule(ParentRunner.java:71)
+	at org.junit.runners.ParentRunner.runChildren(ParentRunner.java:288)
+	at org.junit.runners.ParentRunner.access$000(ParentRunner.java:58)
+	at org.junit.runners.ParentRunner$2.evaluate(ParentRunner.java:268)
+	at org.junit.runners.ParentRunner.run(ParentRunner.java:363)
+	at androidx.test.ext.junit.runners.AndroidJUnit4.run(AndroidJUnit4.java:162)
+	at org.junit.runners.Suite.runChild(Suite.java:128)
+	at org.junit.runners.Suite.runChild(Suite.java:27)
+	at org.junit.runners.ParentRunner$3.run(ParentRunner.java:290)
+	at org.junit.runners.ParentRunner$1.schedule(ParentRunner.java:71)
+	at org.junit.runners.ParentRunner.runChildren(ParentRunner.java:288)
+	at org.junit.runners.ParentRunner.access$000(ParentRunner.java:58)
+	at org.junit.runners.ParentRunner$2.evaluate(ParentRunner.java:268)
+	at org.junit.runners.ParentRunner.run(ParentRunner.java:363)
+	at org.junit.runner.JUnitCore.run(JUnitCore.java:137)
+	at org.junit.runner.JUnitCore.run(JUnitCore.java:115)
+	at androidx.test.internal.runner.TestExecutor.execute(TestExecutor.java:67)
+	at androidx.test.internal.runner.TestExecutor.execute(TestExecutor.java:58)
+	at androidx.test.runner.AndroidJUnitRunner.onStart(AndroidJUnitRunner.java:446)
+	at android.app.Instrumentation$InstrumentationThread.run(Instrumentation.java:2408)
+
+FAILURES!!!
+Tests run: 31,  Failures: 1
+
+
+INSTRUMENTATION_CODE: -1

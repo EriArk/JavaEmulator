@@ -1,0 +1,41 @@
+{
+  "date": "2026-10-13",
+  "sourceCheckpoints": ["b79fb6b4", "3f2feddd"],
+  "retroid": {"scope": "full final suite", "passed": 129, "skipped": 0, "artifact": "retroid-artifact.json"},
+  "phone": {
+    "fullSuite": {"scope": "initial eight-entry cache", "passed": 129, "skipped": 0, "artifact": "phone-full-artifact.json"},
+    "finalFocusedSuite": {
+      "scope": "five cache cases after 32-entry capacity adjustment",
+      "passed": 5,
+      "skipped": 0,
+      "apkSha256": "50D304C01091B5BC2DD9D4CA1F57BC89138AA669204A9390A172ED9D6BBB1649",
+      "testApkSha256": "9B86C9C34CD7A476F0F3ED2DE44AD42BB83C1CE2860D8752B4B7D8C654F76DEC"
+    },
+    "note": "Initial 300-second attempt timed out while tests continued. Complete full run used 600 seconds. Final capacity change received focused coverage, not a second full run."
+  },
+  "sourcePreparation": {
+    "archiveFetchedAndVerified": true,
+    "cachedOfflineHandheldAndPhoneBuilds": true,
+    "standaloneProbeArchiveBuild": true,
+    "checkoutVsArchiveNormalizedJavaFiles": 34,
+    "generatedJavaDifferences": 0,
+    "wrongHashRejectedBeforeSourceReplacement": true,
+    "missingOfflineArchiveRejected": true,
+    "ordinaryBuildDryRun": "Blocked by pre-existing missing-keystore configuration issue #1. No ordinary build pass claimed."
+  },
+  "benchmark": {"scope": "same final APK, cache off/on", "cases": 30, "pixelCrcMismatches": 0, "artifact": "benchmark-artifact.json"},
+  "gameSmoke": {
+    "game": "Asphalt 3 3D Street Rules",
+    "device": "Retroid Pocket Classic",
+    "apkSha256": "9DAA2BEC412A5BCEBEB2695D50143DBE18056AD79CF515538EE3BAF2E58FA7A3",
+    "gpuEnabledByDefault": true,
+    "observation": "Instant Play race; two changing frames with car, road and HUD",
+    "acceptedCommandsAtDiagnosticSample": 64513,
+    "textureLevelUploads": 30,
+    "textureCacheHits": 58760,
+    "textureEvictions": 0,
+    "retainedTextureBytes": 181160,
+    "boundary": "Bounded session counters, not a controlled FPS comparison or full-game/audio/controller acceptance"
+  },
+  "availability": "Research branch only; no production engine switch or release APK"
+}

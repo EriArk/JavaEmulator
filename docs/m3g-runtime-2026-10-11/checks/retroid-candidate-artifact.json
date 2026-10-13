@@ -1,0 +1,8 @@
+﻿{
+    "engine":  "candidate",
+    "package":  "io.github.eriark.abyssme.m3gcandidate.debug",
+    "device":  "Retroid Pocket Classic",
+    "sdk":  "34",
+    "apk":  "AB9E4BFFC026D3570A37B210C93414FEFDDC98A61EC40C8692C898E55B74B982",
+    "testApk":  "946CC8D417000B550E8F6C18DFA24056BD747743F6C2501491514D049C12DA25"
+}

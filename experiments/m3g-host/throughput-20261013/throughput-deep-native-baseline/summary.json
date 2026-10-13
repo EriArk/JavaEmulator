@@ -1,0 +1,21 @@
+﻿{
+    "engine":  "baseline",
+    "run":  "throughput-deep-native",
+    "apkSha256":  "e6a0eb0d1cb03fa7df565566a7baaabd42b40e7e633ce6936c52a9009f56885f",
+    "processId":  "21615",
+    "layer":  "SurfaceView[io.github.eriark.abyssme.m3gbaseline.debug/javax.microedition.shell.MicroActivity](BLAST)#29116",
+    "elapsedSeconds":  35.6796996,
+    "maxPollGapSeconds":  1.3172899999999998,
+    "error":  null,
+    "metrics":  {
+                    "frames":  2081,
+                    "spanSeconds":  34.665408163,
+                    "presentedFps":  60.002178258500372,
+                    "intervalP50Ms":  16.66599,
+                    "intervalP95Ms":  16.683697,
+                    "maxIntervalMs":  16.9,
+                    "intervalsAbove100Ms":  0
+                },
+    "cadenceWindows":  16,
+    "interpretation":  "Surface presentation intervals, not game logic FPS or isolated renderer cost. Inspect captures."
+}

@@ -1,0 +1,16 @@
+﻿[
+    {
+        "variant":  "retroid",
+        "total":  132,
+        "passed":  130,
+        "skipped":  2,
+        "failed":  0
+    },
+    {
+        "variant":  "phone",
+        "total":  132,
+        "passed":  131,
+        "skipped":  1,
+        "failed":  0
+    }
+]

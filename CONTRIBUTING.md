@@ -23,7 +23,7 @@ remaining limitations. Do not rewrite published history just to expand messages.
 - JDK 21 (used by the current local verification environment).
 - Android SDK Platform 34 and Build Tools 34.0.0.
 - Android NDK 22.1.7171670 and platform-tools for device/emulator checks.
-- Git on PATH; the Gradle configuration reads Git history for the dev flavor.
+- Git is useful for development; source ZIPs also build without Git history.
 - Use the included Gradle 8.7 wrapper; do not install a separate Gradle version.
 
 Clone the repository and open it in Android Studio, or set `ANDROID_HOME` to
@@ -50,7 +50,7 @@ existing signing configuration or keystore. Use forward slashes in Windows paths
 Both keystores and `keystore.properties` are ignored by Git. Release signing
 validation fails explicitly if the settings are incomplete; it does not fall
 back to the debug key. Existing Bitrise signing environment variables remain
-supported. Building a signed APK does not lift the publication hold below.
+supported. Publication also requires the source/notice and artifact checks.
 
 ### Build and checks
 
@@ -108,14 +108,14 @@ remaining coverage is tracked in [#4](https://github.com/EriArk/JavaEmulator/iss
 
 The installed package IDs are AbyssME-specific; the Java namespace remains
 `ru.playsoftware.j2meloader`. Preserve upstream copyright and license notices.
-Read [licensing status](docs/LICENSING.md) before adding an emulation engine or
-changing license headers. No project-wide license transition has taken effect.
-Upstream has responded positively; the exact additional-permission scope is
-being documented in the linked record. Do not treat the clarification request
-as an issued license exception or remove existing third-party notices.
-Wolphun integration experiments must remain in ignored local
-files and opt-in debug builds until the compatibility blocker is resolved.
-New release APKs are on hold; source-only updates do not authorize a release.
+Read [licensing](docs/LICENSING.md) before adding engines or changing headers.
+The combined application is GPLv3; inherited component terms remain intact.
+`engines/m3g` contains the replacement renderer and tone sources, and
+`engines/mophun` contains the selectively promoted Wolphun integration.
+The incompatible legacy M3G/tone implementation was removed, not relicensed.
+Private games, diagnostics and signing material must stay outside tracked files.
+Use `:app:verifyProductionApks` before publication to reject stale legacy classes,
+research hooks and game payloads in the signed APKs.
 
 ## Pull requests
 

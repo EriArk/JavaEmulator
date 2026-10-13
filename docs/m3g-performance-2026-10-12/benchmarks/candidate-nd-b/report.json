@@ -1,0 +1,178 @@
+{
+  "package": "io.github.eriark.abyssme.m3gcandidate.debug",
+  "device": "Retroid Pocket Classic",
+  "sdk": 34,
+  "debuggable": false,
+  "thermalStart": 0,
+  "cases": [
+    {
+      "name": "rgb-nearest-240x320",
+      "framesPerBatch": 32,
+      "warmupFrames": 64,
+      "wallNs": [
+        139379323,
+        137530781,
+        136612656,
+        136967968,
+        136066980
+      ],
+      "threadCpuNs": [
+        138266974,
+        136399428,
+        135557088,
+        135796146,
+        134946513
+      ],
+      "pixelCrc32": 4182385089,
+      "changedPixels": 75046
+    },
+    {
+      "name": "rgb-linear-240x320",
+      "framesPerBatch": 32,
+      "warmupFrames": 64,
+      "wallNs": [
+        152070260,
+        151857604,
+        151999115,
+        151804010,
+        151815417
+      ],
+      "threadCpuNs": [
+        150909685,
+        150715157,
+        150820881,
+        150652868,
+        150645265
+      ],
+      "pixelCrc32": 1402806707,
+      "changedPixels": 75046
+    },
+    {
+      "name": "rgba-alpha-240x320",
+      "framesPerBatch": 32,
+      "warmupFrames": 64,
+      "wallNs": [
+        142888489,
+        142673854,
+        142194427,
+        142054583,
+        142115469
+      ],
+      "threadCpuNs": [
+        141782137,
+        141568279,
+        141133077,
+        140974998,
+        141004377
+      ],
+      "pixelCrc32": 2897270989,
+      "changedPixels": 75046
+    },
+    {
+      "name": "lit-fog-240x320",
+      "framesPerBatch": 32,
+      "warmupFrames": 64,
+      "wallNs": [
+        149740000,
+        148988438,
+        147937760,
+        147788020,
+        146544115
+      ],
+      "threadCpuNs": [
+        148634531,
+        147764840,
+        146797602,
+        146704683,
+        145447713
+      ],
+      "pixelCrc32": 62375560,
+      "changedPixels": 75046
+    },
+    {
+      "name": "rgb-nearest-320x240",
+      "framesPerBatch": 32,
+      "warmupFrames": 64,
+      "wallNs": [
+        104464115,
+        104742605,
+        104406146,
+        104595885,
+        104352552
+      ],
+      "threadCpuNs": [
+        103547711,
+        103807195,
+        103572604,
+        103739532,
+        103519374
+      ],
+      "pixelCrc32": 2508363356,
+      "changedPixels": 55311
+    },
+    {
+      "name": "rgb-linear-320x240",
+      "framesPerBatch": 32,
+      "warmupFrames": 64,
+      "wallNs": [
+        116620208,
+        116490937,
+        116448646,
+        116489115,
+        116285261
+      ],
+      "threadCpuNs": [
+        115702914,
+        115589325,
+        115557812,
+        115574946,
+        115377712
+      ],
+      "pixelCrc32": 1073151058,
+      "changedPixels": 55311
+    },
+    {
+      "name": "rgba-alpha-320x240",
+      "framesPerBatch": 32,
+      "warmupFrames": 64,
+      "wallNs": [
+        109952187,
+        109971719,
+        110111094,
+        110336302,
+        111027344
+      ],
+      "threadCpuNs": [
+        109090149,
+        109097814,
+        109246458,
+        109458956,
+        110048746
+      ],
+      "pixelCrc32": 1254750558,
+      "changedPixels": 55311
+    },
+    {
+      "name": "lit-fog-320x240",
+      "framesPerBatch": 32,
+      "warmupFrames": 64,
+      "wallNs": [
+        117139896,
+        114993282,
+        115060364,
+        114779635,
+        114880312
+      ],
+      "threadCpuNs": [
+        116083025,
+        114126875,
+        114165941,
+        113919586,
+        113994485
+      ],
+      "pixelCrc32": 748726763,
+      "changedPixels": 55311
+    }
+  ],
+  "thermalEnd": 0
+}

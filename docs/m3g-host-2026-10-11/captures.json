@@ -1,0 +1,58 @@
+﻿[
+    {
+        "file":  "deep-candidate-final-game.png",
+        "sha256":  "8F0ECF438246012372145AD7C7F69E60EF18A737071D75148A618EA3850EB5AD",
+        "apkSha256":  "CF385DDC383AB18D57081739B71D4F8D223391445A0CB0C4D4759C06317971C1",
+        "device":  "Retroid Pocket Classic, Android 14",
+        "capture":  "Unedited adb shell screencap -p, 2026-10-11"
+    },
+    {
+        "file":  "deep-baseline-game.png",
+        "sha256":  "2E230AC10EC558319B6872816B15CA05520AD898D6E4F7945DE3249F818A6F18",
+        "apkSha256":  "4A0609DA1822F5C1B9141BB2D104DDA263AFEACD730E23B0F161332EC82D339A",
+        "device":  "Retroid Pocket Classic, Android 14",
+        "capture":  "Unedited adb shell screencap -p, 2026-10-11"
+    },
+    {
+        "file":  "asphalt-candidate-moving.png",
+        "sha256":  "70BB18FE90AD4203BDCF00F734CFE3EDEC4909F4EA3B9DB61D1420DD8BC7553F",
+        "apkSha256":  "CF385DDC383AB18D57081739B71D4F8D223391445A0CB0C4D4759C06317971C1",
+        "device":  "Retroid Pocket Classic, Android 14",
+        "capture":  "Unedited adb shell screencap -p, 2026-10-11"
+    },
+    {
+        "file":  "asphalt-baseline-race.png",
+        "sha256":  "F7152FB28B042E3C3CD80D1F119F8CA3E4AD38004330EA580D71CDE4DBE03566",
+        "apkSha256":  "4A0609DA1822F5C1B9141BB2D104DDA263AFEACD730E23B0F161332EC82D339A",
+        "device":  "Retroid Pocket Classic, Android 14",
+        "capture":  "Unedited adb shell screencap -p, 2026-10-11"
+    },
+    {
+        "file":  "asphalt-emulator-moving.png",
+        "sha256":  "AAB9352F4723ABDFF1435CB98249B9AC5A3B6FCDD1FD6ECB64DABC41655BD180",
+        "apkSha256":  "CF385DDC383AB18D57081739B71D4F8D223391445A0CB0C4D4759C06317971C1",
+        "device":  "Android 15 x86_64 emulator",
+        "capture":  "Unedited adb shell screencap -p, 2026-10-11"
+    },
+    {
+        "file":  "dirt-candidate.png",
+        "sha256":  "2481109C9E23275E27946FD6730A73FDF34DA6E98B515611E0EBF4BD5C49B9B1",
+        "apkSha256":  "CF385DDC383AB18D57081739B71D4F8D223391445A0CB0C4D4759C06317971C1",
+        "device":  "Retroid Pocket Classic, Android 14",
+        "capture":  "Unedited adb shell screencap -p, 2026-10-11"
+    },
+    {
+        "file":  "dirt-candidate-race320.png",
+        "sha256":  "71327D1551E7941E72B4CA762C177C9A2EEDD871E692BDEDE78D00BD93647545",
+        "apkSha256":  "CF385DDC383AB18D57081739B71D4F8D223391445A0CB0C4D4759C06317971C1",
+        "device":  "Retroid Pocket Classic, Android 14",
+        "capture":  "Unedited adb shell screencap -p, 2026-10-11"
+    },
+    {
+        "file":  "dirt-baseline-race320.png",
+        "sha256":  "A32788FA5120F73006B60125C2353910E3FBCA9CDA3450138EB6C34CBC21063C",
+        "apkSha256":  "3B9A2106EF03102026779FA9BDDB270837291BF7466625F6BC055E4B2A1B9A2B",
+        "device":  "Retroid Pocket Classic, Android 14",
+        "capture":  "Unedited adb shell screencap -p, 2026-10-11"
+    }
+]

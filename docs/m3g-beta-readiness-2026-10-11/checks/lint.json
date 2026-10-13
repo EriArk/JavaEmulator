@@ -1,0 +1,12 @@
+﻿[
+    {
+        "variant":  "fdroid",
+        "errors":  0,
+        "warnings":  381
+    },
+    {
+        "variant":  "phone",
+        "errors":  0,
+        "warnings":  388
+    }
+]

@@ -1,0 +1,9 @@
+﻿{
+    "engine":  "baseline",
+    "device":  "Retroid Pocket Classic",
+    "sdk":  34,
+    "tests":  11,
+    "skipped":  0,
+    "apk":  "E26701B551297790584ED62FD7DEB046311FC80C4FFD12751A716F27302E6D3E",
+    "testApk":  "2C4D4712FADB3C9F588A86A91B640889438E7555844466237F026497D4EBF6F5"
+}

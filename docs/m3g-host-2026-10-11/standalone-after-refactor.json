@@ -1,0 +1,123 @@
+﻿{
+  "engine": "FreeJ2ME-Plus",
+  "suiteVersion": 2,
+  "upstream": "baca76a4dda6f30abac67fb4a3db009eed05f91c",
+  "device": "sdk_gphone64_x86_64",
+  "sdk": 35,
+  "abi": "x86_64",
+  "tests": [
+    {
+      "name": "transform_inverse",
+      "passed": true,
+      "elapsedMs": 0.0612
+    },
+    {
+      "name": "immediate_triangle",
+      "passed": true,
+      "elapsedMs": 85.7353
+    },
+    {
+      "name": "retained_matches_immediate",
+      "passed": true,
+      "elapsedMs": 233.2125
+    },
+    {
+      "name": "depth_order",
+      "passed": true,
+      "elapsedMs": 364.636
+    },
+    {
+      "name": "texture_checker",
+      "passed": true,
+      "elapsedMs": 265.8225
+    },
+    {
+      "name": "translated_clip",
+      "passed": true,
+      "elapsedMs": 98.3909
+    },
+    {
+      "name": "png_loader",
+      "passed": true,
+      "elapsedMs": 5.4923
+    },
+    {
+      "name": "release_and_rebind",
+      "passed": true,
+      "elapsedMs": 511.9867
+    },
+    {
+      "name": "scene_raw",
+      "passed": true,
+      "elapsedMs": 77.2603
+    },
+    {
+      "name": "scene_zlib",
+      "passed": true,
+      "elapsedMs": 77.0392
+    },
+    {
+      "name": "scene_multisection",
+      "passed": true,
+      "elapsedMs": 86.9551
+    },
+    {
+      "name": "scene_zlib_multisection",
+      "passed": true,
+      "elapsedMs": 76.763
+    },
+    {
+      "name": "scene_offset",
+      "passed": true,
+      "elapsedMs": 21.9145
+    },
+    {
+      "name": "scene_truncated_rejected",
+      "passed": true,
+      "elapsedMs": 9.1616
+    },
+    {
+      "name": "animation_translation",
+      "passed": true,
+      "elapsedMs": 43.0296
+    },
+    {
+      "name": "animation_orientation",
+      "passed": true,
+      "elapsedMs": 24.9747
+    },
+    {
+      "name": "morph_vertices",
+      "passed": true,
+      "elapsedMs": 42.4513
+    },
+    {
+      "name": "skin_bone",
+      "passed": true,
+      "elapsedMs": 42.0195
+    }
+  ],
+  "frames": [
+    "immediate",
+    "retained",
+    "texture",
+    "clip",
+    "scene_raw_api",
+    "scene_raw",
+    "scene_zlib_api",
+    "scene_zlib",
+    "scene_multisection_api",
+    "scene_multisection",
+    "scene_zlib_multisection_api",
+    "scene_zlib_multisection",
+    "scene_offset",
+    "translation_start",
+    "translation_end",
+    "rotation_start",
+    "rotation_mid",
+    "morph_start",
+    "morph_end",
+    "skin_start",
+    "skin_end"
+  ]
+}

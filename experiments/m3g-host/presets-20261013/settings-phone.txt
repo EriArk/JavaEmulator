@@ -1,0 +1,11 @@
+
+ru.playsoftware.j2meloader.config.CompatibilityProfileTest:...........................
+javax.microedition.m3g.GpuTransferTest:.
+ru.playsoftware.j2meloader.config.SettingsTrialTest:.............
+ru.playsoftware.j2meloader.config.GamePresetsUiTest:...
+
+Time: 20.189
+
+OK (44 tests)
+
+

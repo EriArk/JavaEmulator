@@ -1,0 +1,37 @@
+[
+    {
+        "variant":  "main-fdroid",
+        "suite":  "ru.playsoftware.j2meloader.catalog.SourceIdentityTest",
+        "tests":  2,
+        "failures":  0,
+        "errors":  0
+    },
+    {
+        "variant":  "main-fdroid",
+        "suite":  "ru.playsoftware.j2meloader.input.ControllerInputTest",
+        "tests":  12,
+        "failures":  0,
+        "errors":  0
+    },
+    {
+        "variant":  "main-phone",
+        "suite":  "ru.playsoftware.j2meloader.catalog.SourceIdentityTest",
+        "tests":  2,
+        "failures":  0,
+        "errors":  0
+    },
+    {
+        "variant":  "main-phone",
+        "suite":  "ru.playsoftware.j2meloader.input.ControllerInputTest",
+        "tests":  12,
+        "failures":  0,
+        "errors":  0
+    },
+    {
+        "variant":  "dexlib",
+        "suite":  "org.microemu.android.asm.AndroidProducerTest",
+        "tests":  3,
+        "failures":  0,
+        "errors":  0
+    }
+]

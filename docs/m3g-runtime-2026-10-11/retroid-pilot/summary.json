@@ -1,0 +1,21 @@
+﻿{
+    "engine":  "candidate",
+    "run":  "asphalt-final90",
+    "apkSha256":  "ab9e4bffc026d3570a37b210c93414fefddc98a61ec40c8692c898e55b74b982",
+    "processId":  "9683",
+    "layer":  "SurfaceView[io.github.eriark.abyssme.m3gcandidate.debug/javax.microedition.shell.MicroActivity](BLAST)#22977",
+    "elapsedSeconds":  90.3320652,
+    "maxPollGapSeconds":  1.422974,
+    "error":  null,
+    "metrics":  {
+                    "frames":  5363,
+                    "spanSeconds":  89.363469341,
+                    "presentedFps":  60.002146733351054,
+                    "intervalP50Ms":  16.666042,
+                    "intervalP95Ms":  16.677344,
+                    "maxIntervalMs":  16.7175,
+                    "intervalsAbove100Ms":  0
+                },
+    "cadenceWindows":  44,
+    "interpretation":  "Surface presentation intervals, not game logic FPS or isolated renderer cost. Inspect captures."
+}

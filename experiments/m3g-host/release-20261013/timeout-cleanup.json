@@ -1,0 +1,7 @@
+{
+    "timeoutSeconds":  30,
+    "expectedTimeout":  true,
+    "isolatedPackageStopped":  true,
+    "partialOutputBytes":  14000,
+    "fullSuitePass":  false
+}
