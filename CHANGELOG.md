@@ -11,6 +11,22 @@ stated otherwise. **Experimental** means local/private combined builds only.
 
 ## 2026-10-13
 
+- **Public source / unreleased:** new game profiles now choose font sizes from
+  the prepared virtual resolution instead of using 240x320 sizes everywhere.
+  Advanced adds an Automatic font preset; saved explicit sizes stay unchanged.
+  Constructo's small-screen tutorial is readable on Retroid. Four Android font
+  tests pass on Retroid and Phone emulator; ordinary Handheld/Phone debug builds
+  and 14 unit tests per variant pass. No APK distribution in this batch.
+- **Separate experiment / not shipped:** fixed GPU diagnostics accessing an
+  uninitialized Activity and enabled cadence capture from non-debuggable research
+  APKs. Compared actual Retroid gameplay with the original engine across Asphalt,
+  Constructo and Deep Java. Six short captures maintain about 60 surface buffers/s
+  without >100 ms presentation gaps; this is not unique game FPS or speed parity.
+  Scene differences, lower candidate host throughput and thermal-data limits
+  remain explicit. Final Retroid measured suite passes 332 checks; focused tests
+  pass 31 on Retroid and 31 on Phone emulator. No engine/license switch or release.
+  [Implementation and evidence](https://github.com/EriArk/JavaEmulator/blob/01a8837b/experiments/m3g-host/gameplay-20261013.md).
+
 - **Separate experiment / not shipped:** moved flat/two-sided lighting to
   indexed GPU geometry, corrected unlit flat colors and portable front/back
   selection, reduced repeated shader state updates and fixed mesh-cache churn.
