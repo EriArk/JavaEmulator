@@ -71,7 +71,9 @@ public final class FrameMeter {
             out.put("intervalMaxNs", percentile(intervals, intervalCount, 1));
             out.put("paintP50Ns", percentile(paints, paintCount, 0.5));
             out.put("paintP95Ns", percentile(paints, paintCount, 0.95));
-            File file = new File(ContextHolder.getAppContext().getCacheDir(), "m3g-cadence.jsonl");
+            File directory = ContextHolder.getAppContext().getExternalFilesDir(null);
+            if (directory == null) throw new java.io.IOException("Research measurement directory unavailable");
+            File file = new File(directory, "m3g-cadence.jsonl");
             try (FileOutputStream stream = new FileOutputStream(file, file.length() < 524288)) {
                 stream.write((out.toString() + "\n").getBytes(StandardCharsets.UTF_8));
             }

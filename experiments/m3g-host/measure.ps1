@@ -65,6 +65,7 @@ if ($layers.Count -ne 1) { throw 'Expected one active research game SurfaceView'
 $layer = $layers[0]
 if ($layer -match "'") { throw 'Unsafe layer name' }
 Adb @('shell', 'dumpsys', 'battery') | Set-Content -Encoding UTF8 "$output/battery-start.txt"
+Adb @('shell', 'dumpsys', 'thermalservice') | Set-Content -Encoding UTF8 "$output/thermal-start.txt"
 $apkPath = (Adb @('shell', 'pm', 'path', $package)) -replace '^package:', ''
 if ($apkPath -notmatch '^/data/app/[^\r\n]+/base.apk$') { throw 'Unexpected APK path' }
 $apkHash = ((Adb @('shell', 'sha256sum', $apkPath)) -split '\s+')[0]
@@ -106,7 +107,7 @@ $watch.Stop()
 $cadence = @()
 try {
     $endMs = [long](Adb @('shell', 'date', '+%s')) * 1000
-    $cadenceRaw = Adb @('shell', 'run-as', $package, 'cat', 'cache/m3g-cadence.jsonl')
+    $cadenceRaw = Adb @('shell', 'cat', "/sdcard/Android/data/$package/files/m3g-cadence.jsonl")
     $cadenceRaw | Set-Content -Encoding UTF8 "$output/cadence-raw.jsonl"
     $cadence = @($cadenceRaw -split '\r?\n' | Where-Object { $_.StartsWith('{') } | ForEach-Object {
         $row = $_ | ConvertFrom-Json
@@ -131,6 +132,7 @@ try { Capture 'end' } catch { if (-not $failure) { $failure = $_.Exception.Messa
     interpretation='Surface presentation intervals, not game logic FPS or isolated renderer cost. Inspect captures.'
 } | ConvertTo-Json -Depth 4 | Set-Content -Encoding UTF8 "$output/summary.json"
 Adb @('shell', 'dumpsys', 'battery') | Set-Content -Encoding UTF8 "$output/battery-end.txt"
+Adb @('shell', 'dumpsys', 'thermalservice') | Set-Content -Encoding UTF8 "$output/thermal-end.txt"
 if ($failure) { throw $failure }
 $metrics
 "Evidence: $output"

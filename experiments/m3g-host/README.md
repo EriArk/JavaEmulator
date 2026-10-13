@@ -6,12 +6,15 @@ The [2026-10-12 compatibility/performance report](../../docs/m3g-performance-202
 records the earlier Java-only checkpoint. The candidate now includes a
 [native raster fast path](native/README.md) with a shared-buffer Java fallback.
 The verifier requires 62 shared checks, 23 candidate animation checks, 21
-candidate deformation checks and 80
+candidate deformation checks and 143
 candidate implementation checks (tone, math, native rasterization, mipmaps,
-geometry preparation and 50 GPU checks), plus 76 scene/loader/alpha checks:
-262 for an unmeasured candidate, 269 when measured, and 69 for measured baseline
+geometry preparation and GPU checks), plus 76 scene/loader/alpha checks:
+325 for an unmeasured candidate, 332 when measured, and 69 for measured baseline
 with two intentional skips.
 Seven additional timing checks apply only when measurement is enabled.
+The [Retroid gameplay report](gameplay-20261013.md) records real-game surface
+and host cadence, original-engine comparisons, automatic font defaults and
+GPU diagnostic lifecycle recovery. Surface cadence is not unique game FPS.
 The [GPU submission report](submission-20261013.md) records bulk vertex packing,
 scoped state reuse, mixed-material regression coverage and fresh timings.
 The [scene compatibility report](scene-contracts-20261013.md) records the preceding
@@ -23,7 +26,7 @@ Both Handheld (`fdroid`) and Phone research builds are supported; pass
 `-Variant phone` to `verify.ps1` for Phone.
 Use `-ApkRoot` to verify a saved `outputs/apk` snapshot independently of later
 builds; slow software-rendered emulators can use `-TestTimeoutSeconds 900`
-(maximum 1200).
+(maximum 3600).
 
 Candidate builds replace the inherited EPL tone package with the original
 [ToneControl implementation](tone-java/README.md). Run `:app:testToneCompiler`
@@ -41,13 +44,13 @@ aggregate bitmap-read/write and draw phases in addition to target sessions.
 controlled comparisons. It retains research IDs/debug signing, does not enable
 R8, and is not a public release configuration. Use it for both engines, never
 only one side. `benchmark.ps1 -Serial YOUR_DEVICE -Engine candidate -Run NEW_LABEL`
-runs 30 bounded original scenes and saves PNGs, timings, thermal status and
+runs 34 bounded original scenes and saves PNGs, timings, thermal status and
 APK hashes. This benchmark is opt-in, not part of the normal verifier. Its wall
 cost is not game FPS. Use `-ApkRoot` for saved APK snapshots when alternating
 engines: Gradle can remove the other engine's stale test output directory.
 For a same-APK fast-path comparison, pass `-Raster java`, `-Raster native` or `-Raster gpu`
 with separate run labels. Native runs require a successful native draw in every
-scene; GPU runs now require GPU draws in all 30 scenes, including sprites.
+scene; GPU runs now require GPU draws in all 34 scenes, including sprites.
 Library loading alone is not accepted as proof.
 
 ## Original Setup
@@ -160,8 +163,10 @@ observe successful target binding through release on both engines. No checked-in
 production Java/native source is edited. Do not compare an
 instrumented engine against an uninstrumented one as if costs were identical.
 
-`FrameMeter` records bounded two-second windows in the app-private cache, capped
-at 512 KiB. File output is deliberate: this Retroid suppresses Info/Warning
+`FrameMeter` records bounded two-second windows in app-specific external files,
+capped at 512 KiB. This allows ADB capture from non-debuggable research builds
+without `run-as`. It is research-only telemetry, not production logging.
+File output is deliberate: this Retroid suppresses Info/Warning
 log messages. It records Canvas update count/intervals and paint-call duration,
 not game-logic ticks or isolated GPU/renderer time. A game may flush multiple
 times per logical frame. Observing paint includes game drawing and dispatch;

@@ -34,9 +34,10 @@ final class GpuRasterizer {
     private static void diagnostic(String message) {
         android.util.Log.i("M3GGpu",message);
         if (diagnosticLines>=128) return;
-        android.app.Activity activity=javax.microedition.util.ContextHolder.getActivity();
-        if(activity==null || activity.getExternalFilesDir(null)==null) return;
-        java.io.File file=new java.io.File(activity.getExternalFilesDir(null),"m3g-gpu-session.txt");
+        android.content.Context context=javax.microedition.util.ContextHolder.getAppContext();
+        java.io.File directory=context==null?null:context.getExternalFilesDir(null);
+        if(directory==null) return;
+        java.io.File file=new java.io.File(directory,"m3g-gpu-session.txt");
         try(java.io.FileOutputStream out=new java.io.FileOutputStream(file,diagnosticLines>0)) {
             out.write((System.currentTimeMillis()+" pid="+android.os.Process.myPid()+" "+message+"\n")
                     .getBytes(java.nio.charset.StandardCharsets.UTF_8));
