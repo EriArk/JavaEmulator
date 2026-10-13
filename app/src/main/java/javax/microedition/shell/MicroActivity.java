@@ -660,8 +660,7 @@ public class MicroActivity extends AppCompatActivity {
 		ProfilesManager.undoPreview(microLoader.getTouchSettings());
 		if (restart) {
 			settingsPreview.stop();
-			Toast.makeText(this, "Previous settings restored. Restart the game to continue.", Toast.LENGTH_LONG).show();
-			MidletThread.destroyApp();
+			restartGame(null);
 			return;
 		}
 		microLoader.applyPreviewSettings();
@@ -850,6 +849,11 @@ public class MicroActivity extends AppCompatActivity {
 
 	private void showMorePage() {
 		gameMenu.page("More");
+		gameMenu.setBackAction(this::showGameMenuPage);
+		gameMenu.action("Screen presets", R.drawable.ic_quick_size,
+				() -> settingsPages().screenPresets(this::showMorePage));
+		gameMenu.action("Phone profile", R.drawable.ic_baseline_tune_24,
+				() -> settingsPages().phonePresets(this::showMorePage, this::restartGame));
 		gameMenu.toggle(getString(R.string.screenshot_button), Screenshots.isButtonVisible(this), value -> {
 			Screenshots.setButtonVisible(this, value);
 			updateScreenshotButton();
@@ -867,6 +871,22 @@ public class MicroActivity extends AppCompatActivity {
 		});
 		gameMenu.action("Save log", android.R.drawable.ic_menu_save, this::saveLog);
 		gameMenu.action("Back", android.R.drawable.ic_media_previous, this::showGameMenuPage);
+	}
+
+	private void restartGame(ProfileModel draft) {
+		try {
+			if (draft != null) ru.playsoftware.j2meloader.config.SettingsTrial.stage(draft);
+			ru.playsoftware.j2meloader.config.GameRestartActivity.prepare(this, appName, appPath,
+					getIntent().getStringExtra(KEY_START_ARGUMENTS), microLoader.getTouchSettings().dir);
+		} catch (Exception e) {
+			ru.playsoftware.j2meloader.config.SettingsTrial.discard(microLoader.getTouchSettings().dir);
+			Toast.makeText(this, "Could not restart the game. Previous settings kept.", Toast.LENGTH_LONG).show();
+			return;
+		}
+		if (settingsPreview != null) settingsPreview.stop();
+		controllerInput.clear();
+		if (gameMenu != null) { gameMenu.setOnDismissListener(null); gameMenu.dismiss(); }
+		MidletThread.destroyApp();
 	}
 
 	private void showTouchPage() {

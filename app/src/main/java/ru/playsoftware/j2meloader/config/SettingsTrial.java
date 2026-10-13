@@ -11,6 +11,7 @@ import java.nio.charset.StandardCharsets;
 /** A one-launch draft. The confirmed config and game saves are never replaced. */
 public final class SettingsTrial {
     private static AtomicFile file(File dir) { return new AtomicFile(new File(dir, "settings-trial.json")); }
+    public static void discard(File dir) { file(dir).delete(); }
 
     public static void stage(ProfileModel draft) throws IOException {
         AtomicFile file = file(draft.dir);

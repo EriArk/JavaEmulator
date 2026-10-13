@@ -33,10 +33,10 @@ bundled. The app UI is English.
 | Channel | Current identifier | What a reader can obtain |
 | --- | --- | --- |
 | Public download | [v0.1.0-beta.2](https://github.com/EriArk/JavaEmulator/releases/tag/v0.1.0-beta.2), published 2026-07-20 | Handheld and Phone release APKs; Java games, not Mophun |
-| Public development source | `main`; latest app fix: [a82c0378](https://github.com/EriArk/JavaEmulator/commit/a82c0378) | Screen preparation no longer mistakes anonymous square textures for display dimensions; automatic font sizes and prior Java/UI/storage improvements remain unreleased. Not all changes are in the downloadable beta |
+| Public development source | `main`; screen/phone presets batch, 2026-10-13 | More provides reversible screen presets and restart-based phone profiles; conservative automatic preparation, automatic font sizes and prior Java/UI/storage improvements remain unreleased. [Evidence](GAME_PRESETS.md). Not all changes are in the downloadable beta |
 | Private combined test snapshot | `0.1.0-beta.2-experimental.15`, 2026-10-11 | Handheld and Phone debug APKs containing Java plus experimental Mophun; supplied separately to testers, not a GitHub release |
 | Local-only implementation | Ignored optional-engine source and diagnostics | Mophun integration, game-specific experiments and test fixtures; public descriptions below, implementation not published |
-| Separate research branch | [`codex/m3g-replacement`](https://github.com/EriArk/JavaEmulator/tree/codex/m3g-replacement), checkpoint `e9cea5c6`, 2026-10-13 | DiRT/PGR moving gameplay on Retroid matches the original's observed update rates in short captures. Prior shader batch: 370 Retroid checks, 34 unchanged pixel CRCs. Universal speed parity, production switch and beta remain pending |
+| Separate research branch | [`codex/m3g-replacement`](https://github.com/EriArk/JavaEmulator/tree/codex/m3g-replacement), compact-submission batch, 2026-10-13 | Reduced repeated GPU state/index work; final Retroid suite passes 371 checks and all 34 A/B pixel CRCs match. Prior DiRT/PGR short captures match original observed update rates. Universal speed parity, production switch and beta remain pending |
 
 The experimental number is a distribution label: build 15 still reports
 version code **102** and `0.1.0-beta.2` / `0.1.0-beta.2-phone` internally.
@@ -71,11 +71,12 @@ See [beta.2 release notes](releases/v0.1.0-beta.2.md) for the released scope.
 | Controller mapping | Graphical phone keypad, per-game named schemes/presets, button identification, D-pad/stick directions and diagonal-to-single-key bindings, compact mapper pages | `c49fef57`, `ba252272`; physical-controller/disconnect acceptance remains open in #9 |
 | Phone controls | Phone numeric keypad or virtual Gamepad, portrait game area above buttons, landscape side controls, size/opacity/position settings | [Settings](SETTINGS_TRIALS.md); released beta.2 uses the older workflow |
 | Picture settings | Shared Display/Controls pages in library and game, live Java image rotation, size/smoothing, reversible Try/Keep/Undo preview | [Settings trials](SETTINGS_TRIALS.md); expert compatibility settings remain under Advanced |
+| Quick presets | More > Screen presets applies virtual resolutions live; More > Phone profile offers Generic/vendor presets through Restart & try, with Keep / Undo | [Implementation and checks](GAME_PRESETS.md); restart loses unsaved game progress, presets are not full phone emulation |
 | Screenshots | Optional on-screen camera button and menu action; PNGs in Pictures/AbyssME | `4f4d1468`; visibility can be disabled |
 | Transfer and backup | J2ME Loader import, selection/preview, AbyssME backup/restore through menus, copied saves and supported profiles, non-destructive migrations | [Transfer](LIBRARY_TRANSFER.md); source files remain intact, access restrictions still apply |
 | Nested-folder permissions | Import pauses for the requested folder grant and resumes; wrong-folder/cancel recovery, readable messages, save-folder validation | `d39ed742`; pending access survives screen recreation, not process death |
 | Installer | Compact scrolling details with reachable actions, persistent errors, archive recognition through pickers, mismatched JAD/JAR continuation retaining source identity | `696da084`, `7ba384b2`; URI-alias duplicates remain #20 |
-| Automatic preparation | Conservative metadata/API/resource hints, preservation of existing settings and explicit display declarations | [Checks](LOCAL_TESTING.md); static heuristics, not running multiple models or guaranteeing the best profile |
+| Automatic preparation | Weak or conflicting vendor hints retain Generic; anonymous images alone no longer set display size. Existing settings and explicit display declarations remain preserved | [Preset checks](GAME_PRESETS.md), [checks](LOCAL_TESTING.md); static heuristics, not running multiple models or guaranteeing the best profile |
 | Automatic game fonts | New profiles follow the prepared virtual resolution; Advanced font presets include Automatic. Existing explicit values are preserved | `9430cb0a`; four new Android font tests, readable Constructo tutorial on Retroid; not in a released APK |
 
 ## Local and Private Work: Experimental Mophun

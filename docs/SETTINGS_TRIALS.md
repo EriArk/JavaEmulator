@@ -12,6 +12,13 @@ Both places use the same editor and keep edits in a draft:
   Legacy layouts, size, opacity and portrait/landscape positioning.
 - Advanced: virtual phone resolution. The library also links to the full expert
   compatibility editor. Handheld remains landscape-only without a touch keypad.
+- In-game More > Screen presets: Auto or a common virtual phone resolution,
+  applied live through Try changes. Auto shows its dimensions; without a reliable
+  detection it uses 240 x 320. This changes the virtual display, not just zoom.
+- In-game More > Phone profile: Current settings, Auto, Generic, Nokia,
+  Sony Ericsson, Motorola, Siemens or Samsung. Opening the page keeps custom
+  properties intact. Restart & try explicitly restarts the game; save first.
+  These are compatibility property presets, not complete hardware emulation.
 
 Try in game launches the draft. Try changes applies it to the running game.
 Keep commits it; Undo restores the confirmed configuration. A roughly 20-second
@@ -31,9 +38,11 @@ does not bypass Try / Keep. The hold-Select shortcut previews its changes direct
   configuration for the next launch, without replaying the trial.
 - This is configuration rollback, not a game-state checkpoint. Game saves are
   not restored or rolled back; normal gameplay can still change them.
-- Reverting a trial of renderer/compatibility properties ends that game session;
-  the next launch uses the confirmed settings. Live picture/control changes do
-  not need that restart. Save progress before testing compatibility changes.
+- Reverting a trial of renderer/compatibility properties restarts the game with
+  confirmed settings. A separate restart Activity waits for the old VM to exit;
+  a cancelled or failed handoff discards the pending trial. Live picture/control
+  changes do not need that restart. Save progress before testing compatibility
+  changes. A restart is not a save state or a resume of the current level.
 - An unopened Java game still runs automatic preparation before showing settings.
 - The legacy layout editor and ordinary edits in the full expert editor retain
   their existing direct-save behavior. Only its Fix game action uses the trial.
@@ -51,6 +60,8 @@ does not bypass Try / Keep. The hold-Select shortcut previews its changes direct
 5. Open the mapper while a preview is active; the timer must not expire over it.
 6. On Handheld, navigate Display / Controls and Keep / Undo with the controller.
 7. Compare saved game data before/after a settings-only trial. Do not clear app data.
+8. In More, try another resolution, then Undo. Try a phone profile, check the
+   restarted game and use Keep or Undo; repeat with the preview timer expiring.
 
 Use the local Android regression suite in [Local testing](LOCAL_TESTING.md).
 Physical devices, all games and external launchers require separate acceptance.

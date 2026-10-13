@@ -78,23 +78,57 @@ public final class GameSettingsPages {
 
     public void advanced() {
         menu.page("Advanced");
+        resolutionChoice();
+        if (!live) menu.action("Compatibility settings", R.drawable.ic_baseline_tune_24, host::advanced);
+        footer();
+    }
+
+    public void screenPresets(Runnable back) {
+        menu.page("Screen presets");
+        resolutionChoice();
+        trialAction();
+        menu.setBackAction(back);
+    }
+
+    public void phonePresets(Runnable back, java.util.function.Consumer<ProfileModel> restart) {
+        menu.page("Phone profile");
+        ProfileModel original = ProfilesManager.copy(draft);
+        java.util.ArrayList<String> names = new java.util.ArrayList<>();
+        String automatic = GamePresets.automaticPhone(draft);
+        names.add("Current settings");
+        names.add("Auto (" + automatic + ")");
+        java.util.Collections.addAll(names, GamePresets.phoneNames());
+        // Opening this page must not replace a custom or imported property set.
+        menu.choice("Profile", names.toArray(new String[0]), 0, i -> {
+            if (i == 0) {
+                draft.systemProperties = original.systemProperties;
+                draft.compatibilityProfile = original.compatibilityProfile;
+                return;
+            }
+            GamePresets.phone(draft, i == 1 ? automatic : names.get(i));
+        });
+        menu.message("Restart required. Unsaved game progress may be lost.");
+        menu.action("Restart & try", android.R.drawable.ic_media_play, () -> restart.accept(draft));
+        menu.setBackAction(back);
+    }
+
+    private void resolutionChoice() {
         java.util.ArrayList<String> options = new java.util.ArrayList<>();
-        if (draft.detectedScreenWidth > 0 && draft.detectedScreenHeight > 0) options.add("Auto");
-        java.util.Collections.addAll(options, "128 x 128", "128 x 160", "176 x 208", "176 x 220", "240 x 320", "320 x 240", "360 x 640", "480 x 800", "480 x 854");
+        int autoWidth = draft.detectedScreenWidth > 0 ? draft.detectedScreenWidth : 240;
+        int autoHeight = draft.detectedScreenHeight > 0 ? draft.detectedScreenHeight : 320;
+        options.add("Auto (" + autoWidth + " x " + autoHeight + ")");
+        java.util.Collections.addAll(options, "128 x 128", "128 x 160", "176 x 208", "176 x 220", "208 x 208", "240 x 320", "320 x 240", "352 x 416", "360 x 640", "480 x 800", "480 x 854");
         String current = draft.screenWidth + " x " + draft.screenHeight;
         if (!options.contains(current)) options.add(current);
         String[] sizes = options.toArray(new String[0]);
         menu.choice("Phone resolution", sizes, options.indexOf(current), i -> {
-            if ("Auto".equals(sizes[i])) {
-                draft.screenWidth = draft.detectedScreenWidth; draft.screenHeight = draft.detectedScreenHeight;
+            if (i == 0) {
+                draft.screenWidth = autoWidth; draft.screenHeight = autoHeight;
             } else {
                 String[] size = sizes[i].split(" x ");
                 draft.screenWidth = Integer.parseInt(size[0]); draft.screenHeight = Integer.parseInt(size[1]);
             }
         });
-        // Runtime engine changes require a restart; the full editor remains library-only.
-        if (!live) menu.action("Compatibility settings", R.drawable.ic_baseline_tune_24, host::advanced);
-        footer();
     }
 
     private void footer() {

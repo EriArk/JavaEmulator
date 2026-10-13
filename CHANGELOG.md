@@ -11,6 +11,22 @@ stated otherwise. **Experimental** means local/private combined builds only.
 
 ## 2026-10-13
 
+- **Public source / unreleased:** More now provides Screen presets and Phone
+  profile. Screen size can be tried live; compatibility presets explicitly
+  restart the game, with Keep / Undo and automatic rollback. Current custom
+  properties, controls and confirmed settings are preserved until Keep.
+  Automatic preparation now requires stronger phone/display evidence instead
+  of selecting a vendor from an API mention or an anonymous image alone.
+  Retroid passes 43 focused settings/UI checks; Phone emulator passes the same
+  43 plus one renderer regression. Both ordinary debug variants build and pass
+  14 JVM cases each. [Workflow and evidence](docs/GAME_PRESETS.md).
+- **Separate experiment / not shipped:** reduced redundant GPU texture bindings,
+  target setup and repeated mesh index validation. Same-APK Retroid GPU A/B
+  retains all 34 pixel CRCs, with roughly 4-5% lower wall cost in sprite/cache-
+  churn scenes; many other cases change little. Final renderer suite passes
+  371 checks. Not a universal game-FPS gain, engine switch or APK distribution.
+  [Evidence](https://github.com/EriArk/JavaEmulator/blob/codex/m3g-replacement/experiments/m3g-host/presets-20261013.md).
+
 - **Public source / unreleased:** screen preparation no longer mistakes anonymous
   square textures for a phone display. This fixes the cause of PGR 3D's cropped
   128x128 menus on fresh preparation, without a game-specific override or changing

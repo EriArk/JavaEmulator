@@ -224,7 +224,7 @@ public class CompatibilityProfileTest {
     @Test public void publisherAloneIsWeakEvidence() throws Exception {
         manifest("MIDlet-Vendor: Motorola\n");
         ProfileModel model = run();
-        assertEquals("Motorola", model.compatibilityProfile);
+        assertEquals("Generic MIDP", model.compatibilityProfile);
         assertEquals("low", model.compatibilityConfidence);
         assertTrue(model.compatibilityReasons.contains("publisher name"));
     }
@@ -279,11 +279,39 @@ public class CompatibilityProfileTest {
         assertEquals(128, model.screenHeight);
     }
 
-    @Test public void unnamedPortraitImageStillProvidesEvidence() throws Exception {
+    @Test public void unnamedPortraitImageAloneDoesNotChangeScreen() throws Exception {
         images(false, "scene.png:176:220", "car.png:128:128");
         ProfileModel model = run();
-        assertEquals(176, model.screenWidth);
-        assertEquals(220, model.screenHeight);
+        assertEquals(240, model.screenWidth);
+        assertEquals(320, model.screenHeight);
+        assertEquals(0, model.detectedScreenWidth);
+        assertTrue(model.compatibilityReasons.contains("weak screen-size"));
+    }
+
+    @Test public void resourceFilenameSizeNeedsScreenContext() throws Exception {
+        images(false, "car_128x128.png:128:128", "menu/background.png:320:240");
+        assertEquals(320, run().screenWidth);
+        images(false, "car_128x128.png:128:128");
+        assertEquals(0, run().detectedScreenWidth);
+        images(false, "splash_176x220.png:200:200");
+        assertEquals(176, run().screenWidth);
+    }
+
+    @Test public void apiAloneDoesNotImpersonatePhone() throws Exception {
+        manifest("");
+        Files.write(new File(root, Config.MIDLET_DEX_FILE).toPath(), "Lcom/nokia/ui/DirectGraphics;".getBytes(StandardCharsets.UTF_8));
+        assertEquals("Generic MIDP", run().compatibilityProfile);
+        manifest("Nokia-MIDlet-On-Screen-Keypad: no\n");
+        ProfileModel model = run();
+        assertEquals("Nokia S40", model.compatibilityProfile);
+        assertEquals("medium", model.compatibilityConfidence);
+    }
+
+    @Test public void vendorManifestAloneAndConflictingTargetsStayNeutral() throws Exception {
+        manifest("Nokia-MIDlet-On-Screen-Keypad: no\n");
+        assertEquals("Generic MIDP", run().compatibilityProfile);
+        manifest("Target-Device: Nokia Samsung\nNokia-MIDlet-On-Screen-Keypad: no\n");
+        assertEquals("Generic MIDP", run().compatibilityProfile);
     }
 
     @Test public void commaSeparatedDeclaredScreenIsSupported() throws Exception {
