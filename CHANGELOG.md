@@ -11,6 +11,16 @@ stated otherwise. **Experimental** means local/private combined builds only.
 
 ## 2026-10-13
 
+- **Separate experiment / not shipped:** added compact indexed mesh buffers
+  retained in GPU memory, bounded cache eviction and mutation/context-loss
+  recovery. Four-texture meshes can now use hardware geometry. Retroid and Phone
+  emulator each pass 311 checks; all 30 before/after fixture images match.
+  Repeated dense-lighting scenes cost 14-15% less and multi-object scenes 6-8%
+  less than the previous GPU checkpoint. Cold fallback costs and an unstable
+  long benchmark run are documented, not presented as universal acceleration.
+  Fresh Asphalt, Constructo and Tower Bloxx captures are included. No production
+  engine/license switch or public APK.
+  [Implementation and evidence](https://github.com/EriArk/JavaEmulator/blob/0697d76c/experiments/m3g-host/indexed-20261013.md).
 - **Separate experiment / not shipped:** moved supported mesh transforms,
   clipping and lighting to the GPU, added a bounded immutable geometry cache
   and removed depth readback at target release while preserving CPU fallback
