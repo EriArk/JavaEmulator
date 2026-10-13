@@ -11,6 +11,21 @@ stated otherwise. **Experimental** means local/private combined builds only.
 
 ## 2026-10-13
 
+- **Separate experiment / not shipped:** reuse GPU textures across material
+  switches with bounded memory and revision-aware updates. Increased the number
+  of cached small textures after an Asphalt smoke run exposed repeated uploads,
+  without raising the byte limit. Retroid's material-switching fixtures cost
+  about 10-11% less; all 30 comparison images are unchanged. Final Retroid passes
+  129 checks; Phone passes 129 before capacity tuning and five affected checks
+  afterward. Fresh Asphalt gameplay and cache counters are recorded, not a
+  general FPS or full-game guarantee.
+- **Research build preparation:** fetch source from a revision-pinned,
+  hash-verified archive instead of requiring a maintainer-local checkout.
+  Cached offline builds and invalid-input rejection were checked; source
+  identity and license are retained in APK assets. Production engine, root
+  license and public APKs are unchanged.
+  [Implementation, checks and screenshot](https://github.com/EriArk/JavaEmulator/blob/a7a54bc3/experiments/m3g-host/gpu/README.md).
+
 - **Separate experiment / not shipped:** batched GPU rendering of meshes and
   sprites, reducing repeated context switches and geometry uploads while
   preserving CPU/2D drawing order and context-loss recovery. Retroid's 16-mesh

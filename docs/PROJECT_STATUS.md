@@ -36,7 +36,7 @@ bundled. The app UI is English.
 | Public development source | `main`; latest app-code change at this review: [d39ed742](https://github.com/EriArk/JavaEmulator/commit/d39ed742) | Unreleased Java/UI/storage improvements listed below; not all are in the downloadable beta |
 | Private combined test snapshot | `0.1.0-beta.2-experimental.15`, 2026-10-11 | Handheld and Phone debug APKs containing Java plus experimental Mophun; supplied separately to testers, not a GitHub release |
 | Local-only implementation | Ignored optional-engine source and diagnostics | Mophun integration, game-specific experiments and test fixtures; public descriptions below, implementation not published |
-| Separate research branch | [`codex/m3g-replacement`](https://github.com/EriArk/JavaEmulator/tree/codex/m3g-replacement), code checkpoint `492d3bc0` | Off-by-default GLES3 now batches queued objects and geometry uploads, preserving bounded context recovery and mixed CPU/GPU drawing. Retroid 16-mesh scenes cost 23-26% less than immediate GPU submission; all 28 benchmark images match. Each variant passes 124 checks. Fresh game screenshots are available; whole-game parity, production-engine switch and public beta remain pending |
+| Separate research branch | [`codex/m3g-replacement`](https://github.com/EriArk/JavaEmulator/tree/codex/m3g-replacement), code checkpoint `3f2feddd` | Off-by-default GLES3 reuses alternating textures within a bounded cache. Retroid material-switching fixtures cost about 10-11% less; all 30 benchmark images match. Final Retroid: 129 checks; Phone: 129 before capacity tuning plus five affected checks after. Candidate source inputs now use a pinned verified archive, not a maintainer checkout. Fresh Asphalt gameplay capture is available; production switch and beta remain pending |
 
 The experimental number is a distribution label: build 15 still reports
 version code **102** and `0.1.0-beta.2` / `0.1.0-beta.2-phone` internally.
@@ -718,6 +718,45 @@ Remaining work includes production-source/build packaging, common rendering
 costs and game parity, dependency/source notices and signed upgrade/save checks.
 Main's application code, root licensing, private combined build and public APKs
 are unchanged. This does not announce a new beta or finished replacement.
+
+### Texture Reuse and Reproducible Source Inputs: 2026-10-13
+
+Source checkpoints: `b79fb6b4` and `3f2feddd`, **research branch only**.
+The GPU path retains textures across material switches instead of overwriting
+one slot on every draw. Per-layer ownership preserves independent filtering and
+queued mutable images. Retained texture storage is capped at 8 MiB across four
+units; large images use transient slots. This is not a total process-memory cap.
+An Asphalt smoke run exposed the initial eight-image limit as too restrictive;
+the final cache allows 32 entries per unit within the same byte limit, and the
+regression fixture now covers twelve alternating images.
+
+On Retroid, the same-APK material-switching benchmark drops from 4.750 to
+4.294 ms at 240x320 and 5.115 to 4.556 ms at 320x240. Texture-level uploads fall
+from 3,584 to four across each fixture's run. All 30 images match with the cache
+on/off; this is not a general FPS claim. Final Handheld passes 129 checks with
+zero skips. Phone emulator passes 129 on the initial cache build and all five
+affected cache checks after capacity tuning; the latter was a focused rerun.
+A slow emulator attempt hit the runner timeout, then completed with a larger
+limit. No timed-out run is counted as a pass.
+
+A separate GPU-enabled APK reached a moving Asphalt race on Retroid. The final
+bounded diagnostic sample has 64,513 accepted GPU commands, 30 texture uploads,
+zero evictions and about 177 KiB of retained textures. The earlier small-cache
+session used a different track, so these are not controlled game-FPS comparisons.
+No new full-game, audio or physical-button acceptance is claimed.
+
+Candidate builds now fetch a revision-pinned archive with SHA-256 verification,
+extract only allowlisted engine source/license files, and embed the source lock.
+Both variants build offline after caching dependencies. All 34 prepared Java
+files match the checkout workflow after newline normalization. Bad hashes and
+missing offline archives fail explicitly. Ordinary builds still have the known
+signing-configuration issue #1; a fresh ordinary build is not claimed here.
+
+[Source, measured results, APK identities and fresh screenshot](https://github.com/EriArk/JavaEmulator/blob/a7a54bc3/experiments/m3g-host/gpu/README.md).
+Next proposed work: remaining original-engine compatibility/performance gaps
+and the production build transition, including signing setup and complete
+source/dependency notices. GPU is still opt-in; main's engine, root licensing
+and public APKs are unchanged. No new beta or completed replacement is announced.
 
 ## Distribution and Licensing Status
 
