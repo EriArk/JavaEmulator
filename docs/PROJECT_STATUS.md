@@ -33,10 +33,10 @@ bundled. The app UI is English.
 | Channel | Current identifier | What a reader can obtain |
 | --- | --- | --- |
 | Public download | [v0.1.0-beta.2](https://github.com/EriArk/JavaEmulator/releases/tag/v0.1.0-beta.2), published 2026-07-20 | Handheld and Phone release APKs; Java games, not Mophun |
-| Public development source | `main`; latest build change: [b7501f17](https://github.com/EriArk/JavaEmulator/commit/b7501f17) | Unreleased Java/UI/storage improvements listed below; debug builds no longer need a private signing configuration. Not all changes are in the downloadable beta |
+| Public development source | `main`; latest app fix: [9430cb0a](https://github.com/EriArk/JavaEmulator/commit/9430cb0a) | New profiles use resolution-derived font sizes; prior Java/UI/storage improvements remain unreleased. Debug builds do not need a private signing configuration. Not all changes are in the downloadable beta |
 | Private combined test snapshot | `0.1.0-beta.2-experimental.15`, 2026-10-11 | Handheld and Phone debug APKs containing Java plus experimental Mophun; supplied separately to testers, not a GitHub release |
 | Local-only implementation | Ignored optional-engine source and diagnostics | Mophun integration, game-specific experiments and test fixtures; public descriptions below, implementation not published |
-| Separate research branch | [`codex/m3g-replacement`](https://github.com/EriArk/JavaEmulator/tree/codex/m3g-replacement), code checkpoint `64c4f866` | Indexed GPU geometry now includes flat/two-sided lighting, corrected unlit flat colors and portable face selection. Retroid passes 325 checks; Phone emulator passes 14 focused checks, not the full suite. Synthetic flat/two-sided lighting cost is roughly halved. Fresh gameplay captures and explicit rounding/performance limits. Native parity, production switch and beta remain pending |
+| Separate research branch | [`codex/m3g-replacement`](https://github.com/EriArk/JavaEmulator/tree/codex/m3g-replacement), code checkpoint `01a8837b` | GPU diagnostic lifecycle fix; six timed Retroid gameplay samples across Asphalt, Constructo and Deep on candidate/original engines. Roughly 60 surface buffers/s without >100 ms gaps, not unique game FPS. Final measured Retroid suite: 332 checks; focused font/compatibility/meter suite: 31 on each device/emulator. Native parity, production switch and beta remain pending |
 
 The experimental number is a distribution label: build 15 still reports
 version code **102** and `0.1.0-beta.2` / `0.1.0-beta.2-phone` internally.
@@ -76,6 +76,7 @@ See [beta.2 release notes](releases/v0.1.0-beta.2.md) for the released scope.
 | Nested-folder permissions | Import pauses for the requested folder grant and resumes; wrong-folder/cancel recovery, readable messages, save-folder validation | `d39ed742`; pending access survives screen recreation, not process death |
 | Installer | Compact scrolling details with reachable actions, persistent errors, archive recognition through pickers, mismatched JAD/JAR continuation retaining source identity | `696da084`, `7ba384b2`; URI-alias duplicates remain #20 |
 | Automatic preparation | Conservative metadata/API/resource hints, preservation of existing settings and explicit display declarations | [Checks](LOCAL_TESTING.md); static heuristics, not running multiple models or guaranteeing the best profile |
+| Automatic game fonts | New profiles follow the prepared virtual resolution; Advanced font presets include Automatic. Existing explicit values are preserved | `9430cb0a`; four new Android font tests, readable Constructo tutorial on Retroid; not in a released APK |
 
 ## Local and Private Work: Experimental Mophun
 
@@ -1020,6 +1021,42 @@ CPU-prepared depth-offset draws and the LCDUI bitmap transfer, followed by
 native-engine parity and release acceptance.
 
 [Changes, artifact hashes, raw tests, timings and screenshots](https://github.com/EriArk/JavaEmulator/blob/64c4f866/experiments/m3g-host/lighting-20261013.md).
+
+## Retroid Gameplay and Font Defaults: 2026-10-13
+
+The replacement and original M3G engines were compared on the physical Retroid
+in Asphalt races (40 seconds each), Constructo's first level and Deep: Submarine
+Odyssey Java's opening gameplay (35 seconds each). All six captures delivered
+about 60 surface buffers/s without presentation gaps over 100 ms. This is not
+60 unique game frames or logic ticks: repeated surface contents and multiple
+game flushes remain possible. Captures and host timings are recorded separately.
+
+Asphalt selected different tracks, and Constructo's candidate player was down
+while other helicopters remained active. Deep was checked at the same opening
+location with matching ADB turn inputs, not a frame-identical replay. Candidate
+host-update throughput remains lower in Constructo and Deep; no overall native
+speed parity is claimed. Black Constructo cliff sides also occur on the original.
+Audio, manual controller use, sustained thermal behavior and full-game acceptance
+were not established by these runs.
+
+Fixed oversized fonts at their shared cause: newly prepared profiles now use
+the existing resolution-derived sizing. Old explicit sizes remain untouched;
+Advanced provides an Automatic preset. A Retroid before/after capture shows
+Constructo's tutorial text fitting. This independent fix is on `main`
+(`9430cb0a`), with both ordinary debug variants built and 14 unit tests passed
+per variant. Those APKs were not distributed or installed over the normal app.
+
+Research GPU diagnostics now use application context instead of requiring an
+initialized Activity. Non-debuggable research APKs can export cadence through
+app-specific external storage. Final measured GPU build passes 332 Retroid
+checks (325 renderer/host plus seven meter checks). Focused font, compatibility
+and meter checks pass 31/31 on Retroid and 31/31 on the Phone emulator; this is
+not a full Phone renderer-suite pass. The pre-fix failure remains documented.
+
+No production engine switch, root license change or release APK. Live release
+state was not rechecked. Next work targets remaining framebuffer transfer and
+CPU-prepared draw costs, followed by matched gameplay/native-parity acceptance.
+[Fixes, limits, timings, screenshots and raw checks](https://github.com/EriArk/JavaEmulator/blob/01a8837b/experiments/m3g-host/gameplay-20261013.md).
 
 ## Images and Writing Guidance
 
