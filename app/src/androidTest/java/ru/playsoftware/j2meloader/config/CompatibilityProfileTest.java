@@ -253,6 +253,39 @@ public class CompatibilityProfileTest {
         assertEquals(160, model.screenHeight);
     }
 
+    @Test public void unnamedSquareTexturesDoNotBecomeScreenSize() throws Exception {
+        for (boolean reverse : new boolean[]{false, true}) {
+            images(reverse, "car.png:128:128", "city.png:128:128", "road.png:64:64");
+            ProfileModel model = run();
+            assertEquals(240, model.screenWidth);
+            assertEquals(320, model.screenHeight);
+            assertEquals(0, model.detectedScreenWidth);
+        }
+    }
+
+    @Test public void namedSquareScreenStillProvidesEvidence() throws Exception {
+        images(false, "title.png:128:128", "car.png:128:128");
+        ProfileModel model = run();
+        assertEquals(128, model.screenWidth);
+        assertEquals(128, model.screenHeight);
+        assertEquals(128, model.detectedScreenWidth);
+    }
+
+    @Test public void declaredSquareScreenSurvivesTextureFiltering() throws Exception {
+        manifest("Screen-Size: 128x128\n");
+        images(false, "car.png:128:128", "title.png:240:320");
+        ProfileModel model = run();
+        assertEquals(128, model.screenWidth);
+        assertEquals(128, model.screenHeight);
+    }
+
+    @Test public void unnamedPortraitImageStillProvidesEvidence() throws Exception {
+        images(false, "scene.png:176:220", "car.png:128:128");
+        ProfileModel model = run();
+        assertEquals(176, model.screenWidth);
+        assertEquals(220, model.screenHeight);
+    }
+
     @Test public void commaSeparatedDeclaredScreenIsSupported() throws Exception {
         manifest("Nokia-MIDlet-Original-Display-Size: 240,320\n");
         assertEquals(320, run().detectedScreenHeight);
