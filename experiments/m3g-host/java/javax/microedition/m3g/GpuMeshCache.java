@@ -37,8 +37,9 @@ final class GpuMeshCache {
     int bytes() { return bytes; }
     void draw(GpuGeometry.Mesh mesh,int count) {
         int limit=enabled?Math.max(0,byteLimit):0;
+        boolean retain=mesh.bytes()<=limit;
         while(!entries.isEmpty() && (bytes>limit || !entries.containsKey(mesh)
-                && (entries.size()>=64 || bytes+mesh.bytes()>limit))) {
+                && retain && (entries.size()>=64 || bytes+mesh.bytes()>limit))) {
             Map.Entry<GpuGeometry.Mesh,Entry> oldest=entries.entrySet().iterator().next();
             Entry entry=oldest.getValue(); entries.remove(oldest.getKey()); bytes-=entry.bytes; entry.delete();
         }

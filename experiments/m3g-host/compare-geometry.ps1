@@ -21,7 +21,7 @@ public static class GeometryPixels {
     public static long[] Compare(string first,string second) {
         int[] a=Read(first),b=Read(second);
         if(a.Length!=b.Length)throw new Exception("Size mismatch");
-        long changed=0,beyond3=0,sum=0,max=0;
+        long changed=0,beyond3=0,beyond8=0,beyond32=0,sum=0,max=0;
         for(int i=0;i<a.Length;i++) {
             int error=0;
             for(int shift=0;shift<32;shift+=8) {
@@ -29,8 +29,9 @@ public static class GeometryPixels {
                 sum+=delta; error=Math.Max(error,delta);
             }
             if(error>0)changed++; if(error>3)beyond3++; max=Math.Max(max,error);
+            if(error>8)beyond8++; if(error>32)beyond32++;
         }
-        return new long[]{a.Length,changed,beyond3,max,sum};
+        return new long[]{a.Length,changed,beyond3,max,sum,beyond8,beyond32};
     }
 }
 '@
@@ -44,6 +45,7 @@ $rows=foreach($item in $new.cases) {
     $afterMs=($item.wallNs | Measure-Object -Average).Average/$item.framesPerBatch/1e6
     [pscustomobject]@{scene=$item.name;beforeMs=$beforeMs;afterMs=$afterMs;ratio=$afterMs/$beforeMs;
         pixels=$diff[0];changed=$diff[1];beyond3=$diff[2];maxError=$diff[3];meanChannelError=$diff[4]/($diff[0]*4);
+        beyond8=$diff[5];beyond32=$diff[6];
         hardwareDraws=$item.gpuHardwareDraws;cpuShadedVertices=$item.shadedVertices}
 }
 $rows | ConvertTo-Json -Depth 4

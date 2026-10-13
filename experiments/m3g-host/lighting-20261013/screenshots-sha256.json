@@ -1,0 +1,30 @@
+﻿[
+    {
+        "Name":  "asphalt-moving.png",
+        "Hash":  "C3F3BE1C3DFFADE558ED3214E40A543E5D7D879D4EE55CF95B1E9004931B1A04"
+    },
+    {
+        "Name":  "asphalt-portable.png",
+        "Hash":  "66C3DFF3076FA232C8052DC1ED03316D171EA274A720BA515CABFE84C0213F09"
+    },
+    {
+        "Name":  "asphalt.png",
+        "Hash":  "8954A11420EF6794EA06620F7D11C152BC0C367DA98412801E0DA08D840A2068"
+    },
+    {
+        "Name":  "constructo.png",
+        "Hash":  "FEFC22CD7AB3501F2B9C77AE68A5232B4E2D81D4F80480606B5FD262DC2C4342"
+    },
+    {
+        "Name":  "lighting-texture-actual.png",
+        "Hash":  "A154359484134B6C6BAE701D2D612720632534817A64E9B0A2BA7BC349C28DA7"
+    },
+    {
+        "Name":  "lighting-texture-expected.png",
+        "Hash":  "2F0CC894C0B53BBFC73AE4A76372853A8EF509DD1AE8BACEE86883F4F2595379"
+    },
+    {
+        "Name":  "tower.png",
+        "Hash":  "98F65786DB378BBC8A2FB4DF583D40103D66B6940629529548E974BAE36AC135"
+    }
+]

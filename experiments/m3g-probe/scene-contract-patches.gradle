@@ -70,6 +70,9 @@ ext.patchM3gSceneContracts = { File output ->
     text = text.substring(0,commentStart) + text.substring(text.indexOf('paintPixel = (paintPixel & 0x00FFFFFF)',commentStart))
     graphics.setText(text, 'UTF-8')
     patch('Triangle.java', [
+        'else { inC[0] = inC[1] = inC[2] = vertices.getDefaultColor(); }': '''else { inC[0] = inC[1] = inC[2] = vertices.getDefaultColor(); }
+            // Flat shading uses the third vertex even without a material/normal array.
+            if (!hasLighting && shadingMode == PolygonMode.SHADE_FLAT) inC[0] = inC[1] = inC[2];''',
         '!light.isRenderingEnabled() || (light.getScope() & curScope) == 0':
             'light == null || !light.isRenderingEnabled() || (light.getScope() & curScope) == 0'
     ])

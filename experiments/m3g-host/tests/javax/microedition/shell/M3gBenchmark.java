@@ -136,9 +136,10 @@ public class M3gBenchmark {
                 .put("raster", "gpu".equals(raster) ? "gpu" : nativeEnabled == null ? "legacy" : nativeEnabled.getBoolean(null) ? "native" : "java");
         JSONArray cases = new JSONArray();
         report.put("cases", cases);
+        report.put("lightingModes",true);
         for (int[] size : new int[][]{{240,320},{320,240}}) {
             for (String kind : new String[]{"rgb-nearest","rgb-linear","rgba-alpha","lit-fog","exp-fog","multi-texture",
-                    "mip-nearest","mip-linear","sprites","lighting-grid","multi-draw",
+                    "mip-nearest","mip-linear","sprites","lighting-grid","lighting-flat","lighting-two-sided","multi-draw",
                     "modulate","modulate-x2","depth-offset","material-churn"}) {
                 String name = kind + "-" + size[0] + "x" + size[1];
                 if (kind.equals("multi-texture") && (Integer) Graphics3D.getProperties().get("numTextureUnits") < 4) {
@@ -157,7 +158,7 @@ public class M3gBenchmark {
                 light.setMode(Light.AMBIENT);
                 light.setIntensity(0.8f);
                 renderer.addLight(light, new Transform());
-                if (kind.equals("lighting-grid")) {
+                if (kind.startsWith("lighting-")) {
                     light.setIntensity(0.15f);
                     for (int mode : new int[]{Light.DIRECTIONAL,Light.OMNI,Light.SPOT}) {
                         Light extra=new Light(); extra.setMode(mode); extra.setIntensity(0.25f);
@@ -270,7 +271,7 @@ public class M3gBenchmark {
     }
 
     private Node scene(String kind) {
-        if (kind.equals("lighting-grid")) return lightingGrid();
+        if (kind.startsWith("lighting-")) return lightingGrid(kind);
         if (kind.equals("multi-draw") || kind.equals("material-churn")) {
             Group group=new Group();
             Mesh source=(Mesh)scene("rgb-linear");
@@ -379,7 +380,7 @@ public class M3gBenchmark {
         return new Mesh(vertices, new TriangleStripArray(0, strips), style);
     }
 
-    private Mesh lightingGrid() {
+    private Mesh lightingGrid(String kind) {
         int cells=32, side=cells+1, count=side*side;
         short[] positions=new short[count*3]; byte[] normals=new byte[count*3];
         for (int y=0; y<side; y++) for (int x=0; x<side; x++) {
@@ -392,7 +393,8 @@ public class M3gBenchmark {
         int[] strips=new int[cells], indices=new int[cells*side*2];
         for (int y=0,i=0; y<cells; y++) {
             strips[y]=side*2;
-            for (int x=0; x<side; x++) { indices[i++]=y*side+x; indices[i++]=(y+1)*side+x; }
+            boolean reverse=kind.equals("lighting-two-sided") && y%2==1;
+            for (int x=0; x<side; x++) { indices[i++]=(y+(reverse?1:0))*side+x; indices[i++]=(y+(reverse?0:1))*side+x; }
         }
         VertexArray points=new VertexArray(count,3,2); points.set(0,count,positions);
         VertexArray normal=new VertexArray(count,3,1); normal.set(0,count,normals);
@@ -401,6 +403,8 @@ public class M3gBenchmark {
         material.setColor(Material.SPECULAR,0x808080); material.setShininess(16);
         Appearance style=new Appearance(); style.setMaterial(material);
         PolygonMode poly=new PolygonMode(); poly.setCulling(PolygonMode.CULL_NONE); style.setPolygonMode(poly);
+        poly.setShading(kind.equals("lighting-flat")?PolygonMode.SHADE_FLAT:PolygonMode.SHADE_SMOOTH);
+        poly.setTwoSidedLightingEnable(kind.equals("lighting-two-sided"));
         return new Mesh(vertices,new TriangleStripArray(indices,strips),style);
     }
 }

@@ -77,7 +77,7 @@ if ($result -notmatch 'OK \(1 test\)' -or $result -match 'FAILURES|INSTRUMENTATI
 }
 Invoke-Adb @('pull', "/sdcard/Android/data/$package/files/m3g-benchmark/$Run/.", $out) | Out-Null
 $report = Get-Content -Raw (Join-Path $out 'report.json') | ConvertFrom-Json
-$expectedCases = if ($report.PSObject.Properties.Name -contains 'gpuTextureCache') { 30 } else { 28 }
+$expectedCases = if ($report.PSObject.Properties.Name -contains 'lightingModes') { 34 } elseif ($report.PSObject.Properties.Name -contains 'gpuTextureCache') { 30 } else { 28 }
 if ($report.package -ne $package -or $report.cases.Count -ne $expectedCases) { throw 'Unexpected benchmark report' }
 [pscustomobject]@{
     engine = $Engine

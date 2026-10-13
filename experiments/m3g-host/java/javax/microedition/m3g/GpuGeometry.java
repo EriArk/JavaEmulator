@@ -13,6 +13,7 @@ final class GpuGeometry {
     static boolean enabled = ru.playsoftware.j2meloader.BuildConfig.M3G_GPU_GEOMETRY;
     static long draws, vertices;
     static long cacheHits, cacheMisses;
+    static long uniformReuses;
     static final int CACHE_BYTES=4*1024*1024;
     private static final ArrayList<Geometry> cache=new ArrayList<>();
     private static int cachedBytes;
@@ -59,7 +60,7 @@ final class GpuGeometry {
         final float[] texture = new float[64], viewport = new float[4];
         final float[] material = new float[16], light = new float[8*20];
         int culling, winding, lights;
-        boolean lit, tracking, local, perspective;
+        boolean lit, tracking, local, perspective, flat, twoSided;
         float near, far, shininess;
     }
 
@@ -69,8 +70,6 @@ final class GpuGeometry {
             int w, int h, int ox, int oy, int vw, int vh, int left, int top, int right, int bottom,
             float near, float far, boolean depthTest, int alpha, boolean resident) {
         PolygonMode polygon=appearance.getPolygonMode();
-        // Flat provoking vertices and two-sided colors need separate interpolation contracts.
-        if(polygon!=null && (polygon.getShading()==PolygonMode.SHADE_FLAT || polygon.isTwoSidedLightingEnabled())) return false;
         CompositingMode comp=appearance.getCompositingMode();
         if(comp==null) comp=new CompositingMode();
         if(depthTest && (comp.getDepthOffsetFactor()!=0 || comp.getDepthOffsetUnits()!=0)) return false;
@@ -85,6 +84,8 @@ final class GpuGeometry {
         Material material=appearance.getMaterial();
         State state=new State();
         state.lit=normals!=null && material!=null && lights!=null;
+        state.flat=polygon!=null && polygon.getShading()==PolygonMode.SHADE_FLAT;
+        state.twoSided=state.lit && polygon!=null && polygon.isTwoSidedLightingEnabled();
         state.culling=polygon==null?PolygonMode.CULL_BACK:polygon.getCulling();
         state.winding=polygon==null?PolygonMode.WINDING_CCW:polygon.getWinding();
         state.local=polygon!=null && polygon.isLocalCameraLightingEnabled();
@@ -219,7 +220,7 @@ final class GpuGeometry {
     }
 
     static final class Uniforms {
-        final int raw,clip,eye,normal,texture,viewport,material,light,flags,depth,shine;
+        final int raw,clip,eye,normal,texture,viewport,material,light,flags,depth,shine,shading;
         Uniforms(int program) {
             raw=glGetUniformLocation(program,"rawGeometry"); clip=glGetUniformLocation(program,"rawClip");
             eye=glGetUniformLocation(program,"rawEye"); normal=glGetUniformLocation(program,"rawNormal");
@@ -227,26 +228,45 @@ final class GpuGeometry {
             material=glGetUniformLocation(program,"rawMaterial"); light=glGetUniformLocation(program,"rawLight");
             flags=glGetUniformLocation(program,"rawFlags"); depth=glGetUniformLocation(program,"rawDepth");
             shine=glGetUniformLocation(program,"rawShininess");
+            shading=glGetUniformLocation(program,"rawShading");
         }
-        void apply(State state) {
+        private boolean same(float[] current,float[] old) {
+            if(old==null || !Arrays.equals(current,old)) return false;
+            uniformReuses++; return true;
+        }
+        void apply(State state,State old) {
             glUniform1i(raw,state==null?0:1);
             if(state==null) { glDisable(GL_CULL_FACE); return; }
-            glUniformMatrix4fv(clip,1,false,state.clip,0); glUniformMatrix4fv(eye,1,false,state.eye,0);
-            glUniformMatrix4fv(normal,1,false,state.normal,0); glUniformMatrix4fv(texture,4,false,state.texture,0);
-            glUniform4fv(viewport,1,state.viewport,0); glUniform4fv(material,4,state.material,0);
-            glUniform4fv(light,40,state.light,0);
-            glUniform4i(flags,state.lit?state.lights:-1,state.tracking?1:0,state.local?1:0,state.perspective?1:0);
-            glUniform2f(depth,state.near,state.far); glUniform1f(shine,state.shininess);
+            // Only compare immutable snapshots in the current submission/context scope.
+            if(!same(state.clip,old==null?null:old.clip)) glUniformMatrix4fv(clip,1,false,state.clip,0);
+            if(!same(state.eye,old==null?null:old.eye)) glUniformMatrix4fv(eye,1,false,state.eye,0);
+            if(!same(state.normal,old==null?null:old.normal)) glUniformMatrix4fv(normal,1,false,state.normal,0);
+            if(!same(state.texture,old==null?null:old.texture)) glUniformMatrix4fv(texture,4,false,state.texture,0);
+            if(!same(state.viewport,old==null?null:old.viewport)) glUniform4fv(viewport,1,state.viewport,0);
+            if(!same(state.material,old==null?null:old.material)) glUniform4fv(material,4,state.material,0);
+            if(!same(state.light,old==null?null:old.light)) glUniform4fv(light,40,state.light,0);
+            if(old==null || state.lit!=old.lit || state.lights!=old.lights || state.tracking!=old.tracking
+                    || state.local!=old.local || state.perspective!=old.perspective)
+                glUniform4i(flags,state.lit?state.lights:-1,state.tracking?1:0,state.local?1:0,state.perspective?1:0);
+            if(old==null || state.near!=old.near || state.far!=old.far) glUniform2f(depth,state.near,state.far);
+            if(old==null || state.shininess!=old.shininess) glUniform1f(shine,state.shininess);
+            if(old==null || state.flat!=old.flat || state.twoSided!=old.twoSided || state.winding!=old.winding)
+                glUniform1i(shading,(state.flat?1:0)|(state.twoSided?2:0)|(state.winding==PolygonMode.WINDING_CCW?4:0));
+            // Keep GL's convention fixed for translators with inconsistent facing
+            // after front-face state changes. Apply M3G's downward-Y convention
+            // explicitly to both the cull side and the shader's facing selection.
+            glFrontFace(GL_CCW);
             if(state.culling==PolygonMode.CULL_NONE) glDisable(GL_CULL_FACE);
             else {
-                glEnable(GL_CULL_FACE); glCullFace(state.culling==PolygonMode.CULL_BACK?GL_BACK:GL_FRONT);
-                // The CPU target has downward Y, opposite the camera's front-face convention.
-                glFrontFace(state.winding==PolygonMode.WINDING_CCW?GL_CW:GL_CCW);
+                boolean back=state.culling==PolygonMode.CULL_BACK;
+                if(state.winding==PolygonMode.WINDING_CCW) back=!back;
+                glEnable(GL_CULL_FACE); glCullFace(back?GL_BACK:GL_FRONT);
             }
         }
     }
 
     static final String DECLARATIONS = "layout(location=7) in vec3 rawVertexNormal; uniform int rawGeometry; uniform mat4 rawClip,rawEye,rawNormal,rawTexture[4];\n"
+            +"#ifdef EXTENDED_LIGHTING\nuniform int rawShading; out highp vec4 backColor; flat out highp vec4 flatFront,flatBack;\n#endif\n"
             +"uniform vec4 rawViewport,rawMaterial[4],rawLight[40]; uniform ivec4 rawFlags; uniform float rawShininess;\n"
             +"vec3 safeNormal(vec3 v){ float d=dot(v,v); return d>1e-30?v*inversesqrt(d):vec3(0,0,1); }\n"
             +"vec4 illuminate(vec3 p,vec3 n,vec4 base){\n"
@@ -265,7 +285,12 @@ final class GpuGeometry {
     static final String BODY = "if(rawGeometry!=0){ vec4 p=vec4(position,1); vec4 clip=rawClip*p; vec3 eye=(rawEye*p).xyz;\n"
             +"vec2 screen=(vec2(clip.x,-clip.y)+clip.ww)*0.5*rawViewport.zw+rawViewport.xy*clip.w;\n"
             +"gl_Position=vec4(screen/targetSize*2.0-clip.ww,clip.z,clip.w); affineWeight=clip.w;\n"
-            +"vertexColor=(rawFlags.x>=0?illuminate(eye,safeNormal((rawNormal*vec4(rawVertexNormal,0)).xyz),color):color)*clip.w;\n"
+            +"#ifdef EXTENDED_LIGHTING\n"
+            +"vec3 n=safeNormal((rawNormal*vec4(rawVertexNormal,0)).xyz);\n"
+            +"flatFront=rawFlags.x>=0?illuminate(eye,n,color):color;\n"
+            +"flatBack=(rawShading&2)!=0?illuminate(eye,-n,color):flatFront;\n"
+            +"vertexColor=flatFront*clip.w; backColor=flatBack*clip.w;\n"
+            +"#else\nvertexColor=(rawFlags.x>=0?illuminate(eye,safeNormal((rawNormal*vec4(rawVertexNormal,0)).xyz),color):color)*clip.w;\n#endif\n"
             +"vec3 coords[4]; coords[0]=uv0;coords[1]=uv1;coords[2]=uv2;coords[3]=uv3;\n"
             +"for(int u=0;u<4;u++){vec2 t=(rawTexture[u]*vec4(coords[u],1)).xy; texCoord[u]=rawFlags.w!=0?vec3(t,1):vec3(t,1)*clip.w;}\n"
             +"fogValue=parallelFog!=0?-eye.z*clip.w:1.0; }\n";

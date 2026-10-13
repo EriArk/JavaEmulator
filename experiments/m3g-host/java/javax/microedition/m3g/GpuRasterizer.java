@@ -52,16 +52,14 @@ final class GpuRasterizer {
     private EGLDisplay display = EGL_NO_DISPLAY;
     private EGLContext context = EGL_NO_CONTEXT;
     private EGLSurface surface = EGL_NO_SURFACE;
-    private int program, packProgram, framebuffer, packFramebuffer, color, depth, packed, vbo, vao;
+    private int packProgram, framebuffer, packFramebuffer, color, depth, packed, vbo, vao;
+    private Pipeline standardPipeline, lightingPipeline;
+    static long pipelineCompilations;
     private final GpuTextureCache textures = new GpuTextureCache(textureCacheBytes);
     private final GpuMeshCache meshes = new GpuMeshCache();
     static synchronized int cachedMeshBytes() { return instance==null?0:instance.meshes.bytes(); }
     static synchronized int cachedTextureBytes() { return instance==null?0:instance.textures.bytes(); }
-    private final int[] modes=new int[4], sizes=new int[4], formats=new int[4], mips=new int[4], blendColors=new int[4];
-    private int targetSizeLocation, alphaLocation, thresholdLocation, compositeLocation;
-    private int fogModeLocation, parallelFogLocation, fogColorLocation, fogParamsLocation, packSizeLocation;
-    private int spriteLocation, spriteLayoutLocation, spriteIndices, spriteIndexWidth;
-    private GpuGeometry.Uniforms geometryUniforms;
+    private int packSizeLocation, spriteIndices, spriteIndexWidth;
     private ByteBuffer colors, depths, depthInput, textureInput, batchGeometry;
     private int submitted;
     private int width, height;
@@ -334,28 +332,7 @@ final class GpuRasterizer {
             throw new IllegalStateException("Create GPU context");
         current(this);
         renderer=glGetString(GL_RENDERER);
-        program=program(VERTEX,FRAGMENT); packProgram=program(PACK_VERTEX,PACK_FRAGMENT);
-        geometryUniforms=new GpuGeometry.Uniforms(program);
-        glUseProgram(program);
-        for(int unit=0;unit<4;unit++) {
-            modes[unit]=glGetUniformLocation(program,"mode["+unit+"]");
-            sizes[unit]=glGetUniformLocation(program,"imageSize["+unit+"]");
-            formats[unit]=glGetUniformLocation(program,"rgba["+unit+"]");
-            mips[unit]=glGetUniformLocation(program,"mip["+unit+"]");
-            blendColors[unit]=glGetUniformLocation(program,"blendColor["+unit+"]");
-            glUniform1i(glGetUniformLocation(program,"image"+unit),unit);
-        }
-        targetSizeLocation=glGetUniformLocation(program,"targetSize");
-        alphaLocation=glGetUniformLocation(program,"alphaFactor");
-        thresholdLocation=glGetUniformLocation(program,"threshold");
-        compositeLocation=glGetUniformLocation(program,"composite");
-        fogModeLocation=glGetUniformLocation(program,"fogMode");
-        parallelFogLocation=glGetUniformLocation(program,"parallelFog");
-        fogColorLocation=glGetUniformLocation(program,"fogColor");
-        fogParamsLocation=glGetUniformLocation(program,"fogParams");
-        spriteLocation=glGetUniformLocation(program,"sprite");
-        spriteLayoutLocation=glGetUniformLocation(program,"spriteLayout");
-        glUniform1i(glGetUniformLocation(program,"spriteIndices"),4);
+        standardPipeline=new Pipeline(false); packProgram=program(PACK_VERTEX,PACK_FRAGMENT);
         packSizeLocation=glGetUniformLocation(packProgram,"size");
         int[] ids=new int[3]; glGenTextures(3,ids,0);
         color=ids[0]; depth=ids[1]; packed=ids[2];
@@ -457,6 +434,11 @@ final class GpuRasterizer {
     }
 
     private void render(GpuFrame.Draw command,int firstVertex,GpuFrame.Draw previous) {
+        boolean extended=extendedLighting(command);
+        if(extended && lightingPipeline==null) lightingPipeline=new Pipeline(true);
+        Pipeline pipeline=extended?lightingPipeline:standardPipeline;
+        // Uniform locations/state belong to a linked program, not the renderer as a whole.
+        if(previous!=null && extended!=extendedLighting(previous)) previous=null;
         int w=frame.width,h=frame.height,packWidth=(w+1)/2;
         int count=command.count,blend=command.blend,mask=command.mask;
         if(previous==null) {
@@ -484,9 +466,10 @@ final class GpuRasterizer {
             glBindFramebuffer(GL_FRAMEBUFFER,framebuffer);
             glBindVertexArray(vao); glBindBuffer(GL_ARRAY_BUFFER,vbo);
             glViewport(0,0,w,h); glEnable(GL_SCISSOR_TEST);
-            glUseProgram(program); glUniform2f(targetSizeLocation,w,h);
+            glUseProgram(pipeline.program); glUniform2f(pipeline.targetSize,w,h);
         }
-        if(command.raw!=null || previous==null || previous.raw!=null) geometryUniforms.apply(command.raw);
+        if(command.raw!=null || previous==null || previous.raw!=null)
+            pipeline.geometry.apply(command.raw,previous==null?null:previous.raw);
         if(previous==null || previous.blend!=blend) {
             if(blend==CompositingMode.REPLACE) glDisable(GL_BLEND);
             else {
@@ -497,7 +480,7 @@ final class GpuRasterizer {
                 else glBlendFuncSeparate(GL_SRC_ALPHA,blend==CompositingMode.ALPHA?GL_ONE_MINUS_SRC_ALPHA:GL_ONE,
                             GL_ONE,GL_ONE_MINUS_SRC_ALPHA);
             }
-            glUniform1i(compositeLocation,blend==CompositingMode.ALPHA || blend==CompositingMode.ALPHA_ADD?1:0);
+            glUniform1i(pipeline.composite,blend==CompositingMode.ALPHA || blend==CompositingMode.ALPHA_ADD?1:0);
         }
         if(previous==null || previous.left!=command.left || previous.top!=command.top
                 || previous.right!=command.right || previous.bottom!=command.bottom)
@@ -509,28 +492,28 @@ final class GpuRasterizer {
         // Reassert even unchanged masks: skipping this changes mixed-material
         // output on the Retroid GPU (covered by GpuBatchTest's prefix checks).
         glColorMask((mask&0xffffff)!=0,(mask&0xffffff)!=0,(mask&0xffffff)!=0,(mask&0xff000000)!=0);
-        if(previous==null || previous.alpha!=command.alpha) glUniform1i(alphaLocation,command.alpha);
-        if(previous==null || previous.threshold!=command.threshold) glUniform1i(thresholdLocation,command.threshold);
-        if(previous==null || previous.fogMode!=command.fogMode) glUniform1i(fogModeLocation,command.fogMode);
-        if(previous==null || previous.parallelFog!=command.parallelFog) glUniform1i(parallelFogLocation,command.parallelFog?1:0);
-        if(previous==null || previous.sprite!=command.sprite) glUniform1i(spriteLocation,command.sprite?1:0);
+        if(previous==null || previous.alpha!=command.alpha) glUniform1i(pipeline.alpha,command.alpha);
+        if(previous==null || previous.threshold!=command.threshold) glUniform1i(pipeline.threshold,command.threshold);
+        if(previous==null || previous.fogMode!=command.fogMode) glUniform1i(pipeline.fogMode,command.fogMode);
+        if(previous==null || previous.parallelFog!=command.parallelFog) glUniform1i(pipeline.parallelFog,command.parallelFog?1:0);
+        if(previous==null || previous.sprite!=command.sprite) glUniform1i(pipeline.sprite,command.sprite?1:0);
         if(command.sprite) {
             int size=Math.max(w,h);
             glActiveTexture(GL_TEXTURE4);
             targetTexture(spriteIndices,GL_R32I,GL_RED_INTEGER,GL_INT,size,2,command.indices,spriteIndexWidth!=size);
             spriteIndexWidth=size;
-            glUniform4i(spriteLayoutLocation,0,0,command.spriteFog,0);
+            glUniform4i(pipeline.spriteLayout,0,0,command.spriteFog,0);
         }
         if (command.fogMode!=0 && (previous==null || previous.fogMode==0 || previous.fogColor!=command.fogColor
                 || previous.fogNear!=command.fogNear || previous.fogFar!=command.fogFar || previous.fogDensity!=command.fogDensity)) {
             int c=command.fogColor;
-            glUniform3f(fogColorLocation,(c>>16)&255,(c>>8)&255,c&255);
-            glUniform3f(fogParamsLocation,command.fogNear,command.fogFar,command.fogDensity);
+            glUniform3f(pipeline.fogColor,(c>>16)&255,(c>>8)&255,c&255);
+            glUniform3f(pipeline.fogParams,command.fogNear,command.fogFar,command.fogDensity);
         }
         for (int unit=0;unit<4;unit++) {
             GpuFrame.Texture tex=unit<command.textures.length?command.textures[unit]:null;
             GpuFrame.Texture old=previous!=null && unit<previous.textures.length?previous.textures[unit]:null;
-            if(previous==null || (old==null?0:old.mode)!=(tex==null?0:tex.mode)) glUniform1i(modes[unit],tex==null?0:tex.mode);
+            if(previous==null || (old==null?0:old.mode)!=(tex==null?0:tex.mode)) glUniform1i(pipeline.modes[unit],tex==null?0:tex.mode);
             glActiveTexture(GL_TEXTURE0+unit);
             if(tex==null) { glBindTexture(GL_TEXTURE_2D,0); continue; }
             GpuFrame.Image image=tex.levels[0]; int tw=image.width,th=image.height;
@@ -556,11 +539,11 @@ final class GpuRasterizer {
                 glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_WRAP_T,tex.repeatT?GL_REPEAT:GL_CLAMP_TO_EDGE);
                 cached.samplerKey=key;
             }
-            if(old==null || old.levels[0].width!=tw || old.levels[0].height!=th) glUniform2f(sizes[unit],tw,th);
-            if(old==null || old.levels[0].format!=image.format) glUniform1i(formats[unit],image.format);
-            if(old==null || old.mip!=mip) glUniform1i(mips[unit],mip);
+            if(old==null || old.levels[0].width!=tw || old.levels[0].height!=th) glUniform2f(pipeline.sizes[unit],tw,th);
+            if(old==null || old.levels[0].format!=image.format) glUniform1i(pipeline.formats[unit],image.format);
+            if(old==null || old.mip!=mip) glUniform1i(pipeline.mips[unit],mip);
             int c=tex.blendColor;
-            if(old==null || old.blendColor!=c) glUniform3f(blendColors[unit],(c>>16)&255,(c>>8)&255,c&255);
+            if(old==null || old.blendColor!=c) glUniform3f(pipeline.blendColors[unit],(c>>16)&255,(c>>8)&255,c&255);
         }
         glActiveTexture(GL_TEXTURE0);
         if(command.raw!=null) meshes.draw(command.raw.mesh,count*3);
@@ -634,24 +617,55 @@ final class GpuRasterizer {
         if (ok[0]==0) { check(); throw new IllegalStateException(glGetProgramInfoLog(id)); }
         return id;
     }
-    private static String vertexShader() {
+    private static boolean extendedLighting(GpuFrame.Draw command) {
+        return command.raw!=null && (command.raw.flat || command.raw.twoSided);
+    }
+
+    /** Two context-owned variants; ordinary draws retain the smaller varying interface. */
+    private static final class Pipeline {
+        final int program;
+        final int[] modes=new int[4],sizes=new int[4],formats=new int[4],mips=new int[4],blendColors=new int[4];
+        final int targetSize,alpha,threshold,composite,fogMode,parallelFog,fogColor,fogParams,sprite,spriteLayout;
+        final GpuGeometry.Uniforms geometry;
+        Pipeline(boolean extended) {
+            program=program(vertexShader(extended),fragmentShader(extended)); pipelineCompilations++;
+            geometry=new GpuGeometry.Uniforms(program); glUseProgram(program);
+            for(int unit=0;unit<4;unit++) {
+                modes[unit]=location("mode["+unit+"]"); sizes[unit]=location("imageSize["+unit+"]");
+                formats[unit]=location("rgba["+unit+"]"); mips[unit]=location("mip["+unit+"]");
+                blendColors[unit]=location("blendColor["+unit+"]"); glUniform1i(location("image"+unit),unit);
+            }
+            targetSize=location("targetSize"); alpha=location("alphaFactor"); threshold=location("threshold");
+            composite=location("composite"); fogMode=location("fogMode"); parallelFog=location("parallelFog");
+            fogColor=location("fogColor"); fogParams=location("fogParams"); sprite=location("sprite"); spriteLayout=location("spriteLayout");
+            glUniform1i(location("spriteIndices"),4);
+        }
+        private int location(String name) { return glGetUniformLocation(program,name); }
+    }
+
+    private static String vertexShader(boolean extended) {
         StringBuilder s=new StringBuilder("#version 300 es\nlayout(location=0) in vec3 position; layout(location=1) in vec4 color;\n");
+        if(extended) s.append("#define EXTENDED_LIGHTING\n");
         for(int i=0;i<4;i++) s.append("layout(location=").append(i+2).append(") in vec3 uv").append(i).append(";\n");
         s.append("layout(location=6) in float fog; out highp float fogValue;\n")
                 .append("uniform vec2 targetSize; out highp vec4 vertexColor; out highp vec3 texCoord[4]; out highp float depthValue;\n")
                 .append("out highp float affineWeight; uniform int parallelFog;\n")
                 .append(GpuGeometry.DECLARATIONS)
-                .append("void main(){ affineWeight=1.0; gl_Position=vec4(position.xy/targetSize*2.0-1.0,0,1); vertexColor=color; depthValue=position.z; fogValue=fog;\n");
+                .append("void main(){ affineWeight=1.0; gl_Position=vec4(position.xy/targetSize*2.0-1.0,0,1); vertexColor=color; depthValue=position.z; fogValue=fog;\n")
+                .append("#ifdef EXTENDED_LIGHTING\nbackColor=color; flatFront=color; flatBack=color;\n#endif\n");
         for(int i=0;i<4;i++) s.append("texCoord[").append(i).append("]=uv").append(i).append(";\n");
         return s.append(GpuGeometry.BODY).append("}").toString();
     }
 
-    private static String fragmentShader() {
-        StringBuilder s=new StringBuilder("#version 300 es\nprecision highp float; precision highp int;\n")
+    private static String fragmentShader(boolean extended) {
+        StringBuilder s=new StringBuilder("#version 300 es\n");
+        if(extended) s.append("#define EXTENDED_LIGHTING\n");
+        s.append("precision highp float; precision highp int;\n")
                 .append("in vec4 vertexColor; in vec3 texCoord[4]; in float depthValue; uniform vec2 imageSize[4];\n")
                 .append("uniform int mode[4],rgba[4],mip[4],alphaFactor,threshold,composite,fogMode,parallelFog; out vec4 result;\n")
                 .append("uniform vec3 blendColor[4]; in float fogValue; uniform vec3 fogColor,fogParams;\n")
                 .append("in float affineWeight; uniform int rawGeometry; uniform vec2 rawDepth;\n")
+                .append("#ifdef EXTENDED_LIGHTING\nuniform int rawShading; in vec4 backColor; flat in vec4 flatFront,flatBack;\n#endif\n")
                 .append("uniform int sprite; uniform ivec4 spriteLayout; uniform highp isampler2D spriteIndices;\n");
         for(int i=0;i<4;i++) s.append("uniform sampler2D image").append(i).append(";\n");
         s.append("vec4 layer(vec4 c,vec4 t,int mode,int rgba,vec3 b){\n")
@@ -662,7 +676,9 @@ final class GpuRasterizer {
                 .append("else if(mode==227){ c.rgb=floor((c.rgb*t.rgb+(rgba!=0?128.0:0.0))/256.0); if(rgba!=0)c.a=floor((c.a*t.a+c.a)/256.0); }\n")
                 .append("else if(mode==226){ c.rgb=rgba!=0?c.rgb+floor((t.rgb-c.rgb)*t.a/256.0):t.rgb; }\n")
                 .append("else { c.rgb=mode==224?min(c.rgb+t.rgb,255.0):c.rgb+floor(((b-c.rgb)*t.rgb+128.0)/256.0); if(rgba!=0)c.a=floor((c.a*t.a+128.0)/256.0); } return c; }\n")
-                .append("void main(){ vec4 c=floor(clamp(vertexColor/affineWeight,0.0,255.0)+0.0001);\n")
+                .append("void main(){\n#ifdef EXTENDED_LIGHTING\nbool back=rawGeometry!=0 && (rawShading&2)!=0 && (gl_FrontFacing==((rawShading&4)!=0));\n")
+                .append("vec4 shade=rawGeometry!=0 && (rawShading&1)!=0?(back?flatBack:flatFront):(back?backColor:vertexColor)/affineWeight;\n")
+                .append("vec4 c=floor(clamp(shade,0.0,255.0)+0.0001);\n#else\nvec4 c=floor(clamp(vertexColor/affineWeight,0.0,255.0)+0.0001);\n#endif\n")
                 .append("if(sprite!=0){ ivec2 p=ivec2(texelFetch(spriteIndices,ivec2(int(gl_FragCoord.x),0),0).r,\n")
                 .append("texelFetch(spriteIndices,ivec2(int(gl_FragCoord.y),1),0).r);\n")
                 .append("c=floor(texelFetch(image0,p,0).bgra*255.0+0.5); } else {\n");
@@ -680,7 +696,6 @@ final class GpuRasterizer {
             +"float q=fogMode==3?float(spriteLayout.z):floor(clamp(f*256.0,0.0,255.0)); c.rgb=floor((c.rgb*q+fogColor*(256.0-q))/256.0); }\n"
             +"if(composite!=0)c.a=a; result=c.bgra/255.0; float z=rawGeometry!=0?(rawDepth.x+gl_FragCoord.z*(rawDepth.y-rawDepth.x))*32200.0:depthValue; gl_FragDepth=floor(z)/65535.0; }").toString();
     }
-    private static final String VERTEX=vertexShader(), FRAGMENT=fragmentShader();
     private static final String PACK_VERTEX="#version 300 es\nvoid main(){\n"
             +"vec2 p=vec2((gl_VertexID<<1)&2,gl_VertexID&2); gl_Position=vec4(p*2.0-1.0,0,1); }";
     private static final String PACK_FRAGMENT="#version 300 es\nprecision highp float; precision highp int;\n"

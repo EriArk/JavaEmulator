@@ -75,6 +75,18 @@ public class GpuMeshCacheTest {
         assertEquals(0xff30a060,expected[32*64+12]);
         assertEquals(0xffe05030,expected[32*64+44]);
     }
+
+    @Test public void oversizedTransientMeshDoesNotEvictReusableSmallMeshes() {
+        setup(); GpuMeshCache.byteLimit=400; begin(); draw(); pixels();
+        VertexBuffer small=vertices; IndexBuffer smallIndices=indices;
+        VertexArray big=new VertexArray(8,3,1); big.set(0,8,new byte[]{-1,1,0,-1,-1,0,1,1,0,1,-1,0,-1,1,0,-1,-1,0,1,1,0,1,-1,0});
+        vertices=new VertexBuffer(); vertices.setPositions(big,1,null); vertices.setDefaultColor(0xff30a060);
+        indices=new TriangleStripArray(0,new int[]{4,4}); begin(); draw(); pixels();
+        assertEquals(380,GpuRasterizer.cachedMeshBytes());
+        long uploads=GpuMeshCache.uploads,hits=GpuMeshCache.hits;
+        vertices=small; indices=smallIndices; begin(); draw(); pixels();
+        assertEquals(uploads,GpuMeshCache.uploads); assertEquals(hits+1,GpuMeshCache.hits);
+    }
     private int[] revisionScene(boolean lose) {
         setup(); GpuMeshCache.byteLimit=400; begin();
         transform.postTranslate(-1,0,0); draw();

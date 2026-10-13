@@ -1,0 +1,11 @@
+﻿{
+    "engine":  "candidate",
+    "variant":  "phone",
+    "package":  "io.github.eriark.abyssme.m3gcandidate.phone.debug",
+    "device":  "Android 15 emulator / Google SwiftShader",
+    "sdk":  35,
+    "apk":  "DBC2C0DC254486086A3EFA8633102874F949DD22E4A8F8ED7FB99379DC0DF3AF",
+    "testApk":  "5A8DBFB5EAB18210620F185FAB44AB86CC6A7AC1518526679F092B9CFBCDB5CC",
+    "scope":  "Focused lighting and winding/culling checks, not the full 325-test suite",
+    "sampledUtc":  "2026-10-13T12:48:49.1729900Z"
+}

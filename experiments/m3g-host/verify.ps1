@@ -3,7 +3,7 @@ param(
     [ValidateSet('candidate', 'baseline')][string]$Engine = 'candidate',
     [ValidateSet('fdroid', 'phone')][string]$Variant = 'fdroid',
     [string]$ApkRoot,
-    [ValidateRange(30,1200)][int]$TestTimeoutSeconds = 300,
+    [ValidateRange(30,3600)][int]$TestTimeoutSeconds = 300,
     [string]$Adb = "$env:ANDROID_HOME/platform-tools/adb.exe"
 )
 $ErrorActionPreference = 'Stop'
@@ -109,7 +109,8 @@ if ($Engine -eq 'candidate') {
     $classes += ',javax.microedition.m3g.GpuHardwareSceneContractTest'
     $classes += ',javax.microedition.m3g.GpuReleaseTest'
     $classes += ',javax.microedition.m3g.GpuMeshCacheTest'
-    $expectedTests += 129
+    $classes += ',javax.microedition.m3g.GpuLightingTest'
+    $expectedTests += 143
 }
 if ($measured) {
     $classes += ',javax.microedition.shell.M3gTargetMeterTest'

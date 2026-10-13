@@ -36,13 +36,11 @@ public class GpuGeometryTest {
         assertEquals(recovered+1,GpuRasterizer.recoveries);
     }
 
-    @Test public void unsupportedFlatTwoSidedAndDepthOffsetStayOnPreparedPath() {
-        for(int mode=6;mode<=8;mode++) {
-            int[] expected=render(false,false,mode,1,false,false);
-            long draws=GpuGeometry.draws;
-            assertArrayEquals(expected,render(true,false,mode,1,false,false));
-            assertEquals(draws,GpuGeometry.draws);
-        }
+    @Test public void depthOffsetStaysOnPreparedPath() {
+        int[] expected=render(false,false,8,1,false,false);
+        long draws=GpuGeometry.draws;
+        assertArrayEquals(expected,render(true,false,8,1,false,false));
+        assertEquals(draws,GpuGeometry.draws);
     }
 
     @Test public void nearPlaneClippingAndOffscreenGeometryRemainVisible() {
@@ -125,7 +123,7 @@ public class GpuGeometryTest {
         Mesh mesh=new Mesh(vb,new TriangleStripArray(0,new int[]{4}),style);
         long draws=GpuGeometry.draws;
         g.render(mesh,transform); transform.postTranslate(.12f,0,-.01f); g.render(mesh,transform);
-        if(hardware && (mode<6 || mode>=9)) assertEquals("hardware stage must run",draws+2,GpuGeometry.draws);
+        if(hardware && mode!=8) assertEquals("hardware stage must run",draws+2,GpuGeometry.draws);
         if(mutate) {
             points.set(0,4,new short[12]); material.setColor(Material.DIFFUSE,0xff000000);
             transform.postScale(0,0,0); vb.setDefaultColor(0xff000000);
