@@ -23,20 +23,21 @@ public class GpuCacheTest {
 
     private int[] layers(boolean cache,boolean mutate) {
         GpuRasterizer.close(); GpuRasterizer.enabled=true; GpuRasterizer.textureCacheEnabled=cache;
-        Image2D[] images={image(4,0xffa04020),image(4,0xff2060a0),image(4,0xff608020)};
+        Image2D[] images=new Image2D[12];
+        for(int i=0;i<images.length;i++) images[i]=image(4,0xffa04020+i*0x030405);
         int[] pixels=new int[32*24]; short[] depth=new short[pixels.length]; Arrays.fill(depth,(short)32200);
         long uploads=GpuRasterizer.textureUploads,recovery=GpuRasterizer.recoveries;
-        for(int i=0;i<12;i++) {
-            if(mutate && i==6) images[0].set(0,0,1,1,new byte[]{-32,96,32,-96});
+        for(int i=0;i<24;i++) {
+            if(mutate && i==12) images[0].set(0,0,1,1,new byte[]{-32,96,32,-96});
             int[] flags=flags(32,24,1000-i);
             flags[0]=i; flags[2]=i; flags[10]=4; flags[11]=4;
-            assertTrue(GpuRasterizer.sprite(pixels,depth,32,24,images[i%3],new float[4],flags,0,0,CompositingMode.ALPHA,true));
+            assertTrue(GpuRasterizer.sprite(pixels,depth,32,24,images[i%images.length],new float[4],flags,0,0,CompositingMode.ALPHA,true));
         }
         if(mutate) { GpuRasterizer.lossPoint=3; GpuRasterizer.lossesRemaining=1; }
         GpuRasterizer.flush();
-        if(!mutate) assertEquals(uploads+(cache?3:12),GpuRasterizer.textureUploads);
+        if(!mutate) assertEquals(uploads+(cache?12:24),GpuRasterizer.textureUploads);
         else assertEquals(recovery+1,GpuRasterizer.recoveries);
-        assertTrue(GpuRasterizer.cachedTextureBytes()<=3*4*4*4);
+        assertTrue(GpuRasterizer.cachedTextureBytes()<=12*4*4*4);
         return pixels;
     }
 
@@ -44,8 +45,8 @@ public class GpuCacheTest {
         GpuRasterizer.close(); GpuRasterizer.enabled=true;
         Image2D first=image(1,0xff204060); long evictions=GpuTextureCache.evictions;
         assertEquals(0xff204060,draw(first));
-        for(int i=0;i<8;i++) assertEquals(0xff406080+i,draw(image(1,0xff406080+i)));
-        assertEquals(32,GpuRasterizer.cachedTextureBytes());
+        for(int i=0;i<GpuTextureCache.UNIT_ENTRIES;i++) assertEquals(0xff406080+i,draw(image(1,0xff406080+i)));
+        assertEquals(GpuTextureCache.UNIT_ENTRIES*4,GpuRasterizer.cachedTextureBytes());
         long uploads=GpuRasterizer.textureUploads;
         assertEquals(0xff204060,draw(first)); assertEquals(uploads+1,GpuRasterizer.textureUploads);
         assertTrue(GpuTextureCache.evictions>=evictions+2);

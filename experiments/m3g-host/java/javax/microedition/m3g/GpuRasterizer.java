@@ -160,6 +160,8 @@ final class GpuRasterizer {
         if(blend==CompositingMode.MODULATE || blend==CompositingMode.MODULATE_X2) multiplyDraws++;
         if (ru.playsoftware.j2meloader.BuildConfig.M3G_GPU && (draws&1023)==1)
             diagnostic("draws="+draws+" units="+units+" textureUploads="+textureUploads
+                    +" textureHits="+GpuTextureCache.hits+" textureEvictions="+GpuTextureCache.evictions
+                    +" textureCacheBytes="+cachedTextureBytes()
                     +" offsets="+offsetDraws+" multiply="+multiplyDraws+" sprites="+spriteDraws+" empty="+emptyDraws
                     +" uploads="+uploads+" readbacks="+readbacks+" recoveries="+recoveries+" renderer="+renderer);
         if (!resident || !retainTargets) flush();

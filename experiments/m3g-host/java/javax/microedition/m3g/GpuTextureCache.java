@@ -5,7 +5,7 @@ import static android.opengl.GLES30.*;
 
 /** Per-unit LRU ownership prevents eviction or sampler changes in another bound unit. */
 final class GpuTextureCache {
-    static final int UNIT_BYTES=2*1024*1024, UNIT_ENTRIES=8;
+    static final int UNIT_BYTES=2*1024*1024, UNIT_ENTRIES=32;
     static long hits, evictions;
     private final Entry[][] entries=new Entry[4][UNIT_ENTRIES];
     private final Entry[] scratch=new Entry[4];
