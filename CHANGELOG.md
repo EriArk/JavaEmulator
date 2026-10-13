@@ -11,6 +11,14 @@ stated otherwise. **Experimental** means local/private combined builds only.
 
 ## 2026-10-13
 
+- **Separate experiment / not shipped:** fixed disappearing objects in large 3D
+  scenes, camera ranges, spotlight behavior, transparency and CPU/GPU edge
+  sampling. Hardened model-file parsing and nested resource loading. Retroid
+  and Phone emulator each pass all 260 checks; 70 standalone models/resources
+  from eight private games load. Fresh Asphalt, DiRT and Deep gameplay captures
+  are recorded. This is not full-game or performance parity; GPU stays opt-in,
+  and the production engine, license and public APKs are unchanged.
+  [Implementation, native differences and evidence](https://github.com/EriArk/JavaEmulator/blob/a9f51dbe/experiments/m3g-host/scene-contracts-20261013.md).
 - **Separate experiment / not shipped:** fixed 3D deformations ignoring changed
   geometry and colors, corrected overlapping bone bindings and lighting on
   scaled skeletons, and rejected overflowing bone ranges. Added loaded-model
