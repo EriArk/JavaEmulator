@@ -320,6 +320,8 @@ final class CompatibilityProfileTester {
 	private static int scoreScreenCandidate(String name, int width, int height) {
 		if (isExcludedImage(name)) return 0;
 		boolean screen = containsAny(name, "splash", "title", "menu", "background", "loading");
+		// Power-of-two squares are commonly textures, not a phone's display size.
+		if (!screen && width == height && (width & (width - 1)) == 0) return 0;
 		if (isKnownJ2meResolution(width, height)) return screen ? 300 : 100;
 		return 0;
 	}
