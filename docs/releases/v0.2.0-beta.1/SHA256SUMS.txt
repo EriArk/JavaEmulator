@@ -1,0 +1,4 @@
+5e29aa61fb94a683446cf363ff1cc94cd4b23e7911fc4023825957f72b69ec8d  AbyssME-0.2.0-beta.1-dependency-sources.zip
+6109b7370f20d080b36552981565c8b2cabb50db2d2626f19f80a6330ee9cc8c  AbyssME-0.2.0-beta.1-handheld.apk
+c2351676872e5882d0ff17f0d26e33539414f2a02859dc34c6b0a4a38aa7174d  AbyssME-0.2.0-beta.1-phone.apk
+557c7b002d39e86c6321a8d79ea33b87c50ee40d97516302daf547c6ba55fcb1  AbyssME-0.2.0-beta.1-source.zip

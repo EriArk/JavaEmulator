@@ -24,7 +24,7 @@ bundled. The app UI is English.
 - **Phone:** portrait and landscape, touch input and on-screen controls.
 - Both variants have independent app data and can coexist.
 - Experimental Mophun support is integrated in the same app. Its source is now
-  included in the production-switch batch; the older public beta.2 has no Mophun.
+  included in public 0.2.0-beta.1; the historical 0.1.0 beta.2 has no Mophun.
 - Embedded Symbian / N-Gage support is the next research direction. The EKA2L1
   source audit is documented; no integration has been built or shipped.
 
@@ -32,11 +32,11 @@ bundled. The app UI is English.
 
 | Channel | Current identifier | What a reader can obtain |
 | --- | --- | --- |
-| Public download | [v0.1.0-beta.2](https://github.com/EriArk/JavaEmulator/releases/tag/v0.1.0-beta.2), published 2026-07-20 | Handheld and Phone release APKs; Java games, not Mophun |
-| Public development source | `main`; optimized-profile/import fixes, 2026-10-13 | Stable profile persistence and restart trials under R8; framed JAR import fix. Reversible presets and prior Java/UI/storage improvements remain unreleased. [Evidence](RELEASE_PROFILE_SAFETY.md). Not all changes are in the downloadable beta |
+| Public download | [v0.2.0-beta.1](https://github.com/EriArk/JavaEmulator/releases/tag/v0.2.0-beta.1), published 2026-10-13 | Handheld and Phone APKs, Java + experimental Mophun, replacement M3G/tone, accumulated UI/storage/preset changes, app/dependency sources and checksums |
+| Public development source | `main`; release tag `v0.2.0-beta.1`, 2026-10-13 | Production switch merged; current features below are in this beta unless marked historical/research-only. [Release checks](releases/v0.2.0-beta.1-checks.md) |
 | Private combined test snapshot | `0.1.0-beta.2-experimental.15`, 2026-10-11 | Handheld and Phone debug APKs containing Java plus experimental Mophun; supplied separately to testers, not a GitHub release |
 | Local-only material | Ignored diagnostics, game fixtures and signing keys | Private test inputs remain local; the promoted Mophun runtime is no longer private-only |
-| Production-switch batch | [`codex/m3g-replacement`](https://github.com/EriArk/JavaEmulator/tree/codex/m3g-replacement), 2026-10-13 | Ordinary builds use the replacement M3G/tone and include Mophun. Old EPL engine sources removed; combined GPLv3 scope and dependency notices added. Version 0.2.0-beta.1 / code 200 prepared. Publication is a separate gate; see [report](releases/v0.2.0-beta.1-checks.md) |
+| Merged research branch | [`codex/m3g-replacement`](https://github.com/EriArk/JavaEmulator/tree/codex/m3g-replacement), 2026-10-13 | Ordinary builds use the replacement M3G/tone and include Mophun. Old EPL engine removed, GPLv3 combined scope and notices retained. Beta published as code 200; research timing tools and private games are not in APKs |
 
 The experimental number is a distribution label: build 15 still reports
 version code **102** and `0.1.0-beta.2` / `0.1.0-beta.2-phone` internally.
@@ -51,9 +51,9 @@ Build 15 SHA-256:
 9c61f344ff307d2e901226f964eefb82098ccdf1abff4b3798cabb893dc0cb73  AbyssME-handheld-test-2026-10-11-15.apk
 ```
 
-## Public Beta Baseline
+## Historical 0.1.0 Beta.2 Baseline
 
-The published beta has Gallery/List/Grid, search, favorites, folders, per-game
+The older beta has Gallery/List/Grid, search, favorites, folders, per-game
 settings, controller mapping, artwork, first-launch compatibility preparation,
 and separate Handheld/Phone APKs. Phone provides virtual keys and direct touch.
 It accepts JAR/JAD and archive sources through Android's file picker.
@@ -63,7 +63,7 @@ ES-DE or Beacon is fully verified: real cold/warm launch and return testing is
 still tracked in [#7](https://github.com/EriArk/JavaEmulator/issues/7).
 See [beta.2 release notes](releases/v0.1.0-beta.2.md) for the released scope.
 
-## Implemented Since Beta.2: Public Source, Unreleased
+## Included in 0.2.0 Beta.1
 
 | Area | Current development behavior | Evidence / boundary |
 | --- | --- | --- |
@@ -72,13 +72,13 @@ See [beta.2 release notes](releases/v0.1.0-beta.2.md) for the released scope.
 | Phone controls | Phone numeric keypad or virtual Gamepad, portrait game area above buttons, landscape side controls, size/opacity/position settings | [Settings](SETTINGS_TRIALS.md); released beta.2 uses the older workflow |
 | Picture settings | Shared Display/Controls pages in library and game, live Java image rotation, size/smoothing, reversible Try/Keep/Undo preview | [Settings trials](SETTINGS_TRIALS.md); expert compatibility settings remain under Advanced |
 | Quick presets | More > Screen presets applies virtual resolutions live; More > Phone profile offers Generic/vendor presets through Restart & try, with Keep / Undo | [Implementation and checks](GAME_PRESETS.md); restart loses unsaved game progress, presets are not full phone emulation |
-| Release profile/import safety | Stable touch/preparation JSON keys prevent R8 field loss and restart-trial crashes; framed Java exception handlers no longer undercount stack during import | [Fixes and checks](RELEASE_PROFILE_SAFETY.md); no recovery claim for already-lost values or production-signed upgrade acceptance |
+| Release profile/import safety | Stable touch/preparation JSON keys prevent R8 field loss and restart-trial crashes; framed Java exception handlers no longer undercount stack during import | [Fixes and checks](RELEASE_PROFILE_SAFETY.md), [signed Phone upgrade](releases/v0.2.0-beta.1-checks.md); no recovery claim for already-lost values |
 | Screenshots | Optional on-screen camera button and menu action; PNGs in Pictures/AbyssME | `4f4d1468`; visibility can be disabled |
 | Transfer and backup | J2ME Loader import, selection/preview, AbyssME backup/restore through menus, copied saves and supported profiles, non-destructive migrations | [Transfer](LIBRARY_TRANSFER.md); source files remain intact, access restrictions still apply |
 | Nested-folder permissions | Import pauses for the requested folder grant and resumes; wrong-folder/cancel recovery, readable messages, save-folder validation | `d39ed742`; pending access survives screen recreation, not process death |
 | Installer | Compact scrolling details with reachable actions, persistent errors, archive recognition through pickers, mismatched JAD/JAR continuation retaining source identity | `696da084`, `7ba384b2`; URI-alias duplicates remain #20 |
 | Automatic preparation | Weak or conflicting vendor hints retain Generic; anonymous images alone no longer set display size. Existing settings and explicit display declarations remain preserved | [Preset checks](GAME_PRESETS.md), [checks](LOCAL_TESTING.md); static heuristics, not running multiple models or guaranteeing the best profile |
-| Automatic game fonts | New profiles follow the prepared virtual resolution; Advanced font presets include Automatic. Existing explicit values are preserved | `9430cb0a`; four new Android font tests, readable Constructo tutorial on Retroid; not in a released APK |
+| Automatic game fonts | New profiles follow the prepared virtual resolution; Advanced font presets include Automatic. Existing explicit values are preserved | `9430cb0a`; four Android font tests, readable Constructo tutorial on Retroid |
 
 ## Experimental Mophun
 
@@ -141,7 +141,7 @@ on the emulator after seven folder grants. Both imported RMS files matched
 their original hashes and source files were unchanged. The reporter's Samsung
 phones and every storage provider have not been verified.
 
-Current open work, checked on GitHub on 2026-10-11:
+Current open work, checked on GitHub on 2026-10-13:
 
 - [#20](https://github.com/EriArk/JavaEmulator/issues/20): different Downloads URIs can duplicate one source; existing duplicates are not merged.
 - [#15](https://github.com/EriArk/JavaEmulator/issues/15): Ghost Recon 2 SE 128x160 still has a recurring black screen.
@@ -1155,8 +1155,9 @@ See [racing evidence and screenshots](https://github.com/EriArk/JavaEmulator/blo
 
 ## Images and Writing Guidance
 
+- [0.2.0-beta.1 release captures](releases/v0.2.0-beta.1.md#captures), 2026-10-13: signed Handheld Asphalt/Deep Abyss on Retroid and signed Phone Deep Abyss in the emulator. Short ADB-driven checks, not whole-game/audio acceptance.
 - [Fresh development screenshots, 2026-10-11](../screenshots/post-2026-10-11/README.md): 12 real emulator PNGs, ZIP, captions and hashes. Label as **development / experimental.15**.
-- [Published beta.2 screenshots](../screenshots/website-beta2/manifest.json): use for the public download's existing UI, not as current development screenshots.
+- [Historical beta.2 screenshots](../screenshots/website-beta2/manifest.json): older UI; do not present as current beta.1 captures.
 - Gallery covers in both packs were manually curated. Grid/List show native icons or fallbacks. No games are bundled; artwork is not evidence of gameplay compatibility.
 - For a website, lead with the product and user experience; distinguish **available now** from **in development**. Do not link a public beta download as though it contained the experimental features pictured.
 - For a progress post, select the dated changes since the previous report. Use plain language about user benefits, not test harnesses or implementation details. Include meaningful limitations without overwhelming the post.

@@ -11,6 +11,14 @@ stated otherwise. **Experimental** means local/private combined builds only.
 
 ## 2026-10-13
 
+- **Released:** [0.2.0-beta.1](https://github.com/EriArk/JavaEmulator/releases/tag/v0.2.0-beta.1),
+  the first public combined Java + experimental Mophun beta. Handheld/Phone APKs,
+  matching source/dependency archives and checksums are uploaded; all five GitHub
+  asset digests match local files. Clean `main` release builds, lint and APK guards
+  pass. Both debug variants also build from a source ZIP without Git history or
+  private signing files. Existing package IDs/signing key remain unchanged.
+  [Release notes and limitations](docs/releases/v0.2.0-beta.1.md).
+
 - **Production-switch batch / release preparation:** ordinary builds now use
   the FreeJ2ME-derived M3G replacement and independent tone compiler. Removed
   the inherited EPL Java/native M3G and tone sources; Mascot Capsule remains.

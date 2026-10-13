@@ -16,33 +16,33 @@ core: a controller-first **Handheld** APK and a portrait/touch-friendly
 > **Project status:** Beta. AbyssME is usable, but compatibility automation and
 > launcher integration still need testing across more games and devices.
 
-[Download the latest beta](https://github.com/EriArk/JavaEmulator/releases)
+[Download 0.2.0 Beta 1](https://github.com/EriArk/JavaEmulator/releases/tag/v0.2.0-beta.1)
 
-## Current Development
+## Current Beta
 
 For website copy, progress posts and handoffs, start with the
 [current product/development status](docs/PROJECT_STATUS.md) and
 [dated changelog](CHANGELOG.md). They also describe local/private experiments,
 explicitly separated from public downloads. The
-[fresh development screenshot pack](screenshots/post-2026-10-11/README.md)
-shows experimental.15, not the published beta.2 interface pictured below.
+[0.2.0 beta.1 notes](docs/releases/v0.2.0-beta.1.md) include new device captures,
+verification limits and source downloads.
 
-The `main` branch is ahead of the published beta.2 APKs. Its unreleased changes
-include a graphical controller mapper with diagonal bindings, two Phone touch
+The 0.2.0 beta.1 release includes a graphical controller mapper with diagonal bindings, two Phone touch
 layouts, live Java game-image rotation, quick display settings, J2ME Loader
 library import, menu-based backup/restore, a hideable screenshot button and
 non-destructive database migrations. Saved Phone orientation and settings-field
-contrast with Android's Light theme are also fixed in development builds.
+contrast with Android's Light theme are also fixed.
 
 Use **Settings > Library > Library transfer** to import from J2ME Loader or move installed
 games and saves between AbyssME installations. See the
 [workflow and limitations](docs/LIBRARY_TRANSFER.md).
 
-Development builds share **Display** and **Controls** pages between the library's
+Both builds share **Display** and **Controls** pages between the library's
 per-game settings and the in-game menu. On Phone, choose **Controls > Touch layout >
 Phone / Gamepad**. Use **Try changes** (or **Try in game** from the library), then
 **Keep** or **Undo**; unconfirmed changes revert after about 20 seconds of preview.
-Phone resolution and the full compatibility editor are under **Advanced**.
+Quick screen-size and phone-profile presets are under **More** while playing;
+the full compatibility editor remains under **Advanced**.
 The old expert editor still saves ordinary edits directly; its **Fix game** action
 now offers a trial instead. See [settings trials](docs/SETTINGS_TRIALS.md).
 
@@ -66,36 +66,22 @@ Automatic artwork now favors declared icons and identifiable title art over
 arbitrary textures. **Game actions > Artwork** offers custom icons/covers and
 an explicit refresh for older libraries. See [artwork behavior](docs/ARTWORK.md).
 
-The screenshots and beta.2 instructions below
-describe the published release, not every unreleased change.
-
-The development source now includes a FreeJ2ME-derived replacement M3G renderer
+This beta includes a FreeJ2ME-derived replacement M3G renderer
 and experimental Wolphun-based Mophun support. The legacy EPL M3G/tone engine
 has been removed. The combined application uses GPLv3 while retaining component
-notices; see [licensing](docs/LICENSING.md). Existing release downloads remain
-unchanged until the new beta is explicitly published.
+notices; see [licensing](docs/LICENSING.md). Historical release assets are unchanged.
 
 ## Screenshots
 
-![Handheld library in Gallery view](screenshots/website-beta2/01-handheld-gallery.png)
+![Handheld library in Gallery view](screenshots/post-2026-10-11/01-library-gallery.png)
 
-<img src="screenshots/website-beta2/07-phone-portrait-keypad.png" alt="Phone build playing 2048 in portrait with its on-screen keypad" width="270">
+<img src="screenshots/post-2026-10-11/10-phone-keypad.png" alt="Phone build playing 2048 in portrait with its numeric keypad" width="270">
 
-<details>
-<summary>Grid, List, gameplay and controls</summary>
-
-![Grid library](screenshots/website-beta2/02-handheld-grid.png)
-![List library](screenshots/website-beta2/03-handheld-list.png)
-![2048 gameplay](screenshots/website-beta2/04-handheld-gameplay.png)
-![Quick settings](screenshots/website-beta2/05-quick-settings.png)
-![Controller mapping](screenshots/website-beta2/06-controller-mapping.png)
-
-</details>
-
-Unretouched beta.2 captures from an Android 15 emulator, not a physical handheld.
-Games were installed separately; Gallery artwork was selected manually.
-The Phone capture uses the **Phone** keypad layout. Sources and capture details
-are in the [screenshot manifest](screenshots/website-beta2/manifest.json).
+Unretouched UI captures from the October 11 experimental.15 Android 15 emulator
+build, not physical-device photos or new beta.1 captures. Games were installed
+separately and Gallery artwork was selected manually. See the
+[full UI pack and credits](screenshots/post-2026-10-11/README.md), or
+[October 13 signed-build Retroid/Phone captures](docs/releases/v0.2.0-beta.1.md#captures).
 Games are not bundled with the APKs.
 
 ## Highlights
@@ -117,16 +103,15 @@ Games are not bundled with the APKs.
 
 The Handheld build is intentionally landscape-only and has no on-screen keypad.
 The Phone build has a rotatable library, a compact portrait layout, direct MIDP
-touch events, and configurable virtual controls. In beta.2, game launch still
-selects landscape unless the Phone keypad layout is active; honoring the saved
-game orientation is tracked in [#3](https://github.com/EriArk/JavaEmulator/issues/3).
+touch events, and configurable virtual controls. Per-game orientation is preserved;
+broader device acceptance remains tracked in [#3](https://github.com/EriArk/JavaEmulator/issues/3).
 
 ## Install
 
 1. Open [Releases](https://github.com/EriArk/JavaEmulator/releases).
 2. Choose an APK:
-   - `AbyssME-...-fdroid-release.apk` for handhelds and physical controllers.
-   - `AbyssME-...-phone-release.apk` for phones, portrait mode, and touch keys.
+   - `AbyssME-...-handheld.apk` for handhelds and physical controllers.
+   - `AbyssME-...-phone.apk` for phones, portrait mode, and touch keys.
 3. Allow installation from your browser or file manager when Android asks.
 4. Install the APK and open AbyssME.
 
@@ -137,15 +122,14 @@ Older J2ME Loader builds also use a different package.
 ## Quick Start
 
 1. Choose **Add game** for one file, or **Folders** to index a collection.
-2. Select a JAR, JAD, ZIP, or 7Z file using Android's file picker.
+2. Select a JAR, JAD, ZIP, or 7Z file using Android's file picker. Experimental
+   Mophun uses a direct `.mpn` file; Mophun archive/folder indexing is not included.
 3. Start the game. On first launch, AbyssME analyzes metadata, resources and API
    hints to select initial display and compatibility settings, then saves them.
 4. On Handheld, tap the game display for quick **View**, **Screen**, and
    **Controls** actions, or hold **Select** for per-game mapping.
-5. On Phone, use the on-screen keypad. Its visibility, layout, colors, haptics,
-   and direct game touch input can be changed in the game's settings.
-   For the portrait layout shown above, open the in-game menu and choose
-   **Virtual keyboard > Switch keylayout > Phone**.
+5. On Phone, open **Controls > Touch layout** and choose **Phone** or **Gamepad**.
+   Try display/control changes in the game, then **Keep** or **Undo** them.
 
 In the library, **Y** toggles the selected game as a favorite and **L1/R1**
 cycles Gallery, List, and Grid views.
@@ -201,9 +185,10 @@ and release assets are uploaded manually.
   display size for unusual game releases.
 - Archives containing several JAR files require a one-time game selection.
 - Some vendor-specific J2ME APIs remain limited by the upstream emulation core.
-- Published beta.2 lacks the migration fixes now present on `main`; see
-  [#2](https://github.com/EriArk/JavaEmulator/issues/2). Back up libraries and saves
-  before trying unreleased builds.
+- Back up libraries and saves before updating. Storage-provider restrictions and
+  URI-alias duplicate imports are not universally resolved.
+- Mophun is experimental; broad compatibility and audio are not established.
+  Symbian and N-Gage are not included.
 
 Please report reproducible problems through
 [GitHub Issues](https://github.com/EriArk/JavaEmulator/issues) and include the
