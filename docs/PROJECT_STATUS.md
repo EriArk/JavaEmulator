@@ -36,7 +36,7 @@ bundled. The app UI is English.
 | Public development source | `main`; latest build change: [b7501f17](https://github.com/EriArk/JavaEmulator/commit/b7501f17) | Unreleased Java/UI/storage improvements listed below; debug builds no longer need a private signing configuration. Not all changes are in the downloadable beta |
 | Private combined test snapshot | `0.1.0-beta.2-experimental.15`, 2026-10-11 | Handheld and Phone debug APKs containing Java plus experimental Mophun; supplied separately to testers, not a GitHub release |
 | Local-only implementation | Ignored optional-engine source and diagnostics | Mophun integration, game-specific experiments and test fixtures; public descriptions below, implementation not published |
-| Separate research branch | [`codex/m3g-replacement`](https://github.com/EriArk/JavaEmulator/tree/codex/m3g-replacement), code checkpoint `beff7fc9` | Corrected animation curves, loop transitions, long rotations, weighted tracks and sequence loading, following scene-copy and GPU work. Final Retroid: 163 checks. Final Phone: 85 shared/animation checks. Fresh Retroid Asphalt race capture. GPU stays opt-in; production switch and beta remain pending |
+| Separate research branch | [`codex/m3g-replacement`](https://github.com/EriArk/JavaEmulator/tree/codex/m3g-replacement), code checkpoint `139aa143` | Corrected mutable geometry, skeletal bind/query behavior and scaled-bone lighting, following animation, scene-copy and GPU work. Final Retroid: 184 checks. Final Phone: 106 shared/animation/deformation checks. Fresh Retroid Deep gameplay. GPU stays opt-in; production switch and beta remain pending |
 
 The experimental number is a distribution label: build 15 still reports
 version code **102** and `0.1.0-beta.2` / `0.1.0-beta.2-phone` internally.
@@ -810,6 +810,33 @@ Next implementation work: animated hierarchy/deformation and remaining loader
 contracts, followed by real-game comparison. Production merge, dependency/license
 review and upgrade/save acceptance remain separate gates. Main's renderer,
 root license and public APKs are unchanged.
+
+### Mutable Geometry and Skeletal Deformation: 2026-10-13
+
+Code checkpoint `139aa143` corrects cached morph/skin poses that could ignore
+changed vertex data, colors or layouts. Bone queries now combine overlapping
+ranges, repeated ranges share one bind pose, invalid overflowing ranges are
+rejected, and scaled bones use correct normal transforms for lighting.
+Twenty-one original API cases also cover animated ancestors, attached meshes,
+independent duplicate poses and loaded morph/skin records.
+
+Final Retroid candidate: **184 passed, no skips**. Final Phone emulator:
+**106 shared/animation/deformation checks passed, no skips**. The remaining
+78 implementation/GPU checks were not rerun on Phone this checkpoint. The
+unchanged native comparison has six failures in a bounded 15-case subset and
+crashed on an overflowing range in an earlier interrupted run; its separate
+normal-transform comparison passed. These are recorded differences, not a
+claim of complete replacement parity.
+
+The final GPU-enabled Retroid build reached actual **Deep: Submarine Odyssey
+(Java)** gameplay, with fresh intro/game screenshots. Music was off: no audio,
+mission-completion, sustained-FPS or physical-controller acceptance is implied.
+Ordinary app packages were untouched. No APK was published, and main's engine
+and root licensing remain unchanged.
+
+[Implementation, raw evidence, screenshots and APK identities](https://github.com/EriArk/JavaEmulator/blob/139aa143/experiments/m3g-host/deformation-20261013.md).
+Next: scene-wide light/camera/culling and complex-model loading contracts,
+then broader parity and production-switch acceptance.
 
 ## Distribution and Licensing Status
 
