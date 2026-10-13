@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testsuite name="ru.playsoftware.j2meloader.catalog.SourceIdentityTest" tests="2" skipped="0" failures="0" errors="0" timestamp="2026-10-13T15:37:56" hostname="LAPTOP-MN5PLG4I" time="0.019">
+  <properties/>
+  <testcase name="shortIdIsStableAndVariantSpecific" classname="ru.playsoftware.j2meloader.catalog.SourceIdentityTest" time="0.01"/>
+  <testcase name="sha256DetectsSameVersionSourceChanges" classname="ru.playsoftware.j2meloader.catalog.SourceIdentityTest" time="0.007"/>
+  <system-out><![CDATA[]]></system-out>
+  <system-err><![CDATA[]]></system-err>
+</testsuite>

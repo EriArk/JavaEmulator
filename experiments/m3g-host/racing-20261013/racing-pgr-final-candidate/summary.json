@@ -1,0 +1,21 @@
+﻿{
+    "engine":  "candidate",
+    "run":  "racing-pgr-final",
+    "apkSha256":  "ff02377a5aaa4ded953d298e12bbb3ff9e4f994cf95a37183b7606e77b1c9f0f",
+    "processId":  "28894",
+    "layer":  "SurfaceView[io.github.eriark.abyssme.m3gcandidate.debug/javax.microedition.shell.MicroActivity](BLAST)#29649",
+    "elapsedSeconds":  36.0925371,
+    "maxPollGapSeconds":  1.2440689,
+    "error":  null,
+    "metrics":  {
+                    "frames":  466,
+                    "spanSeconds":  35.065421602,
+                    "presentedFps":  13.260927111553055,
+                    "intervalP50Ms":  83.320521,
+                    "intervalP95Ms":  83.340468,
+                    "maxIntervalMs":  100.002968,
+                    "intervalsAbove100Ms":  2
+                },
+    "cadenceWindows":  16,
+    "interpretation":  "Surface presentation intervals, not game logic FPS or isolated renderer cost. Inspect captures."
+}

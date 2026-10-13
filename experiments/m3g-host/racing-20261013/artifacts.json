@@ -1,0 +1,18 @@
+﻿[
+    {
+        "artifact":  "app-fdroid-debug-androidTest.apk",
+        "Hash":  "EFAB909AD0FEA7DF96A526CC20AF9B13031D49C9C7FCDEE748BD0A6DED3B322E"
+    },
+    {
+        "artifact":  "app-phone-debug-androidTest.apk",
+        "Hash":  "66EA819EE10EB5B9504E5A9F7B2DC404F5E4B2B3CBAE8006C6DD4B176891F227"
+    },
+    {
+        "artifact":  "AbyssME-0.1.0-beta.2-debug.apk",
+        "Hash":  "FF02377A5AAA4DED953D298E12BBB3FF9E4F994CF95A37183B7606E77B1C9F0F"
+    },
+    {
+        "artifact":  "AbyssME-0.1.0-beta.2-phone-debug.apk",
+        "Hash":  "41733735492AB05EE75E13FD2C0E058F61A6759C8F9A1322BF097A1160396899"
+    }
+]
