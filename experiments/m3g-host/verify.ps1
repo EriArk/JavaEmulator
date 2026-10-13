@@ -4,11 +4,13 @@ param(
     [ValidateSet('fdroid', 'phone')][string]$Variant = 'fdroid',
     [string]$ApkRoot,
     [switch]$ReleaseCheck,
+    [switch]$Production,
     [ValidateRange(30,3600)][int]$TestTimeoutSeconds = 300,
     [string]$Adb = "$env:ANDROID_HOME/platform-tools/adb.exe"
 )
 $ErrorActionPreference = 'Stop'
 $root = (Resolve-Path (Join-Path $PSScriptRoot '../..')).Path
+if ($Production -and ($ReleaseCheck -or $Engine -ne 'candidate')) { throw 'Production verification is for the normal candidate debug build only' }
 $package = "io.github.eriark.abyssme.m3g$Engine.debug"
 if ($Variant -eq 'phone') { $package = "io.github.eriark.abyssme.m3g$Engine.phone.debug" }
 $kind = if ($ReleaseCheck) { 'release' } else { 'debug' }
@@ -17,17 +19,26 @@ if ($ReleaseCheck) {
     $package = 'io.github.eriark.abyssme.m3grehearsal'
     if ($Variant -eq 'phone') { $package += '.phone' }
 }
+if ($Production) {
+    $package = 'io.github.eriark.abyssme'
+    if ($Variant -eq 'phone') { $package += '.phone' }
+    $package += '.debug'
+}
 $build = if ($ApkRoot) { (Resolve-Path $ApkRoot).Path } else { Join-Path $root "app/build/m3g-$Engine$buildSuffix/outputs/apk" }
+if ($Production -and !$ApkRoot) { $build = Join-Path $root 'app/build/outputs/apk' }
 $suffix = if ($Variant -eq 'phone') { '-phone' } else { '' }
-$apk = Join-Path $build "$Variant/$kind/AbyssME-0.1.0-beta.2$suffix-$kind.apk"
+$appMetadata = Get-Content -Raw (Join-Path $build "$Variant/$kind/output-metadata.json") | ConvertFrom-Json
+if ($appMetadata.elements.Count -ne 1 -or [IO.Path]::GetFileName($appMetadata.elements[0].outputFile) -ne $appMetadata.elements[0].outputFile) { throw 'Expected one APK filename in metadata' }
+$apk = Join-Path $build "$Variant/$kind/$($appMetadata.elements[0].outputFile)"
 $test = Join-Path $build "androidTest/$Variant/$kind/app-$Variant-$kind-androidTest.apk"
 $out = Join-Path $PSScriptRoot ('build/evidence/' + ($Serial -replace '[^a-zA-Z0-9_-]', '_') + '-' + $Engine)
 if ($Variant -eq 'phone') { $out += '-phone' }
 if ($ReleaseCheck) { $out += '-release-check' }
+if ($Production) { $out += '-production' }
 New-Item -ItemType Directory -Force $out | Out-Null
 foreach ($artifact in @(@{path=$apk; id=$package}, @{path=$test; id="$package.test"})) {
     $metadata = Get-Content -Raw (Join-Path (Split-Path $artifact.path) 'output-metadata.json') | ConvertFrom-Json
-    if ($metadata.applicationId -ne $artifact.id) { throw 'Not an isolated research application' }
+    if ($metadata.applicationId -ne $artifact.id) { throw 'Unexpected application identity' }
 }
 
 function Invoke-Adb([string[]]$Arguments, [int]$TimeoutMs = 90000) {
@@ -94,7 +105,7 @@ try {
     }
 } finally { $zip.Dispose() }
 
-# Application IDs are fixed research-only IDs; never install over a user's normal build.
+# Fixed research IDs or an explicitly requested normal debug ID, never a release ID.
 Invoke-Adb @('install', '-r', $apk)
 Invoke-Adb @('install', '-r', $test)
 $classes = 'javax.microedition.shell.M3gHostTest,javax.microedition.shell.M3gRasterTest,javax.microedition.shell.M3gSceneTest'
@@ -147,6 +158,7 @@ $result | Set-Content -Encoding UTF8 (Join-Path $out 'tests.txt')
     engine = $Engine
     variant = $Variant
     releaseCheck = [bool]$ReleaseCheck
+    production = [bool]$Production
     package = $package
     device = (Invoke-Adb @('shell', 'getprop', 'ro.product.model')).Trim()
     sdk = (Invoke-Adb @('shell', 'getprop', 'ro.build.version.sdk')).Trim()

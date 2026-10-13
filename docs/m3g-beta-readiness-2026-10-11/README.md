@@ -1,5 +1,9 @@
 # M3G and Tone Replacement: Beta Readiness
 
+**Production follow-up, 2026-10-13:** the old engine has been removed and the
+replacement promoted to ordinary builds. See the [current signed-build report](../releases/v0.2.0-beta.1-checks.md).
+The following checkpoint and observations are historical.
+
 **Later checkpoint, 2026-10-13:** [optimized-build and upgrade rehearsal](../../experiments/m3g-host/release-20261013.md)
 adds real separate-process profile trials, R8 fixes, and cross-engine RMS
 read/write preservation on Retroid and Phone. The signing identity remains

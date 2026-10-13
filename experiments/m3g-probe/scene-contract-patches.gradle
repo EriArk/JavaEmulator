@@ -59,7 +59,7 @@ ext.patchM3gSceneContracts = { File output ->
     text = graphics.getText('UTF-8')
     def projection = 'this.currCam.getProjection(projectionMatrix);'
     if (text.count(projection) != 2) throw new GradleException('Empty volume hook drift')
-    text = text.replace(projection, 'if (this.currCam.isEmptyProjection()) return;\n        ' + projection)
+    text = text.replace(projection, 'if (this.currCam.isEmptyProjection()) { return; }\n        ' + projection)
     def ceilPattern = /\(int\) \(y(Top|Mid|Bot) \+ 0\.999999f\)/
     if ((text =~ ceilPattern).count != 4) throw new GradleException('Pixel center bounds hook drift')
     text = text.replaceAll(ceilPattern) { full, point -> "(int) Math.ceil(y${point} - 0.5f)" }

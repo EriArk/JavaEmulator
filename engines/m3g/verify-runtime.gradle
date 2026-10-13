@@ -1,0 +1,38 @@
+tasks.register('verifyProductionApks') {
+    dependsOn 'assembleFdroidRelease', 'assemblePhoneRelease'
+    doLast {
+        ['fdroid', 'phone'].each { flavor ->
+            def folder = layout.buildDirectory.dir("outputs/apk/$flavor/release").get().asFile
+            def metadata = new groovy.json.JsonSlurper().parse(new File(folder, 'output-metadata.json'))
+            def forbidden = ['Ljavax/microedition/m3g/Platform;',
+                'Ljavax/microedition/media/tone/BlockEndEvent;',
+                'Ljavax/microedition/media/tone/BlockStartEvent;',
+                'Ljavax/microedition/media/tone/Event;',
+                'Ljavax/microedition/media/tone/EventList;',
+                'Ljavax/microedition/media/tone/MidiSequence;',
+                'Ljavax/microedition/media/tone/MidiSequenceException;',
+                'Ljavax/microedition/media/tone/PlayBlockEvent;',
+                'Ljavax/microedition/media/tone/RepeatEvent;',
+                'Ljavax/microedition/media/tone/ToneEvent;',
+                'Ljavax/microedition/media/tone/VolumeEvent;',
+                'Lorg/abyssme/research/FrameMeter;',
+                'Lru/playsoftware/j2meloader/mophun/MophunPreviewActivity;']
+            new java.util.zip.ZipFile(new File(folder, metadata.elements[0].outputFile)).withCloseable { zip ->
+                ['assets/FREEJ2ME-LICENSE.txt', 'assets/FREEJ2ME-SOURCE.json',
+                 'assets/licenses/WOLPHUN-GPL-3.0.txt', 'assets/licenses/NOFUN-APACHE-2.0.txt'].each {
+                    if (zip.getEntry(it) == null) throw new GradleException("Missing notice: $it")
+                }
+                zip.entries().each { entry ->
+                    if (entry.name.endsWith('/libjavam3g.so') || entry.name ==~ /(?i).+\.(mpn|jar|jad)$/) {
+                        throw new GradleException("Unwanted runtime payload: ${entry.name}")
+                    }
+                    if (entry.name ==~ /classes[0-9]*\.dex/) {
+                        def text = zip.getInputStream(entry).withCloseable { new String(it.bytes, 'ISO-8859-1') }
+                        forbidden.each { if (text.contains(it)) throw new GradleException("Legacy/research class in $flavor APK: $it. Clean and rebuild.") }
+                    }
+                }
+                println "$flavor: legacy renderer/tone and private game/preview payloads absent; engine notices present"
+            }
+        }
+    }
+}

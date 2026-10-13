@@ -6,3 +6,9 @@ test-games/sudoku-j2me/LICENSE -text
 test-games/sudoku-j2me/*.jad -text
 test-games/sudoku-j2me/*.jar -text
 test-games/sudoku-j2me/*.zip -text
+
+# Source release archives do not redistribute historical APKs or presentation art.
+/test-builds export-ignore
+/screenshots export-ignore
+/test-screenshots export-ignore
+/design-concepts export-ignore

@@ -8,8 +8,8 @@ def m3gReleaseCheck = providers.gradleProperty('m3gReleaseCheck').orNull == 'tru
 if (m3gReleaseCheck && m3gExperiment == null) {
     throw new GradleException('m3gReleaseCheck requires an isolated candidate or baseline experiment')
 }
-if (m3gExperiment != null && !(m3gExperiment in ['candidate', 'baseline'])) {
-    throw new GradleException('m3gExperiment must be candidate or baseline')
+if (m3gExperiment != null && m3gExperiment != 'candidate') {
+    throw new GradleException('The legacy engine was removed. For baseline comparisons use a separate checkout at 05562126. Only m3gExperiment=candidate remains supported.')
 }
 if (m3gExperiment != null) {
     layout.buildDirectory.set(file("build/m3g-${m3gExperiment}" + (m3gReleaseCheck ? '-release-check' : '')))
@@ -24,8 +24,8 @@ android {
         applicationId "io.github.eriark.abyssme"
         minSdk MIN_SDK
         targetSdk TARGET_SDK
-        versionCode 102
-        versionName "0.1.0-beta.2"
+        versionCode 200
+        versionName "0.2.0-beta.1"
         resValue 'string', 'app_name', rootProject.name
         buildConfigField 'boolean', 'HANDHELD_MODE', 'true'
         vectorDrawables.useSupportLibrary = true
@@ -148,7 +148,7 @@ android {
 
     externalNativeBuild {
         ndkBuild {
-            path 'src/main/cpp/Android.mk'
+            path '../engines/m3g/native/Android.mk'
         }
     }
 
@@ -175,6 +175,9 @@ android {
 
 if (m3gExperiment != null) {
     apply from: rootProject.file('experiments/m3g-host/host.gradle')
+} else {
+    apply from: rootProject.file('engines/m3g/production.gradle')
+    apply from: rootProject.file('engines/mophun/production.gradle')
 }
 
 def validateReleaseCredentials = tasks.register('validateReleaseCredentials') {
@@ -185,6 +188,7 @@ def validateReleaseCredentials = tasks.register('validateReleaseCredentials') {
         }
     }
 }
+apply from: rootProject.file('tools/release-inventory.gradle')
 android.applicationVariants.all { variant ->
     if (variant.buildType.name == 'release' && !m3gReleaseCheck) {
         variant.preBuildProvider.configure { dependsOn validateReleaseCredentials }
@@ -192,8 +196,13 @@ android.applicationVariants.all { variant ->
 }
 
 static def generateVersionCode() {
-    def result = "git rev-list HEAD --count".execute().text.trim()
-    return result.toInteger()
+    try {
+        def result = "git rev-list HEAD --count".execute().text.trim()
+        return result.isInteger() ? result.toInteger() : 0
+    } catch (IOException ignored) {
+        // Source release archives do not require Git or its history to build.
+        return 0
+    }
 }
 
 def getMidletManifestProperties() {

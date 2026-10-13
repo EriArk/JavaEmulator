@@ -1,0 +1,55 @@
+import org.gradle.api.artifacts.component.ModuleComponentIdentifier
+import org.gradle.jvm.JvmLibrary
+import org.gradle.language.base.artifact.SourcesArtifact
+import org.gradle.maven.MavenModule
+import org.gradle.maven.MavenPomArtifact
+
+// Read the actual resolved graph, not a hand-maintained list of direct dependencies.
+tasks.register('releaseDependencyInventory') {
+    doLast {
+        def output = rootProject.layout.buildDirectory.dir('release-sources').get().asFile
+        output.mkdirs()
+        def runtime = configurations.fdroidReleaseRuntimeClasspath
+        def components = runtime.incoming.resolutionResult.allComponents.collect { it.id }
+                .findAll { it instanceof ModuleComponentIdentifier }
+        def query = dependencies.createArtifactResolutionQuery().forComponents(components)
+                .withArtifacts(JvmLibrary, SourcesArtifact).execute()
+        def sources = [:]
+        def poms = [:]
+        dependencies.createArtifactResolutionQuery().forComponents(components)
+                .withArtifacts(MavenModule, MavenPomArtifact).execute().resolvedComponents.each { component ->
+            component.getArtifacts(MavenPomArtifact).each { artifact ->
+                if (artifact instanceof org.gradle.api.artifacts.result.ResolvedArtifactResult) {
+                    def target = new File(output, 'poms/' + component.id.group + '/' + component.id.module + '/' + component.id.version)
+                    copy { from artifact.file; into target }
+                    def pom = new XmlSlurper().parse(artifact.file)
+                    poms[component.id.displayName] = pom.licenses.license.collect {
+                        [name: it.name.text(), url: it.url.text()]
+                    }
+                }
+            }
+        }
+        query.resolvedComponents.each { component ->
+            sources[component.id.displayName] = component.getArtifacts(SourcesArtifact).collect { artifact ->
+                if (artifact instanceof org.gradle.api.artifacts.result.ResolvedArtifactResult) {
+                    def target = new File(output, 'maven/' + component.id.group + '/' + component.id.module + '/' + component.id.version)
+                    copy { from artifact.file; into target }
+                    return [file: "maven/${component.id.group}/${component.id.module}/${component.id.version}/${artifact.file.name}",
+                            sha256: artifact.file.bytes.digest('SHA-256')]
+                }
+                return [missing: true]
+            }
+        }
+        def artifacts = runtime.incoming.artifactView {
+            componentFilter { it instanceof ModuleComponentIdentifier }
+        }.artifacts.artifacts
+        def rows = artifacts.collect { artifact ->
+            def id = artifact.id.componentIdentifier.displayName
+            [coordinate: id, file: artifact.file.name,
+             sha256: artifact.file.bytes.digest('SHA-256'), sources: sources[id] ?: [],
+             declaredLicenses: poms[id] ?: []]
+        }.sort { it.coordinate }
+        new File(output, 'dependencies.json').text = groovy.json.JsonOutput.prettyPrint(groovy.json.JsonOutput.toJson(rows)) + '\n'
+        println "Runtime artifacts: ${rows.size()}; inventory: ${output}/dependencies.json"
+    }
+}

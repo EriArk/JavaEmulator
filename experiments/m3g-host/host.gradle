@@ -1,4 +1,4 @@
-// Opt-in research APKs only; the ordinary application build keeps its engine.
+// Isolated candidate checks. The legacy baseline remains in commit 05562126.
 def candidate = providers.gradleProperty('m3gExperiment').get() == 'candidate'
 def measuring = providers.gradleProperty('m3gMeasure').orNull == 'true'
 def tracing = providers.gradleProperty('m3gTrace').orNull == 'true'
@@ -88,7 +88,7 @@ if (candidate) {
     android.defaultConfig.buildConfigField 'boolean', 'M3G_GPU_GEOMETRY', (releaseCheck || providers.gradleProperty('m3gGpuGeometry').orNull == 'true') ? 'true' : 'false'
     android.sourceSets.androidTest.java.srcDir rootProject.file('experiments/m3g-host/candidate-tests')
     def originalTonePlayer = file('src/main/java/javax/microedition/media/TonePlayer.java')
-    def originalManager = file('src/main/java/javax/microedition/media/Manager.java')
+    def originalManager = rootProject.file('engines/m3g/java/javax/microedition/media/Manager.java')
     android.sourceSets.main.java.exclude { element -> element.file == originalTonePlayer || element.file == originalManager }
     def toneHost = layout.buildDirectory.dir('generated/tone-host')
     android.sourceSets.main.java.srcDir toneHost
@@ -96,9 +96,7 @@ if (candidate) {
         outputs.upToDateWhen { false }
         doLast {
             def text = originalManager.getText('UTF-8')
-            def hook = 'return new MicroPlayer(new InternalDataSource(stream, type));'
-            if (text.count(hook) != 2) throw new GradleException('Tone stream routing hook drift')
-            text = text.replace(hook, 'if ("audio/x-tone-seq".equalsIgnoreCase(type)) return new TonePlayer(stream);\n\t\t\t' + hook)
+            if (text.count('return new TonePlayer(stream);') != 2) throw new GradleException('Tone stream routing hook drift')
             def output = new File(toneHost.get().asFile, 'javax/microedition/media/Manager.java')
             output.parentFile.mkdirs()
             output.setText(text, 'UTF-8')

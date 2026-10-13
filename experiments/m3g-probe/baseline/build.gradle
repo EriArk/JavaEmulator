@@ -6,6 +6,9 @@ def generated = layout.buildDirectory.dir('generated/baseline')
 tasks.register('prepareBaseline') {
     outputs.upToDateWhen { false }
     doLast {
+        if (!new File(repository, 'app/src/main/cpp/m3g/src/m3g_core.c').isFile()) {
+            throw new GradleException('Legacy baseline removed. Run this comparison in a separate checkout at 05562126.')
+        }
         def expected = [
             'app/src/main/java/javax/microedition/m3g': 'af43b288fbf407f15cb50bb94ee2a405f2376109',
             'app/src/main/cpp/m3g': '2a7723dffafbb4699f8da6ab0f675b17a9d3c69f'

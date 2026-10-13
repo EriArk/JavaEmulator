@@ -4,8 +4,8 @@
 
 AbyssME is an independent fork of
 [J2ME Loader](https://github.com/nikita36078/J2ME-Loader), focused on making
-old mobile Java games feel at home on modern landscape handhelds. It keeps the
-proven emulation core while replacing the setup-heavy workflow with a game
+old mobile Java games feel at home on modern landscape handhelds. It builds on
+the J2ME Loader runtime while replacing the setup-heavy workflow with a game
 library, automatic first-launch preparation, and fast per-game controller
 mapping.
 
@@ -69,11 +69,11 @@ an explicit refresh for older libraries. See [artwork behavior](docs/ARTWORK.md)
 The screenshots and beta.2 instructions below
 describe the published release, not every unreleased change.
 
-The Wolphun author has responded positively to our integration request. We are
-documenting the permission's scope and preparing the licensing notices before
-publishing the combined build. Wolphun and the experimental Mophun integration
-are not yet part of this public source tree. See [licensing status](docs/LICENSING.md).
-Existing release downloads are unchanged.
+The development source now includes a FreeJ2ME-derived replacement M3G renderer
+and experimental Wolphun-based Mophun support. The legacy EPL M3G/tone engine
+has been removed. The combined application uses GPLv3 while retaining component
+notices; see [licensing](docs/LICENSING.md). Existing release downloads remain
+unchanged until the new beta is explicitly published.
 
 ## Screenshots
 
@@ -180,11 +180,9 @@ original build made for a common 176x220, 240x320, or 320x240 device profile.
 
 ## Build
 
-See [Contributing](CONTRIBUTING.md) for the JDK/SDK versions, local signing setup
-and verification checklist. There is currently a
-[clean-clone signing blocker](https://github.com/EriArk/JavaEmulator/issues/1),
-including for debug tasks; the guide documents a local development-key workaround.
-After that setup:
+See [Contributing](CONTRIBUTING.md) for JDK/SDK versions, signing and verification.
+Debug builds use the normal Android debug key without a private signing file.
+The M3G and Mophun sources are included; no private engine checkout is required:
 
 ```shell
 ./gradlew :app:assembleFdroidDebug :app:assemblePhoneDebug
@@ -225,16 +223,13 @@ from [JL-Mod](https://github.com/woesss/JL-Mod) by woesss.
 
 ## License
 
-The current fork uses the [Apache License 2.0](LICENSE), with separately
-licensed third-party components. In particular, the inherited Nokia/Symbian
-M3G implementation is under EPL-1.0. Preserve the component licenses and
-individual copyright notices in the source headers.
-
-Licensing for a future Wolphun integration remains unresolved because of the
-existing EPL-1.0 M3G component. No license transition has taken effect; Wolphun
-is not included in public builds. See [licensing status](docs/LICENSING.md) for
-the evidence and release requirements. Removing a repository license would not
-remove the obligations attached to inherited code.
+The combined application uses [GNU GPL version 3](LICENSE). Individual components
+retain their original licenses and copyright notices, including Apache-2.0,
+GPL-3.0-or-later, MPL and LGPL components. The old EPL M3G/tone implementation
+was removed, not relicensed. M3G now uses the FreeJ2ME-derived replacement;
+experimental Mophun support derives from Wolphun. See [licensing](docs/LICENSING.md)
+for pinned sources, attribution and matching release-source materials. Historical
+versions retain their original terms.
 
 Third-party games and artwork are not relicensed by this notice. The provenance
 and licenses of current test fixtures, plus the disposition of legacy files,

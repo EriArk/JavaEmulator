@@ -1,0 +1,19 @@
+{
+  "archives": [
+    {"file":"mobile-ffmpeg-963b4eea.zip","url":"https://codeload.github.com/nikita36078/mobile-ffmpeg/zip/963b4eea110250811f4f4fc7d59c1a86d9dd6b2c","sha256":"235b5d30503a0bb5e006b089d056d3902b81e165704ef7adb82f1c908580f1ef"},
+    {"file":"filepicker-dc26b828.zip","url":"https://codeload.github.com/nikita36078/filepicker/zip/dc26b8281e2e71019501db85f526daeca09dd80d","sha256":"a52544e2d406822bf179f8151bf983db55356c7d7e41c4bbe0c6a3f6277a3347"},
+    {"file":"mididriver-ce52b068.zip","url":"https://codeload.github.com/billthefarmer/mididriver/zip/ce52b068ae3525edf6a8a946c396f9ce08d1dd69","sha256":"0f83db543efc27284f8020af1fb006f6e8457437218f756c906f4ccdbdfe233b"},
+    {"file":"camera-core-bef05e5a.tar.gz","url":"https://android.googlesource.com/platform/frameworks/support/+archive/bef05e5a3f6d09babb620159f75c659bcc7df495/camera/camera-core.tar.gz","sha256":"f529895e67cd424120b82b4469684970b7fb9b1cd96238587a599bb518827259"},
+    {"file":"camera-libyuv-bef05e5a.tar.gz","url":"https://android.googlesource.com/platform/frameworks/support/+archive/bef05e5a3f6d09babb620159f75c659bcc7df495/external/libyuv.tar.gz","sha256":"23d4475caad8e7f73b61a9c0a459bfc7a983a54abb0e2e55747eea86f6ea4432"},
+    {"file":"libyuv-c707acd1.tar.gz","url":"https://android.googlesource.com/platform/external/libyuv/+archive/c707acd1dbf8899ac5ea47f369a3674081df95d0.tar.gz","sha256":"045ddec37b5ece71cfc767840d90b2d249e5e4ef6f4917433edb985435329e4f"}
+  ],
+  "mavenFallback": [
+    "com.google.code.findbugs:jsr305:3.0.2",
+    "commons-io:commons-io:2.16.1",
+    "org.apache.commons:commons-lang3:3.14.0",
+    "org.jetbrains:annotations:13.0",
+    "org.ow2.asm:asm:9.8",
+    "org.tukaani:xz:1.9"
+  ],
+  "emptyArtifact": "com.google.guava:listenablefuture:9999.0-empty-to-avoid-conflict-with-guava"
+}

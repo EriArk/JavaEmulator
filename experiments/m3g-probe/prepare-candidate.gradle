@@ -91,7 +91,7 @@ tasks.register('prepareM3g') {
                 '(float) (worldTime - refWorldTime)': '(float) ((long) worldTime - refWorldTime)',
                 'return activationTime - worldTime;': 'return (int) Math.min(Integer.MAX_VALUE, (long) activationTime - worldTime);',
                 'if (worldTime < deactivationTime) { return deactivationTime - worldTime; }':
-                    'if (activationTime == deactivationTime) return Integer.MAX_VALUE;\n        if (worldTime < deactivationTime) { return (int) Math.min(Integer.MAX_VALUE, (long) deactivationTime - worldTime); }'
+                    'if (activationTime == deactivationTime) { return Integer.MAX_VALUE; }\n        if (worldTime < deactivationTime) { return (int) Math.min(Integer.MAX_VALUE, (long) deactivationTime - worldTime); }'
             ]
         ].each { name, replacements ->
             def target = new File(output, "java/javax/microedition/m3g/${name}")
@@ -342,7 +342,7 @@ tasks.register('prepareM3g') {
         [
             'private Image2D[] mipmaps;': 'private Image2D[] mipmaps;\n\tprivate long mipRevision;',
             'if (texImage == null) return;': 'if (texImage == null) return;\n\t\tmipRevision = texImage.revision;',
-            'return mipmaps[lod >= mipmaps.length ? mipmaps.length - 1 : lod];': '''if (lod <= 0) return texImage;
+            'return mipmaps[lod >= mipmaps.length ? mipmaps.length - 1 : lod];': '''if (lod <= 0) { return texImage; }
         if (mipRevision != texImage.revision) generateMipmaps();
         return mipmaps[lod >= mipmaps.length ? mipmaps.length - 1 : lod];'''
         ].each { before, after ->

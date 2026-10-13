@@ -1,0 +1,8 @@
+def engine = rootProject.file('engines/mophun')
+android.sourceSets.main.java.srcDirs new File(engine, 'java'), new File(engine, 'vendor')
+android.sourceSets.main.assets.srcDir new File(engine, 'assets')
+['debug', 'release'].each { kind ->
+    android.sourceSets.getByName(kind).manifest.srcFile new File(engine, 'AndroidManifest.xml')
+}
+android.sourceSets.androidTest.java.srcDir new File(engine, 'tests')
+android.buildTypes.release.proguardFile new File(engine, 'proguard-rules.pro')

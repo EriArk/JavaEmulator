@@ -1,0 +1,16 @@
+// The production snapshot is generated from the pinned, tested candidate.
+def engine = rootProject.file('engines/m3g')
+apply from: new File(engine, 'verify-runtime.gradle')
+android.sourceSets.main.java.srcDir new File(engine, 'java')
+android.sourceSets.main.assets.srcDir new File(engine, 'assets')
+android.defaultConfig.buildConfigField 'boolean', 'M3G_GPU', 'true'
+android.defaultConfig.buildConfigField 'boolean', 'M3G_GPU_GEOMETRY', 'true'
+android.externalNativeBuild.ndkBuild.path = new File(engine, 'native/Android.mk')
+android.defaultConfig.externalNativeBuild.ndkBuild.targets 'micro3d', 'abyssm3graster'
+android.packaging.jniLibs.excludes.add('**/libjavam3g.so')
+
+if (providers.gradleProperty('m3gProductionTests').orNull == 'true') {
+    android.sourceSets.androidTest.java.srcDirs rootProject.file('experiments/m3g-host/tests'),
+            rootProject.file('experiments/m3g-host/candidate-tests'),
+            rootProject.file('experiments/m3g-host/tone-android-tests')
+}

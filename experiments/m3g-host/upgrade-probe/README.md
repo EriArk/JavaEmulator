@@ -24,3 +24,11 @@ Use different values for Handheld and Phone. The harness packages are isolated
 from normal AbyssME, but baseline/candidate intentionally share a rehearsal ID
 and debug signing key. This is not a production-key or every-game save guarantee.
 Keep commercial game archives and save payloads out of public evidence.
+
+For an actual historical beta.2 upgrade, pass `-LegacyAsmJar /path/to/asm-9.8.jar`
+to `build.ps1`. This original fixture uses only Java 5-compatible instructions;
+the helper changes its class version to 49 and removes stack frames, because
+beta.2 predates the framed-bytecode importer fix. It rejects invokedynamic and
+is not a general game converter. Install the historical signed APK only in an
+empty test instance, import through the system picker, and update using the
+same release signing key. Never downgrade or clear a user's existing library.
