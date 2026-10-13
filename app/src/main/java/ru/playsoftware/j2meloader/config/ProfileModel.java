@@ -231,9 +231,10 @@ public class ProfileModel {
 		screenKeepAspectRatio = true;
 		graphicsMode = 1;
 
-		fontSizeSmall = 18;
-		fontSizeMedium = 22;
-		fontSizeLarge = 26;
+		// Zero selects the existing resolution-based font sizes after preparation.
+		fontSizeSmall = 0;
+		fontSizeMedium = 0;
+		fontSizeLarge = 0;
 		fontAA = true;
 
 		showKeyboard = !BuildConfig.HANDHELD_MODE;
