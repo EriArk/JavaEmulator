@@ -30,6 +30,10 @@ public class M3gBenchmark {
         java.lang.reflect.Field gpuUploads=null, gpuReadbacks=null, gpuRetain=null;
         java.lang.reflect.Field gpuBatch=null, gpuSubmissions=null, gpuSubmitted=null, gpuGeometry=null;
         java.lang.reflect.Field gpuCache=null,gpuTextureUploads=null;
+        java.lang.reflect.Field hardwareGeometry=null,hardwareDraws=null;
+        java.lang.reflect.Field discardDepth=null,depthReadbacks=null;
+        String depthPolicy=InstrumentationRegistry.getArguments().getString("benchGpuDiscardDepth");
+        String geometry=InstrumentationRegistry.getArguments().getString("benchGpuGeometry");
         String resident=InstrumentationRegistry.getArguments().getString("benchGpuResident");
         String batching=InstrumentationRegistry.getArguments().getString("benchGpuBatch");
         String caching=InstrumentationRegistry.getArguments().getString("benchGpuTextureCache");
@@ -58,6 +62,19 @@ public class M3gBenchmark {
             gpuGeometry=gpu.getDeclaredField("geometryUploads"); gpuGeometry.setAccessible(true);
             gpuCache=gpu.getDeclaredField("textureCacheEnabled"); gpuCache.setAccessible(true);
             gpuTextureUploads=gpu.getDeclaredField("textureUploads"); gpuTextureUploads.setAccessible(true);
+            Class<?> stage=Class.forName("javax.microedition.m3g.GpuGeometry");
+            hardwareGeometry=stage.getDeclaredField("enabled"); hardwareGeometry.setAccessible(true);
+            hardwareDraws=stage.getDeclaredField("draws"); hardwareDraws.setAccessible(true);
+            discardDepth=gpu.getDeclaredField("discardReleasedDepth");discardDepth.setAccessible(true);
+            depthReadbacks=gpu.getDeclaredField("depthReadbacks");depthReadbacks.setAccessible(true);
+            if(depthPolicy!=null) {
+                assertTrue("benchGpuDiscardDepth must be on or off",depthPolicy.equals("on") || depthPolicy.equals("off"));
+                discardDepth.setBoolean(null,depthPolicy.equals("on"));
+            }
+            if(geometry!=null) {
+                assertTrue("benchGpuGeometry must be on or off",geometry.equals("on") || geometry.equals("off"));
+                hardwareGeometry.setBoolean(null,geometry.equals("on"));
+            }
             if(caching!=null) {
                 assertTrue("benchGpuTextureCache must be on or off",caching.equals("on") || caching.equals("off"));
                 gpuCache.setBoolean(null,caching.equals("on"));
@@ -95,6 +112,8 @@ public class M3gBenchmark {
                 .put("gpuResident",gpuRetain!=null && gpuRetain.getBoolean(null))
                 .put("gpuBatch",gpuBatch!=null && gpuBatch.getBoolean(null))
                 .put("gpuTextureCache",gpuCache!=null && gpuCache.getBoolean(null))
+                .put("gpuHardwareGeometry",hardwareGeometry!=null && hardwareGeometry.getBoolean(null))
+                .put("gpuDiscardDepth",discardDepth!=null && discardDepth.getBoolean(null))
                 .put("raster", "gpu".equals(raster) ? "gpu" : nativeEnabled == null ? "legacy" : nativeEnabled.getBoolean(null) ? "native" : "java");
         JSONArray cases = new JSONArray();
         report.put("cases", cases);
@@ -141,6 +160,8 @@ public class M3gBenchmark {
                 long renderedStart=gpuSubmitted==null?0:gpuSubmitted.getLong(null);
                 long geometryStart=gpuGeometry==null?0:gpuGeometry.getLong(null);
                 long textureStart=gpuTextureUploads==null?0:gpuTextureUploads.getLong(null);
+                long hardwareStart=hardwareDraws==null?0:hardwareDraws.getLong(null);
+                long depthStart=depthReadbacks==null?0:depthReadbacks.getLong(null);
                 long shadedStart = shadedVertices == null ? 0 : shadedVertices.getLong(null);
                 for (int i = 0; i < 64; i++) frame(renderer, target, mesh, background, model);
                 JSONArray wall = new JSONArray(), cpu = new JSONArray();
@@ -173,6 +194,8 @@ public class M3gBenchmark {
                         .put("gpuSubmittedDraws",gpuSubmitted==null?0:gpuSubmitted.getLong(null)-renderedStart)
                         .put("gpuGeometryUploads",gpuGeometry==null?0:gpuGeometry.getLong(null)-geometryStart)
                         .put("gpuTextureUploads",gpuTextureUploads==null?0:gpuTextureUploads.getLong(null)-textureStart)
+                        .put("gpuHardwareDraws",hardwareDraws==null?0:hardwareDraws.getLong(null)-hardwareStart)
+                        .put("gpuDepthReadbacks",depthReadbacks==null?0:depthReadbacks.getLong(null)-depthStart)
                         .put("shadedVertices", shadedVertices == null ? -1 : shadedVertices.getLong(null)-shadedStart)
                         .put("nativeDraws", counter == null ? 0 : counter.getLong(null)-nativeStart));
                 if ("native".equals(raster)) assertTrue("Native path was not exercised", counter.getLong(null)>nativeStart);
@@ -205,6 +228,8 @@ public class M3gBenchmark {
         if (gpuRetain != null) gpuRetain.setBoolean(null, true);
         if (gpuBatch != null) gpuBatch.setBoolean(null, true);
         if (gpuCache != null) gpuCache.setBoolean(null, true);
+        if (hardwareGeometry != null) hardwareGeometry.setBoolean(null, false);
+        if (discardDepth != null) discardDepth.setBoolean(null,true);
         if (lightingCache != null) lightingCache.setBoolean(null, true);
     }
 

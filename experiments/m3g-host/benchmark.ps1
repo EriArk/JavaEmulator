@@ -8,6 +8,8 @@ param(
     [ValidateSet('on', 'off')][string]$GpuResident,
     [ValidateSet('on', 'off')][string]$GpuBatch,
     [ValidateSet('on', 'off')][string]$GpuTextureCache,
+    [ValidateSet('on', 'off')][string]$GpuGeometry,
+    [ValidateSet('on', 'off')][string]$GpuDiscardDepth,
     [ValidateRange(30,600)][int]$TestTimeoutSeconds = 300,
     [string]$Adb = "$env:LOCALAPPDATA/Android/Sdk/platform-tools/adb.exe"
 )
@@ -47,8 +49,13 @@ function Invoke-Adb([string[]]$Arguments) {
     } finally { $process.Dispose() }
 }
 New-Item -ItemType Directory -Path $out | Out-Null
+$apkHash = (Get-FileHash $apk).Hash
+$testHash = (Get-FileHash $test).Hash
 Invoke-Adb @('install', '-r', $apk) | Out-Null
 Invoke-Adb @('install', '-r', $test) | Out-Null
+if ((Get-FileHash $apk).Hash -ne $apkHash -or (Get-FileHash $test).Hash -ne $testHash) {
+    throw 'Artifacts changed during installation; use an immutable ApkRoot snapshot'
+}
 $arguments = @('shell', 'am', 'instrument', '-w', '-r', '-e', 'class',
     'javax.microedition.shell.M3gBenchmark', '-e', 'benchRun', $Run)
 if ($Raster) { $arguments += @('-e', 'benchRaster', $Raster) }
@@ -56,6 +63,8 @@ if ($LightingCache) { $arguments += @('-e', 'benchLightingCache', $LightingCache
 if ($GpuResident) { $arguments += @('-e', 'benchGpuResident', $GpuResident) }
 if ($GpuBatch) { $arguments += @('-e', 'benchGpuBatch', $GpuBatch) }
 if ($GpuTextureCache) { $arguments += @('-e', 'benchGpuTextureCache', $GpuTextureCache) }
+if ($GpuGeometry) { $arguments += @('-e', 'benchGpuGeometry', $GpuGeometry) }
+if ($GpuDiscardDepth) { $arguments += @('-e', 'benchGpuDiscardDepth', $GpuDiscardDepth) }
 $arguments += "$package.test/androidx.test.runner.AndroidJUnitRunner"
 $result = Invoke-Adb $arguments
 $result | Set-Content -Encoding UTF8 (Join-Path $out 'tests.txt')
@@ -68,8 +77,8 @@ $expectedCases = if ($report.PSObject.Properties.Name -contains 'gpuTextureCache
 if ($report.package -ne $package -or $report.cases.Count -ne $expectedCases) { throw 'Unexpected benchmark report' }
 [pscustomobject]@{
     engine = $Engine
-    apkSha256 = (Get-FileHash $apk).Hash
-    testApkSha256 = (Get-FileHash $test).Hash
+    apkSha256 = $apkHash
+    testApkSha256 = $testHash
     debuggable = $report.debuggable
     sampledUtc = [DateTime]::UtcNow.ToString('o')
 } | ConvertTo-Json | Set-Content -Encoding UTF8 (Join-Path $out 'artifact.json')

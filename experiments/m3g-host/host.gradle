@@ -77,6 +77,7 @@ if (measuring) {
 
 if (candidate) {
     android.defaultConfig.buildConfigField 'boolean', 'M3G_GPU', providers.gradleProperty('m3gGpu').orNull == 'true' ? 'true' : 'false'
+    android.defaultConfig.buildConfigField 'boolean', 'M3G_GPU_GEOMETRY', providers.gradleProperty('m3gGpuGeometry').orNull == 'true' ? 'true' : 'false'
     android.sourceSets.androidTest.java.srcDir rootProject.file('experiments/m3g-host/candidate-tests')
     def originalTonePlayer = file('src/main/java/javax/microedition/media/TonePlayer.java')
     def originalManager = file('src/main/java/javax/microedition/media/Manager.java')
@@ -148,6 +149,10 @@ if (candidate) {
                 text = text.replace(before, after)
             }
             def nativeFields = 'private int[] androidFrameBuffer;'
+            def geometryHook = '// This one is also used by all position calculations'
+            if (text.count(geometryHook)!=1) throw new GradleException('GPU geometry hook drift')
+            text = text.replace(geometryHook,
+                    rootProject.file('experiments/m3g-host/gpu/geometry-hook.java.inc').getText('UTF-8') + geometryHook)
             def emptyMesh = 'boolean hasColors = trisScreen[0].hasVertexColors();'
             if (text.count(emptyMesh)!=1) throw new GradleException('Empty mesh guard drift')
             text = text.replace(emptyMesh,
@@ -161,7 +166,8 @@ if (candidate) {
              'public void clear(Background background)', 'public void releaseTarget()'].each { signature ->
                 def barrier = signature + '\n\t{'
                 if (text.count(barrier)!=1) throw new GradleException("GPU barrier drift: ${signature}")
-                text = text.replace(barrier, barrier + '\n        GpuRasterizer.flush();')
+                def flush = signature == 'public void releaseTarget()' ? 'GpuRasterizer.releaseTarget();' : 'GpuRasterizer.flush();'
+                text = text.replace(barrier, barrier + '\n        ' + flush)
             }
             if (text.count(nativeFields) != 1) throw new GradleException('Native state field drift')
             text = text.replace(nativeFields, nativeFields + '\n    private final float[] nativeState = new float[51];\n    private final int[] nativeFlags = new int[45];\n    private final int[][] nativeImages = new int[4][];')

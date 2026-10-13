@@ -6,6 +6,13 @@ patches, legacy EPL renderer source or new public release binaries are included.
 
 ## Implemented Scope
 
+An additional **opt-in hardware geometry stage** is now available with
+`-Pm3gGpu=true -Pm3gGpuGeometry=true`. It bypasses CPU triangle preparation for
+supported smooth, one-sided meshes. See the [architecture and verification
+checkpoint](../hardware-20261013.md) for capabilities, fallbacks and measurements.
+The prepared-triangle path below remains available; neither path is the
+production default.
+
 `GpuRasterizer.java` consumes the candidate's already transformed, clipped,
 culled and lit triangles. GLES3 rasterizes one complete submesh per draw. It
 supports untextured color/lighting and up to four textures in all five Image2D formats with
@@ -38,8 +45,13 @@ context before committing CPU arrays. Depth dirtiness accumulates across draws,
 including draws with depth writes disabled. Image2D targets commit immediately
 so image sampling and mutation do not observe stale pixels. The first draw is
 submitted immediately for safe startup fallback; later draws share one EGL
-scope and combined vertex upload at the next barrier. This is not GPU scene
-preparation: transformation, clipping and lighting still happen on CPU.
+scope and combined vertex upload at the next barrier. Without the additional
+hardware geometry flag, transformation, clipping and lighting still happen on CPU.
+
+`releaseTarget` now commits color without packing/reading depth that the next
+`bindTarget` always reinitializes. Other CPU barriers still preserve depth,
+including fallbacks, partial clears and immediate Image2D draws. This does not
+remove the color readback required by the Android bitmap/LCDUI bridge.
 
 Unsupported states flush pending work before CPU fallback. GPU startup failure
 before a resident target exists can fall back. Owned-context loss now gets one

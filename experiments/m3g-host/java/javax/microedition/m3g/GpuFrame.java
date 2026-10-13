@@ -51,13 +51,14 @@ final class GpuFrame {
     }
 
     static final class Draw {
+        GpuGeometry.State raw;
         ByteBuffer geometry, indices;
         int count, left, top, right, bottom, mask, alpha, threshold, blend;
         int fogMode, fogColor, spriteFog;
         float fogNear, fogFar, fogDensity;
         boolean depthTest, depthWrite, parallelFog, sprite;
         Texture[] textures;
-        int storage(int w,int h) { return count*240+(sprite?Math.max(w,h)*8:0)+1024; }
+        int storage(int w,int h) { return count*240+(sprite?Math.max(w,h)*8:0)+(raw==null?1024:4096); }
     }
 
     long required(Draw draw,int w,int h) {
@@ -101,7 +102,7 @@ final class GpuFrame {
     }
 
     void clear() {
-        for(Draw draw:draws) { recycle(draw.geometry); recycle(draw.indices); }
+        for(Draw draw:draws) { if(draw.raw==null) recycle(draw.geometry); recycle(draw.indices); }
         draws.clear(); images.clear(); bytes=0; pixels=null; depth=null;
     }
 

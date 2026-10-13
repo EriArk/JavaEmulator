@@ -105,7 +105,10 @@ if ($Engine -eq 'candidate') {
     $classes += ',javax.microedition.m3g.GpuRecoveryTest'
     $classes += ',javax.microedition.m3g.GpuBatchTest'
     $classes += ',javax.microedition.m3g.GpuCacheTest'
-    $expectedTests += 80
+    $classes += ',javax.microedition.m3g.GpuGeometryTest'
+    $classes += ',javax.microedition.m3g.GpuHardwareSceneContractTest'
+    $classes += ',javax.microedition.m3g.GpuReleaseTest'
+    $expectedTests += 119
 }
 if ($measured) {
     $classes += ',javax.microedition.shell.M3gTargetMeterTest'
