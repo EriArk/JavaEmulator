@@ -38,14 +38,15 @@ android {
             if (System.getenv()['BITRISE_IO']) {
                 keyAlias System.getenv('BITRISEIO_ANDROID_KEYSTORE_ALIAS')
                 keyPassword System.getenv('BITRISEIO_ANDROID_KEYSTORE_PRIVATE_KEY_PASSWORD')
-                storeFile rootProject.file(System.getenv('BITRISEIO_ANDROID_KEYSTORE_NAME'))
+                def keystoreName = System.getenv('BITRISEIO_ANDROID_KEYSTORE_NAME')
+                if (keystoreName) storeFile rootProject.file(keystoreName)
                 storePassword System.getenv('BITRISEIO_ANDROID_KEYSTORE_PASSWORD')
-            } else if (m3gExperiment == null) {
+            } else if (m3gExperiment == null && rootProject.file('keystore.properties').isFile()) {
                 Properties keystoreProps = new Properties()
-                keystoreProps.load(new FileInputStream(rootProject.file("keystore.properties")))
+                rootProject.file('keystore.properties').withInputStream { keystoreProps.load(it) }
                 keyAlias keystoreProps['keyAlias']
                 keyPassword keystoreProps['keyPassword']
-                storeFile rootProject.file(keystoreProps['storeFile'])
+                if (keystoreProps['storeFile']) storeFile rootProject.file(keystoreProps['storeFile'])
                 storePassword keystoreProps['storePassword']
             }
         }
@@ -167,6 +168,20 @@ android {
 
 if (m3gExperiment != null) {
     apply from: rootProject.file('experiments/m3g-host/host.gradle')
+}
+
+def validateReleaseCredentials = tasks.register('validateReleaseCredentials') {
+    doLast {
+        def signing = android.signingConfigs.release
+        if (!signing.storeFile || !signing.storePassword || !signing.keyAlias || !signing.keyPassword) {
+            throw new GradleException('Release signing is not configured. Set storeFile, storePassword, keyAlias and keyPassword in keystore.properties (or the Bitrise signing environment). Debug builds do not require this file. See CONTRIBUTING.md.')
+        }
+    }
+}
+android.applicationVariants.all { variant ->
+    if (variant.buildType.name == 'release') {
+        variant.preBuildProvider.configure { dependsOn validateReleaseCredentials }
+    }
 }
 
 static def generateVersionCode() {
