@@ -1,6 +1,6 @@
 # Symbian and N-Gage Integration Plan
 
-**Updated: 2026-10-14. Status: combined 0.3 beta release candidate; Asphalt relaunch remains unreliable.**
+**Updated: 2026-10-14. Status: published in combined 0.3 beta; Asphalt relaunch remains unreliable.**
 The selected product direction is one AbyssME application and library, with
 an embedded engine rather than requiring users to install and configure a
 second emulator. Existing Java and experimental Mophun workflows stay intact.
@@ -22,7 +22,7 @@ full-game, audio or save/relaunch acceptance.
 
 The following dated local checkpoints describe evidence at the time of each
 implementation, not today's publication state. Their host/import/backup work is
-included in the 0.3 release candidate, alongside the shared Java/Mophun/Symbian
+included in the published 0.3 beta, alongside the shared Java/Mophun/Symbian
 menu. See [current availability](PROJECT_STATUS.md) for the published state.
 Native sources were restored from the exported source bundle and rebuilt; final
 signed APKs use that restored tree. System files and private games remain local.

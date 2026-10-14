@@ -14,7 +14,8 @@ attribute its results to the dated maintainer record below; do not infer a pass.
 
 ## Product in Plain Language
 
-AbyssME runs old mobile Java games on Android phones and gaming handhelds.
+AbyssME runs old mobile Java games, Mophun and experimental Symbian/N-Gage
+games on Android phones and gaming handhelds.
 It is an independent J2ME Loader fork focused on browsing a game collection,
 using physical controllers, and adjusting each game's controls and picture
 without a long setup process. It requires Android 10 or newer. Games are not
@@ -25,29 +26,30 @@ bundled. The app UI is English.
 - Both variants have independent app data and can coexist.
 - Experimental Mophun support is integrated in the same app. Its source is now
   included in public 0.2.0-beta.1; the historical 0.1.0 beta.2 has no Mophun.
-- Embedded Symbian / N-Gage has a local opt-in Android prototype. Snakes reaches
+- Embedded Symbian / N-Gage is included in the published combined 0.3 beta. Snakes reaches
   gameplay on Retroid. Asphalt 3 now installs and has reached a moving race with
-  upright graphics, but cold relaunch remains unreliable. This is not part of
-  the published beta or ordinary builds, and does not establish audio/save or
+  upright graphics, but cold relaunch remains unreliable. The property-free
+  developer build remains Java/Mophun-only. This does not establish audio/save or
   full-game compatibility.
 
 ## Availability: Do Not Mix These Channels
 
-**0.3.0-beta.1 is being prepared (2026-10-14), not yet published.** It adds the
+**0.3.0-beta.1 was published on 2026-10-14 at 16:18 UTC.** It adds the
 shared in-game menu and promotes the Symbian/N-Gage integration into a combined
 arm64 build. The preceding local work is recorded in the changelog and integration
 report, not omitted from the announcement handoff. Follow
 [release checks](releases/v0.3.0-beta.1-checks.md) for final signed/build/publication
-evidence. The live GitHub release list was checked today: 0.2.0-beta.1 is still
-the newest published prerelease at this checkpoint.
+evidence. The live GitHub release and all six asset digests were checked today;
+both APKs and the checksum file were downloaded again and matched. This is the
+newest published prerelease at this checkpoint, not a stable release.
 
 | Channel | Current identifier | What a reader can obtain |
 | --- | --- | --- |
-| Public download | [v0.2.0-beta.1](https://github.com/EriArk/JavaEmulator/releases/tag/v0.2.0-beta.1), published 2026-10-13 | Handheld and Phone APKs, Java + experimental Mophun, replacement M3G/tone, accumulated UI/storage/preset changes, app/dependency sources and checksums |
-| Public development source | `main`; release tag `v0.2.0-beta.1`, 2026-10-13 | Production switch merged; current features below are in this beta unless marked historical/research-only. [Release checks](releases/v0.2.0-beta.1-checks.md) |
+| Public download | [v0.3.0-beta.1](https://github.com/EriArk/JavaEmulator/releases/tag/v0.3.0-beta.1), published 2026-10-14 | Handheld and Phone signed arm64 APKs, Java + Mophun + experimental Symbian/N-Gage, shared menu, source/dependency bundles and checksums; Android 10+, no games or firmware |
+| Public development source | `main`; release tag `v0.3.0-beta.1` at `95eb9da1`, 2026-10-14 | Unified menu and embedded Symbian integration merged and released; publication documentation follows the immutable source tag. [Release checks](releases/v0.3.0-beta.1-checks.md) |
 | Private combined test snapshot | `0.1.0-beta.2-experimental.15`, 2026-10-11 | Handheld and Phone debug APKs containing Java plus experimental Mophun; supplied separately to testers, not a GitHub release |
 | Local-only material | Ignored diagnostics, game fixtures and signing keys | Private test inputs remain local; the promoted Mophun runtime is no longer private-only |
-| Local Symbian prototype | `codex/symbian-integration`, 2026-10-14, uncommitted local work | Separate Handheld/Phone debug packages with embedded EKA2L1. Shared library/import, Display, mapping, screenshots, Phone decks and direct rotated guest touches. Whole-phone backup/restore creates a separate copy. Modern SIS/SISX setup requests named missing components and reuses saved installers. ZIP/RAR/7z native game preview selects games/components and retains a recoverable queue; phone choices can be reused per package type within that archive without overriding game bindings. Retroid: 83 focused checks pass per variant (two older opt-in cases skipped), three Handheld and two Phone UI checks pass; supplied legacy SIS, modern SIS and SISX installed from solid 7z on disposable phone copies. Ordinary JVM suites rerun: 14 pass per variant. Installation is not gameplay acceptance. Legacy/conditional dependencies, mixed-platform collections, external launchers, distribution review and intermittent Asphalt startup remain open. No public Symbian APK or bundled firmware. [Current archive evidence and limits](SYMBIAN_INTEGRATION.md#rar7z-and-archive-phone-choice-2026-10-14), [component evidence](SYMBIAN_INTEGRATION.md#component-installers-and-resumable-setup-2026-10-14), [touch evidence](SYMBIAN_INTEGRATION.md#direct-touch-and-visible-rotation-2026-10-14), [backup contract](SYMBIAN_PHONE_BACKUPS.md) |
+| Symbian integration | Included in `main` and public 0.3 beta, 2026-10-14 | Shared library/import and game menu, Display, mapping, screenshots, Phone decks and direct rotated guest touch. Menu-based whole-phone backup/restore creates a separate copy. SIS/SISX setup requests named missing components and reuses saved installers. ZIP/RAR/7z game previews select games/components and retain recoverable queues; phone choices can be reused within an archive without overriding game bindings. Retroid optimized core: 87 Handheld / 88 Phone passes, 5/4 explicit skips; actual-game/menu scenarios: 5 passes / 1 provisioning skip per variant, provisioning passed separately. Signed Handheld upgrade retained all 18 inspected files; both signed variants imported system files/Snakes through the public UI. JVM: 14 passes per variant. Installation is not gameplay acceptance. Legacy/conditional dependencies, mixed-platform collections, native external launchers and intermittent Asphalt startup remain open. Games/firmware are not bundled. [Release evidence](releases/v0.3.0-beta.1-checks.md), [historical integration checks](SYMBIAN_INTEGRATION.md), [backup contract](SYMBIAN_PHONE_BACKUPS.md) |
 | Merged research branch | [`codex/m3g-replacement`](https://github.com/EriArk/JavaEmulator/tree/codex/m3g-replacement), 2026-10-13 | Ordinary builds use the replacement M3G/tone and include Mophun. Old EPL engine removed, GPLv3 combined scope and notices retained. Beta published as code 200; research timing tools and private games are not in APKs |
 
 The experimental number is a distribution label: build 15 still reports
@@ -75,7 +77,17 @@ ES-DE or Beacon is fully verified: real cold/warm launch and return testing is
 still tracked in [#7](https://github.com/EriArk/JavaEmulator/issues/7).
 See [beta.2 release notes](releases/v0.1.0-beta.2.md) for the released scope.
 
-## Included in 0.2.0 Beta.1
+## Included in 0.3.0 Beta.1
+
+The 0.3 beta adds the shared Java/Mophun/Symbian menu and promotes the
+previously local native integration. Its combined APKs require arm64-v8a and
+Android 10+. System files can be provided before games; setup explains missing
+requirements, retains imports and reuses compatible components. Native games
+join the common library. Phone supports numeric/Gamepad touch decks; both
+variants offer display/mapping controls, screenshots and whole-phone backups.
+See [release notes](releases/v0.3.0-beta.1.md) for user-facing details and limits.
+
+The following Java/Mophun features remain from 0.2:
 
 | Area | Current development behavior | Evidence / boundary |
 | --- | --- | --- |
@@ -163,13 +175,14 @@ Current open work, checked on GitHub on 2026-10-13:
 - [#4](https://github.com/EriArk/JavaEmulator/issues/4): broader regression coverage. Debug signing setup [#1](https://github.com/EriArk/JavaEmulator/issues/1) was fixed and closed on 2026-10-13.
 - [#13](https://github.com/EriArk/JavaEmulator/issues/13): experimental Mophun; [#11](https://github.com/EriArk/JavaEmulator/issues/11): broader themes/skins/customization, not a shipped theme editor.
 
-## Next Direction: Symbian and N-Gage
+## Symbian Integration History
 
 On 2026-10-11 the maintainer selected embedded Symbian / N-Gage support inside
 the existing application, prioritizing a simple user experience over a quick
 external-app handoff. The [source audit and staged plan](SYMBIAN_INTEGRATION.md)
 pin EKA2L1 to `11f5b6cd141c0884a130ee45743f1f5e17bb1783`.
 
+**Original planning checkpoint (superseded by the 0.3 integration above):**
 The inspected Android bridge already exposes device setup, app lists/icons,
 UID launch and input. It needs lifecycle, storage and UI adaptation; our optional
 engine hook also needs to support more than one provider without breaking Mophun.

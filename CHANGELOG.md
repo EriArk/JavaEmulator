@@ -12,7 +12,7 @@ combined builds; released experimental features are explicitly identified.
 
 ## 2026-10-14
 
-- **Combined beta candidate:** Java, Mophun and experimental Symbian/N-Gage now
+- **Released: 0.3.0-beta.1**, 2026-10-14 at 16:18 UTC. Java, Mophun and experimental Symbian/N-Gage now
   share one in-game menu, with paused exit confirmation and consistent
   Display/Controls/Screenshot/More actions. Fullscreen game menus retain hidden
   system bars on both variants. The signed arm64 Handheld/Phone APKs include the
@@ -20,11 +20,15 @@ combined builds; released experimental features are explicitly identified.
   touch/controller controls and whole-phone backups described below. Rebuilt
   the native engine from exported pinned sources; curated redistributable assets
   and bundled component notices. Handheld upgrade retained all 18 inspected
-  library/save/config files. Publication and final device results are tracked in
+  library/save/config files. Both signed variants installed on Retroid and
+  imported system files/Snakes through the public UI. Optimized rehearsals:
+  175 core checks and 10 game/menu scenarios passed; 11 explicit optional skips.
+  Published both arm64 APKs, app/native/dependency source bundles and checksums;
+  all remote digests and re-downloaded APK hashes matched. Final device results are tracked in
   [release checks](docs/releases/v0.3.0-beta.1-checks.md).
 
 The local-only entries below are historical implementation checkpoints. Their
-code is now part of this combined candidate; private games and firmware are not.
+code is now part of this public combined beta; private games and firmware are not.
 
 - **0.3 beta preparation:** unified the Java/Mophun/Symbian in-game menu and
   paused exit confirmation, moved Screenshot to the home page and its button
