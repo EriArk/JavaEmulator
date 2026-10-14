@@ -21,6 +21,94 @@ import ru.playsoftware.j2meloader.R;
 import static org.junit.Assert.*;
 
 public class GameMenuLayoutTest {
+    @Test public void dialogPreservesFullscreenGameWindowOnBothVariants() {
+        withActivity((instrumentation, activity) -> instrumentation.runOnMainSync(() -> {
+            int before = activity.getWindow().getAttributes().flags;
+            activity.getWindow().addFlags(android.view.WindowManager.LayoutParams.FLAG_FULLSCREEN);
+            GameMenuDialog menu = new GameMenuDialog(activity, "Fullscreen fixture");
+            try {
+                menu.show(); menu.page("Game menu");
+                menu.action("Resume", 0, menu::dismiss);
+                assertTrue((menu.getWindow().getAttributes().flags
+                        & android.view.WindowManager.LayoutParams.FLAG_FULLSCREEN) != 0);
+            } finally {
+                menu.dismiss();
+                activity.getWindow().setFlags(before, android.view.WindowManager.LayoutParams.FLAG_FULLSCREEN);
+            }
+        }));
+    }
+
+    @Test public void commonGamePagesKeepPauseDuringExitAndResumeFirstDuringPreview() {
+        withActivity((instrumentation, activity) -> instrumentation.runOnMainSync(() -> {
+            GameMenuDialog menu = new GameMenuDialog(activity, "Fixture");
+            AtomicInteger exits = new AtomicInteger();
+            AtomicInteger screenshots = new AtomicInteger();
+            GameMenuPages pages = new GameMenuPages(menu, new GameMenuPages.Host() {
+                public void display() { menu.page("Display"); }
+                public void controls() { menu.page("Controls"); }
+                public void more() { menu.page("More"); }
+                public void exit() { exits.incrementAndGet(); }
+                public boolean hasPreview() { return true; }
+                public void keep() { }
+                public void undo() { }
+            }, screenshots::incrementAndGet);
+            menu.show();
+            try {
+                pages.home();
+                View root = menu.getWindow().getDecorView();
+                java.util.List<String> actions = new java.util.ArrayList<>();
+                collectButtons(root, actions);
+                assertEquals(java.util.Arrays.asList("Resume", "Display", "Controls", "Screenshot",
+                        "Keep changes", "Undo changes", "More", "Exit game"), actions);
+                findText(root, "Exit game").performClick();
+                assertTrue(menu.isShowing()); assertEquals(0, exits.get());
+                menu.dispatchKeyEvent(new KeyEvent(KeyEvent.ACTION_UP, KeyEvent.KEYCODE_BUTTON_B));
+                assertNotNull(findText(root, "Display")); assertTrue(menu.isShowing());
+                pages.confirmExit();
+                findText(root, "Leave without saving").performClick();
+                assertEquals(1, exits.get());
+                assertTrue("Host owns teardown; confirmation must not resume first", menu.isShowing());
+                pages.home(); findText(root, "Screenshot").performClick();
+                assertFalse(menu.isShowing()); assertEquals(1, screenshots.get());
+            } finally { menu.dismiss(); }
+        }));
+    }
+
+    @Test public void unsupportedScreenshotIsNotOfferedAndResumeClosesMenu() {
+        withActivity((instrumentation, activity) -> instrumentation.runOnMainSync(() -> {
+            GameMenuDialog menu = new GameMenuDialog(activity, "Form fixture");
+            menu.show();
+            try {
+                new GameMenuPages(menu, new GameMenuPages.Host() {
+                    public void display() { }
+                    public void controls() { }
+                    public void more() { }
+                    public void exit() { fail("Resume must not exit"); }
+                    public boolean hasPreview() { return false; }
+                    public void keep() { }
+                    public void undo() { }
+                }, null).home();
+                View root = menu.getWindow().getDecorView();
+                assertNull(findText(root, "Screenshot")); assertNull(findText(root, "Keep changes"));
+                findText(root, "Resume").performClick(); assertFalse(menu.isShowing());
+            } finally { menu.dismiss(); }
+        }));
+    }
+
+    private void collectButtons(View view, java.util.List<String> labels) {
+        if (view instanceof Button) labels.add(((Button) view).getText().toString());
+        if (view instanceof ViewGroup) for (int i = 0; i < ((ViewGroup) view).getChildCount(); i++)
+            collectButtons(((ViewGroup) view).getChildAt(i), labels);
+    }
+    private View findText(View view, String text) {
+        if (view instanceof android.widget.TextView && text.contentEquals(((android.widget.TextView) view).getText())) return view;
+        if (view instanceof ViewGroup) for (int i = 0; i < ((ViewGroup) view).getChildCount(); i++) {
+            View found = findText(((ViewGroup) view).getChildAt(i), text);
+            if (found != null) return found;
+        }
+        return null;
+    }
+
     @Test public void firstControllerPressAfterLayoutChoosesActionNotClose() {
         withActivity((instrumentation, activity) -> {
             GameMenuDialog[] dialog = new GameMenuDialog[1];

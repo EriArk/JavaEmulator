@@ -27,14 +27,17 @@ import com.nononsenseapps.filepicker.LogicHandler;
 import java.io.File;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Locale;
 import java.util.Stack;
 
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 import ru.playsoftware.j2meloader.R;
+import ru.playsoftware.j2meloader.BuildConfig;
 
 public class FilteredFilePickerFragment extends FilePickerFragment {
 	private static final List<String> extList = Arrays.asList(".jad", ".jar", ".kjx");
+	private static final List<String> symbianExtList = Arrays.asList(".sis", ".sisx", ".n-gage", ".zip", ".rar", ".7z", ".rom", ".rpkg");
 	private static final Stack<File> history = new Stack<>();
 	private static File currentDir = Environment.getExternalStorageDirectory();
 
@@ -67,7 +70,9 @@ public class FilteredFilePickerFragment extends FilePickerFragment {
 	protected boolean isItemVisible(final File file) {
 		if (!isDir(file) && (mode == MODE_FILE || mode == MODE_FILE_AND_DIR)) {
 			String ext = getExtension(file);
-			return ext != null && extList.contains(ext.toLowerCase());
+			if (ext == null) return false;
+			ext = ext.toLowerCase(Locale.ROOT);
+			return extList.contains(ext) || (BuildConfig.SYMBIAN_EXPERIMENT && symbianExtList.contains(ext));
 		}
 		return isDir(file);
 	}

@@ -29,6 +29,12 @@ public final class IconArtUtils {
 	private IconArtUtils() {
 	}
 
+	public static android.widget.ImageView.ScaleType coverScale(int width, int height) {
+		// Phone launchers often store a title banner, not a conventional cover.
+		return height > 0 && width / (float) height > 2.5f
+				? android.widget.ImageView.ScaleType.FIT_CENTER : android.widget.ImageView.ScaleType.CENTER_CROP;
+	}
+
 	public static Bitmap loadLargeIcon(String path, int targetSizePx) {
 		if (path == null || targetSizePx <= 0) {
 			return null;

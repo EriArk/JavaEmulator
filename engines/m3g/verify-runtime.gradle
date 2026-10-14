@@ -31,6 +31,20 @@ tasks.register('verifyProductionApks') {
                         forbidden.each { if (text.contains(it)) throw new GradleException("Legacy/research class in $flavor APK: $it. Clean and rebuild.") }
                     }
                 }
+                if (providers.gradleProperty('symbianRelease').orNull == 'true') {
+                    ['lib/arm64-v8a/libabysssymbian.so', 'assets/resources/generaluser-gs.sf2',
+                     'assets/licenses/GeneralUser-GS.txt', 'assets/licenses/symbian/00-eka2l1.txt'].each {
+                        if (zip.getEntry(it) == null) throw new GradleException("Missing Symbian release payload: $it")
+                    }
+                    zip.entries().each { entry ->
+                        if (entry.name ==~ /(?i).+\.(sis|sisx|n-gage|rom|rpkg|hsb)$/ ||
+                                entry.name.contains('/.git') || entry.name.startsWith('assets/scripts/') ||
+                                entry.name == 'assets/resources/defaultbank.sf2') {
+                            throw new GradleException("Unreviewed Symbian payload: ${entry.name}")
+                        }
+                    }
+                    println "$flavor: Symbian engine/notices present; no phone dumps, game packages or old sound banks"
+                }
                 println "$flavor: legacy renderer/tone and private game/preview payloads absent; engine notices present"
             }
         }

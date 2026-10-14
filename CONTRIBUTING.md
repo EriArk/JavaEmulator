@@ -74,6 +74,14 @@ APKs remain an archive. See the [manual release checklist](docs/RELEASING.md).
 
 ## Manual verification
 
+For the combined Java/Mophun/Symbian build, first restore the pinned engine
+source bundle and follow [Symbian build prerequisites](engines/symbian/DISTRIBUTION.md).
+Pass `-PsymbianRelease=true` to the commands above. This enables the embedded
+engine for both Debug and Release with normal package IDs (Debug still has its
+`.debug` suffix), and restricts the combined APKs to arm64-v8a. The property-free
+build remains a Java/Mophun-only development option. Phone dumps and commercial
+games are never required to compile the application.
+
 For changes that affect both variants, check Handheld and Phone separately:
 
 - Import a JAR and an archive, then relaunch an already prepared game.

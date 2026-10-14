@@ -20,6 +20,7 @@ public final class GameSettingsPages {
     private final boolean live;
     private final boolean javaGame;
     private final boolean legacyActive;
+    private Runnable controlsBack;
 
     public GameSettingsPages(GameMenuDialog menu, ProfileModel current, boolean live, Host host) {
         this(menu, current, live, true, host);
@@ -64,7 +65,7 @@ public final class GameSettingsPages {
             });
             if (layout == 2) {
                 if (!live || legacyActive) menu.action("Legacy layout editor", R.drawable.ic_action_keyboard, host::legacyControls);
-                footer(); return;
+                controlsFooter(); return;
             }
             menu.choice("Button size", new String[]{"Standard", "Large", "Extra large"}, clamp(draft.touchSize, 3), i -> draft.touchSize = i);
             menu.opacity(Math.max(80, Math.min(100, draft.touchOpacity)), v -> draft.touchOpacity = v);
@@ -73,7 +74,14 @@ public final class GameSettingsPages {
             menu.choice("Landscape position", new String[]{"Bottom", "Raised"}, draft.touchLandscapeReach > 0 ? 1 : 0,
                     i -> draft.touchLandscapeReach = i);
         }
+        controlsFooter();
+    }
+
+    /** Embed controls without exposing another engine's display options. */
+    public void controls(Runnable back) { controlsBack = back; controls(); }
+    private void controlsFooter() {
         footer();
+        if (controlsBack != null) menu.setBackAction(controlsBack);
     }
 
     public void advanced() {

@@ -92,12 +92,17 @@ public class LibraryImportActivity extends CompactSettingsActivity {
                     current.access.folder.getAuthority(), android.provider.DocumentsContract.getDocumentId(current.access.folder)));
         });
         choices.addView(allowAccess, actionParams());
-        choices.addView(button("Back up library", android.R.drawable.ic_menu_save, () -> backupPicker.launch(
+        choices.addView(button(ru.playsoftware.j2meloader.BuildConfig.SYMBIAN_EXPERIMENT ? "Back up Java / Mophun" : "Back up library", android.R.drawable.ic_menu_save, () -> backupPicker.launch(
                 "AbyssME-" + new java.text.SimpleDateFormat("yyyy-MM-dd-HHmm", java.util.Locale.ROOT)
                         .format(new java.util.Date()) + ".zip")), actionParams());
-        choices.addView(button("Restore backup", android.R.drawable.ic_menu_revert,
+        choices.addView(button(ru.playsoftware.j2meloader.BuildConfig.SYMBIAN_EXPERIMENT ? "Restore Java / Mophun backup" : "Restore backup", android.R.drawable.ic_menu_revert,
                 () -> restorePicker.launch(new String[]{"application/zip", "application/octet-stream"})), actionParams());
         choices.addView(button("Import from J2ME Loader", R.drawable.ic_setting_folder, this::showImportSources), actionParams());
+        if (ru.playsoftware.j2meloader.BuildConfig.SYMBIAN_EXPERIMENT) {
+            choices.addView(button("Symbian / N-Gage phone backups", android.R.drawable.ic_menu_save, () ->
+                    startActivity(new Intent().setClassName(this,"io.github.eriark.abyssme.symbian.SymbianActivity")
+                            .putExtra("symbian.backups",true))), actionParams());
+        }
         home.addView(choices); root.addView(home, new LinearLayout.LayoutParams(-1, 0, 1));
         list = new RecyclerView(this); list.setContentDescription("Transfer games");
         list.setLayoutManager(new LinearLayoutManager(this)); list.setAdapter(adapter);

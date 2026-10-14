@@ -158,9 +158,11 @@ public class AppsListAdapter extends RecyclerView.Adapter<AppsListAdapter.ViewHo
 			Drawable cover = Drawable.createFromPath(item.getCoverPathExt());
 			if (displayMode == MODE_GALLERY && cover != null) {
 				cover.setFilterBitmap(false);
+				binding.cover.setScaleType(IconArtUtils.coverScale(cover.getIntrinsicWidth(), cover.getIntrinsicHeight()));
 				binding.cover.setVisibility(View.VISIBLE);
 				binding.cover.setImageDrawable(cover);
 			} else if (displayMode == MODE_GALLERY) {
+				binding.cover.setScaleType(android.widget.ImageView.ScaleType.CENTER_CROP);
 				binding.cover.setVisibility(View.VISIBLE);
 				binding.cover.setImageBitmap(IconArtUtils.createFallback(item.getTitle(),
 						dp(360), dp(200), icon));

@@ -20,6 +20,12 @@ require Git history; the optional dev-flavor counter falls back to zero.
 The ordinary build compiles the checked-in M3G/Mophun sources;
 research generation and private game fixtures are not prerequisites.
 
+The 0.3 combined APKs additionally use the separate Symbian source bundle.
+Restore it with `tools/restore-symbian-sources.py`, follow
+`engines/symbian/DISTRIBUTION.md` for its NDK/CMake/MSYS prerequisites, and pass
+`-PsymbianRelease=true` to Gradle. Without that property the build contains only
+Java/Mophun. The combined APKs target arm64-v8a.
+
 `gradlew :app:assembleFdroidDebug :app:assemblePhoneDebug` uses a debug key.
 For release builds, use your own key and the provided signing-config example.
 An independently signed build cannot overwrite the maintainer-signed package;

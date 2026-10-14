@@ -70,6 +70,11 @@ See [PROJECT_STATUS](PROJECT_STATUS.md) and the dated release report for the
 actual distribution state, hashes and checks. New APKs belong in GitHub Releases,
 not in the Git tree. GitHub Actions remains disabled.
 
-EKA2L1 / Symbian / N-Gage is not included. Any future engine needs its own pinned
-source and dependency review. Games and firmware are not covered by AbyssME's
-license and must be supplied separately.
+EKA2L1 / Symbian / N-Gage was not included in 0.2.0-beta.1. The 0.3 combined
+build uses `-PsymbianRelease=true`, curated upstream assets and matching pinned
+dependency sources. The root GPL scope is unchanged. See the
+[distribution inventory and sound-bank terms](../engines/symbian/DISTRIBUTION.md),
+and PROJECT_STATUS for actual release availability. Original upstream SF2/HSB
+banks, optional shader packs and Lua scripts are not shipped in the combined APK.
+Games and firmware are not covered by AbyssME's license and must be supplied
+separately.

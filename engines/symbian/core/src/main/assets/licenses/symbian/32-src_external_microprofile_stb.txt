@@ -1,0 +1,8 @@
+Source: EKA2L1/src/external/microprofile/stb
+Revision: f67165c2bb2af3060ecae7d20d6f731173485ad0
+
+--- data/herringbone/license.txt ---
+All files in this directory are in the public domain. Where
+a public domain declaration is not recognized, you are granted
+a license to freely use, modify, and redistribute them in
+any way you choose.

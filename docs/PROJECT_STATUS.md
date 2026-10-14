@@ -1,6 +1,6 @@
 # AbyssME - Current Product and Development Status
 
-**Last updated: 2026-10-13.** Verification dates are recorded per section.
+**Last updated: 2026-10-14.** Verification dates are recorded per section.
 This is the starting point for website copy,
 announcements, progress posts and project handoffs. It includes work that exists
 only in local experiments or private test builds. Describing that work here
@@ -25,10 +25,21 @@ bundled. The app UI is English.
 - Both variants have independent app data and can coexist.
 - Experimental Mophun support is integrated in the same app. Its source is now
   included in public 0.2.0-beta.1; the historical 0.1.0 beta.2 has no Mophun.
-- Embedded Symbian / N-Gage support is the next research direction. The EKA2L1
-  source audit is documented; no integration has been built or shipped.
+- Embedded Symbian / N-Gage has a local opt-in Android prototype. Snakes reaches
+  gameplay on Retroid. Asphalt 3 now installs and has reached a moving race with
+  upright graphics, but cold relaunch remains unreliable. This is not part of
+  the published beta or ordinary builds, and does not establish audio/save or
+  full-game compatibility.
 
 ## Availability: Do Not Mix These Channels
+
+**0.3.0-beta.1 is being prepared (2026-10-14), not yet published.** It adds the
+shared in-game menu and promotes the Symbian/N-Gage integration into a combined
+arm64 build. The preceding local work is recorded in the changelog and integration
+report, not omitted from the announcement handoff. Follow
+[release checks](releases/v0.3.0-beta.1-checks.md) for final signed/build/publication
+evidence. The live GitHub release list was checked today: 0.2.0-beta.1 is still
+the newest published prerelease at this checkpoint.
 
 | Channel | Current identifier | What a reader can obtain |
 | --- | --- | --- |
@@ -36,6 +47,7 @@ bundled. The app UI is English.
 | Public development source | `main`; release tag `v0.2.0-beta.1`, 2026-10-13 | Production switch merged; current features below are in this beta unless marked historical/research-only. [Release checks](releases/v0.2.0-beta.1-checks.md) |
 | Private combined test snapshot | `0.1.0-beta.2-experimental.15`, 2026-10-11 | Handheld and Phone debug APKs containing Java plus experimental Mophun; supplied separately to testers, not a GitHub release |
 | Local-only material | Ignored diagnostics, game fixtures and signing keys | Private test inputs remain local; the promoted Mophun runtime is no longer private-only |
+| Local Symbian prototype | `codex/symbian-integration`, 2026-10-14, uncommitted local work | Separate Handheld/Phone debug packages with embedded EKA2L1. Shared library/import, Display, mapping, screenshots, Phone decks and direct rotated guest touches. Whole-phone backup/restore creates a separate copy. Modern SIS/SISX setup requests named missing components and reuses saved installers. ZIP/RAR/7z native game preview selects games/components and retains a recoverable queue; phone choices can be reused per package type within that archive without overriding game bindings. Retroid: 83 focused checks pass per variant (two older opt-in cases skipped), three Handheld and two Phone UI checks pass; supplied legacy SIS, modern SIS and SISX installed from solid 7z on disposable phone copies. Ordinary JVM suites rerun: 14 pass per variant. Installation is not gameplay acceptance. Legacy/conditional dependencies, mixed-platform collections, external launchers, distribution review and intermittent Asphalt startup remain open. No public Symbian APK or bundled firmware. [Current archive evidence and limits](SYMBIAN_INTEGRATION.md#rar7z-and-archive-phone-choice-2026-10-14), [component evidence](SYMBIAN_INTEGRATION.md#component-installers-and-resumable-setup-2026-10-14), [touch evidence](SYMBIAN_INTEGRATION.md#direct-touch-and-visible-rotation-2026-10-14), [backup contract](SYMBIAN_PHONE_BACKUPS.md) |
 | Merged research branch | [`codex/m3g-replacement`](https://github.com/EriArk/JavaEmulator/tree/codex/m3g-replacement), 2026-10-13 | Ordinary builds use the replacement M3G/tone and include Mophun. Old EPL engine removed, GPLv3 combined scope and notices retained. Beta published as code 200; research timing tools and private games are not in APKs |
 
 The experimental number is a distribution label: build 15 still reports
@@ -164,17 +176,28 @@ engine hook also needs to support more than one provider without breaking Mophun
 The proposed experience is one-time virtual-phone setup, a shared game library
 and backups through the menu. Firmware is user-supplied, not bundled.
 
-**Current evidence: source review only.** No EKA2L1 native build, imported
-firmware, Symbian game session or new APK resulted from this batch. Original
-N-Gage and N-Gage 2 need separate acceptance; do not advertise either as shipped.
+**Early checkpoint, 2026-10-13 (superseded by the current availability row):** the arm64 embedded-engine debug APK builds and
+installs on Retroid Pocket Classic (Android 14). Four firmware-free checks pass:
+asset preparation, repeated native prepare/stop without firmware, separate-
+process environment-page reopen/return and safe card-package staging. The fifth,
+private firmware/card check is skipped because firmware was not provisioned
+during that run. Suitable-format system archives were located afterward in
+the user's private Nextcloud folder, without installing them yet.
+This is not graphics/audio/gameplay or save acceptance. Original N-Gage and
+N-Gage 2 need separate compatible environments and checks; neither is shipped.
 The old EPL M3G implementation is now removed in the production-switch batch;
 EKA2L1 and its own dependencies still need a separate integration review.
 
-The Symbian prototype's next step remains an isolated native build/bootstrap
-and dependency inventory, followed by environment import and one controlled
-game session. The maintainer then prioritized the separate M3G alternative
-experiment below. #20 source-identity aliases remains open; it has not been
-fixed or silently dropped. The maintainer confirms each next implementation batch.
+The user supplied Snakes (original N-Gage), Asphalt 3 (`.n-gage`) and an N-Gage
+2.0 v1.40.1557 SIS installer. They are ignored local inputs; the platform SIS is
+not phone firmware. N-Gage/QD data trees and N95/5320 ROM/RPKG pairs were then
+found in the user's Nextcloud `NGAGE` folder. The next step at that point was to import those inputs, prioritize
+Snakes and then Asphalt gameplay/input/save checks, followed by shared-library
+integration and dependency/asset review. Current work has moved to common setup,
+controls and storage mechanics; see the latest integration evidence above.
+#20 source-identity aliases remains
+open; it has not been fixed or silently dropped. The maintainer confirms each
+next implementation batch.
 
 ## M3G Development History
 

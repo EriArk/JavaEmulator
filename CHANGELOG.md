@@ -1,15 +1,246 @@
 # AbyssME Changelog
 
 User-facing development history, reconstructed from commits, release notes and
-local/private build records through **2026-10-13**. This is not a claim that all
+local/private build records through **2026-10-14**. This is not a claim that all
 listed work is in a public APK. See [current status](docs/PROJECT_STATUS.md) for
 availability, verification, known limits and screenshot guidance.
 
 Labels: **Public source** means implemented on `main` but unreleased unless
-stated otherwise. **Experimental** means local/private combined builds only.
+stated otherwise. **Experimental** in older checkpoints means local/private
+combined builds; released experimental features are explicitly identified.
 **Released** means an actual GitHub release asset.
 
+## 2026-10-14
+
+- **Combined beta candidate:** Java, Mophun and experimental Symbian/N-Gage now
+  share one in-game menu, with paused exit confirmation and consistent
+  Display/Controls/Screenshot/More actions. Fullscreen game menus retain hidden
+  system bars on both variants. The signed arm64 Handheld/Phone APKs include the
+  accumulated system-file setup, native archive import, dependency guidance,
+  touch/controller controls and whole-phone backups described below. Rebuilt
+  the native engine from exported pinned sources; curated redistributable assets
+  and bundled component notices. Handheld upgrade retained all 18 inspected
+  library/save/config files. Publication and final device results are tracked in
+  [release checks](docs/releases/v0.3.0-beta.1-checks.md).
+
+The local-only entries below are historical implementation checkpoints. Their
+code is now part of this combined candidate; private games and firmware are not.
+
+- **0.3 beta preparation:** unified the Java/Mophun/Symbian in-game menu and
+  paused exit confirmation, moved Screenshot to the home page and its button
+  visibility to More, and kept Resume as the first controller action during
+  trials. Retroid debug UI checks: 8 pass / 2 skip on Handheld, 9 pass / 1 skip
+  on Phone. Preparing combined arm64 signed builds, pinned source materials,
+  curated engine assets and GeneralUser GS attribution. Not yet a publication
+  claim. [Release checks](docs/releases/v0.3.0-beta.1-checks.md).
+
+- **Local Symbian RAR/7z import / not shipped:** native game archives now enter
+  the existing preview/install flow without manual unpacking. Verified the
+  supplied Asphalt RAR, solid 7z with SIS/SISX, and RAR5 decoding. A phone choice
+  can be reused for the same package type within one archive; existing game
+  bindings take priority. Retroid: 83 focused checks passed per variant, two
+  older opt-in cases skipped; three Handheld and two Phone UI checks passed.
+  Three supplied games installed from 7z on disposable phones, with one choice
+  reused for the two modern packages. Ordinary JVM tests: 14 passed per variant.
+  Encrypted archives and universal mixed-platform collections are not supported.
+  Local builds only, no public APK or push; installation is not gameplay
+  acceptance. [Evidence](docs/SYMBIAN_INTEGRATION.md#rar7z-and-archive-phone-choice-2026-10-14).
+
+- **Local Symbian archive queue / not shipped:** added ZIP batch preview and
+  selection for SIS/SISX and native game packages, with reusable component
+  installers, duplicate/alternate-version defaults and durable per-file
+  results. Errors no longer discard the remaining queue; waiting games can
+  be deferred and retried. Completed imports do not replay after journal
+  recovery. Games installed on different phones all reach the shared library;
+  Done clears only temporary queue copies. Retroid: 59 focused checks passed
+  per variant, one older optional case skipped; two UI checks passed per
+  variant. Actual legacy SIS, modern SIS and SISX games from the supplied
+  archive installed on disposable phone copies. Phone layout checked in both
+  orientations; ordinary JVM suites rerun, 14 passed per variant. Installation
+  is not gameplay acceptance. Local experimental builds only; no public APK
+  or push. [Evidence and limits](docs/SYMBIAN_INTEGRATION.md#archive-queue-and-sissisx-import-2026-10-14).
+
+- **Local Symbian component setup / not shipped:** modern SIS/SISX imports now
+  identify declared missing components by package UID and version, show the
+  required name/version, and continue the retained game after its installer is
+  supplied. Saved installers can be preloaded, reused and removed without
+  uninstalling games. The same flow covers dependencies of the N-Gage 2.0
+  platform installer. Added bounded metadata parsing, preflight dependency
+  planning, corrupt-cache rejection, registration checks and explicit retry
+  after interrupted installs. Retroid: 43 checks passed per variant, one older
+  opt-in scenario skipped per variant; a separate real document-picker/native
+  installation workflow passed on a disposable N95 copy. Legacy SIS requisites,
+  conditional dependencies and full game compatibility are not claimed.
+  No public APK or push.
+  [Evidence and limits](docs/SYMBIAN_INTEGRATION.md#component-installers-and-resumable-setup-2026-10-14).
+
+- **Local Symbian direct touch / not shipped:** connected touches on the game
+  picture while keeping numeric/Gamepad controls independent. Added rotated
+  viewport mapping, bounded pointer IDs and release on pause/focus/layout
+  changes. Replaced SurfaceView with TextureView after device captures exposed
+  missing visible rotation; fixed resize reference cleanup. Also fixed phone
+  backup before first boot without modifying the original phone. Retroid:
+  24 focused checks pass per variant, native Nokia 5800 Calculator touch/result
+  checks pass at all four rotations, and the Phone Snakes/display/mapper/deck/
+  screenshot workflow passes. These are automated device checks, not complete
+  touchscreen-game acceptance. No public APK or push.
+  [Evidence](docs/SYMBIAN_INTEGRATION.md#direct-touch-and-visible-rotation-2026-10-14).
+
+- **Local Symbian phone backups / not shipped:** added menu-based export and
+  restore of a stopped virtual phone, including supplied firmware, games, saves
+  and game settings. Restore previews the contents and creates a separate copy;
+  existing phones and saves are not replaced. Backup ZIPs are recognized by the
+  shared importer. Added hash/path/space checks, failed-transfer cleanup and
+  native validation before publication. Backup-only navigation no longer boots
+  the original phone or triggers its incidental OS writes. Tested archive
+  rejection/recovery and a restored Snakes launch on Retroid; actual SAF export
+  was independently hash-checked. Ordinary JVM tests remain 14/14 per variant.
+  No public APK, push or licensing change.
+  [Contract and evidence](docs/SYMBIAN_PHONE_BACKUPS.md).
+
+- **Local Symbian controls and clearer setup / not shipped:** added the shared
+  in-game Display, graphical controller mapper/presets, diagonal bindings,
+  screenshots and reversible settings, saved per game and virtual phone. Phone
+  now has numeric and Gamepad touch decks in portrait and landscape. System
+  files names required phones/formats, separates firmware from the N-Gage 2
+  installer and games, and offers the next missing input. Setup/pending-import
+  dialogs use the app's dark menu. Replaced unreliable Android-surface capture
+  with the engine's game-frame capture after rotation/menu transitions.
+  Broad Retroid regression run before the final capture change: 68 checks passed,
+  nine conditional skips. Final APKs: eight focused checks passed and one fixture
+  skip per variant; native Phone screenshot flow also passed three repeat runs.
+  Ordinary Handheld/Phone compilation and 14 JVM tests per variant pass.
+  Direct guest touchscreen input, whole-phone backup and general dependency
+  resolution remain open; individual game stability is deferred. No public
+  APK, push or licensing change.
+  [Evidence and limits](docs/SYMBIAN_INTEGRATION.md#common-controls-and-setup-guidance-2026-10-14).
+- **Local unified Symbian import / not shipped:** the shared library + now routes
+  Java archives, Symbian games and system archives to their appropriate importer.
+  Users can preload their N-Gage 2.0 installer once; games reuse it on their
+  selected phone when the platform is missing. Native registration is checked,
+  failed installs require explicit retry, and pending game input is retained.
+  Added a cancellable dark inspection dialog and rejected ambiguous archives.
+  Fixed a native crash when a previous import screen shut down a newly opened
+  session. Retroid: 61 checks passed, eight conditional skips; actual Downloads
+  picker preload also verified. Ordinary Handheld/Phone compilation passes.
+  No new full-game/audio/save claim, public APK, push or licensing change.
+  [Evidence and limits](docs/SYMBIAN_INTEGRATION.md#unified-import-and-saved-platform-2026-10-14).
+- **Local shared Symbian library / not shipped:** installed Symbian and N-Gage
+  games now appear beside Java/Mophun in Gallery/List/Grid, search, Favorites
+  and Recent. Native icons and N-Gage banners are extracted separately; wide
+  title banners fit without cropping. Play uses each game's exact phone and UID,
+  skips the temporary environment page and returns to the shared library.
+  Package-only N-Gage 2 apps are detected without game-name special cases.
+  Stale entries fail safely and native options exclude Java file operations.
+  Retroid: 53 checks passed, eight conditional skips, including direct Snakes
+  and Asphalt launches, return, artwork and retained-import regressions.
+  Ordinary Handheld/Phone Java compilation passes without the Symbian module.
+  This does not resolve earlier intermittent Asphalt startup or establish
+  audio/save/full-game compatibility. No public APK, push or license change.
+  [Evidence and limits](docs/SYMBIAN_INTEGRATION.md#shared-library-and-direct-launch-2026-10-14).
+- **Local resumable Symbian import / not shipped:** game input now remains
+  available while adding missing system files or the N-Gage 2.0 platform.
+  Successful system import resumes automatically; dependency installation stays
+  on the game's chosen phone. Existing platforms are reused and N-Gage opens
+  automatically after staging, without requeuing packages already consumed by
+  the guest. Added durable progress, explicit retry after an interrupted native
+  install and isolated pending-input removal. On Retroid, 44 checks passed and
+  eight conditional cases skipped, including a fresh isolated N95/platform
+  setup, retained-import UI and handoff to the existing N-Gage installation.
+  Guest confirmations and completion acknowledgement remain interactive; this
+  is not a new gameplay or full-game compatibility result. No public APK/push.
+  [Evidence and limits](docs/SYMBIAN_INTEGRATION.md#resumable-game-import-2026-10-14).
+- **Local prepared-system collections / not shipped:** added menu import for
+  multi-phone ZIP/7z collections. ROM and read-only Z files are isolated per
+  content identity; archived writable drives, settings and saves are excluded.
+  Added native BCJ2 decoding, bounded writes, CRC/hash verification, cancellation
+  cleanup and explicit partial-import results. Fixed incomplete metadata reads,
+  folder-alias handling and empty model labels; unknown OS versions are no
+  longer guessed for this import path. Existing game bindings take priority,
+  with N-Gage/N95 recommendations when the choice is unambiguous. Retroid
+  registered all 21 complete supplied phone sets; repeat import reused 19 and
+  completed two after the metadata fixes. Selection, bindings and 588 existing
+  writable-drive files were unchanged. Real Android picker/reimport checks pass;
+  baseline: 33 passed, eight conditional skips. These are import checks, not
+  all-phone boot or game compatibility. No public APK or firmware publication.
+  [Evidence and remaining work](docs/SYMBIAN_INTEGRATION.md#prepared-system-collections-2026-10-14).
+- **Local Symbian key routing / not shipped:** corrected captured-button
+  delivery, separating scan codes from logical keys and choosing one recipient
+  by modifiers, signed priority and request recency. Removed implicit priority
+  escalation and duplicate focus delivery; repeats respect normal captures and
+  cancelled pending repeats are dropped before delivery. Native checks pass on
+  Retroid: 27 routing plus 12 cleanup assertions. Two launches of the existing
+  Asphalt installation reached races; acceleration, pause and resume were
+  observed. Snakes also reached gameplay and responded to D-pad turning.
+  The Asphalt runs did not reproduce `USER 44` or unexpected backgrounding,
+  but do not establish their root cause or deterministic startup. No firmware,
+  games or saves were replaced. Baseline instrumentation: 21 passed, six
+  conditional skips. [Evidence](docs/SYMBIAN_INTEGRATION.md).
+- **Local Symbian input repair / not shipped:** implemented window-group key
+  capture cancellation and cleanup on group destruction. Requests no longer
+  remain registered after explicit cancellation or their owning window closes.
+  Twelve native regression assertions pass on Retroid. Three diagnostic-build
+  launches of the already installed Asphalt reached race frames without game
+  reinstallation; a preceding run still reported guest `USER 44`, so this does
+  not close the intermittent stability issue. Temporary focus/panic tracing was
+  removed from the final local build. Its sampled runs still show both races
+  and unexpected return to the platform; neither startup issue is declared fixed.
+  Final baseline: 21 passes and six conditional skips. The supplied 1.47 GB system archive has
+  also downloaded successfully and passed 7-Zip integrity checks; its 21 system
+  sets remain local and have not been bulk-imported or declared compatible.
+  [Build and acceptance boundaries](docs/SYMBIAN_INTEGRATION.md).
+- **Later local N-Gage compatibility work / not shipped:** resolved Asphalt 3's
+  guest installation Error -1 by normalizing an unsupported Spanish language
+  tag in temporary achievement metadata. Original archives are untouched and
+  the original XML is retained outside guest cleanup. Added seven regression
+  tests, including unsafe XML, backup failure and bounded tree complexity.
+  Removed the extra 180-degree direct-screen presentation turn. On Retroid,
+  Asphalt reached a moving race with upright graphics; Snakes gameplay was
+  replayed. Cold Asphalt relaunch remains unreliable, and one earlier attempt
+  reported guest `USER 44`; neither is claimed fixed. Final baseline: 21 passes
+  and six conditional skips. These later observations supersede the installer
+  blocker recorded below, not the remaining stability/audio/save gates.
+  [Evidence and exact build boundaries](docs/SYMBIAN_INTEGRATION.md).
+- **Local Symbian experiment / not shipped:** Snakes reaches 3D gameplay on
+  Retroid using the supplied N-Gage system files. Fixed card discovery, startup
+  font initialization and guest shutdown/return. Added bounded system ZIP
+  extraction with integrity/path checks without copying archived saves or config.
+  Both supplied system archives pass extraction checks; seven baseline tests
+  pass, with four private-input tests skipped in that suite and tested separately
+  where noted. No audio, durable-save or full-game acceptance is claimed.
+- **Local N-Gage 2.0 work / incomplete:** the supplied N95 environment and
+  platform install; regional-English selection fixes the observed platform
+  launch failure. Android font fallback makes missing text readable, with
+  typography still imperfect. Fixed memory-card package staging. Asphalt 3
+  was recognized but its guest installation reported Error -1 at this earlier
+  checkpoint; see the later fix above. Source remains uncommitted on the
+  experiment branch, no APK published.
+- **Local system catalog / not shipped:** system archives can now be added
+  in advance in the experimental System files page. Identical ROM/RPKG content
+  reuses its existing system without reinstalling; different firmware has isolated
+  state. Game import selects a matching generation or asks when several match,
+  then remembers the choice. Fixed card ZIPs containing embedded installers,
+  including Snakes. Added atomic catalog writes, interrupted-import cleanup and
+  path/size/duplicate checks. Retroid passes 14 baseline cases, with six conditional
+  cases skipped; private fixture and system-selection UI checks pass separately.
+  Full dependency matching, the shared library and game-import resumption after
+  missing-system prompts remain open. At this checkpoint Asphalt also reported
+  Error -1 on a fresh managed N95; package staging alone is not game installation.
+  [Evidence and remaining work](docs/SYMBIAN_INTEGRATION.md).
+
 ## 2026-10-13
+
+- **Local Symbian experiment / not shipped:** added an opt-in embedded EKA2L1
+  Android host, built as a separate arm64 debug package without replacing the
+  ordinary Java/Mophun app. Added private ROM/RPKG and game-picker paths,
+  environment/app selection, basic controller bindings and lifecycle adapters.
+  Native build and four firmware-free Retroid checks pass; the private game
+  installation check is skipped. Ordinary Handheld still builds and its 14 JVM
+  tests pass. Snakes, Asphalt 3 and the supplied N-Gage 2.0 platform SIS remain
+  private. Subsequently located N-Gage/QD and N95/5320 system archives in the
+  user's Nextcloud; not yet imported and no accepted gameplay. Shared library, backups,
+  Phone controls and dependency/asset publication review remain outstanding.
+  [Prototype scope and evidence](docs/SYMBIAN_INTEGRATION.md).
 
 - **Released:** [0.2.0-beta.1](https://github.com/EriArk/JavaEmulator/releases/tag/v0.2.0-beta.1),
   the first public combined Java + experimental Mophun beta. Handheld/Phone APKs,

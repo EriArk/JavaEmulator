@@ -13,6 +13,8 @@ import ru.playsoftware.j2meloader.config.ProfileModel;
 /** Edits a detached draft; Save here does not commit the game profile. */
 public final class MapperDialog extends Dialog {
     private final ControllerMapperView mapper;
+    private boolean applied;
+    public boolean wasApplied() { return applied; }
     public MapperDialog(Context context, String title, ProfileModel draft, Runnable closed) {
         super(context);
         requestWindowFeature(Window.FEATURE_NO_TITLE);
@@ -20,7 +22,7 @@ public final class MapperDialog extends Dialog {
         mapper = new ControllerMapperView(context, title, draft.keyMappingProfiles, draft.activeKeyMappingProfile,
                 new ControllerMapperView.Listener() {
                     public void save(ArrayList<ProfileModel.KeyMappingProfile> profiles, int active) {
-                        draft.keyMappingProfiles = profiles; draft.setActiveKeyMappingProfile(active); dismiss();
+                        draft.keyMappingProfiles = profiles; draft.setActiveKeyMappingProfile(active); applied = true; dismiss();
                     }
                     public void cancel() { dismiss(); }
                 });

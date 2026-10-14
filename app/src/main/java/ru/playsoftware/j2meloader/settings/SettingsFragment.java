@@ -42,6 +42,13 @@ public class SettingsFragment extends PreferenceFragmentCompat {
 	public void onCreatePreferences(Bundle bundle, String rootKey) {
 		setPreferencesFromResource(R.xml.preferences, rootKey);
 		styleRows(getPreferenceScreen());
+		if (ru.playsoftware.j2meloader.BuildConfig.SYMBIAN_EXPERIMENT && rootKey == null) {
+			Preference systems = new Preference(requireContext()); systems.setKey("pref_system_files");
+			systems.setTitle("System files"); systems.setSummary("Required files for Symbian and N-Gage");
+			systems.setIcon(R.drawable.ic_setting_folder); systems.setLayoutResource(R.layout.preference_compact);
+			systems.setOrder(0); systems.setIntent(new Intent().setClassName(requireContext(), "io.github.eriark.abyssme.symbian.SymbianActivity"));
+			getPreferenceScreen().addPreference(systems);
+		}
 		androidx.preference.SwitchPreferenceCompat screenshot = findPreference(
 				ru.playsoftware.j2meloader.util.Screenshots.BUTTON_PREFERENCE);
 		if (screenshot != null) {

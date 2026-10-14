@@ -5,6 +5,13 @@ plugins {
 def midletArchivesBaseName
 def m3gExperiment = providers.gradleProperty('m3gExperiment').orNull
 def m3gReleaseCheck = providers.gradleProperty('m3gReleaseCheck').orNull == 'true'
+def symbianExperiment = providers.gradleProperty('symbianExperiment').orNull == 'true'
+def symbianRelease = providers.gradleProperty('symbianRelease').orNull == 'true'
+def symbianReleaseCheck = providers.gradleProperty('symbianReleaseCheck').orNull == 'true'
+def symbianEnabled = symbianExperiment || symbianRelease || symbianReleaseCheck
+if (symbianEnabled && m3gExperiment != null) {
+    throw new GradleException('Run Symbian and M3G research builds separately')
+}
 if (m3gReleaseCheck && m3gExperiment == null) {
     throw new GradleException('m3gReleaseCheck requires an isolated candidate or baseline experiment')
 }
@@ -13,6 +20,12 @@ if (m3gExperiment != null && m3gExperiment != 'candidate') {
 }
 if (m3gExperiment != null) {
     layout.buildDirectory.set(file("build/m3g-${m3gExperiment}" + (m3gReleaseCheck ? '-release-check' : '')))
+}
+if (symbianExperiment) {
+    layout.buildDirectory.set(file('build/symbian-experiment'))
+}
+if (symbianRelease || symbianReleaseCheck) {
+    layout.buildDirectory.set(file(symbianReleaseCheck ? 'build/symbian-release-check' : 'build/symbian-release'))
 }
 
 android {
@@ -24,10 +37,11 @@ android {
         applicationId "io.github.eriark.abyssme"
         minSdk MIN_SDK
         targetSdk TARGET_SDK
-        versionCode 200
-        versionName "0.2.0-beta.1"
+        versionCode 300
+        versionName "0.3.0-beta.1"
         resValue 'string', 'app_name', rootProject.name
         buildConfigField 'boolean', 'HANDHELD_MODE', 'true'
+        buildConfigField 'boolean', 'SYMBIAN_EXPERIMENT', symbianEnabled.toString()
         vectorDrawables.useSupportLibrary = true
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
         javaCompileOptions {
@@ -61,7 +75,7 @@ android {
             minifyEnabled true
             shrinkResources true
             // Rehearsals are deliberately debug-signed and never use production IDs/keys.
-            signingConfig m3gReleaseCheck ? signingConfigs.debug : signingConfigs.release
+            signingConfig = (m3gReleaseCheck || symbianReleaseCheck) ? signingConfigs.debug : signingConfigs.release
         }
         debug {
             applicationIdSuffix '.debug'
@@ -155,7 +169,7 @@ android {
     applicationVariants.all {
         if (buildType.name == 'debug' && flavorName != 'midlet') {
             resValue 'string', 'app_name', flavorName == 'phone'
-                    ? 'AbyssME Phone Debug' : 'AbyssME Debug'
+                    ? 'AbyssME Phone Debug' : symbianExperiment ? 'AbyssME Symbian Test' : 'AbyssME Debug'
         }
         def baseName = flavorName == 'midlet' ? "${midletArchivesBaseName}-" : "${rootProject.name}-"
         outputs.all {
@@ -171,6 +185,28 @@ android {
     sourceSets {
         androidTest.assets.srcDir rootProject.file('test-games/sudoku-j2me')
     }
+}
+
+if (symbianEnabled) {
+    if (symbianExperiment || symbianReleaseCheck) {
+        android.defaultConfig.applicationId = symbianReleaseCheck ? 'io.github.eriark.abyssme.symbianrehearsal' : 'io.github.eriark.abyssme.symbian'
+        android.defaultConfig.versionNameSuffix = '-symbian-experiment'
+        android.defaultConfig.resValue 'string', 'app_name', 'AbyssME Symbian Test'
+    }
+    if (symbianReleaseCheck) {
+        android.testBuildType 'release'
+        android.buildTypes.release.testProguardFiles rootProject.file('experiments/m3g-host/release-test.pro')
+        android.buildTypes.release.proguardFile rootProject.file('experiments/m3g-host/release-runner.pro')
+        android.buildTypes.release.proguardFile rootProject.file('engines/symbian/release-test-boundaries.pro')
+    }
+    android.defaultConfig.ndk.abiFilters 'arm64-v8a'
+    android.variantFilter { variant ->
+        variant.ignore = (symbianExperiment && variant.buildType.name != 'debug') ||
+                (symbianReleaseCheck && variant.buildType.name != 'release') || !(variant.flavors*.name in [['fdroid'], ['phone']])
+    }
+    dependencies { implementation project(':symbian-core') }
+    android.sourceSets.androidTest.java.srcDir rootProject.file('engines/symbian/tests')
+    android.sourceSets.main.java.srcDir rootProject.file('engines/symbian/app')
 }
 
 if (m3gExperiment != null) {
@@ -190,7 +226,7 @@ def validateReleaseCredentials = tasks.register('validateReleaseCredentials') {
 }
 apply from: rootProject.file('tools/release-inventory.gradle')
 android.applicationVariants.all { variant ->
-    if (variant.buildType.name == 'release' && !m3gReleaseCheck) {
+    if (variant.buildType.name == 'release' && !m3gReleaseCheck && !symbianReleaseCheck) {
         variant.preBuildProvider.configure { dependsOn validateReleaseCredentials }
     }
 }

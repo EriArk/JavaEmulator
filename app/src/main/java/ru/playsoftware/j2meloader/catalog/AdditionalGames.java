@@ -24,6 +24,9 @@ public final class AdditionalGames {
         AppItem readInstalled(File directory) throws IOException;
         void launch(Context context, String title, File directory, boolean controls);
     }
+    public interface ImportRouter {
+        DialogFragment installer(Context context, Uri uri, boolean autoStart, boolean finishHost);
+    }
 
     private AdditionalGames() { }
 
@@ -50,11 +53,26 @@ public final class AdditionalGames {
 
     public static void install(Context context, FragmentManager fragments, Uri uri,
                                boolean autoStart, boolean finishHost) {
+        if (fragments.findFragmentByTag("installer") != null) return;
+        if (ru.playsoftware.j2meloader.BuildConfig.SYMBIAN_EXPERIMENT) {
+            try {
+                ImportRouter router = Class.forName("io.github.eriark.abyssme.symbian.SymbianImportDialog")
+                        .asSubclass(ImportRouter.class).getDeclaredConstructor().newInstance();
+                router.installer(context, uri, autoStart, finishHost).show(fragments, "installer");
+            } catch (ReflectiveOperationException error) {
+                Log.e("AdditionalGames", "Cannot open import router", error);
+                Toast.makeText(context, "Cannot open the game importer", Toast.LENGTH_LONG).show();
+            }
+            return;
+        }
+        existingInstaller(context, uri, autoStart, finishHost).show(fragments, "installer");
+    }
+
+    public static DialogFragment existingInstaller(Context context, Uri uri, boolean autoStart, boolean finishHost) {
         Engine extra = get(context);
-        DialogFragment dialog = extra != null && extra.accepts(context, uri)
+        return extra != null && extra.accepts(context, uri)
                 ? extra.installer(uri, autoStart, finishHost)
                 : InstallerDialog.newInstance(uri, autoStart, finishHost);
-        if (fragments.findFragmentByTag("installer") == null) dialog.show(fragments, "installer");
     }
 
     public static boolean launch(Context context, String title, File directory, boolean controls) {

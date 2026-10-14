@@ -436,20 +436,8 @@ public class MicroActivity extends AppCompatActivity {
 	}
 
 	public void showExitConfirmation() {
-		AlertDialog.Builder alertBuilder = new AlertDialog.Builder(this);
-		alertBuilder.setTitle(R.string.CONFIRMATION_REQUIRED)
-				.setMessage(R.string.FORCE_CLOSE_CONFIRMATION)
-				.setPositiveButton(android.R.string.ok, (d, w) -> {
-					hideSoftInput();
-					MidletThread.destroyApp();
-				})
-				.setNeutralButton(R.string.action_settings, (d, w) -> {
-					hideSoftInput();
-					Config.startApp(this, appName, appPath, true);
-					MidletThread.destroyApp();
-				})
-				.setNegativeButton(android.R.string.cancel, null);
-		alertBuilder.create().show();
+		openOptionsMenu();
+		if (gameMenu != null && gameMenu.isShowing()) menuPages().confirmExit();
 	}
 
 	@Override
@@ -813,18 +801,25 @@ public class MicroActivity extends AppCompatActivity {
 	}
 
 	private void showGameMenuPage() {
-		gameMenu.page("Game menu");
-		if (ProfilesManager.isPreview(microLoader.getTouchSettings())) {
-			gameMenu.action("Keep changes", android.R.drawable.ic_menu_save, this::keepSettingsPreview);
-			gameMenu.action("Undo changes", android.R.drawable.ic_menu_revert, this::undoSettingsPreview);
-		}
-		gameMenu.action("Resume", android.R.drawable.ic_media_play, () -> gameMenu.dismiss());
-		gameMenu.action("Display", R.drawable.ic_quick_size, this::showDisplayPage);
-		gameMenu.action("Controls", R.drawable.ic_action_keyboard, this::showTouchPage);
-		gameMenu.action("More", android.R.drawable.ic_menu_more, this::showMorePage);
-		gameMenu.action("Exit game", android.R.drawable.ic_menu_close_clear_cancel, () -> {
-			gameMenu.dismiss(); showExitConfirmation();
-		});
+		menuPages().home();
+	}
+
+	private ru.playsoftware.j2meloader.input.GameMenuPages menuPages() {
+		return new ru.playsoftware.j2meloader.input.GameMenuPages(gameMenu,
+				new ru.playsoftware.j2meloader.input.GameMenuPages.Host() {
+			public void display() { showDisplayPage(); }
+			public void controls() { showTouchPage(); }
+			public void more() { showMorePage(); }
+			public boolean hasPreview() { return ProfilesManager.isPreview(microLoader.getTouchSettings()); }
+			public void keep() { keepSettingsPreview(); }
+			public void undo() { undoSettingsPreview(); }
+			public void exit() {
+				hideSoftInput();
+				gameMenu.setOnDismissListener(null);
+				gameMenu.dismiss();
+				MidletThread.destroyApp();
+			}
+		}, current instanceof Canvas ? this::takeScreenshot : null);
 	}
 
 	private void showDisplayPage() {
@@ -857,9 +852,6 @@ public class MicroActivity extends AppCompatActivity {
 		gameMenu.toggle(getString(R.string.screenshot_button), Screenshots.isButtonVisible(this), value -> {
 			Screenshots.setButtonVisible(this, value);
 			updateScreenshotButton();
-		});
-		if (current instanceof Canvas) gameMenu.action("Screenshot", R.drawable.ic_action_screenshot, () -> {
-			gameMenu.dismiss(); takeScreenshot();
 		});
 		gameMenu.action("System keyboard", R.drawable.ic_action_keyboard, () -> {
 			gameMenu.dismiss();

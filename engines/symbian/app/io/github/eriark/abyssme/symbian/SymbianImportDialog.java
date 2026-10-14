@@ -1,0 +1,142 @@
+package io.github.eriark.abyssme.symbian;
+
+import android.app.Application;
+import android.app.Dialog;
+import android.content.*;
+import android.graphics.Color;
+import android.graphics.drawable.ColorDrawable;
+import android.net.Uri;
+import android.os.Bundle;
+import android.view.View;
+import android.view.KeyEvent;
+import androidx.appcompat.app.AlertDialog;
+import androidx.fragment.app.DialogFragment;
+import androidx.fragment.app.FragmentManager;
+import androidx.lifecycle.*;
+import java.io.*;
+import java.nio.file.Files;
+import java.util.Locale;
+import java.util.concurrent.*;
+import ru.playsoftware.j2meloader.catalog.AdditionalGames;
+import ru.playsoftware.j2meloader.databinding.DialogInstallerBinding;
+
+/** Main-process content routing; native libraries are not loaded by inspection. */
+public final class SymbianImportDialog extends DialogFragment implements AdditionalGames.ImportRouter {
+    private DialogInstallerBinding binding;
+    private Inspection model;
+    private boolean delivered;
+
+    @Override public DialogFragment installer(Context context, Uri uri, boolean autoStart, boolean finishHost) {
+        String name = SymbianFiles.name(context, uri);
+        String lower = name == null ? "" : name.toLowerCase(Locale.ROOT);
+        if (lower.endsWith(".jar") || lower.endsWith(".jad") || lower.endsWith(".mpn") || lower.endsWith(".kjx"))
+            return AdditionalGames.existingInstaller(context, uri, autoStart, finishHost);
+        SymbianImportDialog dialog = new SymbianImportDialog(); Bundle args = new Bundle();
+        args.putParcelable("uri", uri); args.putBoolean("autoStart", autoStart); args.putBoolean("finishHost", finishHost);
+        dialog.setArguments(args); return dialog;
+    }
+    @Override public Dialog onCreateDialog(Bundle saved) {
+        binding = DialogInstallerBinding.inflate(getLayoutInflater());
+        Uri uri = requireArguments().getParcelable("uri");
+        binding.installerTitle.setText("Add to library");
+        binding.installerMessage.setText(SymbianFiles.name(requireContext(), uri));
+        binding.installationStatus.setText("Inspecting selected file");
+        binding.installationProgress.setVisibility(View.VISIBLE);
+        binding.buttonInstall.setVisibility(View.GONE); binding.buttonStart.setVisibility(View.GONE);
+        binding.buttonClose.setContentDescription("Cancel"); binding.buttonClose.setTooltipText("Cancel");
+        binding.buttonClose.setOnClickListener(v -> dismiss());
+        model = new ViewModelProvider(this).get(Inspection.class);
+        model.state.observe(this, this::render);
+        model.start(uri);
+        AlertDialog dialog = new AlertDialog.Builder(requireContext()).setView(binding.getRoot()).create();
+        dialog.setOnKeyListener((d, key, event) -> {
+            if (key != KeyEvent.KEYCODE_BUTTON_B && key != KeyEvent.KEYCODE_BUTTON_A && key != KeyEvent.KEYCODE_BACK) return false;
+            if (event.getAction() == KeyEvent.ACTION_UP) binding.buttonClose.performClick();
+            return true;
+        });
+        return dialog;
+    }
+    @Override public void onStart() {
+        super.onStart();
+        requireDialog().getWindow().setBackgroundDrawable(new ColorDrawable(Color.TRANSPARENT));
+        android.util.DisplayMetrics metrics = getResources().getDisplayMetrics();
+        requireDialog().getWindow().setLayout(Math.min(Math.round(440 * metrics.density),
+                metrics.widthPixels - Math.round(24 * metrics.density)),
+                Math.min(Math.round(240 * metrics.density), metrics.heightPixels - Math.round(48 * metrics.density)));
+        binding.buttonClose.requestFocus();
+    }
+    @Override public void onResume() { super.onResume(); render(model.state.getValue()); }
+    private void render(Result result) {
+        if (result == null || binding == null || delivered) return;
+        binding.installationStatus.setText(result.message);
+        if (result.error) {
+            binding.installationProgress.setVisibility(View.GONE);
+            binding.buttonClose.setContentDescription("Close"); binding.buttonClose.setTooltipText("Close"); return;
+        }
+        if (result.kind == null || !isResumed() || getParentFragmentManager().isStateSaved()) return;
+        Context context = requireContext(); FragmentManager fragments = getParentFragmentManager();
+        Uri uri = requireArguments().getParcelable("uri");
+        boolean auto = requireArguments().getBoolean("autoStart"), finish = requireArguments().getBoolean("finishHost");
+        if (result.kind != ImportKind.Kind.EXISTING) {
+            try {
+                File staged = model.transfer();
+                try {
+                    context.startActivity(new Intent(context, SymbianActivity.class)
+                            .putExtra("symbian.importFile", staged.getName())
+                            .putExtra("symbian.importName", SymbianFiles.name(context, uri)));
+                } catch (RuntimeException error) { Files.deleteIfExists(staged.toPath()); throw error; }
+            } catch (IOException | RuntimeException error) {
+                binding.installationStatus.setText(error.getMessage()); binding.installationProgress.setVisibility(View.GONE); return;
+            }
+        }
+        delivered = true;
+        dismiss();
+        if (result.kind == ImportKind.Kind.EXISTING) {
+            AdditionalGames.existingInstaller(context, uri, auto, finish).show(fragments, "installer");
+        }
+    }
+    @Override public void onDestroyView() { binding = null; super.onDestroyView(); }
+
+    private static final class Result {
+        final ImportKind.Kind kind; final String message; final boolean error;
+        Result(ImportKind.Kind kind, String message, boolean error) { this.kind = kind; this.message = message; this.error = error; }
+    }
+    public static final class Inspection extends AndroidViewModel {
+        final MutableLiveData<Result> state = new MutableLiveData<>();
+        private final ExecutorService worker = Executors.newSingleThreadExecutor();
+        private Future<?> work;
+        private boolean cancelled;
+        private File owned;
+        public Inspection(Application application) { super(application); }
+        synchronized void start(Uri uri) {
+            if (work != null) return;
+            work = worker.submit(() -> {
+                File staged = null;
+                try {
+                    staged = SymbianFiles.stage(getApplication(), uri, PreparedSystemArchive.MAX_INPUT,
+                            text -> { if (Thread.currentThread().isInterrupted()) throw new InterruptedIOException("Import cancelled");
+                                state.postValue(new Result(null, text, false)); });
+                    ImportKind.Kind kind = ImportKind.inspect(staged, SymbianFiles.name(getApplication(), uri));
+                    synchronized (this) {
+                        if (cancelled) return;
+                        owned = staged; staged = null;
+                        state.postValue(new Result(kind, "Ready", false));
+                    }
+                } catch (Exception error) { state.postValue(new Result(null, error.getMessage(), true)); }
+                finally { if (staged != null) remove(staged); }
+            });
+        }
+        synchronized File transfer() throws IOException {
+            if (cancelled || owned == null) throw new IOException("Selected import is no longer available");
+            File file = owned; owned = null; return file;
+        }
+        @Override protected synchronized void onCleared() {
+            cancelled = true; if (work != null) work.cancel(true); worker.shutdownNow();
+            if (owned != null) { remove(owned); owned = null; }
+        }
+        private static void remove(File file) {
+            try { Files.deleteIfExists(file.toPath()); }
+            catch (IOException error) { android.util.Log.w("AbyssSymbian", "Cannot clean staged input", error); }
+        }
+    }
+}

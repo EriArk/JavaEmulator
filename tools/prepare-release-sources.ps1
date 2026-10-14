@@ -1,9 +1,10 @@
-param([switch]$Offline)
+param([switch]$Offline, [switch]$Symbian)
 $ErrorActionPreference = 'Stop'
 $root = (Resolve-Path (Join-Path $PSScriptRoot '..')).Path
 Push-Location $root
 try {
     $args = @(':app:releaseDependencyInventory', '--console=plain')
+    if ($Symbian) { $args += '-PsymbianRelease=true' }
     if ($Offline) { $args += '--offline' }
     & ./gradlew.bat @args
     if ($LASTEXITCODE -ne 0) { throw 'Dependency inventory failed' }
@@ -16,7 +17,9 @@ try {
             if ($Offline) { throw "Source archive missing: $($item.file)" }
             & curl.exe -sS -L --fail --connect-timeout 20 --max-time 300 -o ($path + '.part') $item.url
             if ($LASTEXITCODE -ne 0) { throw 'Source download failed' }
-            if ((Get-FileHash ($path + '.part')).Hash -ne $item.sha256) { throw 'Source archive hash mismatch' }
+            if ((Get-FileHash ($path + '.part')).Hash -ne $item.sha256) {
+                throw "Source archive hash mismatch: $($item.file). Do not repin automatically; check the matching previous release source bundle."
+            }
             Move-Item -LiteralPath ($path + '.part') -Destination $path
         }
         if ((Get-FileHash $path).Hash -ne $item.sha256) { throw "Source archive hash mismatch: $($item.file)" }

@@ -265,22 +265,25 @@ public final class MophunGameActivity extends Activity implements InputManager.I
     }
 
     private void showMenuPage() {
-        menu.page("Paused");
-        if (ProfilesManager.isPreview(profile)) {
-            menu.action("Keep changes", android.R.drawable.ic_menu_save, this::keepPreview);
-            menu.action("Undo changes", android.R.drawable.ic_menu_revert, this::undoPreview);
-        }
-        menu.action("Resume", android.R.drawable.ic_media_play, () -> menu.dismiss());
-        menu.action("Display", R.drawable.ic_quick_size, () -> settingsPages().display());
-        menu.action("Controls", R.drawable.ic_action_keyboard, () -> settingsPages().controls());
-        menu.action("Screenshot", R.drawable.ic_action_screenshot, () -> {
-            menu.dismiss(); takeScreenshot();
-        });
+        new ru.playsoftware.j2meloader.input.GameMenuPages(menu,
+                new ru.playsoftware.j2meloader.input.GameMenuPages.Host() {
+            public void display() { settingsPages().display(); }
+            public void controls() { settingsPages().controls(); }
+            public void more() { showMorePage(); }
+            public boolean hasPreview() { return ProfilesManager.isPreview(profile); }
+            public void keep() { keepPreview(); }
+            public void undo() { undoPreview(); }
+            public void exit() { leaveGame(); }
+        }, this::takeScreenshot).home();
+    }
+
+    private void showMorePage() {
+        menu.page("More");
+        menu.setBackAction(this::showMenuPage);
         menu.toggle(getString(R.string.screenshot_button), Screenshots.isButtonVisible(this), value -> {
             Screenshots.setButtonVisible(this, value);
             updateScreenshotButton();
         });
-        menu.action("Library", android.R.drawable.ic_menu_revert, this::confirmLibraryExit);
     }
 
     private ru.playsoftware.j2meloader.config.GameSettingsPages settingsPages() {
@@ -355,16 +358,13 @@ public final class MophunGameActivity extends Activity implements InputManager.I
         menu.action("Back", android.R.drawable.ic_media_previous, this::showMenuPage);
     }
 
-    private void confirmLibraryExit() {
-        menu.page("Unsaved progress may be lost");
-        menu.action("Return to game", android.R.drawable.ic_media_play, () -> menu.dismiss());
-        menu.action("Leave without saving", android.R.drawable.ic_menu_revert, () -> {
+    private void leaveGame() {
+            visible = false;
             session.stop();
             startActivity(android.content.Intent.makeRestartActivityTask(new android.content.ComponentName(
                     this, ru.playsoftware.j2meloader.MainActivity.class)));
             finish();
             menu.dismiss();
-        });
     }
 
     private void cancelSelect() {

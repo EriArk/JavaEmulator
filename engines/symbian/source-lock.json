@@ -1,0 +1,300 @@
+{
+  "eka2l1": "11f5b6cd141c0884a130ee45743f1f5e17bb1783",
+  "components": [
+    {
+      "path": "",
+      "revision": "11f5b6cd141c0884a130ee45743f1f5e17bb1783",
+      "archive": "00-eka2l1.zip",
+      "sha256": "8f29224a95a17264bb11f689ebd797243152a82ec23b761bd61248b7c5bc0655"
+    },
+    {
+      "path": "src/emu/drivers/resources/upscale",
+      "revision": "49dd304cb97e7c0871256f2bafba7b6fd41511cb",
+      "archive": "01-src_emu_drivers_resources_upscale.zip",
+      "sha256": "508e2a2664c6d5db602f1710bd2ba38ea3b65fdf8e165d1826ac0264a8a55d76"
+    },
+    {
+      "path": "src/external/Catch2",
+      "revision": "216713a4066b79d9803d374f261ccb30c0fb451f",
+      "archive": "02-src_external_Catch2.zip",
+      "sha256": "cc18ce2aa2cd04b5d3daa008658f3c42b715774463b92c4d642204e0d2e9cc31"
+    },
+    {
+      "path": "src/external/RectangleBinPack",
+      "revision": "83e7e1132d93777e3732dfaae26b0f3703be2036",
+      "archive": "03-src_external_RectangleBinPack.zip",
+      "sha256": "464846144ff8a22ad59e1d1b542e8d0cca6bdb62d660351e136659f44418a095"
+    },
+    {
+      "path": "src/external/SDL_GameControllerDB",
+      "revision": "a113e7fa25cc13ca6131b20a23568dc42c8a7dab",
+      "archive": "04-src_external_SDL_GameControllerDB.zip",
+      "sha256": "eb2b58156c578259cd6220a9b5110bda917ccd33e1269681f88873b2d5b268cf"
+    },
+    {
+      "path": "src/external/TinySoundFont",
+      "revision": "e86d986ed6ccb93b4ee41d2de656c49c721b18db",
+      "archive": "05-src_external_TinySoundFont.zip",
+      "sha256": "33eb9c55745d6b377f205b9e12893505f565502cf6ede194c1ed567b0991551d"
+    },
+    {
+      "path": "src/external/capstone",
+      "revision": "52c66920fc7bfa15fd9626dfd9f646c698aaa99b",
+      "archive": "06-src_external_capstone.zip",
+      "sha256": "9e1463f422d89564f9ca900a605d4fd00fe1305849c30c56e55df1408847537c"
+    },
+    {
+      "path": "src/external/cubeb",
+      "revision": "d512bfa07a327e0ae7e7aef892dcce01cbeaa67c",
+      "archive": "07-src_external_cubeb.zip",
+      "sha256": "729d7466eb1c5b78cfff8ca0643480b135ce9d84c47728220c8ed839ac480067"
+    },
+    {
+      "path": "src/external/cubeb/cmake/sanitizers-cmake",
+      "revision": "aab6948fa863bc1cbe5d0850bc46b9ef02ed4c1a",
+      "archive": "08-src_external_cubeb_cmake_sanitizers-cmake.zip",
+      "sha256": "e19f11f37b8509e09ec970d456cc8ba47d349a7aed9f4dd426c24430ba9fd144"
+    },
+    {
+      "path": "src/external/cubeb/googletest",
+      "revision": "800f5422ac9d9e0ad59cd860a2ef3a679588acb4",
+      "archive": "09-src_external_cubeb_googletest.zip",
+      "sha256": "39db818f62c2139d975514954e61e9ecfbcab06bc4dd8f50b0dc0dbf9dbb8ca2"
+    },
+    {
+      "path": "src/external/discord-rpc",
+      "revision": "963aa9f3e5ce81a4682c6ca3d136cddda614db33",
+      "archive": "10-src_external_discord-rpc.zip",
+      "sha256": "feed3437c31ebe83805b3d77f4b65f1d7e826be236a44891ecfc304a23c33481"
+    },
+    {
+      "path": "src/external/dynarmic",
+      "revision": "2375a96d2848401986ff65c3e5c37aeca80253f5",
+      "archive": "11-src_external_dynarmic.zip",
+      "sha256": "811d87fad6ef99d63405a34b823ea0f9b53e8c181a69d69c603b2a1642427f5a"
+    },
+    {
+      "path": "src/external/ext-boost",
+      "revision": "717900f94b5e9acbc69377cdeee9d7f952ff725c",
+      "archive": "12-src_external_ext-boost.zip",
+      "sha256": "41403542af3ebf2cd11c04eb55a3ccbee6834fc7f3f027c05b9ed6b29de25af2"
+    },
+    {
+      "path": "src/external/ffmpeg",
+      "revision": "a6e15238fb8553338d58b12c2aa1c2fc293d2fa5",
+      "archive": "13-src_external_ffmpeg.zip",
+      "sha256": "4e96876e5ced4be906c2980185dd30367dc705934655a2a3fbe56462cfb3f041"
+    },
+    {
+      "path": "src/external/fmt",
+      "revision": "40626af88bd7df9a5fb80be7b25ac85b122d6c21",
+      "archive": "14-src_external_fmt.zip",
+      "sha256": "c3ddff9b3e5879104541f02444820981acb6c0e2534f1be81c7068c228035b3e"
+    },
+    {
+      "path": "src/external/freetype",
+      "revision": "f42ce25563b73fed0123d18a2556b9ba01d2c76b",
+      "archive": "15-src_external_freetype.zip",
+      "sha256": "002f190aa7ec1fd65100ff0248919335744c4d153b5688a038a37a8fdcf41e31"
+    },
+    {
+      "path": "src/external/freetype/subprojects/dlg",
+      "revision": "72dfcc858c040c54a6a0b88fcb7e70ee186d3167",
+      "archive": "16-src_external_freetype_subprojects_dlg.zip",
+      "sha256": "0c3ef3093f79e0b3b9fd7e3d594bc145c25be8b50c1d2866b26ec205f1b7f527"
+    },
+    {
+      "path": "src/external/glfw",
+      "revision": "e65de2941c056ee5833b4dab3db36b297b53aa14",
+      "archive": "17-src_external_glfw.zip",
+      "sha256": "d46bcd2dbb0365017ac531953607f99623024435363bd0d26ca36693c6ce51e9"
+    },
+    {
+      "path": "src/external/glm",
+      "revision": "8d1fd52e5ab5590e2c81768ace50c72bae28f2ed",
+      "archive": "18-src_external_glm.zip",
+      "sha256": "f9e3aa865bd9c8e7c960ca1c7884b383ae90734de630adcd0b04e85e759cce97"
+    },
+    {
+      "path": "src/external/libarchive",
+      "revision": "27cbc7827172698143e440801fc0ba39ccb4f1f5",
+      "archive": "19-src_external_libarchive.zip",
+      "sha256": "9705cf36f98750cd12f8186e6b54f425e3272015fb22118f84696aa97b4bd6ab"
+    },
+    {
+      "path": "src/external/libcxxabi",
+      "revision": "ce3db128f9e4d6d19d1cdbe39bb45fcc64a5adb0",
+      "archive": "20-src_external_libcxxabi.zip",
+      "sha256": "18f7e6c5e2c2b02d7cb86b96e77d3b96f3a2814351378a10d32dae69766ff0e9"
+    },
+    {
+      "path": "src/external/libfat",
+      "revision": "ea55c7a718780057e7fe0224d7423c4279fd3df7",
+      "archive": "21-src_external_libfat.zip",
+      "sha256": "f6cd7e9bcffbb25e877de5b40425b2926e9677a2198f3334290bc652a65d3adb"
+    },
+    {
+      "path": "src/external/libtess2",
+      "revision": "fc52516467dfa124bdd967c15c7cf9faf02a34ca",
+      "archive": "22-src_external_libtess2.zip",
+      "sha256": "67a38534b327ae9bd8e345880b55285c6951772facdc3b39ab16eddf50b700d2"
+    },
+    {
+      "path": "src/external/libuv",
+      "revision": "d4eb276eea7cb19a888fe97d7759d97c7092ad02",
+      "archive": "23-src_external_libuv.zip",
+      "sha256": "2645b18121f503debdd526cfd1632d1f2407b666540601e52e4095a93204b633"
+    },
+    {
+      "path": "src/external/luajit",
+      "revision": "0d313b243194a0b8d2399d8b549ca5a0ff234db5",
+      "archive": "24-src_external_luajit.zip",
+      "sha256": "90d6fbeb5427abe18aad4c9a0f5f9f63070eb08c5cb3a165df8a1ef23abcb3a6"
+    },
+    {
+      "path": "src/external/luajit-android-src",
+      "revision": "bfcb74ed36d733bae249fe7642b7324a56be88d0",
+      "archive": "25-src_external_luajit-android-src.zip",
+      "sha256": "7ff3380298a99f60e51a24cf339786516fd774de578c26abf629fac1187fb80b"
+    },
+    {
+      "path": "src/external/luajit-cmake",
+      "revision": "7c794d89df3c6421eb7e62c5e365660559d0e8f6",
+      "archive": "26-src_external_luajit-cmake.zip",
+      "sha256": "b1dd763dc617f276632f1cf56feb3ee0af5900bcd3f61265039ce92843f71d52"
+    },
+    {
+      "path": "src/external/lunasvg",
+      "revision": "51c65dc8b77986513c2483c9b0b942b38e6bf197",
+      "archive": "27-src_external_lunasvg.zip",
+      "sha256": "24004820227e76198033b186493975580611adaef4a3a850fea2161c65c780c1"
+    },
+    {
+      "path": "src/external/mbedtls",
+      "revision": "068ff080b369adfac81509f9b57b2afabaf82dc5",
+      "archive": "28-src_external_mbedtls.zip",
+      "sha256": "e61c5708cd3fdb9b1255f2f38378f3da74e3ccf758319385ecf6bcd4cbd2149b"
+    },
+    {
+      "path": "src/external/mbedtls/framework",
+      "revision": "dde0c4a0e448a0552f18817dcea633bb851fd288",
+      "archive": "29-src_external_mbedtls_framework.zip",
+      "sha256": "7f8f96114194606c32fd82401bc9f7ee6a4044b3d0ddf18bcde01843b563500a"
+    },
+    {
+      "path": "src/external/microprofile",
+      "revision": "b910f4df7f670affec65c1a4dacbf6018c9e0f1b",
+      "archive": "30-src_external_microprofile.zip",
+      "sha256": "2676465a5b2fa1b221254d9cc8d2ada8c37d61b72eb45b1626caafa0da0346da"
+    },
+    {
+      "path": "src/external/microprofile/distorm",
+      "revision": "39de02a118f95e254550a944843ee69f721c79d9",
+      "archive": "31-src_external_microprofile_distorm.zip",
+      "sha256": "cea7cb15c43cd889bb8ecfb15b3e1f03057401a94fcf3be8499d1903d7f795b2"
+    },
+    {
+      "path": "src/external/microprofile/stb",
+      "revision": "f67165c2bb2af3060ecae7d20d6f731173485ad0",
+      "archive": "32-src_external_microprofile_stb.zip",
+      "sha256": "2e62f9d53a3f442b66d558afd7a68d3d5e90da82a18ad2c682ee25bbaf156589"
+    },
+    {
+      "path": "src/external/miniBAE",
+      "revision": "4a63a5d1a5ba50b71445b6a4b1efdd139872541b",
+      "archive": "33-src_external_miniBAE.zip",
+      "sha256": "339562160e1ae8e5dc460a6b824e729c800a6ea9e4cdbb1165c099aca46c73c4"
+    },
+    {
+      "path": "src/external/miniupnp",
+      "revision": "fa42d8f9316bf9c1ca14317e5a6e0d4a21365629",
+      "archive": "34-src_external_miniupnp.zip",
+      "sha256": "0c8ffa913d709d48ec71203dd466a8fa085adda5d4cb6051e4b854807e7e85b5"
+    },
+    {
+      "path": "src/external/pugixml",
+      "revision": "5e64076af9691ce8100aedf7a61cb338f2596151",
+      "archive": "35-src_external_pugixml.zip",
+      "sha256": "42c551903c1d34dd4dff863177b619445d27b5fc6923d4fe364b29410d5148d6"
+    },
+    {
+      "path": "src/external/rapidjson",
+      "revision": "24b5e7a8b27f42fa16b96fc70aade9106cf7102f",
+      "archive": "36-src_external_rapidjson.zip",
+      "sha256": "69b1515f701a7836136c2476c543a95245c0c740b6a34975d6c038f263a1d056"
+    },
+    {
+      "path": "src/external/rapidjson/thirdparty/gtest",
+      "revision": "ba96d0b1161f540656efdaed035b3c062b60e006",
+      "archive": "37-src_external_rapidjson_thirdparty_gtest.zip",
+      "sha256": "9fe7f9f4ca56fdfa76167f33b2d392c0721ac6420daee5cec96179f90957796b"
+    },
+    {
+      "path": "src/external/re2",
+      "revision": "11073deb73b3d01018308863c0bcdfd0d51d3e70",
+      "archive": "38-src_external_re2.zip",
+      "sha256": "e04f30abebd9627990f1c93919a0186652fe0351c6592af49bac3f0e5d04aa73"
+    },
+    {
+      "path": "src/external/sdl2-cmake-scripts",
+      "revision": "e037fb54f32973343fada6a051d3a3f8adf3a4a0",
+      "archive": "39-src_external_sdl2-cmake-scripts.zip",
+      "sha256": "378db5658ef21de43e6a6d776f7d92df7fd8a3d24d9d105f975a352c1b91f5f6"
+    },
+    {
+      "path": "src/external/spdlog",
+      "revision": "79524ddd08a4ec981b7fea76afd08ee05f83755d",
+      "archive": "40-src_external_spdlog.zip",
+      "sha256": "ada3808ebe08a65663757c862e7a6be44241a8b2db84293e29542fd9280ffe39"
+    },
+    {
+      "path": "src/external/stb",
+      "revision": "f54acd4e13430c5122cab4ca657705c84aa61b08",
+      "archive": "41-src_external_stb.zip",
+      "sha256": "a4193a801d7296d388ec6a34f215161c465bcfbb4f962693ff63343f4ff16718"
+    },
+    {
+      "path": "src/external/thread-pool",
+      "revision": "6790920f61ab3e928ddaea835ab6a803d467f41d",
+      "archive": "42-src_external_thread-pool.zip",
+      "sha256": "0441622fed3ce47ba36ea1232d3a2080f038f8d91eab58addfbe9dcd1df48c18"
+    },
+    {
+      "path": "src/external/uvw",
+      "revision": "cf0f8c6fd4084900646b7c83b4682a12be76f10e",
+      "archive": "43-src_external_uvw.zip",
+      "sha256": "c86bb57aaecd4b35a29897f1b694a0e3a64b632eb1294b1428ad010ea15bd4e7"
+    },
+    {
+      "path": "src/external/xxHash",
+      "revision": "ea9c098e93d07febe20bcf376e0f83f4acbe670f",
+      "archive": "44-src_external_xxHash.zip",
+      "sha256": "8030ec44a2592efc2a783b7e490317bdc4e52c8da1f38a9906a9f0feb9dfde06"
+    },
+    {
+      "path": "src/external/xz",
+      "revision": "4b73f2ec19a99ef465282fbce633e8deb33691b3",
+      "archive": "45-src_external_xz.zip",
+      "sha256": "9dc4ea3e8506ad85f97649306c1d30757551ae9f92de7065f0a2a3d3d3e2808d"
+    },
+    {
+      "path": "src/external/yaml-cpp",
+      "revision": "99222fc938ed9841098782928723d6bdeaa2a0b2",
+      "archive": "46-src_external_yaml-cpp.zip",
+      "sha256": "17cceaa9b45d7ec421315f526c1dc655f3142792a1ac20adb54e73c2d5c7acdf"
+    },
+    {
+      "path": "src/external/zlib",
+      "revision": "51b7f2abdade71cd9bb0e7a373ef2610ec6f9daf",
+      "archive": "47-src_external_zlib.zip",
+      "sha256": "21eeabd8b908ff14d5c9272463aaca44381e8b2c496f7bffbad187e88155f34a"
+    },
+    {
+      "path": "abyss-libuv",
+      "revision": "0c1fa696aa502eb749c2c4735005f41ba00a27b8",
+      "archive": "48-abyss-libuv.zip",
+      "sha256": "6ad28049181f6f8fdf687615cb5a60ea5950971b2f6d6d3c001cf5e2535a1403"
+    }
+  ],
+  "excluded": "Unshipped sound banks, miniBAE tools/banks and game/phone packages"
+}

@@ -17,3 +17,7 @@ dependencyResolutionManagement {
 }
 rootProject.name = "AbyssME"
 include ':app', ':dexlib'
+if (['symbianExperiment', 'symbianRelease', 'symbianReleaseCheck'].any { providers.gradleProperty(it).orNull == 'true' }) {
+    include ':symbian-core'
+    project(':symbian-core').projectDir = file('engines/symbian/core')
+}

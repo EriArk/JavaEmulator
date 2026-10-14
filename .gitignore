@@ -48,3 +48,10 @@ __pycache__/
 # Private engine experiments, game archives and device-session backups
 /local-games/
 /test-screenshots/
+/Mobile - Symbian (20191008).7z
+# User-supplied game and phone archives at the workspace root are private.
+/*.7z
+/*.rar
+/*.zip
+/*.rom
+/*.rpkg

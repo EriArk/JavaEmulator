@@ -1,0 +1,56 @@
+plugins {
+    id 'com.android.library'
+}
+
+dependencies {
+    implementation 'org.apache.commons:commons-compress:1.26.2'
+    implementation 'org.tukaani:xz:1.9'
+}
+
+def upstream = rootProject.file(providers.gradleProperty('symbianSourceDir').orElse('local-games/eka2l1-audit/upstream').get())
+def msys = providers.gradleProperty('symbianMsys').orElse("${System.getProperty('user.home')}/msys64").get().replace('\\', '/')
+android {
+    namespace 'io.github.eriark.abyssme.symbian.core'
+    compileSdk 34
+    ndkVersion '28.2.13676358'
+    defaultConfig {
+        minSdk 29
+        ndk { abiFilters 'arm64-v8a' }
+        externalNativeBuild {
+            cmake {
+                arguments "-DEKA2L1_SOURCE_DIR=${upstream.absolutePath.replace('\\', '/')}",
+                        '-DEKA2L1_BUILD_TOOLS=OFF', '-DEKA2L1_BUILD_TESTS=OFF',
+                        '-DEKA2L1_BUILD_VULKAN_BACKEND=OFF', '-DEKA2L1_SCRIPTING_LUA=OFF',
+                        "-DEKA2L1_FFMPEG_BASH=${msys}/usr/bin/bash.exe",
+                        "-DEKA2L1_FFMPEG_MAKE=${msys}/usr/bin/make.exe",
+                        '-DCMAKE_BUILD_TYPE=Release', '-DANDROID_STL=c++_shared'
+                targets 'native-lib'
+            }
+        }
+        consumerProguardFiles 'consumer-rules.pro'
+    }
+    externalNativeBuild {
+        cmake { path 'CMakeLists.txt'; version '3.22.1' }
+    }
+    sourceSets.debug.assets.srcDir layout.buildDirectory.dir('curated-assets/debug')
+    sourceSets.release.assets.srcDir layout.buildDirectory.dir('curated-assets/release')
+    compileOptions {
+        sourceCompatibility JavaVersion.VERSION_1_8
+        targetCompatibility JavaVersion.VERSION_1_8
+    }
+}
+
+// Never package the upstream assets directory wholesale: it contains sound banks,
+// disabled scripts, submodule metadata and build files unrelated to this host.
+['Debug', 'Release'].each { variant ->
+    def curateAssets = tasks.register("curateSymbian${variant}Assets", Sync) {
+        dependsOn "externalNativeBuild${variant}"
+        from(new File(upstream, 'src/emu/android/app/src/main/assets')) {
+            include 'patch/*.dll', 'patch/*.map', 'patch/*.inf', 'compat/*.yml', 'resources/*.vert', 'resources/*.frag'
+        }
+        into layout.buildDirectory.dir("curated-assets/${variant.toLowerCase()}")
+    }
+    tasks.configureEach {
+        if (name == "package${variant}Assets" || (name.contains(variant) && name.toLowerCase().contains('lint'))) dependsOn curateAssets
+    }
+}

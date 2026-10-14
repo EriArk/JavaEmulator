@@ -33,14 +33,30 @@ public final class GameMenuDialog extends Dialog {
         requestWindowFeature(Window.FEATURE_NO_TITLE);
     }
     @Override public void show() {
+        boolean fullscreen = isFullscreenHost();
+        // Set this before attaching the dialog: a transient system-bar resize
+        // can trigger the game's configuration handler and close its menu.
+        if (fullscreen) getWindow().addFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN);
         super.show();
-        if (ru.playsoftware.j2meloader.BuildConfig.HANDHELD_MODE) {
-            getWindow().addFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN);
+        if (fullscreen) {
             androidx.core.view.WindowInsetsControllerCompat bars =
                     androidx.core.view.WindowCompat.getInsetsController(getWindow(), getWindow().getDecorView());
             bars.setSystemBarsBehavior(androidx.core.view.WindowInsetsControllerCompat.BEHAVIOR_SHOW_TRANSIENT_BARS_BY_SWIPE);
             bars.hide(androidx.core.view.WindowInsetsCompat.Type.systemBars());
         }
+    }
+    private boolean isFullscreenHost() {
+        if (ru.playsoftware.j2meloader.BuildConfig.HANDHELD_MODE) return true;
+        Context context = getContext();
+        while (context instanceof android.content.ContextWrapper) {
+            if (context instanceof android.app.Activity) {
+                Window host = ((android.app.Activity) context).getWindow();
+                return (host.getAttributes().flags & WindowManager.LayoutParams.FLAG_FULLSCREEN) != 0
+                        || (host.getDecorView().getSystemUiVisibility() & View.SYSTEM_UI_FLAG_FULLSCREEN) != 0;
+            }
+            context = ((android.content.ContextWrapper) context).getBaseContext();
+        }
+        return false;
     }
     @Override protected void onCreate(Bundle state) {
         super.onCreate(state);

@@ -41,6 +41,17 @@ source sets; stale compiler outputs must not survive into a release.
 
 ## Publish
 
+For 0.3 combined builds, use `-PsymbianRelease=true` for every build, inventory
+and APK verification command. Prepare `tools/prepare-release-sources.ps1 -Symbian`
+and `tools/prepare-symbian-sources.py`; include both dependency bundles with the
+matching app source. Test restoration of the exported engine source rather than
+assuming an ignored local checkout is sufficient. See
+[asset curation and source restoration](../engines/symbian/DISTRIBUTION.md).
+The optional `-PsymbianReleaseCheck=true` rehearsal is debug-signed, uses isolated
+IDs and retains test-runner APIs; it is not a substitute for inspecting and
+installing the final signed APKs. Original upstream sound banks, ROMs, game
+packages and private test inputs must not be shipped.
+
 1. Push the reviewed source/docs and the corresponding version tag, then create
    a draft GitHub Release. Mark beta releases as prereleases.
 2. Manually upload the two signed APKs and their checksum list. Never upload a

@@ -1,13 +1,14 @@
 # AbyssME
 
-**A modern J2ME emulator for Android handhelds and phones.**
+**Old mobile games on Android handhelds and phones.**
 
 AbyssME is an independent fork of
 [J2ME Loader](https://github.com/nikita36078/J2ME-Loader), focused on making
 old mobile Java games feel at home on modern landscape handhelds. It builds on
 the J2ME Loader runtime while replacing the setup-heavy workflow with a game
 library, automatic first-launch preparation, and fast per-game controller
-mapping.
+mapping. Mophun and experimental Symbian / N-Gage support share the same
+library, display controls and in-game menu.
 
 The current beta provides two installable variants built from the same emulation
 core: a controller-first **Handheld** APK and a portrait/touch-friendly
@@ -16,7 +17,7 @@ core: a controller-first **Handheld** APK and a portrait/touch-friendly
 > **Project status:** Beta. AbyssME is usable, but compatibility automation and
 > launcher integration still need testing across more games and devices.
 
-[Download 0.2.0 Beta 1](https://github.com/EriArk/JavaEmulator/releases/tag/v0.2.0-beta.1)
+[Download 0.3.0 Beta 1](https://github.com/EriArk/JavaEmulator/releases/tag/v0.3.0-beta.1)
 
 ## Current Beta
 
@@ -24,10 +25,17 @@ For website copy, progress posts and handoffs, start with the
 [current product/development status](docs/PROJECT_STATUS.md) and
 [dated changelog](CHANGELOG.md). They also describe local/private experiments,
 explicitly separated from public downloads. The
-[0.2.0 beta.1 notes](docs/releases/v0.2.0-beta.1.md) include new device captures,
+[0.3.0 beta.1 notes](docs/releases/v0.3.0-beta.1.md) include the combined-engine scope,
 verification limits and source downloads.
 
-The 0.2.0 beta.1 release includes a graphical controller mapper with diagonal bindings, two Phone touch
+The 0.3 beta adds embedded Symbian / N-Gage, reusable system-file setup,
+SIS/SISX and native-game archive import, and whole-phone backup/restore.
+Games from all three engines appear in the library. Their common in-game menu
+provides **Resume, Display, Controls, Screenshot, More and Exit game**.
+Symbian compatibility remains experimental; games and firmware are not included.
+See [what to provide for Symbian](docs/releases/v0.3.0-beta.1.md#getting-started-with-symbian).
+
+The release retains the graphical controller mapper with diagonal bindings, two Phone touch
 layouts, live Java game-image rotation, quick display settings, J2ME Loader
 library import, menu-based backup/restore, a hideable screenshot button and
 non-destructive database migrations. Saved Phone orientation and settings-field
@@ -99,6 +107,9 @@ Games are not bundled with the APKs.
 ## Requirements
 
 - Android 10 or newer (API 29+)
+- 64-bit ARM device (arm64-v8a) for the combined 0.3 APKs; the Java/Mophun-only
+  [0.2 beta](https://github.com/EriArk/JavaEmulator/releases/tag/v0.2.0-beta.1)
+  remains available for other architectures
 - A physical controller is recommended for the Handheld build
 
 The Handheld build is intentionally landscape-only and has no on-screen keypad.
@@ -124,15 +135,20 @@ Older J2ME Loader builds also use a different package.
 1. Choose **Add game** for one file, or **Folders** to index a collection.
 2. Select a JAR, JAD, ZIP, or 7Z file using Android's file picker. Experimental
    Mophun uses a direct `.mpn` file; Mophun archive/folder indexing is not included.
-3. Start the game. On first launch, AbyssME analyzes metadata, resources and API
+3. Start the Java game. On first launch, AbyssME analyzes metadata, resources and API
    hints to select initial display and compatibility settings, then saves them.
-4. On Handheld, tap the game display for quick **View**, **Screen**, and
-   **Controls** actions, or hold **Select** for per-game mapping.
+4. Open the in-game menu for **Display** and **Controls**, or hold **Select**
+   for per-game mapping. Java also retains tap-to-show quick display actions.
 5. On Phone, open **Controls > Touch layout** and choose **Phone** or **Gamepad**.
    Try display/control changes in the game, then **Keep** or **Undo** them.
 
 In the library, **Y** toggles the selected game as a favorite and **L1/R1**
 cycles Gallery, List, and Grid views.
+
+For Symbian / N-Gage, add a compatible phone dump in **System files**, then add
+the game from the library. Setup asks for missing system/component installers
+and retains the selected game while you provide them. See the
+[Symbian setup notes](docs/releases/v0.3.0-beta.1.md#getting-started-with-symbian).
 
 ## External Launchers
 
@@ -141,6 +157,7 @@ The intended flow is to prepare a new source once, launch prepared games
 directly, and return to the frontend on exit. End-to-end cold/warm launch and
 return behavior still needs an ES-DE/Beacon verification pass; see
 [#7](https://github.com/EriArk/JavaEmulator/issues/7).
+Native Symbian/N-Gage frontend launch-and-return integration is not yet supported.
 
 - Handheld package: `io.github.eriark.abyssme`
 - Phone package: `io.github.eriark.abyssme.phone`
@@ -174,6 +191,10 @@ The M3G and Mophun sources are included; no private engine checkout is required:
 
 On Windows, use `gradlew.bat`. APK output is written under
 `app/build/outputs/apk/`.
+These commands build Java/Mophun only. For the complete 0.3 build, restore the
+separate Symbian source bundle, follow its [build prerequisites](engines/symbian/DISTRIBUTION.md),
+and pass `-PsymbianRelease=true`. Combined outputs are under
+`app/build/symbian-release/outputs/apk/`.
 GitHub Actions is intentionally disabled. Builds and checks are run locally,
 and release assets are uploaded manually.
 
@@ -188,7 +209,9 @@ and release assets are uploaded manually.
 - Back up libraries and saves before updating. Storage-provider restrictions and
   URI-alias duplicate imports are not universally resolved.
 - Mophun is experimental; broad compatibility and audio are not established.
-  Symbian and N-Gage are not included.
+- Symbian/N-Gage is experimental and needs user-supplied system files. Some
+  games still fail or require specific phone/component versions; installation
+  success does not guarantee gameplay. See the [current limits](docs/releases/v0.3.0-beta.1.md#known-limits).
 
 Please report reproducible problems through
 [GitHub Issues](https://github.com/EriArk/JavaEmulator/issues) and include the

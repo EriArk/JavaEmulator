@@ -95,6 +95,7 @@ import io.reactivex.disposables.Disposable;
 import ru.playsoftware.j2meloader.BuildConfig;
 import ru.playsoftware.j2meloader.R;
 import ru.playsoftware.j2meloader.appsdb.AppRepository;
+import ru.playsoftware.j2meloader.catalog.ExternalLibrary;
 import ru.playsoftware.j2meloader.config.Config;
 import ru.playsoftware.j2meloader.config.ConfigActivity;
 import ru.playsoftware.j2meloader.config.ProfilesActivity;
@@ -141,6 +142,9 @@ public class AppsListFragment extends Fragment implements AppsListAdapter.Listen
 	private final ActivityResultLauncher<String> artworkLauncher = registerForActivityResult(
 			new ActivityResultContracts.GetContent(), this::onArtworkPicked);
 	private final ExecutorService folderExecutor = Executors.newSingleThreadExecutor();
+    private List<AppItem> databaseItems = java.util.Collections.emptyList();
+    private List<AppItem> externalItems = java.util.Collections.emptyList();
+    private int externalGeneration;
 
 	public static AppsListFragment newInstance(Uri data) {
 		AppsListFragment fragment = new AppsListFragment();
@@ -361,6 +365,13 @@ public class AppsListFragment extends Fragment implements AppsListAdapter.Listen
 
 	private void populateLibraryMenu(GameMenuDialog dialog) {
 		dialog.page("Library menu");
+		if (BuildConfig.SYMBIAN_EXPERIMENT) {
+			dialog.action("System files", R.drawable.ic_baseline_tune_24, () -> {
+				dialog.dismiss();
+				startActivity(new Intent().setClassName(requireContext(),
+						"io.github.eriark.abyssme.symbian.SymbianActivity"));
+			});
+		}
 		dialog.action("View: " + new String[]{"Gallery", "List", "Grid"}[adapter.getDisplayMode()],
 				android.R.drawable.ic_menu_view, () -> {
 			dialog.page("View");
@@ -677,6 +688,10 @@ public class AppsListFragment extends Fragment implements AppsListAdapter.Listen
 	}
 
 	private void startApp(AppItem item, boolean showSettings) {
+        if (item instanceof ExternalLibrary.Item) {
+            ((ExternalLibrary.Item) item).launch(requireActivity(), showSettings);
+            return;
+        }
 		if (!"ready".equals(item.getPreparationState()) && item.getSourceUri() != null) {
 			ru.playsoftware.j2meloader.catalog.AdditionalGames.install(requireContext(), getParentFragmentManager(),
 					Uri.parse(item.getSourceUri()), true, false);
@@ -692,7 +707,10 @@ public class AppsListFragment extends Fragment implements AppsListAdapter.Listen
 		if (selectedItem == null) {
 			return;
 		}
-		appRepository.toggleFavorite(selectedItem);
+		if (selectedItem instanceof ExternalLibrary.Item) {
+			((ExternalLibrary.Item) selectedItem).favorite();
+			publishLibrary();
+		} else appRepository.toggleFavorite(selectedItem);
 		updateDetail(selectedItem);
 	}
 
@@ -736,6 +754,17 @@ public class AppsListFragment extends Fragment implements AppsListAdapter.Listen
 	}
 
 	private void showActions(View anchor, AppItem appItem) {
+        if (appItem instanceof ExternalLibrary.Item) {
+            ExternalLibrary.Item item = (ExternalLibrary.Item) appItem;
+            GameMenuDialog dialog = new GameMenuDialog(requireContext(), item.getTitle());
+            dialog.show(); dialog.page(item.getTitle());
+            dialog.action("Play", android.R.drawable.ic_media_play, () -> { dialog.dismiss(); startApp(item, false); });
+            dialog.action(item.isFavorite() ? "Remove favorite" : "Add favorite", android.R.drawable.btn_star, () -> {
+                item.favorite(); dialog.dismiss(); publishLibrary(); updateDetail(item);
+            });
+            dialog.action("System files", R.drawable.ic_baseline_tune_24, () -> { dialog.dismiss(); startApp(item, true); });
+            return;
+        }
 		PopupMenu popup = new PopupMenu(requireContext(), anchor);
 		popup.inflate(R.menu.context_main);
 		Menu menu = popup.getMenu();
@@ -903,8 +932,46 @@ public class AppsListFragment extends Fragment implements AppsListAdapter.Listen
 		preferences.edit().putInt(PREF_APP_SORT, sortVariant).apply();
 	}
 
-	private void onDbUpdated(List<AppItem> items) {
+	@Override public void onResume() {
+		super.onResume();
+		if (!BuildConfig.SYMBIAN_EXPERIMENT) return;
+		Context context = requireContext().getApplicationContext();
+		android.app.Activity activity = requireActivity();
+		int generation = ++externalGeneration;
+		folderExecutor.execute(() -> {
+			try {
+				List<AppItem> items = ExternalLibrary.read(context);
+				activity.runOnUiThread(() -> {
+					if (binding == null || generation != externalGeneration) return;
+					externalItems = items; publishLibrary();
+				});
+			} catch (IOException | RuntimeException error) {
+				activity.runOnUiThread(() -> { if (binding != null && generation == externalGeneration) alertDbError(error); });
+			}
+		});
+	}
+
+	private void publishLibrary() {
+		List<AppItem> items = new java.util.ArrayList<>(databaseItems);
+		items.addAll(externalItems);
+		if (!externalItems.isEmpty()) {
+			java.text.Collator collator = java.text.Collator.getInstance();
+			int sort = appRepository.getSort();
+			java.util.Comparator<AppItem> byTitle = (a, b) -> collator.compare(a.getTitle(), b.getTitle());
+			java.util.Comparator<AppItem> byAuthor = (a, b) -> collator.compare(
+					a.getAuthor() == null ? "" : a.getAuthor(), b.getAuthor() == null ? "" : b.getAuthor());
+			java.util.Comparator<AppItem> order = (sort & 0x7fffffff) == 1
+					? java.util.Comparator.comparingLong(a -> Math.abs((long) a.getId()))
+					: (sort & 0x7fffffff) == 2 ? byAuthor : byTitle;
+			if (sort < 0) order = order.reversed();
+			items.sort(order.thenComparing(byTitle).thenComparing(AppItem::getPath));
+		}
 		adapter.setItems(items);
+	}
+
+	private void onDbUpdated(List<AppItem> items) {
+		databaseItems = items;
+		publishLibrary();
 		if (appUri != null) {
 			ru.playsoftware.j2meloader.catalog.AdditionalGames.install(requireContext(), getParentFragmentManager(), appUri, true, true);
 			appUri = null;
@@ -936,7 +1003,7 @@ public class AppsListFragment extends Fragment implements AppsListAdapter.Listen
 		Drawable cover = Drawable.createFromPath(item.getCoverPathExt());
 		if (cover != null) {
 			cover.setFilterBitmap(false);
-			binding.detailCover.setScaleType(ImageView.ScaleType.CENTER_CROP);
+			binding.detailCover.setScaleType(IconArtUtils.coverScale(cover.getIntrinsicWidth(), cover.getIntrinsicHeight()));
 			binding.detailCover.setImageDrawable(cover);
 		} else {
 			Bitmap icon = IconArtUtils.loadLargeIcon(item.getImagePathExt(), dp(210));
@@ -945,6 +1012,7 @@ public class AppsListFragment extends Fragment implements AppsListAdapter.Listen
 					dp(420), dp(260), icon));
 		}
 		binding.detailTitle.setText(item.getTitle());
+        binding.detailSettings.setText(item instanceof ExternalLibrary.Item ? "System files" : "Settings");
 		binding.detailFavorite.setText(item.isFavorite()
 				? R.string.remove_favorite : R.string.add_favorite);
 		String author = item.getAuthor() == null ? "" : item.getAuthor();
@@ -1003,6 +1071,7 @@ public class AppsListFragment extends Fragment implements AppsListAdapter.Listen
 
 	@Override
 	public void onDestroyView() {
+		externalGeneration++;
 		adapter.unregisterAdapterDataObserver(libraryObserver);
 		pendingGameFocus = -1;
 		super.onDestroyView();
