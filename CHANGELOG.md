@@ -12,7 +12,15 @@ combined builds; released experimental features are explicitly identified.
 
 ## 2026-10-15
 
-- **Prepared locally:** 0.3.0-beta.3, code 302. Fixed N-Gage card identification
+- **Released:** [0.3.0-beta.3](https://github.com/EriArk/JavaEmulator/releases/tag/v0.3.0-beta.3),
+  code 302, published at 19:16 UTC with both signed APKs, matching source bundles
+  and checksums. All six uploaded digests matched; both APKs were downloaded
+  again and verified. The October 15 changes below are now included in this
+  release; their earlier "unreleased" labels describe the development checkpoints.
+  Retroid retains only the latest Handheld package, with nine game entries;
+  17 old/alternate packages were removed while retaining their data.
+
+- **Included in beta.3:** fixed N-Gage card identification
   in a mixed SIS/card phone, shared by the catalog, library and removal checks.
   Native regressions cover multiple cards and hidden-app exclusions. Both signed
   variants built, passed APK guards/lint and 25 JVM tests each, and upgraded on

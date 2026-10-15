@@ -5,15 +5,15 @@ not one of the old experimental APKs in this directory.
 
 ## Current published beta
 
-[AbyssME 0.3.0 beta.1](https://github.com/EriArk/JavaEmulator/releases/tag/v0.3.0-beta.1)
+[AbyssME 0.3.0 beta.3](https://github.com/EriArk/JavaEmulator/releases/tag/v0.3.0-beta.3)
 provides two separately installable arm64 variants with Java, Mophun and
 experimental Symbian / N-Gage. Games and firmware are not bundled:
 
-- `AbyssME-0.3.0-beta.1-handheld.apk`: Handheld, landscape and physical controls.
-- `AbyssME-0.3.0-beta.1-phone.apk`: Phone, touch controls and two keypad layouts.
+- `AbyssME-0.3.0-beta.3-handheld.apk`: Handheld, landscape and physical controls.
+- `AbyssME-0.3.0-beta.3-phone.apk`: Phone, touch controls and two keypad layouts.
 
-Use the [SHA-256 list](../docs/releases/v0.3.0-beta.1/SHA256SUMS.txt) to verify downloads.
-See the [release notes](../docs/releases/v0.3.0-beta.1.md) and
+Use the [SHA-256 list](../docs/releases/v0.3.0-beta.3/SHA256SUMS.txt) to verify downloads.
+See the [release notes](../docs/releases/v0.3.0-beta.3.md) and
 [current limitations](../README.md#known-limitations) before reporting a problem.
 
 ## Historical files

@@ -17,7 +17,7 @@ core: a controller-first **Handheld** APK and a portrait/touch-friendly
 > **Project status:** Beta. AbyssME is usable, but compatibility automation and
 > launcher integration still need testing across more games and devices.
 
-[Download 0.3.0 Beta 1](https://github.com/EriArk/JavaEmulator/releases/tag/v0.3.0-beta.1)
+[Download 0.3.0 Beta 3](https://github.com/EriArk/JavaEmulator/releases/tag/v0.3.0-beta.3)
 
 ## Current Beta
 
@@ -25,8 +25,14 @@ For website copy, progress posts and handoffs, start with the
 [current product/development status](docs/PROJECT_STATUS.md) and
 [dated changelog](CHANGELOG.md). They also describe local/private experiments,
 explicitly separated from public downloads. The
-[0.3.0 beta.1 notes](docs/releases/v0.3.0-beta.1.md) include the combined-engine scope,
+[0.3.0 beta.3 notes](docs/releases/v0.3.0-beta.3.md) include the combined-engine scope,
 verification limits and source downloads.
+
+Beta.3 adds Light/Dark/System appearance, hideable Phone shortcuts, touch-key
+feedback, per-game FPS presets and safer duplicate Java imports. It improves
+Java screen startup and filename-based setup hints, external-launcher return
+paths, system-file import and guarded SIS/SISX removal. N-Gage cards remain
+visible alongside ordinary SIS games on the same virtual phone.
 
 The 0.3 beta adds embedded Symbian / N-Gage, reusable system-file setup,
 SIS/SISX and native-game archive import, and whole-phone backup/restore.
@@ -68,8 +74,9 @@ ZIP collections selected through Android's file picker now reach archive selecti
 instead of being mistaken for a single JAR.
 Continuing past a mismatched JAD/JAR description now keeps the selected game and
 its original import identity, so reusing the same source URI finds the existing
-entry. A provider changing a file's URI can still create a duplicate; see
-[#20](https://github.com/EriArk/JavaEmulator/issues/20).
+entry. Identical Java imports through another URI offer reuse of an installed
+game or an intentional separate copy; confirmed reuse preserves saves and is
+remembered. Existing duplicates are not automatically merged.
 Automatic artwork now favors declared icons and identifiable title art over
 arbitrary textures. **Game actions > Artwork** offers custom icons/covers and
 an explicit refresh for older libraries. See [artwork behavior](docs/ARTWORK.md).
@@ -155,15 +162,17 @@ and retains the selected game while you provide them. See the
 AbyssME accepts read-only `content://` game URIs through Android `ACTION_VIEW`.
 The intended flow is to prepare a new source once, launch prepared games
 directly, and return to the frontend on exit. End-to-end cold/warm launch and
-return behavior still needs an ES-DE/Beacon verification pass; see
+return behavior was exercised with Beacon, Pegasus and Daijisho on Retroid
+during development. **ES-DE remains unverified**; see
 [#7](https://github.com/EriArk/JavaEmulator/issues/7).
-Native Symbian/N-Gage frontend launch-and-return integration is not yet supported.
+Installed Symbian/N-Gage games can export an `.abyssme` launch file from their
+game actions; the exact virtual phone and game remain bound to that entry.
 
 - Handheld package: `io.github.eriark.abyssme`
 - Phone package: `io.github.eriark.abyssme.phone`
 - Activity: `ru.playsoftware.j2meloader.MainActivity` (both variants)
 - Action: `android.intent.action.VIEW`
-- Supported files: JAR, JAD, ZIP, 7Z
+- Supported files: JAR, JAD, ZIP, 7Z, MPN and exported `.abyssme` launch files
 
 ES-DE rule examples and Beacon setup details are in
 [Launcher integration](docs/LAUNCHER_INTEGRATION.md).

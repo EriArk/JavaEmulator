@@ -34,145 +34,69 @@ bundled. The app UI is English.
 
 ## Availability: Do Not Mix These Channels
 
-**0.3.0-beta.3 prepared locally (2026-10-15):** signed Handheld and Phone
-code-302 APKs include the October 15 changes below. Beta.2 was withheld after
-mixed SIS/card provisioning exposed a catalog defect. Beta.3 identifies cards
-individually; Snakes returned without reimport and reached gameplay on Retroid.
-Both release JVM suites passed 25 tests; APK guards and lint passed, with
-402/409 warnings retained. Both signed variants upgraded on Retroid.
-Preparation is not publication; the public pointer changes after asset verification.
-[Release notes](releases/v0.3.0-beta.3.md), [checks](releases/v0.3.0-beta.3-checks.md).
+**Current public beta: [0.3.0-beta.3](https://github.com/EriArk/JavaEmulator/releases/tag/v0.3.0-beta.3)**,
+published **2026-10-15 at 19:16 UTC**, code **302**. Handheld and Phone include
+Java, Mophun and experimental Symbian / N-Gage. Android 10+, arm64-v8a.
+Games and firmware are not included. Both variants can coexist with independent data.
 
-**Unreleased Phone shortcuts and tactile feedback (2026-10-15):** More and
-Settings > Playing now offer On-screen shortcuts. Java Phone can hide Display
-and Screenshot independently while keeping Menu accessible. Phone/Gamepad
-touch keys now request one haptic pulse per new press in Java, Mophun and
-Symbian; Controls exposes the existing per-game Tactile feedback setting with
-Try / Keep / Undo. Held keys and hardware input do not repeat UI haptics.
-Retroid Phone passed 47 checks, Handheld passed 45 with two Phone-only skips,
-and the Android 15 Phone emulator passed 43. Retroid's Android vibration service
-confirmed a touch pulse and no new pulse after feedback was undone; human
-perception remains unaccepted. No public APK update.
-[Evidence, usage and screenshots](checks/2026-10-15-phone-shortcuts-feedback.md).
+All six uploaded asset digests were checked; both APKs and the checksum list
+were downloaded again and matched. The source tag is `dc21ac62`; later handoff
+documentation does not change the APKs. GitHub Actions remains disabled.
+[Release notes](releases/v0.3.0-beta.3.md),
+[verification and limits](releases/v0.3.0-beta.3-checks.md),
+[checksums](releases/v0.3.0-beta.3/SHA256SUMS.txt).
 
-**Unreleased Java display lifecycle fix (2026-10-15):** guest Canvas startup
-and painting no longer wait for Android surface creation. Screen switches,
-pause/resume, deferred alerts and hidden fullscreen changes use the shared
-lifecycle, without per-title exceptions. Added 15 regression cases; both Retroid
-variants and the Android 15 Phone emulator passed 43 focused checks each.
-Ghost Recon reached its first level on Retroid and menu on the Phone emulator;
-Age of Empires and Sudoku also rendered. The intermittent #15 report remains
-open because its historical failure was not reproduced before this patch.
-No public APK update. [Evidence and limits](checks/2026-10-15-canvas-lifecycle.md).
+Beta.2 was withheld before publication after final provisioning exposed a mixed
+SIS/N-Gage catalog defect. Its source tag remains as history; beta.3 fixes it.
+Beta.1 remains a historical download, not the recommended current version.
 
-**Unreleased original-filename setup hints (2026-10-15):** Java imports retain
-the original JAR name through file providers, ZIP/7z selection, recompilation
-and library backup/restore. Preparation uses explicit filename size/phone hints
-below declared metadata, without resetting existing profiles. Both Retroid
-variants and the Android 15 Phone emulator passed 67 focused checks each.
-Four fresh original JAR imports on Retroid confirmed 128x160/176x220 selection
-and S40 filename recognition. These are setup/title-screen observations, not
-full-game acceptance; #14 and the intermittent Ghost Recon issue #15 remain
-open. Public APKs are unchanged. [Evidence](checks/2026-10-15-source-hints.md).
-
-**Unreleased Light appearance (2026-10-15):** Settings now offers Follow system,
-Light and Dark. Light uses pale surfaces with dark text across the library,
-settings, installer, game menu, mapper and Phone touch controls. Engine-host
-screens also honor an explicit app theme; game pixels and artwork are unchanged.
-The narrow mapper footer no longer wraps its Identify button label out of bounds.
-Retroid Phone and the Android 15 Phone emulator each passed 29 focused checks;
-Retroid Handheld passed 28 with one Phone-only skip. Samsung Android 16
-acceptance is not established. No public
-APK update. [Scope and screenshots](checks/2026-10-15-light-theme.md).
-
-**Unreleased launcher return fix (2026-10-15):** Cancelling an external Java
-import/archive choice, closing a Mophun error, cancelling Symbian inspection or
-closing an invalid launch file now returns to the calling frontend. Internal
-imports keep the AbyssME library open. Beacon 1.8.10 ran Java, Mophun and exported
-Snakes links on both Retroid debug variants. First Java imports and explicit
-reuse were also exercised. Both variants passed 27 focused Android checks;
-the portrait Android 15 Phone emulator passed 26 with one Symbian-only skip.
-No public APK update. ES-DE remains untested and #7 stays open.
-[Setup, screenshots and precise scope](checks/2026-10-15-beacon-launcher.md).
-
-**Unreleased duplicate-import protection (2026-10-15):** Opening an identical
-Java game through an unfamiliar URI now offers an existing installed copy or
-an intentional separate installation. Confirmed reuse is remembered without
-replacing saves, settings or original launcher/source references. Changed JAD
-properties require a new choice; existing duplicates are not merged. Room v4
-preserves the catalog. Both Retroid variants and a portrait Android 15 Phone
-emulator passed 42 focused checks each; both combined variants passed 25 JVM
-checks. Public APKs are unchanged.
-[Scope, limitations and screenshots](checks/2026-10-15-source-aliases.md).
-
-**Unreleased Symbian uninstall (2026-10-15):** Game actions now offers
-Uninstall from phone for supported SIS/SISX installations, with exact-phone
-confirmation, optional backup and verified native removal before library cleanup.
-Unknown/shared/system packages are blocked; card-only and N-Gage 2.0 platform
-game removal remain unsupported. Three real SIS/SISX games passed removal and
-reinstallation on copied phones in both Retroid debug variants. This is not in
-the public 0.3.0-beta.1 APKs. [Scope and checks](checks/2026-10-15-symbian-uninstall.md).
-
-**Unreleased Java frame-rate improvements (2026-10-15):** More shows the active
-limit; More and Display offer presets with per-game Try / Keep / Undo. Runtime
-changes now persist when confirmed, and pacing uses a monotonic per-Canvas
-budget. Both combined debug variants passed 25 JVM and 31 Retroid checks;
-Asphalt 3D retained the chosen limit after relaunch. This does not establish a
-universal game-speed fix or reproduce the unknown game in #22.
-[Checks, usage and actual-device screenshots](checks/2026-10-15-frame-rate.md).
-These changes are not in the public 0.3.0-beta.1 APKs.
-
-**0.3.0-beta.1 was published on 2026-10-14 at 16:18 UTC.** It adds the
-shared in-game menu and promotes the Symbian/N-Gage integration into a combined
-arm64 build. The preceding local work is recorded in the changelog and integration
-report, not omitted from the announcement handoff. Follow
-[release checks](releases/v0.3.0-beta.1-checks.md) for final signed/build/publication
-evidence. The live GitHub release and all six asset digests were checked on 2026-10-14;
-both APKs and the checksum file were downloaded again and matched. This is the
-newest published prerelease at this checkpoint, not a stable release. The release
-list was checked again on 2026-10-15; asset hashes were not rechecked that day.
-
-| Channel | Current identifier | What a reader can obtain |
+| Channel | Current identifier | Availability |
 | --- | --- | --- |
-| Public download | [v0.3.0-beta.1](https://github.com/EriArk/JavaEmulator/releases/tag/v0.3.0-beta.1), published 2026-10-14 | Handheld and Phone signed arm64 APKs, Java + Mophun + experimental Symbian/N-Gage, shared menu, source/dependency bundles and checksums; Android 10+, no games or firmware |
-| Public development source | `main`, unreleased additions dated 2026-10-15; release tag `v0.3.0-beta.1` at `95eb9da1` | Raw ROM/RPKG ZIP/7z import, persistent errors, installed game information, native launch-file export, persistent Java FPS presets, guarded Symbian uninstall and explicit duplicate-import choices follow the release. [Stage-one checks](checks/2026-10-15-import-launchers.md), [frame-rate checks](checks/2026-10-15-frame-rate.md), [uninstall checks](checks/2026-10-15-symbian-uninstall.md), [duplicate-import checks](checks/2026-10-15-source-aliases.md); not in the published APKs |
-| Private combined test snapshot | `0.1.0-beta.2-experimental.15`, 2026-10-11 | Handheld and Phone debug APKs containing Java plus experimental Mophun; supplied separately to testers, not a GitHub release |
-| Local-only material | Ignored diagnostics, game fixtures and signing keys | Private test inputs remain local; the promoted Mophun runtime is no longer private-only |
-| Symbian integration | Included in `main` and public 0.3 beta, 2026-10-14 | Shared library/import and game menu, Display, mapping, screenshots, Phone decks and direct rotated guest touch. Menu-based whole-phone backup/restore creates a separate copy. SIS/SISX setup requests named missing components and reuses saved installers. ZIP/RAR/7z game previews select games/components and retain recoverable queues; phone choices can be reused within an archive without overriding game bindings. Retroid optimized core: 87 Handheld / 88 Phone passes, 5/4 explicit skips; actual-game/menu scenarios: 5 passes / 1 provisioning skip per variant, provisioning passed separately. Signed Handheld upgrade retained all 18 inspected files; both signed variants imported system files/Snakes through the public UI. JVM: 14 passes per variant. Installation is not gameplay acceptance. Legacy/conditional dependencies, mixed-platform collections, native external launchers and intermittent Asphalt startup remain open. Games/firmware are not bundled. [Release evidence](releases/v0.3.0-beta.1-checks.md), [historical integration checks](SYMBIAN_INTEGRATION.md), [backup contract](SYMBIAN_PHONE_BACKUPS.md) |
-| Merged research branch | [`codex/m3g-replacement`](https://github.com/EriArk/JavaEmulator/tree/codex/m3g-replacement), 2026-10-13 | Ordinary builds use the replacement M3G/tone and include Mophun. Old EPL engine removed, GPLv3 combined scope and notices retained. Beta published as code 200; research timing tools and private games are not in APKs |
+| Public download | `v0.3.0-beta.3`, code 302 | Signed Handheld/Phone APKs, matching app source and dependency/native source bundles |
+| Public development source | `main`, beta.3 tag at `dc21ac62` | All implementation described in the release notes is public; subsequent publication records are documentation-only |
+| Private historical snapshot | `0.1.0-beta.2-experimental.15`, 2026-10-11 | Old Java/Mophun test build, not the current beta |
+| Local-only material | Game fixtures, firmware, diagnostics, device data and signing keys | Not in Git or public release assets; describing testing does not authorize redistribution |
 
-The experimental number is a distribution label: build 15 still reports
-version code **102** and `0.1.0-beta.2` / `0.1.0-beta.2-phone` internally.
-Identify a test APK by the dated filename and hash, not Android's version label.
-Release packages are `io.github.eriark.abyssme` and
-`io.github.eriark.abyssme.phone`; test packages append `.debug`.
+## Changes Released in Beta.3
 
-Build 15 SHA-256:
+This is the concise handoff for website copy and announcements. The linked
+development checks preserve their original dates, variants and limitations;
+their counts are not new final-release test results.
 
-```text
-8c3fae3ec67f5991bf0ab684b8607a5339a9f0d8e09cf217852f7edc709075e3  AbyssME-phone-test-2026-10-11-15.apk
-9c61f344ff307d2e901226f964eefb82098ccdf1abff4b3798cabb893dc0cb73  AbyssME-handheld-test-2026-10-11-15.apk
-```
+| User-visible change | Evidence |
+| --- | --- |
+| Light, Dark and Follow system appearance; more readable narrow mapper | [Appearance](checks/2026-10-15-light-theme.md) |
+| Phone can hide Display and Screenshot independently while retaining Menu | [Shortcuts and feedback](checks/2026-10-15-phone-shortcuts-feedback.md) |
+| Tactile feedback for Phone/Gamepad touch keys across three engines, with Try / Keep / Undo | [Shared touch policy](checks/2026-10-15-phone-shortcuts-feedback.md); human perception remains unverified |
+| Java screen startup, switching and pause/resume fixes without per-title exceptions | [Canvas lifecycle](checks/2026-10-15-canvas-lifecycle.md) |
+| Original JAR filename size/phone hints supplement metadata without resetting existing profiles | [Automatic setup](checks/2026-10-15-source-hints.md) |
+| Per-game FPS presets and monotonic frame pacing | [Frame-rate controls](checks/2026-10-15-frame-rate.md); not a universal speed fix |
+| Identical Java imports can reuse existing games/saves or create an intentional separate copy | [Duplicate imports](checks/2026-10-15-source-aliases.md) |
+| Better external-launcher cancellation/exit paths and native `.abyssme` launch files | [Beacon](checks/2026-10-15-beacon-launcher.md), [other frontends](checks/2026-10-15-import-launchers.md); ES-DE unverified |
+| ROM/RPKG ZIP/7z import, persistent errors and Java version/vendor information | [Import and information](checks/2026-10-15-import-launchers.md) |
+| Guarded SIS/SISX removal from the exact virtual phone | [Native uninstall](checks/2026-10-15-symbian-uninstall.md); card-only/N-Gage 2.0 removal unsupported |
+| N-Gage cards remain visible beside ordinary SIS games on the same phone | [Mixed-library fix and signed-device check](releases/v0.3.0-beta.3-checks.md) |
 
-## After 0.3 Beta.1: Unreleased Source (2026-10-15)
+## Final Release Evidence and Post Assets
 
-- Phone system files can be supplied as one ZIP/7z with a ROM and matching RPKG,
-  including nested folders and uppercase names. Failures remain visible and
-  explain what was rejected. Real N95 import/reimport/error UI passed on both
-  Retroid variants; the reporter's particular N70 dump was not available.
-- Game actions now expose the installed Java game's version/vendor without
-  reimporting it or touching saves. Native phone labels remain separate.
-- Installed native games can export a small `.abyssme` launch file for external
-  frontends. Mophun exits back to its caller rather than forcing the library.
-  Actual Pegasus runs covered Java/Mophun on both variants and an exported
-  Phone Snakes link; Daijisho covered Handheld Java/Mophun/Snakes, multi-JAR
-  selection and warm Java launch. Exit returned to the frontend.
-- Added frontend setup examples. A later [Beacon 1.8.10 session](checks/2026-10-15-beacon-launcher.md)
-  verified both debug variants and fixed cancel/error return paths. ES-DE
-  remains untested; #7 stays open. Other frontends do not certify ES-DE.
-- Both combined debug variants built. Per variant: 19 JVM passes, 19 focused
-  Android passes / 2 optional skips, and 3 opt-in UI passes on Retroid. No new
-  release or distributed test APK. [Checks and limits](checks/2026-10-15-import-launchers.md).
+- Both signed release variants built cleanly and passed APK-content guards,
+  25 JVM tests each and lint with zero errors (402/409 warnings remain).
+- Native capture and mixed-card regression tests ran on physical Retroid.
+- Both signed variants upgraded on Retroid. Snakes returned without reimport
+  and reached its game field; Phone retained its Gamepad/shortcut choices.
+  This is not full-game, save-roundtrip, audio or human-controller acceptance.
+- Retroid now has only Handheld beta.3 installed. Seventeen old/alternate packages
+  were removed with data retention. Its nine entries comprise three Java games,
+  two variants of Deep Abyss, three SIS/SISX games and original N-Gage Snakes.
+  The local collection is not bundled in the downloadable APKs.
+- [Fresh beta.3 screenshots](../screenshots/releases/v0.3.0-beta.3/) show the
+  library, restored card, Snakes game field and Phone Gamepad. The preceding
+  [candidate captures](../screenshots/releases/v0.3.0-beta.2/) show additional
+  controls/import pages; identify those as candidate captures, not beta.3 runs.
+
+Remaining limits: intermittent Ghost Recon startup, native Asphalt cold relaunch,
+automatic compatibility choices, broader Symbian support, ES-DE, Samsung Android
+16 and human tactile/controller acceptance. Do not announce universal compatibility.
 
 ## Historical 0.1.0 Beta.2 Baseline
 
@@ -186,7 +110,7 @@ ES-DE or Beacon is fully verified: real cold/warm launch and return testing is
 still tracked in [#7](https://github.com/EriArk/JavaEmulator/issues/7).
 See [beta.2 release notes](releases/v0.1.0-beta.2.md) for the released scope.
 
-## Included in 0.3.0 Beta.1
+## Included in the Current Beta
 
 The 0.3 beta adds the shared Java/Mophun/Symbian menu and promotes the
 previously local native integration. Its combined APKs require arm64-v8a and
@@ -194,23 +118,23 @@ Android 10+. System files can be provided before games; setup explains missing
 requirements, retains imports and reuses compatible components. Native games
 join the common library. Phone supports numeric/Gamepad touch decks; both
 variants offer display/mapping controls, screenshots and whole-phone backups.
-See [release notes](releases/v0.3.0-beta.1.md) for user-facing details and limits.
+See [release notes](releases/v0.3.0-beta.3.md) for user-facing details and limits.
 
-The following Java/Mophun features remain from 0.2:
+The current feature summary includes the retained 0.2 features and beta.3 additions:
 
 | Area | Current development behavior | Evidence / boundary |
 | --- | --- | --- |
 | Library and small screens | Compact layouts, reachable menus, Gallery covers separate from List/Grid icons, controller focus, custom art and conservative automatic selection | [Compact UI](COMPACT_LIBRARY.md), [artwork](ARTWORK.md); not every tiny-screen/device combination is accepted |
 | Controller mapping | Graphical phone keypad, per-game named schemes/presets, button identification, D-pad/stick directions and diagonal-to-single-key bindings, compact mapper pages | `c49fef57`, `ba252272`; physical-controller/disconnect acceptance remains open in #9 |
-| Phone controls | Phone numeric keypad or virtual Gamepad, portrait game area above buttons, landscape side controls, size/opacity/position settings. Unreleased: per-game tactile feedback in the shared Controls page and feedback from new touch layouts | [Settings](SETTINGS_TRIALS.md), [haptic checks and limits](checks/2026-10-15-phone-shortcuts-feedback.md); perceived phone haptics remain unaccepted |
+| Phone controls | Phone numeric keypad or virtual Gamepad, portrait game area above buttons, landscape side controls, size/opacity/position settings. Beta.3 adds per-game tactile feedback in the shared Controls page and feedback from new touch layouts | [Settings](SETTINGS_TRIALS.md), [haptic checks and limits](checks/2026-10-15-phone-shortcuts-feedback.md); perceived phone haptics remain unaccepted |
 | Picture settings | Shared Display/Controls pages in library and game, live Java image rotation, size/smoothing, reversible Try/Keep/Undo preview | [Settings trials](SETTINGS_TRIALS.md); expert compatibility settings remain under Advanced |
 | Quick presets | More > Screen presets applies virtual resolutions live; More > Phone profile offers Generic/vendor presets through Restart & try, with Keep / Undo | [Implementation and checks](GAME_PRESETS.md); restart loses unsaved game progress, presets are not full phone emulation |
 | Release profile/import safety | Stable touch/preparation JSON keys prevent R8 field loss and restart-trial crashes; framed Java exception handlers no longer undercount stack during import | [Fixes and checks](RELEASE_PROFILE_SAFETY.md), [signed Phone upgrade](releases/v0.2.0-beta.1-checks.md); no recovery claim for already-lost values |
-| Screenshots and shortcuts | Optional camera button and menu action; PNGs in Pictures/AbyssME. Unreleased: More / Playing > On-screen shortcuts, independent Java Phone Display toggle, Menu retained | [Shortcut checks](checks/2026-10-15-phone-shortcuts-feedback.md); existing defaults and camera preference retained |
+| Screenshots and shortcuts | Optional camera button and menu action; PNGs in Pictures/AbyssME. Beta.3 adds More / Playing > On-screen shortcuts, independent Java Phone Display toggle, Menu retained | [Shortcut checks](checks/2026-10-15-phone-shortcuts-feedback.md); existing defaults and camera preference retained |
 | Transfer and backup | J2ME Loader import, selection/preview, AbyssME backup/restore through menus, copied saves and supported profiles, non-destructive migrations | [Transfer](LIBRARY_TRANSFER.md); source files remain intact, access restrictions still apply |
 | Nested-folder permissions | Import pauses for the requested folder grant and resumes; wrong-folder/cancel recovery, readable messages, save-folder validation | `d39ed742`; pending access survives screen recreation, not process death |
-| Installer | Compact scrolling details, persistent errors, archive recognition and mismatched JAD/JAR continuation. Unreleased: identical JARs from unfamiliar URIs offer reuse or a separate copy; confirmed choices are remembered | `696da084`, `7ba384b2`; [#20 checks and limits](checks/2026-10-15-source-aliases.md); no automatic merge of existing duplicates |
-| Symbian uninstall (unreleased) | Remove a supported SIS/SISX package from its exact phone, with backup access, dependency/ownership checks and interrupted-operation reconciliation | [Checks and conservative limits](checks/2026-10-15-symbian-uninstall.md); not a hide-entry operation; no automatic rollback |
+| Installer | Compact scrolling details, persistent errors, archive recognition and mismatched JAD/JAR continuation. In beta.3, identical JARs from unfamiliar URIs offer reuse or a separate copy; confirmed choices are remembered | `696da084`, `7ba384b2`; [#20 checks and limits](checks/2026-10-15-source-aliases.md); no automatic merge of existing duplicates |
+| Symbian uninstall | Remove a supported SIS/SISX package from its exact phone, with backup access, dependency/ownership checks and interrupted-operation reconciliation | [Checks and conservative limits](checks/2026-10-15-symbian-uninstall.md); not a hide-entry operation; no automatic rollback |
 | Automatic preparation | Weak or conflicting vendor hints retain Generic; anonymous images alone no longer set display size. Existing settings and explicit display declarations remain preserved | [Preset checks](GAME_PRESETS.md), [checks](LOCAL_TESTING.md); static heuristics, not running multiple models or guaranteeing the best profile |
 | Automatic game fonts | New profiles follow the prepared virtual resolution; Advanced font presets include Automatic. Existing explicit values are preserved | `9430cb0a`; four Android font tests, readable Constructo tutorial on Retroid |
 
@@ -277,12 +201,13 @@ phones and every storage provider have not been verified.
 
 Current open work, checked on GitHub on 2026-10-15:
 
-- [#22](https://github.com/EriArk/JavaEmulator/issues/22): frame-rate controls/pacing are improved in unreleased source, but the exact fast-game report is not reproduced.
+- [#28](https://github.com/EriArk/JavaEmulator/issues/28): shared touch feedback is released in beta.3; perceived vibration on the reporter's phone remains unverified. Shortcut request #27 is closed and its released availability is recorded.
+- [#22](https://github.com/EriArk/JavaEmulator/issues/22): frame-rate controls/pacing are improved in beta.3, but the exact fast-game report is not reproduced.
 - [#24](https://github.com/EriArk/JavaEmulator/issues/24): Java ME VM research, not an integrated replacement runtime.
 - [#15](https://github.com/EriArk/JavaEmulator/issues/15): historical intermittent Ghost Recon black screen; a shared Canvas lifecycle fix is implemented, but the original failure is not yet conclusively resolved.
 - [#14](https://github.com/EriArk/JavaEmulator/issues/14): compatibility heuristics need broader validation.
 - [#17](https://github.com/EriArk/JavaEmulator/issues/17), [#9](https://github.com/EriArk/JavaEmulator/issues/9), [#3](https://github.com/EriArk/JavaEmulator/issues/3): implemented UI/input/orientation changes still have acceptance or release follow-up; open does not mean no implementation.
-- [#12](https://github.com/EriArk/JavaEmulator/issues/12): genuine Light appearance is implemented and verified in unreleased source; public 0.3.0-beta.1 still has the earlier dark-only contrast fix.
+- [#12](https://github.com/EriArk/JavaEmulator/issues/12): genuine Light appearance is included in beta.3; reporter/device acceptance remains separate.
 - [#7](https://github.com/EriArk/JavaEmulator/issues/7): real external-launcher checks.
 - [#4](https://github.com/EriArk/JavaEmulator/issues/4): broader regression coverage. Debug signing setup [#1](https://github.com/EriArk/JavaEmulator/issues/1) was fixed and closed on 2026-10-13.
 - [#13](https://github.com/EriArk/JavaEmulator/issues/13): experimental Mophun; [#11](https://github.com/EriArk/JavaEmulator/issues/11): broader themes/skins/customization, not a shipped theme editor.
@@ -321,7 +246,7 @@ Snakes and then Asphalt gameplay/input/save checks, followed by shared-library
 integration and dependency/asset review. Current work has moved to common setup,
 controls and storage mechanics; see the latest integration evidence above.
 #20 subsequently gained explicit existing-copy choices and remembered URI
-associations in unreleased source on 2026-10-15; see the current availability
+associations in beta.3 on 2026-10-15; see the current availability
 section and checks above. Existing duplicates are not merged. The maintainer
 confirms each next implementation batch.
 
