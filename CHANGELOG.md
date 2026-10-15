@@ -12,6 +12,14 @@ combined builds; released experimental features are explicitly identified.
 
 ## 2026-10-15
 
+- **Prepared locally:** 0.3.0-beta.2, code 301, combined signed Handheld and Phone
+  APKs. Both release JVM suites passed 25 tests; production-content guards and
+  lint passed (402/409 warnings retained). Both signed variants upgraded from
+  code 300 on Retroid. Phone shortcuts, both decks and a haptic request were
+  checked in the final APK. Matching source/dependency materials are prepared;
+  this checkpoint is not yet public availability.
+  [Release checks](docs/releases/v0.3.0-beta.2-checks.md).
+
 - **Public source, unreleased:** added On-screen shortcuts to More and Playing
   settings. Java Phone can hide Display and Screenshot independently while
   retaining Menu and both menu actions; preferences survive game/UI transitions.

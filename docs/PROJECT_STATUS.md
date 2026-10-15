@@ -34,6 +34,14 @@ bundled. The app UI is English.
 
 ## Availability: Do Not Mix These Channels
 
+**0.3.0-beta.2 prepared locally (2026-10-15):** signed Handheld and Phone
+code-301 APKs include the October 15 changes below. Both release JVM suites
+passed 25 tests; APK guards and lint passed with the warning counts retained in
+[release checks](releases/v0.3.0-beta.2-checks.md). Both signed variants upgraded
+on Retroid, and Phone shortcuts/decks/feedback were checked in the final APK.
+Preparation is not publication; the public-download pointer below changes only
+after GitHub assets are verified. [Release notes](releases/v0.3.0-beta.2.md).
+
 **Unreleased Phone shortcuts and tactile feedback (2026-10-15):** More and
 Settings > Playing now offer On-screen shortcuts. Java Phone can hide Display
 and Screenshot independently while keeping Menu accessible. Phone/Gamepad

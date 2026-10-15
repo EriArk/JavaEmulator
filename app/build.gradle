@@ -37,8 +37,8 @@ android {
         applicationId "io.github.eriark.abyssme"
         minSdk MIN_SDK
         targetSdk TARGET_SDK
-        versionCode 300
-        versionName "0.3.0-beta.1"
+        versionCode 301
+        versionName "0.3.0-beta.2"
         resValue 'string', 'app_name', rootProject.name
         buildConfigField 'boolean', 'HANDHELD_MODE', 'true'
         buildConfigField 'boolean', 'SYMBIAN_EXPERIMENT', symbianEnabled.toString()
