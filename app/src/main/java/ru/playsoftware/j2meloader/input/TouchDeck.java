@@ -11,6 +11,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
 import ru.playsoftware.j2meloader.config.ProfileModel;
+import ru.playsoftware.j2meloader.R;
 
 /** Touch-only MIDP controls. Physical controller mappings remain independent. */
 public final class TouchDeck {
@@ -41,6 +42,32 @@ public final class TouchDeck {
     private final RectF viewport = new RectF();
     private float width, height;
     private boolean numbers;
+    private android.content.Context themeContext;
+    private int themeMode = -1;
+    private int surface = 0xff10181c, button = 0xff29363e, accent = 0xffffc15a,
+            secondaryAccent = 0xff71d3d5, line = 0xff6c818c, text = 0xffedf1ee,
+            muted = 0xffb0c0c5, onAccent = 0xff151b1e;
+
+    public synchronized void setTheme(android.content.Context context) {
+        themeContext = context;
+        themeMode = -1;
+        updateTheme();
+    }
+
+    private void updateTheme() {
+        if (themeContext == null) return;
+        int mode = themeContext.getResources().getConfiguration().uiMode;
+        if (mode == themeMode) return;
+        themeMode = mode;
+        surface = themeContext.getColor(R.color.touch_surface);
+        button = themeContext.getColor(R.color.touch_button);
+        accent = themeContext.getColor(R.color.accent);
+        secondaryAccent = themeContext.getColor(R.color.phone_cyan);
+        line = themeContext.getColor(R.color.touch_line);
+        text = themeContext.getColor(R.color.text_primary);
+        muted = themeContext.getColor(R.color.text_secondary);
+        onAccent = themeContext.getColor(R.color.on_accent);
+    }
     private final Runnable repeat = new Runnable() {
         @Override public void run() {
             synchronized (TouchDeck.this) {
@@ -168,8 +195,9 @@ public final class TouchDeck {
         held.clear(); pointers.clear(); sink.invalidate();
     }
     public synchronized void draw(Canvas canvas) {
+        updateTheme();
         paint.setStyle(Paint.Style.FILL);
-        paint.setColor(0xff10181c);
+        paint.setColor(surface);
         if (width > height) {
             canvas.drawRect(0,0,viewport.left,height,paint);
             canvas.drawRect(viewport.right,0,width,height,paint);
@@ -183,7 +211,7 @@ public final class TouchDeck {
             if (dpad && key.codes.length == 1) pressed = held.get(key.codes[0]) > 0;
             boolean action = style() == GAMEPAD && !numbers && key.codes[0] > 0 && key.codes[0] != NUMBERS;
             int opacity = Math.max(80,Math.min(100,settings.touchOpacity));
-            paint.setColor(pressed ? 0xffffc15a : 0xff29363e);
+            paint.setColor(pressed ? accent : button);
             paint.setAlpha(opacity * 255 / 100);
             if (action) canvas.drawOval(rect,paint);
             else if (!dpad) canvas.drawRoundRect(rect,dp(6),dp(6),paint);
@@ -192,19 +220,19 @@ public final class TouchDeck {
                 canvas.drawRoundRect(rect,dp(6),dp(6),paint);
             }
             paint.setStyle(Paint.Style.STROKE); paint.setStrokeWidth(dp(1));
-            paint.setColor(pressed ? 0xffffdb92 : action ? (key.codes[0] == 53 ? 0xffffc15a : 0xff71d3d5) : 0xff52616a);
+            paint.setColor(pressed ? accent : action ? (key.codes[0] == 53 ? accent : secondaryAccent) : line);
             if (action) canvas.drawOval(rect,paint);
             else if (!dpad) canvas.drawRoundRect(rect,dp(6),dp(6),paint);
             paint.setStyle(Paint.Style.FILL);
-            paint.setColor(pressed ? 0xff151b1e : 0xffedf1ee);
+            paint.setColor(pressed ? onAccent : text);
             paint.setTextSize(dp(dpad && key.codes.length > 1 ? 13 : key.label.length() > 2 ? 14 : 20));
-            if (dpad && key.codes.length > 1 && !pressed) paint.setColor(0xff8b9da7);
+            if (dpad && key.codes.length > 1 && !pressed) paint.setColor(muted);
             boolean digit = style() == PHONE && key.codes.length == 1 && key.codes[0] >= 48 && key.codes[0] <= 57;
             canvas.drawText(key.label,rect.centerX(),rect.centerY()-(paint.ascent()+paint.descent())/2-(digit ? dp(5) : 0),paint);
             if (digit) {
                 String[] letters = {"+", "", "ABC", "DEF", "GHI", "JKL", "MNO", "PQRS", "TUV", "WXYZ"};
                 paint.setTextSize(dp(9));
-                paint.setColor(pressed ? 0xff394039 : 0xffb0c0c5);
+                paint.setColor(pressed ? onAccent : muted);
                 canvas.drawText(letters[key.codes[0]-48],rect.centerX(),rect.centerY()+dp(14),paint);
             }
         }
@@ -227,12 +255,12 @@ public final class TouchDeck {
                 c.right + u - inset, c.bottom - inset), dp(7), dp(7), Path.Direction.CW);
         vertical.op(horizontal, Path.Op.UNION);
         paint.setStyle(Paint.Style.FILL);
-        paint.setColor(0xff26343c);
+        paint.setColor(button);
         paint.setAlpha(Math.max(80, Math.min(100, settings.touchOpacity)) * 255 / 100);
         canvas.drawPath(vertical, paint);
         paint.setStyle(Paint.Style.STROKE);
         paint.setStrokeWidth(dp(1.5f));
-        paint.setColor(0xff6c818c);
+        paint.setColor(line);
         canvas.drawPath(vertical, paint);
         paint.setStyle(Paint.Style.FILL);
     }

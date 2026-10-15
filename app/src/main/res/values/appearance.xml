@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <bool name="light_system_bars">true</bool>
+    <string-array name="appearance_entries">
+        <item>Follow system</item>
+        <item>Light</item>
+        <item>Dark</item>
+    </string-array>
+    <string-array name="appearance_values" translatable="false">
+        <item>system</item>
+        <item>light</item>
+        <item>dark</item>
+    </string-array>
+</resources>

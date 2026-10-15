@@ -34,6 +34,16 @@ bundled. The app UI is English.
 
 ## Availability: Do Not Mix These Channels
 
+**Unreleased Light appearance (2026-10-15):** Settings now offers Follow system,
+Light and Dark. Light uses pale surfaces with dark text across the library,
+settings, installer, game menu, mapper and Phone touch controls. Engine-host
+screens also honor an explicit app theme; game pixels and artwork are unchanged.
+The narrow mapper footer no longer wraps its Identify button label out of bounds.
+Retroid Phone and the Android 15 Phone emulator each passed 29 focused checks;
+Retroid Handheld passed 28 with one Phone-only skip. Samsung Android 16
+acceptance is not established. No public
+APK update. [Scope and screenshots](checks/2026-10-15-light-theme.md).
+
 **Unreleased launcher return fix (2026-10-15):** Cancelling an external Java
 import/archive choice, closing a Mophun error, cancelling Symbian inspection or
 closing an invalid launch file now returns to the calling frontend. Internal
@@ -230,7 +240,8 @@ Current open work, checked on GitHub on 2026-10-15:
 - [#24](https://github.com/EriArk/JavaEmulator/issues/24): Java ME VM research, not an integrated replacement runtime.
 - [#15](https://github.com/EriArk/JavaEmulator/issues/15): Ghost Recon 2 SE 128x160 still has a recurring black screen.
 - [#14](https://github.com/EriArk/JavaEmulator/issues/14): compatibility heuristics need broader validation.
-- [#17](https://github.com/EriArk/JavaEmulator/issues/17), [#9](https://github.com/EriArk/JavaEmulator/issues/9), [#3](https://github.com/EriArk/JavaEmulator/issues/3), [#12](https://github.com/EriArk/JavaEmulator/issues/12): implemented UI/input/orientation/contrast changes still have acceptance or release follow-up; open does not mean no implementation.
+- [#17](https://github.com/EriArk/JavaEmulator/issues/17), [#9](https://github.com/EriArk/JavaEmulator/issues/9), [#3](https://github.com/EriArk/JavaEmulator/issues/3): implemented UI/input/orientation changes still have acceptance or release follow-up; open does not mean no implementation.
+- [#12](https://github.com/EriArk/JavaEmulator/issues/12): genuine Light appearance is implemented and verified in unreleased source; public 0.3.0-beta.1 still has the earlier dark-only contrast fix.
 - [#7](https://github.com/EriArk/JavaEmulator/issues/7): real external-launcher checks.
 - [#4](https://github.com/EriArk/JavaEmulator/issues/4): broader regression coverage. Debug signing setup [#1](https://github.com/EriArk/JavaEmulator/issues/1) was fixed and closed on 2026-10-13.
 - [#13](https://github.com/EriArk/JavaEmulator/issues/13): experimental Mophun; [#11](https://github.com/EriArk/JavaEmulator/issues/11): broader themes/skins/customization, not a shipped theme editor.

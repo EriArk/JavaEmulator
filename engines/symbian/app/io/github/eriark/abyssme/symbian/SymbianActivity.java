@@ -23,6 +23,10 @@ import ru.playsoftware.j2meloader.BuildConfig;
 
 /** Opt-in environment/session prototype. It does not expose arbitrary host paths. */
 public final class SymbianActivity extends Activity implements Emulator.Host, InputManager.InputDeviceListener {
+    @Override protected void attachBaseContext(android.content.Context base) {
+        super.attachBaseContext(ru.playsoftware.j2meloader.util.AppearanceContext.wrap(base));
+    }
+
     private static final ExecutorService worker = Executors.newSingleThreadExecutor();
     // Accessed only on worker: a destroyed activity must not stop its successor's session.
     private static SymbianActivity sessionOwner;
@@ -196,11 +200,11 @@ public final class SymbianActivity extends Activity implements Emulator.Host, In
     private int dp(int value) { return Math.round(value * getResources().getDisplayMetrics().density); }
     private TextView label(String text, int size) {
         TextView view = new TextView(this); view.setText(text); view.setTextSize(size);
-        view.setTextColor(0xffeceee8); view.setPadding(dp(12), dp(8), dp(12), dp(8));
+        view.setTextColor(getColor(ru.playsoftware.j2meloader.R.color.text_primary)); view.setPadding(dp(12), dp(8), dp(12), dp(8));
         return view;
     }
     private void action(LinearLayout parent, String title, Runnable run) {
-        Button b = new Button(this); b.setText(title); b.setAllCaps(false); b.setTextColor(0xffeceee8);
+        Button b = new Button(this); b.setText(title); b.setAllCaps(false); b.setTextColor(getColor(ru.playsoftware.j2meloader.R.color.text_primary));
         b.setTextSize(15); b.setGravity(Gravity.START | Gravity.CENTER_VERTICAL);
         b.setPadding(dp(14),dp(8),dp(14),dp(8));
         b.setBackgroundResource(R.drawable.bg_quick_setting_button); b.setBackgroundTintList(null);
@@ -211,13 +215,13 @@ public final class SymbianActivity extends Activity implements Emulator.Host, In
     private void library() {
         archiveView=null;
         archivePage=false;
-        page = new LinearLayout(this); page.setOrientation(LinearLayout.VERTICAL); page.setBackgroundColor(0xff10171b);
+        page = new LinearLayout(this); page.setOrientation(LinearLayout.VERTICAL); page.setBackgroundColor(getColor(ru.playsoftware.j2meloader.R.color.background));
         page.setPadding(dp(10), dp(8), dp(10), dp(8));
         page.addView(label("System files", 22));
         status = label("", 14); page.addView(status);
         progressBar=new ProgressBar(this,null,android.R.attr.progressBarStyleHorizontal);
         progressBar.setIndeterminate(true);
-        progressBar.setIndeterminateTintList(android.content.res.ColorStateList.valueOf(0xffffc15a));
+        progressBar.setIndeterminateTintList(android.content.res.ColorStateList.valueOf(getColor(ru.playsoftware.j2meloader.R.color.accent)));
         progressBar.setVisibility(busy?View.VISIBLE:View.GONE);
         page.addView(progressBar,new LinearLayout.LayoutParams(-1,dp(4)));
         if (directLaunch) {

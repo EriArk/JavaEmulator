@@ -26,7 +26,7 @@ import ru.playsoftware.j2meloader.input.GameMenuDialog;
 import ru.playsoftware.j2meloader.settings.CompactSettingsActivity;
 
 public class LibraryImportActivity extends CompactSettingsActivity {
-    private static final int LIGHT = 0xFFE6EDF3, MUTED = 0xFF9DAAB3, AMBER = 0xFFFFB62E;
+    private int LIGHT, MUTED, AMBER;
     private LibraryImportModel model;
     private TextView status;
     private TextView homeStatus;
@@ -69,6 +69,9 @@ public class LibraryImportActivity extends CompactSettingsActivity {
 
     @Override protected void onCreate(Bundle state) {
         super.onCreate(state);
+        LIGHT = getColor(R.color.text_primary);
+        MUTED = getColor(R.color.text_secondary);
+        AMBER = getColor(R.color.accent);
         screenTitle("Library transfer");
         if (state != null) {
             singlePart = state.getInt("singlePart"); includeShared = state.getBoolean("includeShared", true);
@@ -233,7 +236,7 @@ public class LibraryImportActivity extends CompactSettingsActivity {
         button.setGravity(Gravity.CENTER_VERTICAL); button.setMinHeight(dp(48)); button.setMinimumHeight(dp(48));
         button.setPadding(dp(12), dp(8), dp(12), dp(8));
         button.setTextColor(new ColorStateList(new int[][]{new int[]{-android.R.attr.state_enabled}, new int[]{}},
-                new int[]{0xFF59646B, LIGHT}));
+                new int[]{getColor(ru.playsoftware.j2meloader.R.color.text_secondary), LIGHT}));
         button.setBackgroundResource(R.drawable.bg_quick_setting_button); button.setBackgroundTintList(null);
         setIcon(button, icon);
         button.setOnClickListener(v -> action.run()); return button;

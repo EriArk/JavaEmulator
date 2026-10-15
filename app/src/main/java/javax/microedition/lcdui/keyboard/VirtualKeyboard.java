@@ -1181,6 +1181,7 @@ public class VirtualKeyboard implements Overlay, Runnable {
 
 	public void setView(View view) {
 		overlayView = view;
+		if (view != null) touchDeck.setTheme(view.getContext());
 	}
 
 	public int getKeyStatesVodafone() {

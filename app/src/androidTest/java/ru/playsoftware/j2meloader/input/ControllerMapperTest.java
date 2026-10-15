@@ -257,7 +257,7 @@ public class ControllerMapperTest {
                             assertNull(profiles.get(active).mappings);
                         }
                     });
-            findText(host[0],context().getString(R.string.mapper_detect)).performClick();
+            find(host[0],context().getString(R.string.mapper_detect)).performClick();
             host[0].handleKey(new KeyEvent(KeyEvent.ACTION_DOWN,21));
             host[0].handleKey(new KeyEvent(KeyEvent.ACTION_DOWN,20));
         });
@@ -295,6 +295,11 @@ public class ControllerMapperTest {
         if (view instanceof Button) {
             assertTrue("Too short: " + ((Button) view).getText(), view.getHeight() >= 28 * density);
             assertTrue("Too narrow: " + ((Button) view).getText(), view.getWidth() >= 30 * density);
+            Button button = (Button) view;
+            if (button.getLayout() != null && button.length() > 0) {
+                assertTrue("Clipped label: " + button.getText(), button.getLayout().getHeight()
+                        <= button.getHeight() - button.getCompoundPaddingTop() - button.getCompoundPaddingBottom());
+            }
             View parent = (View) view.getParent();
             assertTrue("Overflows parent", view.getRight() <= parent.getWidth());
         }

@@ -3,7 +3,7 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="#101218"
+    android:background="@color/background"
     tools:context=".config.CompatibilityTestActivity">
 
     <LinearLayout
@@ -19,7 +19,7 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:text="@string/compatibility_test_title"
-            android:textColor="#FFFFFFFF"
+            android:textColor="@color/text_primary"
             android:textSize="18sp"
             android:textStyle="bold" />
 
@@ -31,8 +31,8 @@
             android:layout_marginTop="16dp"
             android:max="100"
             android:progress="0"
-            android:progressTint="#FFFFB62E"
-            android:progressBackgroundTint="#334E5966" />
+            android:progressTint="@color/accent"
+            android:progressBackgroundTint="@color/phone_line" />
 
         <TextView
             android:id="@+id/compatibility_status"
@@ -40,7 +40,7 @@
             android:layout_height="wrap_content"
             android:layout_marginTop="14dp"
             android:text="@string/compatibility_test_starting"
-            android:textColor="#DDE6EDF3"
+            android:textColor="@color/text_secondary"
             android:textSize="14sp" />
 
         <Button

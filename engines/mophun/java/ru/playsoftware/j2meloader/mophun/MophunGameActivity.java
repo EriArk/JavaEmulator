@@ -48,6 +48,10 @@ import javax.microedition.lcdui.keyboard.KeyMapper;
 import wolphun.Screen;
 
 public final class MophunGameActivity extends Activity implements InputManager.InputDeviceListener {
+    @Override protected void attachBaseContext(android.content.Context base) {
+        super.attachBaseContext(ru.playsoftware.j2meloader.util.AppearanceContext.wrap(base));
+    }
+
     private final Handler handler = new Handler(Looper.getMainLooper());
     private final ExecutorService disk = Executors.newSingleThreadExecutor();
     private MophunSession session;
@@ -104,9 +108,10 @@ public final class MophunGameActivity extends Activity implements InputManager.I
                 touch = new MophunTouchControls(profile, getResources().getDisplayMetrics().density,
                         ViewConfiguration.get(this).getScaledTouchSlop(), sink.newSource(),
                         () -> frameView.invalidate(), () -> frameView.performClick());
+                touch.deck.setTheme(this);
                 ImageButton menuButton = new ImageButton(this);
                 menuButton.setImageResource(R.drawable.ic_baseline_tune_24);
-                menuButton.setImageTintList(android.content.res.ColorStateList.valueOf(0xffedf1ee));
+                menuButton.setImageTintList(android.content.res.ColorStateList.valueOf(getColor(ru.playsoftware.j2meloader.R.color.text_primary)));
                 menuButton.setBackgroundResource(R.drawable.bg_quick_setting_button);
                 menuButton.setPadding(dp(12), dp(12), dp(12), dp(12));
                 menuButton.setContentDescription("Game menu");
@@ -117,7 +122,7 @@ public final class MophunGameActivity extends Activity implements InputManager.I
             screenshotButton = new ImageButton(this);
             screenshotButton.setId(R.id.game_screenshot_button);
             screenshotButton.setImageResource(R.drawable.ic_action_screenshot);
-            screenshotButton.setImageTintList(android.content.res.ColorStateList.valueOf(0xffedf1ee));
+            screenshotButton.setImageTintList(android.content.res.ColorStateList.valueOf(getColor(ru.playsoftware.j2meloader.R.color.text_primary)));
             screenshotButton.setBackgroundResource(R.drawable.bg_quick_setting_button);
             screenshotButton.setPadding(dp(12), dp(12), dp(12), dp(12));
             screenshotButton.setContentDescription(getString(R.string.capture_screenshot));

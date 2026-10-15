@@ -12,6 +12,18 @@ combined builds; released experimental features are explicitly identified.
 
 ## 2026-10-15
 
+- **Public source, unreleased:** added a genuine Light appearance, selectable
+  with Dark and Follow system in Settings. The library, settings, installation
+  and transfer screens, shared game menu, controller mapper and both Phone touch
+  layouts use paired palettes. Native engine activities honor the app override
+  instead of silently reverting to the system theme. Game artwork and rendered
+  game pixels are unchanged. Fixed the narrow portrait mapper's overflowing
+  Identify button using a named, tooltip-equipped icon button. Both Retroid
+  Phone and the Android 15 Phone emulator passed 29 focused checks each;
+  Retroid Handheld passed 28 with one Phone-only skip. Checks include theme
+  persistence, contrast and control layout/input checks.
+  No new public APK; the reporter's Samsung Android 16 remains unverified.
+  [Evidence and screenshots](docs/checks/2026-10-15-light-theme.md).
 - **Public source, unreleased:** cancelled external imports and closed errors
   now return to the calling launcher instead of leaving the AbyssME library
   open. The fix covers Java choices/errors, Mophun import errors, Symbian

@@ -15,6 +15,10 @@ import static ru.playsoftware.j2meloader.util.Constants.*;
 
 /** Lives outside :midlet so the next game starts only after the old VM is gone. */
 public final class GameRestartActivity extends Activity {
+    @Override protected void attachBaseContext(android.content.Context base) {
+        super.attachBaseContext(ru.playsoftware.j2meloader.util.AppearanceContext.wrap(base));
+    }
+
     private final Handler handler = new Handler(Looper.getMainLooper());
     private boolean launched;
     private long deadline;
@@ -37,7 +41,7 @@ public final class GameRestartActivity extends Activity {
         setRequestedOrientation(getIntent().getIntExtra("orientation", -1));
         getWindow().getDecorView().setSystemUiVisibility(android.view.View.SYSTEM_UI_FLAG_FULLSCREEN
                 | android.view.View.SYSTEM_UI_FLAG_HIDE_NAVIGATION | android.view.View.SYSTEM_UI_FLAG_IMMERSIVE_STICKY);
-        getWindow().getDecorView().setBackgroundColor(0xff131c21);
+        getWindow().getDecorView().setBackgroundColor(getColor(ru.playsoftware.j2meloader.R.color.menu_surface));
         deadline = state == null ? SystemClock.elapsedRealtime() + 10000 : state.getLong("deadline");
     }
     @Override protected void onResume() { super.onResume(); handler.post(check); }

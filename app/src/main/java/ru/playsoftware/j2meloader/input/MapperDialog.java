@@ -32,7 +32,7 @@ public final class MapperDialog extends Dialog {
     }
     @Override public void show() {
         super.show();
-        getWindow().setBackgroundDrawable(new android.graphics.drawable.ColorDrawable(0xff0e1418));
+        getWindow().setBackgroundDrawable(new android.graphics.drawable.ColorDrawable(getContext().getColor(ru.playsoftware.j2meloader.R.color.background)));
         getWindow().addFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN);
         getWindow().getDecorView().setSystemUiVisibility(5894);
         getWindow().setLayout(WindowManager.LayoutParams.MATCH_PARENT, WindowManager.LayoutParams.MATCH_PARENT);

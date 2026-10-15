@@ -85,7 +85,7 @@ final class SymbianSessionUi {
     private ImageButton icon(String label, int resource, Runnable action) {
         ImageButton button = new ImageButton(activity); button.setImageResource(resource);
         button.setBackgroundResource(R.drawable.bg_quick_setting_button);
-        button.setImageTintList(android.content.res.ColorStateList.valueOf(0xffffc15a));
+        button.setImageTintList(android.content.res.ColorStateList.valueOf(activity.getColor(ru.playsoftware.j2meloader.R.color.accent)));
         button.setPadding(dp(12),dp(12),dp(12),dp(12)); button.setContentDescription(label); button.setTooltipText(label);
         button.setOnClickListener(v -> action.run()); return button;
     }
@@ -268,6 +268,7 @@ final class SymbianSessionUi {
                 public void repeat(int key) { sink.repeat(key); }
                 public void invalidate() { DeckView.this.invalidate(); }
             });
+            deck.setTheme(activity);
         }
         void layoutDeck(int w,int h) { cancel(); if (!BuildConfig.HANDHELD_MODE) deck.layout(w,h); }
         void cancel() { touch.cancel(); deck.cancel(); }

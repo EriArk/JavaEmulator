@@ -1,14 +1,17 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources xmlns:tools="http://schemas.android.com/tools">
 
-    <!-- The retro UI uses dark surfaces in both system modes. Match native widgets to them. -->
-    <style name="AppTheme" parent="Theme.AppCompat">
+    <style name="AppTheme" parent="Theme.AppCompat.DayNight">
         <item name="colorPrimary">@color/primary</item>
         <item name="colorPrimaryDark">@color/primary_dark</item>
         <item name="colorAccent">@color/accent</item>
         <item name="preferenceTheme">@style/PreferenceThemeOverlay</item>
         <item name="android:colorBackground">@color/background</item>
         <item name="android:windowBackground">?android:colorBackground</item>
+        <item name="android:statusBarColor">@color/background</item>
+        <item name="android:navigationBarColor">@color/background</item>
+        <item name="android:windowLightStatusBar">@bool/light_system_bars</item>
+        <item name="android:windowLightNavigationBar">@bool/light_system_bars</item>
         <item name="buttonStyle">@style/ButtonStyle</item>
         <item name="bg_config_card">@drawable/bg_config_card</item>
         <item name="textColorPrimary">@color/text_primary</item>
@@ -50,13 +53,13 @@
         <item name="android:textColor">@color/text_primary</item>
     </style>
 
-    <style name="FilePickerTheme" parent="Theme.AppCompat.DialogWhenLarge">
+    <style name="FilePickerTheme" parent="Theme.AppCompat.DayNight.DialogWhenLarge">
         <item name="colorPrimary">@color/primary</item>
         <item name="colorPrimaryDark">@color/primary_dark</item>
         <item name="colorAccent">@color/file_picker_accent</item>
         <item name="android:colorBackground">@color/background</item>
         <item name="android:windowBackground">@color/background</item>
-        <item name="nnf_toolbarTheme">@style/ThemeOverlay.AppCompat.Dark.ActionBar</item>
+        <item name="nnf_toolbarTheme">@style/ThemeOverlay.AppCompat.ActionBar</item>
         <item name="alertDialogTheme">@style/FilePickerAlertDialogTheme</item>
         <item name="nnf_separator_color">@color/nnf_separator_color</item>
         <item name="nnf_save_icon_color">?attr/colorAccent</item>
@@ -68,7 +71,7 @@
         <item name="android:forceDarkAllowed" tools:targetApi="q">false</item>
     </style>
 
-    <style name="FilePickerAlertDialogTheme" parent="Theme.AppCompat.Dialog.Alert">
+    <style name="FilePickerAlertDialogTheme" parent="Theme.AppCompat.DayNight.Dialog.Alert">
         <item name="colorAccent">@color/file_picker_accent</item>
         <item name="android:forceDarkAllowed" tools:targetApi="q">false</item>
     </style>
@@ -92,7 +95,7 @@
         <item name="android:minHeight">38dp</item>
         <item name="android:layout_height">wrap_content</item>
         <item name="android:textSize">16sp</item>
-        <item name="android:textColorHint">#b0b0b0</item>
+        <item name="android:textColorHint">@color/text_secondary</item>
         <item name="android:textColor">?attr/textColorPrimary</item>
     </style>
 

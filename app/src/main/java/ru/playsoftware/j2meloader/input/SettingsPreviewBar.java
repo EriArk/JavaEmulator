@@ -27,15 +27,15 @@ public final class SettingsPreviewBar extends LinearLayout {
     public SettingsPreviewBar(Context context, Runnable keep, Runnable undo) {
         super(context); this.undo = undo;
         setOrientation(HORIZONTAL); setGravity(Gravity.CENTER_VERTICAL);
-        setBackgroundColor(0xff131c21); setPadding(dp(8), dp(4), dp(8), dp(4));
-        label = new TextView(context); label.setTextColor(0xffffc15a); label.setTextSize(14);
+        setBackgroundColor(getContext().getColor(ru.playsoftware.j2meloader.R.color.menu_surface)); setPadding(dp(8), dp(4), dp(8), dp(4));
+        label = new TextView(context); label.setTextColor(getContext().getColor(ru.playsoftware.j2meloader.R.color.accent)); label.setTextSize(14);
         addView(label, new LayoutParams(0, dp(48), 1)); label.setGravity(Gravity.CENTER_VERTICAL);
         button("Keep", keep); button("Undo", undo);
         setVisibility(GONE);
     }
     private void button(String name, Runnable action) {
         Button button = new Button(getContext()); button.setText(name); button.setAllCaps(false);
-        button.setTextColor(0xffedf1ee); button.setBackgroundResource(R.drawable.bg_quick_setting_button);
+        button.setTextColor(getContext().getColor(ru.playsoftware.j2meloader.R.color.text_primary)); button.setBackgroundResource(R.drawable.bg_quick_setting_button);
         button.setBackgroundTintList(null); button.setOnClickListener(v -> action.run());
         LayoutParams lp = new LayoutParams(dp(80), dp(48)); lp.leftMargin = dp(4); addView(button, lp);
     }

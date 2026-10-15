@@ -24,7 +24,7 @@ final class ArchiveBatchView extends LinearLayout {
     private boolean binding;
     ArchiveBatchView(Context context,ArchiveBatch.Batch batch,Host host) {
         super(context); this.batch=batch; this.host=host;
-        setOrientation(VERTICAL); setPadding(dp(10),dp(8),dp(10),dp(8)); setBackgroundColor(0xff10171b);
+        setOrientation(VERTICAL); setPadding(dp(10),dp(8),dp(10),dp(8)); setBackgroundColor(getContext().getColor(ru.playsoftware.j2meloader.R.color.background));
         LinearLayout header=new LinearLayout(context); header.setGravity(Gravity.CENTER_VERTICAL);
         header.addView(icon("Back",android.R.drawable.ic_media_previous,host::close),new LayoutParams(dp(44),dp(44)));
         TextView title=text("Archive import",20); header.addView(title,new LayoutParams(0,-2,1));
@@ -32,11 +32,11 @@ final class ArchiveBatchView extends LinearLayout {
         TextView name=text(batch.name,13); name.setMaxLines(1); name.setEllipsize(android.text.TextUtils.TruncateAt.END); addView(name);
         status=text("",13); status.setMaxLines(2); addView(status);
         progress=new ProgressBar(context,null,android.R.attr.progressBarStyleHorizontal); progress.setIndeterminate(true);
-        progress.setIndeterminateTintList(ColorStateList.valueOf(0xffffc15a)); progress.setVisibility(GONE); addView(progress,new LayoutParams(-1,dp(4)));
+        progress.setIndeterminateTintList(ColorStateList.valueOf(getContext().getColor(ru.playsoftware.j2meloader.R.color.accent))); progress.setVisibility(GONE); addView(progress,new LayoutParams(-1,dp(4)));
         RecyclerView list=new RecyclerView(context); list.setLayoutManager(new LinearLayoutManager(context));
         list.setContentDescription("Archive files"); list.setAdapter(rows); addView(list,new LayoutParams(-1,0,1));
         LinearLayout footer=new LinearLayout(context); footer.setGravity(Gravity.CENTER_VERTICAL);
-        all=new CheckBox(context); all.setText("Select all"); all.setTextColor(0xffeceee8); all.setButtonTintList(ColorStateList.valueOf(0xffffc15a));
+        all=new CheckBox(context); all.setText("Select all"); all.setTextColor(getContext().getColor(ru.playsoftware.j2meloader.R.color.text_primary)); all.setButtonTintList(ColorStateList.valueOf(getContext().getColor(ru.playsoftware.j2meloader.R.color.accent)));
         all.setVisibility(batch.started ? GONE : VISIBLE);
         all.setOnCheckedChangeListener((v,value)-> { if(binding) return; for(ArchiveBatch.Item item:batch.items) if(item.problem.isEmpty()) item.selected=value; list.getAdapter().notifyDataSetChanged(); update(); host.changed(); });
         footer.addView(all,new LayoutParams(0,dp(48),1));
@@ -53,14 +53,14 @@ final class ArchiveBatchView extends LinearLayout {
     }
     private int dp(int n) { return Math.round(n*getResources().getDisplayMetrics().density); }
     private TextView text(String s,int size) {
-        TextView v=new TextView(getContext()); v.setText(s); v.setTextSize(size); v.setTextColor(0xffeceee8); v.setPadding(dp(6),dp(3),dp(6),dp(3)); return v;
+        TextView v=new TextView(getContext()); v.setText(s); v.setTextSize(size); v.setTextColor(getContext().getColor(ru.playsoftware.j2meloader.R.color.text_primary)); v.setPadding(dp(6),dp(3),dp(6),dp(3)); return v;
     }
     private Button button(String label,Runnable run) {
-        Button b=new Button(getContext()); b.setText(label); b.setAllCaps(false); b.setTextSize(14); b.setTextColor(0xffeceee8);
+        Button b=new Button(getContext()); b.setText(label); b.setAllCaps(false); b.setTextSize(14); b.setTextColor(getContext().getColor(ru.playsoftware.j2meloader.R.color.text_primary));
         b.setBackgroundResource(R.drawable.bg_quick_setting_button); b.setOnClickListener(v->run.run()); return b;
     }
     private ImageButton icon(String label,int resource,Runnable run) {
-        ImageButton b=new ImageButton(getContext()); b.setImageResource(resource); b.setImageTintList(ColorStateList.valueOf(0xffffc15a));
+        ImageButton b=new ImageButton(getContext()); b.setImageResource(resource); b.setImageTintList(ColorStateList.valueOf(getContext().getColor(ru.playsoftware.j2meloader.R.color.accent)));
         b.setBackgroundResource(R.drawable.bg_quick_setting_button); b.setContentDescription(label); b.setTooltipText(label); b.setOnClickListener(v->run.run()); return b;
     }
     private void update() {
@@ -81,12 +81,12 @@ final class ArchiveBatchView extends LinearLayout {
         final CheckBox check; final TextView name,detail; final Spinner role; final ImageButton more;
         Row(LinearLayout row) {
             super(row); row.setLayoutParams(new RecyclerView.LayoutParams(-1,-2)); row.setGravity(Gravity.CENTER_VERTICAL); row.setPadding(0,dp(5),0,dp(5)); row.setMinimumHeight(dp(72));
-            check=new CheckBox(getContext()); check.setButtonTintList(ColorStateList.valueOf(0xffffc15a)); row.addView(check,new LayoutParams(dp(42),dp(48)));
+            check=new CheckBox(getContext()); check.setButtonTintList(ColorStateList.valueOf(getContext().getColor(ru.playsoftware.j2meloader.R.color.accent))); row.addView(check,new LayoutParams(dp(42),dp(48)));
             LinearLayout labels=new LinearLayout(getContext()); labels.setOrientation(VERTICAL); name=text("",15); name.setMaxLines(2);
-            name.setEllipsize(android.text.TextUtils.TruncateAt.END); detail=text("",12); detail.setTextColor(0xffa7b6ba); detail.setMaxLines(2); detail.setEllipsize(android.text.TextUtils.TruncateAt.END);
+            name.setEllipsize(android.text.TextUtils.TruncateAt.END); detail=text("",12); detail.setTextColor(getContext().getColor(ru.playsoftware.j2meloader.R.color.text_secondary)); detail.setMaxLines(2); detail.setEllipsize(android.text.TextUtils.TruncateAt.END);
             labels.addView(name); labels.addView(detail); row.addView(labels,new LayoutParams(0,-2,1));
             role=new Spinner(getContext()); ArrayAdapter<String> choices=new ArrayAdapter<String>(getContext(),android.R.layout.simple_spinner_item,new String[]{"Game","Component"}) {
-                @Override public View getView(int pos,View old,ViewGroup parent) { TextView v=(TextView)super.getView(pos,old,parent); v.setTextColor(0xffffc15a); v.setTextSize(13); return v; }
+                @Override public View getView(int pos,View old,ViewGroup parent) { TextView v=(TextView)super.getView(pos,old,parent); v.setTextColor(getContext().getColor(ru.playsoftware.j2meloader.R.color.accent)); v.setTextSize(13); return v; }
             }; choices.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item); role.setAdapter(choices);
             row.addView(role,new LayoutParams(dp(118),dp(48)));
             more=icon("File details",android.R.drawable.ic_menu_more,()->host.row(getBindingAdapterPosition())); row.addView(more,new LayoutParams(dp(42),dp(48)));

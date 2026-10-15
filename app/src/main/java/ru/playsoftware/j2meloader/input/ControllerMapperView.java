@@ -42,9 +42,7 @@ public final class ControllerMapperView extends LinearLayout {
         void cancel();
     }
 
-    private static final int BG = 0xff0e1418, PANEL = 0xff192328, LINE = 0xff35464e;
-    private static final int TEXT = 0xffedf1ee, MUTED = 0xffa9b9bd;
-    private static final int AMBER = 0xffffc15a, CYAN = 0xff71d3d5;
+    private final int BG, PANEL, LINE, TEXT, MUTED, AMBER, CYAN;
     private static final int[] DPAD = {19, 20, 21, 22, -1011, -1012, -1013, -1014};
     private static final int[] STICK = {-1001, -1002, -1003, -1004, -1005, -1006, -1007, -1008};
     private static final String[] DIR_NAMES = {"Up", "Down", "Left", "Right",
@@ -108,6 +106,13 @@ public final class ControllerMapperView extends LinearLayout {
                                 ArrayList<ProfileModel.KeyMappingProfile> original,
                                 int activeIndex, Listener listener) {
         super(context);
+        BG = context.getColor(ru.playsoftware.j2meloader.R.color.background);
+        PANEL = context.getColor(ru.playsoftware.j2meloader.R.color.phone_panel_alt);
+        LINE = context.getColor(ru.playsoftware.j2meloader.R.color.phone_line);
+        TEXT = context.getColor(ru.playsoftware.j2meloader.R.color.text_primary);
+        MUTED = context.getColor(ru.playsoftware.j2meloader.R.color.text_secondary);
+        AMBER = context.getColor(ru.playsoftware.j2meloader.R.color.accent);
+        CYAN = context.getColor(ru.playsoftware.j2meloader.R.color.phone_cyan);
         this.listener = listener;
         for (ProfileModel.KeyMappingProfile p : original) {
             profiles.add(new ProfileModel.KeyMappingProfile(p.name,
@@ -191,25 +196,25 @@ public final class ControllerMapperView extends LinearLayout {
         phone = new LinearLayout(context);
         phone.setOrientation(VERTICAL);
         phone.setPadding(dp(10), dp(10), dp(10), dp(10));
-        phone.setBackground(shape(0xff111c21, 0xff4a5a60, 8));
+        phone.setBackground(shape(getContext().getColor(ru.playsoftware.j2meloader.R.color.phone_panel), getContext().getColor(ru.playsoftware.j2meloader.R.color.phone_line), 8));
         phone.setMinimumHeight(dp(350));
         ScrollView phoneScroll = new ScrollView(context);
         phoneScroll.setFillViewport(true);
         phoneScroll.addView(phone, new ScrollView.LayoutParams(LayoutParams.MATCH_PARENT, LayoutParams.WRAP_CONTENT));
         destination.addView(phoneScroll, new LayoutParams(LayoutParams.MATCH_PARENT, 0, 1));
         body.addView(destination, new LayoutParams(0, LayoutParams.MATCH_PARENT, 1));
-        lcd = text("", 13, 0xffcbe5c7);
+        lcd = text("", 13, getContext().getColor(ru.playsoftware.j2meloader.R.color.mapper_lcd_text));
         lcd.setTypeface(Typeface.MONOSPACE);
         lcd.setGravity(Gravity.CENTER);
         lcd.setMaxLines(2);
-        lcd.setBackground(shape(0xff253a32, 0xff426151, 3));
+        lcd.setBackground(shape(getContext().getColor(ru.playsoftware.j2meloader.R.color.mapper_lcd), getContext().getColor(ru.playsoftware.j2meloader.R.color.mapper_lcd_line), 3));
         rebuildPhone();
 
         addSection("Buttons");
-        addInput(96, "A", "A", 0xff9eda97);
-        addInput(97, "B", "B", 0xffef9494);
-        addInput(99, "X", "X", 0xff88ccef);
-        addInput(100, "Y", "Y", 0xffedcf76);
+        addInput(96, "A", "A", getContext().getColor(ru.playsoftware.j2meloader.R.color.control_a));
+        addInput(97, "B", "B", getContext().getColor(ru.playsoftware.j2meloader.R.color.control_b));
+        addInput(99, "X", "X", getContext().getColor(ru.playsoftware.j2meloader.R.color.control_x));
+        addInput(100, "Y", "Y", getContext().getColor(ru.playsoftware.j2meloader.R.color.control_y));
         buildingGroup = 1;
         addSection("D-pad");
         for (int i = 0; i < DPAD.length; i++) addInput(DPAD[i], DIR_ICONS[i], "D-pad " + DIR_NAMES[i], CYAN);
@@ -225,11 +230,9 @@ public final class ControllerMapperView extends LinearLayout {
 
         LinearLayout footer = new LinearLayout(context);
         footer.setGravity(Gravity.CENTER_VERTICAL);
-        detect = button(context.getString(R.string.mapper_detect));
-        detect.setCompoundDrawables(tinted(android.R.drawable.ic_menu_search), null, null, null);
-        detect.setCompoundDrawablePadding(dp(6));
+        detect = iconButton(android.R.drawable.ic_menu_search, R.string.mapper_detect);
         detect.setOnClickListener(v -> setListening(!listening));
-        footer.addView(detect, new LayoutParams(0, dp(44), 1));
+        footer.addView(detect, new LayoutParams(dp(44), dp(44)));
         Button unbind = iconButton(android.R.drawable.ic_menu_close_clear_cancel, R.string.mapper_unbind);
         unbind.setOnClickListener(v -> bind(ControllerInput.UNBOUND));
         LayoutParams unbindParams = new LayoutParams(dp(44), dp(44));
@@ -391,7 +394,7 @@ public final class ControllerMapperView extends LinearLayout {
         TextView badge = text(icon, icon.length() > 1 ? 12 : 20, color);
         badge.setGravity(Gravity.CENTER);
         badge.setTypeface(Typeface.MONOSPACE, Typeface.BOLD);
-        badge.setBackground(shape(0xff0d171c, LINE, icon.length() > 1 ? 5 : 18));
+        badge.setBackground(shape(getContext().getColor(ru.playsoftware.j2meloader.R.color.input_surface), LINE, icon.length() > 1 ? 5 : 18));
         row.addView(badge, new LayoutParams(dp(36), dp(36)));
         LinearLayout labels = new LinearLayout(getContext());
         labels.setOrientation(VERTICAL);
@@ -503,7 +506,7 @@ public final class ControllerMapperView extends LinearLayout {
             button.setGravity(Gravity.CENTER);
             button.setContentDescription("Phone key " + keyName(key));
             button.setTooltipText(keyName(key));
-            button.setBackground(states(0xff28363d));
+            button.setBackground(states(getContext().getColor(ru.playsoftware.j2meloader.R.color.phone_panel_alt)));
             if (labels[i].contains("\n")) {
                 SpannableString styled = new SpannableString(labels[i]);
                 styled.setSpan(new RelativeSizeSpan(0.43f), labels[i].indexOf('\n') + 1, labels[i].length(), 0);
@@ -652,7 +655,9 @@ public final class ControllerMapperView extends LinearLayout {
         candidate = 0;
         captureDpad.clear();
         handler.removeCallbacks(captured);
-        detect.setText(enabled ? R.string.mapper_listening : R.string.mapper_detect);
+        String description = getContext().getString(enabled ? R.string.mapper_listening : R.string.mapper_detect);
+        detect.setContentDescription(description);
+        detect.setTooltipText(description);
         detect.setSelected(enabled);
     }
 
@@ -726,9 +731,9 @@ public final class ControllerMapperView extends LinearLayout {
 
     private StateListDrawable states(int color) {
         StateListDrawable states = new StateListDrawable();
-        states.addState(new int[]{android.R.attr.state_pressed}, shape(0xff51412a, AMBER, 6));
-        states.addState(new int[]{android.R.attr.state_focused}, shape(0xff293a40, CYAN, 6));
-        states.addState(new int[]{android.R.attr.state_selected}, shape(0xff3a3221, AMBER, 6));
+        states.addState(new int[]{android.R.attr.state_pressed}, shape(getContext().getColor(ru.playsoftware.j2meloader.R.color.btn_bg_pressed), AMBER, 6));
+        states.addState(new int[]{android.R.attr.state_focused}, shape(getContext().getColor(ru.playsoftware.j2meloader.R.color.focus_surface), CYAN, 6));
+        states.addState(new int[]{android.R.attr.state_selected}, shape(getContext().getColor(ru.playsoftware.j2meloader.R.color.selected_surface), AMBER, 6));
         states.addState(new int[]{}, shape(color, LINE, 6));
         return states;
     }

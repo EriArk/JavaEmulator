@@ -11,6 +11,26 @@
     <color name="btn_bg_pressed">#2B2515</color>
     <color name="config_card">#181C23</color>
     <color name="config_card_stroke">#2F3642</color>
+    <color name="phone_panel">#11161A</color>
+    <color name="phone_panel_alt">#182027</color>
+    <color name="phone_cyan">#49E5F2</color>
+    <color name="phone_green">#65E05F</color>
+    <color name="phone_line">#52616A</color>
+    <color name="focus_surface">#25383C</color>
+    <color name="selected_surface">#202014</color>
+    <color name="input_surface">#080B0E</color>
+    <color name="menu_surface">#131C21</color>
+    <color name="on_accent">#151B1E</color>
+    <color name="mapper_lcd">#253A32</color>
+    <color name="mapper_lcd_text">#CBE5C7</color>
+    <color name="mapper_lcd_line">#426151</color>
+    <color name="control_a">#9EDA97</color>
+    <color name="control_b">#EF9494</color>
+    <color name="control_x">#88CCEF</color>
+    <color name="control_y">#EDCF76</color>
+    <color name="touch_surface">#10181C</color>
+    <color name="touch_button">#29363E</color>
+    <color name="touch_line">#6C818C</color>
 
     <color name="nnf_separator_color">@color/nnf_dark_separator_color</color>
 </resources>
