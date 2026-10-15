@@ -111,6 +111,9 @@ public final class SymbianActivity extends Activity implements Emulator.Host, In
         inputManager.registerInputDeviceListener(this, null);
         library();
         task("Preparing Symbian", () -> {
+            if(getIntent().getBooleanExtra(SymbianLibraryIndex.REMOVE_EXTRA,false)
+                    && sessionOwner!=null && sessionOwner.running)
+                throw new IOException("Close the running Symbian game before uninstalling. No game was stopped or removed");
             Emulator.stopSession();
             sessionOwner = this;
             Emulator.host = this;
@@ -127,7 +130,16 @@ public final class SymbianActivity extends Activity implements Emulator.Host, In
             String selectedSystem = getIntent().getStringExtra(SymbianLibraryIndex.SYSTEM_EXTRA);
             if (selectedSystem != null) {
                 SystemFileCatalog.Entry entry = catalog.read(selectedSystem);
-                openSystem(entry);
+                openSystem(entry,getIntent().getBooleanExtra(SymbianLibraryIndex.REMOVE_EXTRA,false));
+                if(getIntent().getBooleanExtra(SymbianLibraryIndex.REMOVE_EXTRA,false)) {
+                    long uid=getIntent().getLongExtra(SymbianLibraryIndex.UID_EXTRA,0);
+                    // Remove the launch request before showing any dialog or handling an error.
+                    getIntent().removeExtra(SymbianLibraryIndex.REMOVE_EXTRA);
+                    getIntent().removeExtra(SymbianLibraryIndex.UID_EXTRA);
+                    directLaunch=false;
+                    reviewRemoval(entry,uid);
+                    return;
+                }
                 if (getIntent().hasExtra(SymbianLibraryIndex.UID_EXTRA)) {
                     long uid = getIntent().getLongExtra(SymbianLibraryIndex.UID_EXTRA, 0);
                     boolean found = false;
@@ -364,20 +376,23 @@ public final class SymbianActivity extends Activity implements Emulator.Host, In
         if (!systems.isEmpty()) menu.action("Back up phone",android.R.drawable.ic_menu_save,() -> {
             menu.dismiss(); GameMenuDialog choose=dialog("Choose phone to back up");
             for(SystemFileCatalog.Entry entry:systems) choose.action(entry.label(),0,() -> {
-                choose.dismiss(); notice("Back up phone",entry.displayName()
-                        + "\n\nIncludes system files, installed games, saves and game settings. Keep this archive private."
-                        + "\n\nThe game must be closed. This is not an in-game save state.","Choose where to save",() -> {
-                    backupSystem=entry.id;
-                    Intent intent=new Intent(Intent.ACTION_CREATE_DOCUMENT).addCategory(Intent.CATEGORY_OPENABLE).setType("application/zip")
-                            .putExtra(Intent.EXTRA_TITLE,"AbyssME-phone-"+entry.firmware+"-"
-                                    +new java.text.SimpleDateFormat("yyyy-MM-dd-HHmm",Locale.ROOT).format(new Date())+".zip");
-                    startActivityForResult(intent,SAVE_PHONE);
-                },"Cancel");
+                choose.dismiss(); requestPhoneBackup(entry);
             });
             choose.action("Cancel",0,choose::dismiss);
         });
         menu.action("Restore phone backup",android.R.drawable.ic_menu_revert,() -> { menu.dismiss(); pick(RESTORE_PHONE,false); });
         menu.action("Close",0,menu::dismiss);
+    }
+    private void requestPhoneBackup(SystemFileCatalog.Entry entry) {
+        notice("Back up phone",entry.label()
+                + "\n\nIncludes system files, installed games, saves and game settings. Keep this archive private."
+                + "\n\nThe game must be closed. This is not an in-game save state.","Choose where to save",() -> {
+            backupSystem=entry.id;
+            Intent intent=new Intent(Intent.ACTION_CREATE_DOCUMENT).addCategory(Intent.CATEGORY_OPENABLE).setType("application/zip")
+                    .putExtra(Intent.EXTRA_TITLE,"AbyssME-phone-"+entry.firmware+"-"
+                            +new java.text.SimpleDateFormat("yyyy-MM-dd-HHmm",Locale.ROOT).format(new Date())+".zip");
+            startActivityForResult(intent,SAVE_PHONE);
+        },"Cancel");
     }
     private PreparedSystemArchive.Progress transferProgress() {
         final long[] last={0};
@@ -485,12 +500,55 @@ public final class SymbianActivity extends Activity implements Emulator.Host, In
         if (cancel != null) menu.action(cancel,0,menu::dismiss);
     }
     private void openSystem(SystemFileCatalog.Entry entry) throws Exception {
+        openSystem(entry,false);
+    }
+    private void openSystem(SystemFileCatalog.Entry entry,boolean removalReview) throws Exception {
         checkImportOpen();
         Emulator.stopSession();
         runtimeRoot = catalog.runtime(entry);
         SymbianFiles.prepareAssets(this, runtimeRoot);
         Emulator.prepare(runtimeRoot.getAbsolutePath());
         catalog.activate(entry);
+        GameRemoval removal=removal(entry);
+        removal.recover();
+        if(removal.pending() && !removalReview)
+            throw new IOException("An uninstall is incomplete on this phone. Retry it from the game's actions or restore a phone backup before making further changes");
+    }
+    private GameRemoval removal(SystemFileCatalog.Entry entry) throws IOException {
+        String runtime=catalog.runtime(entry).getAbsolutePath();
+        return new GameRemoval(new File(getFilesDir(),"symbian-library"),entry.id,new GameRemoval.Backend() {
+            public String[] inspect(long uid) throws Exception { return Emulator.inspectRemoval(uid,runtime); }
+            public String[] apps() { return Emulator.getLibraryApps(); }
+            public void remove(long uid,long owner,int index) throws Exception {
+                checkImportOpen();
+                if(running) throw new IOException("Close the game before uninstalling");
+                Emulator.uninstallGame(uid,owner,index,runtime);
+            }
+            public void reload() { Emulator.prepare(runtime); }
+            public boolean complete(GameRemoval.Plan plan) throws Exception { return Emulator.removalComplete(plan.rows,runtime); }
+            public void publish(String[] apps,Set<Long> removed) throws Exception { libraryIndex.publishRemoval(entry,apps,removed); }
+        });
+    }
+    private void reviewRemoval(SystemFileCatalog.Entry entry,long uid) throws Exception {
+        GameRemoval.Plan plan=removal(entry).inspect(uid);
+        refreshStopped("Review uninstall");
+        afterTask=() -> {
+            GameMenuDialog menu=dialog("Uninstall from phone?");
+            menu.message(plan.description(entry.label()+" ["+entry.id.substring(0,8)+"]"));
+            menu.setBackAction(() -> { menu.dismiss(); finish(); });
+            menu.action("Cancel",0,() -> { menu.dismiss(); finish(); });
+            menu.action("Back up this phone",android.R.drawable.ic_menu_save,() -> { menu.dismiss(); requestPhoneBackup(entry); });
+            menu.action("Uninstall",android.R.drawable.ic_menu_delete,() -> {
+                menu.dismiss(); task("Uninstalling from phone",() -> {
+                    if(running) throw new IOException("Close the game before uninstalling");
+                    openSystem(entry,true);
+                    removal(entry).remove(plan);
+                    refresh("Uninstalled from " + entry.displayName());
+                    afterTask=() -> notice("Uninstalled", "The package was removed from " + entry.displayName()
+                            + ". Other phones are unchanged.","Library",this::finish,"Close");
+                });
+            });
+        };
     }
     private void checkImportOpen() throws java.io.InterruptedIOException {
         if (closing) throw new java.io.InterruptedIOException("Import paused. Continue it from Pending import.");

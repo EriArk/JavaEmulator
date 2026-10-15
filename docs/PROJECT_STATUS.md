@@ -34,6 +34,14 @@ bundled. The app UI is English.
 
 ## Availability: Do Not Mix These Channels
 
+**Unreleased Symbian uninstall (2026-10-15):** Game actions now offers
+Uninstall from phone for supported SIS/SISX installations, with exact-phone
+confirmation, optional backup and verified native removal before library cleanup.
+Unknown/shared/system packages are blocked; card-only and N-Gage 2.0 platform
+game removal remain unsupported. Three real SIS/SISX games passed removal and
+reinstallation on copied phones in both Retroid debug variants. This is not in
+the public 0.3.0-beta.1 APKs. [Scope and checks](checks/2026-10-15-symbian-uninstall.md).
+
 **Unreleased Java frame-rate improvements (2026-10-15):** More shows the active
 limit; More and Display offer presets with per-game Try / Keep / Undo. Runtime
 changes now persist when confirmed, and pacing uses a monotonic per-Canvas
@@ -130,6 +138,7 @@ The following Java/Mophun features remain from 0.2:
 | Transfer and backup | J2ME Loader import, selection/preview, AbyssME backup/restore through menus, copied saves and supported profiles, non-destructive migrations | [Transfer](LIBRARY_TRANSFER.md); source files remain intact, access restrictions still apply |
 | Nested-folder permissions | Import pauses for the requested folder grant and resumes; wrong-folder/cancel recovery, readable messages, save-folder validation | `d39ed742`; pending access survives screen recreation, not process death |
 | Installer | Compact scrolling details with reachable actions, persistent errors, archive recognition through pickers, mismatched JAD/JAR continuation retaining source identity | `696da084`, `7ba384b2`; URI-alias duplicates remain #20 |
+| Symbian uninstall (unreleased) | Remove a supported SIS/SISX package from its exact phone, with backup access, dependency/ownership checks and interrupted-operation reconciliation | [Checks and conservative limits](checks/2026-10-15-symbian-uninstall.md); not a hide-entry operation; no automatic rollback |
 | Automatic preparation | Weak or conflicting vendor hints retain Generic; anonymous images alone no longer set display size. Existing settings and explicit display declarations remain preserved | [Preset checks](GAME_PRESETS.md), [checks](LOCAL_TESTING.md); static heuristics, not running multiple models or guaranteeing the best profile |
 | Automatic game fonts | New profiles follow the prepared virtual resolution; Advanced font presets include Automatic. Existing explicit values are preserved | `9430cb0a`; four Android font tests, readable Constructo tutorial on Retroid |
 
@@ -194,9 +203,11 @@ on the emulator after seven folder grants. Both imported RMS files matched
 their original hashes and source files were unchanged. The reporter's Samsung
 phones and every storage provider have not been verified.
 
-Current open work, checked on GitHub on 2026-10-13:
+Current open work, checked on GitHub on 2026-10-15:
 
 - [#20](https://github.com/EriArk/JavaEmulator/issues/20): different Downloads URIs can duplicate one source; existing duplicates are not merged.
+- [#22](https://github.com/EriArk/JavaEmulator/issues/22): frame-rate controls/pacing are improved in unreleased source, but the exact fast-game report is not reproduced.
+- [#24](https://github.com/EriArk/JavaEmulator/issues/24): Java ME VM research, not an integrated replacement runtime.
 - [#15](https://github.com/EriArk/JavaEmulator/issues/15): Ghost Recon 2 SE 128x160 still has a recurring black screen.
 - [#14](https://github.com/EriArk/JavaEmulator/issues/14): compatibility heuristics need broader validation.
 - [#17](https://github.com/EriArk/JavaEmulator/issues/17), [#9](https://github.com/EriArk/JavaEmulator/issues/9), [#3](https://github.com/EriArk/JavaEmulator/issues/3), [#12](https://github.com/EriArk/JavaEmulator/issues/12): implemented UI/input/orientation/contrast changes still have acceptance or release follow-up; open does not mean no implementation.

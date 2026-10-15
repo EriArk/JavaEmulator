@@ -779,6 +779,8 @@ public class AppsListFragment extends Fragment implements AppsListAdapter.Listen
                 item.favorite(); dialog.dismiss(); publishLibrary(); updateDetail(item);
             });
             dialog.action("System files", R.drawable.ic_baseline_tune_24, () -> { dialog.dismiss(); startApp(item, true); });
+            if(item.supportsUninstallReview()) dialog.action("Uninstall from phone", android.R.drawable.ic_menu_delete,
+                    () -> { dialog.dismiss(); item.uninstall(requireActivity()); });
             return;
         }
 		PopupMenu popup = new PopupMenu(requireContext(), anchor);

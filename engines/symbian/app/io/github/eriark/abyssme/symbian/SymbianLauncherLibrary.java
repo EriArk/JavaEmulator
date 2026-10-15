@@ -39,6 +39,13 @@ public final class SymbianLauncherLibrary implements ExternalLibrary.Provider {
             setPlayCount(preferences.getInt(entry.key() + ".playCount", 0));
         }
         @Override public String getImagePathExt() { return entry.icon.isFile() ? entry.icon.getAbsolutePath() : null; }
+        @Override public boolean supportsUninstallReview() { return true; }
+        @Override public void uninstall(Activity activity) {
+            activity.startActivity(new Intent(activity,SymbianActivity.class)
+                    .putExtra(SymbianLibraryIndex.SYSTEM_EXTRA,entry.system)
+                    .putExtra(SymbianLibraryIndex.UID_EXTRA,entry.uid)
+                    .putExtra(SymbianLibraryIndex.REMOVE_EXTRA,true));
+        }
         @Override public String getCoverPathExt() { return entry.cover.isFile() ? entry.cover.getAbsolutePath() : null; }
         @Override public void favorite() {
             setFavorite(!isFavorite());

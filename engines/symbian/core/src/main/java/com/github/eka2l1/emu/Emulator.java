@@ -73,6 +73,9 @@ public final class Emulator {
     public static native String[] getApps();
     public static native int installApp(String path);
     public static native int[] installedPackageVersion(long uid);
+    public static native String[] inspectRemoval(long appUid, String runtime) throws java.io.IOException;
+    public static native void uninstallGame(long appUid, long packageUid, int index, String runtime) throws java.io.IOException;
+    public static native boolean removalComplete(String[] plan, String runtime) throws java.io.IOException;
     public static native int installNGageGame(String path);
     public static native String driveE();
     public static native String environmentReport();

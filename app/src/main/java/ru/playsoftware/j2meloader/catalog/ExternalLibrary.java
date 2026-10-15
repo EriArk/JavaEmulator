@@ -14,6 +14,8 @@ public final class ExternalLibrary {
         protected Item(String path, String title, String platform, String phone) { super(path, title, platform, phone); }
         public abstract void launch(Activity activity, boolean systemSettings);
         public abstract void favorite();
+        public void uninstall(Activity activity) { }
+        public boolean supportsUninstallReview() { return false; }
         @Override public String getPathExt() { return getPath(); }
         @Override public String getCoverPathExt() { return null; }
     }

@@ -13,6 +13,7 @@ import java.util.*;
 public final class SymbianLibraryIndex {
     public static final String SYSTEM_EXTRA = "symbian.system";
     public static final String UID_EXTRA = "symbian.uid";
+    public static final String REMOVE_EXTRA = "symbian.remove";
     public static final class Entry {
         public final String system, title, platform, phone;
         public final long uid;
@@ -56,6 +57,18 @@ public final class SymbianLibraryIndex {
         return result;
     }
     void publish(SystemFileCatalog.Entry system, String[] apps, boolean artwork) throws IOException {
+        if(GameRemoval.pending(root,system.id)) throw new IOException("An uninstall is incomplete on this phone. Retry it from the game's actions or restore a phone backup. The previous library has been kept");
+        publishSnapshot(system,apps,artwork);
+    }
+    void publishRemoval(SystemFileCatalog.Entry system, String[] apps, Set<Long> removed) throws IOException {
+        publishSnapshot(system,apps,false);
+        for(long uid:removed) {
+            identity(system.id,uid);
+            for(File image:new File[]{icon(system.id,uid),cover(system.id,uid)})
+                if(image.exists() && !image.delete()) android.util.Log.w("AbyssSymbian","Unused game artwork could not be removed");
+        }
+    }
+    private void publishSnapshot(SystemFileCatalog.Entry system, String[] apps, boolean artwork) throws IOException {
         identity(system.id, 1);
         if (apps == null || apps.length % 3 != 0 || apps.length > 6144) throw new IOException("Invalid engine library response");
         if (!root.isDirectory() && !root.mkdirs()) throw new IOException("Cannot create Symbian library");

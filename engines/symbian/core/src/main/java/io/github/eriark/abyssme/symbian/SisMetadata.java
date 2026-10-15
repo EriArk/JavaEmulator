@@ -76,6 +76,19 @@ final class SisMetadata {
         } catch(BufferUnderflowException | IllegalArgumentException e) { throw new IOException("Invalid SIS metadata",e); }
     }
     private static long word(RandomAccessFile in) throws IOException { return Integer.toUnsignedLong(Integer.reverseBytes(in.readInt())); }
+    static SisMetadata storedController(File file) throws IOException {
+        try(RandomAccessFile in=new RandomAccessFile(file,"r")) {
+            if(in.length()<12 || in.length()>LIMIT+4L) throw bad();
+            long size=word(in);
+            if(size!=in.length()-4) throw bad();
+            byte[] body=new byte[(int)size]; in.readFully(body);
+            // Guest SisRegistry sends a length-prefixed controller descriptor;
+            // direct host installation sends the controller body itself.
+            if(Integer.toUnsignedLong(ByteBuffer.wrap(body).order(ByteOrder.LITTLE_ENDIAN).getInt())==size-4)
+                body=Arrays.copyOfRange(body,4,body.length);
+            return controller(new Reader(body),0,new int[]{0});
+        } catch(BufferUnderflowException | IllegalArgumentException error) { throw new IOException("Invalid stored SIS controller",error); }
+    }
     private static SisMetadata controller(Reader r, int depth, int[] count) throws IOException {
         if(depth>16 || ++count[0]>256) throw bad();
         Reader info=r.expect(14);

@@ -12,6 +12,17 @@ combined builds; released experimental features are explicitly identified.
 
 ## 2026-10-15
 
+- **Public source, unreleased:** Symbian game actions now includes **Uninstall
+  from phone**, showing the target phone, package, affected apps and save-data
+  consequences. Cancel is the default; a shortcut opens the exact phone's backup
+  flow. Dependency/ownership guards block unsafe removals. Interrupted removals
+  keep their library references until the actual native result is verified.
+  Retroid Handheld/Phone checks covered three real SIS/SISX games, cancellation,
+  removal, reinstall, dependency rejection and unchanged original phone data.
+  Each variant passed 25 JVM and 39 focused Android checks, with 2 optional skips.
+  Card-only and N-Gage 2.0 platform game uninstall remain unsupported; no automatic
+  rollback is promised. Public APKs are unchanged.
+  [Evidence and limits](docs/checks/2026-10-15-symbian-uninstall.md).
 - **Public source, unreleased:** Java frame-rate limits now show their current
   value in More, offer presets in the shared menu and Display, and support
   per-game Try / Keep / Undo. Fixed limits not being saved from the old runtime
