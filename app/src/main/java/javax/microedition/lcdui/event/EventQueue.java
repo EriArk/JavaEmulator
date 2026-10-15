@@ -75,7 +75,11 @@ public class EventQueue implements Runnable {
 			}
 			return;      // and nothing to do here
 		}
+		postEventQueued(event);
+	}
 
+	/** Lifecycle work must not execute guest callbacks under the caller's display lock. */
+	public void postEventQueued(Event event) {
 		boolean empty;
 
 		synchronized (queue) {   // all operations with the queue must be synchronized (on itself)

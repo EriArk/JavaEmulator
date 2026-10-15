@@ -1,5 +1,9 @@
 # Local game sample: 2026-10-08
 
+For the unreleased 2026-10-15 shared Canvas lifecycle fix and fresh Retroid/
+emulator observations, see [the startup check](checks/2026-10-15-canvas-lifecycle.md).
+The original observations below remain historical; #15 is not marked resolved.
+
 Initial sample from a maintainer-provided archive, not a download list or
 redistributable fixture pack. 1,126 JAR files were found; 1,122 readable manifests
 were surveyed. Files and raw survey data remain local and ignored by Git.

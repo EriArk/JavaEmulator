@@ -24,6 +24,7 @@ import android.os.Process;
 import android.util.Log;
 
 import javax.microedition.lcdui.Canvas;
+import javax.microedition.lcdui.Display;
 import javax.microedition.lcdui.Displayable;
 import javax.microedition.midlet.MIDlet;
 import javax.microedition.midlet.MIDletStateChangeException;
@@ -52,7 +53,7 @@ public class MidletThread extends HandlerThread implements Handler.Callback {
 	private final String mainClass;
 	private MIDlet midlet;
 	private final Handler handler;
-	private int state;
+	private volatile int state;
 
 	private MidletThread(MicroLoader microLoader, String mainClass) {
 		super("MidletMain");
@@ -84,6 +85,7 @@ public class MidletThread extends HandlerThread implements Handler.Callback {
 
 	public static void notifyPaused() {
 		instance.state = PAUSED;
+		Display.setForeground(false);
 	}
 
 	static void pauseApp() {
@@ -142,6 +144,8 @@ public class MidletThread extends HandlerThread implements Handler.Callback {
 				try {
 					state = STARTED;
 					midlet.startApp();
+					MicroActivity activity = ContextHolder.getActivity();
+					Display.setForeground(state == STARTED && activity != null && activity.isVisible());
 				} catch (MIDletStateChangeException e) {
 					state = PAUSED;
 					Log.w(TAG, "Midlet doesn't want to start!", e);
@@ -151,6 +155,7 @@ public class MidletThread extends HandlerThread implements Handler.Callback {
 				}
 				break;
 			case PAUSE:
+				Display.setForeground(false);
 				if (state != STARTED) {
 					break;
 				}
@@ -166,6 +171,7 @@ public class MidletThread extends HandlerThread implements Handler.Callback {
 				}
 				break;
 			case DESTROY:
+				Display.setForeground(false);
 				if (state == DESTROYED) {
 					notifyDestroyed();
 					break;

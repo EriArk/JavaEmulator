@@ -86,6 +86,7 @@ public class CanvasEvent extends Event {
 
 	@Override
 	public void process() {
+		if (eventType <= POINTER_RELEASED && !canvas.isShown()) return;
 		switch (eventType) {
 			case KEY_PRESSED:
 				try {

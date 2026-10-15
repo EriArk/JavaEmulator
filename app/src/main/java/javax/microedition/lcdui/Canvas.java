@@ -155,8 +155,9 @@ public abstract class Canvas extends Displayable {
 	private int displayWidth;
 	private int displayHeight;
 	private boolean fullscreen;
-	private boolean visible;
-	private boolean sizeChangedCalled;
+	private volatile boolean visible;
+	private volatile boolean displayVisible;
+	private volatile boolean sizeChangedCalled;
 	private Image offscreen;
 	private Image offscreenCopy;
 	private int onX, onY, onWidth, onHeight;
@@ -306,15 +307,35 @@ public abstract class Canvas extends Displayable {
 	}
 
 	public void doShowNotify() {
+		if (!displayVisible || visible) return;
 		framePacer.reset();
+		if (!sizeChangedCalled) {
+			try { doSizeChanged(width, height); }
+			catch (Exception e) { Log.e(TAG, "sizeChanged: ", e); }
+			sizeChangedCalled = true;
+		}
+		if (!displayVisible) return;
 		visible = true;
-		showNotify();
+		try { showNotify(); }
+		finally { repaintInternal(); }
 	}
 
 	public void doHideNotify() {
+		if (displayVisible || !visible) return;
 		framePacer.reset();
-		hideNotify();
 		visible = false;
+		hideNotify();
+	}
+
+	@Override
+	public boolean isShown() {
+		return displayVisible && visible;
+	}
+
+	void setDisplayVisible(boolean value) {
+		displayVisible = value;
+		Display.getEventQueue().postEventQueued(CanvasEvent.getInstance(this,
+				value ? CanvasEvent.SHOW_NOTIFY : CanvasEvent.HIDE_NOTIFY));
 	}
 
 	public void onDraw(android.graphics.Canvas canvas) {
@@ -630,7 +651,8 @@ public abstract class Canvas extends Displayable {
 		fullscreen = flag;
 		updateSize();
 		softBar.notifyChanged();
-		if (!visible) {
+		if (!isShown()) {
+			sizeChangedCalled = false;
 			return;
 		}
 		Display.postEvent(CanvasEvent.getInstance(this, CanvasEvent.SIZE_CHANGED, width, height));
@@ -670,6 +692,7 @@ public abstract class Canvas extends Displayable {
 	}
 
 	public final void repaint(int x, int y, int width, int height) {
+		if (!isShown()) return;
 		limitFps();
 		boolean post;
 		synchronized (paintEvent) {
@@ -808,10 +831,6 @@ public abstract class Canvas extends Displayable {
 	}
 
 	protected void pointerReleased(int x, int y) {
-	}
-
-	void setInvisible() {
-		this.visible = false;
 	}
 
 	public void doKeyPressed(int keyCode) {
@@ -972,9 +991,6 @@ public abstract class Canvas extends Displayable {
 
 		@Override
 		public void process() {
-			if (!visible) {
-				return;
-			}
 			int l, t, r, b;
 			synchronized (this) {
 				isPending = false;
@@ -987,7 +1003,7 @@ public abstract class Canvas extends Displayable {
 				clipRight = 0;
 				clipBottom = 0;
 			}
-			if (r - l <= 0 || b - t <= 0) {
+			if (!isShown() || r - l <= 0 || b - t <= 0) {
 				return;
 			}
 			Graphics g = offscreen.getSingleGraphics();
@@ -1359,7 +1375,9 @@ public abstract class Canvas extends Displayable {
 			}
 			displayWidth = newWidth;
 			displayHeight = newHeight;
-			if (checkSizeChanged() || !sizeChangedCalled) {
+			boolean changed = checkSizeChanged();
+			if (changed && !isShown()) sizeChangedCalled = false;
+			if (changed && isShown()) {
 				Display.postEvent(CanvasEvent.getInstance(Canvas.this,
 						CanvasEvent.SIZE_CHANGED,
 						width,
@@ -1375,8 +1393,8 @@ public abstract class Canvas extends Displayable {
 				renderer.start();
 			}
 			surface = holder.getSurface();
-			Display.postEvent(CanvasEvent.getInstance(Canvas.this, CanvasEvent.SHOW_NOTIFY));
-			repaintInternal();
+			// Guest painting targets the offscreen buffer; Android surface creation is presentation only.
+			requestFlushToScreen();
 			if (showFps) {
 				fpsCounter = new FpsCounter(overlayView);
 				overlayView.addLayer(fpsCounter);
@@ -1397,7 +1415,6 @@ public abstract class Canvas extends Displayable {
 			synchronized (surfaceLock) {
 				surface = null;
 			}
-			Display.postEvent(CanvasEvent.getInstance(Canvas.this, CanvasEvent.HIDE_NOTIFY));
 			if (fpsCounter != null) {
 				fpsCounter.stop();
 				overlayView.removeLayer(fpsCounter);

@@ -34,6 +34,16 @@ bundled. The app UI is English.
 
 ## Availability: Do Not Mix These Channels
 
+**Unreleased Java display lifecycle fix (2026-10-15):** guest Canvas startup
+and painting no longer wait for Android surface creation. Screen switches,
+pause/resume, deferred alerts and hidden fullscreen changes use the shared
+lifecycle, without per-title exceptions. Added 15 regression cases; both Retroid
+variants and the Android 15 Phone emulator passed 43 focused checks each.
+Ghost Recon reached its first level on Retroid and menu on the Phone emulator;
+Age of Empires and Sudoku also rendered. The intermittent #15 report remains
+open because its historical failure was not reproduced before this patch.
+No public APK update. [Evidence and limits](checks/2026-10-15-canvas-lifecycle.md).
+
 **Unreleased original-filename setup hints (2026-10-15):** Java imports retain
 the original JAR name through file providers, ZIP/7z selection, recompilation
 and library backup/restore. Preparation uses explicit filename size/phone hints
@@ -248,7 +258,7 @@ Current open work, checked on GitHub on 2026-10-15:
 
 - [#22](https://github.com/EriArk/JavaEmulator/issues/22): frame-rate controls/pacing are improved in unreleased source, but the exact fast-game report is not reproduced.
 - [#24](https://github.com/EriArk/JavaEmulator/issues/24): Java ME VM research, not an integrated replacement runtime.
-- [#15](https://github.com/EriArk/JavaEmulator/issues/15): Ghost Recon 2 SE 128x160 still has a recurring black screen.
+- [#15](https://github.com/EriArk/JavaEmulator/issues/15): historical intermittent Ghost Recon black screen; a shared Canvas lifecycle fix is implemented, but the original failure is not yet conclusively resolved.
 - [#14](https://github.com/EriArk/JavaEmulator/issues/14): compatibility heuristics need broader validation.
 - [#17](https://github.com/EriArk/JavaEmulator/issues/17), [#9](https://github.com/EriArk/JavaEmulator/issues/9), [#3](https://github.com/EriArk/JavaEmulator/issues/3): implemented UI/input/orientation changes still have acceptance or release follow-up; open does not mean no implementation.
 - [#12](https://github.com/EriArk/JavaEmulator/issues/12): genuine Light appearance is implemented and verified in unreleased source; public 0.3.0-beta.1 still has the earlier dark-only contrast fix.

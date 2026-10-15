@@ -51,7 +51,7 @@ public class Display {
 					0xFF000080
 			};
 
-	private static Display instance;
+	private static volatile Display instance;
 	static EventQueue queue = new EventQueue();
 	private static boolean multiTouchSupported;
 	private static String pointerNumber;
@@ -60,7 +60,8 @@ public class Display {
 		queue.startProcessing();
 	}
 
-	private Displayable current;
+	private volatile Displayable current;
+	private volatile boolean foreground;
 
 	public static Display getDisplay(MIDlet midlet) {
 		if (instance == null && midlet != null) {
@@ -104,35 +105,49 @@ public class Display {
 		return pointerNumber;
 	}
 
-	public void setCurrent(Displayable disp) {
+	public synchronized void setCurrent(Displayable disp) {
 		if (disp == current) {
 			return;
-		}
-		if (current instanceof Canvas) {
-			Canvas c = (Canvas) current;
-			c.setInvisible();
 		}
 		if (disp instanceof Alert) {
 			Alert alert = (Alert) disp;
 			alert.setReturnScreen(current);
-			showAlert(alert);
 		}
-		current = disp;
-		showCurrent();
+		changeCurrent(disp);
 	}
 
-	public void setCurrent(final Alert alert, Displayable disp) {
+	public synchronized void setCurrent(final Alert alert, Displayable disp) {
 		if (disp == null) {
 			throw new NullPointerException();
 		}
 		alert.setReturnScreen(disp);
-		showAlert(alert);
-		current = alert;
-		showCurrent();
+		changeCurrent(alert);
+	}
+
+	private void changeCurrent(Displayable next) {
+		if (current instanceof Canvas) ((Canvas) current).setDisplayVisible(false);
+		current = next;
+		if (foreground) {
+			if (current instanceof Canvas) ((Canvas) current).setDisplayVisible(true);
+			showCurrent();
+		}
+	}
+
+	/** The application manager publishes the display only after startApp returns. */
+	public static void setForeground(boolean value) {
+		Display display = instance;
+		if (display == null) return;
+		synchronized (display) {
+			if (display.foreground == value) return;
+			display.foreground = value;
+			if (display.current instanceof Canvas) ((Canvas) display.current).setDisplayVisible(value);
+			if (value) display.showCurrent();
+		}
 	}
 
 	private void showAlert(Alert alert) {
 		ViewHandler.postEvent(() -> {
+			if (!foreground || current != alert || alert.isDialogShowing()) return;
 			AlertDialog alertDialog = alert.prepareDialog();
 			alertDialog.show();
 			if (alert.finiteTimeout()) {
@@ -142,7 +157,13 @@ public class Display {
 	}
 
 	private void showCurrent() {
-		ContextHolder.getActivity().setCurrent(current);
+		queue.postEventQueued(RunnableEvent.getInstance(() -> {
+			javax.microedition.shell.MicroActivity activity = ContextHolder.getActivity();
+			Displayable next = current;
+			if (!foreground || activity == null) return;
+			if (next instanceof Alert) showAlert((Alert) next);
+			if (activity.getCurrent() != next) activity.setCurrent(next);
+		}));
 	}
 
 	public Displayable getCurrent() {

@@ -12,6 +12,16 @@ combined builds; released experimental features are explicitly identified.
 
 ## 2026-10-15
 
+- **Public source, unreleased:** separated Java game screen startup from Android
+  surface creation so early buffered frames are not discarded while the host
+  prepares its view. Fixed obsolete screen callbacks, hidden repaint state,
+  fullscreen-size notification on return and deferred/duplicate game alerts.
+  Lifecycle work stays queued in immediate-event mode to avoid a Display lock
+  deadlock. Added 15 shared-mechanism regression cases, with no game-specific
+  branches or settings. Both Retroid variants and the Android 15 Phone emulator
+  passed 43 focused checks each. Ghost Recon reached the first level on Retroid;
+  its historical intermittent report remains open. Public APKs are unchanged.
+  [Checks and limits](docs/checks/2026-10-15-canvas-lifecycle.md).
 - **Public source, unreleased:** automatic Java setup now retains filename
   hints such as `128x160`, `176x220` and `S40v3` through file-provider imports,
   ZIP/7z selection, recompilation and backup/restore. Explicit game metadata

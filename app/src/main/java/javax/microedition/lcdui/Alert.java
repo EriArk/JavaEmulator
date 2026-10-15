@@ -160,6 +160,10 @@ public class Alert extends Screen implements DialogInterface.OnClickListener {
 		return timeout > 0 && countCommands() == 1 && getCommands()[0] == DISMISS_COMMAND;
 	}
 
+	boolean isDialogShowing() {
+		return alertDialog != null && alertDialog.isShowing();
+	}
+
 	public AlertDialog prepareDialog() {
 		Context context = ContextHolder.getActivity();
 		AlertDialog.Builder builder = new AlertDialog.Builder(context);
