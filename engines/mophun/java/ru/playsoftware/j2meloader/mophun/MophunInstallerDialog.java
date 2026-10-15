@@ -43,7 +43,7 @@ public final class MophunInstallerDialog extends DialogFragment {
         binding.installerMessage.setText(MophunStore.name(requireContext(), uri));
         binding.installationProgress.setVisibility(View.GONE);
         binding.buttonStart.setVisibility(View.GONE);
-        binding.buttonClose.setOnClickListener(v -> dismiss());
+        binding.buttonClose.setOnClickListener(v -> close());
         binding.buttonInstall.setOnClickListener(v -> install(uri));
         binding.buttonStart.setOnClickListener(v -> start());
         AlertDialog dialog = new AlertDialog.Builder(requireContext()).setView(binding.getRoot()).create();
@@ -58,7 +58,7 @@ public final class MophunInstallerDialog extends DialogFragment {
                 return true;
             }
             if (key == KeyEvent.KEYCODE_BUTTON_B || key == KeyEvent.KEYCODE_BACK) {
-                if (event.getAction() == KeyEvent.ACTION_UP && !busy) dismiss();
+                if (event.getAction() == KeyEvent.ACTION_UP && !busy) close();
                 return true;
             }
             return false;
@@ -131,8 +131,21 @@ public final class MophunInstallerDialog extends DialogFragment {
     private void start() {
         new MophunEngine().launch(requireContext(), installed.getTitle(), new File(installed.getPathExt()), false,
                 requireArguments().getBoolean("finishHost"));
-        if (requireArguments().getBoolean("finishHost")) requireActivity().finish();
+        close();
+    }
+
+    private void close() {
+        finishHost();
         dismiss();
+    }
+
+    private void finishHost() {
+        if (requireArguments().getBoolean("finishHost")) requireActivity().finish();
+    }
+
+    @Override public void onCancel(android.content.DialogInterface dialog) {
+        finishHost();
+        super.onCancel(dialog);
     }
 
     @Override public void onDestroyView() {

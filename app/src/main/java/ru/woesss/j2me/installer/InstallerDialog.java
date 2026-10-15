@@ -157,6 +157,7 @@ public class InstallerDialog extends DialogFragment {
 		}
 		btnOk = binding.buttonInstall;
 		btnClose = binding.buttonClose;
+		btnClose.setOnClickListener(v -> closeInstaller());
 		btnRun = binding.buttonStart;
 		mDialog.setOnKeyListener((dialog, key, event) -> {
 			if (key == KeyEvent.KEYCODE_BUTTON_B || key == KeyEvent.KEYCODE_BACK) {
@@ -205,11 +206,6 @@ public class InstallerDialog extends DialogFragment {
 
 	private void installApp(Uri uri) {
 		installer = new AppInstaller(uri, requireActivity().getApplication(), appRepository);
-		btnClose.setOnClickListener(v -> {
-			installer.deleteTemp();
-			installer.clearCache();
-			dismiss();
-		});
 		Disposable disposable = Single.create(installer::loadInfo)
 				.subscribeOn(Schedulers.computation())
 				.observeOn(AndroidSchedulers.mainThread())
@@ -219,11 +215,6 @@ public class InstallerDialog extends DialogFragment {
 
 	private void reinstallApp(int id) {
 		installer = new AppInstaller(id, requireActivity().getApplication(), appRepository);
-		btnClose.setOnClickListener(v -> {
-			installer.deleteTemp();
-			installer.clearCache();
-			dismiss();
-		});
 		Disposable disposable = Single.create(installer::loadInfo)
 				.subscribeOn(Schedulers.computation())
 				.observeOn(AndroidSchedulers.mainThread())
@@ -367,8 +358,7 @@ public class InstallerDialog extends DialogFragment {
 				btnRun.setOnClickListener(v -> {
 					installer.clearCache();
 					installer.deleteTemp();
-					Config.startApp(v.getContext(), app.getTitle(), app.getPathExt(), false);
-					dismiss();
+					launchAndDismiss(app);
 				});
 				break;
 			case AppInstaller.STATUS_NEWEST:
@@ -495,6 +485,18 @@ public class InstallerDialog extends DialogFragment {
 			return;
 		}
 		Config.startApp(requireActivity(), app.getTitle(), app.getPathExt(), false);
+		dismissAndFinishHost();
+	}
+
+	private void closeInstaller() {
+		if (installer != null) {
+			installer.deleteTemp();
+			installer.clearCache();
+		}
+		dismissAndFinishHost();
+	}
+
+	private void dismissAndFinishHost() {
 		dismissAllowingStateLoss();
 		if (requireArguments().getBoolean(ARG_FINISH_HOST, false)) {
 			requireActivity().finish();

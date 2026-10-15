@@ -12,6 +12,17 @@ combined builds; released experimental features are explicitly identified.
 
 ## 2026-10-15
 
+- **Public source, unreleased:** cancelled external imports and closed errors
+  now return to the calling launcher instead of leaving the AbyssME library
+  open. The fix covers Java choices/errors, Mophun import errors, Symbian
+  inspection cancellation and invalid native launch files. Imports started
+  inside AbyssME still return to its library. Real Beacon 1.8.10 launches on
+  Retroid covered Java, Mophun and Snakes in both debug variants, including
+  first Java imports, prepared games, ZIP selection and explicit copy reuse.
+  Added exact Beacon setup instructions. Both Retroid variants passed 27
+  focused Android checks; the Phone emulator passed 26 with one Symbian-only
+  skip. ES-DE remains untested; no release APKs changed.
+  [Evidence and limits](docs/checks/2026-10-15-beacon-launcher.md).
 - **Public source, unreleased:** importing the same Java game through another
   URI now offers **Use existing** or **Install separately** instead of quietly
   creating a duplicate. Reuse keeps the original game, saves, settings and

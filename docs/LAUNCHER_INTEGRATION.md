@@ -81,9 +81,38 @@ and [metadata format](https://pegasus-frontend.org/docs/user-guide/meta-files/).
 
 ## Beacon
 
-Create a custom emulator with the package, full activity, VIEW action and data
-URI above. Configure its supported extensions for the files in your collection.
-Select the same app variant that exported any `.abyssme` files.
+Verified with **Beacon 1.8.10** on Retroid Pocket Classic (Android 14), using
+unreleased Handheld and Phone debug builds. In **Settings > Platforms**, add
+a platform with these settings:
+
+1. **Platform type:** Custom. Choose your own name and short name.
+2. **Player app:** the installed AbyssME variant you want to use.
+3. **ROMs folder:** select your games folder and allow access in Android's folder
+   picker. Use the platform's sync button after adding more files.
+4. Expand **Advanced**. Leave **File handling** on **Standard** and enable
+   **Use custom launch**. Enter this **am start command** for the release
+   Handheld package:
+
+```text
+am start -n io.github.eriark.abyssme/ru.playsoftware.j2meloader.MainActivity -a android.intent.action.VIEW -d {file_path} --grant-read-uri-permission
+```
+
+For the release Phone app, replace the package before `/` with
+`io.github.eriark.abyssme.phone`. For debug builds, use their actual package
+instead. The **Player app** and command must target the same variant.
+Save the platform, select a game and use **Play**.
+
+Beacon's placeholder is **`{file_path}`**, not Pegasus's `{file.uri}`. With
+Standard handling, the observed launch carried a readable `content://` URI and
+the read-permission flag. No separate extension field was required in this
+custom-platform setup. Use the same variant that exported `.abyssme` files.
+
+The [Beacon checks](checks/2026-10-15-beacon-launcher.md) cover real frontend
+launches, first import, reuse, archive selection and returning to Beacon.
+The cancel/error return fix and native launch-file support are **not in the
+published 0.3.0-beta.1 APKs**. The command above substitutes release package
+names for convenience; the acceptance run used debug packages, not signed
+release APKs.
 
 ## Evidence and limits
 

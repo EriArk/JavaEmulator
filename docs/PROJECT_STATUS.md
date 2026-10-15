@@ -34,6 +34,16 @@ bundled. The app UI is English.
 
 ## Availability: Do Not Mix These Channels
 
+**Unreleased launcher return fix (2026-10-15):** Cancelling an external Java
+import/archive choice, closing a Mophun error, cancelling Symbian inspection or
+closing an invalid launch file now returns to the calling frontend. Internal
+imports keep the AbyssME library open. Beacon 1.8.10 ran Java, Mophun and exported
+Snakes links on both Retroid debug variants. First Java imports and explicit
+reuse were also exercised. Both variants passed 27 focused Android checks;
+the portrait Android 15 Phone emulator passed 26 with one Symbian-only skip.
+No public APK update. ES-DE remains untested and #7 stays open.
+[Setup, screenshots and precise scope](checks/2026-10-15-beacon-launcher.md).
+
 **Unreleased duplicate-import protection (2026-10-15):** Opening an identical
 Java game through an unfamiliar URI now offers an existing installed copy or
 an intentional separate installation. Confirmed reuse is remembered without
@@ -106,8 +116,9 @@ Build 15 SHA-256:
   Actual Pegasus runs covered Java/Mophun on both variants and an exported
   Phone Snakes link; Daijisho covered Handheld Java/Mophun/Snakes, multi-JAR
   selection and warm Java launch. Exit returned to the frontend.
-- Added frontend setup examples. ES-DE remains untested and Beacon was not
-  exercised in this session; #7 stays open. Other frontends do not certify ES-DE.
+- Added frontend setup examples. A later [Beacon 1.8.10 session](checks/2026-10-15-beacon-launcher.md)
+  verified both debug variants and fixed cancel/error return paths. ES-DE
+  remains untested; #7 stays open. Other frontends do not certify ES-DE.
 - Both combined debug variants built. Per variant: 19 JVM passes, 19 focused
   Android passes / 2 optional skips, and 3 opt-in UI passes on Retroid. No new
   release or distributed test APK. [Checks and limits](checks/2026-10-15-import-launchers.md).

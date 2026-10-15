@@ -25,18 +25,32 @@ public final class LauncherLinkDialog extends DialogFragment {
         super.onStart();
         GameMenuDialog dialog = (GameMenuDialog) requireDialog();
         dialog.page("Opening game"); dialog.message("Reading launch file...");
+        dialog.setBackAction(this::close);
         Context context = requireContext().getApplicationContext();
         Uri uri = requireArguments().getParcelable("uri");
         work = Single.fromCallable(() -> LauncherLink.resolve(context, uri))
                 .subscribeOn(Schedulers.io()).observeOn(AndroidSchedulers.mainThread())
                 .subscribe(item -> {
                     item.launch(requireActivity(), false);
-                    if (requireArguments().getBoolean("finishHost")) requireActivity().finish();
-                    dismiss();
+                    close();
                 }, error -> {
                     dialog.page("Cannot open game"); dialog.message(error.getMessage());
-                    dialog.action("Close", android.R.drawable.ic_menu_close_clear_cancel, this::dismiss);
+                    dialog.setBackAction(this::close);
+                    dialog.action("Close", android.R.drawable.ic_menu_close_clear_cancel, this::close);
                 });
+    }
+    private void close() {
+        if (work != null) work.dispose();
+        finishHost();
+        dismiss();
+    }
+    private void finishHost() {
+        if (requireArguments().getBoolean("finishHost")) requireActivity().finish();
+    }
+    @Override public void onCancel(android.content.DialogInterface dialog) {
+        if (work != null) work.dispose();
+        finishHost();
+        super.onCancel(dialog);
     }
     @Override public void onStop() {
         if (work != null) work.dispose();

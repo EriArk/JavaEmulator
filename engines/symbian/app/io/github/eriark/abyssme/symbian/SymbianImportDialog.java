@@ -44,7 +44,7 @@ public final class SymbianImportDialog extends DialogFragment implements Additio
         binding.installationProgress.setVisibility(View.VISIBLE);
         binding.buttonInstall.setVisibility(View.GONE); binding.buttonStart.setVisibility(View.GONE);
         binding.buttonClose.setContentDescription("Cancel"); binding.buttonClose.setTooltipText("Cancel");
-        binding.buttonClose.setOnClickListener(v -> dismiss());
+        binding.buttonClose.setOnClickListener(v -> { cancelImport(); dismiss(); });
         model = new ViewModelProvider(this).get(Inspection.class);
         model.state.observe(this, this::render);
         model.start(uri);
@@ -96,6 +96,16 @@ public final class SymbianImportDialog extends DialogFragment implements Additio
         }
     }
     @Override public void onDestroyView() { binding = null; super.onDestroyView(); }
+
+    private void cancelImport() {
+        // Do not forward a completed inspection after the user has cancelled it.
+        delivered = true;
+        if (requireArguments().getBoolean("finishHost")) requireActivity().finish();
+    }
+    @Override public void onCancel(DialogInterface dialog) {
+        cancelImport();
+        super.onCancel(dialog);
+    }
 
     private static final class Result {
         final ImportKind.Kind kind; final String message; final boolean error;
