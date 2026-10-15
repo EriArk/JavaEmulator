@@ -36,10 +36,6 @@ import android.os.Handler;
 import android.os.Looper;
 import android.os.IBinder;
 import android.os.SystemClock;
-import android.text.Editable;
-import android.text.InputType;
-import android.text.TextUtils;
-import android.text.method.DigitsKeyListener;
 import android.view.InputDevice;
 import android.util.TypedValue;
 import android.view.KeyEvent;
@@ -52,7 +48,6 @@ import android.view.ViewGroup;
 import android.view.WindowManager;
 import android.view.inputmethod.InputMethodManager;
 import android.widget.AdapterView.AdapterContextMenuInfo;
-import android.widget.EditText;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -858,9 +853,8 @@ public class MicroActivity extends AppCompatActivity {
 			inputMethodManager.toggleSoftInputFromWindow(binding.displayableContainer.getWindowToken(),
 					InputMethodManager.SHOW_FORCED, 0);
 		});
-		gameMenu.action("Frame rate limit", R.drawable.ic_quick_quality, () -> {
-			gameMenu.dismiss(); showLimitFpsDialog();
-		});
+		gameMenu.action("Frame rate limit: " + GameSettingsPages.frameRateLabel(microLoader.getTouchSettings().fpsLimit),
+				R.drawable.ic_quick_quality, this::showLimitFpsDialog);
 		gameMenu.action("Save log", android.R.drawable.ic_menu_save, this::saveLog);
 		gameMenu.action("Back", android.R.drawable.ic_media_previous, this::showGameMenuPage);
 	}
@@ -1130,37 +1124,8 @@ public class MicroActivity extends AppCompatActivity {
 	}
 
 	private void showLimitFpsDialog() {
-		EditText editText = new EditText(this);
-		editText.setHint(R.string.unlimited);
-		editText.setInputType(InputType.TYPE_CLASS_NUMBER);
-		editText.setKeyListener(DigitsKeyListener.getInstance("0123456789"));
-		editText.setMaxLines(1);
-		editText.setSingleLine(true);
-		float density = getResources().getDisplayMetrics().density;
-		LinearLayout linearLayout = new LinearLayout(this);
-		LinearLayout.LayoutParams params = new LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT,
-				ViewGroup.LayoutParams.WRAP_CONTENT);
-		int margin = (int) (density * 20);
-		params.setMargins(margin, 0, margin, 0);
-		linearLayout.addView(editText, params);
-		int paddingVertical = (int) (density * 16);
-		int paddingHorizontal = (int) (density * 8);
-		editText.setPadding(paddingHorizontal, paddingVertical, paddingHorizontal, paddingVertical);
-		new AlertDialog.Builder(this)
-				.setTitle(R.string.PREF_LIMIT_FPS)
-				.setView(linearLayout)
-				.setPositiveButton(android.R.string.ok, (d, w) -> {
-					Editable text = editText.getText();
-					int fps = 0;
-					try {
-						fps = TextUtils.isEmpty(text) ? 0 : Integer.parseInt(text.toString().trim());
-					} catch (NumberFormatException ignored) {
-					}
-					microLoader.setLimitFps(fps);
-				})
-				.setNegativeButton(android.R.string.cancel, null)
-				.setNeutralButton(R.string.reset, ((d, which) -> microLoader.setLimitFps(-1)))
-				.show();
+		if (gameMenu == null || !gameMenu.isShowing()) openOptionsMenu();
+		if (gameMenu != null && gameMenu.isShowing()) settingsPages().frameRate(this::showMorePage);
 	}
 
 	@Override

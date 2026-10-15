@@ -347,11 +347,6 @@ public class MicroLoader {
 		return params.orientation;
 	}
 
-	void setLimitFps(int fps) {
-		if (fps == -1) Canvas.setLimitFps(params.fpsLimit);
-		else Canvas.setLimitFps(fps);
-	}
-
 	void applyConfiguration() {
 		try {
 			// Apply configuration to the launching MIDlet
@@ -446,6 +441,7 @@ public class MicroLoader {
 	}
 
 	void applyPreviewSettings() {
+		Canvas.setLimitFps(params.fpsLimit);
 		Displayable.setVirtualSize(params.screenWidth, params.screenHeight);
 		Canvas.setScale(params.screenGravity, params.screenScaleType, params.screenScaleRatio);
 		Canvas.setFilterBitmap(params.screenFilter);

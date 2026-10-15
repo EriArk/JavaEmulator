@@ -34,6 +34,15 @@ bundled. The app UI is English.
 
 ## Availability: Do Not Mix These Channels
 
+**Unreleased Java frame-rate improvements (2026-10-15):** More shows the active
+limit; More and Display offer presets with per-game Try / Keep / Undo. Runtime
+changes now persist when confirmed, and pacing uses a monotonic per-Canvas
+budget. Both combined debug variants passed 25 JVM and 31 Retroid checks;
+Asphalt 3D retained the chosen limit after relaunch. This does not establish a
+universal game-speed fix or reproduce the unknown game in #22.
+[Checks, usage and actual-device screenshots](checks/2026-10-15-frame-rate.md).
+These changes are not in the public 0.3.0-beta.1 APKs.
+
 **0.3.0-beta.1 was published on 2026-10-14 at 16:18 UTC.** It adds the
 shared in-game menu and promotes the Symbian/N-Gage integration into a combined
 arm64 build. The preceding local work is recorded in the changelog and integration
@@ -47,7 +56,7 @@ list was checked again on 2026-10-15; asset hashes were not rechecked that day.
 | Channel | Current identifier | What a reader can obtain |
 | --- | --- | --- |
 | Public download | [v0.3.0-beta.1](https://github.com/EriArk/JavaEmulator/releases/tag/v0.3.0-beta.1), published 2026-10-14 | Handheld and Phone signed arm64 APKs, Java + Mophun + experimental Symbian/N-Gage, shared menu, source/dependency bundles and checksums; Android 10+, no games or firmware |
-| Public development source | `main`, unreleased additions dated 2026-10-15; release tag `v0.3.0-beta.1` at `95eb9da1` | Raw ROM/RPKG ZIP/7z import, persistent errors, installed game information and native launch-file export follow the release. [Stage-one checks](checks/2026-10-15-import-launchers.md); not in the published APKs |
+| Public development source | `main`, unreleased additions dated 2026-10-15; release tag `v0.3.0-beta.1` at `95eb9da1` | Raw ROM/RPKG ZIP/7z import, persistent errors, installed game information, native launch-file export and persistent Java FPS presets follow the release. [Stage-one checks](checks/2026-10-15-import-launchers.md), [frame-rate checks](checks/2026-10-15-frame-rate.md); not in the published APKs |
 | Private combined test snapshot | `0.1.0-beta.2-experimental.15`, 2026-10-11 | Handheld and Phone debug APKs containing Java plus experimental Mophun; supplied separately to testers, not a GitHub release |
 | Local-only material | Ignored diagnostics, game fixtures and signing keys | Private test inputs remain local; the promoted Mophun runtime is no longer private-only |
 | Symbian integration | Included in `main` and public 0.3 beta, 2026-10-14 | Shared library/import and game menu, Display, mapping, screenshots, Phone decks and direct rotated guest touch. Menu-based whole-phone backup/restore creates a separate copy. SIS/SISX setup requests named missing components and reuses saved installers. ZIP/RAR/7z game previews select games/components and retain recoverable queues; phone choices can be reused within an archive without overriding game bindings. Retroid optimized core: 87 Handheld / 88 Phone passes, 5/4 explicit skips; actual-game/menu scenarios: 5 passes / 1 provisioning skip per variant, provisioning passed separately. Signed Handheld upgrade retained all 18 inspected files; both signed variants imported system files/Snakes through the public UI. JVM: 14 passes per variant. Installation is not gameplay acceptance. Legacy/conditional dependencies, mixed-platform collections, native external launchers and intermittent Asphalt startup remain open. Games/firmware are not bundled. [Release evidence](releases/v0.3.0-beta.1-checks.md), [historical integration checks](SYMBIAN_INTEGRATION.md), [backup contract](SYMBIAN_PHONE_BACKUPS.md) |

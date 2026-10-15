@@ -12,6 +12,14 @@ combined builds; released experimental features are explicitly identified.
 
 ## 2026-10-15
 
+- **Public source, unreleased:** Java frame-rate limits now show their current
+  value in More, offer presets in the shared menu and Display, and support
+  per-game Try / Keep / Undo. Fixed limits not being saved from the old runtime
+  dialog. Replaced wall-clock/integer-millisecond pacing with a monotonic,
+  concurrent-safe per-Canvas budget. This is not a universal game-speed control.
+  Both variants passed 25 JVM and 31 Retroid checks; Asphalt 3D retained the
+  selected limit after relaunch. The exact fast-game report remains unverified
+  (#22). [Evidence and limits](docs/checks/2026-10-15-frame-rate.md).
 - **Public source, unreleased:** added raw ROM + RPKG import from ZIP/7z with
   nested/uppercase files, shared validation, cleanup and persistent errors.
   Existing virtual phone data is not replaced. Real N95 archive imports and

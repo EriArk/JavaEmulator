@@ -36,6 +36,19 @@ public class SettingsTrialTest {
         ProfilesManager.beginPreview(model); model.screenWidth = 176;
         ProfilesManager.undoPreview(model); assertEquals(240, model.screenWidth);
     }
+
+    @Test public void frameLimitKeepUndoAndRelaunchRetainConfirmedValue() {
+        int original = model.fpsLimit;
+        ProfilesManager.beginPreview(model); model.fpsLimit = 20;
+        assertTrue(ProfilesManager.saveConfig(model));
+        assertEquals(original, ProfilesManager.loadConfig(dir).fpsLimit);
+        ProfilesManager.undoPreview(model); assertEquals(original, model.fpsLimit);
+        ProfilesManager.beginPreview(model); model.fpsLimit = 30;
+        assertTrue(ProfilesManager.keepPreview(model));
+        assertEquals(30, ProfilesManager.loadConfig(dir).fpsLimit);
+        ProfilesManager.beginPreview(model); model.fpsLimit = 0;
+        ProfilesManager.undoPreview(model); assertEquals(30, model.fpsLimit);
+    }
     @Test public void keepCommitsAndNextPreviewUsesNewBaseline() {
         ProfilesManager.beginPreview(model); model.screenWidth = 128;
         assertTrue(ProfilesManager.keepPreview(model));

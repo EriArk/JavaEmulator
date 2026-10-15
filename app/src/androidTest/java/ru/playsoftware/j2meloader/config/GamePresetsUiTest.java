@@ -54,6 +54,23 @@ public class GamePresetsUiTest {
         });
     }
 
+    @Test public void frameRateRetainsCustomValuesAndRequiresTry() {
+        scenario.onActivity(activity -> {
+            pages.draft().fpsLimit = 37;
+            pages.frameRate(() -> backs++);
+        }); idle();
+        scenario.onActivity(activity -> {
+            Spinner selector = (Spinner) find(root(), Spinner.class, null);
+            assertEquals("37 FPS", selector.getSelectedItem().toString());
+        });
+        choose(2); // 20 FPS; unchanged until Try.
+        scenario.onActivity(activity -> {
+            assertEquals(0, source.fpsLimit); assertNull(applied);
+            assertTrue(find(root(), TextView.class, "Try changes").performClick());
+            assertEquals(20, applied.fpsLimit);
+        });
+    }
+
     @Test public void phoneCurrentSelectionRestoresCustomPropertiesWithoutRestarting() {
         scenario.onActivity(activity -> pages.phonePresets(() -> backs++, draft -> applied = draft)); idle();
         choose(3); // Nokia, after Current / Auto / Generic.

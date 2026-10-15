@@ -132,7 +132,7 @@ public abstract class Canvas extends Displayable {
 	private static boolean showFps;
 	private static int backgroundColor;
 	private static int scaleRatio;
-	private static int fpsLimit;
+	private static volatile int fpsLimit;
 	private static boolean screenshotRawMode;
 	private static int scaleType;
 	private static int screenGravity;
@@ -160,7 +160,7 @@ public abstract class Canvas extends Displayable {
 	private Image offscreen;
 	private Image offscreenCopy;
 	private int onX, onY, onWidth, onHeight;
-	private long lastFrameTime = System.currentTimeMillis();
+	private final FramePacer framePacer = new FramePacer(() -> fpsLimit);
 	private Handler uiHandler;
 	private Overlay overlay;
 	private FpsCounter fpsCounter;
@@ -306,11 +306,13 @@ public abstract class Canvas extends Displayable {
 	}
 
 	public void doShowNotify() {
+		framePacer.reset();
 		visible = true;
 		showNotify();
 	}
 
 	public void doHideNotify() {
+		framePacer.reset();
 		hideNotify();
 		visible = false;
 	}
@@ -690,12 +692,12 @@ public abstract class Canvas extends Displayable {
 
 	// GameCanvas
 	public void flushBuffer(Image image, int x, int y, int width, int height) {
-		limitFps();
 		if (width <= 0 || height <= 0 ||
 				x + width < 0 || y + height < 0 ||
 				x >= this.width || y >= this.height) {
 			return;
 		}
+		limitFps();
 		synchronized (bufferLock) {
 			offscreenCopy.getSingleGraphics().flush(image, x, y, width, height);
 		}
@@ -712,14 +714,7 @@ public abstract class Canvas extends Displayable {
 	}
 
 	private void limitFps() {
-		if (fpsLimit <= 0) return;
-		try {
-			long millis = (1000 / fpsLimit) - (System.currentTimeMillis() - lastFrameTime);
-			if (millis > 0) Thread.sleep(millis);
-		} catch (InterruptedException e) {
-			e.printStackTrace();
-		}
-		lastFrameTime = System.currentTimeMillis();
+		framePacer.awaitFrame();
 	}
 
 	@SuppressLint("NewApi")

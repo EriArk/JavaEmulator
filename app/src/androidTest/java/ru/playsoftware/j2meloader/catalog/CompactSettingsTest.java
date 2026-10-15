@@ -69,14 +69,14 @@ public class CompactSettingsTest {
         }
         try (ActivityScenario<LibraryImportActivity> scenario = ActivityScenario.launch(LibraryImportActivity.class)) {
             scenario.onActivity(activity -> {
-                assertTrue(find(activity.getWindow().getDecorView(), "Back up library").isShown());
+                assertTrue(find(activity.getWindow().getDecorView(), backupLabel()).isShown());
                 new ViewModelProvider(activity).get(LibraryImportModel.class).state.setValue(
                         new LibraryImportModel.State(false, "8 games found", 0, 0, preview, null));
             });
             idle();
             scenario.onActivity(activity -> {
                 View root = activity.getWindow().getDecorView();
-                assertFalse(find(root, "Back up library").isShown());
+                assertFalse(find(root, backupLabel()).isShown());
                 assertTrue(find(root, "Import (7)").isEnabled());
                 RecyclerView list = recycler(activity.findViewById(R.id.settings_content));
                 assertTrue("Preview list starved by chrome", list.getHeight() > activity.findViewById(R.id.settings_content).getHeight() / 3);
@@ -95,7 +95,7 @@ public class CompactSettingsTest {
             idle();
             scenario.onActivity(activity -> {
                 click(activity.getWindow().getDecorView(), "Done");
-                assertTrue(find(activity.getWindow().getDecorView(), "Restore backup").isShown());
+                assertTrue(find(activity.getWindow().getDecorView(), restoreLabel()).isShown());
             });
         }
     }
@@ -109,7 +109,7 @@ public class CompactSettingsTest {
                 assertFalse(activity.isFinishing());
                 assertNotNull(find(activity.getWindow().getDecorView(), "Stopping safely..."));
                 model.state.setValue(new LibraryImportModel.State(false, "Cannot open backup", 0, 0, null, null));
-                assertTrue(find(activity.getWindow().getDecorView(), "Restore backup").isShown());
+                assertTrue(find(activity.getWindow().getDecorView(), restoreLabel()).isShown());
                 assertNotNull(find(activity.getWindow().getDecorView(), "Cannot open backup"));
             });
         }
@@ -137,6 +137,12 @@ public class CompactSettingsTest {
         }
     }
 
+    private static String backupLabel() {
+        return ru.playsoftware.j2meloader.BuildConfig.SYMBIAN_EXPERIMENT ? "Back up Java / Mophun" : "Back up library";
+    }
+    private static String restoreLabel() {
+        return ru.playsoftware.j2meloader.BuildConfig.SYMBIAN_EXPERIMENT ? "Restore Java / Mophun backup" : "Restore backup";
+    }
     private void idle() {
         InstrumentationRegistry.getInstrumentation().waitForIdleSync();
         android.os.SystemClock.sleep(150);
