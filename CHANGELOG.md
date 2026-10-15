@@ -12,6 +12,16 @@ combined builds; released experimental features are explicitly identified.
 
 ## 2026-10-15
 
+- **Public source, unreleased:** automatic Java setup now retains filename
+  hints such as `128x160`, `176x220` and `S40v3` through file-provider imports,
+  ZIP/7z selection, recompilation and backup/restore. Explicit game metadata
+  has priority; existing/manual settings and launcher identities are preserved.
+  Paths, outer archive names and advertising addresses do not select a phone.
+  Both Retroid variants and the Android 15 Phone emulator passed 67 focused
+  checks each. Four fresh archive JARs on Retroid reached intro/title/menu
+  screens with the recorded automatic setup. This does not establish full-game
+  compatibility or resolve the intermittent Ghost Recon failure. No release
+  APK update. [Evidence and limits](docs/checks/2026-10-15-source-hints.md).
 - **Public source, unreleased:** added a genuine Light appearance, selectable
   with Dark and Follow system in Settings. The library, settings, installation
   and transfer screens, shared game menu, controller mapper and both Phone touch

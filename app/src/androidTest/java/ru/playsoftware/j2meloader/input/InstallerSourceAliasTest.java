@@ -38,6 +38,8 @@ public class InstallerSourceAliasTest {
         try (InstallerJadTest.Fixture f = new InstallerJadTest.Fixture(false, true)) {
             f.open(); f.awaitSuccess();
             AppItem before = f.find();
+            String sourceHint = ru.playsoftware.j2meloader.catalog.SourceHints.read(new File(before.getPathExt()));
+            assertEquals("game.jar", sourceHint);
             before.setTitle("My Sudoku"); before.setFavorite(true); before.setPlayCount(9);
             f.repository.saveInstalled(before);
             File save = new File(Config.getDataDir(), before.getPath() + "/save-marker");
@@ -74,6 +76,7 @@ public class InstallerSourceAliasTest {
             assertEquals(before.getSourceUri(), after.getSourceUri());
             assertEquals("My Sudoku", after.getTitle()); assertTrue(after.isFavorite());
             assertEquals(9, after.getPlayCount());
+            assertEquals(sourceHint, ru.playsoftware.j2meloader.catalog.SourceHints.read(new File(after.getPathExt())));
             assertArrayEquals(marker, Files.readAllBytes(save.toPath()));
             assertArrayEquals(marker, Files.readAllBytes(settings.toPath()));
         }

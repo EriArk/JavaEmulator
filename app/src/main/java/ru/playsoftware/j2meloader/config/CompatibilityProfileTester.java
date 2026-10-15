@@ -70,6 +70,7 @@ final class CompatibilityProfileTester {
 		checkCancelled();
 		callback.onProgress(5, context.getString(R.string.compatibility_test_manifest));
 		Probe probe = readProbe(appDir);
+		readSourceHints(appDir, probe);
 
 		callback.onProgress(18, context.getString(R.string.compatibility_test_resources));
 		readResourceHints(appDir, probe);
@@ -159,6 +160,23 @@ final class CompatibilityProfileTester {
 			probe.publisher = "";
 		}
 		return probe;
+	}
+
+	private static void readSourceHints(File appDir, Probe probe) {
+		String name = ru.playsoftware.j2meloader.catalog.SourceHints.read(appDir);
+		if (name == null) return;
+		String stem = withoutWebAddresses(name.substring(0, name.lastIndexOf('.'))
+				.toLowerCase(Locale.US).replace('_', ' '));
+		// Only explicit WxH filename labels, not pairs of numbers in release identifiers.
+		Matcher sizes = Pattern.compile("(?<!\\d)(\\d{3})\\s*x\\s*(\\d{3})(?!\\d)").matcher(stem);
+		while (sizes.find()) {
+			int w = Integer.parseInt(sizes.group(1)), h = Integer.parseInt(sizes.group(2));
+			if (isKnownJ2meResolution(w, h)) {
+				rememberScreenCandidate(probe, w, h, 550);
+				probe.filenameHasSize = true;
+			}
+		}
+		probe.filenameTarget = stem;
 	}
 
 	private static void readResourceHints(File appDir, Probe probe) {
@@ -274,6 +292,16 @@ final class CompatibilityProfileTester {
 		if (containsAny(probe.targetText, hints)) {
 			candidate.reason = "target metadata";
 			return 240;
+		}
+		String filenamePattern = PROFILE_NOKIA.equals(candidate.name) ? "nokia|s40(?:v[1-9])?|series ?40|6233|n73"
+				: PROFILE_SONY_ERICSSON.equals(candidate.name) ? "sony[ -]?ericsson|k800i?|jp-?8" + (probe.filenameHasSize ? "|se" : "")
+				: PROFILE_MOTOROLA.equals(candidate.name) ? "motorola|v3x|razr"
+				: PROFILE_SIEMENS.equals(candidate.name) ? "siemens|s65|cx65"
+				: "samsung|sgh|gt[ -]s8000|d900|e250";
+		if (Pattern.compile("(?<![a-z0-9])(?:" + filenamePattern + ")(?![a-z0-9])")
+				.matcher(probe.filenameTarget).find()) {
+			candidate.reason = "source filename (unverified target)";
+			return 90;
 		}
 		int score = 0;
 		for (String key : probe.attrs.keySet()) {
@@ -501,7 +529,9 @@ final class CompatibilityProfileTester {
 	private static String buildReasons(Probe probe) {
 		ArrayList<String> reasons = new ArrayList<>();
 		if (probe.screenWidth > 0 && probe.screenHeight > 0) {
-			reasons.add((probe.screenScore >= 1000 ? "declared screen " : "resources suggest ")
+			reasons.add((probe.screenScore >= 1000 ? "declared screen "
+					: probe.screenScore >= 600 ? "game metadata suggests "
+					: probe.screenScore == 550 ? "source filename suggests " : "resources suggest ")
 					+ probe.screenWidth + "x" + probe.screenHeight);
 		} else {
 			reasons.add(probe.screens.isEmpty() ? "no screen-size evidence"
@@ -532,6 +562,8 @@ final class CompatibilityProfileTester {
 		String publisher = "";
 		String targetText = "";
 		String apiText = "";
+		String filenameTarget = "";
+		boolean filenameHasSize;
 		final Map<String, Integer> screens = new LinkedHashMap<>();
 		int screenWidth;
 		int screenHeight;

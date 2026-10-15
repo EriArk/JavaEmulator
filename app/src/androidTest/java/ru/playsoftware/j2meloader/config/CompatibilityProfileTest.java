@@ -21,6 +21,78 @@ import java.util.zip.ZipOutputStream;
 import static org.junit.Assert.*;
 
 public class CompatibilityProfileTest {
+    @Test public void sourceFilenameRestoresSizeAndLabelsUnverifiedPhoneHint() throws Exception {
+        manifest("");
+        ru.playsoftware.j2meloader.catalog.SourceHints.write(root, "Ghost_Recon_2_SE_128x160.jar");
+        ProfileModel model = run();
+        assertEquals(128, model.screenWidth); assertEquals(160, model.screenHeight);
+        assertEquals("Sony Ericsson JP-8", model.compatibilityProfile);
+        assertEquals("medium", model.compatibilityConfidence);
+        assertTrue(model.compatibilityReasons.contains("source filename suggests 128x160"));
+        assertTrue(model.compatibilityReasons.contains("unverified target"));
+    }
+
+    @Test public void declaredMetadataBeatsFilenameAndFilenameBeatsArtwork() throws Exception {
+        ru.playsoftware.j2meloader.catalog.SourceHints.write(root, "Game_Samsung_480x800.jar");
+        images(false, "title.png:240:320");
+        manifest("Target-Device: Nokia\nScreen-Size: 176x220\n");
+        ProfileModel model = run();
+        assertEquals(176, model.screenWidth); assertEquals("Nokia S40", model.compatibilityProfile);
+        manifest("");
+        model = run();
+        assertEquals(480, model.screenWidth); assertEquals(800, model.screenHeight);
+        assertEquals("Samsung", model.compatibilityProfile);
+    }
+
+    @Test public void filenameDirectoriesAdvertisingAndPartialVendorWordsAreIgnored() throws Exception {
+        manifest("");
+        ru.playsoftware.j2meloader.catalog.SourceHints.write(root, "Nokia_480x800/Samsung_176x220/Game_case_www.samsungpro.ru_128x160.jar");
+        ProfileModel model = run();
+        assertEquals(128, model.screenWidth); assertEquals("Generic MIDP", model.compatibilityProfile);
+        ru.playsoftware.j2meloader.catalog.SourceHints.write(root, "Game_SE.jar");
+        assertEquals("Generic MIDP", run().compatibilityProfile);
+    }
+
+    @Test public void conflictingFilenameHintsStayNeutral() throws Exception {
+        manifest("");
+        ru.playsoftware.j2meloader.catalog.SourceHints.write(root, "Game_Nokia_Samsung_128x160_240x320.jar");
+        ProfileModel model = run();
+        assertEquals("Generic MIDP", model.compatibilityProfile);
+        assertEquals(0, model.detectedScreenWidth);
+    }
+
+    @Test public void filenameCannotOverwriteExistingOrTemplateSettings() throws Exception {
+        manifest("");
+        ru.playsoftware.j2meloader.catalog.SourceHints.write(root, "Game_SE_128x160.jar");
+        ProfileModel model = new ProfileModel(root);
+        model.screenWidth = 480; model.screenHeight = 800;
+        model.systemProperties = "microedition.platform: My phone\n";
+        ProfilesManager.saveConfig(model);
+        model = ProfilesManager.loadConfig(root);
+        assertFalse(model.isNew);
+        run(model);
+        assertEquals(480, model.screenWidth); assertEquals(800, model.screenHeight);
+        assertEquals("microedition.platform: My phone\n", model.systemProperties);
+        assertEquals(128, model.detectedScreenWidth);
+    }
+
+    @Test public void malformedAndUnknownSourceMetadataIsOptional() throws Exception {
+        manifest("");
+        for (String json : new String[]{"{broken", "{\"version\":99,\"filename\":\"Nokia_128x160.jar\"}",
+                "{\"version\":1,\"filename\":\"Nokia_128x160.zip\"}"}) {
+            Files.write(new File(root, ru.playsoftware.j2meloader.catalog.SourceHints.FILE).toPath(), json.getBytes(StandardCharsets.UTF_8));
+            assertEquals(0, run().detectedScreenWidth);
+        }
+    }
+
+    @Test public void platformTokenWorksButReleaseNumbersDoNotBecomeResolution() throws Exception {
+        manifest("");
+        ru.playsoftware.j2meloader.catalog.SourceHints.write(root, "AgeOfEmpires2_S40v3_128_160.jar");
+        ProfileModel model = run();
+        assertEquals("Nokia S40", model.compatibilityProfile);
+        assertEquals(0, model.detectedScreenWidth);
+    }
+
     private final Context context = ApplicationProvider.getApplicationContext();
     private File root;
 

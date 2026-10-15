@@ -73,7 +73,7 @@ public final class LibraryArchive {
         }
         String path = root.toPath().relativize(file.toPath()).toString().replace(File.separatorChar, '/');
         if (path.startsWith("converted/") && !Arrays.asList("res.jar", "converted.dex.conf",
-                AdditionalGames.MANIFEST, "game.mpn").contains(file.getName())
+                AdditionalGames.MANIFEST, "game.mpn", SourceHints.FILE).contains(file.getName())
                 && !Arrays.asList(ru.playsoftware.j2meloader.applist.GameArtwork.FILES).contains(file.getName())) return;
         if (++files > MAX_FILES) throw new IOException("Too many backup files");
         long length = file.length(), modified = file.lastModified(), written = 0;

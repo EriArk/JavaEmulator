@@ -55,8 +55,11 @@ launch comparison before attributing the difference to optional code.
 
 ## Findings still to address
 
-- Evaluate retaining source-filename resolution hints when the manifest/resources
-  carry no equivalent information, without overriding explicit/manual settings.
+- Source-filename hints are now retained and conservatively applied in unreleased
+  source (2026-10-15). Four fresh imports on Retroid confirmed Ghost Recon and
+  America's Army at 128x160, Predator at 176x220, and Age of Empires' S40 label.
+  See the [follow-up setup matrix](checks/2026-10-15-source-hints.md) for actual
+  observed screens, preserved-settings checks and limitations.
 - Reproduce the intermittent first-launch Ghost Recon 2 resource/rendering failure.
   A black screen is not automatically a size bug.
 - Expand the sample with verifiable Samsung touch, 176x220 and 360x640/480x800

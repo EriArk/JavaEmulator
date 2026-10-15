@@ -262,6 +262,13 @@ public final class LibraryImporter {
 			Main.main(new String[]{"--no-optimize", "--core-library", "--output=" + new File(app, "converted.dex"), jar.getPath()});
 			if (!new File(app, "converted.dex").isFile()) throw new IOException("Missing converted code");
 			descriptor.writeTo(new File(app, "converted.dex.conf"));
+			DocumentFile hints = find(entry.game, SourceHints.FILE);
+			String hintName = null;
+			if (hints != null && hints.length() <= 4096) {
+				try { hintName = SourceHints.decode(readText(hints, 4096)); }
+				catch (IOException ignored) { /* Optional evidence must not block game/save recovery. */ }
+			}
+			SourceHints.write(app, hintName);
 			item = new AppItem(id, descriptor.getName(), descriptor.getVendor(), descriptor.getVersion());
 			item.setSourceHash(SourceIdentity.sha256(jar));
 			}

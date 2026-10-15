@@ -19,9 +19,20 @@ import java.util.zip.ZipEntry;
 import java.util.zip.ZipOutputStream;
 import org.junit.Test;
 import ru.playsoftware.j2meloader.util.FileUtils;
+import ru.playsoftware.j2meloader.catalog.SourceHints;
 import static org.junit.Assert.*;
 
 public class InstallerSourceTest {
+    @Test public void hintsKeepOnlySafeLeafNames() {
+        assertEquals("Game_128x160.jar", SourceHints.fileName("C:\\Nokia\\Game_128x160.jar"));
+        assertNull(SourceHints.fileName("Game\u0000_128x160.jar"));
+        assertNull(SourceHints.fileName(new String(new char[513]).replace('\0', 'a') + ".jar"));
+        assertNull(SourceHints.fileName("Collection_128x160.zip"));
+        Context context = InstrumentationRegistry.getInstrumentation().getTargetContext();
+        assertEquals("Game.jar", SourceHints.fromUri(context,
+                Uri.parse("https://nokia.example/Samsung/Game.jar?screen=128x160#SonyEricsson")));
+    }
+
     @Test public void contentUriDistinguishesJarFromGameArchive() throws Exception {
         assertCopy(zip("META-INF/MANIFEST.MF"), ".jar");
         assertCopy(zip("folder/game.jar"), ".zip");
@@ -76,6 +87,7 @@ public class InstallerSourceTest {
             @Override public ContentResolver getContentResolver() { return ContentResolver.wrap(provider); }
         };
         try {
+            assertNull(SourceHints.fromUri(wrapped, Uri.parse("content://fixture.install/document/Nokia_128x160.jar")));
             File copied = FileUtils.getFileForUri(wrapped, Uri.parse("content://fixture.install/document/42"));
             assertTrue(copied.getName(), copied.getName().endsWith(extension));
             assertArrayEquals(bytes, Files.readAllBytes(copied.toPath()));

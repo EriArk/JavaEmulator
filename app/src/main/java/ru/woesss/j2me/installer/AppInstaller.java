@@ -53,6 +53,7 @@ import ru.playsoftware.j2meloader.applist.AppItem;
 import ru.playsoftware.j2meloader.applist.GameArtwork;
 import ru.playsoftware.j2meloader.appsdb.AppRepository;
 import ru.playsoftware.j2meloader.catalog.SourceIdentity;
+import ru.playsoftware.j2meloader.catalog.SourceHints;
 import ru.playsoftware.j2meloader.config.Config;
 import ru.playsoftware.j2meloader.util.ConverterException;
 import ru.playsoftware.j2meloader.util.FileUtils;
@@ -89,6 +90,7 @@ public class AppInstaller {
 	private File archiveSource;
 	private List<String> archiveEntries;
 	private String selectedArchiveEntry;
+	private String sourceName;
 	private List<AppItem> existingChoices = java.util.Collections.emptyList();
 	private String incomingHash, incomingFingerprint;
 	private boolean separateCopy;
@@ -124,6 +126,7 @@ public class AppInstaller {
 	void loadInfo(SingleEmitter<Integer> emitter) throws IOException, ConverterException {
 		if (id != -1) {
 			currentApp = appRepository.get(id);
+			sourceName = SourceHints.read(new File(currentApp.getPathExt()));
 			srcJar = new File(currentApp.getPathExt(), Config.MIDLET_RES_FILE);
 			newDesc = new Descriptor(new File(currentApp.getPathExt(), Config.MIDLET_MANIFEST_FILE), false);
 			appDirName = currentApp.getPath();
@@ -131,6 +134,7 @@ public class AppInstaller {
 			emitter.onSuccess(STATUS_EQUAL);
 			return;
 		}
+		sourceName = SourceHints.fromUri(context, uri);
 		boolean isLocal;
 		boolean isContentUri = uri.getScheme().equals("content");
 		if ("http".equals(uri.getScheme()) || "https".equals(uri.getScheme())) {
@@ -187,6 +191,7 @@ public class AppInstaller {
 	Single<Integer> updateInfo(Uri jarUri) {
 		return Single.create(emitter -> {
 			srcJar = FileUtils.getFileForUri(context, jarUri);
+			sourceName = SourceHints.fromUri(context, jarUri);
 			manifest = loadManifest(srcJar);
 			if (!manifest.equals(newDesc)) {
 				emitter.onSuccess(STATUS_UNMATCHED);
@@ -297,6 +302,7 @@ public class AppInstaller {
 		}
 		srcFile = output;
 		srcJar = output;
+		sourceName = SourceHints.fileName(entryName);
 	}
 
 	private void copyLimited(InputStream input, OutputStream output)
@@ -423,6 +429,7 @@ public class AppInstaller {
 			throw new ConverterException("Can't create directory: '" + targetDir + "'");
 		if (srcJar == null) {
 			srcJar = new File(cacheDir, "tmp.jar");
+			sourceName = SourceHints.fromUri(context, Uri.parse(newDesc.getJarUrl()));
 			downloadJar();
 			manifest = loadManifest(srcJar);
 			if (!manifest.equals(newDesc)) {
@@ -455,6 +462,7 @@ public class AppInstaller {
 		}
 		if (currentApp != null) GameArtwork.preserveUserArt(new File(currentApp.getPathExt()), tmpDir);
 		newDesc.writeTo(new File(tmpDir, Config.MIDLET_MANIFEST_FILE));
+		SourceHints.write(tmpDir, sourceName);
 		FileUtils.deleteDirectory(targetDir);
 		if (!tmpDir.renameTo(targetDir)) {
 			throw new ConverterException("Can't move '" + tmpDir + "' to '" + targetDir + "'");
@@ -533,6 +541,7 @@ public class AppInstaller {
 			}
 		}
 		srcJar = jar;
+		sourceName = SourceHints.fileName(jar.getName());
 		manifest = loadManifest(jar);
 		return manifest.equals(newDesc);
 	}

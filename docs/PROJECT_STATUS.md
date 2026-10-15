@@ -34,6 +34,16 @@ bundled. The app UI is English.
 
 ## Availability: Do Not Mix These Channels
 
+**Unreleased original-filename setup hints (2026-10-15):** Java imports retain
+the original JAR name through file providers, ZIP/7z selection, recompilation
+and library backup/restore. Preparation uses explicit filename size/phone hints
+below declared metadata, without resetting existing profiles. Both Retroid
+variants and the Android 15 Phone emulator passed 67 focused checks each.
+Four fresh original JAR imports on Retroid confirmed 128x160/176x220 selection
+and S40 filename recognition. These are setup/title-screen observations, not
+full-game acceptance; #14 and the intermittent Ghost Recon issue #15 remain
+open. Public APKs are unchanged. [Evidence](checks/2026-10-15-source-hints.md).
+
 **Unreleased Light appearance (2026-10-15):** Settings now offers Follow system,
 Light and Dark. Light uses pale surfaces with dark text across the library,
 settings, installer, game menu, mapper and Phone touch controls. Engine-host

@@ -308,6 +308,7 @@ public class LibraryImporterTest {
 	}
 
 	@Test public void archiveRoundTripPreservesProgressControlsAndLibraryMetadata() throws Exception {
+		SourceHints.write(new File(source, "converted/old-folder"), "Sudoku_SE_128x160.jar");
 		ProfileModel profile = new ProfileModel(new File(source, "configs/old-folder"));
 		profile.touchLayout = 1; profile.touchOpacity = 75; profile.screenRotation = 180;
 		profile.orientation = 2;
@@ -327,6 +328,7 @@ public class LibraryImporterTest {
 			assertTrue(preview.entries.get(0).hasSaves);
 			importer.importEntry(preview.entries.get(0));
 			AppItem restored = catalog.bySource(preview.entries.get(0).sourceKey);
+			assertEquals("Sudoku_SE_128x160.jar", SourceHints.read(new File(destination, "converted/" + restored.getPath())));
 			assertTrue(restored.isFavorite()); assertEquals(17, restored.getPlayCount());
 			ProfileModel loaded = ProfilesManager.loadConfig(new File(destination, "configs/" + restored.getPath()));
 			assertEquals(Integer.valueOf(1), loaded.touchLayout); assertEquals(75, loaded.touchOpacity);
