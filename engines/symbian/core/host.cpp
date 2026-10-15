@@ -35,6 +35,7 @@
 #include <sstream>
 #include <fstream>
 #include <yaml-cpp/yaml.h>
+#include "card_identity.h"
 
 extern std::unique_ptr<eka2l1::android::emulator> state;
 extern std::unique_ptr<std::thread> os_thread_obj;
@@ -465,20 +466,23 @@ Java_com_github_eka2l1_emu_Emulator_getCatalogApps(JNIEnv *env, jclass) {
         info = state->launcher->get_apps();
         // Card editions can deliberately hide their runnable alternate build from Avkon.
         // Only expose the positively identified card, not arbitrary hidden system apps.
+        auto *sys = state->symsys.get();
         eka2l1::apa_app_registry card;
-        if (state->symsys->get_ngage_game_info_mounted(card)) {
-            const auto uid = std::to_string(card.mandatory_info.uid);
+        const bool mounted = sys->get_ngage_game_info_mounted(card);
+        auto *kernel = sys->get_kernel_system();
+        auto *apps = kernel->get_by_name<eka2l1::applist_server>(eka2l1::get_app_list_server_name_by_epocver(kernel->get_epoc_version()));
+        if (apps) for (auto &reg : apps->get_registerations()) {
+            const bool identified = (mounted && card.mandatory_info.uid == reg.mandatory_info.uid)
+                || abyssme::is_card_executable(reg.mandatory_info.app_path.to_std_string(nullptr),
+                    [&](const auto &path) { return sys->get_io_system()->exist(path); });
+            if (!identified) continue;
+            const auto uid = std::to_string(reg.mandatory_info.uid);
             bool present = false;
             for (std::size_t i = 0; i + 1 < info.size(); i += 2) present |= info[i] == uid;
             if (!present) {
-                auto *kernel = state->symsys->get_kernel_system();
-                auto *apps = kernel->get_by_name<eka2l1::applist_server>(eka2l1::get_app_list_server_name_by_epocver(kernel->get_epoc_version()));
-                auto *registered = apps ? apps->get_registration(card.mandatory_info.uid) : nullptr;
-                if (registered) {
-                    info.push_back(uid);
-                    auto name = registered->mandatory_info.long_caption.to_std_string(nullptr);
-                    info.push_back(name.empty() ? "N-Gage game" : eka2l1::common::ucs2_to_utf8(name));
-                }
+                info.push_back(uid);
+                auto name = reg.mandatory_info.long_caption.to_std_string(nullptr);
+                info.push_back(name.empty() ? "N-Gage game" : eka2l1::common::ucs2_to_utf8(name));
             }
         }
     }
@@ -505,7 +509,9 @@ Java_com_github_eka2l1_emu_Emulator_getLibraryApps(JNIEnv *env, jclass) {
         if (apps) for (auto &reg : apps->get_registerations()) {
             const auto uid = reg.mandatory_info.uid;
             if (uid == 536902457) continue; // Platform installer is available through system management.
-            const bool is_card = has_card && card.mandatory_info.uid == uid;
+            const bool is_card = (has_card && card.mandatory_info.uid == uid)
+                || abyssme::is_card_executable(reg.mandatory_info.app_path.to_std_string(nullptr),
+                    [&](const auto &path) { return sys->get_io_system()->exist(path); });
             const auto game_dir = u"\\private\\20007b39\\game" + eka2l1::common::utf8_to_ucs2(std::to_string(uid));
             const bool ngage2 = sys->get_io_system()->exist(u"C:" + game_dir)
                 || sys->get_io_system()->exist(u"E:" + game_dir);

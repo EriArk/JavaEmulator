@@ -12,7 +12,17 @@ combined builds; released experimental features are explicitly identified.
 
 ## 2026-10-15
 
-- **Prepared locally:** 0.3.0-beta.2, code 301, combined signed Handheld and Phone
+- **Prepared locally:** 0.3.0-beta.3, code 302. Fixed N-Gage card identification
+  in a mixed SIS/card phone, shared by the catalog, library and removal checks.
+  Native regressions cover multiple cards and hidden-app exclusions. Both signed
+  variants built, passed APK guards/lint and 25 JVM tests each, and upgraded on
+  Retroid. Snakes reappeared without reimport and reached gameplay; the Phone
+  Gamepad and shortcut choices survived the upgrade. Beta.2 was withheld before
+  publication and its source tag is unchanged.
+  [Checks](docs/releases/v0.3.0-beta.3-checks.md),
+  [fresh captures](screenshots/releases/v0.3.0-beta.3/).
+
+- **Withheld candidate:** 0.3.0-beta.2, code 301, combined signed Handheld and Phone
   APKs. Both release JVM suites passed 25 tests; production-content guards and
   lint passed (402/409 warnings retained). Both signed variants upgraded from
   code 300 on Retroid. Phone shortcuts, both decks and a haptic request were

@@ -15,6 +15,7 @@
 #include <set>
 #include <stdexcept>
 #include <thread>
+#include "card_identity.h"
 
 extern std::unique_ptr<eka2l1::android::emulator> state;
 extern std::unique_ptr<std::thread> os_thread_obj, gr_thread_obj;
@@ -49,7 +50,9 @@ plan inspect(JNIEnv *env, jlong uid, const std::string &runtime) {
     require(app, "This game is no longer registered on this phone");
     require(uid != 0x20007b39 && !app->caps.is_hidden, "System and platform applications cannot be removed here");
     apa_app_registry card;
-    const bool card_game = sys->get_ngage_game_info_mounted(card) && card.mandatory_info.uid == uid;
+    const bool card_game = (sys->get_ngage_game_info_mounted(card) && card.mandatory_info.uid == uid)
+        || abyssme::is_card_executable(app->mandatory_info.app_path.to_std_string(nullptr),
+            [&](const auto &path) { return io->exist(path); });
     const auto game_dir = u"\\private\\20007b39\\game" + common::utf8_to_ucs2(std::to_string(uid));
     require(!io->exist(u"C:" + game_dir) && !io->exist(u"E:" + game_dir),
         "N-Gage 2.0 games must be managed by their platform. Nothing was removed");
