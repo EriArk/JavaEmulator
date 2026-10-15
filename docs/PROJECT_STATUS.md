@@ -34,6 +34,18 @@ bundled. The app UI is English.
 
 ## Availability: Do Not Mix These Channels
 
+**Unreleased Phone shortcuts and tactile feedback (2026-10-15):** More and
+Settings > Playing now offer On-screen shortcuts. Java Phone can hide Display
+and Screenshot independently while keeping Menu accessible. Phone/Gamepad
+touch keys now request one haptic pulse per new press in Java, Mophun and
+Symbian; Controls exposes the existing per-game Tactile feedback setting with
+Try / Keep / Undo. Held keys and hardware input do not repeat UI haptics.
+Retroid Phone passed 47 checks, Handheld passed 45 with two Phone-only skips,
+and the Android 15 Phone emulator passed 43. Retroid's Android vibration service
+confirmed a touch pulse and no new pulse after feedback was undone; human
+perception remains unaccepted. No public APK update.
+[Evidence, usage and screenshots](checks/2026-10-15-phone-shortcuts-feedback.md).
+
 **Unreleased Java display lifecycle fix (2026-10-15):** guest Canvas startup
 and painting no longer wait for Android surface creation. Screen switches,
 pause/resume, deferred alerts and hidden fullscreen changes use the shared
@@ -181,11 +193,11 @@ The following Java/Mophun features remain from 0.2:
 | --- | --- | --- |
 | Library and small screens | Compact layouts, reachable menus, Gallery covers separate from List/Grid icons, controller focus, custom art and conservative automatic selection | [Compact UI](COMPACT_LIBRARY.md), [artwork](ARTWORK.md); not every tiny-screen/device combination is accepted |
 | Controller mapping | Graphical phone keypad, per-game named schemes/presets, button identification, D-pad/stick directions and diagonal-to-single-key bindings, compact mapper pages | `c49fef57`, `ba252272`; physical-controller/disconnect acceptance remains open in #9 |
-| Phone controls | Phone numeric keypad or virtual Gamepad, portrait game area above buttons, landscape side controls, size/opacity/position settings | [Settings](SETTINGS_TRIALS.md); released beta.2 uses the older workflow |
+| Phone controls | Phone numeric keypad or virtual Gamepad, portrait game area above buttons, landscape side controls, size/opacity/position settings. Unreleased: per-game tactile feedback in the shared Controls page and feedback from new touch layouts | [Settings](SETTINGS_TRIALS.md), [haptic checks and limits](checks/2026-10-15-phone-shortcuts-feedback.md); perceived phone haptics remain unaccepted |
 | Picture settings | Shared Display/Controls pages in library and game, live Java image rotation, size/smoothing, reversible Try/Keep/Undo preview | [Settings trials](SETTINGS_TRIALS.md); expert compatibility settings remain under Advanced |
 | Quick presets | More > Screen presets applies virtual resolutions live; More > Phone profile offers Generic/vendor presets through Restart & try, with Keep / Undo | [Implementation and checks](GAME_PRESETS.md); restart loses unsaved game progress, presets are not full phone emulation |
 | Release profile/import safety | Stable touch/preparation JSON keys prevent R8 field loss and restart-trial crashes; framed Java exception handlers no longer undercount stack during import | [Fixes and checks](RELEASE_PROFILE_SAFETY.md), [signed Phone upgrade](releases/v0.2.0-beta.1-checks.md); no recovery claim for already-lost values |
-| Screenshots | Optional on-screen camera button and menu action; PNGs in Pictures/AbyssME | `4f4d1468`; visibility can be disabled |
+| Screenshots and shortcuts | Optional camera button and menu action; PNGs in Pictures/AbyssME. Unreleased: More / Playing > On-screen shortcuts, independent Java Phone Display toggle, Menu retained | [Shortcut checks](checks/2026-10-15-phone-shortcuts-feedback.md); existing defaults and camera preference retained |
 | Transfer and backup | J2ME Loader import, selection/preview, AbyssME backup/restore through menus, copied saves and supported profiles, non-destructive migrations | [Transfer](LIBRARY_TRANSFER.md); source files remain intact, access restrictions still apply |
 | Nested-folder permissions | Import pauses for the requested folder grant and resumes; wrong-folder/cancel recovery, readable messages, save-folder validation | `d39ed742`; pending access survives screen recreation, not process death |
 | Installer | Compact scrolling details, persistent errors, archive recognition and mismatched JAD/JAR continuation. Unreleased: identical JARs from unfamiliar URIs offer reuse or a separate copy; confirmed choices are remembered | `696da084`, `7ba384b2`; [#20 checks and limits](checks/2026-10-15-source-aliases.md); no automatic merge of existing duplicates |

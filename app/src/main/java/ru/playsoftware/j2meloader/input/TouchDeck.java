@@ -19,6 +19,7 @@ public final class TouchDeck {
         void press(int key);
         void release(int key);
         void repeat(int key);
+        void feedback();
         void invalidate();
     }
     public static final int PHONE = 0, GAMEPAD = 1, LEGACY = 2;
@@ -150,12 +151,14 @@ public final class TouchDeck {
     public synchronized boolean down(int pointer, float x, float y) {
         Key key = at(x,y);
         if (key == null) return false;
+        boolean fresh = !pointers.containsValue(key);
         if (key.codes[0] == NUMBERS) {
             numbers = !numbers; layout(width,height);
             pointers.put(pointer, null);
         } else {
             pointers.put(pointer,key); syncHeld();
         }
+        if (fresh && settings.vkFeedback) sink.feedback();
         sink.invalidate(); return true;
     }
     public synchronized boolean move(int pointer, float x, float y) {
@@ -163,7 +166,9 @@ public final class TouchDeck {
         Key old = pointers.get(pointer), next = at(x,y);
         if (next != null && next.codes[0] == NUMBERS) next = null;
         if (old != next) {
+            boolean fresh = next != null && !pointers.containsValue(next);
             pointers.put(pointer,next); syncHeld(); sink.invalidate();
+            if (fresh && settings.vkFeedback) sink.feedback();
         }
         return true;
     }

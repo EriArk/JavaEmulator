@@ -23,17 +23,25 @@
             android:defaultValue="true"
             android:icon="@drawable/ic_setting_enable_vibration"
             android:key="pref_vibration_switch"
-            android:title="Vibration" />
+            android:title="Game vibration" />
         <SwitchPreferenceCompat
             android:defaultValue="true"
             android:icon="@drawable/ic_setting_keep_screen_on"
             android:key="pref_wakelock_switch"
             android:title="Keep screen awake while playing" />
-        <SwitchPreferenceCompat
-            android:key="pref_screenshot_button"
-            android:persistent="false"
-            android:icon="@drawable/ic_action_screenshot"
-            android:title="@string/screenshot_button" />
+        <PreferenceScreen android:key="shortcuts" android:title="@string/on_screen_shortcuts"
+            android:icon="@drawable/ic_baseline_tune_24">
+            <SwitchPreferenceCompat
+                android:key="pref_display_button"
+                android:persistent="false"
+                android:icon="@drawable/ic_quick_size"
+                android:title="@string/display_button" />
+            <SwitchPreferenceCompat
+                android:key="pref_screenshot_button"
+                android:persistent="false"
+                android:icon="@drawable/ic_action_screenshot"
+                android:title="@string/screenshot_button" />
+        </PreferenceScreen>
     </PreferenceScreen>
 
     <PreferenceScreen android:key="support" android:title="Support" android:icon="@drawable/ic_baseline_tune_24">

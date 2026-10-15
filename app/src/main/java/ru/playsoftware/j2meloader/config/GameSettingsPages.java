@@ -64,6 +64,7 @@ public final class GameSettingsPages {
             menu.choice("Touch layout", javaGame ? new String[]{"Phone", "Gamepad", "Legacy"} : new String[]{"Phone", "Gamepad"}, layout, i -> {
                 draft.touchLayout = i; controls();
             });
+            menu.toggle("Tactile feedback", draft.vkFeedback, value -> draft.vkFeedback = value);
             if (layout == 2) {
                 if (!live || legacyActive) menu.action("Legacy layout editor", R.drawable.ic_action_keyboard, host::legacyControls);
                 controlsFooter(); return;

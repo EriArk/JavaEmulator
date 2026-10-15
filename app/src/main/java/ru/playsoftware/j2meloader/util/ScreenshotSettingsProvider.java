@@ -8,18 +8,21 @@ import android.os.Bundle;
 import androidx.preference.PreferenceManager;
 import ru.playsoftware.j2meloader.BuildConfig;
 
-/** Owns this preference in the main process; Java games run in :midlet. */
+/** Owns shortcut preferences in the main process; Java games run in :midlet. */
 public final class ScreenshotSettingsProvider extends ContentProvider {
     @Override public boolean onCreate() { return true; }
     @Override public Bundle call(String method, String arg, Bundle extras) {
         android.content.SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(getContext());
+        String key = arg == null ? Screenshots.BUTTON_PREFERENCE : arg;
+        if (!Screenshots.BUTTON_PREFERENCE.equals(key) && !GameShortcuts.DISPLAY_PREFERENCE.equals(key))
+            throw new IllegalArgumentException("Unknown shortcut");
         if ("set".equals(method)) {
             if (extras == null || !extras.containsKey("visible")) throw new IllegalArgumentException("Missing value");
-            if (!preferences.edit().putBoolean(Screenshots.BUTTON_PREFERENCE, extras.getBoolean("visible")).commit())
-                throw new IllegalStateException("Could not save screenshot preference");
+            if (!preferences.edit().putBoolean(key, extras.getBoolean("visible")).commit())
+                throw new IllegalStateException("Could not save shortcut preference");
         } else if (!"get".equals(method)) throw new IllegalArgumentException("Unknown operation");
         Bundle result = new Bundle();
-        result.putBoolean("visible", preferences.getBoolean(Screenshots.BUTTON_PREFERENCE, !BuildConfig.HANDHELD_MODE));
+        result.putBoolean("visible", preferences.getBoolean(key, !BuildConfig.HANDHELD_MODE));
         return result;
     }
     @Override public Cursor query(Uri uri, String[] projection, String selection, String[] args, String sort) { throw new UnsupportedOperationException(); }

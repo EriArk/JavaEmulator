@@ -42,6 +42,26 @@ public class GamePresetsUiTest {
         scenario.onActivity(activity -> ((Spinner) find(root(), Spinner.class, null)).setSelection(index)); idle();
     }
 
+    @Test public void tactileFeedbackIsPerGameAndRequiresTryForEveryTouchLayout() {
+        org.junit.Assume.assumeFalse(ru.playsoftware.j2meloader.BuildConfig.HANDHELD_MODE);
+        scenario.onActivity(activity -> {
+            for (boolean javaGame : new boolean[]{true, false}) for (int layout = 0; layout < (javaGame ? 3 : 2); layout++) {
+                source.touchLayout = layout; source.vkFeedback = false; applied = null;
+                GameSettingsPages editor = new GameSettingsPages(menu, source, false, javaGame, new GameSettingsPages.Host() {
+                    public void preview(ProfileModel draft) { applied = ProfilesManager.copy(draft); }
+                    public void mapping(ProfileModel draft, Runnable back) { }
+                    public void advanced() { }
+                    public void back() { }
+                });
+                editor.controls();
+                find(root(), TextView.class, "Tactile feedback").performClick();
+                assertFalse(source.vkFeedback); assertNull(applied); assertTrue(editor.draft().vkFeedback);
+                assertTrue(find(root(), TextView.class, "Try in game").performClick());
+                assertTrue(applied.vkFeedback); assertEquals(layout, applied.touchLayout.intValue());
+            }
+        });
+    }
+
     @Test public void screenAutoFallbackIsReversibleAndRequiresTry() {
         scenario.onActivity(activity -> pages.screenPresets(() -> backs++)); idle();
         choose(0);

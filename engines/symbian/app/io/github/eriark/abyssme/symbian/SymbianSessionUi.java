@@ -72,6 +72,7 @@ final class SymbianSessionUi {
         root.setBackgroundColor(Color.BLACK); root.addView(surface);
         deckView = new DeckView(keys.source()); root.addView(deckView, new FrameLayout.LayoutParams(-1,-1));
         ImageButton settings = icon("Game menu", R.drawable.ic_baseline_tune_24, this::showMenu);
+        settings.setId(R.id.game_menu_button);
         root.addView(settings, new FrameLayout.LayoutParams(dp(48),dp(48), Gravity.TOP | Gravity.END));
         camera = icon("Screenshot", R.drawable.ic_action_screenshot, this::screenshot);
         camera.setId(R.id.game_screenshot_button);
@@ -113,7 +114,10 @@ final class SymbianSessionUi {
         handler.removeCallbacks(holdSelect); selectDown = false;
         input.clear(); if (deckView != null) deckView.cancel(); keys.clear();
     }
-    void visible(boolean value) { visible = value; pause(); }
+    void visible(boolean value) { visible = value; if (value) updateShortcuts(); pause(); }
+    private void updateShortcuts() {
+        camera.setVisibility(Screenshots.isButtonVisible(activity) ? View.VISIBLE : View.GONE);
+    }
     void focused(boolean value) { focused = value; pause(); }
     private void pause() {
         boolean paused = closed || !visible || !focused || menu != null || mapper != null;
@@ -169,9 +173,9 @@ final class SymbianSessionUi {
     private void morePage() {
         menu.page("More");
         menu.setBackAction(this::home);
-        menu.toggle("Screenshot button", Screenshots.isButtonVisible(activity), value -> {
-            Screenshots.setButtonVisible(activity,value); camera.setVisibility(value ? View.VISIBLE : View.GONE);
-        });
+        menu.action(activity.getString(R.string.on_screen_shortcuts), R.drawable.ic_baseline_tune_24,
+                () -> ru.playsoftware.j2meloader.util.GameShortcuts.page(activity, menu, false,
+                        this::updateShortcuts, this::morePage));
     }
     private void displayPage() {
         ProfileModel draft = ProfilesManager.copy(profile); menu.page("Display");
@@ -266,6 +270,7 @@ final class SymbianSessionUi {
                 public void press(int key) { sink.press(key); }
                 public void release(int key) { sink.release(key); }
                 public void repeat(int key) { sink.repeat(key); }
+                public void feedback() { TouchFeedback.perform(DeckView.this, profile.vkFeedback); }
                 public void invalidate() { DeckView.this.invalidate(); }
             });
             deck.setTheme(activity);

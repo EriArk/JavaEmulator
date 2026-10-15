@@ -318,6 +318,8 @@
     <string name="alert_rewrite_profile">A profile named \"%1$s\" already exists.\nDo you want to overwrite it?</string>
     <string name="capture_screenshot">Take screenshot</string>
     <string name="screenshot_button">Screenshot button</string>
+    <string name="display_button">Display button</string>
+    <string name="on_screen_shortcuts">On-screen shortcuts</string>
     <string name="screenshot_gallery_saved">Screenshot saved to Pictures/AbyssME</string>
     <string name="screenshot_failed">Could not save screenshot</string>
 </resources>

@@ -243,7 +243,8 @@ public class MicroActivity extends AppCompatActivity {
 		binding.gameScreenshotButton.setOnClickListener(v -> takeScreenshot());
 		binding.gameMenuButton.setVisibility(BuildConfig.HANDHELD_MODE ? View.GONE : View.VISIBLE);
 		binding.gameMenuButton.setOnClickListener(v -> openOptionsMenu());
-		binding.gameDisplayButton.setVisibility(BuildConfig.HANDHELD_MODE ? View.GONE : View.VISIBLE);
+		binding.gameDisplayButton.setVisibility(!BuildConfig.HANDHELD_MODE
+				&& ru.playsoftware.j2meloader.util.GameShortcuts.isDisplayVisible(this) ? View.VISIBLE : View.GONE);
 		binding.gameDisplayButton.setOnClickListener(v -> { openOptionsMenu(); showDisplayPage(); });
 		inputManager = (InputManager) getSystemService(INPUT_SERVICE);
 		inputManager.registerInputDeviceListener(controllerListener, quickSettingsHandler);
@@ -596,15 +597,16 @@ public class MicroActivity extends AppCompatActivity {
 		quickSettingsHandler.removeCallbacks(hideQuickSettingsRunnable);
 		binding.quickScreenOptions.setVisibility(View.GONE);
 		binding.quickSettingsOverlay.setVisibility(View.GONE);
-		binding.gameDisplayButton.setVisibility(BuildConfig.HANDHELD_MODE ? View.GONE : View.VISIBLE);
-		binding.gameMenuButton.setVisibility(BuildConfig.HANDHELD_MODE ? View.GONE : View.VISIBLE);
 		updateScreenshotButton();
 	}
 
 	private void updateScreenshotButton() {
 		if (binding == null) return;
-		boolean show = current instanceof Canvas && Screenshots.isButtonVisible(this)
-				&& binding.quickSettingsOverlay.getVisibility() != View.VISIBLE && !isQuickMapVisible();
+		boolean unobscured = binding.quickSettingsOverlay.getVisibility() != View.VISIBLE && !isQuickMapVisible();
+		binding.gameDisplayButton.setVisibility(unobscured && !BuildConfig.HANDHELD_MODE
+				&& ru.playsoftware.j2meloader.util.GameShortcuts.isDisplayVisible(this) ? View.VISIBLE : View.GONE);
+		binding.gameMenuButton.setVisibility(unobscured && !BuildConfig.HANDHELD_MODE ? View.VISIBLE : View.GONE);
+		boolean show = current instanceof Canvas && Screenshots.isButtonVisible(this) && unobscured;
 		binding.gameScreenshotButton.setVisibility(show ? View.VISIBLE : View.GONE);
 		binding.gameScreenshotButton.setEnabled(!screenshotPending);
 	}
@@ -844,10 +846,9 @@ public class MicroActivity extends AppCompatActivity {
 				() -> settingsPages().screenPresets(this::showMorePage));
 		gameMenu.action("Phone profile", R.drawable.ic_baseline_tune_24,
 				() -> settingsPages().phonePresets(this::showMorePage, this::restartGame));
-		gameMenu.toggle(getString(R.string.screenshot_button), Screenshots.isButtonVisible(this), value -> {
-			Screenshots.setButtonVisible(this, value);
-			updateScreenshotButton();
-		});
+		gameMenu.action(getString(R.string.on_screen_shortcuts), R.drawable.ic_baseline_tune_24,
+				() -> ru.playsoftware.j2meloader.util.GameShortcuts.page(this, gameMenu, true,
+						this::updateScreenshotButton, this::showMorePage));
 		gameMenu.action("System keyboard", R.drawable.ic_action_keyboard, () -> {
 			gameMenu.dismiss();
 			inputMethodManager.toggleSoftInputFromWindow(binding.displayableContainer.getWindowToken(),

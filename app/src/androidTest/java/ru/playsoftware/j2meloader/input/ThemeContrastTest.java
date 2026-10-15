@@ -99,6 +99,7 @@ public class ThemeContrastTest {
                         public void release(int code) { }
                         public void repeat(int code) { }
                         public void invalidate() { }
+                        public void feedback() { }
                     });
                     deck.setTheme(context);
                     for (int[] size : new int[][]{{360, 640}, {640, 360}}) {

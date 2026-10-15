@@ -86,6 +86,16 @@ public final class SymbianTouchTest {
                 try { current[0]=new SymbianSessionUi(activity,surface,system,1,"Touch fixture",host); }
                 catch(IOException error){throw new AssertionError(error);}
                 SymbianSessionUi session=current[0];
+                boolean cameraVisible=ru.playsoftware.j2meloader.util.Screenshots.isButtonVisible(activity);
+                try {
+                    for (boolean show:new boolean[]{false,true,false}) {
+                        session.visible(false);
+                        ru.playsoftware.j2meloader.util.Screenshots.setButtonVisible(activity,show);
+                        session.visible(true);
+                        assertEquals(show?View.VISIBLE:View.GONE,session.root.findViewById(ru.playsoftware.j2meloader.R.id.game_screenshot_button).getVisibility());
+                        assertEquals(View.VISIBLE,session.root.findViewById(ru.playsoftware.j2meloader.R.id.game_menu_button).getVisibility());
+                    }
+                } finally {ru.playsoftware.j2meloader.util.Screenshots.setButtonVisible(activity,cameraVisible);session.visible(true);}
                 View deck=session.root.getChildAt(1);
                 for (int[] size:new int[][]{{480,800},{800,480}}) for (int layout=0;layout<2;layout++)
                     for (int scale=0;scale<3;scale++) for (int rotation=0;rotation<4;rotation++) {
@@ -115,6 +125,7 @@ public final class SymbianTouchTest {
                         if (!BuildConfig.HANDHELD_MODE) {
                             TouchDeck phone=new TouchDeck(session.profile,activity.getResources().getDisplayMetrics().density,new TouchDeck.Sink() {
                                 public void press(int k){} public void release(int k){} public void repeat(int k){} public void invalidate(){}
+                                public void feedback(){}
                             });
                             phone.layout(size[0],size[1]);
                             RectF button=phone.getKeys().get(0).bounds;

@@ -107,9 +107,11 @@ public final class MophunGameActivity extends Activity implements InputManager.I
             if (!BuildConfig.HANDHELD_MODE) {
                 touch = new MophunTouchControls(profile, getResources().getDisplayMetrics().density,
                         ViewConfiguration.get(this).getScaledTouchSlop(), sink.newSource(),
-                        () -> frameView.invalidate(), () -> frameView.performClick());
+                        () -> frameView.invalidate(), () -> frameView.performClick(),
+                        () -> ru.playsoftware.j2meloader.input.TouchFeedback.perform(frameView, profile.vkFeedback));
                 touch.deck.setTheme(this);
                 ImageButton menuButton = new ImageButton(this);
+                menuButton.setId(R.id.game_menu_button);
                 menuButton.setImageResource(R.drawable.ic_baseline_tune_24);
                 menuButton.setImageTintList(android.content.res.ColorStateList.valueOf(getColor(ru.playsoftware.j2meloader.R.color.text_primary)));
                 menuButton.setBackgroundResource(R.drawable.bg_quick_setting_button);
@@ -285,10 +287,9 @@ public final class MophunGameActivity extends Activity implements InputManager.I
     private void showMorePage() {
         menu.page("More");
         menu.setBackAction(this::showMenuPage);
-        menu.toggle(getString(R.string.screenshot_button), Screenshots.isButtonVisible(this), value -> {
-            Screenshots.setButtonVisible(this, value);
-            updateScreenshotButton();
-        });
+        menu.action(getString(R.string.on_screen_shortcuts), R.drawable.ic_baseline_tune_24,
+                () -> ru.playsoftware.j2meloader.util.GameShortcuts.page(this, menu, false,
+                        this::updateScreenshotButton, this::showMorePage));
     }
 
     private ru.playsoftware.j2meloader.config.GameSettingsPages settingsPages() {

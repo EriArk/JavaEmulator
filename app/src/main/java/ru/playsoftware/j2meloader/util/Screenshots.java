@@ -27,7 +27,7 @@ public final class Screenshots {
         context.getContentResolver().call(settingsUri(), "set", null, values);
     }
 
-    private static Uri settingsUri() {
+    static Uri settingsUri() {
         return Uri.parse("content://" + BuildConfig.APPLICATION_ID + ".screenshotSettings");
     }
 

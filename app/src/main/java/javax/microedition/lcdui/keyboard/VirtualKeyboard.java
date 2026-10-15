@@ -119,8 +119,6 @@ public class VirtualKeyboard implements Overlay, Runnable {
 
 	private static final float SCALE_SNAP_RADIUS = 0.05f;
 
-	private static final int FEEDBACK_DURATION = 50;
-
 	private final float[] keyScales = {
 			1, 1,
 			1, 1,
@@ -201,6 +199,7 @@ public class VirtualKeyboard implements Overlay, Runnable {
 					public void press(int code) { if (target != null) target.postKeyPressed(code); }
 					public void release(int code) { if (target != null) target.postKeyReleased(code); }
 					public void repeat(int code) { if (target != null) target.postKeyRepeated(code); }
+					public void feedback() { vibrate(); }
 					public void invalidate() { if (overlayView != null) overlayView.postInvalidate(); }
 				});
 
@@ -1176,7 +1175,7 @@ public class VirtualKeyboard implements Overlay, Runnable {
 	}
 
 	private void vibrate() {
-		if (settings.vkFeedback) ContextHolder.vibrateKey(FEEDBACK_DURATION);
+		ru.playsoftware.j2meloader.input.TouchFeedback.perform(overlayView, settings.vkFeedback);
 	}
 
 	public void setView(View view) {

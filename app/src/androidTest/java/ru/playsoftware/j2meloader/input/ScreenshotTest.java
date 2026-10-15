@@ -11,6 +11,7 @@ import androidx.test.platform.app.InstrumentationRegistry;
 import java.io.InputStream;
 import org.junit.Test;
 import ru.playsoftware.j2meloader.util.Screenshots;
+import ru.playsoftware.j2meloader.util.GameShortcuts;
 import static org.junit.Assert.*;
 
 public class ScreenshotTest {
@@ -24,6 +25,20 @@ public class ScreenshotTest {
             Screenshots.setButtonVisible(context, true);
             assertTrue(Screenshots.isButtonVisible(context));
         } finally { Screenshots.setButtonVisible(context, before); }
+    }
+
+    @Test public void shortcutPreferencesRemainIndependentAcrossContexts() {
+        boolean display = GameShortcuts.isDisplayVisible(context), screenshot = Screenshots.isButtonVisible(context);
+        Context other = context.createConfigurationContext(context.getResources().getConfiguration());
+        try {
+            for (boolean d : new boolean[]{false, true}) for (boolean s : new boolean[]{false, true}) {
+                GameShortcuts.setDisplayVisible(context, d); Screenshots.setButtonVisible(other, s);
+                assertEquals(d, GameShortcuts.isDisplayVisible(other));
+                assertEquals(s, Screenshots.isButtonVisible(context));
+            }
+        } finally {
+            GameShortcuts.setDisplayVisible(context, display); Screenshots.setButtonVisible(context, screenshot);
+        }
     }
 
     @Test public void pngIsPublishedInGalleryWithExactPixelsAndUniqueName() throws Exception {

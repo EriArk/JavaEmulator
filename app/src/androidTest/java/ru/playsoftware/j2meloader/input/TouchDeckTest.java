@@ -18,6 +18,7 @@ public class TouchDeckTest {
             public void press(int code) { events.add("+"+code); }
             public void release(int code) { events.add("-"+code); }
             public void repeat(int code) { events.add("r"+code); }
+            public void feedback() { }
             public void invalidate() { }
         });
     }

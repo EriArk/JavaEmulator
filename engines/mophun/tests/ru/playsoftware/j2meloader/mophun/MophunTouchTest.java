@@ -61,8 +61,10 @@ public class MophunTouchTest {
         InstrumentationRegistry.getInstrumentation().runOnMainSync(() -> {
             Screen screen = new Screen(101, 80, 1);
             int[] menu = {0};
-            MophunTouchControls controls = new MophunTouchControls(profile(TouchDeck.GAMEPAD), 1, 8,
-                    new MophunInput(() -> screen).newSource(), () -> {}, () -> menu[0]++);
+            int[] feedback = {0};
+            ProfileModel profile = profile(TouchDeck.GAMEPAD); profile.vkFeedback = true;
+            MophunTouchControls controls = new MophunTouchControls(profile, 1, 8,
+                    new MophunInput(() -> screen).newSource(), () -> {}, () -> menu[0]++, () -> feedback[0]++);
             controls.layout(360, 640);
             RectF left = key(controls, "\u2190").bounds, fire = key(controls, "5").bounds;
             RectF diagonal = key(controls, "\u2199").bounds;
@@ -80,6 +82,7 @@ public class MophunTouchTest {
             assertEquals(0, screen.getButtons());
             assertFalse(screen.keypadPressed('5'));
             assertEquals(0, menu[0]);
+            assertEquals("Left, fire and one diagonal pulse", 3, feedback[0]);
         });
     }
 
@@ -88,7 +91,7 @@ public class MophunTouchTest {
             Screen screen = new Screen(101,80,1);
             ProfileModel profile = profile(TouchDeck.GAMEPAD);
             MophunTouchControls controls = new MophunTouchControls(profile, 1, 8,
-                    new MophunInput(() -> screen).newSource(), () -> {}, () -> fail("Unexpected menu"));
+                    new MophunInput(() -> screen).newSource(), () -> {}, () -> fail("Unexpected menu"), () -> {});
             controls.layout(360,640);
             at(controls, MotionEvent.ACTION_DOWN, "5");
             controls.layout(640,360);
@@ -120,7 +123,7 @@ public class MophunTouchTest {
             int[] taps = {0};
             Screen screen = new Screen(101,80,1);
             MophunTouchControls controls = new MophunTouchControls(profile(TouchDeck.PHONE), 1, 8,
-                    new MophunInput(() -> screen).newSource(), () -> {}, () -> taps[0]++);
+                    new MophunInput(() -> screen).newSource(), () -> {}, () -> taps[0]++, () -> {});
             controls.layout(360,640);
             RectF area = controls.gameArea();
             float x = area.centerX(), y = area.centerY();

@@ -17,13 +17,14 @@ final class MophunTouchControls {
     private float downX, downY;
 
     MophunTouchControls(ProfileModel profile, float density, float slop,
-                        ControllerInput.Sink input, Runnable invalidate, Runnable gameTap) {
+                        ControllerInput.Sink input, Runnable invalidate, Runnable gameTap, Runnable feedback) {
         this.gameTap = gameTap;
         this.slop = slop;
         deck = new TouchDeck(profile, density, new TouchDeck.Sink() {
             public void press(int key) { input.press(key); }
             public void release(int key) { input.release(key); }
             public void repeat(int key) { input.repeat(key); }
+            public void feedback() { feedback.run(); }
             public void invalidate() { invalidate.run(); }
         });
     }

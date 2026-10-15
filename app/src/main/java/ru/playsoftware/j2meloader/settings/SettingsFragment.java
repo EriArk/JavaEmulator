@@ -59,6 +59,15 @@ public class SettingsFragment extends PreferenceFragmentCompat {
 			});
 		}
 		foldersPreference = findPreference("pref_game_folders");
+		androidx.preference.SwitchPreferenceCompat display = findPreference(
+				ru.playsoftware.j2meloader.util.GameShortcuts.DISPLAY_PREFERENCE);
+		if (display != null) {
+			display.setVisible(!ru.playsoftware.j2meloader.BuildConfig.HANDHELD_MODE);
+			display.setOnPreferenceChangeListener((preference, value) -> {
+				ru.playsoftware.j2meloader.util.GameShortcuts.setDisplayVisible(requireContext(), (Boolean) value);
+				return true;
+			});
+		}
 		if (foldersPreference != null) foldersPreference.setOnPreferenceClickListener(preference -> {
 			folderLauncher.launch(null);
 			return true;
@@ -93,6 +102,12 @@ public class SettingsFragment extends PreferenceFragmentCompat {
 
 	@Override public void onResume() {
 		super.onResume();
+		androidx.preference.SwitchPreferenceCompat display = findPreference(
+				ru.playsoftware.j2meloader.util.GameShortcuts.DISPLAY_PREFERENCE);
+		if (display != null) display.setChecked(ru.playsoftware.j2meloader.util.GameShortcuts.isDisplayVisible(requireContext()));
+		androidx.preference.SwitchPreferenceCompat screenshot = findPreference(
+				ru.playsoftware.j2meloader.util.Screenshots.BUTTON_PREFERENCE);
+		if (screenshot != null) screenshot.setChecked(ru.playsoftware.j2meloader.util.Screenshots.isButtonVisible(requireContext()));
 		((SettingsActivity) requireActivity()).screenTitle(getPreferenceScreen().getTitle());
 		((SettingsActivity) requireActivity()).focusContentWhenReady();
 	}

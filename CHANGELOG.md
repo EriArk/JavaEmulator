@@ -12,6 +12,18 @@ combined builds; released experimental features are explicitly identified.
 
 ## 2026-10-15
 
+- **Public source, unreleased:** added On-screen shortcuts to More and Playing
+  settings. Java Phone can hide Display and Screenshot independently while
+  retaining Menu and both menu actions; preferences survive game/UI transitions.
+  Restored tactile feedback to Phone/Gamepad touch controls across Java, Mophun
+  and Symbian, with one pulse per new virtual key rather than per direction or
+  repeat. The shared Controls page exposes the existing per-game setting with
+  Try / Keep / Undo; Android touch-feedback policy remains respected. Physical
+  controllers do not gain automatic vibration. Retroid Phone passed 47 checks,
+  Handheld 45 with two Phone-only skips, and the Phone emulator 43. A Retroid
+  touch pulse was confirmed by Android's vibration service, not by a human
+  sensation check. No public APK update.
+  [Details and screenshots](docs/checks/2026-10-15-phone-shortcuts-feedback.md).
 - **Public source, unreleased:** separated Java game screen startup from Android
   surface creation so early buffered frames are not discarded while the host
   prepares its view. Fixed obsolete screen callbacks, hidden repaint state,
