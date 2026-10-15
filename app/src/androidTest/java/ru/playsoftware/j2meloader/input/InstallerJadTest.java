@@ -78,7 +78,7 @@ public class InstallerJadTest {
         }
     }
 
-    private static final class Fixture implements AutoCloseable {
+    static final class Fixture implements AutoCloseable {
         final Instrumentation i = InstrumentationRegistry.getInstrumentation();
         final String original = Config.getEmulatorDir();
         final File root, jar, jad;
@@ -127,7 +127,10 @@ public class InstallerJadTest {
                     i.getTargetContext().getPackageName() + ".provider", file) : Uri.fromFile(file);
         }
         void open() {
-            dialog = InstallerDialog.newInstance(source);
+            open(source);
+        }
+        void open(Uri uri) {
+            dialog = InstallerDialog.newInstance(uri);
             i.runOnMainSync(() -> dialog.showNow(activity.getSupportFragmentManager(), "jad-test"));
         }
         void pick(Uri value) throws Exception {

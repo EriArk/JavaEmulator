@@ -162,6 +162,33 @@ public class AppRepository implements SharedPreferences.OnSharedPreferenceChange
 		return appItemDao.getByPath(path);
 	}
 
+	public List<AppItem> getBySourceHash(String hash) { return appItemDao.getBySourceHash(hash); }
+
+	public AppItem getSourceAlias(String key, String fingerprint) { return appItemDao.getSourceAlias(key, fingerprint); }
+
+	/** Worker-thread only; cancel/preview never writes a remembered choice. */
+	public void rememberSourceAlias(String key, String fingerprint, AppItem chosen) {
+		db.runInTransaction(() -> {
+			AppItem fresh = appItemDao.get(chosen.getId());
+			if (fresh == null || !fresh.getPath().equals(chosen.getPath())
+					|| !java.util.Objects.equals(fresh.getSourceHash(), chosen.getSourceHash())
+					|| appItemDao.getBySourceKey(key) != null)
+				throw new IllegalStateException("The library changed. Open the game file again.");
+			appItemDao.rememberSourceAlias(new SourceAlias(key, fingerprint, chosen.getId()));
+		});
+	}
+
+	/** Keep row identity and its aliases when reinstalling; report DB failure to the installer. */
+	public void saveInstalled(AppItem item) {
+		db.runInTransaction(() -> {
+			if (item.getId() == 0) item.setId((int) appItemDao.insertImported(item));
+			else {
+				if (appItemDao.get(item.getId()) == null) throw new IllegalStateException("The game was removed during installation");
+				appItemDao.update(item);
+			}
+		});
+	}
+
 	/** Worker-thread only: the importer must observe insertion failure before publishing success. */
 	public void insertImported(AppItem item) {
 		appItemDao.insertImported(item);

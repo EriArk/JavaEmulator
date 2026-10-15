@@ -311,15 +311,17 @@ public class InstallerDialog extends DialogFragment {
 		if (!isAdded() || binding == null) {
 			return;
 		}
-		if (status != AppInstaller.STATUS_ARCHIVE_CHOICE) {
+		if (status != AppInstaller.STATUS_ARCHIVE_CHOICE && status != AppInstaller.STATUS_EXISTING_CHOICES) {
 			binding.installerArchiveChoices.setVisibility(View.GONE);
 		}
 		btnRun.setVisibility(View.GONE);
 		btnOk.setText(R.string.install);
 		binding.installerScroll.scrollTo(0, 0);
-		if (status == AppInstaller.STATUS_SUCCESS) {
+		if (status == AppInstaller.STATUS_SUCCESS || status == AppInstaller.STATUS_REUSED) {
 			binding.installationProgress.setVisibility(View.GONE);
-			binding.installationStatus.setText(getString(R.string.install_done));
+			binding.installationStatus.setVisibility(View.VISIBLE);
+			binding.installationStatus.setText(status == AppInstaller.STATUS_REUSED ? "Using existing game" : getString(R.string.install_done));
+			if(status == AppInstaller.STATUS_REUSED) binding.installerMessage.setText("Saved progress and settings are unchanged.");
 			AppItem app = installer.getExistsApp();
 			setInstallerIcon(app.getImagePathExt());
 			binding.installerTitle.setText(app.getTitle());
@@ -399,6 +401,9 @@ public class InstallerDialog extends DialogFragment {
 			case AppInstaller.STATUS_ARCHIVE_CHOICE:
 				showArchiveChoices();
 				return;
+			case AppInstaller.STATUS_EXISTING_CHOICES:
+				showExistingChoices();
+				return;
 			default:
 				throw new IllegalStateException("Unexpected value: " + status);
 		}
@@ -450,6 +455,35 @@ public class InstallerDialog extends DialogFragment {
 			});
 			choices.addView(button);
 		}
+	}
+
+	private void showExistingChoices() {
+		hideProgress(); hideButtons();
+		binding.installerTitle.setText("Already in your library");
+		binding.installerMessage.setText("Use an existing copy with its current saves and settings, or install separately. Nothing is merged or replaced.");
+		LinearLayout choices=binding.installerArchiveChoices;
+		choices.removeAllViews(); choices.setVisibility(View.VISIBLE);
+		for(AppItem app:installer.getExistingChoices()) {
+			Button button=new Button(requireContext());
+			button.setText("Use " + app.getTitle() + "\nVersion " + app.getVersion() + " / " + app.getPath());
+			button.setTextColor(getResources().getColor(R.color.text_primary));
+			button.setTextSize(15); button.setAllCaps(false);
+			button.setBackgroundResource(R.drawable.bg_quick_setting_button); button.setBackgroundTintList(null);
+			button.setMinHeight(dp(48)); button.setMinimumHeight(dp(48));
+			button.setPadding(dp(12),dp(8),dp(12),dp(8)); button.setGravity(android.view.Gravity.CENTER_VERTICAL);
+			LinearLayout.LayoutParams params=new LinearLayout.LayoutParams(-1,-2); params.bottomMargin=dp(6);
+			choices.addView(button,params);
+			button.setOnClickListener(v -> resolveExisting(installer.useExisting(app.getId())));
+		}
+		btnOk.setText("Install separately");
+		btnOk.setOnClickListener(v -> resolveExisting(installer.installSeparately()));
+		showButtons();
+	}
+
+	private void resolveExisting(Single<Integer> result) {
+		binding.installerArchiveChoices.setVisibility(View.GONE); hideButtons(); showProgress();
+		compositeDisposable.add(result.subscribeOn(Schedulers.computation())
+				.observeOn(AndroidSchedulers.mainThread()).subscribe(this::onProgress,this::onError));
 	}
 
 	private boolean isAutoStart() {

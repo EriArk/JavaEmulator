@@ -28,7 +28,7 @@ import java.io.File;
 
 import ru.playsoftware.j2meloader.applist.AppItem;
 
-@Database(entities = {AppItem.class}, version = 3, exportSchema = true)
+@Database(entities = {AppItem.class, SourceAlias.class}, version = 4, exportSchema = true)
 public abstract class AppDatabase extends RoomDatabase implements AutoCloseable {
 
 	public static final Migration MIGRATION_1_2 = new Migration(1, 2) {
@@ -58,6 +58,15 @@ public abstract class AppDatabase extends RoomDatabase implements AutoCloseable 
 
 	public abstract AppItemDao appItemDao();
 
+	public static final Migration MIGRATION_3_4 = new Migration(3, 4) {
+		@Override public void migrate(SupportSQLiteDatabase db) {
+			db.execSQL("CREATE TABLE source_aliases (sourceKey TEXT NOT NULL PRIMARY KEY, "
+					+ "fingerprint TEXT NOT NULL, appId INTEGER NOT NULL, "
+					+ "FOREIGN KEY(appId) REFERENCES apps(id) ON UPDATE NO ACTION ON DELETE CASCADE)");
+			db.execSQL("CREATE INDEX index_source_aliases_appId ON source_aliases(appId)");
+		}
+	};
+
 	public static synchronized AppDatabase open(Context context, String dir) {
 		File current = new File(dir, "abyssme.db");
 		File legacy = new File(dir, "J2ME-apps.db");
@@ -67,7 +76,7 @@ public abstract class AppDatabase extends RoomDatabase implements AutoCloseable 
 				context.getApplicationContext(),
 				AppDatabase.class,
 				database.getAbsolutePath())
-				.addMigrations(MIGRATION_1_2, MIGRATION_2_3)
+				.addMigrations(MIGRATION_1_2, MIGRATION_2_3, MIGRATION_3_4)
 				.enableMultiInstanceInvalidation()
 				.build();
 	}

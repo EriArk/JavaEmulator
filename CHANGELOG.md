@@ -12,6 +12,17 @@ combined builds; released experimental features are explicitly identified.
 
 ## 2026-10-15
 
+- **Public source, unreleased:** importing the same Java game through another
+  URI now offers **Use existing** or **Install separately** instead of quietly
+  creating a duplicate. Reuse keeps the original game, saves, settings and
+  launcher references; the choice is remembered for that source and content.
+  Changed JAD properties prompt again. Multiple matching copies remain separate
+  and can be selected explicitly. Room v4 adds remembered choices without
+  deleting catalog rows; reinstall preserves them. Existing duplicates are not
+  automatically merged. Both Retroid variants and a portrait Android 15 Phone
+  emulator passed 42 focused Android checks each; both combined variants passed
+  25 JVM checks. Public release APKs are unchanged.
+  [Scope, evidence and screenshots](docs/checks/2026-10-15-source-aliases.md).
 - **Public source, unreleased:** Symbian game actions now includes **Uninstall
   from phone**, showing the target phone, package, affected apps and save-data
   consequences. Cancel is the default; a shortcut opens the exact phone's backup

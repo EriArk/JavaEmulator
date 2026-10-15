@@ -34,6 +34,16 @@ bundled. The app UI is English.
 
 ## Availability: Do Not Mix These Channels
 
+**Unreleased duplicate-import protection (2026-10-15):** Opening an identical
+Java game through an unfamiliar URI now offers an existing installed copy or
+an intentional separate installation. Confirmed reuse is remembered without
+replacing saves, settings or original launcher/source references. Changed JAD
+properties require a new choice; existing duplicates are not merged. Room v4
+preserves the catalog. Both Retroid variants and a portrait Android 15 Phone
+emulator passed 42 focused checks each; both combined variants passed 25 JVM
+checks. Public APKs are unchanged.
+[Scope, limitations and screenshots](checks/2026-10-15-source-aliases.md).
+
 **Unreleased Symbian uninstall (2026-10-15):** Game actions now offers
 Uninstall from phone for supported SIS/SISX installations, with exact-phone
 confirmation, optional backup and verified native removal before library cleanup.
@@ -64,7 +74,7 @@ list was checked again on 2026-10-15; asset hashes were not rechecked that day.
 | Channel | Current identifier | What a reader can obtain |
 | --- | --- | --- |
 | Public download | [v0.3.0-beta.1](https://github.com/EriArk/JavaEmulator/releases/tag/v0.3.0-beta.1), published 2026-10-14 | Handheld and Phone signed arm64 APKs, Java + Mophun + experimental Symbian/N-Gage, shared menu, source/dependency bundles and checksums; Android 10+, no games or firmware |
-| Public development source | `main`, unreleased additions dated 2026-10-15; release tag `v0.3.0-beta.1` at `95eb9da1` | Raw ROM/RPKG ZIP/7z import, persistent errors, installed game information, native launch-file export and persistent Java FPS presets follow the release. [Stage-one checks](checks/2026-10-15-import-launchers.md), [frame-rate checks](checks/2026-10-15-frame-rate.md); not in the published APKs |
+| Public development source | `main`, unreleased additions dated 2026-10-15; release tag `v0.3.0-beta.1` at `95eb9da1` | Raw ROM/RPKG ZIP/7z import, persistent errors, installed game information, native launch-file export, persistent Java FPS presets, guarded Symbian uninstall and explicit duplicate-import choices follow the release. [Stage-one checks](checks/2026-10-15-import-launchers.md), [frame-rate checks](checks/2026-10-15-frame-rate.md), [uninstall checks](checks/2026-10-15-symbian-uninstall.md), [duplicate-import checks](checks/2026-10-15-source-aliases.md); not in the published APKs |
 | Private combined test snapshot | `0.1.0-beta.2-experimental.15`, 2026-10-11 | Handheld and Phone debug APKs containing Java plus experimental Mophun; supplied separately to testers, not a GitHub release |
 | Local-only material | Ignored diagnostics, game fixtures and signing keys | Private test inputs remain local; the promoted Mophun runtime is no longer private-only |
 | Symbian integration | Included in `main` and public 0.3 beta, 2026-10-14 | Shared library/import and game menu, Display, mapping, screenshots, Phone decks and direct rotated guest touch. Menu-based whole-phone backup/restore creates a separate copy. SIS/SISX setup requests named missing components and reuses saved installers. ZIP/RAR/7z game previews select games/components and retain recoverable queues; phone choices can be reused within an archive without overriding game bindings. Retroid optimized core: 87 Handheld / 88 Phone passes, 5/4 explicit skips; actual-game/menu scenarios: 5 passes / 1 provisioning skip per variant, provisioning passed separately. Signed Handheld upgrade retained all 18 inspected files; both signed variants imported system files/Snakes through the public UI. JVM: 14 passes per variant. Installation is not gameplay acceptance. Legacy/conditional dependencies, mixed-platform collections, native external launchers and intermittent Asphalt startup remain open. Games/firmware are not bundled. [Release evidence](releases/v0.3.0-beta.1-checks.md), [historical integration checks](SYMBIAN_INTEGRATION.md), [backup contract](SYMBIAN_PHONE_BACKUPS.md) |
@@ -137,7 +147,7 @@ The following Java/Mophun features remain from 0.2:
 | Screenshots | Optional on-screen camera button and menu action; PNGs in Pictures/AbyssME | `4f4d1468`; visibility can be disabled |
 | Transfer and backup | J2ME Loader import, selection/preview, AbyssME backup/restore through menus, copied saves and supported profiles, non-destructive migrations | [Transfer](LIBRARY_TRANSFER.md); source files remain intact, access restrictions still apply |
 | Nested-folder permissions | Import pauses for the requested folder grant and resumes; wrong-folder/cancel recovery, readable messages, save-folder validation | `d39ed742`; pending access survives screen recreation, not process death |
-| Installer | Compact scrolling details with reachable actions, persistent errors, archive recognition through pickers, mismatched JAD/JAR continuation retaining source identity | `696da084`, `7ba384b2`; URI-alias duplicates remain #20 |
+| Installer | Compact scrolling details, persistent errors, archive recognition and mismatched JAD/JAR continuation. Unreleased: identical JARs from unfamiliar URIs offer reuse or a separate copy; confirmed choices are remembered | `696da084`, `7ba384b2`; [#20 checks and limits](checks/2026-10-15-source-aliases.md); no automatic merge of existing duplicates |
 | Symbian uninstall (unreleased) | Remove a supported SIS/SISX package from its exact phone, with backup access, dependency/ownership checks and interrupted-operation reconciliation | [Checks and conservative limits](checks/2026-10-15-symbian-uninstall.md); not a hide-entry operation; no automatic rollback |
 | Automatic preparation | Weak or conflicting vendor hints retain Generic; anonymous images alone no longer set display size. Existing settings and explicit display declarations remain preserved | [Preset checks](GAME_PRESETS.md), [checks](LOCAL_TESTING.md); static heuristics, not running multiple models or guaranteeing the best profile |
 | Automatic game fonts | New profiles follow the prepared virtual resolution; Advanced font presets include Automatic. Existing explicit values are preserved | `9430cb0a`; four Android font tests, readable Constructo tutorial on Retroid |
@@ -205,7 +215,6 @@ phones and every storage provider have not been verified.
 
 Current open work, checked on GitHub on 2026-10-15:
 
-- [#20](https://github.com/EriArk/JavaEmulator/issues/20): different Downloads URIs can duplicate one source; existing duplicates are not merged.
 - [#22](https://github.com/EriArk/JavaEmulator/issues/22): frame-rate controls/pacing are improved in unreleased source, but the exact fast-game report is not reproduced.
 - [#24](https://github.com/EriArk/JavaEmulator/issues/24): Java ME VM research, not an integrated replacement runtime.
 - [#15](https://github.com/EriArk/JavaEmulator/issues/15): Ghost Recon 2 SE 128x160 still has a recurring black screen.
@@ -248,9 +257,10 @@ found in the user's Nextcloud `NGAGE` folder. The next step at that point was to
 Snakes and then Asphalt gameplay/input/save checks, followed by shared-library
 integration and dependency/asset review. Current work has moved to common setup,
 controls and storage mechanics; see the latest integration evidence above.
-#20 source-identity aliases remains
-open; it has not been fixed or silently dropped. The maintainer confirms each
-next implementation batch.
+#20 subsequently gained explicit existing-copy choices and remembered URI
+associations in unreleased source on 2026-10-15; see the current availability
+section and checks above. Existing duplicates are not merged. The maintainer
+confirms each next implementation batch.
 
 ## M3G Development History
 

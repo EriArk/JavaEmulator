@@ -69,6 +69,8 @@ public class AppInstaller {
 	static final int STATUS_NEED_JAD = 4;
 	static final int STATUS_SUCCESS = 5;
 	static final int STATUS_ARCHIVE_CHOICE = 6;
+	static final int STATUS_EXISTING_CHOICES = 7;
+	static final int STATUS_REUSED = 8;
 
 	private final int id;
 	private final Application context;
@@ -87,6 +89,9 @@ public class AppInstaller {
 	private File archiveSource;
 	private List<String> archiveEntries;
 	private String selectedArchiveEntry;
+	private List<AppItem> existingChoices = java.util.Collections.emptyList();
+	private String incomingHash, incomingFingerprint;
+	private boolean separateCopy;
 
 	AppInstaller(Uri uri, Application context, AppRepository appRepository) {
 		id = -1;
@@ -408,6 +413,8 @@ public class AppInstaller {
 
 	/** Install app */
 	void install(SingleEmitter<Integer> emitter) throws ConverterException, IOException {
+		if(!existingChoices.isEmpty() && !separateCopy)
+			throw new IOException("Choose an existing game or install separately first.");
 		if (!cacheDir.exists() && !cacheDir.mkdirs()) {
 			throw new ConverterException("Can't create cache dir");
 		}
@@ -420,6 +427,11 @@ public class AppInstaller {
 			manifest = loadManifest(srcJar);
 			if (!manifest.equals(newDesc)) {
 				emitter.onSuccess(STATUS_UNMATCHED);
+				return;
+			}
+			int resolved=checkDescriptor();
+			if(resolved==STATUS_EXISTING_CHOICES || resolved==STATUS_REUSED) {
+				emitter.onSuccess(resolved);
 				return;
 			}
 		}
@@ -448,8 +460,7 @@ public class AppInstaller {
 			throw new ConverterException("Can't move '" + tmpDir + "' to '" + targetDir + "'");
 		}
 		String name = newDesc.getName();
-		String vendor = newDesc.getVendor();
-		AppItem app = new AppItem(appDirName, name, vendor, newDesc.getVersion());
+		AppItem app = new AppItem(appDirName, name, newDesc.getVendor(), newDesc.getVersion());
 		if (uri != null) {
 			app.setSourceUri(uri.toString());
 			app.setSourceKey(sourceKey());
@@ -487,7 +498,7 @@ public class AppInstaller {
 			}
 		}
 		currentApp = app;
-		appRepository.insert(app);
+		appRepository.saveInstalled(app);
 		clearCache();
 		deleteTemp();
 		emitter.onSuccess(STATUS_SUCCESS);
@@ -526,12 +537,29 @@ public class AppInstaller {
 		return manifest.equals(newDesc);
 	}
 
-	private int checkDescriptor() {
+	private int checkDescriptor() throws IOException {
 		// Remove invalid characters from app path
 		String name = newDesc.getName();
-		String vendor = newDesc.getVendor();
 		String sourceKey = sourceKey();
 		currentApp = sourceKey == null ? null : appRepository.getBySourceKey(sourceKey);
+		existingChoices = java.util.Collections.emptyList();
+		separateCopy = false;
+		if (currentApp == null && srcJar != null && sourceKey != null) {
+			incomingHash = SourceIdentity.sha256(srcJar);
+			incomingFingerprint = ImportFingerprint.of(incomingHash, manifest, newDesc);
+			AppItem remembered = appRepository.getSourceAlias(sourceKey, incomingFingerprint);
+			if (matchesInstalled(remembered)) {
+				currentApp = remembered;
+				clearCache();
+				deleteTemp();
+				return STATUS_REUSED;
+			}
+			existingChoices = new ArrayList<>();
+			for (AppItem item : appRepository.getBySourceHash(incomingHash)) {
+				if (matchesInstalled(item)) existingChoices.add(item);
+			}
+			if (!existingChoices.isEmpty()) return STATUS_EXISTING_CHOICES;
+		}
 		if (currentApp == null) {
 			generatePathName(name.replaceAll(FileUtils.ILLEGAL_FILENAME_CHARS, "").trim());
 			return STATUS_NEW;
@@ -549,6 +577,41 @@ public class AppInstaller {
 			}
 		}
 		return versionStatus;
+	}
+
+	List<AppItem> getExistingChoices() { return existingChoices; }
+
+	private boolean matchesInstalled(AppItem item) throws IOException {
+		if (item == null || !incomingHash.equals(item.getSourceHash())
+				|| "indexed".equals(item.getPreparationState())) return false;
+		File jar = new File(item.getPathExt(), Config.MIDLET_RES_FILE);
+		return jar.isFile() && incomingHash.equals(SourceIdentity.sha256(jar));
+	}
+
+	Single<Integer> useExisting(int appId) {
+		return Single.create(emitter -> {
+			boolean offered = false;
+			for (AppItem item : existingChoices) if (item.getId() == appId) offered = true;
+			AppItem chosen = appRepository.get(appId);
+			if (!offered || !matchesInstalled(chosen) || !incomingHash.equals(SourceIdentity.sha256(srcJar)))
+				throw new IOException("The game file or library changed. Open the file again.");
+			appRepository.rememberSourceAlias(sourceKey(), incomingFingerprint, chosen);
+			currentApp = chosen;
+			clearCache();
+			deleteTemp();
+			emitter.onSuccess(STATUS_REUSED);
+		});
+	}
+
+	Single<Integer> installSeparately() {
+		return Single.create(emitter -> {
+			if (existingChoices.isEmpty() || appRepository.getBySourceKey(sourceKey()) != null)
+				throw new IOException("The library changed. Open the file again.");
+			currentApp = null;
+			separateCopy = true;
+			generatePathName(newDesc.getName().replaceAll(FileUtils.ILLEGAL_FILENAME_CHARS, "").trim());
+			emitter.onSuccess(STATUS_NEW);
+		});
 	}
 
 	private String sourceKey() {

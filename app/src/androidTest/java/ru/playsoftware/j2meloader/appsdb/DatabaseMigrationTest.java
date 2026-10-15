@@ -68,7 +68,7 @@ public class DatabaseMigrationTest {
 		oldDatabase(root, "J2ME-apps.db", 1, false);
 		try (AppDatabase db = AppDatabase.open(context, root.getPath())) {
 			assertNull(db.appItemDao().get(42));
-			assertEquals(3, db.getOpenHelper().getWritableDatabase().getVersion());
+			assertEquals(4, db.getOpenHelper().getWritableDatabase().getVersion());
 		}
 		assertFalse(new File(root, "abyssme.db").exists());
 		assertTrue(new File(root, "J2ME-apps.db").exists());
@@ -91,6 +91,12 @@ public class DatabaseMigrationTest {
 				db.appItemDao().insert(item);
 			}
 		}
+		// Recreate the actual v3 table set and version, without a v4 Room identity.
+		try (SQLiteDatabase old = SQLiteDatabase.openDatabase(new File(root, "abyssme.db").getPath(), null, 0)) {
+			old.execSQL("DROP TABLE source_aliases");
+			old.execSQL("DROP TABLE room_master_table");
+			old.setVersion(3);
+		}
 		oldDatabase(root, "J2ME-apps.db", 1, true);
 		try (AppDatabase db = AppDatabase.open(context, root.getPath())) {
 			for (int id = 1; id <= 2; id++) {
@@ -108,6 +114,25 @@ public class DatabaseMigrationTest {
 		}
 		try (SQLiteDatabase old = SQLiteDatabase.openDatabase(new File(root, "J2ME-apps.db").getPath(), null, SQLiteDatabase.OPEN_READONLY)) {
 			assertEquals(1, old.getVersion());
+		}
+	}
+
+	@Test public void explicitAliasSurvivesReopenAndUpdateButNotDeletion() throws Exception {
+		File root = directory();
+		try (AppDatabase db = AppDatabase.open(context, root.getPath())) {
+			AppItem item = new AppItem("game", "Sudoku", "Vendor", "1");
+			item.setId(1); db.appItemDao().insert(item);
+			db.appItemDao().rememberSourceAlias(new SourceAlias("alias", "fingerprint", 1));
+			item.setTitle("Renamed"); db.appItemDao().update(item);
+		}
+		try (AppDatabase db = AppDatabase.open(context, root.getPath())) {
+			assertNull(db.appItemDao().getSourceAlias("alias", "changed"));
+			AppItem item = db.appItemDao().getSourceAlias("alias", "fingerprint");
+			assertEquals("Renamed", item.getTitle());
+			db.appItemDao().delete(item);
+			assertNull(db.appItemDao().getSourceAlias("alias", "fingerprint"));
+			item.setId(1); db.appItemDao().insert(item);
+			assertNull(db.appItemDao().getSourceAlias("alias", "fingerprint"));
 		}
 	}
 

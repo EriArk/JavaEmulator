@@ -73,4 +73,14 @@ public interface AppItemDao {
 
 	@Query("SELECT * FROM apps WHERE sourceKey = :sourceKey LIMIT 1")
 	AppItem getBySourceKey(String sourceKey);
+
+	@Query("SELECT * FROM apps WHERE sourceHash = :hash ORDER BY id")
+	List<AppItem> getBySourceHash(String hash);
+
+	@Query("SELECT apps.* FROM apps JOIN source_aliases ON apps.id = source_aliases.appId "
+			+ "WHERE source_aliases.sourceKey = :key AND source_aliases.fingerprint = :fingerprint")
+	AppItem getSourceAlias(String key, String fingerprint);
+
+	@Insert(onConflict = OnConflictStrategy.REPLACE)
+	void rememberSourceAlias(SourceAlias alias);
 }
