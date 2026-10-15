@@ -1,6 +1,6 @@
 # AbyssME - Current Product and Development Status
 
-**Last updated: 2026-10-15.** Verification dates are recorded per section.
+**Last updated: 2026-10-16.** Verification dates are recorded per section.
 This is the starting point for website copy,
 announcements, progress posts and project handoffs. It includes work that exists
 only in local experiments or private test builds. Describing that work here
@@ -86,9 +86,13 @@ their counts are not new final-release test results.
   and reached its game field; Phone retained its Gamepad/shortcut choices.
   This is not full-game, save-roundtrip, audio or human-controller acceptance.
 - Retroid now has only Handheld beta.3 installed. Seventeen old/alternate packages
-  were removed with data retention. Its nine entries comprise three Java games,
+  were removed with data retention. Its initial nine entries comprised three Java games,
   two variants of Deep Abyss, three SIS/SISX games and original N-Gage Snakes.
   The local collection is not bundled in the downloadable APKs.
+- On October 16, 30 more user-supplied Java games were installed on Retroid;
+  the reopened library shows 39 entries. Gravity Defied reached its track and
+  is favorited. This is device-only provisioning, not a release or a full-game
+  compatibility claim. [Collection checks](checks/2026-10-16-retroid-collection.md).
 - [Fresh beta.3 screenshots](../screenshots/releases/v0.3.0-beta.3/) show the
   library, restored card, Snakes game field and Phone Gamepad. The preceding
   [candidate captures](../screenshots/releases/v0.3.0-beta.2/) show additional
