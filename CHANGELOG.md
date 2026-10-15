@@ -1,7 +1,7 @@
 # AbyssME Changelog
 
 User-facing development history, reconstructed from commits, release notes and
-local/private build records through **2026-10-14**. This is not a claim that all
+local/private build records through **2026-10-15**. This is not a claim that all
 listed work is in a public APK. See [current status](docs/PROJECT_STATUS.md) for
 availability, verification, known limits and screenshot guidance.
 
@@ -9,6 +9,28 @@ Labels: **Public source** means implemented on `main` but unreleased unless
 stated otherwise. **Experimental** in older checkpoints means local/private
 combined builds; released experimental features are explicitly identified.
 **Released** means an actual GitHub release asset.
+
+## 2026-10-15
+
+- **Public source, unreleased:** added raw ROM + RPKG import from ZIP/7z with
+  nested/uppercase files, shared validation, cleanup and persistent errors.
+  Existing virtual phone data is not replaced. Real N95 archive imports and
+  reimports passed through both Retroid app variants; the reported N70 dump
+  itself was not tested (#23).
+- **Public source, unreleased:** Game actions > Game information displays the
+  installed MIDlet-Version/vendor, retaining the original version string and
+  existing JAD/JAR resolution. Missing/corrupt metadata is explicit; renamed
+  games and saves are not changed (#21).
+- **Public source, unreleased:** native games can export `.abyssme` launch
+  files to start an installed game without repeating installation. Fixed
+  Mophun exit returning to the AbyssME library after external launch. Added
+  Handheld/Phone frontend examples. Tested real Pegasus and Daijisho routes on
+  Retroid, including content URI grants, exit/return, multi-JAR selection and
+  a warm Java launch. ES-DE/Beacon acceptance remains open in #7.
+- Combined debug builds passed; each variant passed 19 JVM checks, 19 focused
+  Android checks (2 optional skips) and 3 opt-in UI checks. No release APKs were
+  replaced or new test builds distributed. Public 0.3.0-beta.1 remains unchanged.
+  [Evidence and remaining boundaries](docs/checks/2026-10-15-import-launchers.md).
 
 ## 2026-10-14
 

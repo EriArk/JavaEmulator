@@ -92,6 +92,7 @@ public class MainActivity extends BaseActivity {
 	@Override
 	protected void onNewIntent(Intent intent) {
 		super.onNewIntent(intent);
+		setIntent(intent);
 		Uri uri = intent.getData();
 		if (uri != null) {
 			ru.playsoftware.j2meloader.catalog.AdditionalGames.install(this, getSupportFragmentManager(), uri, true, true);

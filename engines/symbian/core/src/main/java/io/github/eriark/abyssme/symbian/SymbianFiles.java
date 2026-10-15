@@ -111,25 +111,44 @@ public final class SymbianFiles {
 
     /** Extract only system inputs; never merge an archive's config or writable drives. */
     public static List<File> extractPhoneInputs(File archive, File folder) throws IOException {
+        // Use the bounded native decoder for solid/BCJ2 7z, then the same
+        // ROM/RPKG validation as ZIP. Never merge the archive's writable drives.
+        if (CompressedGameArchive.isSeven(archive)) {
+            File decoded = CompressedGameArchive.toZip(archive, text -> {
+                if (Thread.currentThread().isInterrupted()) throw new InterruptedIOException("Import cancelled");
+            });
+            try { return extractPhoneInputs(decoded, folder); }
+            finally { Files.deleteIfExists(decoded.toPath()); }
+        }
         List<File> files = new ArrayList<>();
         boolean complete = false;
         try (ZipFile zip = new ZipFile(archive)) {
             int entries = 0;
             long total = 0;
             boolean rom = false, rpkg = false;
+            java.util.Map<String, Boolean> paths = new java.util.HashMap<>();
             java.util.Enumeration<? extends ZipEntry> iterator = zip.entries();
             while (iterator.hasMoreElements()) {
+                if (Thread.currentThread().isInterrupted()) throw new InterruptedIOException("Import cancelled");
                 ZipEntry entry = iterator.nextElement();
                 if (++entries > 20000) throw new IOException("Too many entries in phone archive");
-                String name = entry.getName().replace('\\', '/');
-                if (name.startsWith("/") || name.contains(":") || java.util.Arrays.asList(name.split("/")).contains(".."))
-                    throw new IOException("Unsafe path in phone archive");
+                String name = ArchiveBatch.safe(entry.getName());
+                String key = name.toLowerCase(Locale.ROOT).replaceAll("/+$", "");
+                if (paths.put(key, entry.isDirectory()) != null) throw new IOException("Duplicate archive path");
                 if (entry.isDirectory()) continue;
                 String lower = name.toLowerCase(Locale.ROOT);
                 boolean isRom = lower.endsWith(".rom"), isRpkg = lower.endsWith(".rpkg");
+                if (lower.endsWith(".sis") || lower.endsWith(".sisx") || lower.endsWith(".jar") || lower.endsWith(".mpn")
+                        || lower.endsWith(".jad") || lower.endsWith(".kjx")
+                        || lower.endsWith(".n-gage"))
+                    throw new IOException("This archive mixes games and phone files. Select a phone-only archive.");
                 if (!isRom && !isRpkg) continue;
                 if ((isRom && rom) || (isRpkg && rpkg)) throw new IOException("Select an archive containing one phone");
                 rom |= isRom; rpkg |= isRpkg;
+                if (entry.getSize() < 1 || entry.getSize() > 1024L * 1024 * 1024 - total)
+                    throw new IOException("Invalid phone file size (maximum 1 GB expanded)");
+                if (folder.getUsableSpace() < entry.getSize() + 64L * 1024 * 1024)
+                    throw new IOException("Not enough space to unpack phone files. Free storage and try again.");
                 File target = File.createTempFile("phone-", isRom ? ".rom" : ".rpkg", folder);
                 files.add(target);
                 try (InputStream input = zip.getInputStream(entry); FileOutputStream output = new FileOutputStream(target)) {
@@ -137,6 +156,7 @@ public final class SymbianFiles {
                     java.util.zip.CRC32 crc = new java.util.zip.CRC32();
                     long size = 0;
                     for (int n; (n = input.read(buffer)) != -1;) {
+                        if (Thread.currentThread().isInterrupted()) throw new InterruptedIOException("Import cancelled");
                         total += n;
                         if (total > 1024L * 1024 * 1024) throw new IOException("Expanded phone files exceed 1 GB");
                         size += n;
@@ -148,6 +168,9 @@ public final class SymbianFiles {
                     output.getFD().sync();
                 }
             }
+            for (String path : paths.keySet())
+                for (int slash = path.lastIndexOf('/'); slash > 0; slash = path.lastIndexOf('/', slash - 1))
+                    if (Boolean.FALSE.equals(paths.get(path.substring(0, slash)))) throw new IOException("Conflicting archive paths");
             if (!rom) throw new IOException("No phone ROM found in this archive");
             complete = true;
             return files;

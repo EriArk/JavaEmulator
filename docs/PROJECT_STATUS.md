@@ -1,6 +1,6 @@
 # AbyssME - Current Product and Development Status
 
-**Last updated: 2026-10-14.** Verification dates are recorded per section.
+**Last updated: 2026-10-15.** Verification dates are recorded per section.
 This is the starting point for website copy,
 announcements, progress posts and project handoffs. It includes work that exists
 only in local experiments or private test builds. Describing that work here
@@ -39,14 +39,15 @@ shared in-game menu and promotes the Symbian/N-Gage integration into a combined
 arm64 build. The preceding local work is recorded in the changelog and integration
 report, not omitted from the announcement handoff. Follow
 [release checks](releases/v0.3.0-beta.1-checks.md) for final signed/build/publication
-evidence. The live GitHub release and all six asset digests were checked today;
+evidence. The live GitHub release and all six asset digests were checked on 2026-10-14;
 both APKs and the checksum file were downloaded again and matched. This is the
-newest published prerelease at this checkpoint, not a stable release.
+newest published prerelease at this checkpoint, not a stable release. The release
+list was checked again on 2026-10-15; asset hashes were not rechecked that day.
 
 | Channel | Current identifier | What a reader can obtain |
 | --- | --- | --- |
 | Public download | [v0.3.0-beta.1](https://github.com/EriArk/JavaEmulator/releases/tag/v0.3.0-beta.1), published 2026-10-14 | Handheld and Phone signed arm64 APKs, Java + Mophun + experimental Symbian/N-Gage, shared menu, source/dependency bundles and checksums; Android 10+, no games or firmware |
-| Public development source | `main`; release tag `v0.3.0-beta.1` at `95eb9da1`, 2026-10-14 | Unified menu and embedded Symbian integration merged and released; publication documentation follows the immutable source tag. [Release checks](releases/v0.3.0-beta.1-checks.md) |
+| Public development source | `main`, unreleased additions dated 2026-10-15; release tag `v0.3.0-beta.1` at `95eb9da1` | Raw ROM/RPKG ZIP/7z import, persistent errors, installed game information and native launch-file export follow the release. [Stage-one checks](checks/2026-10-15-import-launchers.md); not in the published APKs |
 | Private combined test snapshot | `0.1.0-beta.2-experimental.15`, 2026-10-11 | Handheld and Phone debug APKs containing Java plus experimental Mophun; supplied separately to testers, not a GitHub release |
 | Local-only material | Ignored diagnostics, game fixtures and signing keys | Private test inputs remain local; the promoted Mophun runtime is no longer private-only |
 | Symbian integration | Included in `main` and public 0.3 beta, 2026-10-14 | Shared library/import and game menu, Display, mapping, screenshots, Phone decks and direct rotated guest touch. Menu-based whole-phone backup/restore creates a separate copy. SIS/SISX setup requests named missing components and reuses saved installers. ZIP/RAR/7z game previews select games/components and retain recoverable queues; phone choices can be reused within an archive without overriding game bindings. Retroid optimized core: 87 Handheld / 88 Phone passes, 5/4 explicit skips; actual-game/menu scenarios: 5 passes / 1 provisioning skip per variant, provisioning passed separately. Signed Handheld upgrade retained all 18 inspected files; both signed variants imported system files/Snakes through the public UI. JVM: 14 passes per variant. Installation is not gameplay acceptance. Legacy/conditional dependencies, mixed-platform collections, native external launchers and intermittent Asphalt startup remain open. Games/firmware are not bundled. [Release evidence](releases/v0.3.0-beta.1-checks.md), [historical integration checks](SYMBIAN_INTEGRATION.md), [backup contract](SYMBIAN_PHONE_BACKUPS.md) |
@@ -64,6 +65,25 @@ Build 15 SHA-256:
 8c3fae3ec67f5991bf0ab684b8607a5339a9f0d8e09cf217852f7edc709075e3  AbyssME-phone-test-2026-10-11-15.apk
 9c61f344ff307d2e901226f964eefb82098ccdf1abff4b3798cabb893dc0cb73  AbyssME-handheld-test-2026-10-11-15.apk
 ```
+
+## After 0.3 Beta.1: Unreleased Source (2026-10-15)
+
+- Phone system files can be supplied as one ZIP/7z with a ROM and matching RPKG,
+  including nested folders and uppercase names. Failures remain visible and
+  explain what was rejected. Real N95 import/reimport/error UI passed on both
+  Retroid variants; the reporter's particular N70 dump was not available.
+- Game actions now expose the installed Java game's version/vendor without
+  reimporting it or touching saves. Native phone labels remain separate.
+- Installed native games can export a small `.abyssme` launch file for external
+  frontends. Mophun exits back to its caller rather than forcing the library.
+  Actual Pegasus runs covered Java/Mophun on both variants and an exported
+  Phone Snakes link; Daijisho covered Handheld Java/Mophun/Snakes, multi-JAR
+  selection and warm Java launch. Exit returned to the frontend.
+- Added frontend setup examples. ES-DE remains untested and Beacon was not
+  exercised in this session; #7 stays open. Other frontends do not certify ES-DE.
+- Both combined debug variants built. Per variant: 19 JVM passes, 19 focused
+  Android passes / 2 optional skips, and 3 opt-in UI passes on Retroid. No new
+  release or distributed test APK. [Checks and limits](checks/2026-10-15-import-launchers.md).
 
 ## Historical 0.1.0 Beta.2 Baseline
 

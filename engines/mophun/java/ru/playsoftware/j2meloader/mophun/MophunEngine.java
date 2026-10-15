@@ -19,6 +19,9 @@ public final class MophunEngine implements AdditionalGames.Engine {
     }
     @Override public AppItem readInstalled(File directory) throws IOException { return MophunStore.read(directory); }
     @Override public void launch(Context context, String title, File directory, boolean controls) {
+        launch(context, title, directory, controls, false);
+    }
+    void launch(Context context, String title, File directory, boolean controls, boolean external) {
         if (controls) {
             context.startActivity(new Intent(context, ru.playsoftware.j2meloader.config.GameSettingsActivity.class)
                     .setData(Uri.parse(directory.getPath())).putExtra("native_settings", true)
@@ -26,6 +29,7 @@ public final class MophunEngine implements AdditionalGames.Engine {
             return;
         }
         context.startActivity(new Intent(context, MophunGameActivity.class)
-                .putExtra("id", directory.getName()).putExtra("title", title).putExtra("controls", controls));
+                .putExtra("id", directory.getName()).putExtra("title", title).putExtra("controls", controls)
+                .putExtra("externalLaunch", external));
     }
 }

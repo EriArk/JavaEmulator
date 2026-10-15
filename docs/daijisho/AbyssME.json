@@ -1,0 +1,42 @@
+{
+  "databaseVersion": 14,
+  "revisionNumber": 1,
+  "platform": {
+    "name": "AbyssME",
+    "uniqueId": "abyssme",
+    "shortname": "j2me",
+    "description": "Java, Mophun and exported Symbian/N-Gage launch files",
+    "acceptedFilenameRegex": "(?i)^(.*)\\.(?:jar|jad|zip|mpn|abyssme)$",
+    "scraperSourceList": [],
+    "boxArtAspectRatioId": 0,
+    "useCustomBoxArtAspectRatio": false,
+    "customBoxArtAspectRatio": null,
+    "screenAspectRatioId": 0,
+    "useCustomScreenAspectRatio": false,
+    "customScreenAspectRatio": null,
+    "retroAchievementsConsoleIdList": [],
+    "extra": ""
+  },
+  "playerList": [
+    {
+      "name": "AbyssME Handheld",
+      "uniqueId": "abyssme.handheld",
+      "description": "Controller-first app",
+      "acceptedFilenameRegex": "(?i)^(.*)\\.(?:jar|jad|zip|mpn|abyssme)$",
+      "amStartArguments": "-n io.github.eriark.abyssme/ru.playsoftware.j2meloader.MainActivity\n-a android.intent.action.VIEW\n-d {file.uri}\n--grant-read-uri-permission",
+      "killPackageProcesses": false,
+      "killPackageProcessesWarning": true,
+      "extra": ""
+    },
+    {
+      "name": "AbyssME Phone",
+      "uniqueId": "abyssme.phone",
+      "description": "Touch-oriented app; independent library",
+      "acceptedFilenameRegex": "(?i)^(.*)\\.(?:jar|jad|zip|mpn|abyssme)$",
+      "amStartArguments": "-n io.github.eriark.abyssme.phone/ru.playsoftware.j2meloader.MainActivity\n-a android.intent.action.VIEW\n-d {file.uri}\n--grant-read-uri-permission",
+      "killPackageProcesses": false,
+      "killPackageProcessesWarning": true,
+      "extra": ""
+    }
+  ]
+}

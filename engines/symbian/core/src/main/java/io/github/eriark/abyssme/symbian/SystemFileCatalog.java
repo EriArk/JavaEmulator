@@ -230,14 +230,14 @@ final class SystemFileCatalog {
         File pending = Files.createTempDirectory(base.toPath(), "pending-").toFile();
         try {
             List<File> files = inputs;
-            if (inputs.size() == 1 && GameImport.isZip(inputs.get(0)))
+            if (inputs.size() == 1 && PreparedSystemArchive.isArchive(inputs.get(0)))
                 files = SymbianFiles.extractPhoneInputs(inputs.get(0), pending);
             File rom = null, rpkg = null;
             for (File file : files) {
                 String name = file.getName().toLowerCase(Locale.ROOT);
                 if (name.endsWith(".rom") && rom == null) rom = file;
                 else if (name.endsWith(".rpkg") && rpkg == null) rpkg = file;
-                else throw new IOException("Select one system ZIP or one ROM/RPKG pair");
+                else throw new IOException("Select one phone ZIP/7z archive, or its .rom and matching .rpkg together.");
             }
             if (rom == null) throw new IOException("No phone .rom file found. Add an EKA2L1 phone dump, not a game or N-Gage installer.");
             String romHash = hash(rom), rpkgHash = rpkg == null ? "" : hash(rpkg);

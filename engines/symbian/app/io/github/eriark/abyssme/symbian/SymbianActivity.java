@@ -312,6 +312,8 @@ public final class SymbianActivity extends Activity implements Emulator.Host, In
                 runOnUiThread(() -> { if (!closing) {
                     if (!running) { hasPendingImport = pendingImport.exists(); library(); }
                     status.setText(error.getMessage());
+                    if (!(error instanceof java.io.InterruptedIOException))
+                        notice("Could not finish", error.getMessage() == null ? text : error.getMessage(), "Close", null, null);
                 } });
             } finally { runOnUiThread(() -> {
                 busy = false;

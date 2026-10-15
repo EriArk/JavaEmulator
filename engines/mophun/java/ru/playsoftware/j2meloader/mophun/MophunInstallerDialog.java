@@ -129,7 +129,8 @@ public final class MophunInstallerDialog extends DialogFragment {
     }
 
     private void start() {
-        new MophunEngine().launch(requireContext(), installed.getTitle(), new File(installed.getPathExt()), false);
+        new MophunEngine().launch(requireContext(), installed.getTitle(), new File(installed.getPathExt()), false,
+                requireArguments().getBoolean("finishHost"));
         if (requireArguments().getBoolean("finishHost")) requireActivity().finish();
         dismiss();
     }

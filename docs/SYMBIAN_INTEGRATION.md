@@ -1,6 +1,6 @@
 # Symbian and N-Gage Integration Plan
 
-**Updated: 2026-10-14. Status: published in combined 0.3 beta; Asphalt relaunch remains unreliable.**
+**Updated: 2026-10-15. Status: combined 0.3 beta published; newer import/launcher work is unreleased. Asphalt relaunch remains unreliable.**
 The selected product direction is one AbyssME application and library, with
 an embedded engine rather than requiring users to install and configure a
 second emulator. Existing Java and experimental Mophun workflows stay intact.
@@ -17,6 +17,27 @@ and [current release verification](releases/v0.3.0-beta.1-checks.md).
 Snakes reaches gameplay; Asphalt 3 now installs and has
 reached a moving race, but cold relaunch remains unreliable. Neither result is
 full-game, audio or save/relaunch acceptance.
+
+## Raw Phone Archives and Launcher Files (2026-10-15)
+
+Unreleased source after 0.3.0-beta.1 accepts one ROM and its matching RPKG in a
+ZIP or 7z, including subfolders and uppercase extensions. Use **System files >
+Add system files**, or open the archive through the library importer. Keep one
+phone per archive and do not mix its files with game installers. Individual
+ROM/RPKG selection and prepared-phone collections remain separate supported
+inputs. Firmware is supplied by the user, never bundled or downloaded by AbyssME.
+
+Unsafe/ambiguous layouts and damaged files produce a persistent explanation;
+temporary files are cleaned and existing virtual-phone data is preserved.
+Actual N95 raw archive import/reimport/error UI passed on both Retroid variants.
+This verifies the reported archive shape, not the reporter's specific N70 ROM.
+
+Installed native games can export `.abyssme` launch documents from Game actions.
+They resolve installed identities without reinstalling games or copying system
+files. Actual Snakes launches and return-to-frontend were checked with Daijisho
+Handheld and Pegasus Phone; ES-DE remains untested. See
+[dated evidence](checks/2026-10-15-import-launchers.md) and
+[frontend setup](LAUNCHER_INTEGRATION.md).
 
 ## Combined Beta Promotion (2026-10-14)
 

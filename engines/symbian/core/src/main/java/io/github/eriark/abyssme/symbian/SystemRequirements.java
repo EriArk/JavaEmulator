@@ -42,6 +42,6 @@ final class SystemRequirements {
         }
     }
     static String formats() {
-        return "An EKA2L1 phone dump contains the phone's operating system, not games. Add its ZIP/7z archive, or select the .rom and matching .rpkg together. Both files must be from the same phone dump. A prepared ROM + Z-folder archive is also supported.\n\nUse files you have the right to use. Firmware and games are not included.";
+        return "An EKA2L1 phone dump contains the phone's operating system, not games. Add a ZIP/7z containing one .rom and its matching .rpkg, or select those files together. Subfolders and uppercase extensions are supported. Both files must be from the same phone dump; do not mix several phones or games in this archive. A prepared ROM + Z-folder archive is also supported.\n\nUse files you have the right to use. Firmware and games are not included.";
     }
 }

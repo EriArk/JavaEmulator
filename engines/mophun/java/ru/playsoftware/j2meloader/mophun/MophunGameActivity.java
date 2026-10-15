@@ -361,8 +361,9 @@ public final class MophunGameActivity extends Activity implements InputManager.I
     private void leaveGame() {
             visible = false;
             session.stop();
-            startActivity(android.content.Intent.makeRestartActivityTask(new android.content.ComponentName(
-                    this, ru.playsoftware.j2meloader.MainActivity.class)));
+            if (!getIntent().getBooleanExtra("externalLaunch", false))
+                startActivity(android.content.Intent.makeRestartActivityTask(new android.content.ComponentName(
+                        this, ru.playsoftware.j2meloader.MainActivity.class)));
             finish();
             menu.dismiss();
     }

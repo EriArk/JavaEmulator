@@ -54,6 +54,10 @@ public final class AdditionalGames {
     public static void install(Context context, FragmentManager fragments, Uri uri,
                                boolean autoStart, boolean finishHost) {
         if (fragments.findFragmentByTag("installer") != null) return;
+        if (LauncherLink.accepts(context, uri)) {
+            LauncherLinkDialog.create(uri, finishHost).show(fragments, "installer");
+            return;
+        }
         if (ru.playsoftware.j2meloader.BuildConfig.SYMBIAN_EXPERIMENT) {
             try {
                 ImportRouter router = Class.forName("io.github.eriark.abyssme.symbian.SymbianImportDialog")

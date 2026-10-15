@@ -5,4 +5,9 @@
             <entry>io.github.eriark.abyssme/ru.playsoftware.j2meloader.MainActivity</entry>
         </rule>
     </emulator>
+    <emulator name="ABYSSME_PHONE">
+        <rule type="androidpackage">
+            <entry>io.github.eriark.abyssme.phone/ru.playsoftware.j2meloader.MainActivity</entry>
+        </rule>
+    </emulator>
 </ruleList>

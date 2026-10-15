@@ -141,6 +141,9 @@ public class AppsListFragment extends Fragment implements AppsListAdapter.Listen
 			new ActivityResultContracts.OpenDocumentTree(), this::onPickFolderResult);
 	private final ActivityResultLauncher<String> artworkLauncher = registerForActivityResult(
 			new ActivityResultContracts.GetContent(), this::onArtworkPicked);
+    private String pendingLauncherLink;
+    private final ActivityResultLauncher<String> launcherLinkExporter = registerForActivityResult(
+            new ActivityResultContracts.CreateDocument("application/octet-stream"), this::onLauncherLinkExported);
 	private final ExecutorService folderExecutor = Executors.newSingleThreadExecutor();
     private List<AppItem> databaseItems = java.util.Collections.emptyList();
     private List<AppItem> externalItems = java.util.Collections.emptyList();
@@ -162,6 +165,7 @@ public class AppsListFragment extends Fragment implements AppsListAdapter.Listen
 		args.remove(KEY_APP_URI);
 		preferences = PreferenceManager.getDefaultSharedPreferences(requireActivity());
 		if (savedInstanceState != null) {
+            pendingLauncherLink = savedInstanceState.getString("launcherLink");
 			artworkTargetId = savedInstanceState.getInt("artworkTargetId", -1);
 			pickingIcon = savedInstanceState.getBoolean("pickingIcon");
 			searchExpanded = savedInstanceState.getBoolean("searchExpanded");
@@ -622,6 +626,7 @@ public class AppsListFragment extends Fragment implements AppsListAdapter.Listen
 
 	@Override public void onSaveInstanceState(@NonNull Bundle state) {
 		super.onSaveInstanceState(state);
+        state.putString("launcherLink", pendingLauncherLink);
 		state.putInt("artworkTargetId", artworkTargetId);
 		state.putBoolean("pickingIcon", pickingIcon);
 		state.putBoolean("searchExpanded", searchExpanded);
@@ -758,7 +763,18 @@ public class AppsListFragment extends Fragment implements AppsListAdapter.Listen
             ExternalLibrary.Item item = (ExternalLibrary.Item) appItem;
             GameMenuDialog dialog = new GameMenuDialog(requireContext(), item.getTitle());
             dialog.show(); dialog.page(item.getTitle());
+            dialog.action("Game information", android.R.drawable.ic_menu_info_details, () -> {
+                dialog.dismiss(); showGameInformation(item);
+            });
             dialog.action("Play", android.R.drawable.ic_media_play, () -> { dialog.dismiss(); startApp(item, false); });
+            dialog.action("Export launch file", android.R.drawable.ic_menu_save, () -> {
+                try {
+                    pendingLauncherLink = ru.playsoftware.j2meloader.catalog.LauncherLink.encode(
+                            requireContext().getPackageName(), item.getPath());
+                    dialog.dismiss();
+                    launcherLinkExporter.launch(item.getTitle().replaceAll("[/\\\\:*?\"<>|]", "_") + ".abyssme");
+                } catch (IOException error) { dialog.message(error.getMessage()); }
+            });
             dialog.action(item.isFavorite() ? "Remove favorite" : "Add favorite", android.R.drawable.btn_star, () -> {
                 item.favorite(); dialog.dismiss(); publishLibrary(); updateDetail(item);
             });
@@ -781,7 +797,9 @@ public class AppsListFragment extends Fragment implements AppsListAdapter.Listen
 		}
 		PopupMenu.OnMenuItemClickListener action = item -> {
 			int itemId = item.getItemId();
-			if (itemId == R.id.action_context_shortcut) {
+			if (itemId == R.id.action_context_information) {
+                showGameInformation(appItem);
+			} else if (itemId == R.id.action_context_shortcut) {
 				requestAddShortcut(appItem);
 			} else if (itemId == R.id.action_context_rename) {
 				alertRename(appItem);
@@ -990,6 +1008,24 @@ public class AppsListFragment extends Fragment implements AppsListAdapter.Listen
 				adapter.getItemCount(), adapter.getItemCount()));
 	}
 
+    private void onLauncherLinkExported(Uri uri) {
+        String payload = pendingLauncherLink; pendingLauncherLink = null;
+        if (uri == null || payload == null) return;
+        try (java.io.OutputStream output = requireContext().getContentResolver().openOutputStream(uri, "wt")) {
+            if (output == null) throw new IOException("Cannot write launch file");
+            output.write(payload.getBytes(java.nio.charset.StandardCharsets.UTF_8));
+            Toast.makeText(requireContext(), "Launch file exported", Toast.LENGTH_SHORT).show();
+        } catch (IOException | RuntimeException error) {
+            GameMenuDialog dialog = new GameMenuDialog(requireContext(), "AbyssME");
+            dialog.show(); dialog.page("Export failed"); dialog.message(error.getMessage());
+        }
+    }
+
+    private void showGameInformation(AppItem item) {
+        GameMenuDialog dialog = new GameMenuDialog(requireContext(), item.getTitle());
+        dialog.show(); dialog.page("Game information");
+        dialog.message(ru.playsoftware.j2meloader.catalog.GameInformation.describe(item));
+    }
 	private void updateDetail(AppItem item) {
 		if (binding == null) {
 			return;
