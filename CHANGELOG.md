@@ -12,15 +12,20 @@ combined builds; released experimental features are explicitly identified.
 
 ## 2026-10-17
 
-- **Public source, unreleased:** Gallery now offers Automatic / Wide / Portrait
+- **Released:** [0.3.0-beta.4](https://github.com/EriArk/JavaEmulator/releases/tag/v0.3.0-beta.4),
+  code 303, published at 20:32 UTC. Both signed combined APKs, matching app
+  source, dependency/native sources and checksums are available. All six
+  uploaded digests matched; both APKs and the checksum list were downloaded
+  again and verified. Source tag: `7b4742f8`.
+- **Included in beta.4:** Gallery now offers Automatic / Wide / Portrait
   cover formats through Library menu. Covers fit without cropping, cards stay
   aligned, and the choice survives activity recreation. Artwork files and
   List/Grid icon behavior are unchanged.
-- **Public source, unreleased:** square and near-square handhelds use a compact
+- **Included in beta.4:** square and near-square handhelds use a compact
   library header without the detail pane crowding games. Layout responds to
   available dp, aspect ratio and font scale, not a device-specific rule. Phone
   portrait and short-landscape layouts remain supported.
-- **Public source, unreleased:** added Restart game to the shared game menu for
+- **Included in beta.4:** added Restart game to the shared game menu for
   Java, Mophun and Symbian. Confirmation preserves saved settings and discards
   unconfirmed previews. Fixed a stale Symbian menu-dismiss callback that could
   pause the new session. This is not a general black-screen compatibility fix.
@@ -28,7 +33,15 @@ combined builds; released experimental features are explicitly identified.
   zero lint errors, emulator layout checks and physical Retroid checks. Bounce
   Tales, Deep Abyss and Snakes restarted to their game menus. New captures and
   explicit verification limits are in the [check record](docs/checks/2026-10-17-gallery-restart.md).
-  No new public APK or release was published.
+  These development checks preceded the separate signed-release verification.
+- **Final release checks:** 29 release JVM tests per variant, no failures/errors;
+  lint passed with 403/410 warnings. Both signed variants installed on Retroid.
+  Gravity Defied reached its track and restarted; Phone G.R.A.W. 2 reached its
+  menu with numeric and Gamepad controls. Only Handheld beta.4 remains installed,
+  with 39 library entries. [Verification and limits](docs/releases/v0.3.0-beta.4-checks.md).
+- **Post assets:** added [11 fresh beta.4 screenshots](screenshots/releases/v0.3.0-beta.4/).
+  Replaced obsolete promotional folders and pinned historical evidence links.
+  README and status/download documentation now point to beta.4.
 
 ## 2026-10-16
 

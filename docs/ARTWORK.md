@@ -37,8 +37,8 @@ Art height is capped at 300/180 dp respectively and further limited by the
 available height after reserving title space. Explicit Wide/Portrait choices
 are retained on window resizing, navigation and activity recreation.
 
-These are unreleased source changes after beta.3.
-[Verification and captures](checks/2026-10-17-gallery-restart.md).
+Included in beta.4. [Development verification](checks/2026-10-17-gallery-restart.md)
+and [signed-release checks and captures](releases/v0.3.0-beta.4-checks.md).
 
 ## Change or refresh artwork
 

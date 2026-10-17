@@ -34,22 +34,17 @@ bundled. The app UI is English.
 
 ## Availability: Do Not Mix These Channels
 
-**Beta.4 release preparation, October 17:** signed combined Handheld/Phone
-builds use version code 303. Both were installed on Retroid, 29 release JVM
-tests per variant passed, and fresh screenshots are ready. Publication is not
-yet implied by this preparation record. See [checks](releases/v0.3.0-beta.4-checks.md).
-
-**Current public beta: [0.3.0-beta.3](https://github.com/EriArk/JavaEmulator/releases/tag/v0.3.0-beta.3)**,
-published **2026-10-15 at 19:16 UTC**, code **302**. Handheld and Phone include
+**Current public beta: [0.3.0-beta.4](https://github.com/EriArk/JavaEmulator/releases/tag/v0.3.0-beta.4)**,
+published **2026-10-17 at 20:32 UTC**, code **303**. Handheld and Phone include
 Java, Mophun and experimental Symbian / N-Gage. Android 10+, arm64-v8a.
 Games and firmware are not included. Both variants can coexist with independent data.
 
 All six uploaded asset digests were checked; both APKs and the checksum list
-were downloaded again and matched. The source tag is `dc21ac62`; later handoff
+were downloaded again and matched. The source tag is `7b4742f8`; later handoff
 documentation does not change the APKs. GitHub Actions remains disabled.
-[Release notes](releases/v0.3.0-beta.3.md),
-[verification and limits](releases/v0.3.0-beta.3-checks.md),
-[checksums](releases/v0.3.0-beta.3/SHA256SUMS.txt).
+[Release notes](releases/v0.3.0-beta.4.md),
+[verification and limits](releases/v0.3.0-beta.4-checks.md),
+[checksums](releases/v0.3.0-beta.4/SHA256SUMS.txt).
 
 Beta.2 was withheld before publication after final provisioning exposed a mixed
 SIS/N-Gage catalog defect. Its source tag remains as history; beta.3 fixes it.
@@ -57,12 +52,12 @@ Beta.1 remains a historical download, not the recommended current version.
 
 | Channel | Current identifier | Availability |
 | --- | --- | --- |
-| Public download | `v0.3.0-beta.3`, code 302 | Signed Handheld/Phone APKs, matching app source and dependency/native source bundles |
-| Public development source | `main`, after beta.3 tag `dc21ac62` | Includes unreleased Gallery formats, square-screen library layout and shared Restart game; these are not in the beta.3 APKs |
+| Public download | `v0.3.0-beta.4`, code 303 | Signed Handheld/Phone APKs, matching app source and dependency/native source bundles |
+| Public development source | `main`, release tag `7b4742f8` plus publication documentation | Gallery formats, square-screen library layout and shared Restart game are included in beta.4 |
 | Private historical snapshot | `0.1.0-beta.2-experimental.15`, 2026-10-11 | Old Java/Mophun test build, not the current beta |
 | Local-only material | Game fixtures, firmware, diagnostics, device data and signing keys | Not in Git or public release assets; describing testing does not authorize redistribution |
 
-## Unreleased Source After Beta.3
+## Changes Released in Beta.4
 
 October 17: **Library menu > Cover format** offers Automatic, Wide and Portrait.
 Gallery uses aligned cards and fits complete covers, including wide banners,
@@ -83,8 +78,9 @@ their game menus after restarting on Retroid. This does not establish full-game,
 audio or save-roundtrip compatibility. No physical RG Cube was available.
 [Checks and limits](checks/2026-10-17-gallery-restart.md),
 [development screenshots](../screenshots/development/2026-10-17-gallery-restart/).
-The public release list was rechecked October 17: beta.3 is still the newest
-published beta. No release APK was replaced by this work.
+The development checks above preceded release packaging. Beta.4 is now published
+as a new release; no older APK was overwritten. Final signed-build checks and
+their distinct limits are recorded below.
 
 ## Changes Released in Beta.3
 
@@ -109,23 +105,25 @@ their counts are not new final-release test results.
 ## Final Release Evidence and Post Assets
 
 - Both signed release variants built cleanly and passed APK-content guards,
-  25 JVM tests each and lint with zero errors (402/409 warnings remain).
-- Native capture and mixed-card regression tests ran on physical Retroid.
-- Both signed variants upgraded on Retroid. Snakes returned without reimport
-  and reached its game field; Phone retained its Gamepad/shortcut choices.
-  This is not full-game, save-roundtrip, audio or human-controller acceptance.
-- Retroid now has only Handheld beta.3 installed. Seventeen old/alternate packages
-  were removed with data retention. Its initial nine entries comprised three Java games,
-  two variants of Deep Abyss, three SIS/SISX games and original N-Gage Snakes.
-  The local collection is not bundled in the downloadable APKs.
+  29 JVM tests each and lint with zero errors (403/410 warnings remain).
+- Both final signed variants installed on Retroid. Gravity Defied reached a
+  track and restarted to its main menu in a new Java process. Phone G.R.A.W. 2
+  reached its main menu with both touch decks and portrait orientation.
+- The final beta.4 library views, mapper, common menu and restart confirmation
+  were captured. Native restart tests are from the preceding development run,
+  not repeated final-signed tests. Full-game, audio/save and human-controller
+  acceptance remain unverified.
+- Retroid has only Handheld beta.4, code 303, installed. The temporary Phone
+  package was removed with data retention after captures. Its retained data is
+  not a verified full backup. The Handheld library still reports 39 entries.
 - On October 16, 30 more user-supplied Java games were installed on Retroid;
   the reopened library shows 39 entries. Gravity Defied reached its track and
   is favorited. This is device-only provisioning, not a release or a full-game
   compatibility claim. [Collection checks](checks/2026-10-16-retroid-collection.md).
-- [Fresh beta.3 screenshots](../screenshots/releases/v0.3.0-beta.3/) show the
-  library, restored card, Snakes game field and Phone Gamepad. The preceding
-  [candidate captures](../screenshots/releases/v0.3.0-beta.2/) show additional
-  controls/import pages; identify those as candidate captures, not beta.3 runs.
+- [Fresh beta.4 screenshots](../screenshots/releases/v0.3.0-beta.4/) contain 11
+  real, unretouched final-APK captures for posts and the website. Old promotional
+  folders were removed from the current tree; historical links use pinned commits.
+  Earlier release/development evidence remains explicitly dated, not relabeled.
 
 Remaining limits: intermittent Ghost Recon startup, native Asphalt cold relaunch,
 automatic compatibility choices, broader Symbian support, ES-DE, Samsung Android
@@ -151,9 +149,9 @@ Android 10+. System files can be provided before games; setup explains missing
 requirements, retains imports and reuses compatible components. Native games
 join the common library. Phone supports numeric/Gamepad touch decks; both
 variants offer display/mapping controls, screenshots and whole-phone backups.
-See [release notes](releases/v0.3.0-beta.3.md) for user-facing details and limits.
+See [release notes](releases/v0.3.0-beta.4.md) for user-facing details and limits.
 
-The current feature summary includes the retained 0.2 features and beta.3 additions:
+The current feature summary includes the retained 0.2 features and 0.3 beta additions:
 
 | Area | Current development behavior | Evidence / boundary |
 | --- | --- | --- |
@@ -1262,10 +1260,11 @@ See [racing evidence and screenshots](https://github.com/EriArk/JavaEmulator/blo
 
 ## Images and Writing Guidance
 
+- **Use for current posts:** [beta.4 captures](../screenshots/releases/v0.3.0-beta.4/README.md), 2026-10-17: 11 signed-build Retroid screenshots covering Gallery formats, Grid/List, gameplay, menus, mapper and both Phone decks. Captions identify the exact build and device.
 - [0.2.0-beta.1 release captures](releases/v0.2.0-beta.1.md#captures), 2026-10-13: signed Handheld Asphalt/Deep Abyss on Retroid and signed Phone Deep Abyss in the emulator. Short ADB-driven checks, not whole-game/audio acceptance.
 - [Archived development screenshots, 2026-10-11](https://github.com/EriArk/JavaEmulator/blob/23da5d4b/screenshots/post-2026-10-11/README.md): 12 real emulator PNGs, ZIP, captions and hashes. Label as **development / experimental.15**.
 - [Archived beta.2 screenshots](https://github.com/EriArk/JavaEmulator/blob/23da5d4b/screenshots/website-beta2/manifest.json): older UI, not current captures.
-- Gallery covers in both packs were manually curated. Grid/List show native icons or fallbacks. No games are bundled; artwork is not evidence of gameplay compatibility.
+- Gallery covers in the archived October 11 / website-beta2 packs were manually curated. Grid/List show native icons or fallbacks. No games are bundled; artwork is not evidence of gameplay compatibility.
 - For a website, lead with the product and user experience; distinguish **available now** from **in development**. Do not link a public beta download as though it contained the experimental features pictured.
 - For a progress post, select the dated changes since the previous report. Use plain language about user benefits, not test harnesses or implementation details. Include meaningful limitations without overwhelming the post.
 - Never equate "built", "automated tests passed", "seen in an emulator", "tested on a device" and "accepted by users". Keep evidence attached to its build/date.

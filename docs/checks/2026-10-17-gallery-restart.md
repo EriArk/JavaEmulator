@@ -6,6 +6,9 @@ Related: [#30](https://github.com/EriArk/JavaEmulator/issues/30),
 The latest published beta was rechecked: `v0.3.0-beta.3`, October 15.
 This change does not replace its APKs or publish games/firmware.
 
+Subsequently included in beta.4. This page preserves the development checkpoint;
+see [separate signed-release verification](../releases/v0.3.0-beta.4-checks.md).
+
 ## Behavior
 
 - Library menu offers Automatic / Wide / Portrait for Gallery. A single dp
