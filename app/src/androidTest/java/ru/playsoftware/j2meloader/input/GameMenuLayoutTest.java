@@ -43,11 +43,13 @@ public class GameMenuLayoutTest {
             GameMenuDialog menu = new GameMenuDialog(activity, "Fixture");
             AtomicInteger exits = new AtomicInteger();
             AtomicInteger screenshots = new AtomicInteger();
+            AtomicInteger restarts = new AtomicInteger();
             GameMenuPages pages = new GameMenuPages(menu, new GameMenuPages.Host() {
                 public void display() { menu.page("Display"); }
                 public void controls() { menu.page("Controls"); }
                 public void more() { menu.page("More"); }
                 public void exit() { exits.incrementAndGet(); }
+                public void restart() { restarts.incrementAndGet(); }
                 public boolean hasPreview() { return true; }
                 public void keep() { }
                 public void undo() { }
@@ -59,7 +61,17 @@ public class GameMenuLayoutTest {
                 java.util.List<String> actions = new java.util.ArrayList<>();
                 collectButtons(root, actions);
                 assertEquals(java.util.Arrays.asList("Resume", "Display", "Controls", "Screenshot",
-                        "Keep changes", "Undo changes", "More", "Exit game"), actions);
+                        "Keep changes", "Undo changes", "More", "Restart game", "Exit game"), actions);
+                findText(root, "Restart game").performClick();
+                assertTrue(menu.isShowing()); assertEquals(0, restarts.get());
+                findText(root, "Cancel").performClick();
+                assertNotNull(findText(root, "Display"));
+                pages.confirmRestart();
+                menu.dispatchKeyEvent(new KeyEvent(KeyEvent.ACTION_UP, KeyEvent.KEYCODE_BUTTON_B));
+                assertEquals(0, restarts.get()); assertNotNull(findText(root, "Display"));
+                pages.confirmRestart(); findText(root, "Restart").performClick();
+                assertEquals(1, restarts.get()); assertTrue(menu.isShowing());
+                pages.home();
                 findText(root, "Exit game").performClick();
                 assertTrue(menu.isShowing()); assertEquals(0, exits.get());
                 menu.dispatchKeyEvent(new KeyEvent(KeyEvent.ACTION_UP, KeyEvent.KEYCODE_BUTTON_B));
@@ -84,6 +96,7 @@ public class GameMenuLayoutTest {
                     public void controls() { }
                     public void more() { }
                     public void exit() { fail("Resume must not exit"); }
+                    public void restart() { fail("Resume must not restart"); }
                     public boolean hasPreview() { return false; }
                     public void keep() { }
                     public void undo() { }

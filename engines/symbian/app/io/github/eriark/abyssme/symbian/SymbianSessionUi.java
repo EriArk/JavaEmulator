@@ -25,6 +25,7 @@ final class SymbianSessionUi {
         void pause(boolean paused);
         void display(int scale);
         void leave();
+        void restart();
         Bitmap capture() throws IOException;
     }
     private final Activity activity;
@@ -157,7 +158,7 @@ final class SymbianSessionUi {
     void showMenu() {
         if (closed || menu != null || mapper != null) return;
         menu = new GameMenuDialog(activity, title);
-        menu.setOnDismissListener(d -> { menu = null; pause(); }); menu.show(); pause(); home();
+        menu.setOnDismissListener(d -> { menu = null; if (!closed) pause(); }); menu.show(); pause(); home();
     }
     private void home() {
         new GameMenuPages(menu, new GameMenuPages.Host() {
@@ -168,6 +169,10 @@ final class SymbianSessionUi {
             public void keep() { SymbianSessionUi.this.keep(); }
             public void undo() { SymbianSessionUi.this.undo(); }
             public void exit() { close(); host.leave(); }
+            public void restart() {
+                if (ProfilesManager.isPreview(profile)) undo();
+                host.restart();
+            }
         }, this::screenshot).home();
     }
     private void morePage() {
@@ -257,7 +262,10 @@ final class SymbianSessionUi {
     }
     void close() {
         if (closed) return; closed = true; clear(); preview.stop();
-        if (mapper != null) mapper.dismiss(); if (menu != null) menu.dismiss(); disk.shutdown();
+        // A dismissed dialog may deliver its callback after the next session starts.
+        if (mapper != null) { mapper.setOnDismissListener(null); mapper.dismiss(); mapper = null; }
+        if (menu != null) { menu.setOnDismissListener(null); menu.dismiss(); menu = null; }
+        disk.shutdown();
     }
     private final class DeckView extends View {
         final TouchDeck deck;

@@ -59,6 +59,13 @@ public class AppsListAdapter extends RecyclerView.Adapter<AppsListAdapter.ViewHo
 	private int displayMode = MODE_GALLERY;
 	private int category = CATEGORY_LIBRARY;
 	private int availableHeight = Integer.MAX_VALUE;
+	private LibraryLayout layout;
+	public void setLibraryLayout(LibraryLayout value) {
+		if (layout != null && layout.artWidth == value.artWidth && layout.artHeight == value.artHeight
+				&& layout.columns == value.columns && layout.format == value.format) return;
+		layout = value;
+		notifyDataSetChanged();
+	}
 	private boolean compact;
 	private String focusedPath;
 
@@ -129,7 +136,7 @@ public class AppsListAdapter extends RecyclerView.Adapter<AppsListAdapter.ViewHo
 	@Override
 	public void onBindViewHolder(@NonNull ViewHolder holder, int position) {
 		AppItem item = filteredList.get(position);
-		holder.bind(item, displayMode, availableHeight, compact, listener);
+		holder.bind(item, displayMode, availableHeight, compact, layout, listener);
 	}
 
 	public void setItems(List<AppItem> items) {
@@ -152,20 +159,20 @@ public class AppsListAdapter extends RecyclerView.Adapter<AppsListAdapter.ViewHo
 			binding.rowRoot.setFocusableInTouchMode(true);
 		}
 
-		private void bind(AppItem item, int displayMode, int availableHeight, boolean compact, Listener listener) {
-			applyMode(displayMode, availableHeight, compact);
+		private void bind(AppItem item, int displayMode, int availableHeight, boolean compact, LibraryLayout layout, Listener listener) {
+			applyMode(displayMode, availableHeight, compact, layout);
 			Bitmap icon = IconArtUtils.loadLargeIcon(item.getImagePathExt(), iconBitmapSize(displayMode));
 			Drawable cover = Drawable.createFromPath(item.getCoverPathExt());
 			if (displayMode == MODE_GALLERY && cover != null) {
 				cover.setFilterBitmap(false);
-				binding.cover.setScaleType(IconArtUtils.coverScale(cover.getIntrinsicWidth(), cover.getIntrinsicHeight()));
+				binding.cover.setScaleType(android.widget.ImageView.ScaleType.FIT_CENTER);
 				binding.cover.setVisibility(View.VISIBLE);
 				binding.cover.setImageDrawable(cover);
 			} else if (displayMode == MODE_GALLERY) {
-				binding.cover.setScaleType(android.widget.ImageView.ScaleType.CENTER_CROP);
+				binding.cover.setScaleType(android.widget.ImageView.ScaleType.FIT_CENTER);
 				binding.cover.setVisibility(View.VISIBLE);
 				binding.cover.setImageBitmap(IconArtUtils.createFallback(item.getTitle(),
-						dp(360), dp(200), icon));
+						dp(layout == null ? 216 : layout.artWidth), dp(layout == null ? 128 : layout.artHeight), icon));
 			} else {
 				binding.cover.setImageDrawable(null);
 				binding.cover.setVisibility(View.GONE);
@@ -197,7 +204,7 @@ public class AppsListAdapter extends RecyclerView.Adapter<AppsListAdapter.ViewHo
 			});
 		}
 
-		private void applyMode(int mode, int availableHeight, boolean compact) {
+		private void applyMode(int mode, int availableHeight, boolean compact, LibraryLayout layout) {
 			LinearLayout root = binding.rowRoot;
 			FrameLayout art = binding.artContainer;
 			LinearLayout text = binding.textColumn;
@@ -220,9 +227,10 @@ public class AppsListAdapter extends RecyclerView.Adapter<AppsListAdapter.ViewHo
 				binding.name.setMaxLines(1);
 			} else {
 				root.setOrientation(LinearLayout.VERTICAL);
-				int artHeight = dp(Math.min(mode == MODE_GALLERY ? 154 : 116, availableHeight));
+				int artHeight = dp(layout == null ? Math.min(mode == MODE_GALLERY ? 154 : 116, availableHeight) : layout.artHeight);
 				LinearLayout.LayoutParams artLp = new LinearLayout.LayoutParams(
-						ViewGroup.LayoutParams.MATCH_PARENT, artHeight);
+						mode == MODE_GALLERY && layout != null ? dp(layout.artWidth) : ViewGroup.LayoutParams.MATCH_PARENT, artHeight);
+				artLp.gravity = android.view.Gravity.CENTER_HORIZONTAL;
 				artLp.setMargins(0, 0, 0, 0);
 				art.setLayoutParams(artLp);
 				LinearLayout.LayoutParams textLp = new LinearLayout.LayoutParams(

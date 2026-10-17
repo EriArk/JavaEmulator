@@ -81,6 +81,7 @@ public final class SymbianTouchTest {
                     public void pause(boolean paused){}
                     public void display(int scale){}
                     public void leave(){}
+                    public void restart(){}
                     public Bitmap capture(){return null;}
                 };
                 try { current[0]=new SymbianSessionUi(activity,surface,system,1,"Touch fixture",host); }

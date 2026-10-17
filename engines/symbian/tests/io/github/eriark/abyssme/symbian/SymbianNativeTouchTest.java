@@ -72,6 +72,7 @@ public final class SymbianNativeTouchTest {
                         public void pause(boolean value){if(attached.get())Emulator.pauseSession(value);}
                         public void display(int scale){if(attached.get())Emulator.setScreenParams(Color.BLACK,100,scale,2,"",0,true);}
                         public void leave(){}
+                        public void restart(){}
                         public Bitmap capture(){return null;}
                     });
                     activity[0].setContentView(session[0].root);

@@ -909,6 +909,7 @@ public final class SymbianActivity extends Activity implements Emulator.Host, In
                         public void pause(boolean paused) { menuOpen = paused; if (running && attached && !closing) Emulator.pauseSession(paused); }
                         public void display(int scale) { if (running && attached && !closing) Emulator.setScreenParams(Color.BLACK,100,scale,2,"",0,true); }
                         public void leave() { returnToLibrary(); }
+                        public void restart() { restartGame(uid); }
                         public android.graphics.Bitmap capture() throws IOException {
                             if (!running || !attached || closing || menuOpen) return null;
                             // The upstream capture queues GPU readback. Keep pause/teardown on this
@@ -1004,6 +1005,19 @@ public final class SymbianActivity extends Activity implements Emulator.Host, In
                 .setOnCancelListener(d -> resumeGame()).show();
     }
     private void resumeGame() { menuOpen = false; if (running && !closing) Emulator.pauseSession(false); }
+    private void restartGame(int uid) {
+        if (closing || !running || busy) return;
+        if (sessionUi != null) { sessionUi.close(); sessionUi = null; }
+        detach(); running = false; menuOpen = false; pendingUid = 0;
+        library();
+        task("Restarting game", () -> {
+            Emulator.stopSession();
+            Emulator.prepare(runtimeRoot.getAbsolutePath());
+            Emulator.lastGuestExit = null;
+            afterTask = () -> play(uid);
+        });
+    }
+
     private void returnToLibrary() {
         if (closing || !running) return;
         if (busy) { returnRequested = true; return; }

@@ -1,10 +1,14 @@
 # Compact library and menus
 
-The short-landscape library uses one header and a game-focused body, not a scaled
-version of the full toolbar. It activates below 480 dp height in landscape and
-below 600 dp width in either orientation. Phone portrait now uses the same single
-48 dp header instead of four persistent rows. Portrait keeps its larger list
-icons; the large-screen detail pane is unchanged.
+The compact library uses one 48 dp header and a game-focused body, not a scaled
+version of the full toolbar. It uses the laid-out viewport in dp, including
+insets, rather than a device model or physical pixel resolution. It activates
+below 600 dp width, below 480 dp height, below a 1.45 width/height ratio, or when
+the width is below 800 dp multiplied by the font scale (at least 1).
+Square and near-square handhelds therefore use the single header too. The detail
+pane is hidden in compact mode; game actions remain available through X / long
+press. Larger wide screens retain the detail pane. Phone portrait keeps its
+larger list icons and Handheld remains landscape-only.
 
 ## Interaction
 
@@ -12,6 +16,8 @@ icons; the large-screen detail pane is unchanged.
 - Collection opens All games / Recent / Favorites.
 - Start or Menu opens the library menu. Import, folders, sorting, settings and
   Gallery / List / Grid live here instead of permanently taking space above games.
+- The same menu offers **Cover format: Automatic / Wide / Portrait**, including
+  on larger screens. It changes Gallery presentation, not the guest-game screen.
 - L/R still changes views; A launches, X opens game actions, Y toggles a favorite.
 - Handheld initially focuses the first game after the list is laid out. Later
   size/data updates do not pull focus away from the header or search.

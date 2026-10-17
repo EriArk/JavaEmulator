@@ -20,6 +20,26 @@ Filename heuristics do not recognize image content. They deliberately miss some
 valid art, especially with short/obfuscated filenames. They are not a guarantee
 that every title screen will be identified.
 
+## Gallery format
+
+Open **Library menu > Cover format** and choose **Automatic**, **Wide** or
+**Portrait**. This is a saved global Gallery preference, not a fourth library
+view. List and Grid continue to use icons. Gallery fits the entire cover inside
+a consistent 16:9 or 2:3 artwork area; it does not stretch or crop the image.
+Wide banners are letterboxed in a portrait area. Missing covers keep the
+icon/initial-based fallback. The original image files are never rewritten.
+
+Automatic chooses portrait when the available game area is at least 300 dp tall
+and its width is less than 1.55 times its height; otherwise it chooses wide.
+Columns and art dimensions share one calculation. Column targets are 140 dp
+for portrait and 220 dp for wide, enlarged for larger fonts (up to 1.5x).
+Art height is capped at 300/180 dp respectively and further limited by the
+available height after reserving title space. Explicit Wide/Portrait choices
+are retained on window resizing, navigation and activity recreation.
+
+These are unreleased source changes after beta.3.
+[Verification and captures](checks/2026-10-17-gallery-restart.md).
+
 ## Change or refresh artwork
 
 Open a game's actions (X / long press), then **Artwork**:

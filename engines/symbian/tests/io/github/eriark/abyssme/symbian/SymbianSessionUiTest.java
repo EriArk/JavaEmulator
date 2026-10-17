@@ -51,14 +51,17 @@ public final class SymbianSessionUiTest {
         String seed=UUID.randomUUID().toString().replace("-",""); String system=seed+seed;
         String other=new StringBuilder(system).reverse().toString();
         List<String> events=new ArrayList<>();
+        java.util.concurrent.atomic.AtomicInteger pauses=new java.util.concurrent.atomic.AtomicInteger();
+        java.util.concurrent.atomic.AtomicInteger pausesAtRestart=new java.util.concurrent.atomic.AtomicInteger();
         SymbianSessionUi[] current=new SymbianSessionUi[1];
         SymbianSessionUi.Host host=new SymbianSessionUi.Host() {
             public android.graphics.RectF touchBounds(){return null;}
             public void touch(int x,int y,int pressure,int action,int pointer){}
             public void key(int scan,boolean down){events.add(scan+":"+down);}
-            public void pause(boolean paused){}
+            public void pause(boolean paused){pauses.incrementAndGet();}
             public void display(int scale){}
             public void leave(){}
+            public void restart(){events.add("restart");current[0].close();pausesAtRestart.set(pauses.get());}
             public Bitmap capture(){return null;}
         };
         try {
@@ -92,6 +95,24 @@ public final class SymbianSessionUiTest {
                     assertEquals(180,current[0].profile.screenRotation);
                 } catch(IOException error){throw new AssertionError(error);}
             });
+            instrumentation.runOnMainSync(() -> {
+                activity.setContentView(current[0].root);
+                current[0].showMenu();
+            });
+            click("Restart game"); click("Cancel");
+            assertFalse(events.contains("restart"));
+            instrumentation.runOnMainSync(() -> {
+                ProfilesManager.beginPreview(current[0].profile);
+                current[0].profile.screenRotation=90;
+            });
+            click("Restart game"); click("Restart");
+            instrumentation.runOnMainSync(() -> {
+                assertTrue(events.contains("restart"));
+                assertEquals(180,current[0].profile.screenRotation);
+                assertFalse(ProfilesManager.isPreview(current[0].profile));
+            });
+            instrumentation.waitForIdleSync(); SystemClock.sleep(200);
+            assertEquals("Closed menu must not pause a replacement session",pausesAtRestart.get(),pauses.get());
         } finally {
             instrumentation.runOnMainSync(() -> {if(current[0]!=null)current[0].close();activity.finish();});
             for(String id:new String[]{system,other}) {
@@ -164,7 +185,10 @@ public final class SymbianSessionUiTest {
         File inputs=new File(context.getExternalFilesDir(null),"symbian-input");
         SystemFileCatalog catalog=new SystemFileCatalog(context);
         try {
-            SystemFileCatalog.Entry phone=catalog.add(context,Collections.singletonList(new File(inputs,"ngage.zip")));
+            File phoneArchive=new File(inputs,"ngage.zip");
+            SystemFileCatalog.ImportResult imported=catalog.addArchive(context,phoneArchive,t -> {});
+            assertEquals(imported.summary(),1,imported.entries.size());
+            SystemFileCatalog.Entry phone=imported.entries.get(0);
             File runtime=catalog.runtime(phone);
             com.github.eka2l1.emu.Emulator.prepare(runtime.getAbsolutePath());
             try(GameImport card=GameImport.inspect(new File(inputs,"snakes.zip"))) {

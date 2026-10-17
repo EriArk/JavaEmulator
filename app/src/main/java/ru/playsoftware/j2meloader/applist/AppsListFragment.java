@@ -204,16 +204,16 @@ public class AppsListFragment extends Fragment implements AppsListAdapter.Listen
 			if (hasFocus && binding != null && pendingGameFocus >= 0) binding.appsRecycler.requestLayout();
 		});
 		binding.launcherSoftbar.setVisibility(BuildConfig.HANDHELD_MODE ? View.VISIBLE : View.GONE);
+		binding.getRoot().addOnLayoutChangeListener((v,l,t,r,b,ol,ot,or,ob) -> {
+			if (r-l != or-ol || b-t != ob-ot) v.post(() -> {
+				if (binding != null) { updateResponsiveToolbar(); updateDetail(selectedItem); updateLibraryLayout(); }
+			});
+		});
 		binding.appsRecycler.addOnLayoutChangeListener((v, l, t, r, b, ol, ot, or, ob) -> {
 			// notifyDataSetChanged during layout can strand RecyclerView's pending updates and focus.
 			v.post(() -> {
-				if (binding != null) adapter.setAvailableHeight(Math.round(binding.appsRecycler.getHeight()
-						/ getResources().getDisplayMetrics().density));
+				if (binding != null) updateLibraryLayout();
 			});
-			if (r - l != or - ol && binding.appsRecycler.getLayoutManager() instanceof GridLayoutManager) {
-				((GridLayoutManager) binding.appsRecycler.getLayoutManager())
-						.setSpanCount(calculateSpanCount(adapter.getDisplayMode()));
-			}
 		});
 		initialGameFocus = true;
 		adapter.registerAdapterDataObserver(libraryObserver);
@@ -389,6 +389,18 @@ public class AppsListFragment extends Fragment implements AppsListAdapter.Listen
 				});
 			}
 		});
+		dialog.action("Cover format: " + LibraryLayout.COVER_LABELS[coverFormat()], android.R.drawable.ic_menu_gallery, () -> {
+			dialog.page("Gallery cover format");
+			dialog.setBackAction(() -> populateLibraryMenu(dialog));
+			for (int i = 0; i < LibraryLayout.COVER_LABELS.length; i++) {
+				final int value = i;
+				dialog.action(LibraryLayout.COVER_LABELS[i], 0, () -> {
+					preferences.edit().putInt(LibraryLayout.COVER_PREFERENCE, value).apply();
+					updateLibraryLayout(); dialog.dismiss();
+					if (BuildConfig.HANDHELD_MODE) focusGame(selectedItem == null ? null : selectedItem.getPath());
+				});
+			}
+		});
 		dialog.action("Sort", R.drawable.ic_setting_sort, () -> {
 			dialog.page("Sort");
 			dialog.setBackAction(() -> populateLibraryMenu(dialog));
@@ -438,24 +450,42 @@ public class AppsListFragment extends Fragment implements AppsListAdapter.Listen
 	}
 
 	private int calculateSpanCount(int mode) {
-		int width = binding.appsRecycler.getWidth();
-		int available = width > 0 ? Math.round(width / getResources().getDisplayMetrics().density)
-				: getResources().getConfiguration().screenWidthDp - 24;
-		return Math.max(1, available / (mode == AppsListAdapter.MODE_GALLERY ? 220 : 144));
+		return libraryLayout(mode).columns;
+	}
+
+	private int coverFormat() { return LibraryLayout.format(preferences.getInt(LibraryLayout.COVER_PREFERENCE, LibraryLayout.AUTO)); }
+	private LibraryLayout libraryLayout(int mode) {
+		float density = getResources().getDisplayMetrics().density;
+		int width = binding.appsRecycler.getWidth() - binding.appsRecycler.getPaddingLeft() - binding.appsRecycler.getPaddingRight();
+		int height = binding.appsRecycler.getHeight() - binding.appsRecycler.getPaddingTop() - binding.appsRecycler.getPaddingBottom();
+		return LibraryLayout.calculate(mode, coverFormat(), width > 0 ? Math.round(width / density)
+				: getResources().getConfiguration().screenWidthDp - 24, height > 0 ? Math.round(height / density)
+				: getResources().getConfiguration().screenHeightDp - 80, getResources().getConfiguration().fontScale);
+	}
+	private void updateLibraryLayout() {
+		boolean restore = binding.appsRecycler.hasFocus();
+		String path = selectedItem == null ? null : selectedItem.getPath();
+		LibraryLayout layout = libraryLayout(adapter.getDisplayMode());
+		if (binding.appsRecycler.getLayoutManager() instanceof GridLayoutManager)
+			((GridLayoutManager) binding.appsRecycler.getLayoutManager()).setSpanCount(layout.columns);
+		adapter.setLibraryLayout(layout);
+		if (restore && !binding.appsRecycler.hasFocus()) focusGame(path);
 	}
 
 	private void updateResponsiveToolbar() {
-		boolean wide = getResources().getConfiguration().screenWidthDp >= 560;
-		boolean shortLandscape = getResources().getConfiguration().orientation == Configuration.ORIENTATION_LANDSCAPE
-				&& getResources().getConfiguration().screenHeightDp < 480;
-		boolean compact = shortLandscape || getResources().getConfiguration().screenWidthDp < 600;
+		float density = getResources().getDisplayMetrics().density;
+		float width = binding.getRoot().getWidth() > 0 ? binding.getRoot().getWidth() / density : getResources().getConfiguration().screenWidthDp;
+		float height = binding.getRoot().getHeight() > 0 ? binding.getRoot().getHeight() / density : getResources().getConfiguration().screenHeightDp;
+		boolean wide = width >= 560;
+		boolean shortLandscape = height < 480 && width > height;
+		boolean compact = LibraryLayout.compact(width, height, getResources().getConfiguration().fontScale);
 		compactLibrary = compact;
 		adapter.setCompact(shortLandscape);
 		binding.libraryCategoryRow.setVisibility(compact ? View.GONE : View.VISIBLE);
 		binding.libraryCount.setVisibility(compact ? View.GONE : View.VISIBLE);
 		binding.libraryCategory.setVisibility(compact ? View.VISIBLE : View.GONE);
 		binding.librarySearchToggle.setVisibility(compact ? View.VISIBLE : View.GONE);
-		binding.libraryMenu.setVisibility(compact ? View.VISIBLE : View.GONE);
+		binding.libraryMenu.setVisibility(View.VISIBLE);
 		binding.railAddGame.setVisibility(compact ? View.GONE : View.VISIBLE);
 		binding.railFolders.setVisibility(compact ? View.GONE : View.VISIBLE);
 		binding.railSettings.setVisibility(compact ? View.GONE : View.VISIBLE);
@@ -1033,7 +1063,7 @@ public class AppsListFragment extends Fragment implements AppsListAdapter.Listen
 			return;
 		}
 		selectedItem = item;
-		binding.detailPanel.setVisibility(item != null && !isCompactPhoneLayout()
+		binding.detailPanel.setVisibility(item != null && !compactLibrary && !isCompactPhoneLayout()
 				? View.VISIBLE : View.GONE);
 		if (item == null) {
 			return;

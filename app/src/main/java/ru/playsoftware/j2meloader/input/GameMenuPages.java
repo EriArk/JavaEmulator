@@ -9,6 +9,7 @@ public final class GameMenuPages {
         void controls();
         void more();
         void exit();
+        void restart();
         boolean hasPreview();
         void keep();
         void undo();
@@ -38,7 +39,17 @@ public final class GameMenuPages {
             menu.action("Undo changes", android.R.drawable.ic_menu_revert, host::undo);
         }
         menu.action("More", android.R.drawable.ic_menu_more, host::more);
+        menu.action("Restart game", android.R.drawable.ic_popup_sync, this::confirmRestart);
         menu.action("Exit game", android.R.drawable.ic_menu_close_clear_cancel, this::confirmExit);
+    }
+
+    public void confirmRestart() {
+        menu.page("Restart game?");
+        menu.message("Unsaved progress may be lost. Saved settings will be used."
+                + (host.hasPreview() ? " Unconfirmed setting changes will be discarded." : ""));
+        menu.action("Cancel", android.R.drawable.ic_media_previous, this::home);
+        menu.action("Restart", android.R.drawable.ic_popup_sync, host::restart);
+        menu.setBackAction(this::home);
     }
 
     public void confirmExit() {

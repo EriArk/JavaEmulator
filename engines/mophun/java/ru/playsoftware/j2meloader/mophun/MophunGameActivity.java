@@ -280,6 +280,7 @@ public final class MophunGameActivity extends Activity implements InputManager.I
             public boolean hasPreview() { return ProfilesManager.isPreview(profile); }
             public void keep() { keepPreview(); }
             public void undo() { undoPreview(); }
+            public void restart() { restartGame(); }
             public void exit() { leaveGame(); }
         }, this::takeScreenshot).home();
     }
@@ -362,6 +363,31 @@ public final class MophunGameActivity extends Activity implements InputManager.I
                     () -> { if (landscape) profile.touchLandscapeReach = before; else profile.touchPortraitReach = before; });
         });
         menu.action("Back", android.R.drawable.ic_media_previous, this::showMenuPage);
+    }
+
+    private boolean restarting;
+    private void restartGame() {
+        if (restarting || session == null || isFinishing()) return;
+        restarting = true;
+        if (ProfilesManager.isPreview(profile)) undoPreview();
+        clearInput(); previewBar.stop(); visible = false;
+        menu.setOnDismissListener(null); menu.page("Restarting game");
+        menu.setCancelable(false);
+        session.stop();
+        disk.execute(() -> {
+            try {
+                session.close();
+                runOnUiThread(() -> { if (!isFinishing() && !isDestroyed()) recreate(); });
+            } catch (Exception error) {
+                android.util.Log.e("Mophun", "Restart", error);
+                runOnUiThread(() -> {
+                    if (isFinishing() || isDestroyed()) return;
+                    menu.page("Could not restart game");
+                    menu.message("The previous session did not stop. Exit before trying again.");
+                    menu.action("Exit game", android.R.drawable.ic_menu_close_clear_cancel, this::leaveGame);
+                });
+            }
+        });
     }
 
     private void leaveGame() {

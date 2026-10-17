@@ -1,6 +1,6 @@
 # AbyssME - Current Product and Development Status
 
-**Last updated: 2026-10-16.** Verification dates are recorded per section.
+**Last updated: 2026-10-17.** Verification dates are recorded per section.
 This is the starting point for website copy,
 announcements, progress posts and project handoffs. It includes work that exists
 only in local experiments or private test builds. Describing that work here
@@ -53,9 +53,33 @@ Beta.1 remains a historical download, not the recommended current version.
 | Channel | Current identifier | Availability |
 | --- | --- | --- |
 | Public download | `v0.3.0-beta.3`, code 302 | Signed Handheld/Phone APKs, matching app source and dependency/native source bundles |
-| Public development source | `main`, beta.3 tag at `dc21ac62` | All implementation described in the release notes is public; subsequent publication records are documentation-only |
+| Public development source | `main`, after beta.3 tag `dc21ac62` | Includes unreleased Gallery formats, square-screen library layout and shared Restart game; these are not in the beta.3 APKs |
 | Private historical snapshot | `0.1.0-beta.2-experimental.15`, 2026-10-11 | Old Java/Mophun test build, not the current beta |
 | Local-only material | Game fixtures, firmware, diagnostics, device data and signing keys | Not in Git or public release assets; describing testing does not authorize redistribution |
+
+## Unreleased Source After Beta.3
+
+October 17: **Library menu > Cover format** offers Automatic, Wide and Portrait.
+Gallery uses aligned cards and fits complete covers, including wide banners,
+without rewriting artwork files. Square and near-square screens use the compact
+header and a game-focused layout without a squeezed detail pane. This changes
+the launcher, not the emulated game's aspect ratio.
+
+**Restart game** is available in the shared Java, Mophun and Symbian game menu.
+It asks for confirmation, uses saved settings and discards unconfirmed previews.
+It is a recovery shortcut, **not a fix for every black screen after display
+changes**. Restart can lose unsaved progress. An old Symbian menu callback that
+paused the replacement session was fixed during verification.
+
+Both developer variants built; base JVM suites passed 29 tests each and lint
+reported zero errors. Gallery/menu checks ran on Android emulators and the
+physical Retroid Pocket Classic. Bounce Tales, Deep Abyss and Snakes returned to
+their game menus after restarting on Retroid. This does not establish full-game,
+audio or save-roundtrip compatibility. No physical RG Cube was available.
+[Checks and limits](checks/2026-10-17-gallery-restart.md),
+[development screenshots](../screenshots/development/2026-10-17-gallery-restart/).
+The public release list was rechecked October 17: beta.3 is still the newest
+published beta. No release APK was replaced by this work.
 
 ## Changes Released in Beta.3
 

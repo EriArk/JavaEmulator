@@ -112,6 +112,7 @@ public class MicroActivity extends AppCompatActivity {
 	private Displayable current;
 	private boolean visible;
 	private boolean screenshotPending;
+	private boolean restarting;
 	private boolean actionBarEnabled;
 	private boolean statusBarEnabled;
 	private MicroLoader microLoader;
@@ -810,6 +811,10 @@ public class MicroActivity extends AppCompatActivity {
 			public boolean hasPreview() { return ProfilesManager.isPreview(microLoader.getTouchSettings()); }
 			public void keep() { keepSettingsPreview(); }
 			public void undo() { undoSettingsPreview(); }
+			public void restart() {
+				ProfilesManager.undoPreview(microLoader.getTouchSettings());
+				restartGame(null);
+			}
 			public void exit() {
 				hideSoftInput();
 				gameMenu.setOnDismissListener(null);
@@ -861,6 +866,7 @@ public class MicroActivity extends AppCompatActivity {
 	}
 
 	private void restartGame(ProfileModel draft) {
+		if (restarting || isFinishing()) return;
 		try {
 			if (draft != null) ru.playsoftware.j2meloader.config.SettingsTrial.stage(draft);
 			ru.playsoftware.j2meloader.config.GameRestartActivity.prepare(this, appName, appPath,
@@ -870,6 +876,8 @@ public class MicroActivity extends AppCompatActivity {
 			Toast.makeText(this, "Could not restart the game. Previous settings kept.", Toast.LENGTH_LONG).show();
 			return;
 		}
+		restarting = true;
+		hideSoftInput();
 		if (settingsPreview != null) settingsPreview.stop();
 		controllerInput.clear();
 		if (gameMenu != null) { gameMenu.setOnDismissListener(null); gameMenu.dismiss(); }
