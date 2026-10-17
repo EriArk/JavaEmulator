@@ -111,7 +111,7 @@ remaining coverage is tracked in [#4](https://github.com/EriArk/JavaEmulator/iss
 - `app/src/main/java/ru/woesss/j2me/installer`: import and conversion.
 - `app/src/phone`: Phone manifest and resource overrides.
 - `app/src/main/cpp` and `dexlib`: native components and bytecode tooling.
-- `docs` and `screenshots/website-beta2`: integration notes and authentic captures.
+- `docs` and `screenshots/releases`: integration notes and authentic release captures.
 - `test-builds`: historical binaries and test reports, not a build prerequisite.
 
 The installed package IDs are AbyssME-specific; the Java namespace remains

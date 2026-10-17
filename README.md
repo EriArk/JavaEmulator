@@ -17,7 +17,7 @@ core: a controller-first **Handheld** APK and a portrait/touch-friendly
 > **Project status:** Beta. AbyssME is usable, but compatibility automation and
 > launcher integration still need testing across more games and devices.
 
-[Download 0.3.0 Beta 3](https://github.com/EriArk/JavaEmulator/releases/tag/v0.3.0-beta.3)
+[Download 0.3.0 Beta 4](https://github.com/EriArk/JavaEmulator/releases/tag/v0.3.0-beta.4)
 
 ## Current Beta
 
@@ -25,10 +25,15 @@ For website copy, progress posts and handoffs, start with the
 [current product/development status](docs/PROJECT_STATUS.md) and
 [dated changelog](CHANGELOG.md). They also describe local/private experiments,
 explicitly separated from public downloads. The
-[0.3.0 beta.3 notes](docs/releases/v0.3.0-beta.3.md) include the combined-engine scope,
+[0.3.0 beta.4 notes](docs/releases/v0.3.0-beta.4.md) include the combined-engine scope,
 verification limits and source downloads.
 
-Beta.3 adds Light/Dark/System appearance, hideable Phone shortcuts, touch-key
+Beta.4 adds **Automatic / Wide / Portrait** Gallery cover formats without
+cropping, a compact library for square and near-square screens, and **Restart
+game** in the shared in-game menu. Restart uses saved settings and discards
+unconfirmed previews; it is a recovery shortcut, not a general black-screen fix.
+
+The release retains Light/Dark/System appearance, hideable Phone shortcuts, touch-key
 feedback, per-game FPS presets and safer duplicate Java imports. It improves
 Java screen startup and filename-based setup hints, external-launcher return
 paths, system-file import and guarded SIS/SISX removal. N-Gage cards remain
@@ -37,7 +42,7 @@ visible alongside ordinary SIS games on the same virtual phone.
 The 0.3 beta adds embedded Symbian / N-Gage, reusable system-file setup,
 SIS/SISX and native-game archive import, and whole-phone backup/restore.
 Games from all three engines appear in the library. Their common in-game menu
-provides **Resume, Display, Controls, Screenshot, More and Exit game**.
+provides **Resume, Display, Controls, Screenshot, More, Restart game and Exit game**.
 Symbian compatibility remains experimental; games and firmware are not included.
 See [what to provide for Symbian](docs/releases/v0.3.0-beta.1.md#getting-started-with-symbian).
 
@@ -88,16 +93,14 @@ notices; see [licensing](docs/LICENSING.md). Historical release assets are uncha
 
 ## Screenshots
 
-![Handheld library in Gallery view](screenshots/post-2026-10-11/01-library-gallery.png)
+![Handheld library with portrait covers](screenshots/releases/v0.3.0-beta.4/01-handheld-gallery-portrait.png)
 
-<img src="screenshots/post-2026-10-11/10-phone-keypad.png" alt="Phone build playing 2048 in portrait with its numeric keypad" width="270">
+<img src="screenshots/releases/v0.3.0-beta.4/08-phone-keypad.png" alt="Phone build playing a Java game in portrait with its numeric keypad" width="270">
 
-Unretouched UI captures from the October 11 experimental.15 Android 15 emulator
-build, not physical-device photos or new beta.1 captures. Games were installed
-separately and Gallery artwork was selected manually. See the
-[full UI pack and credits](screenshots/post-2026-10-11/README.md), or
-[October 13 signed-build Retroid/Phone captures](docs/releases/v0.2.0-beta.1.md#captures).
-Games are not bundled with the APKs.
+Unretouched captures from the signed beta.4 APKs on a Retroid Pocket Classic
+(Android 14), including the separate Phone variant. These are app screenshots,
+not photographs. Games were installed separately and are not bundled.
+See the [fresh screenshot pack and captions](screenshots/releases/v0.3.0-beta.4/README.md).
 
 ## Highlights
 

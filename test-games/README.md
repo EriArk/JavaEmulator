@@ -23,5 +23,5 @@ game. It does not replace the old MIDP 1.0 or vendor-specific coverage; those
 gaps remain in [#4](https://github.com/EriArk/JavaEmulator/issues/4).
 
 The separately installed games used for the beta.2 website screenshots have
-their source links listed in the [capture manifest](../screenshots/website-beta2/manifest.json);
+their source links listed in the [archived capture manifest](https://github.com/EriArk/JavaEmulator/blob/23da5d4b/screenshots/website-beta2/manifest.json);
 their JARs are not part of that screenshot pack.

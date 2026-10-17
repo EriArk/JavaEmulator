@@ -9,5 +9,5 @@ submission, review branding, translations, current screenshots and both APK
 variants. Do not present inherited screenshots as current AbyssME captures.
 
 The maintained public description is the [repository README](../README.md).
-Authentic beta.2 screenshots and their provenance are under
-[screenshots/website-beta2](../screenshots/website-beta2).
+Current release screenshots and their provenance are under
+[screenshots/releases/v0.3.0-beta.4](../screenshots/releases/v0.3.0-beta.4).

@@ -34,6 +34,11 @@ bundled. The app UI is English.
 
 ## Availability: Do Not Mix These Channels
 
+**Beta.4 release preparation, October 17:** signed combined Handheld/Phone
+builds use version code 303. Both were installed on Retroid, 29 release JVM
+tests per variant passed, and fresh screenshots are ready. Publication is not
+yet implied by this preparation record. See [checks](releases/v0.3.0-beta.4-checks.md).
+
 **Current public beta: [0.3.0-beta.3](https://github.com/EriArk/JavaEmulator/releases/tag/v0.3.0-beta.3)**,
 published **2026-10-15 at 19:16 UTC**, code **302**. Handheld and Phone include
 Java, Mophun and experimental Symbian / N-Gage. Android 10+, arm64-v8a.
@@ -1258,8 +1263,8 @@ See [racing evidence and screenshots](https://github.com/EriArk/JavaEmulator/blo
 ## Images and Writing Guidance
 
 - [0.2.0-beta.1 release captures](releases/v0.2.0-beta.1.md#captures), 2026-10-13: signed Handheld Asphalt/Deep Abyss on Retroid and signed Phone Deep Abyss in the emulator. Short ADB-driven checks, not whole-game/audio acceptance.
-- [Fresh development screenshots, 2026-10-11](../screenshots/post-2026-10-11/README.md): 12 real emulator PNGs, ZIP, captions and hashes. Label as **development / experimental.15**.
-- [Historical beta.2 screenshots](../screenshots/website-beta2/manifest.json): older UI; do not present as current beta.1 captures.
+- [Archived development screenshots, 2026-10-11](https://github.com/EriArk/JavaEmulator/blob/23da5d4b/screenshots/post-2026-10-11/README.md): 12 real emulator PNGs, ZIP, captions and hashes. Label as **development / experimental.15**.
+- [Archived beta.2 screenshots](https://github.com/EriArk/JavaEmulator/blob/23da5d4b/screenshots/website-beta2/manifest.json): older UI, not current captures.
 - Gallery covers in both packs were manually curated. Grid/List show native icons or fallbacks. No games are bundled; artwork is not evidence of gameplay compatibility.
 - For a website, lead with the product and user experience; distinguish **available now** from **in development**. Do not link a public beta download as though it contained the experimental features pictured.
 - For a progress post, select the dated changes since the previous report. Use plain language about user benefits, not test harnesses or implementation details. Include meaningful limitations without overwhelming the post.

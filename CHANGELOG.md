@@ -818,7 +818,7 @@ code is now part of this public combined beta; private games and firmware are no
   the library, gameplay, mapping, touch layouts and settings, with an unchanged
   PNG pack and capture manifest.
   [2835c239](https://github.com/EriArk/JavaEmulator/commit/2835c239),
-  [screenshots](screenshots/post-2026-10-11/README.md).
+  [archived screenshots](https://github.com/EriArk/JavaEmulator/blob/23da5d4b/screenshots/post-2026-10-11/README.md).
 - **Documentation:** added the shared current-status source for website and
   post authors, including local-only work and evidence boundaries; added this
   historical changelog and an update contract. No new app build in this batch.
