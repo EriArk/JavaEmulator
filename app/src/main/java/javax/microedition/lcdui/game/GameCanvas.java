@@ -129,6 +129,13 @@ public class GameCanvas extends Canvas {
 	}
 
 	@Override
+	public void doSizeChanged(int width, int height) {
+		// Preserve the Image and cached Graphics objects held by the game.
+		resizeGameBuffer(image);
+		super.doSizeChanged(width, height);
+	}
+
+	@Override
 	public void doShowNotify() {
 		keyState = 0;
 		super.doShowNotify();

@@ -21,6 +21,27 @@ import java.util.zip.ZipOutputStream;
 import static org.junit.Assert.*;
 
 public class CompatibilityProfileTest {
+    @Test public void originalCanvasWinsOverPhoneScalingDestination() throws Exception {
+        manifest("Nokia-MIDlet-Original-Display-Size: 176,208\nNokia-MIDlet-Target-Display-Size: 240,320\n");
+        ProfileModel model = run();
+        assertEquals(176, model.detectedScreenWidth); assertEquals(208, model.detectedScreenHeight);
+        manifest("MIDlet-Original-Display-Size: 240,320\nMIDlet-Target-Display-Size: 360,640\n");
+        assertEquals(240, run().detectedScreenWidth);
+    }
+
+    @Test public void pairedDimensionsSupportUncommonPhonesWithoutGuessingFromOneAxis() throws Exception {
+        for (String prefix : new String[]{"LGE-MIDlet-TargetLCD-", "MIDlet-Screen-", "Screen-"}) {
+            manifest(prefix + "Height: 400\n" + prefix + "Width: 240\n");
+            ProfileModel model = run();
+            assertEquals(240, model.detectedScreenWidth); assertEquals(400, model.detectedScreenHeight);
+        }
+        for (String bad : new String[]{"", "Screen-Width: -240\nScreen-Height: 320\n",
+                "Screen-Width: 240\n", "Screen-Width: 9999\nScreen-Height: 320\n",
+                "Screen-Width: 240px\nScreen-Height: 320\n"}) {
+            manifest(bad); assertEquals(0, run().detectedScreenWidth);
+        }
+    }
+
     @Test public void sourceFilenameRestoresSizeAndLabelsUnverifiedPhoneHint() throws Exception {
         manifest("");
         ru.playsoftware.j2meloader.catalog.SourceHints.write(root, "Ghost_Recon_2_SE_128x160.jar");

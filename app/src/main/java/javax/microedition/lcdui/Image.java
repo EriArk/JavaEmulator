@@ -111,8 +111,13 @@ public class Image {
 		return new Image(Bitmap.createBitmap(rgb, width, height, Bitmap.Config.ARGB_8888));
 	}
 
-	public Graphics getGraphics() {
-		return new Graphics(this);
+	private java.util.WeakHashMap<Graphics, Boolean> graphicsContexts;
+
+	public synchronized Graphics getGraphics() {
+		Graphics result = new Graphics(this);
+		if (graphicsContexts == null) graphicsContexts = new java.util.WeakHashMap<>();
+		graphicsContexts.put(result, Boolean.TRUE);
+		return result;
 	}
 
 	public boolean isMutable() {
@@ -147,21 +152,19 @@ public class Image {
 		return graphics;
 	}
 
-	void setSize(int width, int height) {
+	synchronized void setSize(int width, int height) {
 		if (width > bitmap.getWidth() || height > bitmap.getHeight()) {
 			Bitmap b = bitmap;
 			bitmap = Bitmap.createBitmap(width, height, Bitmap.Config.ARGB_8888);
-			bounds.right = width;
-			bounds.bottom = height;
-			if (graphics != null) {
-				graphics.reset(0, 0, width, height);
-				graphics.getCanvas().drawBitmap(b, 0, 0, null);
-			}
-		} else {
-			bounds.right = width;
-			bounds.bottom = height;
-			if (graphics != null) {
-				graphics.reset(0, 0, width, height);
+			new android.graphics.Canvas(bitmap).drawBitmap(b, 0, 0, null);
+		}
+		bounds.right = width;
+		bounds.bottom = height;
+		// Cached game Graphics must follow the new backing bitmap, not paint the abandoned one.
+		if (graphicsContexts != null) {
+			for (Graphics context : graphicsContexts.keySet()) {
+				context.getCanvas().setBitmap(bitmap);
+				context.reset(0, 0, width, height);
 			}
 		}
 	}

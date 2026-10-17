@@ -376,17 +376,11 @@ public abstract class Canvas extends Displayable {
 		});
 	}
 
-	private boolean checkSizeChanged() {
-		int tmpWidth = width;
-		int tmpHeight = height;
-		updateSize();
-		return width != tmpWidth || height != tmpHeight;
-	}
-
 	/**
 	 * Update the size and position of the virtual screen relative to the real one.
 	 */
 	public void updateSize() {
+		int oldWidth = width, oldHeight = height;
 		if (drawRotation != screenRotation) {
 			for (int p = 0; p < gamePointers.length; p++) {
 				if (gamePointers[p]) Display.postEvent(CanvasEvent.getInstance(this,
@@ -580,6 +574,14 @@ public abstract class Canvas extends Displayable {
 			float tw = (float) width / offscreen.getBitmap().getWidth();
 			renderer.updateSize(gl, gt, gr, gb, th, tw);
 		}
+		if (width != oldWidth || height != oldHeight) {
+			if (isShown()) {
+				Display.getEventQueue().postEventQueued(CanvasEvent.getInstance(this,
+						CanvasEvent.SIZE_CHANGED, width, height));
+			} else {
+				sizeChangedCalled = false;
+			}
+		}
 		repaintInternal();
 	}
 
@@ -651,12 +653,6 @@ public abstract class Canvas extends Displayable {
 		fullscreen = flag;
 		updateSize();
 		softBar.notifyChanged();
-		if (!isShown()) {
-			sizeChangedCalled = false;
-			return;
-		}
-		Display.postEvent(CanvasEvent.getInstance(this, CanvasEvent.SIZE_CHANGED, width, height));
-		repaintInternal();
 	}
 
 	public boolean hasPointerEvents() {
@@ -687,6 +683,10 @@ public abstract class Canvas extends Displayable {
 
 	protected abstract void paint(Graphics g);
 
+	protected final void resizeGameBuffer(Image image) {
+		image.setSize(width, maxHeight);
+	}
+
 	public final void repaint() {
 		repaint(0, 0, width, height);
 	}
@@ -710,7 +710,7 @@ public abstract class Canvas extends Displayable {
 		synchronized (paintEvent) {
 			paintEvent.invalidateClip(this, 0, 0, width, height);
 		}
-		Display.postEvent(paintEvent);
+		Display.getEventQueue().postEventQueued(paintEvent);
 	}
 
 	// GameCanvas
@@ -851,7 +851,9 @@ public abstract class Canvas extends Displayable {
 		private GLSurfaceView mView;
 		private final int[] bgTextureId = new int[1];
 		private ShaderProgram program;
-		private boolean isStarted;
+		private volatile boolean geometryDirty = true;
+		private volatile boolean filterDirty = true;
+		private int textureWidth, textureHeight;
 
 		@Override
 		public void onSurfaceCreated(GL10 gl, EGLConfig config) {
@@ -862,12 +864,12 @@ public abstract class Canvas extends Displayable {
 			glDisable(GL_DEPTH_TEST);
 			glDepthMask(false);
 			initTex();
-			Bitmap bitmap = offscreenCopy.getBitmap();
-			program.loadVbo(vbo, bitmap.getWidth(), bitmap.getHeight());
+			textureWidth = textureHeight = 0;
+			geometryDirty = true;
+			filterDirty = true;
 			if (shaderFilter != null && shaderFilter.values != null) {
 				glUniform4fv(program.uSetting, 1, shaderFilter.values, 0);
 			}
-			isStarted = true;
 		}
 
 		@Override
@@ -880,9 +882,29 @@ public abstract class Canvas extends Displayable {
 		public void onDrawFrame(GL10 gl) {
 			glClear(GL_COLOR_BUFFER_BIT);
 			synchronized (bufferLock) {
-				GLUtils.texImage2D(GLES20.GL_TEXTURE_2D, 0, offscreenCopy.getBitmap(), 0);
+				// Client-side vertex memory must stay unchanged until GL consumes the draw.
+				synchronized (vbo) {
+					if (geometryDirty) {
+						geometryDirty = false;
+						Bitmap bitmap = offscreenCopy.getBitmap();
+						program.loadVbo(vbo, bitmap.getWidth(), bitmap.getHeight());
+					}
+					if (filterDirty) {
+						filterDirty = false;
+						glBindTexture(GL_TEXTURE_2D, bgTextureId[0]);
+						glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, filter ? GL_LINEAR : GL_NEAREST);
+						glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, filter ? GL_LINEAR : GL_NEAREST);
+					}
+					Bitmap frame = offscreenCopy.getBitmap();
+					if (textureWidth != frame.getWidth() || textureHeight != frame.getHeight()) {
+						GLUtils.texImage2D(GL_TEXTURE_2D, 0, frame, 0);
+						textureWidth = frame.getWidth(); textureHeight = frame.getHeight();
+					} else {
+						GLUtils.texSubImage2D(GL_TEXTURE_2D, 0, 0, 0, frame);
+					}
+					glDrawArrays(GL_TRIANGLE_STRIP, 0, 4);
+				}
 			}
-			glDrawArrays(GL_TRIANGLE_STRIP, 0, 4);
 			if (fpsCounter != null) {
 				fpsCounter.increment();
 			}
@@ -902,14 +924,7 @@ public abstract class Canvas extends Displayable {
 		}
 
 		public void updateFilter() {
-			if (!isStarted) {
-				return;
-			}
-			mView.queueEvent(() -> {
-				glBindTexture(GL_TEXTURE_2D, bgTextureId[0]);
-				glTexParameteri(GLES20.GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, filter ? GL_LINEAR : GL_NEAREST);
-				glTexParameteri(GLES20.GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, filter ? GL_LINEAR : GL_NEAREST);
-			});
+			filterDirty = true;
 		}
 
 		public void updateSize(float gl, float gt, float gr, float gb, float th, float tw) {
@@ -920,14 +935,7 @@ public abstract class Canvas extends Displayable {
 				putVertex(vertex_bg, gl, gb, 0, 1, tw, th);
 				putVertex(vertex_bg, gr, gt, 1, 0, tw, th);
 				putVertex(vertex_bg, gr, gb, 1, 1, tw, th);
-			}
-			if (isStarted) {
-				mView.queueEvent(() -> {
-					Bitmap bitmap = offscreenCopy.getBitmap();
-					synchronized (vbo) {
-						program.loadVbo(vbo, bitmap.getWidth(), bitmap.getHeight());
-					}
-				});
+				geometryDirty = true;
 			}
 		}
 
@@ -945,7 +953,6 @@ public abstract class Canvas extends Displayable {
 		}
 
 		public void stop() {
-			isStarted = false;
 			mView.onPause();
 		}
 
@@ -1366,6 +1373,7 @@ public abstract class Canvas extends Displayable {
 
 		@Override
 		public void surfaceChanged(@NonNull SurfaceHolder holder, int format, int newWidth, int newHeight) {
+			if (mView != innerView || newWidth <= 0 || newHeight <= 0) return;
 			if (displayWidth > displayHeight) {
 				if (newWidth < newHeight) {
 					softBar.closeMenu();
@@ -1375,20 +1383,12 @@ public abstract class Canvas extends Displayable {
 			}
 			displayWidth = newWidth;
 			displayHeight = newHeight;
-			boolean changed = checkSizeChanged();
-			if (changed && !isShown()) sizeChangedCalled = false;
-			if (changed && isShown()) {
-				Display.postEvent(CanvasEvent.getInstance(Canvas.this,
-						CanvasEvent.SIZE_CHANGED,
-						width,
-						height));
-				repaintInternal();
-				sizeChangedCalled = true;
-			}
+			updateSize();
 		}
 
 		@Override
 		public void surfaceCreated(@NonNull SurfaceHolder holder) {
+			if (mView != innerView) return;
 			if (renderer != null) {
 				renderer.start();
 			}
@@ -1409,6 +1409,7 @@ public abstract class Canvas extends Displayable {
 
 		@Override
 		public void surfaceDestroyed(@NonNull SurfaceHolder holder) {
+			if (mView != innerView) return;
 			if (renderer != null) {
 				renderer.stop();
 			}

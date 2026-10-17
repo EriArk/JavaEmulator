@@ -38,31 +38,36 @@ public class LibraryImportActivity extends CompactSettingsActivity {
     private ScrollView home;
     private LinearLayout footer;
     private RecyclerView list;
-    private boolean includeShared = true, homeRequested, restoring, updatingSelection;
+    private boolean includeShared = true, homeRequested, restoring, updatingSelection, pickerPending;
     private int singlePart;
     private int displayedStage = -1;
     private final Entries adapter = new Entries();
     private LibraryImportModel.State current;
     private final ActivityResultLauncher<Uri> picker = registerForActivityResult(
             new ActivityResultContracts.OpenDocumentTree(), uri -> {
+                pickerReturned(uri);
                 if (uri == null) return;
                 retain(uri); homeRequested = false; restoring = false; model.scan(uri);
             });
     private final ActivityResultLauncher<String[]> restorePicker = registerForActivityResult(
             new ActivityResultContracts.OpenDocument(), uri -> {
-                if (uri != null) { homeRequested = false; restoring = true; model.scanBackup(uri); }
+                pickerReturned(uri);
+                if (uri != null) { retain(uri); homeRequested = false; restoring = true; model.scanBackup(uri); }
             });
     private final ActivityResultLauncher<String> backupPicker = registerForActivityResult(
             new ActivityResultContracts.CreateDocument("application/zip"), uri -> {
+                pickerReturned(uri);
                 if (uri != null) { homeRequested = false; restoring = false; model.exportBackup(uri); }
             });
     private final ActivityResultLauncher<Uri> singlePicker = registerForActivityResult(
             new ActivityResultContracts.OpenDocumentTree(), uri -> {
+                pickerReturned(uri);
                 if (uri == null) return;
                 retain(uri); homeRequested = false; restoring = false; model.scanSingle(singlePart, uri);
             });
     private final ActivityResultLauncher<Uri> accessPicker = registerForActivityResult(
             new ActivityResultContracts.OpenDocumentTree(), uri -> {
+                pickerReturned(uri);
                 if (uri == null) return;
                 retain(uri); model.allowFolder(uri);
             });
@@ -76,8 +81,10 @@ public class LibraryImportActivity extends CompactSettingsActivity {
         if (state != null) {
             singlePart = state.getInt("singlePart"); includeShared = state.getBoolean("includeShared", true);
             homeRequested = state.getBoolean("homeRequested"); restoring = state.getBoolean("restoring");
+            pickerPending = state.getBoolean("pickerPending");
         }
         model = new ViewModelProvider(this).get(LibraryImportModel.class);
+        if (state != null) model.restoreState(state.getBundle("transfer"), pickerPending);
         options = headerButton("Transfer options", R.drawable.ic_baseline_tune_24, this::showOptions);
         LinearLayout root = new LinearLayout(this); root.setOrientation(LinearLayout.VERTICAL);
         root.setPadding(dp(12), dp(8), dp(12), dp(8));
@@ -91,15 +98,15 @@ public class LibraryImportActivity extends CompactSettingsActivity {
         homeStatus = text(14, LIGHT);
         homeStatus.setPadding(dp(4), 0, dp(4), dp(12)); choices.addView(homeStatus);
         allowAccess = button("Allow folder access", R.drawable.ic_setting_folder, () -> {
-            if (current != null && current.access != null) accessPicker.launch(android.provider.DocumentsContract.buildDocumentUri(
+            if (current != null && current.access != null) launchPicker(accessPicker, android.provider.DocumentsContract.buildDocumentUri(
                     current.access.folder.getAuthority(), android.provider.DocumentsContract.getDocumentId(current.access.folder)));
         });
         choices.addView(allowAccess, actionParams());
-        choices.addView(button(ru.playsoftware.j2meloader.BuildConfig.SYMBIAN_EXPERIMENT ? "Back up Java / Mophun" : "Back up library", android.R.drawable.ic_menu_save, () -> backupPicker.launch(
+        choices.addView(button(ru.playsoftware.j2meloader.BuildConfig.SYMBIAN_EXPERIMENT ? "Back up Java / Mophun" : "Back up library", android.R.drawable.ic_menu_save, () -> launchPicker(backupPicker,
                 "AbyssME-" + new java.text.SimpleDateFormat("yyyy-MM-dd-HHmm", java.util.Locale.ROOT)
                         .format(new java.util.Date()) + ".zip")), actionParams());
         choices.addView(button(ru.playsoftware.j2meloader.BuildConfig.SYMBIAN_EXPERIMENT ? "Restore Java / Mophun backup" : "Restore backup", android.R.drawable.ic_menu_revert,
-                () -> restorePicker.launch(new String[]{"application/zip", "application/octet-stream"})), actionParams());
+                () -> launchPicker(restorePicker, new String[]{"application/zip", "application/octet-stream"})), actionParams());
         choices.addView(button("Import from J2ME Loader", R.drawable.ic_setting_folder, this::showImportSources), actionParams());
         if (ru.playsoftware.j2meloader.BuildConfig.SYMBIAN_EXPERIMENT) {
             choices.addView(button("Symbian / N-Gage phone backups", android.R.drawable.ic_menu_save, () ->
@@ -129,6 +136,14 @@ public class LibraryImportActivity extends CompactSettingsActivity {
         try { getContentResolver().takePersistableUriPermission(uri, Intent.FLAG_GRANT_READ_URI_PERMISSION); }
         catch (SecurityException ignored) { }
     }
+    private <T> void launchPicker(ActivityResultLauncher<T> launcher, T input) {
+        pickerPending = true;
+        launcher.launch(input);
+    }
+    private void pickerReturned(Uri uri) {
+        pickerPending = false;
+        model.pickerReturned(uri == null);
+    }
     private LinearLayout.LayoutParams actionParams() {
         LinearLayout.LayoutParams params = new LinearLayout.LayoutParams(-1, -2);
         params.bottomMargin = dp(6); return params;
@@ -140,7 +155,7 @@ public class LibraryImportActivity extends CompactSettingsActivity {
     private void showImportSources() {
         GameMenuDialog dialog = menu("J2ME Loader");
         dialog.message("Close J2ME Loader before importing. Original files stay unchanged.");
-        dialog.action("Whole library", R.drawable.ic_setting_folder, () -> { dialog.dismiss(); picker.launch(null); });
+        dialog.action("Whole library", R.drawable.ic_setting_folder, () -> { dialog.dismiss(); launchPicker(picker, null); });
         dialog.action("Single game", R.drawable.ic_list, () -> { dialog.dismiss(); selectSinglePart(0); });
     }
     private void showOptions() {
@@ -218,9 +233,11 @@ public class LibraryImportActivity extends CompactSettingsActivity {
         GameMenuDialog dialog = menu(new String[]{"Game folder", "Saves folder", "Settings folder"}[part]);
         dialog.message(new String[]{"J2ME Loader / converted / your game", "J2ME Loader / data / the same game",
                 "J2ME Loader / configs / the same game"}[part]);
-        dialog.action("Choose folder", R.drawable.ic_setting_folder, () -> { dialog.dismiss(); singlePicker.launch(null); });
+        dialog.action("Choose folder", R.drawable.ic_setting_folder, () -> { dialog.dismiss(); launchPicker(singlePicker, null); });
     }
     @Override protected void onSaveInstanceState(Bundle state) {
+        state.putBundle("transfer", model.saveState());
+        state.putBoolean("pickerPending", pickerPending);
         state.putInt("singlePart", singlePart); state.putBoolean("includeShared", includeShared);
         state.putBoolean("homeRequested", homeRequested); state.putBoolean("restoring", restoring);
         super.onSaveInstanceState(state);

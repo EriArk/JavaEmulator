@@ -146,7 +146,9 @@ final class CompatibilityProfileTester {
 						|| key.equals("microedition.platform") || key.equals("device"))
 					probe.targetText += " " + withoutWebAddresses(value);
 				if (key.equals("midlet-vendor")) probe.publisher = value.trim();
-				if (key.contains("screen") || key.contains("resolution") || key.contains("display")
+				if (key.equals("nokia-midlet-original-display-size") || key.equals("midlet-original-display-size"))
+					readResolutionHints(probe, withoutWebAddresses(value), 1100);
+				else if (key.contains("screen") || key.contains("resolution") || key.contains("display")
 						|| key.contains("canvas")) readResolutionHints(probe, withoutWebAddresses(value), 1000);
 				else if (key.equals("midlet-name")) readResolutionHints(probe, withoutWebAddresses(value), 600);
 				else if (key.equals("midlet-jar-url")) {
@@ -154,12 +156,27 @@ final class CompatibilityProfileTester {
 					if (filename != null) readResolutionHints(probe, filename, 600);
 				}
 			}
+			readPairedScreen(probe, "LGE-MIDlet-TargetLCD-Width", "LGE-MIDlet-TargetLCD-Height");
+			readPairedScreen(probe, "MIDlet-Screen-Width", "MIDlet-Screen-Height");
+			readPairedScreen(probe, "Screen-Width", "Screen-Height");
 		} catch (Exception ignored) {
 			probe.attrs = new LinkedHashMap<>();
 			probe.targetText = "";
 			probe.publisher = "";
 		}
 		return probe;
+	}
+
+	private static void readPairedScreen(Probe probe, String widthKey, String heightKey) {
+		String width = null, height = null;
+		for (Map.Entry<String, String> entry : probe.attrs.entrySet()) {
+			if (entry.getKey().equalsIgnoreCase(widthKey)) width = entry.getValue().trim();
+			if (entry.getKey().equalsIgnoreCase(heightKey)) height = entry.getValue().trim();
+		}
+		if (width == null || height == null || !width.matches("[0-9]{2,4}") || !height.matches("[0-9]{2,4}")) return;
+		int w = Integer.parseInt(width), h = Integer.parseInt(height);
+		// Explicit paired dimensions may describe uncommon phones; image guesses stay allowlisted.
+		rememberScreenCandidate(probe, w, h, 1000);
 	}
 
 	private static void readSourceHints(File appDir, Probe probe) {

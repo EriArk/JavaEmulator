@@ -43,6 +43,7 @@ public class CanvasLifecycleTest {
         Screen() { super(true); }
         final List<String> events = Collections.synchronizedList(new ArrayList<>());
         volatile int frame, painted = -1, keys;
+        volatile int color = 0x00FF00;
         boolean failShow;
         Runnable onSize, onShow;
         protected void sizeChanged(int w, int h) { events.add("size"); if (onSize != null) onSize.run(); }
@@ -55,7 +56,7 @@ public class CanvasLifecycleTest {
         protected void keyPressed(int key) { keys++; }
         protected void paint(Graphics g) {
             events.add("paint"); painted = frame;
-            g.setColor(0x00FF00); g.fillRect(0, 0, getWidth(), getHeight());
+            g.setColor(color); g.fillRect(0, 0, getWidth(), getHeight());
         }
     }
 
@@ -104,6 +105,160 @@ public class CanvasLifecycleTest {
             Display.getEventQueue().postEventQueued(RunnableEvent.getInstance(done::countDown));
             assertTrue("Event queue must remain responsive", done.await(5, TimeUnit.SECONDS));
         }
+    }
+
+    @Test public void liveLogicalResizeNotifiesGuestBeforeAutomaticPaint() throws Exception {
+        Field w = Displayable.class.getDeclaredField("virtualWidth"), h = Displayable.class.getDeclaredField("virtualHeight");
+        w.setAccessible(true); h.setAccessible(true);
+        int oldW = w.getInt(null), oldH = h.getInt(null);
+        try {
+            w.setInt(null, 128); h.setInt(null, 160);
+            Screen canvas = screen(); display.setCurrent(canvas); Display.setForeground(true); drain();
+            for (int[] size : new int[][]{{240,320},{480,800},{176,220},{128,160}}) {
+                canvas.events.clear();
+                InstrumentationRegistry.getInstrumentation().runOnMainSync(() -> {
+                    try { w.setInt(null, size[0]); h.setInt(null, size[1]); }
+                    catch (Exception e) { throw new AssertionError(e); }
+                    canvas.updateSize();
+                });
+                drain();
+                assertEquals(size[0], canvas.getWidth()); assertEquals(size[1], canvas.getHeight());
+                assertEquals("size", canvas.events.get(0));
+                assertEquals(1, Collections.frequency(canvas.events, "size"));
+                assertTrue(canvas.events.contains("paint"));
+                canvas.events.clear(); canvas.updateSize(); drain();
+                assertFalse("Presentation-only updates are not guest resize events", canvas.events.contains("size"));
+            }
+        } finally { w.setInt(null, oldW); h.setInt(null, oldH); }
+    }
+
+    @Test public void hiddenLogicalResizeIsDeliveredOnResume() throws Exception {
+        Field w = Displayable.class.getDeclaredField("virtualWidth"); w.setAccessible(true);
+        int old = w.getInt(null);
+        try {
+            Screen canvas = screen(); display.setCurrent(canvas); Display.setForeground(true); drain();
+            Display.setForeground(false); drain(); canvas.events.clear();
+            w.setInt(null, canvas.getWidth() + 16); canvas.updateSize(); drain();
+            assertTrue(canvas.events.isEmpty());
+            Display.setForeground(true); drain();
+            assertEquals(java.util.Arrays.asList("size", "show", "paint"), canvas.events);
+        } finally { w.setInt(null, old); }
+    }
+
+    @Test public void internalResizePaintStaysBehindSizeNotificationInImmediateMode() throws Exception {
+        int oldW = Displayable.getVirtualWidth(), oldH = Displayable.getVirtualHeight();
+        try {
+            Displayable.setVirtualSize(128, 160);
+            Screen canvas = screen(); display.setCurrent(canvas); Display.setForeground(true); drain();
+            EventQueue.setImmediate(true); canvas.events.clear();
+            Displayable.setVirtualSize(240, 320); canvas.updateSize(); drain();
+            assertEquals("size", canvas.events.get(0));
+            assertTrue(canvas.events.contains("paint"));
+        } finally { Displayable.setVirtualSize(oldW, oldH); }
+    }
+
+    @Test public void canvasRepaintAndGameCanvasFlushUseTheConfiguredFrameBudget() throws Exception {
+        Field fps = Canvas.class.getDeclaredField("fpsLimit"); fps.setAccessible(true);
+        int previous = fps.getInt(null);
+        try {
+            Canvas.setLimitFps(20);
+            Screen canvas = screen(); display.setCurrent(canvas); Display.setForeground(true); drain();
+            long start = System.nanoTime();
+            for (int i = 0; i < 11; i++) { canvas.repaint(); canvas.serviceRepaints(); }
+            assertTrue("Ten Canvas intervals at 20 FPS", System.nanoTime() - start >= 500_000_000L);
+            javax.microedition.lcdui.game.GameCanvas game = new javax.microedition.lcdui.game.GameCanvas(false);
+            game.setFullScreenMode(true);
+            display.setCurrent(game); drain();
+            assertTrue(game.getWidth() > 0 && game.getHeight() > 0);
+            start = System.nanoTime();
+            for (int i = 0; i < 11; i++) game.flushGraphics();
+            assertTrue("Ten GameCanvas intervals at 20 FPS", System.nanoTime() - start >= 500_000_000L);
+            Canvas.setLimitFps(60);
+            game.flushGraphics();
+            Display.setForeground(false); drain(); Display.setForeground(true); drain();
+            assertTrue(game.isShown());
+        } finally { fps.setInt(null, previous); }
+    }
+
+    @Test public void gameCanvasCachedGraphicsCanDrawIntoAnExpandedScreen() throws Exception {
+        Field w = Displayable.class.getDeclaredField("virtualWidth"), h = Displayable.class.getDeclaredField("virtualHeight");
+        w.setAccessible(true); h.setAccessible(true);
+        int oldW = w.getInt(null), oldH = h.getInt(null);
+        try {
+            w.setInt(null, 128); h.setInt(null, 160);
+            javax.microedition.lcdui.game.GameCanvas canvas = new javax.microedition.lcdui.game.GameCanvas(false);
+            canvas.setFullScreenMode(true);
+            display.setCurrent(canvas); Display.setForeground(true); drain();
+            Graphics graphics = canvas.getGraphics();
+            w.setInt(null, 240); h.setInt(null, 320); canvas.updateSize(); drain();
+            graphics.setColor(0x12AB34); graphics.fillRect(0, 0, 240, 320); canvas.flushGraphics();
+            Field copy = Canvas.class.getDeclaredField("offscreenCopy"); copy.setAccessible(true);
+            assertEquals(0xFF12AB34, ((Image) copy.get(canvas)).getBitmap().getPixel(239, 319));
+        } finally { w.setInt(null, oldW); h.setInt(null, oldH); }
+    }
+
+    @Test public void glesPixelsSurviveLiveResizeAndSurfaceRecreation() throws Exception {
+        int oldW = Displayable.getVirtualWidth(), oldH = Displayable.getVirtualHeight();
+        Field mode = Canvas.class.getDeclaredField("graphicsMode"); mode.setAccessible(true);
+        int oldMode = mode.getInt(null);
+        Field view = Canvas.class.getDeclaredField("innerView"); view.setAccessible(true);
+        Screen[] canvas = new Screen[1];
+        try (androidx.test.core.app.ActivityScenario<ru.playsoftware.j2meloader.MainActivity> scenario =
+                     androidx.test.core.app.ActivityScenario.launch(ru.playsoftware.j2meloader.MainActivity.class)) {
+            scenario.onActivity(activity -> {
+                ContextHolder.setCurrentActivity(host); ContextHolder.setVk(null);
+                Canvas.setGraphicsMode(1, false); Canvas.setScale(2, 1, 100);
+                Displayable.setVirtualSize(128, 160);
+                canvas[0] = new Screen(); activity.setContentView(canvas[0].getDisplayableView());
+                display.setCurrent(canvas[0]); Display.setForeground(true);
+            });
+            drain(); assertGreenSurface((android.view.SurfaceView) view.get(canvas[0]));
+            for (int color : new int[]{0x123456, 0xFF0000, 0x00FF00}) {
+                scenario.onActivity(activity -> { canvas[0].color = color; canvas[0].repaint(); });
+                drain(); assertSurfaceColor((android.view.SurfaceView) view.get(canvas[0]), 0xFF000000 | color);
+            }
+            for (int rotation : new int[]{90, 180, 270, 0}) {
+                scenario.onActivity(activity -> {
+                    Displayable.setVirtualSize(rotation == 180 ? 128 : 480, rotation == 180 ? 160 : 800);
+                    Canvas.setScreenRotation(rotation); Canvas.setFilterBitmap(rotation == 90);
+                    canvas[0].updateSize(); canvas[0].updateRenderingSettings();
+                });
+                drain(); assertGreenSurface((android.view.SurfaceView) view.get(canvas[0]));
+            }
+            android.view.SurfaceView oldView = (android.view.SurfaceView) view.get(canvas[0]);
+            scenario.onActivity(activity -> oldView.setVisibility(android.view.View.GONE));
+            android.os.SystemClock.sleep(150);
+            scenario.onActivity(activity -> {
+                Displayable.setVirtualSize(176, 220); canvas[0].updateSize();
+                oldView.setVisibility(android.view.View.VISIBLE);
+            });
+            drain(); assertGreenSurface(oldView);
+        } finally {
+            Displayable.setVirtualSize(oldW, oldH); Canvas.setGraphicsMode(oldMode, false);
+            Canvas.setScreenRotation(0); Canvas.setFilterBitmap(false);
+        }
+    }
+
+    private static void assertGreenSurface(android.view.SurfaceView view) throws Exception {
+        assertSurfaceColor(view, 0xFF00FF00);
+    }
+
+    private static void assertSurfaceColor(android.view.SurfaceView view, int expected) throws Exception {
+        for (int attempt = 0; attempt < 30; attempt++) {
+            if (view.getWidth() > 0 && view.getHeight() > 0 && view.getHolder().getSurface().isValid()) {
+                android.graphics.Bitmap frame = android.graphics.Bitmap.createBitmap(view.getWidth(), view.getHeight(),
+                        android.graphics.Bitmap.Config.ARGB_8888);
+                CountDownLatch ready = new CountDownLatch(1);
+                int[] result = {-1};
+                android.view.PixelCopy.request(view, frame, code -> { result[0] = code; ready.countDown(); },
+                        new android.os.Handler(android.os.Looper.getMainLooper()));
+                assertTrue(ready.await(5, TimeUnit.SECONDS));
+                int pixel = frame.getPixel(frame.getWidth() / 2, frame.getHeight() / 2); frame.recycle();
+                if (result[0] == android.view.PixelCopy.SUCCESS && pixel == expected) return;
+            }
+            android.os.SystemClock.sleep(100);
+        }
+        fail("The actual GLES surface must contain the current guest color: " + Integer.toHexString(expected));
     }
 
     @Test public void startCompletionPublishesSizeShowAndPaintWithoutSurface() throws Exception {

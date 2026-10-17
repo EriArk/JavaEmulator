@@ -91,9 +91,11 @@ public final class LibraryImporter {
 
 	public static final class FolderAccessRequired extends IOException {
 		public final Uri folder;
+		public final String name;
 		FolderAccessRequired(Uri folder, String name) {
 			super("Allow access to " + name + " to continue reading the library. Android will ask you to select this folder. Original files stay unchanged.");
 			this.folder = folder;
+			this.name = name;
 		}
 	}
 
@@ -102,6 +104,21 @@ public final class LibraryImporter {
 	}
 
 	public void resetFolderAccess() { folderGrants.clear(); folderNames.clear(); sourceTree = null; }
+
+	android.os.Bundle saveFolderAccess() {
+		android.os.Bundle saved = new android.os.Bundle();
+		for (Map.Entry<String, Uri> grant : folderGrants.entrySet()) saved.putString(grant.getKey(), grant.getValue().toString());
+		return saved;
+	}
+
+	void restoreFolderAccess(android.os.Bundle saved) {
+		resetFolderAccess();
+		if (saved == null) return;
+		for (String key : saved.keySet()) {
+			String value = saved.getString(key);
+			if (value != null) folderGrants.put(key, Uri.parse(value));
+		}
+	}
 
 	public void allowFolder(FolderAccessRequired request, Uri selected) throws IOException {
 		if (!"content".equals(selected.getScheme()) || !DocumentsContract.isTreeUri(selected)

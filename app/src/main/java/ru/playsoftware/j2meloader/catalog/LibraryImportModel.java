@@ -49,11 +49,62 @@ public class LibraryImportModel extends AndroidViewModel {
 	private File backupStage;
 	private Uri singleGame, singleData, singleConfig;
 	private Uri libraryRoot;
+	private Uri backupSource;
+	private boolean awaitingRestoredPicker;
 	public boolean isSingleGame() { return singleGame != null; }
+
+	android.os.Bundle saveState() {
+		android.os.Bundle saved = new android.os.Bundle();
+		saved.putParcelable("root", libraryRoot);
+		saved.putParcelable("game", singleGame);
+		saved.putParcelable("data", singleData);
+		saved.putParcelable("config", singleConfig);
+		saved.putParcelable("backup", backupSource);
+		saved.putBundle("grants", importer.saveFolderAccess());
+		State current = state.getValue();
+		if (current != null && current.access != null) {
+			saved.putParcelable("access", current.access.folder);
+			saved.putString("accessName", current.access.name);
+		}
+		return saved;
+	}
+
+	void restoreState(android.os.Bundle saved) {
+		restoreState(saved, false);
+	}
+
+	void restoreState(android.os.Bundle saved, boolean awaitingPicker) {
+		// A retained ViewModel owns its worker; only a new process needs restoration.
+		if (saved == null || busy || !"No folder selected".equals(state.getValue().status)) return;
+		libraryRoot = saved.getParcelable("root"); singleGame = saved.getParcelable("game");
+		singleData = saved.getParcelable("data"); singleConfig = saved.getParcelable("config");
+		backupSource = saved.getParcelable("backup");
+		importer.restoreFolderAccess(saved.getBundle("grants"));
+		awaitingRestoredPicker = awaitingPicker;
+		Uri access = saved.getParcelable("access");
+		if (access != null) {
+			LibraryImporter.FolderAccessRequired request = new LibraryImporter.FolderAccessRequired(access,
+					saved.getString("accessName", "the source folder"));
+			state.setValue(new State(false, request.getMessage(), 0, 0, null, null, request));
+		} else if (!awaitingPicker) rescanRestoredSource();
+		// Only rescan for review. Never replay an import or overwrite a backup automatically.
+	}
+
+	void pickerReturned(boolean cancelled) {
+		boolean restore = awaitingRestoredPicker;
+		awaitingRestoredPicker = false;
+		if (restore && cancelled && state.getValue().access == null) rescanRestoredSource();
+	}
+
+	private void rescanRestoredSource() {
+		if (singleGame != null) scanSingle(-1, null);
+		else if (libraryRoot != null) scan(libraryRoot, false);
+		else if (backupSource != null) scan(backupSource, true);
+	}
 
 	public void scanSingle(int part, Uri uri) {
 		if (busy) return;
-		if (part == 0) { importer.resetFolderAccess(); libraryRoot = null; singleGame = uri; singleData = null; singleConfig = null; }
+		if (part == 0) { importer.resetFolderAccess(); libraryRoot = null; backupSource = null; singleGame = uri; singleData = null; singleConfig = null; }
 		else if (part == 1) singleData = uri;
 		else if (part == 2) singleConfig = uri;
 		busy = true; cancelled.set(false); preview = null;
@@ -78,13 +129,13 @@ public class LibraryImportModel extends AndroidViewModel {
 
 	public void scan(Uri uri) {
 		if (busy) return;
-		importer.resetFolderAccess(); libraryRoot = uri;
+		importer.resetFolderAccess(); libraryRoot = uri; backupSource = null;
 		scan(uri, false);
 	}
 
 	public void scanBackup(Uri uri) {
 		if (busy) return;
-		importer.resetFolderAccess(); libraryRoot = null;
+		importer.resetFolderAccess(); libraryRoot = null; backupSource = uri;
 		scan(uri, true);
 	}
 
@@ -166,6 +217,7 @@ public class LibraryImportModel extends AndroidViewModel {
 
 	public void exportBackup(Uri uri) {
 		if (busy) return;
+		libraryRoot = backupSource = null;
 		singleGame = singleData = singleConfig = null;
 		busy = true; cancelled.set(false); preview = null;
 		state.setValue(new State(true, "Saving games, saves and settings...", 0, 0, null, null));

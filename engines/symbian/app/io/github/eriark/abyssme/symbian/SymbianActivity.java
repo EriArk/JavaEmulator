@@ -35,7 +35,10 @@ public final class SymbianActivity extends Activity implements Emulator.Host, In
     private TextView status;
     private ProgressBar progressBar;
     private TextureView surface;
-    private boolean running, attached, busy, returnRequested, menuOpen;
+    private volatile boolean running;
+    private volatile long sessionGeneration;
+    private boolean attached, busy, returnRequested, menuOpen;
+    private boolean resumed;
     private volatile boolean closing;
     private InputManager inputManager;
     private int pendingUid;
@@ -867,18 +870,20 @@ public final class SymbianActivity extends Activity implements Emulator.Host, In
             if (!Emulator.startSession()) throw new IOException("The phone could not start");
             runOnUiThread(() -> {
                 if (closing) return;
+                sessionGeneration++;
                 running = true; pendingUid = uid;
-                surface = new TextureView(this);
-                surface.setSurfaceTextureListener(new TextureView.SurfaceTextureListener() {
+                TextureView sessionSurface = new TextureView(this);
+                surface = sessionSurface;
+                sessionSurface.setSurfaceTextureListener(new TextureView.SurfaceTextureListener() {
                     private Surface output;
                     @Override public void onSurfaceTextureAvailable(android.graphics.SurfaceTexture texture, int w, int height) {
                         output = new Surface(texture); onSurfaceTextureSizeChanged(texture,w,height);
                     }
                     @Override public void onSurfaceTextureSizeChanged(android.graphics.SurfaceTexture texture, int w, int height) {
-                        if (!running || closing) return;
+                        if (surface != sessionSurface || !running || closing) return;
                         Emulator.setScreenParams(Color.BLACK, 100, sessionUi == null ? 1 : sessionUi.scale(), 2, "", 0, true);
                         Emulator.surfaceChanged(output, w, height); attached = true;
-                        Emulator.pauseSession(menuOpen);
+                        Emulator.pauseSession(!resumed || menuOpen);
                         if (pendingUid != 0) {
                             int uid = pendingUid; pendingUid = 0;
                             if (!Emulator.launchGame(uid)) {
@@ -888,7 +893,9 @@ public final class SymbianActivity extends Activity implements Emulator.Host, In
                         }
                     }
                     @Override public boolean onSurfaceTextureDestroyed(android.graphics.SurfaceTexture texture) {
-                        detach(); output.release(); output = null; return true;
+                        if (surface == sessionSurface) detach();
+                        if (output != null) output.release();
+                        output = null; return true;
                     }
                     @Override public void onSurfaceTextureUpdated(android.graphics.SurfaceTexture texture) { }
                 });
@@ -906,7 +913,7 @@ public final class SymbianActivity extends Activity implements Emulator.Host, In
                             if (running && attached && !closing) Emulator.touchScreen(x,y,pressure,action,pointer);
                         }
                         public void key(int scan, boolean down) { if (running && attached && !closing) Emulator.pressKey(scan, down ? 0 : 1); }
-                        public void pause(boolean paused) { menuOpen = paused; if (running && attached && !closing) Emulator.pauseSession(paused); }
+                        public void pause(boolean paused) { menuOpen = paused; if (running && attached && !closing) Emulator.pauseSession(!resumed || paused); }
                         public void display(int scale) { if (running && attached && !closing) Emulator.setScreenParams(Color.BLACK,100,scale,2,"",0,true); }
                         public void leave() { returnToLibrary(); }
                         public void restart() { restartGame(uid); }
@@ -1004,9 +1011,10 @@ public final class SymbianActivity extends Activity implements Emulator.Host, In
                 .setNegativeButton("Resume", (d, w) -> resumeGame())
                 .setOnCancelListener(d -> resumeGame()).show();
     }
-    private void resumeGame() { menuOpen = false; if (running && !closing) Emulator.pauseSession(false); }
+    private void resumeGame() { menuOpen = false; if (running && attached && !closing) Emulator.pauseSession(!resumed); }
     private void restartGame(int uid) {
         if (closing || !running || busy) return;
+        sessionGeneration++;
         if (sessionUi != null) { sessionUi.close(); sessionUi = null; }
         detach(); running = false; menuOpen = false; pendingUid = 0;
         library();
@@ -1021,6 +1029,7 @@ public final class SymbianActivity extends Activity implements Emulator.Host, In
     private void returnToLibrary() {
         if (closing || !running) return;
         if (busy) { returnRequested = true; return; }
+        sessionGeneration++;
         if (sessionUi != null) { sessionUi.close(); sessionUi = null; }
         menuOpen = false;
         detach(); running = false; library();
@@ -1054,16 +1063,20 @@ public final class SymbianActivity extends Activity implements Emulator.Host, In
         });
     }
     @Override protected void onPause() {
+        resumed = false;
         if (sessionUi != null) sessionUi.visible(false);
         releaseKeys(); if (running) Emulator.pauseSession(true); super.onPause();
     }
     @Override protected void onResume() {
-        super.onResume(); if (running && attached && !menuOpen) Emulator.pauseSession(false);
+        super.onResume(); resumed = true;
+        if (running && attached && !menuOpen && !closing) Emulator.pauseSession(false);
         if (sessionUi != null) sessionUi.visible(true);
     }
     @Override protected void onDestroy() {
+        closing = true;
+        sessionGeneration++;
         if (sessionUi != null) { sessionUi.close(); sessionUi = null; }
-        closing = true; detach(); running = false;
+        detach(); running = false;
         if (systemChoice != null) systemChoice.dismiss();
         inputManager.unregisterInputDeviceListener(this);
         if (Emulator.host == this) Emulator.host = null;
@@ -1073,7 +1086,11 @@ public final class SymbianActivity extends Activity implements Emulator.Host, In
         });
         super.onDestroy();
     }
-    @Override public void exited() { runOnUiThread(this::returnToLibrary); }
+    @Override public void exited() {
+        long generation = sessionGeneration;
+        if (!running || closing) return;
+        runOnUiThread(() -> { if (generation == sessionGeneration) returnToLibrary(); });
+    }
     @Override public void onInputDeviceAdded(int id) { }
     @Override public void onInputDeviceChanged(int id) { releaseKeys(); }
     @Override public void onInputDeviceRemoved(int id) { releaseKeys(); }
