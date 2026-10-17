@@ -1,7 +1,7 @@
 # AbyssME Changelog
 
 User-facing development history, reconstructed from commits, release notes and
-local/private build records through **2026-10-17**. This is not a claim that all
+local/private build records through **2026-10-18**. This is not a claim that all
 listed work is in a public APK. See [current status](docs/PROJECT_STATUS.md) for
 availability, verification, known limits and screenshot guidance.
 
@@ -9,6 +9,33 @@ Labels: **Public source** means implemented on `main` but unreleased unless
 stated otherwise. **Experimental** in older checkpoints means local/private
 combined builds; released experimental features are explicitly identified.
 **Released** means an actual GitHub release asset.
+
+## 2026-10-18
+
+- **Public source, unreleased:** fixed stale Java Graphics targets after buffer
+  growth, GameCanvas buffer resizing and size-notification ordering. Hardened
+  GLES context/geometry updates and ignored obsolete surface callbacks. These
+  address shared resize failure classes, not every game's black screen.
+  Stable-size GLES frames reuse texture storage; no measured FPS gain is claimed.
+- **Public source, unreleased:** recognize explicit paired screen dimensions
+  such as LG TargetLCD, and prefer original over target-display resolution.
+  No per-title rules or resetting of existing settings.
+- **Public source, unreleased:** restore transfer source/save/settings folders,
+  subfolder access and pending picker state after Android process recreation.
+  A returned selection cannot be lost to an automatic rescan; interrupted
+  imports/exports are not silently repeated.
+  A real emulator process-death/DocumentsUI round trip returned to review with
+  the selected game's saves included, without committing an import.
+- **Public source, unreleased:** protect Symbian replacement sessions from stale
+  exits/surfaces and prevent background surface/menu events from resuming games.
+- **Verified locally:** both base and combined variants built; zero lint errors,
+  29 JVM tests per variant, 98 final emulator checks and 98 earlier Retroid checks.
+  A separate Snakes UI/pixel check passed on Retroid. Added Canvas/GameCanvas
+  frame-cap coverage; no universal simulation-speed claim. Physical testing was
+  stopped when another task began using the device. Public beta.4 is unchanged.
+  Final Phone emulator checks also covered Bounce Tales size trials/Undo,
+  restart and exit, with inspected game images rather than a full playthrough.
+  [Evidence and limits](docs/checks/2026-10-18-runtime-transfer.md).
 
 ## 2026-10-17
 

@@ -1,6 +1,6 @@
 # AbyssME - Current Product and Development Status
 
-**Last updated: 2026-10-17.** Verification dates are recorded per section.
+**Last updated: 2026-10-18.** Verification dates are recorded per section.
 This is the starting point for website copy,
 announcements, progress posts and project handoffs. It includes work that exists
 only in local experiments or private test builds. Describing that work here
@@ -53,9 +53,32 @@ Beta.1 remains a historical download, not the recommended current version.
 | Channel | Current identifier | Availability |
 | --- | --- | --- |
 | Public download | `v0.3.0-beta.4`, code 303 | Signed Handheld/Phone APKs, matching app source and dependency/native source bundles |
-| Public development source | `main`, release tag `7b4742f8` plus publication documentation | Gallery formats, square-screen library layout and shared Restart game are included in beta.4 |
+| Public development source | `main`, ahead of beta.4 | Unreleased Java resize, automatic screen setup, transfer-recovery and Symbian lifecycle fixes; see below |
 | Private historical snapshot | `0.1.0-beta.2-experimental.15`, 2026-10-11 | Old Java/Mophun test build, not the current beta |
 | Local-only material | Game fixtures, firmware, diagnostics, device data and signing keys | Not in Git or public release assets; describing testing does not authorize redistribution |
+
+## Unreleased Development After Beta.4
+
+October 18: fixed shared Java drawing-buffer and GLES lifecycle problems during
+live screen changes. Improved automatic setup for explicit LG width/height and
+Nokia original-versus-target resolution declarations. Existing saved settings
+stay unchanged. Transfer now retains chosen folders and pending access requests
+across Android process recreation, without silently repeating an import.
+Symbian session callbacks and background pause handling were hardened.
+Stable-size Java GLES frames now reuse texture storage instead of reallocating
+it every frame; a measured performance improvement has not been established.
+
+Both base and combined developer variants built with zero lint errors. The final
+Phone emulator suite passed 98 selected checks; Retroid passed 98 before the last
+picker-result and texture-reuse follow-ups. Snakes passed a separate native menu/display/screenshot
+check. These are development results, not new release APKs or full-game
+compatibility claims. The existing frame limiter gained additional actual
+Canvas/GameCanvas-path checks, not a universal game-speed setting.
+The emulator also recovered a real DocumentsUI save-folder selection after
+process death and returned to review with saves included, without auto-importing.
+Bounce Tales completed live size trials/Undo, restart and exit in the final Phone
+emulator build; inspected game images remained visible. No full-playthrough claim.
+[Details, local fixtures and limitations](checks/2026-10-18-runtime-transfer.md).
 
 ## Changes Released in Beta.4
 

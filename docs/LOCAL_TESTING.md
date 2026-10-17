@@ -1,8 +1,9 @@
 # Local regression checks
 
 GitHub Actions is intentionally disabled. Set up the SDK/JDK and local signing
-workaround in [Contributing](../CONTRIBUTING.md) first; #1 is still open.
-Commands below use the public source tree, without optional private engines.
+setup in [Contributing](../CONTRIBUTING.md) first.
+Property-free commands below build the Java/Mophun developer variants. Public
+Symbian source and combined-build instructions are in [the engine guide](../engines/symbian/README.md).
 
 ## Build and JVM tests
 
@@ -11,20 +12,21 @@ Commands below use the public source tree, without optional private engines.
 ./gradlew :app:testPhoneDebugUnitTest --rerun :app:testFdroidDebugUnitTest --rerun
 ```
 
-On Windows use `gradlew.bat`. JVM coverage is 14 tests per variant: source identity
-and controller direction/diagonal transitions, release behavior and fallback.
+On Windows use `gradlew.bat`. As of October 18, the JVM suite has 29 tests per
+variant: source identity, controller transitions, frame pacing, game information
+and library layout. Dated sections below preserve their historical counts.
 
 ## Android instrumentation
 
-Use an explicit emulator/device serial. Example for `emulator-5554` and beta.2
+Use an explicit emulator/device serial. Example for `emulator-5554` and beta.4
 development filenames (adjust filenames when the version changes):
 
 ```shell
-adb -s emulator-5554 install -r -d app/build/outputs/apk/phone/debug/AbyssME-0.1.0-beta.2-phone-debug.apk
+adb -s emulator-5554 install -r -d app/build/outputs/apk/phone/debug/AbyssME-0.3.0-beta.4-phone-debug.apk
 adb -s emulator-5554 install -r -d app/build/outputs/apk/androidTest/phone/debug/app-phone-debug-androidTest.apk
 adb -s emulator-5554 shell am instrument -w -e package ru.playsoftware.j2meloader io.github.eriark.abyssme.phone.debug.test/androidx.test.runner.AndroidJUnitRunner
 
-adb -s emulator-5554 install -r -d app/build/outputs/apk/fdroid/debug/AbyssME-0.1.0-beta.2-debug.apk
+adb -s emulator-5554 install -r -d app/build/outputs/apk/fdroid/debug/AbyssME-0.3.0-beta.4-debug.apk
 adb -s emulator-5554 install -r -d app/build/outputs/apk/androidTest/fdroid/debug/app-fdroid-debug-androidTest.apk
 adb -s emulator-5554 shell am instrument -w -e package ru.playsoftware.j2meloader io.github.eriark.abyssme.debug.test/androidx.test.runner.AndroidJUnitRunner
 ```
@@ -32,6 +34,12 @@ adb -s emulator-5554 shell am instrument -w -e package ru.playsoftware.j2meloade
 Do not uninstall or clear app data to work around a signing conflict on someone's
 device. Test packages have separate `.debug` application IDs. Instrumentation
 uses temporary test libraries; it can launch activities and write screenshots.
+
+Runtime Canvas/Image tests use the `javax.microedition.lcdui` package, so the
+`-e package ru.playsoftware.j2meloader` examples above do not include them.
+Use an explicit class list or omit that filter for a broader run. Never run
+UI automation against a device concurrently controlled by another task.
+The latest targeted runtime/transfer evidence is [recorded separately](checks/2026-10-18-runtime-transfer.md).
 
 ## Mismatched JAD/JAR fallback: 2026-10-10
 
