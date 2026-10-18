@@ -12,6 +12,17 @@ combined builds; released experimental features are explicitly identified.
 
 ## 2026-10-18
 
+- **Released:** [0.4.0 Beta 1](https://github.com/EriArk/JavaEmulator/releases/tag/v0.4.0-beta.1),
+  code 306, at 15:33 UTC. One signed adaptive APK replaces separate Phone and
+  Handheld downloads and includes the unreleased-after-beta.6 improvements below.
+  All five uploaded assets matched local hashes/sizes; APK and checksums were
+  downloaded and verified. Source tag `d6f42706`. Final signed Retroid checks
+  covered migrated Java launch, Always touch preview and automatic rollback,
+  plus native Snakes startup/main menu. Source/dependency bundles accompany it.
+  Updated README, migration guide and three signed-build screenshots. Actions
+  stays disabled. No website or Nextcloud deployment in this checkpoint.
+  [Verification and limits](docs/releases/v0.4.0-beta.1-checks.md).
+
 - **Release preparation, 0.4.0-beta.1:** signed unified APK built and installed
   over Handheld beta.6 on Retroid. All 324 readable external files retained
   their hashes before launch. Exported two games through the old signed Phone

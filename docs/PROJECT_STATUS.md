@@ -21,9 +21,10 @@ using physical controllers, and adjusting each game's controls and picture
 without a long setup process. It requires Android 10 or newer. Games are not
 bundled. The app UI is English.
 
-- **Handheld:** controller-first, landscape-only, no on-screen keypad.
-- **Phone:** portrait and landscape, touch input and on-screen controls.
-- Both variants have independent app data and can coexist.
+- **One adaptive APK:** portrait and landscape, physical controllers and touch.
+- Automatic controller detection with per-game priority/visibility overrides.
+- Former Handheld installs update in place. The old Phone app remains separate;
+  transfer its games and saves through the in-app backup/restore workflow.
 - Experimental Mophun support is integrated in the same app. Its source is now
   included in public 0.2.0-beta.1; the historical 0.1.0 beta.2 has no Mophun.
 - Embedded Symbian / N-Gage is included in the published combined 0.3 beta. Snakes reaches
@@ -34,17 +35,20 @@ bundled. The app UI is English.
 
 ## Availability: Do Not Mix These Channels
 
-**Current public beta: [0.3.0-beta.6](https://github.com/EriArk/JavaEmulator/releases/tag/v0.3.0-beta.6)**,
-published **2026-10-18 at 09:48 UTC**, code **305**. Handheld and Phone include
+**Current public beta: [0.4.0-beta.1](https://github.com/EriArk/JavaEmulator/releases/tag/v0.4.0-beta.1)**,
+published **2026-10-18 at 15:33 UTC**, code **306**. One adaptive APK includes
 Java, Mophun and experimental Symbian / N-Gage. Android 10+, arm64-v8a.
-Games and firmware are not included. Both variants can coexist with independent data.
+Games and firmware are not included. The old Phone app is a separate migration
+source, not a second 0.4 download.
 
-All six uploaded asset digests were checked; both APKs and the checksum list
-were downloaded again and matched. The source tag is `7a428f92`; later handoff
-documentation does not change the APKs. GitHub Actions remains disabled.
-[Release notes](releases/v0.3.0-beta.6.md),
-[verification and limits](releases/v0.3.0-beta.6-checks.md),
-[checksums](releases/v0.3.0-beta.6/SHA256SUMS.txt).
+All five uploaded asset digests and sizes matched. The APK and checksum list
+were downloaded again and matched before publication. The source tag points to
+`d6f42706`; later handoff documentation does not change the APK. GitHub Actions
+remains disabled. No website or Nextcloud deployment in this release checkpoint.
+[Release notes](releases/v0.4.0-beta.1.md),
+[verification and limits](releases/v0.4.0-beta.1-checks.md),
+[checksums](releases/v0.4.0-beta.1/SHA256SUMS.txt),
+[fresh signed-build captures](../screenshots/releases/v0.4.0-beta.1/README.md).
 
 Beta.2 was withheld before publication after final provisioning exposed a mixed
 SIS/N-Gage catalog defect. Its source tag remains as history; beta.3 fixes it.
@@ -52,12 +56,16 @@ Beta.1 remains a historical download, not the recommended current version.
 
 | Channel | Current identifier | Availability |
 | --- | --- | --- |
-| Public download | `v0.3.0-beta.6`, code 305 | Signed Handheld/Phone APKs, matching app source and dependency/native source bundles |
-| Public development source | `main`, preparing `0.4.0-beta.1` (code 306): unified adaptive APK plus the unreleased improvements below | Development/debug verification only; beta.6 downloads are unchanged |
+| Public download | `v0.4.0-beta.1`, code 306 | One signed adaptive APK, matching app source and dependency/native source bundles |
+| Public development source | `main`, 0.4.0-beta.1 with publication documentation | Implementation included in the release; old beta.6 assets remain unchanged |
 | Private historical snapshot | `0.1.0-beta.2-experimental.15`, 2026-10-11 | Old Java/Mophun test build, not the current beta |
 | Local-only material | Game fixtures, firmware, diagnostics, device data and signing keys | Not in Git or public release assets; describing testing does not authorize redistribution |
 
-## Unreleased After Beta.6
+## Released in 0.4.0 Beta 1
+
+The following implementation checkpoints were originally recorded before
+publication; their "no release" statements refer to those individual checks.
+All changes in this section are now included in 0.4.0-beta.1.
 
 October 18: prepare **0.4.0-beta.1**, code **306**, as one adaptive APK rather
 than separate Handheld and Phone downloads. The primary `fdroid` artifact keeps
@@ -85,7 +93,7 @@ round trips and real Java/Mophun/Snakes menu workflows were checked. The signed
 release rehearsal now also passed the in-place code-305 upgrade and menu-driven
 Phone Java migration: 324 pre-launch file hashes retained; both migrated RMS
 files and all 55 previous profile values preserved. Physical Bluetooth/USB
-unplug/replug remains unverified. Publication is a separate checkpoint below.
+unplug/replug remains unverified. Publication is recorded above.
 [Signed release rehearsal](releases/v0.4.0-beta.1-checks.md).
 [Verification, captures and limits](checks/2026-10-18-unified-apk.md).
 
@@ -336,10 +344,13 @@ their counts are not new final-release test results.
 
 ## Final Release Evidence and Post Assets
 
-- Current beta.6 signed-device, build, source and download evidence is in the
-  [Beta 6 verification record](releases/v0.3.0-beta.6-checks.md). Its
-  [three new captures](../screenshots/releases/v0.3.0-beta.6/) show the retained
-  library and separate speed/FPS controls. Retroid now has Handheld code 305.
+- Current 0.4.0 Beta 1 signed-device, migration, build/source and download evidence
+  is in the [verification record](releases/v0.4.0-beta.1-checks.md). Its
+  [three captures](../screenshots/releases/v0.4.0-beta.1/) show the unified library,
+  shared Controls page and portrait numeric-keypad trial. Retroid now has the
+  unified code 306. Old Phone remains installed with its data for migration safety.
+- [Beta 6 evidence](releases/v0.3.0-beta.6-checks.md) and its
+  [captures](../screenshots/releases/v0.3.0-beta.6/) remain historical records.
 - The following beta.5 checkpoints are retained as historical evidence, not
   relabeled as new beta.6 tests.
 - Both signed beta.5 variants built cleanly and passed APK-content guards,
@@ -383,18 +394,19 @@ See [beta.2 release notes](releases/v0.1.0-beta.2.md) for the released scope.
 
 ## Included in the Current Beta
 
-The 0.3 beta adds the shared Java/Mophun/Symbian menu and promotes the
-previously local native integration. Its combined APKs require arm64-v8a and
+The 0.4 beta combines phone and controller use in one APK, retaining the shared
+Java/Mophun/Symbian menu and embedded native integration. It requires arm64-v8a and
 Android 10+. System files can be provided before games; setup explains missing
 requirements, retains imports and reuses compatible components. Native games
-join the common library. Phone supports numeric/Gamepad touch decks; both
-variants offer display/mapping controls, screenshots and whole-phone backups.
-See [release notes](releases/v0.3.0-beta.6.md) for user-facing details and limits.
+join the common library. Numeric/Gamepad touch decks, controller mapping,
+display controls, screenshots and whole-phone backups share the same app.
+See [release notes](releases/v0.4.0-beta.1.md) for user-facing details and limits.
 
-The current feature summary includes the retained 0.2 features and 0.3 beta additions:
+The current feature summary includes retained 0.2/0.3 features and the 0.4 additions:
 
 | Area | Current development behavior | Evidence / boundary |
 | --- | --- | --- |
+| Adaptive APK | Auto / Touch / Controller, Auto / Always / Off screen buttons, disconnect pause and menu-based Phone migration | [Implementation](checks/2026-10-18-unified-apk.md), [signed upgrade and migration](releases/v0.4.0-beta.1-checks.md); physical unplug/replug remains unverified |
 | Library and small screens | Compact layouts, reachable menus, Gallery covers separate from List/Grid icons, controller focus, custom art and conservative automatic selection | [Compact UI](COMPACT_LIBRARY.md), [artwork](ARTWORK.md); not every tiny-screen/device combination is accepted |
 | Controller mapping | Graphical phone keypad, per-game named schemes/presets, button identification, D-pad/stick directions and diagonal-to-single-key bindings, compact mapper pages | `c49fef57`, `ba252272`; physical-controller/disconnect acceptance remains open in #9 |
 | Phone controls | Phone numeric keypad or virtual Gamepad, portrait game area above buttons, landscape side controls, size/opacity/position settings. Beta.3 adds per-game tactile feedback in the shared Controls page and feedback from new touch layouts | [Settings](SETTINGS_TRIALS.md), [haptic checks and limits](checks/2026-10-15-phone-shortcuts-feedback.md); perceived phone haptics remain unaccepted |

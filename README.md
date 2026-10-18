@@ -114,14 +114,14 @@ notices; see [licensing](docs/LICENSING.md). Historical release assets are uncha
 
 ## Screenshots
 
-![Handheld game library](screenshots/releases/v0.3.0-beta.6/01-handheld-library.png)
+![Unified game library with controller focus](screenshots/releases/v0.4.0-beta.1/01-library.png)
 
-<img src="screenshots/releases/v0.3.0-beta.6/03-phone-display.png" alt="Phone display settings with separate frame-rate and emulation-speed controls" width="270">
+<img src="screenshots/releases/v0.4.0-beta.1/02-controls.png" alt="Unified per-game controller and touch settings" width="270"> <img src="screenshots/releases/v0.4.0-beta.1/03-touch-preview.png" alt="Live numeric keypad preview with compact Keep and Undo controls" width="270">
 
-Unretouched captures from the signed beta.6 APKs on a Retroid Pocket Classic
-(Android 14), including the separate Phone variant. These are app screenshots,
+Unretouched captures from the signed 0.4.0 Beta 1 APK on a Retroid Pocket Classic
+(Android 14), including its portrait touch mode. These are app screenshots,
 not photographs. Games were installed separately and are not bundled.
-See the [fresh screenshot pack and captions](screenshots/releases/v0.3.0-beta.6/README.md).
+See the [fresh screenshot pack and captions](screenshots/releases/v0.4.0-beta.1/README.md).
 
 ## Highlights
 
