@@ -15,8 +15,11 @@ import java.util.Locale;
 import org.json.JSONObject;
 import ru.playsoftware.j2meloader.applist.AppItem;
 import ru.playsoftware.j2meloader.appsdb.AppDatabase;
+import ru.playsoftware.j2meloader.appsdb.AppItemDao;
+import ru.playsoftware.j2meloader.appsdb.SourceAlias;
 import ru.playsoftware.j2meloader.catalog.AdditionalGames;
 import ru.playsoftware.j2meloader.catalog.LibraryImporter;
+import ru.playsoftware.j2meloader.catalog.SourceIdentity;
 import ru.playsoftware.j2meloader.util.FileUtils;
 
 public final class MophunStore {
@@ -107,11 +110,12 @@ public final class MophunStore {
                     AppItem existing = db.appItemDao().getByPath(destination.getName());
                     if (existing != null) {
                         read(destination);
+                        saveCatalog(db, existing, uri);
                         return existing;
                     }
                     if (destination.exists()) {
                         AppItem recovered = read(destination);
-                        recovered.setId((int) db.appItemDao().insertImported(recovered));
+                        saveCatalog(db, recovered, uri);
                         return recovered;
                     }
                     if (!destination.getParentFile().isDirectory() && !destination.getParentFile().mkdirs())
@@ -119,7 +123,7 @@ public final class MophunStore {
                     if (!stage.renameTo(destination)) throw new IOException("Cannot publish imported game");
                     try {
                         AppItem item = read(destination);
-                        item.setId((int) db.appItemDao().insertImported(item));
+                        saveCatalog(db, item, uri);
                         return item;
                     } catch (Exception failure) {
                         FileUtils.deleteDirectory(destination);
@@ -130,5 +134,24 @@ public final class MophunStore {
         } finally {
             if (stage.exists()) FileUtils.deleteDirectory(stage);
         }
+    }
+
+    /** Replace only the discovered placeholder, never an installed game's data or profile. */
+    static void saveCatalog(AppDatabase db, AppItem installed, Uri source) {
+        db.runInTransaction(() -> {
+            AppItemDao dao = db.appItemDao();
+            String key = SourceIdentity.key(source);
+            AppItem pending = dao.getBySourceKey(key);
+            if (pending != null && "indexed".equals(pending.getPreparationState())
+                    && pending.getPath().startsWith("pending_")) {
+                installed.setFavorite(installed.isFavorite() || pending.isFavorite());
+                if (installed.getId() == 0) installed.setId(pending.getId());
+                else if (pending.getId() != installed.getId()) dao.delete(pending);
+            }
+            if (installed.getId() == 0) installed.setId((int) dao.insertImported(installed));
+            else dao.update(installed);
+            // The bytes were validated and hashed before associating another source URI.
+            dao.rememberSourceAlias(new SourceAlias(key, "mophun:" + installed.getSourceHash(), installed.getId()));
+        });
     }
 }

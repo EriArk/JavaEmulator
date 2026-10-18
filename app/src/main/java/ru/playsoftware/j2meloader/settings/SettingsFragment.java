@@ -18,14 +18,10 @@ import androidx.preference.PreferenceFragmentCompat;
 
 import java.io.IOException;
 import java.util.Collections;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
 import ru.playsoftware.j2meloader.R;
-import ru.playsoftware.j2meloader.applist.AppItem;
 import ru.playsoftware.j2meloader.applist.AppListModel;
 import ru.playsoftware.j2meloader.catalog.GameFolderIndexer;
 import ru.playsoftware.j2meloader.config.ProfilesActivity;
@@ -119,19 +115,26 @@ public class SettingsFragment extends PreferenceFragmentCompat {
 					Intent.FLAG_GRANT_READ_URI_PERMISSION);
 		} catch (SecurityException ignored) {
 		}
-		Set<String> folders = new HashSet<>(getPreferenceManager().getSharedPreferences()
-				.getStringSet("pref_game_folders", Collections.emptySet()));
-		folders.add(uri.toString());
-		getPreferenceManager().getSharedPreferences().edit()
-				.putStringSet("pref_game_folders", folders).apply();
-		updateFolderSummary();
 		AppListModel model = new ViewModelProvider(requireActivity()).get(AppListModel.class);
 		android.content.Context context = requireContext().getApplicationContext();
+		Toast.makeText(context, "Scanning folder...", Toast.LENGTH_SHORT).show();
 		executor.execute(() -> {
-			List<AppItem> games = GameFolderIndexer.scan(context, uri);
-			model.getAppRepository().insert(games);
-			new android.os.Handler(android.os.Looper.getMainLooper()).post(() -> Toast.makeText(context,
-					context.getString(R.string.folder_indexed, games.size()), Toast.LENGTH_SHORT).show());
+			String message;
+			try {
+				GameFolderIndexer.Result result = GameFolderIndexer.scan(context, uri);
+				int added = model.getAppRepository().indexGames(result.games);
+				GameFolderIndexer.rememberFolder(context, uri);
+				message = result.summary(added);
+			} catch (Exception error) {
+				if (Thread.currentThread().isInterrupted()) return;
+				android.util.Log.e("GameFolders", "Folder scan failed", error);
+				message = "Could not add folder: " + error.getMessage();
+			}
+			String status = message;
+			new android.os.Handler(android.os.Looper.getMainLooper()).post(() -> {
+				Toast.makeText(context, status, Toast.LENGTH_LONG).show();
+				if (isAdded()) updateFolderSummary();
+			});
 		});
 	}
 

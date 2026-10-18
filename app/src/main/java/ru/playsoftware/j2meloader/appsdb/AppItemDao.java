@@ -53,6 +53,13 @@ public interface AppItemDao {
 	@Insert(onConflict = OnConflictStrategy.IGNORE)
 	void insert(List<AppItem> items);
 
+	@Insert(onConflict = OnConflictStrategy.IGNORE)
+	long insertIndexed(AppItem item);
+
+	@Query("SELECT EXISTS(SELECT 1 FROM apps WHERE sourceKey = :key OR sourceUri = :uri "
+			+ "OR id IN (SELECT appId FROM source_aliases WHERE sourceKey = :key))")
+	boolean containsIndexedSource(String key, String uri);
+
 	@Update
 	void update(AppItem item);
 

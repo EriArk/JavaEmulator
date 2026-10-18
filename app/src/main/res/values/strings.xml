@@ -19,7 +19,6 @@
     <string name="launcher_recent">RECENT</string>
     <string name="launcher_favorites">FAVORITES</string>
     <string name="launcher_folders">FOLDERS</string>
-    <string name="folder_indexed">Indexed %1$d games</string>
     <string name="archive_choose_game">Choose a game from this archive</string>
     <string name="fix_game_title">What is wrong?</string>
     <string name="fix_game_size">Wrong size or cropped</string>

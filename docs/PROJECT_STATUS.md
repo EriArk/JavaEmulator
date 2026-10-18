@@ -53,11 +53,29 @@ Beta.1 remains a historical download, not the recommended current version.
 | Channel | Current identifier | Availability |
 | --- | --- | --- |
 | Public download | `v0.3.0-beta.6`, code 305 | Signed Handheld/Phone APKs, matching app source and dependency/native source bundles |
-| Public development source | `main`, beta.6 plus unreleased audio-speed synchronization | Beta.6 has speed/FPS controls; the audio changes below require a future build |
+| Public development source | `main`, beta.6 plus unreleased audio synchronization and safer game-folder discovery | The changes below require a future build; beta.6 downloads are unchanged |
 | Private historical snapshot | `0.1.0-beta.2-experimental.15`, 2026-10-11 | Old Java/Mophun test build, not the current beta |
 | Local-only material | Game fixtures, firmware, diagnostics, device data and signing keys | Not in Git or public release assets; describing testing does not authorize redistribution |
 
 ## Unreleased After Beta.6
+
+October 18: **Add folder** now discovers loose Mophun `.mpn`, Java `.kjx` and
+standalone `.jad` files alongside JAR/ZIP/7z. Same-name JAR/JAD pairs produce one
+entry. Scanning reports inaccessible subfolders and traversal limits instead of
+quietly reporting an empty/successful scan. The completion count comes from the
+committed database transaction, distinguishing new games from existing entries.
+Rescans preserve installed cards, favorites, artwork and play history. Mophun
+installation promotes its discovered card and remembers validated source copies;
+it does not leave a second pending card or change installed saves/profiles.
+
+Both Java/Mophun and combined debug variants built. Retroid and the Android 15
+Phone emulator each passed 26 focused folder/import checks. The emulator also
+passed system-picker folder selection, recursive MPN discovery, installation,
+visible game-menu launch and repeat selection without a new pending card.
+This does not add Mophun ZIP/7z extraction, Symbian loose-file indexing, firmware
+discovery, automatic folder watching or duplicate detection before reading game
+bytes. [Evidence and boundaries](checks/2026-10-18-game-folders.md).
+No new beta or distribution APK was published.
 
 October 18: shared Java media/tone playback, session-owned Mophun MIDI and
 Symbian's common PCM output now follow per-game emulation speed. Tempo and pitch

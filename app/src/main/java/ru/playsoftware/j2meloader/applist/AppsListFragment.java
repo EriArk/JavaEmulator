@@ -563,15 +563,24 @@ public class AppsListFragment extends Fragment implements AppsListAdapter.Listen
 					Intent.FLAG_GRANT_READ_URI_PERMISSION);
 		} catch (SecurityException ignored) {
 		}
-		java.util.Set<String> folders = new java.util.HashSet<>(preferences.getStringSet(
-				"pref_game_folders", java.util.Collections.emptySet()));
-		folders.add(uri.toString());
-		preferences.edit().putStringSet("pref_game_folders", folders).apply();
+		Context context = requireContext().getApplicationContext();
+		ru.playsoftware.j2meloader.appsdb.AppRepository repository = appRepository;
+		Toast.makeText(context, "Scanning folder...", Toast.LENGTH_SHORT).show();
 		folderExecutor.execute(() -> {
-			List<AppItem> games = GameFolderIndexer.scan(requireContext().getApplicationContext(), uri);
-			appRepository.insert(games);
-			requireActivity().runOnUiThread(() -> Toast.makeText(requireContext(),
-					getString(R.string.folder_indexed, games.size()), Toast.LENGTH_SHORT).show());
+			String message;
+			try {
+				GameFolderIndexer.Result result = GameFolderIndexer.scan(context, uri);
+				int added = repository.indexGames(result.games);
+				GameFolderIndexer.rememberFolder(context, uri);
+				message = result.summary(added);
+			} catch (Exception error) {
+				if (Thread.currentThread().isInterrupted()) return;
+				Log.e(TAG, "Folder scan failed", error);
+				message = "Could not add folder: " + error.getMessage();
+			}
+			String status = message;
+			new android.os.Handler(android.os.Looper.getMainLooper()).post(() ->
+					Toast.makeText(context, status, Toast.LENGTH_LONG).show());
 		});
 	}
 

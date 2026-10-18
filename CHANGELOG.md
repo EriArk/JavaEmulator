@@ -12,6 +12,17 @@ combined builds; released experimental features are explicitly identified.
 
 ## 2026-10-18
 
+- **Public source, unreleased after beta.6:** Add folder now finds loose Mophun
+  MPN, KJX and standalone JAD files, without duplicating same-name JAR/JAD pairs.
+  Count only committed additions; report blocked subfolders, loading providers
+  and traversal limits. Preserve installed entries and metadata on rescans.
+  Mophun installation replaces its discovered placeholder, retains favorites
+  and remembers validated source copies without touching saves or profiles.
+  Both base/combined debug variants built; 26 focused checks passed on Retroid
+  and 26 on the Phone emulator. A real emulator system-picker/import/launch/
+  rescan workflow passed. No new beta or APK distribution.
+  [Evidence and scope](docs/checks/2026-10-18-game-folders.md).
+
 - **Public source, unreleased after beta.6:** audio follows per-game emulation
   speed through shared Java media/tone players, Mophun session MIDI and Symbian's
   common output. Tempo and pitch change together; no extra setting. Preserve

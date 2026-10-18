@@ -119,7 +119,29 @@ public class AppRepository implements SharedPreferences.OnSharedPreferenceChange
 	public void insert(List<AppItem> items) {
 		Completable.fromAction(() -> appItemDao.insert(items))
 				.subscribeOn(Schedulers.io())
-				.subscribe();
+				.subscribe(errorObserver);
+	}
+
+	/** Worker-thread only. A rescan discovers new entries; it never replaces installed games. */
+	public int indexGames(List<AppItem> items) {
+		return indexGames(db, items);
+	}
+
+	public static int indexGames(AppDatabase database, List<AppItem> items) {
+		synchronized (LibraryImporter.class) {
+			return database.runInTransaction(() -> {
+				int added = 0;
+				AppItemDao dao = database.appItemDao();
+				for (AppItem item : items) {
+					if (Thread.currentThread().isInterrupted()) throw new java.util.concurrent.CancellationException();
+					if (!"indexed".equals(item.getPreparationState()) || item.getSourceKey() == null)
+						throw new IllegalArgumentException("Only discovered games may be indexed");
+					if (!dao.containsIndexedSource(item.getSourceKey(), item.getSourceUri())
+							&& dao.insertIndexed(item) != -1) added++;
+				}
+				return added;
+			});
+		}
 	}
 
 	public void update(AppItem item) {
