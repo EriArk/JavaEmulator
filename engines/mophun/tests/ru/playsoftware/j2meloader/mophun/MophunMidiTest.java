@@ -52,13 +52,35 @@ public class MophunMidiTest {
         try (MophunMidi midi = new MophunMidi(cache())) {
             midi.pause(true);
             midi.play(NOTE,true);
+            midi.speed(200);
             SystemClock.sleep(600);
             assertNull(midi.error());
+            assertEquals(0,midi.starts());
+            midi.speed(50);
+            SystemClock.sleep(150);
             assertEquals(0,midi.starts());
             midi.pause(false);
             until(() -> midi.playing() || midi.error() != null);
             assertNull(midi.error());
             assertTrue(midi.playing());
+        }
+    }
+
+    @Test public void playbackDurationFollowsSessionSpeed() throws Exception {
+        long slow = durationAt(50), fast = durationAt(200);
+        assertTrue("Slow=" + slow + ", fast=" + fast, slow > fast * 2.2);
+    }
+
+    private long durationAt(int speed) throws Exception {
+        try (MophunMidi midi = new MophunMidi(cache())) {
+            midi.speed(speed);
+            midi.play(NOTE, false);
+            until(() -> midi.playing() || midi.error() != null);
+            assertNull(midi.error());
+            long start = SystemClock.elapsedRealtime();
+            until(() -> !midi.playing());
+            assertNull(midi.error());
+            return SystemClock.elapsedRealtime() - start;
         }
     }
 

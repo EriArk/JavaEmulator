@@ -19,8 +19,16 @@ package javax.microedition.media;
 import android.media.MediaPlayer;
 
 import java.io.IOException;
+import java.util.Collections;
+import java.util.Set;
+import java.util.WeakHashMap;
+import javax.microedition.shell.GuestTime;
+import ru.playsoftware.j2meloader.runtime.AudioSpeed;
 
 public class AndroidPlayer extends MediaPlayer {
+	private static final Set<AndroidPlayer> players = Collections.newSetFromMap(new WeakHashMap<>());
+	private final AudioSpeed audioSpeed = new AudioSpeed();
+	private boolean released;
 	private boolean loaded;
 	private String path;
 	private float leftVolume, rightVolume;
@@ -31,6 +39,22 @@ public class AndroidPlayer extends MediaPlayer {
 		super();
 		this.leftVolume = 1.0f;
 		this.rightVolume = 1.0f;
+		synchronized (players) { players.add(this); }
+	}
+
+	public static void refreshSpeed() {
+		AndroidPlayer[] snapshot;
+		synchronized (players) { snapshot = players.toArray(new AndroidPlayer[0]); }
+		for (AndroidPlayer player : snapshot) player.applySpeed();
+	}
+
+	private synchronized void applySpeed() {
+		if (released || !loaded) return;
+		try {
+			if (super.isPlaying()) audioSpeed.applyPlaying(this, GuestTime.speed());
+		} catch (IllegalStateException failure) {
+			android.util.Log.w("AudioSpeed", "Skipping inactive media player", failure);
+		}
 	}
 
 	@Override
@@ -82,18 +106,28 @@ public class AndroidPlayer extends MediaPlayer {
 	}
 
 	@Override
-	public void start() throws IllegalStateException {
+	public synchronized void start() throws IllegalStateException {
 		load();
 		timePos = 0;
 		super.start();
+		applySpeed();
+	}
+
+	@Override public synchronized void pause() { super.pause(); }
+
+	@Override public synchronized void release() {
+		released = true;
+		synchronized (players) { players.remove(this); }
+		super.release();
 	}
 
 	@Override
-	public void reset() {
+	public synchronized void reset() {
 		if (loaded) {
 			super.reset();
 			loaded = false;
 		}
+		audioSpeed.reset();
 	}
 
 	private void load() {

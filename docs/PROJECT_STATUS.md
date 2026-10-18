@@ -53,9 +53,30 @@ Beta.1 remains a historical download, not the recommended current version.
 | Channel | Current identifier | Availability |
 | --- | --- | --- |
 | Public download | `v0.3.0-beta.6`, code 305 | Signed Handheld/Phone APKs, matching app source and dependency/native source bundles |
-| Public development source | `main`, beta.6 plus release handoff documentation | Speed controls, native FPS controls and Symbian file-transfer hardening are included in beta.6 |
+| Public development source | `main`, beta.6 plus unreleased audio-speed synchronization | Beta.6 has speed/FPS controls; the audio changes below require a future build |
 | Private historical snapshot | `0.1.0-beta.2-experimental.15`, 2026-10-11 | Old Java/Mophun test build, not the current beta |
 | Local-only material | Game fixtures, firmware, diagnostics, device data and signing keys | Not in Git or public release assets; describing testing does not authorize redistribution |
+
+## Unreleased After Beta.6
+
+October 18: shared Java media/tone playback, session-owned Mophun MIDI and
+Symbian's common PCM output now follow per-game emulation speed. Tempo and pitch
+change together; this is not pitch-preserving time stretching. Changing settings
+does not resume paused/prepared audio, and a rejected backend rate cannot block
+return to normal. Java's MMAPI time base follows the guest clock; native media
+positions account for previous speeds and paused output rather than jumping.
+Normal 100% playback is preserved. No extra setting, title-specific timing rule,
+newly enabled Mophun PCM support, save mutation or replacement release asset.
+
+Both combined debug variants built; 32 JVM checks per variant passed and lint
+reported zero errors (403/410 warnings remain). Retroid and the Android emulator
+each passed 36 audio, guest-clock, FPS and settings checks; native helper suites
+also passed on Retroid. Five live UI checks passed, including Deep Abyss/Snakes
+speed trials and Snakes restart/background return; two opt-in fixtures were skipped.
+Audio evidence is
+measured playback position/duration and waveform output, not listening approval.
+[Implementation, runtime checks and limitations](checks/2026-10-18-audio-speed.md).
+These changes are not in the signed beta.6 downloads.
 
 ## Changes Released in Beta.6
 

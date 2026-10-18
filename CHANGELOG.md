@@ -12,6 +12,19 @@ combined builds; released experimental features are explicitly identified.
 
 ## 2026-10-18
 
+- **Public source, unreleased after beta.6:** audio follows per-game emulation
+  speed through shared Java media/tone players, Mophun session MIDI and Symbian's
+  common output. Tempo and pitch change together; no extra setting. Preserve
+  paused/prepared state, normal-speed recovery after backend rejection, and
+  media-position continuity across native rate changes. Java MMAPI time uses
+  the guest clock. Existing Mophun sound enablement is unchanged. Both combined
+  debug builds, 32 JVM checks per variant and zero-error lint passed; Retroid
+  and the Android emulator each passed 36 shared audio/timing/settings checks.
+  Native waveform/rate tests and five live UI checks passed on Retroid, including
+  Deep Abyss/Snakes speed trials and Snakes restart/background return.
+  Listening quality, Android 16 and complete-game sync are not certified.
+  [Evidence and limits](docs/checks/2026-10-18-audio-speed.md).
+
 - **Released:** [0.3.0-beta.6](https://github.com/EriArk/JavaEmulator/releases/tag/v0.3.0-beta.6),
   code 305, published at 09:48 UTC. Both signed APKs and three matching source
   bundles are public. All six uploaded asset digests matched; APKs and checksum

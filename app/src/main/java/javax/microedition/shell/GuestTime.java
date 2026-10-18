@@ -11,8 +11,11 @@ public final class GuestTime {
     private static final long epoch = System.currentTimeMillis();
     private static final EmulationClock clock = new EmulationClock(() -> System.nanoTime() / 1000000);
     private GuestTime() { }
-    public static void speed(int percent) { clock.speed(available ? percent : 100); }
-    static void available(boolean value) { available = value; if (!value) clock.speed(100); }
+    public static void speed(int percent) {
+        clock.speed(available ? percent : 100);
+        javax.microedition.media.AndroidPlayer.refreshSpeed();
+    }
+    static void available(boolean value) { available = value; if (!value) speed(100); }
     public static boolean available() { return available; }
     public static int speed() { return clock.speed(); }
     public static long currentTimeMillis() { return epoch + clock.getAsLong(); }

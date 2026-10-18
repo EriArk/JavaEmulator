@@ -50,7 +50,10 @@ public final class MophunSession implements AutoCloseable {
     }
 
     public int getFrameRateLimit() { return frameRateLimit; }
-    public void setEmulationSpeed(int percent) { clock.speed(percent); }
+    public synchronized void setEmulationSpeed(int percent) {
+        clock.speed(percent);
+        if (midi != null) midi.speed(clock.speed());
+    }
     public int getEmulationSpeed() { return clock.speed(); }
 
     public synchronized void pause(boolean value) {
@@ -133,6 +136,7 @@ public final class MophunSession implements AutoCloseable {
                 // Enable only the verified Deep Abyss 1.4 path; PCM games remain unaccepted.
                 if (audioCache != null && MophunCompatibility.isDeepAbyss14(executable)) {
                     midi = new MophunMidi(audioCache);
+                    midi.speed(clock.speed());
                     midi.pause(paused);
                     sdk.midiBackend = midi;
                     sdk.soundEnabled = true;

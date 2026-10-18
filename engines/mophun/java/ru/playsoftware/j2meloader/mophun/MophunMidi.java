@@ -15,6 +15,9 @@ public final class MophunMidi implements MidiBridge.Backend, AutoCloseable {
     private final HandlerThread thread = new HandlerThread("mophun-midi");
     private final Handler handler;
     private MediaPlayer player;
+    private final ru.playsoftware.j2meloader.runtime.AudioSpeed audioSpeed =
+            new ru.playsoftware.j2meloader.runtime.AudioSpeed();
+    private volatile int speed = 100;
     private boolean prepared;
     private volatile boolean paused, closed, playing;
     private volatile int starts;
@@ -29,6 +32,13 @@ public final class MophunMidi implements MidiBridge.Backend, AutoCloseable {
     public boolean playing() { return playing; }
     public int starts() { return starts; }
     public Throwable error() { return error; }
+
+    public void speed(int percent) {
+        speed = percent <= 0 ? 100 : Math.max(50, Math.min(200, percent));
+        if (!closed) handler.post(() -> {
+            if (player != null && playing && !paused) audioSpeed.applyPlaying(player, speed);
+        });
+    }
 
     @Override public void play(byte[] smf, boolean loop) {
         if (closed) return;
@@ -82,7 +92,10 @@ public final class MophunMidi implements MidiBridge.Backend, AutoCloseable {
     private void applyPause() {
         if (player == null || !prepared || closed) return;
         if (paused && playing) { player.pause(); playing = false; }
-        else if (!paused && !playing) { player.start(); playing = true; starts++; }
+        else if (!paused && !playing) {
+            player.start(); playing = true; starts++;
+            audioSpeed.applyPlaying(player, speed);
+        }
     }
 
     private void fail(Throwable failure) {
@@ -95,6 +108,7 @@ public final class MophunMidi implements MidiBridge.Backend, AutoCloseable {
         if (player != null) { player.release(); player = null; }
         prepared = false;
         playing = false;
+        audioSpeed.reset();
     }
 
     @Override public void stop() { if (!closed) handler.post(this::release); }

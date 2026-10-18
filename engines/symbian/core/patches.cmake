@@ -45,6 +45,42 @@ abyss_replace_once(timing_patched "        bool last_state = should_paused_;" " 
 target_include_directories(epoctiming PRIVATE "${CMAKE_CURRENT_SOURCE_DIR}")
 abyss_patch_source(epoctiming "src/timing.cpp" "${timing_original}" "${timing_patched}")
 
+# Resample the common native output, including PCM, MIDI and decoded media.
+# Keep capture and the device sample rate unchanged; map audible position back
+# through historical speed segments so media-time queries do not jump on Undo.
+get_target_property(audio_source_dir drivers SOURCE_DIR)
+file(READ "${audio_source_dir}/include/drivers/audio/backend/cubeb/stream_cubeb.h" audio_header)
+abyss_replace_once(audio_header "#include <cubeb/cubeb.h>"
+    "#include <cubeb/cubeb.h>\n#include <memory>\nnamespace abyss::audio { class stream_rate; }")
+abyss_replace_once(audio_header "        cubeb_stream *stream_;\n        data_callback callback_;\n        "
+    "        cubeb_stream *stream_;\n        data_callback callback_;\n        std::unique_ptr<abyss::audio::stream_rate> rate_;\n        ")
+file(CONFIGURE OUTPUT "${CMAKE_CURRENT_BINARY_DIR}/patched/include/drivers/audio/backend/cubeb/stream_cubeb.h" CONTENT "${audio_header}" @ONLY)
+set_property(DIRECTORY APPEND PROPERTY CMAKE_CONFIGURE_DEPENDS "${audio_source_dir}/include/drivers/audio/backend/cubeb/stream_cubeb.h")
+target_include_directories(drivers BEFORE PUBLIC "${CMAKE_CURRENT_BINARY_DIR}/patched/include")
+target_include_directories(drivers PRIVATE "${CMAKE_CURRENT_SOURCE_DIR}" "${EKA2L1_SOURCE_DIR}/src/external/cubeb/src")
+set_source_files_properties("${CMAKE_CURRENT_BINARY_DIR}/patched/drivers_src_audio_backend_cubeb_stream_cubeb.cpp"
+    TARGET_DIRECTORY drivers
+    PROPERTIES COMPILE_DEFINITIONS "OUTSIDE_SPEEX;RANDOM_PREFIX=speex")
+file(READ "${audio_source_dir}/src/audio/backend/cubeb/stream_cubeb.cpp" audio_original)
+set(audio_patched "${audio_original}")
+abyss_replace_once(audio_patched "#include <drivers/audio/audio.h>"
+    "#include <drivers/audio/audio.h>\n#include \"audio_speed.h\"\n#include \"emulation_speed.h\"")
+abyss_replace_once(audio_patched "        cubeb_stream_params params;"
+    [=[        if (!is_recording && channels >= 1 && channels <= 2 && sample_rate > 0) {
+            try { rate_ = std::make_unique<abyss::audio::stream_rate>(sample_rate, channels); }
+            catch (const std::exception &error) { LOG_WARN(DRIVER_AUD, "Audio rate converter unavailable: {}", error.what()); }
+        }
+        cubeb_stream_params params;]=])
+abyss_replace_once(audio_patched "            idled_frames_ += static_cast<std::uint64_t>(frames);"
+    "            idled_frames_ += static_cast<std::uint64_t>(frames);\n            if (rate_) rate_->history.append(frames, 0);")
+abyss_replace_once(audio_patched "        return callback_(output_buffer, frames);"
+    "        return rate_ ? rate_->render(output_buffer, frames, abyss::speed::get(), callback_) : callback_(output_buffer, frames);")
+abyss_replace_once(audio_patched "        if (idled_frames_ >= *pos) {"
+    "        if (rate_) { *pos = rate_->history.position(*pos); return true; }\n        if (idled_frames_ >= *pos) {")
+abyss_replace_once(audio_patched "        if (cubeb_stream_start(stream_) == CUBEB_OK) {"
+    "        if (rate_) rate_->reset();\n        if (cubeb_stream_start(stream_) == CUBEB_OK) {")
+abyss_patch_source(drivers "src/audio/backend/cubeb/stream_cubeb.cpp" "${audio_original}" "${audio_patched}")
+
 # A resize acquires another native-window reference, even for the same Java Surface.
 abyss_patch_source(native-lib "src/native-lib.cpp" [=[    s_surf = ANativeWindow_fromSurface(env, surface);
     state->window->surface_changed(s_surf, width, height);]=] [=[    auto *previous_surface = s_surf;

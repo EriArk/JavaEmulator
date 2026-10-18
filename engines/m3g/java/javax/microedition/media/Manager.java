@@ -39,7 +39,7 @@ public class Manager {
 	private static final String CAPTURE_AUDIO_LOCATOR = "capture://audio";
 	private static final String CAPTURE_VIDEO_LOCATOR = "capture://video";
 	private static final String CAPTURE_IMAGE_LOCATOR = "capture://image";
-	private static final TimeBase DEFAULT_TIMEBASE = () -> System.nanoTime() / 1000L;
+	private static final TimeBase DEFAULT_TIMEBASE = () -> javax.microedition.shell.GuestTime.nanoTime() / 1000L;
 
 	public static Player createPlayer(String locator) throws IOException {
 		if (locator == null) {
