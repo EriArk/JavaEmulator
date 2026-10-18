@@ -12,6 +12,17 @@ combined builds; released experimental features are explicitly identified.
 
 ## 2026-10-18
 
+- **Public source, unreleased after beta.6:** preserve directly submitted Java
+  frames across host-only scale, rotation, smoothing and surface changes.
+  Avoid unnecessary guest paint callbacks that could replace the current frame
+  with stale/empty graphics; retain callbacks for actual logical size changes.
+  Two regressions failed before the fix, then passed with software, GLES and
+  hardware surface coverage. Retroid and the Android emulator each passed 56
+  checks; two live Java/Mophun display-trial workflows also passed on Retroid.
+  Both combined debug variants built; 38 JVM tests per variant and zero-error
+  lint passed. This does not resolve every startup black screen. No new APK
+  distribution. [Evidence and limits](docs/checks/2026-10-18-display-presentation.md).
+
 - **Public source, unreleased after beta.6:** import Mophun MPN games from ZIP/7z
   through the existing installer. Mixed JAR/MPN archives show one game chooser;
   single-game archives skip it. Correct the combined build's 7z routing and

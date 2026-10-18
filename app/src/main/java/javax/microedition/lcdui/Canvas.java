@@ -215,7 +215,7 @@ public abstract class Canvas extends Displayable {
 		if (renderer != null) {
 			renderer.updateFilter();
 		}
-		repaintInternal();
+		requestFlushToScreen();
 	}
 
 	public static void setHasTouchInput(boolean touchInput) {
@@ -581,8 +581,12 @@ public abstract class Canvas extends Displayable {
 			} else {
 				sizeChangedCalled = false;
 			}
+			repaintInternal();
+		} else {
+			// Scaling, filtering and host surface changes present the last guest frame.
+			// Calling paint() here can overwrite frames submitted through direct-flush APIs.
+			requestFlushToScreen();
 		}
-		repaintInternal();
 	}
 
 	/**

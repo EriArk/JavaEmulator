@@ -40,6 +40,8 @@ public final class SymbianSessionUiTest {
         capture(screenshot);
         click("More"); click("Back"); waitNode("Resume", 5000);
         if ("true".equals(InstrumentationRegistry.getArguments().getString("speedTrials"))) speedTrials(screenshot, controllerMenu);
+        if ("true".equals(InstrumentationRegistry.getArguments().getString("presentationTrials")))
+            presentationTrials(screenshot, controllerMenu);
         if ("mophunMenuUri".equals(argument)
                 && "true".equals(InstrumentationRegistry.getArguments().getString("frameRateTrials"))) {
             for (int fps : new int[]{15, 30, 0, 60}) {
@@ -91,6 +93,23 @@ public final class SymbianSessionUiTest {
         if (controllerMenu) key(KeyEvent.KEYCODE_BACK, 80); else click("Game menu");
         click("Exit game"); click("Leave without saving");
         SystemClock.sleep(1000);
+    }
+    private void presentationTrials(String engine, boolean controllerMenu) throws Exception {
+        for (int rotation : new int[]{90, 180, 270, 0}) {
+            click("Display"); click("Picture size"); click(rotation == 180 ? "Stretch" : "Fit");
+            click("Image rotation"); click(rotation + "\u00b0");
+            click("Smoothing");
+            if (!BuildConfig.HANDHELD_MODE) {
+                click("Orientation"); click(rotation == 90 || rotation == 270 ? "Landscape" : "Portrait");
+            }
+            click("Try changes"); waitNode("Undo", 5000); SystemClock.sleep(1500);
+            capture(engine + "-presentation-" + rotation + ".png");
+            assertPublishedGamePicture(1);
+            click("Undo"); SystemClock.sleep(500);
+            assertPublishedGamePicture(1);
+            if (controllerMenu) key(KeyEvent.KEYCODE_BACK, 80); else click("Game menu");
+            waitNode("Resume", 5000);
+        }
     }
     @Test public void settingsArePerPhoneAndGameAndSelectDoesNotLeakIntoMapping() throws Exception {
         ui = instrumentation.getUiAutomation();

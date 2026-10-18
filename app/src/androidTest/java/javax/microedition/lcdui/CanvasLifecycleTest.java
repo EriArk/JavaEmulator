@@ -243,6 +243,74 @@ public class CanvasLifecycleTest {
         assertSurfaceColor(view, 0xFF00FF00);
     }
 
+    @Test public void presentationChangesPreserveDirectlyFlushedFrameWithoutGuestPaint() throws Exception {
+        int oldW = Displayable.getVirtualWidth(), oldH = Displayable.getVirtualHeight();
+        Field copy = Canvas.class.getDeclaredField("offscreenCopy"); copy.setAccessible(true);
+        try {
+            Displayable.setVirtualSize(128, 160);
+            Screen canvas = screen(); display.setCurrent(canvas); Display.setForeground(true); drain();
+            Image frame = Image.createImage(128, 160, 0xFF123456);
+            canvas.flushBuffer(frame, 0, 0); canvas.events.clear();
+            for (int rotation : new int[]{90, 180, 270, 0}) {
+                Canvas.setScreenRotation(rotation); Canvas.setScale(2, rotation == 90 ? 2 : 1, 100);
+                Canvas.setFilterBitmap(rotation == 180);
+                canvas.updateSize(); canvas.updateRenderingSettings(); drain();
+                assertEquals("Host changes must not overwrite a directly flushed frame", 0xFF123456,
+                        ((Image) copy.get(canvas)).getBitmap().getPixel(32, 32));
+                assertTrue("No guest lifecycle/paint for presentation changes", canvas.events.isEmpty());
+            }
+            Display.setForeground(false); drain(); canvas.events.clear();
+            canvas.updateSize(); canvas.updateRenderingSettings(); drain();
+            assertEquals(0xFF123456, ((Image) copy.get(canvas)).getBitmap().getPixel(32, 32));
+            assertTrue(canvas.events.isEmpty());
+        } finally {
+            Displayable.setVirtualSize(oldW, oldH); Canvas.setScreenRotation(0);
+            Canvas.setScale(2, 1, 100); Canvas.setFilterBitmap(false);
+        }
+    }
+
+    @Test public void flushedPixelsSurviveHostChangesAndSurfaceRecreationAcrossRenderers() throws Exception {
+        int oldW = Displayable.getVirtualWidth(), oldH = Displayable.getVirtualHeight();
+        Field mode = Canvas.class.getDeclaredField("graphicsMode"); mode.setAccessible(true);
+        int oldMode = mode.getInt(null);
+        Field view = Canvas.class.getDeclaredField("innerView"); view.setAccessible(true);
+        try {
+            for (int renderer : new int[]{0, 1, 3}) {
+                Screen[] canvas = new Screen[1];
+                try (androidx.test.core.app.ActivityScenario<ru.playsoftware.j2meloader.MainActivity> scenario =
+                             androidx.test.core.app.ActivityScenario.launch(ru.playsoftware.j2meloader.MainActivity.class)) {
+                    scenario.onActivity(activity -> {
+                        ContextHolder.setCurrentActivity(host); ContextHolder.setVk(null);
+                        Canvas.setGraphicsMode(renderer, renderer != 1); Canvas.setScale(2, 1, 100);
+                        Displayable.setVirtualSize(128, 160);
+                        canvas[0] = new Screen(); activity.setContentView(canvas[0].getDisplayableView());
+                        display.setCurrent(canvas[0]); Display.setForeground(true);
+                    });
+                    drain();
+                    android.view.SurfaceView surface = (android.view.SurfaceView) view.get(canvas[0]);
+                    assertGreenSurface(surface);
+                    canvas[0].flushBuffer(Image.createImage(128, 160, 0xFF123456), 0, 0);
+                    assertSurfaceColor(surface, 0xFF123456);
+                    for (int rotation : new int[]{90, 180, 270, 0}) {
+                        scenario.onActivity(activity -> {
+                            Canvas.setScreenRotation(rotation); Canvas.setFilterBitmap(rotation == 90);
+                            Canvas.setScale(2, rotation == 180 ? 2 : 1, 100);
+                            canvas[0].updateSize(); canvas[0].updateRenderingSettings();
+                        });
+                        drain(); assertSurfaceColor(surface, 0xFF123456);
+                    }
+                    scenario.onActivity(activity -> surface.setVisibility(android.view.View.GONE));
+                    android.os.SystemClock.sleep(250);
+                    scenario.onActivity(activity -> surface.setVisibility(android.view.View.VISIBLE));
+                    drain(); assertSurfaceColor(surface, 0xFF123456);
+                }
+            }
+        } finally {
+            Displayable.setVirtualSize(oldW, oldH); Canvas.setGraphicsMode(oldMode, false);
+            Canvas.setScreenRotation(0); Canvas.setScale(2, 1, 100); Canvas.setFilterBitmap(false);
+        }
+    }
+
     private static void assertSurfaceColor(android.view.SurfaceView view, int expected) throws Exception {
         for (int attempt = 0; attempt < 30; attempt++) {
             if (view.getWidth() > 0 && view.getHeight() > 0 && view.getHolder().getSurface().isValid()) {

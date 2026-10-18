@@ -53,11 +53,27 @@ Beta.1 remains a historical download, not the recommended current version.
 | Channel | Current identifier | Availability |
 | --- | --- | --- |
 | Public download | `v0.3.0-beta.6`, code 305 | Signed Handheld/Phone APKs, matching app source and dependency/native source bundles |
-| Public development source | `main`, beta.6 plus unreleased audio synchronization, safer folder discovery and Mophun ZIP/7z import | The changes below require a future build; beta.6 downloads are unchanged |
+| Public development source | `main`, beta.6 plus unreleased audio synchronization, safer folder discovery, Mophun ZIP/7z import and Java frame preservation | The changes below require a future build; beta.6 downloads are unchanged |
 | Private historical snapshot | `0.1.0-beta.2-experimental.15`, 2026-10-11 | Old Java/Mophun test build, not the current beta |
 | Local-only material | Game fixtures, firmware, diagnostics, device data and signing keys | Not in Git or public release assets; describing testing does not authorize redistribution |
 
 ## Unreleased After Beta.6
+
+October 18: preserve the last Java game frame when changing scale, rotation or
+smoothing without changing the game's logical resolution. These host-only
+changes previously called the game's paint callback and could overwrite a frame
+submitted through direct-flush APIs with stale or empty graphics. Actual guest
+resolution changes still receive resize/repaint callbacks. This is a shared
+renderer fix, not a title-specific workaround or a claim that all black-screen
+startup problems are solved.
+
+Both new regressions failed before the fix. Afterward, 56 checks passed on
+Retroid and 56 on the Android 15 emulator, covering software, GLES and hardware
+surface rendering. Two real Java/Mophun display-trial workflows passed on
+Retroid; the Java capture shows its own pause screen, not gameplay acceptance.
+Both combined debug variants built, 38 JVM tests passed per variant and lint
+reported no errors. No new release or APK distribution.
+[Evidence and limits](checks/2026-10-18-display-presentation.md).
 
 October 18: open Mophun games directly from **ZIP or 7z**, without extracting
 them manually. Archives containing several JAR/MPN games use the existing game
