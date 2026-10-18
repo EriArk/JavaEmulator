@@ -4,26 +4,21 @@ import java.util.function.LongSupplier;
 
 /** Monotonic game time excludes time spent in host menus or the background. */
 final class MophunClock implements LongSupplier {
-    private final LongSupplier source;
-    private long origin, pausedAt, excluded;
-    private boolean paused;
+    private final ru.playsoftware.j2meloader.runtime.EmulationClock clock;
 
     MophunClock() { this(() -> android.os.SystemClock.elapsedRealtime()); }
 
     MophunClock(LongSupplier source) {
-        this.source = source;
-        origin = source.getAsLong();
+        clock = new ru.playsoftware.j2meloader.runtime.EmulationClock(source);
     }
 
     synchronized void pause(boolean value) {
-        if (paused == value) return;
-        long now = source.getAsLong();
-        if (value) pausedAt = now;
-        else excluded += now - pausedAt;
-        paused = value;
+        clock.pause(value);
     }
 
     @Override public synchronized long getAsLong() {
-        return (paused ? pausedAt : source.getAsLong()) - origin - excluded;
+        return clock.getAsLong();
     }
+    void speed(int value) { clock.speed(value); }
+    int speed() { return clock.speed(); }
 }

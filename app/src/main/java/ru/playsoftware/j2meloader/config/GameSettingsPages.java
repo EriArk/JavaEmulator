@@ -45,6 +45,7 @@ public final class GameSettingsPages {
     public void display() {
         menu.page("Display");
         frameRateChoice();
+        if (speedAvailable()) speedChoice(menu, draft);
         menu.choice("Picture size", new String[]{"Original", "Fit", "Stretch"}, clamp(draft.screenScaleType, 3),
                 i -> { draft.screenScaleType = i; draft.screenScaleRatio = 100; });
         menu.toggle("Smoothing", draft.screenFilter, value -> draft.screenFilter = value);
@@ -102,6 +103,25 @@ public final class GameSettingsPages {
     }
 
     public static String frameRateLabel(int fps) { return fps <= 0 ? "Unlimited" : fps + " FPS"; }
+
+    public void speed(Runnable back) {
+        menu.page("Emulation speed");
+        if (speedAvailable()) { speedChoice(menu, draft); trialAction(); }
+        else menu.message("Original JAR required. Reimport this game to enable speed control; keep its existing saves.");
+        menu.setBackAction(back);
+    }
+
+    private boolean speedAvailable() { return !live || !javaGame || javax.microedition.shell.GuestTime.available(); }
+
+    public static void speedChoice(GameMenuDialog menu, ProfileModel draft) {
+        java.util.ArrayList<Integer> values = new java.util.ArrayList<>();
+        java.util.Collections.addAll(values, 50, 75, 100, 125, 150, 200);
+        int current = draft.getEmulationSpeed();
+        if (!values.contains(current)) { values.add(current); java.util.Collections.sort(values); }
+        String[] labels = new String[values.size()];
+        for (int i = 0; i < labels.length; i++) labels[i] = values.get(i) + "%" + (values.get(i) == 100 ? " (Normal)" : "");
+        menu.choice("Emulation speed", labels, values.indexOf(current), i -> draft.emulationSpeed = values.get(i));
+    }
 
     public void frameRate(Runnable back) {
         menu.page("Frame rate limit");

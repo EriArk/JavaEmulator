@@ -91,6 +91,17 @@ public class GamePresetsUiTest {
         });
     }
 
+    @Test public void speedIsSeparateFromFpsAndRequiresTry() {
+        scenario.onActivity(activity -> { pages.draft().fpsLimit = 30; pages.speed(() -> backs++); }); idle();
+        choose(0);
+        scenario.onActivity(activity -> {
+            assertEquals(100, source.getEmulationSpeed()); assertNull(applied);
+            find(root(), TextView.class, "Try changes").performClick();
+            assertEquals(50, applied.getEmulationSpeed()); assertEquals(30, applied.fpsLimit);
+            assertEquals(100, new com.google.gson.Gson().fromJson("{}", ProfileModel.class).getEmulationSpeed());
+        });
+    }
+
     @Test public void phoneCurrentSelectionRestoresCustomPropertiesWithoutRestarting() {
         scenario.onActivity(activity -> pages.phonePresets(() -> backs++, draft -> applied = draft)); idle();
         choose(3); // Nokia, after Current / Auto / Generic.

@@ -98,6 +98,12 @@ public class ProfileModel {
 	// Null preserves the native engines' historical default; zero explicitly means unlimited.
 	@SerializedName("NativeFpsLimit")
 	public Integer nativeFpsLimit;
+	@SerializedName("EmulationSpeed")
+	public int emulationSpeed = 100;
+
+	public int getEmulationSpeed() {
+		return ru.playsoftware.j2meloader.runtime.EmulationClock.normalize(emulationSpeed);
+	}
 
 	public int getNativeFpsLimit() {
 		return nativeFpsLimit == null ? 60 : Math.max(0, Math.min(240, nativeFpsLimit));

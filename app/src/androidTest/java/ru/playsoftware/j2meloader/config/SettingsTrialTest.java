@@ -71,6 +71,21 @@ public class SettingsTrialTest {
         ProfilesManager.undoPreview(model); assertEquals(128, model.screenWidth);
     }
 
+    @Test public void speedPreviewCanBeUndoneKeptAndTransferredToLaunch() throws Exception {
+        ProfileModel draft = ProfilesManager.copy(model); draft.emulationSpeed = 50;
+        SettingsTrial.stage(draft); SettingsTrial.claim(model);
+        assertEquals(50, model.getEmulationSpeed());
+        assertEquals(100, ProfilesManager.loadConfig(dir).getEmulationSpeed());
+        assertFalse(ProfilesManager.previewNeedsRestart(model));
+        ProfilesManager.undoPreview(model); assertEquals(100, model.getEmulationSpeed());
+        ProfilesManager.beginPreview(model); model.emulationSpeed = 200;
+        assertTrue(ProfilesManager.keepPreview(model));
+        assertEquals(200, ProfilesManager.loadConfig(dir).getEmulationSpeed());
+        ProfilesManager.beginPreview(model); model.emulationSpeed = 75;
+        ProfilesManager.undoPreview(model); assertEquals(200, model.getEmulationSpeed());
+        assertEquals(100, new ProfileModel().getEmulationSpeed());
+    }
+
     @Test public void nativeFrameLimitDefaultUnlimitedAndLaunchDraftRemainDistinct() throws Exception {
         assertNull(ProfilesManager.loadConfig(dir).nativeFpsLimit);
         assertEquals(60, ProfilesManager.loadConfig(dir).getNativeFpsLimit());

@@ -9,7 +9,7 @@ import wolphun.vm.Pip2;
 import wolphun.vm.Sdk;
 import wolphun.vm.Vmgp;
 
-/** Private lifecycle probe; no public release or compatibility claim. */
+/** Owns one Mophun worker, game clock, audio and save lifecycle. */
 public final class MophunSession implements AutoCloseable {
     private final File game, saves;
     private final File audioCache;
@@ -50,6 +50,8 @@ public final class MophunSession implements AutoCloseable {
     }
 
     public int getFrameRateLimit() { return frameRateLimit; }
+    public void setEmulationSpeed(int percent) { clock.speed(percent); }
+    public int getEmulationSpeed() { return clock.speed(); }
 
     public synchronized void pause(boolean value) {
         if (paused == value) return;

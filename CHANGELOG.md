@@ -12,6 +12,16 @@ combined builds; released experimental features are explicitly identified.
 
 ## 2026-10-18
 
+- **Local release candidate, not yet published:** implemented separate per-game
+  50-200% emulation-speed presets for Java, Mophun and Symbian, with live Try /
+  Keep / Undo. Guest clocks remain continuous across changes; host UI and FPS
+  limits stay independent. Java timing conversion uses private cache and leaves
+  installed files/saves untouched. Retroid and Android emulator each passed 29
+  shared timing/settings checks; Retroid live trials passed in Java, Deep Abyss
+  and Snakes. Audio is not time-stretched; not every game's pacing follows
+  percentage speed. Preparing code 305, Beta 6, including the earlier native
+  FPS and file-transfer changes. [Evidence](docs/checks/2026-10-18-emulation-speed.md).
+
 - **Public source, unreleased:** added per-game frame-rate presets to Mophun
   and Symbian/N-Gage through More and Display, with live Try / Keep / Undo.
   Old native profiles retain 60 FPS; Java limits are unchanged. Mophun uses

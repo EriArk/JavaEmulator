@@ -8,6 +8,18 @@ import javax.microedition.lcdui.FramePacer;
 import static org.junit.Assert.*;
 
 public class MophunFrameRateTest {
+    @Test public void speedChangesGameClockButNotFrameCapOrPausedTime() throws Exception {
+        long[] real = {0}; MophunClock clock = new MophunClock(() -> real[0]);
+        clock.speed(50); real[0] = 200; assertEquals(100,clock.getAsLong());
+        clock.pause(true); real[0] = 500; clock.speed(200); assertEquals(100,clock.getAsLong());
+        clock.pause(false); real[0] = 600; assertEquals(300,clock.getAsLong());
+        File root = InstrumentationRegistry.getInstrumentation().getTargetContext().getCacheDir();
+        try (MophunSession session = new MophunSession(new File(root,"unused.mpn"),root,0,101,80)) {
+            session.setEmulationSpeed(50); assertEquals(50,session.getEmulationSpeed());
+            assertEquals(60,session.getFrameRateLimit());
+            session.setFrameRateLimit(15); assertEquals(50,session.getEmulationSpeed());
+        }
+    }
     @Test public void presentedFramesUseHostPacerWithoutTheOldSixtyFpsCap() {
         Screen screen = new Screen(101, 80, 1);
         int[] rate = {15};

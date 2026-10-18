@@ -25,6 +25,7 @@ final class SymbianSessionUi {
         void pause(boolean paused);
         void display(int scale);
         void frameRate(int fps);
+        default void speed(int percent) { }
         void leave();
         void restart();
         Bitmap capture() throws IOException;
@@ -100,6 +101,7 @@ final class SymbianSessionUi {
         clear(); mappings = KeyMapper.resolveMappings(profile.getActiveKeyMappings());
         activity.setRequestedOrientation(BuildConfig.HANDHELD_MODE || profile.orientation == 3 ? ActivityInfo.SCREEN_ORIENTATION_SENSOR_LANDSCAPE
                 : profile.orientation == 2 ? ActivityInfo.SCREEN_ORIENTATION_SENSOR_PORTRAIT : ActivityInfo.SCREEN_ORIENTATION_FULL_SENSOR);
+        host.speed(profile.getEmulationSpeed());
         host.display(scale()); host.frameRate(profile.getNativeFpsLimit()); layout(); updateShortcuts();
     }
     private void layout() {
@@ -184,6 +186,8 @@ final class SymbianSessionUi {
     }
     private void morePage() {
         menu.page("More");
+        menu.action("Emulation speed: " + profile.getEmulationSpeed() + "%",
+                R.drawable.ic_baseline_tune_24, () -> pages().speed(this::morePage));
         menu.setBackAction(this::home);
         menu.action("Frame rate limit: " + GameSettingsPages.frameRateLabel(profile.getNativeFpsLimit()),
                 R.drawable.ic_baseline_tune_24, () -> pages().frameRate(this::morePage));
@@ -194,6 +198,7 @@ final class SymbianSessionUi {
     private void displayPage() {
         ProfileModel draft = ProfilesManager.copy(profile); menu.page("Display");
         GameSettingsPages.frameRateChoice(menu, draft, false);
+        GameSettingsPages.speedChoice(menu, draft);
         menu.choice("Picture size", new String[]{"Original", "Fit", "Stretch"}, scale(), i -> draft.screenScaleType = i);
         menu.choice("Image rotation", new String[]{"0\u00b0","90\u00b0","180\u00b0","270\u00b0"},
                 Math.floorMod(draft.screenRotation / 90, 4), i -> draft.screenRotation = i * 90);

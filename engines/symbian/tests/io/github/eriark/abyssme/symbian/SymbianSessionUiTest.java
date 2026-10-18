@@ -39,6 +39,7 @@ public final class SymbianSessionUiTest {
             assertFalse(label, ui.getRootInActiveWindow().findAccessibilityNodeInfosByText(label).isEmpty());
         capture(screenshot);
         click("More"); click("Back"); waitNode("Resume", 5000);
+        if ("true".equals(InstrumentationRegistry.getArguments().getString("speedTrials"))) speedTrials(screenshot, controllerMenu);
         if ("mophunMenuUri".equals(argument)
                 && "true".equals(InstrumentationRegistry.getArguments().getString("frameRateTrials"))) {
             for (int fps : new int[]{15, 30, 0, 60}) {
@@ -108,6 +109,7 @@ public final class SymbianSessionUiTest {
             public void pause(boolean paused){pauses.incrementAndGet();}
             public void display(int scale){}
             public void frameRate(int fps){com.github.eka2l1.emu.Emulator.setFrameRateLimit(fps);}
+            public void speed(int percent){com.github.eka2l1.emu.Emulator.setEmulationSpeed(percent);}
             public void leave(){}
             public void restart(){events.add("restart");current[0].close();pausesAtRestart.set(pauses.get());}
             public Bitmap capture(){return null;}
@@ -119,6 +121,9 @@ public final class SymbianSessionUiTest {
                     activity.setContentView(current[0].root);
                     current[0].profile.screenRotation=180;
                     current[0].profile.nativeFpsLimit=15;
+                    current[0].profile.emulationSpeed=75;
+                    current[0].apply();
+                    assertEquals(75,com.github.eka2l1.emu.Emulator.getEmulationSpeed());
                     assertTrue(ProfilesManager.saveConfig(current[0].profile));
                     current[0].key(new KeyEvent(KeyEvent.ACTION_DOWN,KeyEvent.KEYCODE_BUTTON_SELECT));
                     current[0].key(new KeyEvent(KeyEvent.ACTION_UP,KeyEvent.KEYCODE_BUTTON_SELECT));
@@ -138,6 +143,7 @@ public final class SymbianSessionUiTest {
                 try {
                     current[0]=new SymbianSessionUi(activity,new TextureView(activity),system,2,"Second game",host);
                     assertEquals(60,com.github.eka2l1.emu.Emulator.getFrameRateLimit());
+                    assertEquals(100,com.github.eka2l1.emu.Emulator.getEmulationSpeed());
                     assertEquals(0,current[0].profile.screenRotation); current[0].close();
                     current[0]=new SymbianSessionUi(activity,new TextureView(activity),other,1,"Other phone",host);
                     assertEquals(60,com.github.eka2l1.emu.Emulator.getFrameRateLimit());
@@ -199,6 +205,7 @@ public final class SymbianSessionUiTest {
         waitNode("Use mapping",5000); capture("symbian-common-mapper.png"); click("Cancel");
         click("Game menu"); waitNode("Resume",5000);
         capture("symbian-common-menu.png");
+        speedTrials("symbian", false);
         for (int fps : new int[]{15, 30, 0, 60}) {
             click("More"); clickPrefix("Frame rate limit:"); click("Frame rate limit");
             click(fps == 0 ? "Unlimited" : fps + " FPS");
@@ -240,6 +247,21 @@ public final class SymbianSessionUiTest {
     }
     private void assertPublishedGamePicture() throws Exception {
         assertPublishedGamePicture(8);
+    }
+
+    private void speedTrials(String engine, boolean controllerMenu) throws Exception {
+        for (int speed : new int[]{50,200,100}) {
+            click("More"); clickPrefix("Emulation speed:"); click("Emulation speed");
+            click(speed == 100 ? "100% (Normal)" : speed + "%");
+            capture(engine + "-speed-" + speed + "-menu.png");
+            click("Try changes"); waitNode("Undo",5000);
+            SystemClock.sleep(2000); capture(engine + "-speed-" + speed + "-game.png");
+            if (controllerMenu) key(KeyEvent.KEYCODE_BACK,80); else click("Game menu");
+            click("More"); assertNotNull(find(ui.getRootInActiveWindow(), "Emulation speed: " + speed + "%", false));
+            click("Back"); click("Resume"); click("Undo");
+            if (controllerMenu) key(KeyEvent.KEYCODE_BACK,80); else click("Game menu");
+            waitNode("Resume",5000);
+        }
     }
     private void assertPublishedGamePicture(int minimumColors) throws Exception {
         Set<Long> before=screenshots();

@@ -75,9 +75,19 @@ emulator, and Retroid live-menu checks passed in Deep Abyss and Snakes.
 [Evidence and exact boundaries](checks/2026-10-18-native-frame-rate.md).
 The beta.5 APKs still expose this setting only for Java. No release was created.
 
-Proposed next step: a separate per-game emulation-speed control with 100% as
-normal speed. Guest timers, waits and audio must be investigated per engine;
-percentage speed control is not implemented or included in these builds.
+October 18, Beta 6 preparation: separate per-game **Emulation speed** presets
+50 / 75 / 100 / 125 / 150 / 200% are implemented for Java, Mophun and Symbian.
+More and Display use live Try / Keep / Undo. Java's original installed files
+and saves stay intact while guest timing hooks are prepared in private cache.
+Resource-only imports need the original JAR to enable this control.
+Retroid and Android 15 emulator each passed 29 timing/settings checks; Retroid
+live menu trials passed in Java, Deep Abyss and Snakes. Native clock/FPS tests
+also passed. **Audio remains at normal tempo**, and busy-loop/frame/audio-paced
+games need not follow the percentage exactly. This is not a universal speed
+fix. [Implementation evidence](checks/2026-10-18-emulation-speed.md).
+Signed Beta 6 publication and upgrade checks are tracked in the
+[release record](releases/v0.3.0-beta.6-checks.md); Beta 5 remains public until
+that record confirms publication.
 
 October 18: bounded native Symbian file reads, section reads and writes by the
 guest buffer and file length; removed an unsafe beyond-EOF write and retained

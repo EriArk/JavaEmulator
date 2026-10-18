@@ -54,7 +54,19 @@ public class AndroidMethodVisitor extends MethodVisitor {
 
 	@Override
 	public void visitMethodInsn(int opcode, String owner, String name, String desc, boolean itf) {
+		if (opcode == INVOKEVIRTUAL && name.equals("wait") && (desc.equals("(J)V") || desc.equals("(JI)V"))) {
+			mv.visitMethodInsn(INVOKESTATIC, "javax/microedition/shell/GuestTime", name,
+					"(Ljava/lang/Object;" + desc.substring(1), false);
+			return;
+		}
 		switch (owner) {
+			case "java/util/Date":
+				if (name.equals("<init>") && desc.equals("()V")) {
+					mv.visitMethodInsn(INVOKESTATIC, "javax/microedition/shell/GuestTime", "currentTimeMillis", "()J", false);
+					mv.visitMethodInsn(opcode, owner, name, "(J)V", itf);
+					return;
+				}
+				break;
 			case "java/lang/Class":
 				if (name.equals("getResourceAsStream")) {
 					mv.visitMethodInsn(INVOKESTATIC, "javax/microedition/util/ContextHolder",
@@ -63,9 +75,13 @@ public class AndroidMethodVisitor extends MethodVisitor {
 				}
 				break;
 			case "java/lang/Thread":
+				if (opcode == INVOKESTATIC && name.equals("sleep")) {
+					mv.visitMethodInsn(opcode, "javax/microedition/shell/GuestTime", name, desc, false);
+					return;
+				}
 				if (name.equals("yield")) {
 					mv.visitLdcInsn(1L);
-					mv.visitMethodInsn(opcode, owner, "sleep", "(J)V", false);
+					mv.visitMethodInsn(opcode, "javax/microedition/shell/GuestTime", "sleep", "(J)V", false);
 					return;
 				}
 				break;
@@ -120,6 +136,10 @@ public class AndroidMethodVisitor extends MethodVisitor {
 				}
 				break;
 			case "java/lang/System":
+				if (opcode == INVOKESTATIC && (name.equals("currentTimeMillis") || name.equals("nanoTime"))) {
+					mv.visitMethodInsn(opcode, "javax/microedition/shell/GuestTime", name, desc, false);
+					return;
+				}
 				if (opcode == INVOKESTATIC && name.equals("getProperty")) {
 					mv.visitMethodInsn(opcode, "javax/microedition/shell/MidletSystem", name, desc, itf);
 					return;

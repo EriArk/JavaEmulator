@@ -873,6 +873,8 @@ public class MicroActivity extends AppCompatActivity {
 		gameMenu.action("Frame rate limit: " + GameSettingsPages.frameRateLabel(microLoader.getTouchSettings().fpsLimit),
 				R.drawable.ic_quick_quality, this::showLimitFpsDialog);
 		gameMenu.action("Save log", android.R.drawable.ic_menu_save, this::saveLog);
+		gameMenu.action("Emulation speed: " + microLoader.getTouchSettings().getEmulationSpeed() + "%",
+				R.drawable.ic_quick_quality, () -> settingsPages().speed(this::showMorePage));
 		gameMenu.action("Back", android.R.drawable.ic_media_previous, this::showGameMenuPage);
 	}
 

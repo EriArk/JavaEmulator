@@ -184,6 +184,8 @@ public class MicroLoader {
 		if (BuildConfig.FULL_EMULATOR) {
 			File dexSource = new File(appDir, Config.MIDLET_DEX_FILE);
 			File codeCacheDir = ContextCompat.getCodeCacheDir(context);
+			dexSource = GuestDex.prepare(appDir, codeCacheDir, dexSource);
+			GuestTime.speed(params.getEmulationSpeed());
 			File dexOptDir = new File(codeCacheDir, Config.DEX_OPT_CACHE_DIR);
 			if (dexOptDir.exists()) {
 				FileUtils.clearDirectory(dexOptDir);
@@ -393,6 +395,7 @@ public class MicroLoader {
 			Canvas.setScreenRotation(params.screenRotation);
 			Canvas.setShowFps(params.showFps);
 			Canvas.setLimitFps(params.fpsLimit);
+			GuestTime.speed(params.getEmulationSpeed());
 
 			Font.applySettings(params);
 
@@ -441,6 +444,7 @@ public class MicroLoader {
 	}
 
 	void applyPreviewSettings() {
+		GuestTime.speed(params.getEmulationSpeed());
 		Canvas.setLimitFps(params.fpsLimit);
 		Displayable.setVirtualSize(params.screenWidth, params.screenHeight);
 		Canvas.setScale(params.screenGravity, params.screenScaleType, params.screenScaleRatio);

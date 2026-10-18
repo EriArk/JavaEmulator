@@ -38,6 +38,16 @@
 #include <yaml-cpp/yaml.h>
 #include "card_identity.h"
 #include "frame_rate.h"
+#include "emulation_speed.h"
+
+extern "C" JNIEXPORT void JNICALL
+Java_com_github_eka2l1_emu_Emulator_setEmulationSpeed(JNIEnv *, jclass, jint percent) {
+    abyss::speed::set(percent);
+}
+extern "C" JNIEXPORT jint JNICALL
+Java_com_github_eka2l1_emu_Emulator_getEmulationSpeed(JNIEnv *, jclass) {
+    return abyss::speed::get();
+}
 
 extern "C" JNIEXPORT void JNICALL
 Java_com_github_eka2l1_emu_Emulator_setFrameRateLimit(JNIEnv *, jclass, jint fps) {

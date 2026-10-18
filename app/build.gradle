@@ -37,8 +37,8 @@ android {
         applicationId "io.github.eriark.abyssme"
         minSdk MIN_SDK
         targetSdk TARGET_SDK
-        versionCode 304
-        versionName "0.3.0-beta.5"
+        versionCode 305
+        versionName "0.3.0-beta.6"
         resValue 'string', 'app_name', rootProject.name
         buildConfigField 'boolean', 'HANDHELD_MODE', 'true'
         buildConfigField 'boolean', 'SYMBIAN_EXPERIMENT', symbianEnabled.toString()
@@ -306,6 +306,7 @@ dependencies {
     // Testing && CrashReports
     androidTestImplementation 'androidx.test:runner:1.5.2'
     androidTestImplementation 'androidx.test.ext:junit:1.1.5'
+    androidTestImplementation 'org.ow2.asm:asm:9.8'
     testImplementation 'junit:junit:4.13.2'
     implementation 'ch.acra:acra-dialog:5.9.3'
 

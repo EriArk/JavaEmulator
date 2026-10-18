@@ -34,6 +34,17 @@ function(abyss_patch_source target relative before after)
     set_property(TARGET ${target} PROPERTY SOURCES "${sources}")
 endfunction()
 
+# Scale guest kernel time, never host input, rendering or watchdog deadlines.
+get_target_property(kernel_source_dir epoctiming SOURCE_DIR)
+file(READ "${kernel_source_dir}/src/timing.cpp" timing_original)
+set(timing_patched "${timing_original}")
+abyss_replace_once(timing_patched "#include <kernel/timing.h>" "#include <kernel/timing.h>\n#include \"scaled_timer.h\"")
+abyss_replace_once(timing_patched "teletimer_ = common::make_teletimer(cpu_hz);" "teletimer_ = std::make_unique<abyss::speed::timer>(cpu_hz);")
+abyss_replace_once(timing_patched "new_event_evt_.wait_for(next_microseconds.value());" "new_event_evt_.wait_for(std::min<std::uint64_t>(20000, abyss::speed::host_delay(next_microseconds.value())));")
+abyss_replace_once(timing_patched "        bool last_state = should_paused_;" "        abyss::speed::pause(should_pause);\n        bool last_state = should_paused_;")
+target_include_directories(epoctiming PRIVATE "${CMAKE_CURRENT_SOURCE_DIR}")
+abyss_patch_source(epoctiming "src/timing.cpp" "${timing_original}" "${timing_patched}")
+
 # A resize acquires another native-window reference, even for the same Java Surface.
 abyss_patch_source(native-lib "src/native-lib.cpp" [=[    s_surf = ANativeWindow_fromSurface(env, surface);
     state->window->surface_changed(s_surf, width, height);]=] [=[    auto *previous_surface = s_surf;
