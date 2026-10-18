@@ -589,7 +589,7 @@ public class ConfigActivity extends BaseActivity implements View.OnClickListener
 		binding.fontSizeLarge.setText(Integer.toString(params.fontSizeLarge));
 		binding.showFontSizesInScaledPixelsToggle.setChecked(params.fontApplyDimensions);
 		binding.enableAntiAliasingToggle.setChecked(params.fontAA);
-		boolean showVk = !BuildConfig.HANDHELD_MODE && params.showKeyboard;
+		boolean showVk = params.getTouchVisibility() != 2;
 		binding.showVirtualKeyboardToggle.setChecked(showVk);
 		binding.showVirtualKeyboardToggle.setVisibility(
 				BuildConfig.HANDHELD_MODE ? View.GONE : View.VISIBLE);
@@ -673,8 +673,11 @@ public class ConfigActivity extends BaseActivity implements View.OnClickListener
 			}
 			params.fontApplyDimensions = binding.showFontSizesInScaledPixelsToggle.isChecked();
 			params.fontAA = binding.enableAntiAliasingToggle.isChecked();
-			params.showKeyboard = !BuildConfig.HANDHELD_MODE
-					&& binding.showVirtualKeyboardToggle.isChecked();
+			boolean showKeyboard = binding.showVirtualKeyboardToggle.isChecked();
+			int previousVisibility = params.getTouchVisibility();
+			params.touchVisibility = showKeyboard == (previousVisibility != 2)
+					? previousVisibility : showKeyboard ? 1 : 2;
+			params.showKeyboard = showKeyboard;
 			params.vkFeedback = binding.enableHapticFeedbackToggle.isChecked();
 			params.vkForceOpacity = binding.forceOpacityForOffscreenKeysToggle.isChecked();
 			params.touchInput = !BuildConfig.HANDHELD_MODE

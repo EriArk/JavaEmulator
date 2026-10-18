@@ -33,7 +33,7 @@ public class CompactSettingsTest {
             idle();
             scenario.onActivity(activity -> {
                 assertEquals("Playing", activity.getTitle());
-                click(activity.getWindow().getDecorView(), "Vibration");
+                click(activity.getWindow().getDecorView(), "Game vibration");
                 assertEquals(!original, prefs.getBoolean("pref_vibration_switch", true));
             });
             scenario.recreate(); idle();

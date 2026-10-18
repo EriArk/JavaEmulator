@@ -53,11 +53,38 @@ Beta.1 remains a historical download, not the recommended current version.
 | Channel | Current identifier | Availability |
 | --- | --- | --- |
 | Public download | `v0.3.0-beta.6`, code 305 | Signed Handheld/Phone APKs, matching app source and dependency/native source bundles |
-| Public development source | `main`, beta.6 plus unreleased audio synchronization, safer folder discovery, Mophun ZIP/7z import, Java display recovery/capture fixes and compact preview controls | The changes below require a future build; beta.6 downloads are unchanged |
+| Public development source | `main`, preparing `0.4.0-beta.1` (code 306): unified adaptive APK plus the unreleased improvements below | Development/debug verification only; beta.6 downloads are unchanged |
 | Private historical snapshot | `0.1.0-beta.2-experimental.15`, 2026-10-11 | Old Java/Mophun test build, not the current beta |
 | Local-only material | Game fixtures, firmware, diagnostics, device data and signing keys | Not in Git or public release assets; describing testing does not authorize redistribution |
 
 ## Unreleased After Beta.6
+
+October 18: prepare **0.4.0-beta.1**, code **306**, as one adaptive APK rather
+than separate Handheld and Phone downloads. The primary `fdroid` artifact keeps
+`io.github.eriark.abyssme`; library/settings screens no longer lock landscape.
+Existing per-game orientation, mapping and presentation choices remain intact.
+Connected controllers retain library focus behavior and compact fullscreen menus.
+The legacy `phone` flavor remains for migration/testing, not public distribution.
+
+All three engines share per-game **Control mode: Auto / Touch / Controller** and
+**On-screen buttons: Auto / Always / Off**. Automatic visibility follows attached
+gamepad/joystick devices, including built-in controls, without treating a mouse
+or keyboard-only device as a gamepad. Hiding controls returns their screen area
+to the game. Reconnection never automatically resumes a disconnected session;
+removal releases input, cancels Select tracking and opens/defers the game menu.
+Legacy Java touch cancellation also releases guest keys without activating its
+menu key. Existing Java MIDlet lifecycle pause semantics remain unchanged.
+
+**Library transfer > Move from AbyssME Phone** links the backup migration paths.
+Java/Mophun and Symbian whole-phone backups remain separate. Original installs
+are left intact; app-wide preferences and old Phone launcher shortcuts do not
+transfer. No automatic access to another Android package's private files.
+
+Combined and base unified debug builds, controller/overlay regressions, backup
+round trips and real Java/Mophun/Snakes menu workflows were checked. No release
+or APK upload was made. Physical Bluetooth/USB unplug/replug and production-
+signed upgrade acceptance remain pending.
+[Verification, captures and limits](checks/2026-10-18-unified-apk.md).
 
 October 18: replace the full-width settings preview strip with a compact
 approximately 176x52 dp overlay shared by Java, Mophun and Symbian. A stable

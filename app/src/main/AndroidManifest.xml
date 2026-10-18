@@ -45,7 +45,7 @@
             android:configChanges="orientation|screenSize|screenLayout|smallestScreenSize"
             android:exported="true"
             android:launchMode="singleTask"
-            android:screenOrientation="landscape"
+            android:screenOrientation="unspecified"
             android:theme="@style/AppTheme.NoActionBar">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
@@ -122,7 +122,7 @@
         <activity
             android:name=".config.ConfigActivity"
             android:exported="true"
-            android:screenOrientation="landscape"
+            android:screenOrientation="unspecified"
             android:windowSoftInputMode="stateHidden" />
         <activity android:name=".config.GameSettingsActivity" android:exported="false"
             android:theme="@style/AppTheme.NoActionBar" />
@@ -131,7 +131,7 @@
         <activity
             android:name=".config.CompatibilityTestActivity"
             android:exported="false"
-            android:screenOrientation="landscape"
+            android:screenOrientation="unspecified"
             android:theme="@style/AppTheme.NoActionBar" />
         <activity
             android:name="javax.microedition.shell.MicroActivity"
@@ -142,7 +142,7 @@
         <activity android:name=".catalog.LibraryImportActivity" android:exported="false" />
         <activity android:name=".settings.SettingsActivity"
             android:exported="false"
-            android:screenOrientation="landscape">
+            android:screenOrientation="unspecified">
             <intent-filter>
                 <action android:name="android.intent.action.APPLICATION_PREFERENCES" />
 
@@ -150,14 +150,14 @@
             </intent-filter>
         </activity>
         <activity android:name=".settings.KeyMapperActivity" android:exported="false"
-            android:screenOrientation="landscape" />
+            android:screenOrientation="unspecified" />
         <activity
             android:name=".filepicker.FilteredFilePickerActivity"
             android:exported="false"
-            android:screenOrientation="landscape"
+            android:screenOrientation="unspecified"
             android:theme="@style/FilePickerTheme" />
         <activity android:name=".config.ProfilesActivity" android:exported="false"
-            android:screenOrientation="landscape" />
+            android:screenOrientation="unspecified" />
 
         <provider
             android:name=".util.ScreenshotSettingsProvider"

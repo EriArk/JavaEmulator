@@ -86,7 +86,7 @@ public final class MophunInstallerDialog extends DialogFragment {
         android.view.Window window = requireDialog().getWindow();
         window.setLayout(Math.min(Math.round(480 * density), metrics.widthPixels - Math.round(24 * density)),
                 Math.min(Math.round(360 * density), metrics.heightPixels - Math.round(48 * density)));
-        if (ru.playsoftware.j2meloader.BuildConfig.HANDHELD_MODE) {
+        if (ru.playsoftware.j2meloader.input.DeviceControls.connected(requireContext())) {
             androidx.core.view.WindowInsetsControllerCompat bars = androidx.core.view.WindowCompat
                     .getInsetsController(window, window.getDecorView());
             bars.setSystemBarsBehavior(androidx.core.view.WindowInsetsControllerCompat.BEHAVIOR_SHOW_TRANSIENT_BARS_BY_SWIPE);

@@ -241,6 +241,18 @@ public class ProfileModel {
 		isNew = false;
 	}
 
+	@SerializedName("ControlMode")
+	public int controlMode;
+	@SerializedName("TouchVisibility")
+	public Integer touchVisibility;
+
+	public int getTouchVisibility() {
+		// Old Phone profiles may deliberately hide their keypad. Old Handheld profiles
+		// disabled both switches; those use automatic detection in the unified app.
+		if (touchVisibility == null) return !showKeyboard && touchInput ? 2 : 0;
+		return Math.max(0, Math.min(2, touchVisibility));
+	}
+
 	public ProfileModel(File dir) {
 		this.dir = dir;
 		isNew = true;
@@ -249,9 +261,9 @@ public class ProfileModel {
 		screenHeight = 320;
 		screenBackgroundColor = 0x101218;
 		screenScaleType = 1;
-		screenGravity = BuildConfig.HANDHELD_MODE ? 2 : 1;
+		screenGravity = ru.playsoftware.j2meloader.input.DeviceControls.connected(ContextHolder.getAppContext()) ? 2 : 1;
 		screenScaleRatio = 100;
-		orientation = BuildConfig.HANDHELD_MODE ? 3 : 1;
+		orientation = 1;
 		screenScaleToFit = true;
 		screenKeepAspectRatio = true;
 		graphicsMode = 1;
@@ -262,9 +274,10 @@ public class ProfileModel {
 		fontSizeLarge = 0;
 		fontAA = true;
 
-		showKeyboard = !BuildConfig.HANDHELD_MODE;
+		showKeyboard = true;
+		touchVisibility = 0;
 		touchLayout = 0;
-		touchInput = !BuildConfig.HANDHELD_MODE;
+		touchInput = true;
 
 		vkButtonShape = VirtualKeyboard.ROUND_RECT_SHAPE;
 		vkAlpha = 64;

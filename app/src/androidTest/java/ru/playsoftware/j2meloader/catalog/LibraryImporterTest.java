@@ -311,6 +311,7 @@ public class LibraryImporterTest {
 		SourceHints.write(new File(source, "converted/old-folder"), "Sudoku_SE_128x160.jar");
 		ProfileModel profile = new ProfileModel(new File(source, "configs/old-folder"));
 		profile.touchLayout = 1; profile.touchOpacity = 75; profile.screenRotation = 180;
+		profile.controlMode = 1; profile.touchVisibility = 1;
 		profile.orientation = 2;
 		profile.ensureCustomKeyMappingProfile();
 		profile.getActiveKeyMappings().put(96, 55);
@@ -332,6 +333,7 @@ public class LibraryImporterTest {
 			assertTrue(restored.isFavorite()); assertEquals(17, restored.getPlayCount());
 			ProfileModel loaded = ProfilesManager.loadConfig(new File(destination, "configs/" + restored.getPath()));
 			assertEquals(Integer.valueOf(1), loaded.touchLayout); assertEquals(75, loaded.touchOpacity);
+			assertEquals(1, loaded.controlMode); assertEquals(1, loaded.getTouchVisibility());
 			assertEquals(180, loaded.screenRotation); assertEquals(BuildConfig.HANDHELD_MODE ? 3 : 2, loaded.orientation);
 			assertEquals(55, loaded.getActiveKeyMappings().get(96));
 			assertEquals(SourceIdentity.sha256(new File(source, "data/old-folder/sudoku.rms")),

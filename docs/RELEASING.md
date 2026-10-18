@@ -23,14 +23,16 @@ source sets; stale compiler outputs must not survive into a release.
 1. Agree on the version and scope. Record the source commit and update the app
    version separately as part of the release work. Do not reuse a published tag
    for a different build.
-2. Run the local checks in [CONTRIBUTING](../CONTRIBUTING.md) for both variants.
+2. Run the local checks in [CONTRIBUTING](../CONTRIBUTING.md) for touch and controller modes.
    Record exactly which checks ran and which device/frontend cases remain
    untested; do not turn an earlier report into a fresh verification claim.
-3. Use the maintainer's private signing configuration to build the Handheld and
-   Phone release variants. The disposable contributor key is not a release key.
+3. From 0.4 onward, use the maintainer's private signing configuration to build
+   the unified `fdroid` release variant. Keep `io.github.eriark.abyssme` for
+   in-place Handheld upgrades. The legacy `phone` flavor is a migration/test
+   target, not a second public APK. The disposable contributor key is not a release key.
 4. Inspect each APK's package ID, version, minimum Android and signing
    certificate. Check upgrade/signature continuity with the previous release.
-5. Create release notes identifying the two APKs, changes, limitations and
+5. Create release notes identifying the unified APK, changes, migration limits and
    test results. Compute SHA-256 after the final build, using the exact asset
    filenames in the checksum list. Keep the APKs in local build output until
    uploading them; no copy into the Git tree is needed.
@@ -41,7 +43,7 @@ source sets; stale compiler outputs must not survive into a release.
 
 ## Publish
 
-For 0.3 combined builds, use `-PsymbianRelease=true` for every build, inventory
+For combined builds, use `-PsymbianRelease=true` for every build, inventory
 and APK verification command. Prepare `tools/prepare-release-sources.ps1 -Symbian`
 and `tools/prepare-symbian-sources.py`; include both dependency bundles with the
 matching app source. Test restoration of the exported engine source rather than
@@ -54,7 +56,7 @@ packages and private test inputs must not be shipped.
 
 1. Push the reviewed source/docs and the corresponding version tag, then create
    a draft GitHub Release. Mark beta releases as prereleases.
-2. Manually upload the two signed APKs and their checksum list. Never upload a
+2. Manually upload the unified signed APK and its checksum list. Never upload a
    keystore, `keystore.properties`, game collection or device backup.
 3. Verify asset names and download hashes, review the release notes, then
    publish. Verify that the README download link leads to the intended release.

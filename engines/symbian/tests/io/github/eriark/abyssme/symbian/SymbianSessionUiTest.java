@@ -39,6 +39,16 @@ public final class SymbianSessionUiTest {
             assertFalse(label, ui.getRootInActiveWindow().findAccessibilityNodeInfosByText(label).isEmpty());
         capture(screenshot);
         click("More"); click("Back"); waitNode("Resume", 5000);
+        if ("true".equals(InstrumentationRegistry.getArguments().getString("unifiedControlsTrials"))) {
+            for (String visibility : new String[]{"Always", "Off", "Auto"}) {
+                click("Controls"); capture(screenshot + "-controls.png");
+                click("On-screen buttons"); click(visibility);
+                click("Try changes"); waitNode("Undo", 5000); SystemClock.sleep(1000);
+                assertPublishedGamePicture(1);
+                capture(screenshot + "-buttons-" + visibility + ".png");
+                click("Undo"); click("Game menu"); waitNode("Resume", 5000);
+            }
+        }
         if ("true".equals(InstrumentationRegistry.getArguments().getString("speedTrials"))) speedTrials(screenshot, controllerMenu);
         if ("true".equals(InstrumentationRegistry.getArguments().getString("presentationTrials")))
             presentationTrials(screenshot, controllerMenu);
@@ -136,6 +146,58 @@ public final class SymbianSessionUiTest {
             waitNode("Resume", 5000);
         }
     }
+    @Test public void disconnectWhileHiddenStaysPausedAfterReturnAndReconnection() throws Exception {
+        ui = instrumentation.getUiAutomation();
+        MainActivity activity = (MainActivity) instrumentation.startActivitySync(new Intent(context, MainActivity.class)
+                .addFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK));
+        String seed = UUID.randomUUID().toString().replace("-", ""), system = seed + seed;
+        SymbianSessionUi[] current = new SymbianSessionUi[1];
+        boolean[] paused = {false};
+        List<Boolean> keys = new ArrayList<>();
+        SymbianSessionUi.Host host = new SymbianSessionUi.Host() {
+            public android.graphics.RectF touchBounds() { return null; }
+            public void touch(int x,int y,int pressure,int action,int pointer) {}
+            public void key(int scan,boolean down) { keys.add(down); }
+            public void pause(boolean value) { paused[0] = value; }
+            public void display(int scale) {} public void frameRate(int fps) {}
+            public void leave() {} public void restart() {} public Bitmap capture() { return null; }
+        };
+        try {
+            instrumentation.runOnMainSync(() -> {
+                try {
+                    current[0] = new SymbianSessionUi(activity, new TextureView(activity), system, 1, "Controller test", host);
+                    activity.setContentView(current[0].root);
+                    java.lang.reflect.Field field = SymbianSessionUi.class.getDeclaredField("devices"); field.setAccessible(true);
+                    ru.playsoftware.j2meloader.input.DeviceControls devices =
+                            (ru.playsoftware.j2meloader.input.DeviceControls) field.get(current[0]);
+                    java.lang.reflect.Method update = devices.getClass().getDeclaredMethod("update", int.class, boolean.class);
+                    update.setAccessible(true); update.invoke(devices, 90001, true);
+                    current[0].key(new KeyEvent(KeyEvent.ACTION_DOWN, KeyEvent.KEYCODE_BUTTON_A));
+                    assertEquals(Collections.singletonList(true), keys);
+                    current[0].visible(false);
+                    assertEquals(Arrays.asList(true, false), keys);
+                    update.invoke(devices, 90001, false); update.invoke(devices, 90001, true);
+                    current[0].visible(true); current[0].focused(true);
+                    assertTrue(paused[0]); assertTrue(devices.resumeRequired());
+                } catch (Exception error) { throw new AssertionError(error); }
+            });
+            waitNode("Resume", 5000); capture("unified-controller-reconnect.png"); click("Resume");
+            instrumentation.runOnMainSync(() -> {
+                assertFalse(paused[0]);
+                current[0].key(new KeyEvent(KeyEvent.ACTION_DOWN, KeyEvent.KEYCODE_BUTTON_A));
+                current[0].key(new KeyEvent(KeyEvent.ACTION_UP, KeyEvent.KEYCODE_BUTTON_A));
+                assertEquals(Arrays.asList(true, false, true, false), keys);
+            });
+        } finally {
+            instrumentation.runOnMainSync(() -> { if (current[0] != null) current[0].close(); activity.finish(); });
+            File directory = PhoneBackup.profiles(context.getFilesDir(), system);
+            if (directory.isDirectory()) try (java.util.stream.Stream<java.nio.file.Path> paths = java.nio.file.Files.walk(directory.toPath())) {
+                for (java.nio.file.Path file : (Iterable<java.nio.file.Path>) paths.sorted(Comparator.reverseOrder())::iterator)
+                    java.nio.file.Files.delete(file);
+            }
+        }
+    }
+
     @Test public void settingsArePerPhoneAndGameAndSelectDoesNotLeakIntoMapping() throws Exception {
         ui = instrumentation.getUiAutomation();
         MainActivity activity=(MainActivity)instrumentation.startActivitySync(new Intent(context,MainActivity.class)
@@ -277,6 +339,7 @@ public final class SymbianSessionUiTest {
         click("Game menu"); click("Controls");
         capture("symbian-common-controls.png");
         if (!BuildConfig.HANDHELD_MODE) {
+            click("On-screen buttons"); click("Always");
             click("Touch layout"); click("Gamepad"); click("Try changes");
             waitNode("Undo",5000); SystemClock.sleep(1000); capture("symbian-common-gamepad-portrait.png");
             click("Game menu"); click("Display"); click("Orientation"); click("Landscape"); click("Try changes");

@@ -59,6 +59,10 @@ public final class GameSettingsPages {
 
     public void controls() {
         menu.page("Controls");
+        menu.choice("Control mode", new String[]{"Auto", "Touch", "Controller"}, clamp(draft.controlMode, 3),
+                i -> draft.controlMode = i);
+        menu.choice("On-screen buttons", new String[]{"Auto", "Always", "Off"}, draft.getTouchVisibility(),
+                i -> draft.touchVisibility = i);
         menu.action("Controller mapping", R.drawable.ic_action_keyboard, () -> host.mapping(draft, this::controls));
         if (!BuildConfig.HANDHELD_MODE) {
             int layout = draft.touchLayout == null ? 0 : clamp(draft.touchLayout, javaGame ? 3 : 2);

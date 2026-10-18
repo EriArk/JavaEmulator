@@ -126,18 +126,29 @@ public class MicroActivity extends AppCompatActivity {
 	private SettingsPreviewBar settingsPreview;
 	private ru.playsoftware.j2meloader.input.GameChrome gameChrome;
 	private final HashSet<Integer> overlayHeldKeys = new HashSet<>();
-	private InputManager inputManager;
+	private ru.playsoftware.j2meloader.input.DeviceControls devices;
 	private final ControllerInput controllerInput = new ControllerInput(KeyMapper::getInputMapping,
 			new ControllerInput.Sink() {
 				public void press(int key) { if (current instanceof Canvas) ((Canvas) current).postKeyPressed(key); }
 				public void release(int key) { if (current instanceof Canvas) ((Canvas) current).postKeyReleased(key); }
 				public void repeat(int key) { if (current instanceof Canvas) ((Canvas) current).postKeyRepeated(key); }
 			});
-	private final InputManager.InputDeviceListener controllerListener = new InputManager.InputDeviceListener() {
-		public void onInputDeviceAdded(int id) { }
-		public void onInputDeviceChanged(int id) { controllerInput.removeDevice(id); }
-		public void onInputDeviceRemoved(int id) { controllerInput.removeDevice(id); }
-	};
+	private void releaseControllerState() {
+		cancelQuickMapTrigger();
+		controllerInput.clear();
+		VirtualKeyboard vk = ContextHolder.getVk();
+		if (vk != null) vk.cancel();
+	}
+	private void updateControllerMode() {
+		if (microLoader == null) return;
+		VirtualKeyboard vk = ContextHolder.getVk();
+		if (vk != null) vk.setControlsEnabled(ru.playsoftware.j2meloader.input.DeviceControls.showTouch(
+				microLoader.getTouchSettings(), devices != null && devices.connected()));
+	}
+	private void controllerDisconnected() {
+		MidletThread.pauseApp();
+		if (visible && !isFinishing()) openOptionsMenu();
+	}
 	private boolean selectQuickMapTracking;
 	private boolean selectQuickMapOpened;
 	private final Handler quickSettingsHandler = new Handler(Looper.getMainLooper());
@@ -246,8 +257,9 @@ public class MicroActivity extends AppCompatActivity {
 				&& ru.playsoftware.j2meloader.util.GameShortcuts.isDisplayVisible(this) ? View.VISIBLE : View.GONE);
 		binding.gameDisplayButton.setOnClickListener(v -> { openOptionsMenu(); showDisplayPage(); });
 		if (!BuildConfig.HANDHELD_MODE) gameChrome = new ru.playsoftware.j2meloader.input.GameChrome(binding.midletFrame, microLoader.getTouchSettings());
-		inputManager = (InputManager) getSystemService(INPUT_SERVICE);
-		inputManager.registerInputDeviceListener(controllerListener, quickSettingsHandler);
+		devices = new ru.playsoftware.j2meloader.input.DeviceControls(this, this::releaseControllerState,
+				this::updateControllerMode, this::controllerDisconnected);
+		updateControllerMode();
 		inputMethodManager = (InputMethodManager) getSystemService(INPUT_METHOD_SERVICE);
 
 		try {
@@ -272,9 +284,11 @@ public class MicroActivity extends AppCompatActivity {
 	public void onResume() {
 		super.onResume();
 		visible = true;
+		if (devices != null && devices.resumeRequired()) openOptionsMenu();
 		updateScreenshotButton();
 		if (!isQuickMapVisible() && (gameMenu == null || !gameMenu.isShowing())
-				&& (settingsMapper == null || !settingsMapper.isShowing())) {
+				&& (settingsMapper == null || !settingsMapper.isShowing())
+				&& (devices == null || !devices.resumeRequired())) {
 			MidletThread.resumeApp();
 			if (settingsPreview != null) settingsPreview.resume();
 		}
@@ -306,9 +320,17 @@ public class MicroActivity extends AppCompatActivity {
 		super.onWindowFocusChanged(hasFocus);
 		updateScreenshotButton();
 		if (!hasFocus) {
+			cancelQuickMapTrigger();
+			MidletThread.pauseApp();
 			controllerInput.clear();
 			VirtualKeyboard vk = ContextHolder.getVk();
 			if (vk != null) vk.cancel();
+		}
+		if (hasFocus && visible && !isQuickMapVisible()
+				&& (gameMenu == null || !gameMenu.isShowing())
+				&& (settingsMapper == null || !settingsMapper.isShowing())) {
+			if (devices != null && devices.resumeRequired()) openOptionsMenu();
+			else MidletThread.resumeApp();
 		}
 		if (hasFocus && Build.VERSION.SDK_INT >= Build.VERSION_CODES.KITKAT &&
 				current instanceof Canvas && !isQuickMapVisible()) {
@@ -623,6 +645,7 @@ public class MicroActivity extends AppCompatActivity {
 	}
 
 	private void applyRuntimeDisplaySettings(boolean updateOrientation) {
+		updateControllerMode();
 		updateScreenshotButton();
 		if (updateOrientation) {
 			setOrientation(microLoader.getOrientation());
@@ -737,13 +760,14 @@ public class MicroActivity extends AppCompatActivity {
 		binding.quickMapOverlay.removeAllViews();
 		controllerMapper = null;
 		updateScreenshotButton();
-		if (visible) {
+		if (visible && (devices == null || !devices.resumeRequired())) {
 			MidletThread.resumeApp();
 			if (settingsPreview != null) settingsPreview.resume();
 		}
 		if (current instanceof Canvas) {
 			hideSystemUI();
 		}
+		if (visible && devices != null && devices.resumeRequired()) openOptionsMenu();
 	}
 
 	private void cancelQuickMapTrigger() {
@@ -784,7 +808,8 @@ public class MicroActivity extends AppCompatActivity {
 
 	@Override
 	public void openOptionsMenu() {
-		if (microLoader == null || isQuickMapVisible() || (gameMenu != null && gameMenu.isShowing())) return;
+		if (microLoader == null || isQuickMapVisible() || (gameMenu != null && gameMenu.isShowing())
+				|| (settingsMapper != null && settingsMapper.isShowing())) return;
 		cancelQuickMapTrigger();
 		if (settingsPreview != null) settingsPreview.suspend();
 		controllerInput.clear();
@@ -794,6 +819,7 @@ public class MicroActivity extends AppCompatActivity {
 		MidletThread.pauseApp();
 		gameMenu = new ru.playsoftware.j2meloader.input.GameMenuDialog(this, appName);
 		gameMenu.setOnDismissListener(d -> {
+			if (devices != null) devices.resume();
 			updateScreenshotButton();
 			if (visible && !isQuickMapVisible()) {
 				MidletThread.resumeApp();
@@ -1213,7 +1239,7 @@ public class MicroActivity extends AppCompatActivity {
 			gameMenu.dismiss();
 		}
 		quickSettingsHandler.removeCallbacksAndMessages(null);
-		if (inputManager != null) inputManager.unregisterInputDeviceListener(controllerListener);
+		if (devices != null) devices.close();
 		controllerInput.clear();
 		if (isFinishing()) {
 			LaunchDiagnostics.record(this, "clean_exit", appName, null);

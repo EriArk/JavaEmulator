@@ -47,6 +47,14 @@ public final class TouchDeck {
     private final RectF viewport = new RectF();
     private float width, height;
     private boolean numbers;
+    private boolean enabled = true;
+
+    public synchronized void setEnabled(boolean enabled) {
+        if (this.enabled == enabled) return;
+        cancel(); this.enabled = enabled;
+        layout(width, height);
+    }
+    public synchronized boolean isEnabled() { return enabled; }
     private android.content.Context themeContext;
     private int themeMode = -1;
     private int surface = 0xff10181c, button = 0xff29363e, accent = 0xffffc15a,
@@ -91,6 +99,7 @@ public final class TouchDeck {
     }
     public synchronized ArrayList<Key> getKeys() { return new ArrayList<>(keys); }
     public RectF gameArea(float w, float h) {
+        if (!enabled) return new RectF(0, 0, w, h);
         float unit = unit(w, h);
         if (w > h) return new RectF(3 * unit + dp(12), dp(8), w - 3 * unit - dp(12), h - dp(8));
         float rows = style() == PHONE ? 6 : 5;
@@ -107,6 +116,7 @@ public final class TouchDeck {
     public synchronized void layout(float w, float h) {
         cancel();
         width = w; height = h; keys.clear(); viewport.set(gameArea(w, h));
+        if (!enabled) { sink.invalidate(); return; }
         float u = unit(w, h);
         boolean landscape = w > h;
         if (!landscape && style() == PHONE) {
@@ -208,6 +218,7 @@ public final class TouchDeck {
         held.clear(); pointers.clear(); sink.invalidate();
     }
     public synchronized void draw(Canvas canvas) {
+        if (!enabled) return;
         updateTheme();
         paint.setStyle(Paint.Style.FILL);
         paint.setColor(surface);

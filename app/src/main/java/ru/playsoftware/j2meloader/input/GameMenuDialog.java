@@ -46,7 +46,7 @@ public final class GameMenuDialog extends Dialog {
         }
     }
     private boolean isFullscreenHost() {
-        if (ru.playsoftware.j2meloader.BuildConfig.HANDHELD_MODE) return true;
+        if (DeviceControls.connected(getContext())) return true;
         Context context = getContext();
         while (context instanceof android.content.ContextWrapper) {
             if (context instanceof android.app.Activity) {

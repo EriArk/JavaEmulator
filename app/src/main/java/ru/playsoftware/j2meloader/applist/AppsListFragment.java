@@ -203,7 +203,9 @@ public class AppsListFragment extends Fragment implements AppsListAdapter.Listen
 		binding.appsRecycler.getViewTreeObserver().addOnWindowFocusChangeListener(hasFocus -> {
 			if (hasFocus && binding != null && pendingGameFocus >= 0) binding.appsRecycler.requestLayout();
 		});
-		binding.launcherSoftbar.setVisibility(BuildConfig.HANDHELD_MODE ? View.VISIBLE : View.GONE);
+		libraryDevices = new ru.playsoftware.j2meloader.input.DeviceControls(requireContext(), () -> {},
+				this::updateLibraryControls, () -> {});
+		updateLibraryControls();
 		binding.getRoot().addOnLayoutChangeListener((v,l,t,r,b,ol,ot,or,ob) -> {
 			if (r-l != or-ol || b-t != ob-ot) v.post(() -> {
 				if (binding != null) { updateResponsiveToolbar(); updateDetail(selectedItem); updateLibraryLayout(); }
@@ -292,7 +294,7 @@ public class AppsListFragment extends Fragment implements AppsListAdapter.Listen
 	private final RecyclerView.AdapterDataObserver libraryObserver = new RecyclerView.AdapterDataObserver() {
 		@Override public void onChanged() {
 			updateEmptyState();
-			if (binding != null && BuildConfig.HANDHELD_MODE && initialGameFocus && adapter.getItemCount() > 0) {
+			if (binding != null && ru.playsoftware.j2meloader.input.DeviceControls.connected(requireContext()) && initialGameFocus && adapter.getItemCount() > 0) {
 				initialGameFocus = false;
 				if (!searchExpanded) focusGame(null);
 			}
@@ -307,7 +309,7 @@ public class AppsListFragment extends Fragment implements AppsListAdapter.Listen
 				 requireContext().getSystemService(Context.INPUT_METHOD_SERVICE);
 		ime.hideSoftInputFromWindow(binding.librarySearch.getWindowToken(), 0);
 		updateResponsiveToolbar();
-		if (BuildConfig.HANDHELD_MODE) focusGame(selectedItem == null ? null : selectedItem.getPath());
+		if (ru.playsoftware.j2meloader.input.DeviceControls.connected(requireContext())) focusGame(selectedItem == null ? null : selectedItem.getPath());
 	}
 
 	private void openLastDirectory() {
@@ -385,7 +387,7 @@ public class AppsListFragment extends Fragment implements AppsListAdapter.Listen
 				int target = i;
 				dialog.action(modes[i], 0, () -> {
 					setDisplayMode(target); dialog.dismiss();
-					if (BuildConfig.HANDHELD_MODE) focusGame(selectedItem == null ? null : selectedItem.getPath());
+					if (ru.playsoftware.j2meloader.input.DeviceControls.connected(requireContext())) focusGame(selectedItem == null ? null : selectedItem.getPath());
 				});
 			}
 		});
@@ -397,7 +399,7 @@ public class AppsListFragment extends Fragment implements AppsListAdapter.Listen
 				dialog.action(LibraryLayout.COVER_LABELS[i], 0, () -> {
 					preferences.edit().putInt(LibraryLayout.COVER_PREFERENCE, value).apply();
 					updateLibraryLayout(); dialog.dismiss();
-					if (BuildConfig.HANDHELD_MODE) focusGame(selectedItem == null ? null : selectedItem.getPath());
+					if (ru.playsoftware.j2meloader.input.DeviceControls.connected(requireContext())) focusGame(selectedItem == null ? null : selectedItem.getPath());
 				});
 			}
 		});
@@ -993,6 +995,7 @@ public class AppsListFragment extends Fragment implements AppsListAdapter.Listen
 
 	@Override public void onResume() {
 		super.onResume();
+		updateLibraryControls();
 		if (!BuildConfig.SYMBIAN_EXPERIMENT) return;
 		Context context = requireContext().getApplicationContext();
 		android.app.Activity activity = requireActivity();
@@ -1148,11 +1151,20 @@ public class AppsListFragment extends Fragment implements AppsListAdapter.Listen
 
 	@Override
 	public void onDestroyView() {
+		if (libraryDevices != null) { libraryDevices.close(); libraryDevices = null; }
 		externalGeneration++;
 		adapter.unregisterAdapterDataObserver(libraryObserver);
 		pendingGameFocus = -1;
 		super.onDestroyView();
 		binding = null;
+	}
+
+	private ru.playsoftware.j2meloader.input.DeviceControls libraryDevices;
+	private void updateLibraryControls() {
+		if (binding == null) return;
+		boolean connected = ru.playsoftware.j2meloader.input.DeviceControls.connected(requireContext());
+		binding.launcherSoftbar.setVisibility(connected ? View.VISIBLE : View.GONE);
+		if (connected && !searchExpanded) focusGame(selectedItem == null ? null : selectedItem.getPath());
 	}
 
 	@Override

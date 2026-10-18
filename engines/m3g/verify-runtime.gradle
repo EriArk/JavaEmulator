@@ -1,7 +1,7 @@
 tasks.register('verifyProductionApks') {
-    dependsOn 'assembleFdroidRelease', 'assemblePhoneRelease'
+    dependsOn 'assembleFdroidRelease'
     doLast {
-        ['fdroid', 'phone'].each { flavor ->
+        ['fdroid'].each { flavor ->
             def folder = layout.buildDirectory.dir("outputs/apk/$flavor/release").get().asFile
             def metadata = new groovy.json.JsonSlurper().parse(new File(folder, 'output-metadata.json'))
             def forbidden = ['Ljavax/microedition/m3g/Platform;',

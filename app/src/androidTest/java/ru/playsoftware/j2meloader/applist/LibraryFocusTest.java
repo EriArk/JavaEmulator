@@ -24,9 +24,9 @@ import static org.junit.Assume.assumeTrue;
 
 public class LibraryFocusTest {
     @Test public void coldLibraryFocusSurvivesLayoutAndDoesNotStealHeaderFocus() throws Exception {
-        assumeTrue(BuildConfig.HANDHELD_MODE);
         Instrumentation instrumentation = InstrumentationRegistry.getInstrumentation();
         Context context = instrumentation.getTargetContext();
+        assumeTrue(ru.playsoftware.j2meloader.input.DeviceControls.connected(context));
         File root = Files.createTempDirectory(context.getCacheDir().toPath(), "library-focus-").toFile();
         try (AppDatabase db = AppDatabase.open(context, root.getPath())) {
             for (int i = 0; i < 8; i++) {

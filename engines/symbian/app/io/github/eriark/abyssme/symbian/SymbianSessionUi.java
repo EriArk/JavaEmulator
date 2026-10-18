@@ -45,6 +45,7 @@ final class SymbianSessionUi {
     private final SettingsPreviewBar preview;
     private final ImageButton camera;
     private final GameChrome gameChrome;
+    private final DeviceControls devices;
     private GameMenuDialog menu;
     private MapperDialog mapper;
     private boolean closed, visible = true, focused = true, selectDown, screenshotPending;
@@ -84,6 +85,10 @@ final class SymbianSessionUi {
         preview = new SettingsPreviewBar(activity, this::keep, this::undo);
         preview.attachTo(root);
         gameChrome = BuildConfig.HANDHELD_MODE ? null : new GameChrome(root, profile);
+        devices = new DeviceControls(activity, this::clear, this::layout, () -> {
+            if (visible) showMenu();
+            pause();
+        });
         apply();
     }
     private int dp(int n) { return Math.round(n * activity.getResources().getDisplayMetrics().density); }
@@ -104,6 +109,7 @@ final class SymbianSessionUi {
         host.display(scale()); host.frameRate(profile.getNativeFpsLimit()); layout(); updateShortcuts();
     }
     private void layout() {
+        deckView.deck.setEnabled(DeviceControls.showTouch(profile, devices != null && devices.connected()));
         if (closed || root.getWidth() == 0 || root.getHeight() == 0) return;
         deckView.layoutDeck(root.getWidth(), root.getHeight());
         RectF area = BuildConfig.HANDHELD_MODE ? new RectF(0,0,root.getWidth(),root.getHeight())
@@ -120,7 +126,11 @@ final class SymbianSessionUi {
         handler.removeCallbacks(holdSelect); selectDown = false;
         input.clear(); if (deckView != null) deckView.cancel(); keys.clear();
     }
-    void visible(boolean value) { visible = value; if (value) updateShortcuts(); pause(); }
+    void visible(boolean value) {
+        visible = value;
+        if (value && devices.resumeRequired()) showMenu();
+        if (value) updateShortcuts(); pause();
+    }
     private void updateShortcuts() {
         camera.setVisibility(Screenshots.isButtonVisible(activity) ? View.VISIBLE : View.GONE);
         if (gameChrome != null) gameChrome.update(!closed && visible && focused && menu == null && mapper == null,
@@ -129,7 +139,7 @@ final class SymbianSessionUi {
     void focused(boolean value) { focused = value; pause(); }
     private void pause() {
         updateShortcuts();
-        boolean paused = closed || !visible || !focused || menu != null || mapper != null;
+        boolean paused = closed || !visible || !focused || menu != null || mapper != null || devices.resumeRequired();
         if (paused) clear(); host.pause(paused);
         if (paused) preview.suspend(); else preview.resume();
     }
@@ -166,7 +176,7 @@ final class SymbianSessionUi {
     void showMenu() {
         if (closed || menu != null || mapper != null) return;
         menu = new GameMenuDialog(activity, title);
-        menu.setOnDismissListener(d -> { menu = null; if (!closed) pause(); }); menu.show(); pause(); home();
+        menu.setOnDismissListener(d -> { menu = null; devices.resume(); if (!closed) pause(); }); menu.show(); pause(); home();
     }
     private void home() {
         new GameMenuPages(menu, new GameMenuPages.Host() {
@@ -223,6 +233,7 @@ final class SymbianSessionUi {
             if (closed) return;
             if (applied) trySettings(draft);
             if (menu != null) menu.show(); pause();
+            if (visible && devices.resumeRequired()) showMenu();
         });
         mapper.show(); pause();
     }
@@ -276,6 +287,7 @@ final class SymbianSessionUi {
     }
     void close() {
         if (closed) return; closed = true; clear(); preview.stop();
+        devices.close();
         updateShortcuts();
         // A dismissed dialog may deliver its callback after the next session starts.
         if (mapper != null) { mapper.setOnDismissListener(null); mapper.dismiss(); mapper = null; }

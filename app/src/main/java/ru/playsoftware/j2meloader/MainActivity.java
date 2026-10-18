@@ -65,7 +65,7 @@ public class MainActivity extends BaseActivity {
 	@Override
 	public void onWindowFocusChanged(boolean hasFocus) {
 		super.onWindowFocusChanged(hasFocus);
-		if (hasFocus && BuildConfig.HANDHELD_MODE) {
+		if (hasFocus && ru.playsoftware.j2meloader.input.DeviceControls.connected(this)) {
 			android.view.WindowManager.LayoutParams attributes = getWindow().getAttributes();
 			attributes.layoutInDisplayCutoutMode = android.view.WindowManager.LayoutParams.LAYOUT_IN_DISPLAY_CUTOUT_MODE_SHORT_EDGES;
 			getWindow().setAttributes(attributes);

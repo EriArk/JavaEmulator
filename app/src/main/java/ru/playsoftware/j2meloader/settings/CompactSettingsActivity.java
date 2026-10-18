@@ -61,7 +61,7 @@ public abstract class CompactSettingsActivity extends BaseActivity {
     }
     @Override public void onWindowFocusChanged(boolean focused) {
         super.onWindowFocusChanged(focused);
-        if (focused && BuildConfig.HANDHELD_MODE) {
+        if (focused && ru.playsoftware.j2meloader.input.DeviceControls.connected(this)) {
             WindowInsetsControllerCompat bars = WindowCompat.getInsetsController(getWindow(), getWindow().getDecorView());
             bars.setSystemBarsBehavior(WindowInsetsControllerCompat.BEHAVIOR_SHOW_TRANSIENT_BARS_BY_SWIPE);
             bars.hide(WindowInsetsCompat.Type.systemBars());
@@ -69,7 +69,7 @@ public abstract class CompactSettingsActivity extends BaseActivity {
         if (focused) focusInitialAction();
     }
     private void focusInitialAction() {
-        if (!initialFocus || !BuildConfig.HANDHELD_MODE || screenContent == null || !screenContent.hasWindowFocus()) return;
+        if (!initialFocus || !ru.playsoftware.j2meloader.input.DeviceControls.connected(this) || screenContent == null || !screenContent.hasWindowFocus()) return;
         for (View view : screenContent.getFocusables(View.FOCUS_FORWARD)) {
             if (view.isShown() && view.isEnabled() && view.isClickable() && view.isLaidOut()) {
                 view.requestFocusFromTouch(); initialFocus = false; break;

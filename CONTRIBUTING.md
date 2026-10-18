@@ -55,9 +55,9 @@ supported. Publication also requires the source/notice and artifact checks.
 ### Build and checks
 
 ```shell
-./gradlew :app:assembleFdroidDebug :app:assemblePhoneDebug
-./gradlew :app:testFdroidDebugUnitTest :app:testPhoneDebugUnitTest
-./gradlew :app:lintFdroidDebug :app:lintPhoneDebug
+./gradlew :app:assembleFdroidDebug
+./gradlew :app:testFdroidDebugUnitTest --rerun
+./gradlew :app:lintFdroidDebug
 ```
 
 On Windows use `.\gradlew.bat` instead of `./gradlew`. APKs are written under
@@ -82,7 +82,9 @@ engine for both Debug and Release with normal package IDs (Debug still has its
 build remains a Java/Mophun-only development option. Phone dumps and commercial
 games are never required to compile the application.
 
-For changes that affect both variants, check Handheld and Phone separately:
+Development toward 0.4 uses one adaptive `fdroid` APK. The `phone` flavor remains
+available for migration testing, but is not a second distribution target.
+Check touch and controller use separately, in portrait, landscape and square layouts:
 
 - Import a JAR and an archive, then relaunch an already prepared game.
 - Check Gallery, List, Grid, focus navigation and missing-artwork fallbacks.

@@ -47,7 +47,7 @@ import ru.playsoftware.j2meloader.util.Screenshots;
 import javax.microedition.lcdui.keyboard.KeyMapper;
 import wolphun.Screen;
 
-public final class MophunGameActivity extends Activity implements InputManager.InputDeviceListener {
+public final class MophunGameActivity extends Activity {
     @Override protected void attachBaseContext(android.content.Context base) {
         super.attachBaseContext(ru.playsoftware.j2meloader.util.AppearanceContext.wrap(base));
     }
@@ -71,7 +71,7 @@ public final class MophunGameActivity extends Activity implements InputManager.I
     private GameMenuDialog menu;
     private ru.playsoftware.j2meloader.input.MapperDialog settingsMapper;
     private ru.playsoftware.j2meloader.input.SettingsPreviewBar previewBar;
-    private InputManager inputManager;
+    private ru.playsoftware.j2meloader.input.DeviceControls devices;
     private boolean visible, selectDown, selectHeld, captured;
     private final Runnable holdSelect = () -> { if (selectDown) { selectHeld = true; showControls(); } };
 
@@ -102,8 +102,6 @@ public final class MophunGameActivity extends Activity implements InputManager.I
             session.setEmulationSpeed(profile.getEmulationSpeed());
             MophunInput sink = new MophunInput(session::screen);
             input = new ControllerInput(key -> mappings.get(key, 0), sink);
-            inputManager = getSystemService(InputManager.class);
-            inputManager.registerInputDeviceListener(this, handler);
             root = new FrameLayout(this);
             frameView = new FrameView();
             root.addView(frameView);
@@ -141,6 +139,13 @@ public final class MophunGameActivity extends Activity implements InputManager.I
             if (!BuildConfig.HANDHELD_MODE) gameChrome = new ru.playsoftware.j2meloader.input.GameChrome(root, profile);
             updateScreenshotButton();
             if (ProfilesManager.isPreview(profile)) previewBar.start();
+            devices = new ru.playsoftware.j2meloader.input.DeviceControls(this, () -> {
+                cancelSelect(); clearInput();
+            }, this::updateControllerMode, () -> {
+                if (visible) showMenu();
+                pauseState();
+            });
+            updateControllerMode();
             if (getIntent().getBooleanExtra("controls", false)) showControls();
             session.start();
         } catch (Exception failure) {
@@ -198,10 +203,19 @@ public final class MophunGameActivity extends Activity implements InputManager.I
         if (input != null) input.clear();
     }
 
+    private void updateControllerMode() {
+        if (touch == null || profile == null) return;
+        touch.deck.setEnabled(ru.playsoftware.j2meloader.input.DeviceControls.showTouch(profile,
+                devices != null && devices.connected()));
+        touch.layout(frameView.getWidth(), frameView.getHeight());
+        frameView.invalidate();
+    }
+
     private void pauseState() {
         updateScreenshotButton();
         boolean paused = !visible || isFinishing() || mapper != null || menu != null
-                || (settingsMapper != null && settingsMapper.isShowing()) || !hasWindowFocus();
+                || (settingsMapper != null && settingsMapper.isShowing()) || !hasWindowFocus()
+                || (devices != null && devices.resumeRequired());
         if (paused) clearInput();
         if (session != null) session.pause(paused);
         if (previewBar != null) { if (paused) previewBar.suspend(); else previewBar.resume(); }
@@ -218,7 +232,6 @@ public final class MophunGameActivity extends Activity implements InputManager.I
         super.onConfigurationChanged(configuration);
         cancelSelect();
         clearInput();
-        if (menu != null) menu.dismiss();
         if (frameView != null) frameView.requestLayout();
     }
 
@@ -263,6 +276,7 @@ public final class MophunGameActivity extends Activity implements InputManager.I
         input.clear();
         root.removeView(mapper);
         mapper = null;
+        if (visible && devices != null && devices.resumeRequired()) showMenu();
         updateScreenshotButton();
         pauseState();
     }
@@ -272,7 +286,7 @@ public final class MophunGameActivity extends Activity implements InputManager.I
         cancelSelect();
         input.clear();
         menu = new GameMenuDialog(this, title);
-        menu.setOnDismissListener(d -> { menu = null; pauseState(); });
+        menu.setOnDismissListener(d -> { menu = null; if (devices != null) devices.resume(); pauseState(); });
         pauseState();
         menu.show();
         showMenuPage();
@@ -326,6 +340,7 @@ public final class MophunGameActivity extends Activity implements InputManager.I
                 });
     }
     private void applyPreview() {
+        updateControllerMode();
         if (session != null) session.setEmulationSpeed(profile.getEmulationSpeed());
         if (session != null) session.setFrameRateLimit(profile.getNativeFpsLimit());
         updateScreenshotButton();
@@ -443,6 +458,7 @@ public final class MophunGameActivity extends Activity implements InputManager.I
             if (!mapper.handleKey(event)) super.dispatchKeyEvent(event);
             return true;
         }
+        if (!hasWindowFocus() || (devices != null && devices.resumeRequired())) return super.dispatchKeyEvent(event);
         if (key == KeyEvent.KEYCODE_BACK || key == KeyEvent.KEYCODE_MENU) {
             if (event.getAction() == KeyEvent.ACTION_UP) showMenu();
             return true;
@@ -464,6 +480,7 @@ public final class MophunGameActivity extends Activity implements InputManager.I
     @Override public boolean dispatchGenericMotionEvent(MotionEvent event) {
         if (!visible || isFinishing() || menu != null) return super.dispatchGenericMotionEvent(event);
         if (mapper != null) { mapper.captureAxes(event); return true; }
+        if (!hasWindowFocus() || (devices != null && devices.resumeRequired())) return true;
         if (input != null && event.isFromSource(InputDevice.SOURCE_JOYSTICK)) {
             input.axes(event.getDeviceId(), event.getAxisValue(MotionEvent.AXIS_X), event.getAxisValue(MotionEvent.AXIS_Y),
                     event.getAxisValue(MotionEvent.AXIS_HAT_X), event.getAxisValue(MotionEvent.AXIS_HAT_Y),
@@ -484,6 +501,7 @@ public final class MophunGameActivity extends Activity implements InputManager.I
     @Override protected void onResume() {
         super.onResume();
         visible = true;
+        if (devices != null && devices.resumeRequired()) showMenu();
         updateScreenshotButton();
         pauseState();
         if (frameView != null) frameView.postInvalidateOnAnimation();
@@ -499,7 +517,7 @@ public final class MophunGameActivity extends Activity implements InputManager.I
         }
         handler.removeCallbacksAndMessages(null);
         if (touch != null) touch.cancel();
-        if (inputManager != null) inputManager.unregisterInputDeviceListener(this);
+        if (devices != null) devices.close();
         if (input != null) input.clear();
         if (session != null) {
             session.stop();
@@ -508,9 +526,6 @@ public final class MophunGameActivity extends Activity implements InputManager.I
         disk.shutdown();
         super.onDestroy();
     }
-    public void onInputDeviceAdded(int id) { }
-    public void onInputDeviceChanged(int id) { if (input != null) input.removeDevice(id); }
-    public void onInputDeviceRemoved(int id) { if (input != null) input.removeDevice(id); }
 
     private void captureArtwork() {
         if (session == null || directory == null || captured || new File(directory, "cover.png").exists()) return;

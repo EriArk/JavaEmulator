@@ -1,7 +1,7 @@
-# Library transfer (unreleased)
+# Library transfer
 
-Available in development builds from **Settings > Library > Library transfer**. Published
-beta.2 APKs do not include this workflow. Keep the original installation and a
+Available from **Settings > Library > Library transfer**, including the 0.3
+beta releases. Keep the original installation and a
 backup until you have checked your games and saves in the destination app.
 
 ## From J2ME Loader
@@ -90,3 +90,26 @@ malformed input, archive tampering and copy-only behavior.
 This is not proof for every J2ME Loader version/document provider or physical
 device. Shared-file conflicts are not automatically merged. Backups are not
 encrypted and can contain personal game data; share them deliberately.
+
+## Moving from AbyssME Phone
+
+The upcoming unified 0.4 APK keeps the former Handheld package ID,
+`io.github.eriark.abyssme`. A correctly signed update keeps that installation's
+library, settings and saves. It cannot update the separate `.phone` package
+in place. The two apps can coexist while transferring data.
+
+1. In the old Phone app, open **Settings > Library > Library transfer** and export
+   a Java / Mophun backup ZIP to a folder available in Android's file picker.
+2. In the unified app, open **Library transfer > Move from AbyssME Phone** and
+   choose **Restore Java / Mophun backup**. Review the games before restoring.
+   Existing-game conflicts are not silently overwritten or merged.
+3. For Symbian / N-Gage, export and restore each virtual phone through
+   **Symbian / N-Gage phone backups**. These separate backups carry the phone,
+   its installed games and saves. They are not part of the Java / Mophun ZIP.
+4. Check the restored games and saves before uninstalling the old Phone app.
+
+Game settings and mappings travel with supported backups; app-wide preferences
+and external launcher shortcuts do not. Recreate old Phone launcher shortcuts
+for the unified app. No file copying into Android system folders is needed.
+
+This workflow is for unreleased 0.4 development, not the published beta.6 APKs.

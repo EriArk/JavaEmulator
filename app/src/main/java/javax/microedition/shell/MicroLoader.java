@@ -352,15 +352,10 @@ public class MicroLoader {
 	void applyConfiguration() {
 		try {
 			// Apply configuration to the launching MIDlet
-			if (BuildConfig.HANDHELD_MODE) {
-				params.showKeyboard = false;
-				params.touchInput = false;
-				ContextHolder.setVk(null);
-			} else if (params.showKeyboard) {
-				ContextHolder.setVk(new VirtualKeyboard(params));
-			} else {
-				ContextHolder.setVk(null);
-			}
+			VirtualKeyboard keyboard = new VirtualKeyboard(params);
+			keyboard.setControlsEnabled(ru.playsoftware.j2meloader.input.DeviceControls.showTouch(params,
+					ru.playsoftware.j2meloader.input.DeviceControls.connected(ContextHolder.getAppContext())));
+			ContextHolder.setVk(keyboard);
 			setProperties();
 
 			final String[] propLines = params.systemProperties.split("\n");

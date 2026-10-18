@@ -408,7 +408,7 @@ public abstract class Canvas extends Displayable {
 		int scaledDisplayHeight;
 		VirtualKeyboard vk = ContextHolder.getVk();
 		boolean isPhoneSkin = vk != null && vk.isPhone();
-		RectF available = vk != null && vk.hasTouchDeck()
+		RectF available = vk != null && vk.isControlsEnabled() && vk.hasTouchDeck()
 				? vk.getGameArea(displayWidth, displayHeight) : new RectF(0, 0, displayWidth, displayHeight);
 		int scaledDisplayWidth = Math.max(1, (int) available.width());
 

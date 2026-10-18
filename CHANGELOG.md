@@ -12,6 +12,19 @@ combined builds; released experimental features are explicitly identified.
 
 ## 2026-10-18
 
+- **Public source, unreleased 0.4.0-beta.1 (code 306):** unify the primary APK
+  for phones and handhelds. Unlock portrait/landscape library and settings;
+  retain controller focus and per-game orientation/mapping choices. Add shared
+  Auto / Touch / Controller priority and Auto / Always / Off screen buttons.
+  Disconnecting releases held input and pauses; reconnecting does not resume
+  without user action. Restore full game space when controls are hidden.
+  Fix legacy keypad cancellation releasing guest keys. Add Phone migration
+  actions through existing save-preserving backup workflows; keep the old app
+  intact and explain separate Symbian backups and non-transferred app preferences.
+  Keep the old Handheld package ID; retain the Phone flavor only for migration
+  tests. No new release, uploaded APK or website deployment.
+  [Evidence and remaining release checks](docs/checks/2026-10-18-unified-apk.md).
+
 - **Public source, unreleased after beta.6:** replace the full-width Keep/Undo
   strip with compact shared preview controls for Java, Mophun and Symbian.
   Keep 48 dp touch targets, accessible icon names/tooltips and visible focus;

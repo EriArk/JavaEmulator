@@ -14,6 +14,12 @@ The current beta provides two installable variants built from the same emulation
 core: a controller-first **Handheld** APK and a portrait/touch-friendly
 **Phone** APK with an on-screen keypad.
 
+Development toward **0.4.0-beta.1** unifies these into one adaptive APK, with
+automatic controller detection and optional touch buttons. This is unreleased;
+the beta.6 downloads below still contain separate variants. Existing Handheld
+installs will update in place; Phone users will use the menu-based
+[migration workflow](docs/LIBRARY_TRANSFER.md#moving-from-abyssme-phone).
+
 > **Project status:** Beta. AbyssME is usable, but compatibility automation and
 > launcher integration still need testing across more games and devices.
 

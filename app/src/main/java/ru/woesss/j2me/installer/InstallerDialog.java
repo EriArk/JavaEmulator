@@ -196,7 +196,7 @@ public class InstallerDialog extends DialogFragment {
 		android.util.DisplayMetrics metrics = getResources().getDisplayMetrics();
 		mDialog.getWindow().setLayout(Math.min(dp(480), metrics.widthPixels - dp(24)),
 				Math.min(dp(360), metrics.heightPixels - dp(48)));
-		if (ru.playsoftware.j2meloader.BuildConfig.HANDHELD_MODE) {
+		if (ru.playsoftware.j2meloader.input.DeviceControls.connected(requireContext())) {
 			androidx.core.view.WindowInsetsControllerCompat bars = androidx.core.view.WindowCompat
 					.getInsetsController(mDialog.getWindow(), mDialog.getWindow().getDecorView());
 			bars.setSystemBarsBehavior(androidx.core.view.WindowInsetsControllerCompat.BEHAVIOR_SHOW_TRANSIENT_BARS_BY_SWIPE);

@@ -108,6 +108,7 @@ public class LibraryImportActivity extends CompactSettingsActivity {
         choices.addView(button(ru.playsoftware.j2meloader.BuildConfig.SYMBIAN_EXPERIMENT ? "Restore Java / Mophun backup" : "Restore backup", android.R.drawable.ic_menu_revert,
                 () -> launchPicker(restorePicker, new String[]{"application/zip", "application/octet-stream"})), actionParams());
         choices.addView(button("Import from J2ME Loader", R.drawable.ic_setting_folder, this::showImportSources), actionParams());
+        choices.addView(button("Move from AbyssME Phone", android.R.drawable.ic_menu_revert, this::showPhoneMigration), actionParams());
         if (ru.playsoftware.j2meloader.BuildConfig.SYMBIAN_EXPERIMENT) {
             choices.addView(button("Symbian / N-Gage phone backups", android.R.drawable.ic_menu_save, () ->
                     startActivity(new Intent().setClassName(this,"io.github.eriark.abyssme.symbian.SymbianActivity")
@@ -135,6 +136,32 @@ public class LibraryImportActivity extends CompactSettingsActivity {
     private void retain(Uri uri) {
         try { getContentResolver().takePersistableUriPermission(uri, Intent.FLAG_GRANT_READ_URI_PERMISSION); }
         catch (SecurityException ignored) { }
+    }
+
+    private void showPhoneMigration() {
+        GameMenuDialog dialog = menu("Move from AbyssME Phone");
+        dialog.message("In AbyssME Phone, open Settings > Library transfer and back up Java / Mophun. "
+                + "Then restore that ZIP here. Games, saves and supported game settings travel together. "
+                + "Keep the old app installed until you have checked your games and saves.");
+        dialog.action("Open AbyssME Phone", android.R.drawable.ic_menu_view, () -> {
+            try {
+                startActivity(new Intent(Intent.ACTION_MAIN).setClassName("io.github.eriark.abyssme.phone",
+                        "ru.playsoftware.j2meloader.MainActivity"));
+            } catch (android.content.ActivityNotFoundException e) {
+                android.widget.Toast.makeText(this, "AbyssME Phone is not installed", android.widget.Toast.LENGTH_LONG).show();
+            }
+        });
+        dialog.action("Restore Java / Mophun backup", android.R.drawable.ic_menu_revert, () -> {
+            dialog.dismiss(); launchPicker(restorePicker, new String[]{"application/zip", "application/octet-stream"});
+        });
+        if (ru.playsoftware.j2meloader.BuildConfig.SYMBIAN_EXPERIMENT) {
+            dialog.message("Symbian / N-Gage uses separate phone backups. Export each phone in the old app, "
+                    + "then restore it here, including its installed games and saves. App-wide preferences are not transferred.");
+            dialog.action("Symbian / N-Gage phone backups", android.R.drawable.ic_menu_save, () -> {
+                dialog.dismiss(); startActivity(new Intent().setClassName(this,
+                        "io.github.eriark.abyssme.symbian.SymbianActivity").putExtra("symbian.backups", true));
+            });
+        }
     }
     private <T> void launchPicker(ActivityResultLauncher<T> launcher, T input) {
         pickerPending = true;

@@ -177,6 +177,15 @@ public class VirtualKeyboard implements Overlay, Runnable {
 	private View overlayView;
 	private boolean obscuresVirtualScreen;
 	private boolean visible = true;
+	private boolean controlsEnabled = true;
+
+	public void setControlsEnabled(boolean enabled) {
+		if (controlsEnabled == enabled) return;
+		cancel();
+		controlsEnabled = enabled;
+		refreshTouchLayout();
+	}
+	public boolean isControlsEnabled() { return controlsEnabled; }
 	private int layoutEditMode = LAYOUT_EOF;
 	private int editedIndex;
 	private float offsetX;
@@ -816,7 +825,7 @@ public class VirtualKeyboard implements Overlay, Runnable {
 	}
 
 	public boolean isPhone() {
-		return !hasTouchDeck() && (layoutVariant == TYPE_PHONE || layoutVariant == TYPE_PHONE_ARROWS);
+		return controlsEnabled && !hasTouchDeck() && (layoutVariant == TYPE_PHONE || layoutVariant == TYPE_PHONE_ARROWS);
 	}
 
 	public boolean hasTouchDeck() { return settings.touchLayout != null && settings.touchLayout != 2; }
@@ -930,6 +939,7 @@ public class VirtualKeyboard implements Overlay, Runnable {
 
 	@Override
 	public void paint(CanvasWrapper g) {
+		if (!controlsEnabled) return;
 		if (hasTouchDeck()) { touchDeck.draw(g.getCanvas()); return; }
 		if (visible) {
 			for (VirtualKey key : keypad) {
@@ -942,6 +952,7 @@ public class VirtualKeyboard implements Overlay, Runnable {
 
 	@Override
 	public boolean pointerPressed(int pointer, float x, float y) {
+		if (!controlsEnabled) return false;
 		if (hasTouchDeck()) return touchDeck.down(pointer, x, y);
 		switch (layoutEditMode) {
 			case LAYOUT_EOF:
@@ -995,6 +1006,7 @@ public class VirtualKeyboard implements Overlay, Runnable {
 
 	@Override
 	public boolean pointerDragged(int pointer, float x, float y) {
+		if (!controlsEnabled) return false;
 		if (hasTouchDeck()) return touchDeck.move(pointer, x, y);
 		switch (layoutEditMode) {
 			case LAYOUT_EOF:
@@ -1068,6 +1080,7 @@ public class VirtualKeyboard implements Overlay, Runnable {
 
 	@Override
 	public boolean pointerReleased(int pointer, float x, float y) {
+		if (!controlsEnabled) return false;
 		if (hasTouchDeck()) return touchDeck.up(pointer);
 		if (layoutEditMode == LAYOUT_EOF) {
 			if (pointer < 0 || pointer >= associatedKeys.length) {
@@ -1131,6 +1144,17 @@ public class VirtualKeyboard implements Overlay, Runnable {
 	@Override
 	public void cancel() {
 		touchDeck.cancel();
+		java.util.HashSet<VirtualKey> pressed = new java.util.HashSet<>();
+		for (int i = 0; i < associatedKeys.length; i++) {
+			if (associatedKeys[i] != null) pressed.add(associatedKeys[i]);
+			associatedKeys[i] = null;
+		}
+		if (target != null && layoutEditMode == LAYOUT_EOF) for (VirtualKey key : pressed) {
+			// Cancellation releases guest input, but must not activate the legacy menu key.
+			if (key instanceof MenuKey) continue;
+			target.postKeyReleased(key.keyCode);
+			if (key instanceof DualKey) target.postKeyReleased(((DualKey) key).secondKeyCode);
+		}
 		for (VirtualKey key : keypad) {
 			key.selected = false;
 			handler.removeCallbacks(key);
