@@ -81,9 +81,12 @@ are left intact; app-wide preferences and old Phone launcher shortcuts do not
 transfer. No automatic access to another Android package's private files.
 
 Combined and base unified debug builds, controller/overlay regressions, backup
-round trips and real Java/Mophun/Snakes menu workflows were checked. No release
-or APK upload was made. Physical Bluetooth/USB unplug/replug and production-
-signed upgrade acceptance remain pending.
+round trips and real Java/Mophun/Snakes menu workflows were checked. The signed
+release rehearsal now also passed the in-place code-305 upgrade and menu-driven
+Phone Java migration: 324 pre-launch file hashes retained; both migrated RMS
+files and all 55 previous profile values preserved. Physical Bluetooth/USB
+unplug/replug remains unverified. Publication is a separate checkpoint below.
+[Signed release rehearsal](releases/v0.4.0-beta.1-checks.md).
 [Verification, captures and limits](checks/2026-10-18-unified-apk.md).
 
 October 18: replace the full-width settings preview strip with a compact

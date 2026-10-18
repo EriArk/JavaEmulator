@@ -140,7 +140,7 @@ public class LibraryImportActivity extends CompactSettingsActivity {
 
     private void showPhoneMigration() {
         GameMenuDialog dialog = menu("Move from AbyssME Phone");
-        dialog.message("In AbyssME Phone, open Settings > Library transfer and back up Java / Mophun. "
+        dialog.message("In AbyssME Phone, open Settings > Library > Library transfer and back up Java / Mophun. "
                 + "Then restore that ZIP here. Games, saves and supported game settings travel together. "
                 + "Keep the old app installed until you have checked your games and saves.");
         dialog.action("Open AbyssME Phone", android.R.drawable.ic_menu_view, () -> {

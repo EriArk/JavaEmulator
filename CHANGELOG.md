@@ -12,6 +12,17 @@ combined builds; released experimental features are explicitly identified.
 
 ## 2026-10-18
 
+- **Release preparation, 0.4.0-beta.1:** signed unified APK built and installed
+  over Handheld beta.6 on Retroid. All 324 readable external files retained
+  their hashes before launch. Exported two games through the old signed Phone
+  app's menu; restored one new game through the unified migration workflow,
+  leaving the existing-game conflict unchecked. Both RMS hashes and all 55
+  previous profile field values matched; existing game data stayed intact.
+  Corrected the migration help path. Updated download/migration documentation
+  for one APK. Clean release build, production guards, zero-error lint and
+  118-artifact source inventory passed. No website deployment.
+  [Release verification](docs/releases/v0.4.0-beta.1-checks.md).
+
 - **Public source, unreleased 0.4.0-beta.1 (code 306):** unify the primary APK
   for phones and handhelds. Unlock portrait/landscape library and settings;
   retain controller focus and per-game orientation/mapping choices. Add shared

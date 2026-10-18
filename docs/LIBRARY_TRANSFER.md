@@ -93,7 +93,7 @@ encrypted and can contain personal game data; share them deliberately.
 
 ## Moving from AbyssME Phone
 
-The upcoming unified 0.4 APK keeps the former Handheld package ID,
+The unified 0.4 APK keeps the former Handheld package ID,
 `io.github.eriark.abyssme`. A correctly signed update keeps that installation's
 library, settings and saves. It cannot update the separate `.phone` package
 in place. The two apps can coexist while transferring data.
@@ -112,4 +112,4 @@ Game settings and mappings travel with supported backups; app-wide preferences
 and external launcher shortcuts do not. Recreate old Phone launcher shortcuts
 for the unified app. No file copying into Android system folders is needed.
 
-This workflow is for unreleased 0.4 development, not the published beta.6 APKs.
+This workflow targets 0.4 and later; the old beta.6 APKs remain separate apps.

@@ -10,20 +10,15 @@ library, automatic first-launch preparation, and fast per-game controller
 mapping. Mophun and experimental Symbian / N-Gage support share the same
 library, display controls and in-game menu.
 
-The current beta provides two installable variants built from the same emulation
-core: a controller-first **Handheld** APK and a portrait/touch-friendly
-**Phone** APK with an on-screen keypad.
-
-Development toward **0.4.0-beta.1** unifies these into one adaptive APK, with
-automatic controller detection and optional touch buttons. This is unreleased;
-the beta.6 downloads below still contain separate variants. Existing Handheld
-installs will update in place; Phone users will use the menu-based
+**0.4.0 Beta 1 uses one APK for phones and handhelds**, with automatic controller
+detection and optional touch buttons. Existing Handheld installs update in place;
+users of the former Phone app can use the menu-based
 [migration workflow](docs/LIBRARY_TRANSFER.md#moving-from-abyssme-phone).
 
 > **Project status:** Beta. AbyssME is usable, but compatibility automation and
 > launcher integration still need testing across more games and devices.
 
-[Download 0.3.0 Beta 6](https://github.com/EriArk/JavaEmulator/releases/tag/v0.3.0-beta.6)
+[Download 0.4.0 Beta 1](https://github.com/EriArk/JavaEmulator/releases/tag/v0.4.0-beta.1)
 
 ## Current Beta
 
@@ -31,16 +26,22 @@ For website copy, progress posts and handoffs, start with the
 [current product/development status](docs/PROJECT_STATUS.md) and
 [dated changelog](CHANGELOG.md). They also describe local/private experiments,
 explicitly separated from public downloads. The
-[0.3.0 beta.6 notes](docs/releases/v0.3.0-beta.6.md) include the combined-engine scope,
+[0.4.0 Beta 1 notes](docs/releases/v0.4.0-beta.1.md) include the combined-engine scope,
 verification limits and source downloads.
 
-Beta.6 adds separate per-game **Emulation speed** presets from 50% to 200% for
-Java, Mophun and Symbian, with live Try / Keep / Undo in More and Display.
-Mophun and Symbian now also expose the shared **Frame rate limit** presets.
-Speed control is experimental: it scales guest time, not every game's CPU or
-frame pacing. Audio stays at normal tempo. Use 100% for normal play.
-Shared Symbian file-transfer bounds and application-launch locking are also
-hardened; native Asphalt cold relaunch remains unreliable.
+The unified app supports portrait and landscape, controller navigation, and
+numeric-keypad or gamepad touch layouts. Per-game **Control mode** and
+**On-screen buttons** offer automatic behavior or explicit overrides. Disconnecting
+a controller releases held input and pauses; reconnecting does not resume play
+without user action. Saved game orientation and mappings are preserved.
+
+This release also improves Java display changes and screenshots, adds Mophun
+ZIP/7z import and more reliable folder discovery, and makes the Keep/Undo preview
+panel compact. Separate per-game **Emulation speed** (50-200%) and **Frame rate
+limit** controls remain available for all three engines. Audio now follows speed
+where supported; tempo and pitch change together, without pitch-preserving time
+stretching. Speed is experimental, not a universal CPU/frame pacing override.
+Use 100% for normal play. Native Asphalt cold relaunch remains unreliable.
 
 Beta.5 fixes a shared Java startup deadlock reproduced with **Age of Empires II
 Deluxe**, improves live display changes and transfer recovery, and adds a
@@ -76,8 +77,8 @@ Use **Settings > Library > Library transfer** to import from J2ME Loader or move
 games and saves between AbyssME installations. See the
 [workflow and limitations](docs/LIBRARY_TRANSFER.md).
 
-Both builds share **Display** and **Controls** pages between the library's
-per-game settings and the in-game menu. On Phone, choose **Controls > Touch layout >
+All three engines share **Display** and **Controls** pages between the library's
+per-game settings and the in-game menu. For touch controls, choose **Controls > Touch layout >
 Phone / Gamepad**. Use **Try changes** (or **Try in game** from the library), then
 **Keep** or **Undo**; unconfirmed changes revert after about 20 seconds of preview.
 Quick screen-size and phone-profile presets are under **More** while playing;
@@ -124,8 +125,8 @@ See the [fresh screenshot pack and captions](screenshots/releases/v0.3.0-beta.6/
 
 ## Highlights
 
-- Controller-first landscape interface with Gallery, List, and Grid views
-- Separate Phone build with portrait mode, direct touch input, and virtual keys
+- Adaptive portrait/landscape interface with Gallery, List, and Grid views
+- Controller navigation, direct touch input, and optional virtual keys in one APK
 - Recent games, favorites, folders, search, sorting, and local artwork
 - Automatic compatibility preparation the first time a game is launched
 - Per-game named control profiles and a quick mapping overlay
@@ -137,28 +138,28 @@ See the [fresh screenshot pack and captions](screenshots/releases/v0.3.0-beta.6/
 ## Requirements
 
 - Android 10 or newer (API 29+)
-- 64-bit ARM device (arm64-v8a) for the combined 0.3 APKs; the Java/Mophun-only
+- 64-bit ARM device (arm64-v8a) for the combined 0.4 APK; the Java/Mophun-only
   [0.2 beta](https://github.com/EriArk/JavaEmulator/releases/tag/v0.2.0-beta.1)
   remains available for other architectures
-- A physical controller is recommended for the Handheld build
+- A controller is optional; touch layouts are included
 
-The Handheld build is intentionally landscape-only and has no on-screen keypad.
-The Phone build has a rotatable library, a compact portrait layout, direct MIDP
+The unified app has a rotatable library, a compact portrait layout, direct MIDP
 touch events, and configurable virtual controls. Per-game orientation is preserved;
 broader device acceptance remains tracked in [#3](https://github.com/EriArk/JavaEmulator/issues/3).
 
 ## Install
 
 1. Open [Releases](https://github.com/EriArk/JavaEmulator/releases).
-2. Choose an APK:
-   - `AbyssME-...-handheld.apk` for handhelds and physical controllers.
-   - `AbyssME-...-phone.apk` for phones, portrait mode, and touch keys.
+2. Download `AbyssME-0.4.0-beta.1.apk` for either a phone or a handheld.
 3. Allow installation from your browser or file manager when Android asks.
 4. Install the APK and open AbyssME.
 
-The package IDs are `io.github.eriark.abyssme` and
-`io.github.eriark.abyssme.phone`, so both variants can be installed together.
-Older J2ME Loader builds also use a different package.
+The package ID remains `io.github.eriark.abyssme`, so the APK updates the old
+Handheld app without uninstalling it. The old `io.github.eriark.abyssme.phone`
+app remains separate: back up and restore through **Settings > Library > Library
+transfer > Move from AbyssME Phone**. Symbian virtual phones use separate backups.
+Keep the old app until your games and saves have been checked. App-wide preferences
+and external-launcher shortcuts do not transfer. J2ME Loader is also a separate app.
 
 ## Quick Start
 
