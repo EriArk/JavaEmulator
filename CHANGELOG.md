@@ -12,6 +12,16 @@ combined builds; released experimental features are explicitly identified.
 
 ## 2026-10-18
 
+- **Public source, unreleased after beta.6:** replace the full-width Keep/Undo
+  strip with compact shared preview controls for Java, Mophun and Symbian.
+  Keep 48 dp touch targets, accessible icon names/tooltips and visible focus;
+  use a dark palette in either app theme. Stable timer width avoids layout
+  shifts. Preserve game bounds, shortcut-row clearance, preview lifetime and
+  existing menu actions. Retroid and emulator each passed 32 UI/settings checks;
+  two real Java/Mophun display-trial workflows passed with inspected captures.
+  Both combined debug variants built. No new beta or distributed APK.
+  [Evidence and limits](docs/checks/2026-10-18-compact-preview.md).
+
 - **Public source, unreleased after beta.6:** deliver the current Java screen
   size before an already-queued paint, suppress stale resize notifications, and
   defer hidden-game resize callbacks until foreground return. Retain GameCanvas

@@ -237,10 +237,7 @@ public class MicroActivity extends AppCompatActivity {
 		menuKey = microLoader.getMenuKeyCode();
 		setupQuickSettingsOverlay();
 		settingsPreview = new SettingsPreviewBar(this, this::keepSettingsPreview, this::undoSettingsPreview);
-		android.widget.FrameLayout.LayoutParams previewLayout = new android.widget.FrameLayout.LayoutParams(
-				ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT, android.view.Gravity.TOP);
-		previewLayout.topMargin = Math.round(54 * getResources().getDisplayMetrics().density);
-		binding.midletFrame.addView(settingsPreview, previewLayout);
+		settingsPreview.attachTo(binding.midletFrame);
 		if (ProfilesManager.isPreview(microLoader.getTouchSettings())) settingsPreview.start();
 		binding.gameScreenshotButton.setOnClickListener(v -> takeScreenshot());
 		binding.gameMenuButton.setVisibility(BuildConfig.HANDHELD_MODE ? View.GONE : View.VISIBLE);

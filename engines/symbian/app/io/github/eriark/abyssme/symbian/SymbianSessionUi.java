@@ -82,8 +82,7 @@ final class SymbianSessionUi {
         camera.setId(R.id.game_screenshot_button);
         root.addView(camera, new FrameLayout.LayoutParams(dp(48),dp(48), Gravity.TOP | Gravity.START));
         preview = new SettingsPreviewBar(activity, this::keep, this::undo);
-        FrameLayout.LayoutParams previewLayout = new FrameLayout.LayoutParams(-1,-2,Gravity.TOP);
-        previewLayout.topMargin = dp(50); root.addView(preview, previewLayout);
+        preview.attachTo(root);
         gameChrome = BuildConfig.HANDHELD_MODE ? null : new GameChrome(root, profile);
         apply();
     }

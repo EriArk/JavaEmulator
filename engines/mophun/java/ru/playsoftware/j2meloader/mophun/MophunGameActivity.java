@@ -137,9 +137,7 @@ public final class MophunGameActivity extends Activity implements InputManager.I
             updateScreenshotButton();
             setContentView(root);
             previewBar = new ru.playsoftware.j2meloader.input.SettingsPreviewBar(this, this::keepPreview, this::undoPreview);
-            FrameLayout.LayoutParams previewLayout = new FrameLayout.LayoutParams(-1, -2, Gravity.TOP);
-            previewLayout.topMargin = dp(54);
-            root.addView(previewBar, previewLayout);
+            previewBar.attachTo(root);
             if (!BuildConfig.HANDHELD_MODE) gameChrome = new ru.playsoftware.j2meloader.input.GameChrome(root, profile);
             updateScreenshotButton();
             if (ProfilesManager.isPreview(profile)) previewBar.start();

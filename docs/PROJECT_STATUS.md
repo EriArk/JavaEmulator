@@ -53,11 +53,24 @@ Beta.1 remains a historical download, not the recommended current version.
 | Channel | Current identifier | Availability |
 | --- | --- | --- |
 | Public download | `v0.3.0-beta.6`, code 305 | Signed Handheld/Phone APKs, matching app source and dependency/native source bundles |
-| Public development source | `main`, beta.6 plus unreleased audio synchronization, safer folder discovery, Mophun ZIP/7z import and Java display recovery/capture fixes | The changes below require a future build; beta.6 downloads are unchanged |
+| Public development source | `main`, beta.6 plus unreleased audio synchronization, safer folder discovery, Mophun ZIP/7z import, Java display recovery/capture fixes and compact preview controls | The changes below require a future build; beta.6 downloads are unchanged |
 | Private historical snapshot | `0.1.0-beta.2-experimental.15`, 2026-10-11 | Old Java/Mophun test build, not the current beta |
 | Local-only material | Game fixtures, firmware, diagnostics, device data and signing keys | Not in Git or public release assets; describing testing does not authorize redistribution |
 
 ## Unreleased After Beta.6
+
+October 18: replace the full-width settings preview strip with a compact
+approximately 176x52 dp overlay shared by Java, Mophun and Symbian. A stable
+countdown sits beside save/undo icons with 48 dp touch targets, accessible names,
+tooltips and controller focus styling. The panel stays dark in either app theme,
+does not resize the game or steal its focus, and leaves the shortcut row clear.
+Keep/Undo remain available through the game menu as well.
+
+Retroid and the Android emulator each passed 32 UI/settings checks, including
+240x240 layouts and font scales up to 2x. Two real Java/Mophun display-trial
+workflows passed on Retroid, with portrait/landscape captures inspected.
+Both combined debug variants built; no new beta or APK distribution.
+[Evidence and limits](checks/2026-10-18-compact-preview.md).
 
 October 18: fix Java resize notification ordering when a frame is already queued,
 coalesce stale resize notifications to the current dimensions, and defer pending
