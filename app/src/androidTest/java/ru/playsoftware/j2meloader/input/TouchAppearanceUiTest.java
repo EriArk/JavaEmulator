@@ -24,6 +24,44 @@ import static org.junit.Assert.*;
 
 /** Opt-in screenshots and real settings flow using a caller-provided game. */
 public class TouchAppearanceUiTest {
+    @Test public void visualEditorAppliesAndPersistsThroughRealGameMenu() throws Exception {
+        String uri=InstrumentationRegistry.getArguments().getString("layoutGameUri");
+        Assume.assumeNotNull(uri);
+        SharedPreferences prefs=PreferenceManager.getDefaultSharedPreferences(context);
+        String previous=prefs.getString("pref_palette",null);
+        ui=instrumentation.getUiAutomation();
+        try {
+            instrumentation.runOnMainSync(()->prefs.edit().putString("pref_palette","retro").commit());
+            launch(uri);
+            change("Controls","On-screen buttons","Always");
+            change("Display","Orientation","Portrait");
+            change("Controls","Touch layout","Phone");
+            change("Controls","Button theme","Dark");
+            click("Game menu"); click("Controls"); click("Edit touch layout");
+            click("Position tab");
+            AccessibilityNodeInfo slider=description(ui.getRootInActiveWindow(),"Block size"); assertNotNull(slider);
+            android.os.Bundle value=new android.os.Bundle();
+            value.putFloat(AccessibilityNodeInfo.ACTION_ARGUMENT_PROGRESS_VALUE,10);
+            if (slider.getRangeInfo()==null || slider.getRangeInfo().getCurrent()!=10)
+                assertTrue(slider.performAction(AccessibilityNodeInfo.AccessibilityAction.ACTION_SET_PROGRESS.getId(),value));
+            click("Move left"); capture("editor-position-portrait");
+            click("Use layout"); click("Try changes"); click("Keep"); capture("editor-applied-game");
+            leave(); launch(uri);
+            click("Game menu"); click("Controls"); click("Edit touch layout"); click("Position tab");
+            waitNode("Block size: 80%"); capture("editor-persisted"); click("Cancel");
+            click("Back"); click("Close");
+            change("Display","Orientation","Landscape");
+            change("Controls","Touch layout","Gamepad");
+            capture("editor-gamepad-landscape");
+            leave();
+        } finally {
+            instrumentation.runOnMainSync(()->{
+                SharedPreferences.Editor edit=prefs.edit();
+                if(previous==null) edit.remove("pref_palette"); else edit.putString("pref_palette",previous);
+                edit.commit();
+            });
+        }
+    }
     private final Instrumentation instrumentation = InstrumentationRegistry.getInstrumentation();
     private final Context context = instrumentation.getTargetContext();
     private UiAutomation ui;
@@ -104,7 +142,7 @@ public class TouchAppearanceUiTest {
             AccessibilityNodeInfo root = ui.getRootInActiveWindow();
             AccessibilityNodeInfo node = find(root, text);
             if (node != null) return node;
-            if ("Try changes".equals(text)) scroll(root);
+            if ("Try changes".equals(text) || "Edit touch layout".equals(text) || "Exit game".equals(text)) scroll(root);
             SystemClock.sleep(100);
         } while (SystemClock.uptimeMillis() < until);
         try { capture("failure-" + text.replace(' ', '-')); }

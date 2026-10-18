@@ -437,7 +437,7 @@ public class InstallerDialog extends DialogFragment {
 		for (String entry : installer.getArchiveEntries()) {
 			Button button = new Button(requireContext());
 			button.setText(entry);
-			button.setTextColor(getResources().getColor(R.color.text_primary));
+			button.setTextColor(ru.playsoftware.j2meloader.ui.AppPalette.color(requireContext(), R.color.text_primary));
 			button.setTextSize(15);
 			button.setAllCaps(false);
 			button.setBackgroundResource(R.drawable.bg_quick_setting_button);
@@ -471,7 +471,7 @@ public class InstallerDialog extends DialogFragment {
 		for(AppItem app:installer.getExistingChoices()) {
 			Button button=new Button(requireContext());
 			button.setText("Use " + app.getTitle() + "\nVersion " + app.getVersion() + " / " + app.getPath());
-			button.setTextColor(getResources().getColor(R.color.text_primary));
+			button.setTextColor(ru.playsoftware.j2meloader.ui.AppPalette.color(requireContext(), R.color.text_primary));
 			button.setTextSize(15); button.setAllCaps(false);
 			button.setBackgroundResource(R.drawable.bg_quick_setting_button); button.setBackgroundTintList(null);
 			button.setMinHeight(dp(48)); button.setMinimumHeight(dp(48));

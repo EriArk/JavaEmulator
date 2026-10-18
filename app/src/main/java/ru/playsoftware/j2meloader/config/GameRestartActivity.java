@@ -41,7 +41,7 @@ public final class GameRestartActivity extends Activity {
         setRequestedOrientation(getIntent().getIntExtra("orientation", -1));
         getWindow().getDecorView().setSystemUiVisibility(android.view.View.SYSTEM_UI_FLAG_FULLSCREEN
                 | android.view.View.SYSTEM_UI_FLAG_HIDE_NAVIGATION | android.view.View.SYSTEM_UI_FLAG_IMMERSIVE_STICKY);
-        getWindow().getDecorView().setBackgroundColor(getColor(ru.playsoftware.j2meloader.R.color.menu_surface));
+        getWindow().getDecorView().setBackgroundColor(ru.playsoftware.j2meloader.ui.AppPalette.color(this, ru.playsoftware.j2meloader.R.color.menu_surface));
         deadline = state == null ? SystemClock.elapsedRealtime() + 10000 : state.getLong("deadline");
     }
     @Override protected void onResume() { super.onResume(); handler.post(check); }

@@ -371,6 +371,9 @@ public class AppsListFragment extends Fragment implements AppsListAdapter.Listen
 
 	private void populateLibraryMenu(GameMenuDialog dialog) {
 		dialog.page("Library menu");
+		dialog.action("Collection", R.drawable.ic_list, () -> {
+			dialog.dismiss(); showCategoryMenu();
+		});
 		if (BuildConfig.SYMBIAN_EXPERIMENT) {
 			dialog.action("System files", R.drawable.ic_baseline_tune_24, () -> {
 				dialog.dismiss();
@@ -438,6 +441,8 @@ public class AppsListFragment extends Fragment implements AppsListAdapter.Listen
 	}
 
 	private void applyDisplayMode() {
+		boolean restoreFocus = binding.appsRecycler.hasFocus();
+		String focusedPath = selectedItem == null ? null : selectedItem.getPath();
 		updateResponsiveToolbar();
 		int mode = adapter.getDisplayMode();
 		if (mode == AppsListAdapter.MODE_LIST) {
@@ -449,6 +454,7 @@ public class AppsListFragment extends Fragment implements AppsListAdapter.Listen
 		binding.viewModeList.setSelected(mode == AppsListAdapter.MODE_LIST);
 		binding.viewModeGrid.setSelected(mode == AppsListAdapter.MODE_GRID);
 		updateDetail(selectedItem == null ? adapter.getFirstItem() : selectedItem);
+		if (restoreFocus) binding.appsRecycler.post(() -> focusGame(focusedPath));
 	}
 
 	private int calculateSpanCount(int mode) {
@@ -482,10 +488,14 @@ public class AppsListFragment extends Fragment implements AppsListAdapter.Listen
 		boolean shortLandscape = height < 480 && width > height;
 		boolean compact = LibraryLayout.compact(width, height, getResources().getConfiguration().fontScale);
 		compactLibrary = compact;
-		adapter.setCompact(shortLandscape);
+		adapter.setCompact(compact && height < 600);
 		binding.libraryCategoryRow.setVisibility(compact ? View.GONE : View.VISIBLE);
 		binding.libraryCount.setVisibility(compact ? View.GONE : View.VISIBLE);
-		binding.libraryCategory.setVisibility(compact ? View.VISIBLE : View.GONE);
+		boolean categoryInline = LibraryLayout.inlineCategory(width, getResources().getConfiguration().fontScale);
+		binding.libraryCategory.setVisibility(compact && categoryInline ? View.VISIBLE : View.GONE);
+		ViewGroup.LayoutParams categoryParams = binding.libraryCategory.getLayoutParams();
+		categoryParams.width = dp(Math.round(112 * Math.max(1, getResources().getConfiguration().fontScale)));
+		binding.libraryCategory.setLayoutParams(categoryParams);
 		binding.librarySearchToggle.setVisibility(compact ? View.VISIBLE : View.GONE);
 		binding.libraryMenu.setVisibility(View.VISIBLE);
 		binding.railAddGame.setVisibility(compact ? View.GONE : View.VISIBLE);
@@ -511,10 +521,13 @@ public class AppsListFragment extends Fragment implements AppsListAdapter.Listen
 		ViewGroup.LayoutParams bar = binding.launcherSoftbar.getLayoutParams();
 		bar.height = dp(compact ? 24 : 32);
 		binding.launcherSoftbar.setLayoutParams(bar);
+		binding.launcherSoftbar.setVisibility(ru.playsoftware.j2meloader.input.DeviceControls.connected(requireContext())
+				&& width >= 400 && getResources().getConfiguration().fontScale <= 1.3f ? View.VISIBLE : View.GONE);
 		binding.launcherSoftbar.setText(compact ? "A  Play     X  Options     L/R  View     Start  Menu"
 				: "A  Play     X  Options     Y  Favorite     L/R  View");
 		binding.launcherTitle.setGravity(android.view.Gravity.CENTER_VERTICAL);
-		binding.launcherTitle.setTypeface(android.graphics.Typeface.DEFAULT, android.graphics.Typeface.BOLD);
+		binding.launcherTitle.setTypeface("retro".equals(ru.playsoftware.j2meloader.ui.AppPalette.selected(requireContext()))
+				? android.graphics.Typeface.MONOSPACE : android.graphics.Typeface.DEFAULT, android.graphics.Typeface.BOLD);
 		binding.launcherTitle.setTextSize(18);
 		TextViewCompat.setAutoSizeTextTypeUniformWithConfiguration(binding.launcherTitle, 14, 18, 1,
 				android.util.TypedValue.COMPLEX_UNIT_SP);
@@ -590,21 +603,45 @@ public class AppsListFragment extends Fragment implements AppsListAdapter.Listen
 		int targetId = artworkTargetId;
 		boolean icon = pickingIcon;
 		artworkTargetId = -1;
-		if (uri == null || targetId < 0) return;
+		if (uri == null || targetId == -1) return;
 		Context context = requireContext().getApplicationContext();
 		folderExecutor.execute(() -> {
-			AppItem target = appRepository.get(targetId);
-			if (target == null || !"ready".equals(target.getPreparationState())) return;
-			File directory = new File(target.getPathExt());
 			try (InputStream input = context.getContentResolver().openInputStream(uri)) {
+				AppItem target = findArtworkTarget(context, targetId);
+				File directory = artworkDirectory(target);
 				if (input == null) throw new IOException("Unable to open image");
 				GameArtwork.saveUserImage(directory, icon, input);
-				GameArtwork.applyPaths(target, directory);
-				appRepository.update(target);
-			} catch (IOException e) {
+				artworkChanged(target, directory);
+			} catch (IOException | SecurityException e) {
 				showArtworkError(context, e);
 			}
 		});
+	}
+
+	private AppItem findArtworkTarget(Context context, int id) throws IOException {
+		if (id < -1) {
+			for (AppItem item : ExternalLibrary.read(context)) if (item.getId() == id) return item;
+		} else {
+			AppItem item = appRepository.get(id);
+			if (item != null && "ready".equals(item.getPreparationState())) return item;
+		}
+		throw new IOException("Game is no longer available");
+	}
+
+	private File artworkDirectory(AppItem item) throws IOException {
+		File directory = item instanceof ExternalLibrary.Item
+				? ((ExternalLibrary.Item) item).getArtworkDirectory() : new File(item.getPathExt());
+		if (directory == null) throw new IOException("This library does not support custom artwork");
+		return directory;
+	}
+
+	private void artworkChanged(AppItem target, File directory) {
+		if (target instanceof ExternalLibrary.Item) {
+			new android.os.Handler(android.os.Looper.getMainLooper()).post(this::reloadExternalLibrary);
+		} else {
+			GameArtwork.applyPaths(target, directory);
+			appRepository.update(target);
+		}
 	}
 
 	private void showArtworkMenu(AppItem item) {
@@ -628,7 +665,7 @@ public class AppsListFragment extends Fragment implements AppsListAdapter.Listen
 				});
 			});
 		}
-		if (new File(item.getPathExt(), Config.MIDLET_RES_FILE).isFile()) {
+		if (!(item instanceof ExternalLibrary.Item) && new File(item.getPathExt(), Config.MIDLET_RES_FILE).isFile()) {
 			dialog.action("Refresh automatic art", android.R.drawable.ic_popup_sync, () -> {
 				dialog.page("Refresh automatic art?");
 				dialog.setBackAction(() -> populateArtworkMenu(dialog, item));
@@ -644,7 +681,13 @@ public class AppsListFragment extends Fragment implements AppsListAdapter.Listen
 		Context context = requireContext().getApplicationContext();
 		folderExecutor.execute(() -> {
 			try {
-				File directory = new File(target.getPathExt());
+				AppItem current = findArtworkTarget(context, target.getId());
+				File directory = artworkDirectory(current);
+				if (current instanceof ExternalLibrary.Item) {
+					if (reset != null) java.nio.file.Files.deleteIfExists(new File(directory, reset).toPath());
+					artworkChanged(current, directory);
+					return;
+				}
 				if (GameArtwork.USER_ICON.equals(reset) && !new File(directory, GameArtwork.AUTO_MARKER).exists()
 						&& !new File(directory, GameArtwork.USER_COVER).exists()) {
 					File cover = new File(directory, "cover.png");
@@ -653,8 +696,7 @@ public class AppsListFragment extends Fragment implements AppsListAdapter.Listen
 				}
 				if (new File(directory, Config.MIDLET_RES_FILE).isFile()) GameArtwork.refresh(directory);
 				if (reset != null) java.nio.file.Files.deleteIfExists(new File(directory, reset).toPath());
-				GameArtwork.applyPaths(target, directory);
-				appRepository.update(target);
+				artworkChanged(current, directory);
 			} catch (IOException e) { showArtworkError(context, e); }
 		});
 	}
@@ -808,6 +850,8 @@ public class AppsListFragment extends Fragment implements AppsListAdapter.Listen
                 dialog.dismiss(); showGameInformation(item);
             });
             dialog.action("Play", android.R.drawable.ic_media_play, () -> { dialog.dismiss(); startApp(item, false); });
+            if (item.getArtworkDirectory() != null) dialog.action("Artwork", android.R.drawable.ic_menu_gallery,
+                    () -> { dialog.dismiss(); showArtworkMenu(item); });
             dialog.action("Export launch file", android.R.drawable.ic_menu_save, () -> {
                 try {
                     pendingLauncherLink = ru.playsoftware.j2meloader.catalog.LauncherLink.encode(
@@ -996,6 +1040,11 @@ public class AppsListFragment extends Fragment implements AppsListAdapter.Listen
 	@Override public void onResume() {
 		super.onResume();
 		updateLibraryControls();
+		reloadExternalLibrary();
+	}
+
+	private void reloadExternalLibrary() {
+		if (!isAdded() || binding == null) return;
 		if (!BuildConfig.SYMBIAN_EXPERIMENT) return;
 		Context context = requireContext().getApplicationContext();
 		android.app.Activity activity = requireActivity();
@@ -1006,6 +1055,11 @@ public class AppsListFragment extends Fragment implements AppsListAdapter.Listen
 				activity.runOnUiThread(() -> {
 					if (binding == null || generation != externalGeneration) return;
 					externalItems = items; publishLibrary();
+					if (selectedItem instanceof ExternalLibrary.Item) {
+						for (AppItem item : items) if (item.getPath().equals(selectedItem.getPath())) {
+							selectedItem = item; updateDetail(item); break;
+						}
+					}
 				});
 			} catch (IOException | RuntimeException error) {
 				activity.runOnUiThread(() -> { if (binding != null && generation == externalGeneration) alertDbError(error); });

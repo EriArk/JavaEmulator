@@ -4,6 +4,14 @@ import org.junit.Test;
 import static org.junit.Assert.*;
 
 public class LibraryLayoutTest {
+    @Test public void tinyHeadersKeepActionsAndSquareGalleryRevealsTwoRows() {
+        assertFalse(LibraryLayout.inlineCategory(240,1));
+        assertFalse(LibraryLayout.inlineCategory(360,1.5f));
+        assertTrue(LibraryLayout.inlineCategory(360,1));
+        LibraryLayout square=LibraryLayout.calculate(0,2,456,408,1);
+        assertTrue((square.artHeight+74)*2<=408);
+        assertEquals(2,square.format);
+    }
     @Test public void squareAndNearSquareUseCompactChromeWithoutModelChecks() {
         assertTrue(LibraryLayout.compact(720,720,1));
         assertTrue(LibraryLayout.compact(620,540,1));

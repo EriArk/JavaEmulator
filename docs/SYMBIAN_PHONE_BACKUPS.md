@@ -1,7 +1,28 @@
 # Symbian Phone Backups
 
-Local experimental implementation, 2026-10-14, on `codex/symbian-integration`.
-Not included in the public beta. No APK or private phone archive was published.
+Originally verified on 2026-10-14 on `codex/symbian-integration`; the base
+whole-phone workflow is included in the published combined beta, as recorded in
+[PROJECT_STATUS](PROJECT_STATUS.md). The artwork extension below is local and
+unreleased on 2026-10-18. No private phone archive was published.
+
+## Custom Artwork Follow-Up (Local, 2026-10-18)
+
+New backups include user-selected covers and icons for Symbian, N-Gage and
+N-Gage 2.0. They use archive format version 2. Restore still accepts version-1
+backups without artwork. Older app versions cannot read version-2 backups;
+update the destination app before transferring one.
+
+Overrides are staged under `artwork/<uid>/user-icon.png` and `user-cover.png`
+and promoted with the new phone's files. The launcher resolves these overrides
+using the new identity. Existing phones retain their original storage. Re-export
+uses the restored phone's current images, including subsequent edits and resets.
+Automatic images are regenerated from the installed games, not copied as user
+overrides. No favorites or recent-play history is added to the archive.
+
+Only the two supported filenames and valid Symbian UIDs are accepted. Images
+must decode, be at most 16 MiB and contain at most 8 megapixels; original image
+bytes are retained. Existing ZIP path, link, checksum and staging safeguards
+also cover artwork. See [current checks](checks/2026-10-18-symbian-artwork-backup.md).
 
 ## User Workflow
 

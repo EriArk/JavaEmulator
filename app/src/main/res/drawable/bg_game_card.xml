@@ -2,22 +2,22 @@
 <selector xmlns:android="http://schemas.android.com/apk/res/android">
     <item android:state_focused="true">
         <shape>
-            <solid android:color="@color/selected_surface" />
-            <stroke android:width="2dp" android:color="@color/accent" />
+            <solid android:color="?attr/abyss_selected_surface" />
+            <stroke android:width="2dp" android:color="?attr/abyss_accent" />
             <corners android:radius="4dp" />
         </shape>
     </item>
     <item android:state_pressed="true">
         <shape>
-            <solid android:color="@color/btn_bg_pressed" />
-            <stroke android:width="1dp" android:color="@color/accent" />
+            <solid android:color="?attr/abyss_btn_bg_pressed" />
+            <stroke android:width="1dp" android:color="?attr/abyss_accent" />
             <corners android:radius="4dp" />
         </shape>
     </item>
     <item>
         <shape>
-            <solid android:color="@color/config_card" />
-            <stroke android:width="1dp" android:color="@color/config_card_stroke" />
+            <solid android:color="?attr/abyss_config_card" />
+            <stroke android:width="1dp" android:color="?attr/abyss_config_card_stroke" />
             <corners android:radius="4dp" />
         </shape>
     </item>

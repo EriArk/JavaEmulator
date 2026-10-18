@@ -30,14 +30,14 @@ public abstract class CompactSettingsActivity extends BaseActivity {
                 android.content.pm.ActivityInfo.SCREEN_ORIENTATION_SENSOR_LANDSCAPE);
         LinearLayout root = new LinearLayout(this);
         root.setOrientation(LinearLayout.VERTICAL);
-        root.setBackgroundColor(getColor(R.color.background));
+        root.setBackgroundColor(ru.playsoftware.j2meloader.ui.AppPalette.color(this, R.color.background));
         screenHeader = new LinearLayout(this);
         screenHeader.setGravity(Gravity.CENTER_VERTICAL);
-        screenHeader.setBackgroundColor(getColor(R.color.phone_panel));
+        screenHeader.setBackgroundColor(ru.playsoftware.j2meloader.ui.AppPalette.color(this, R.color.phone_panel));
         ImageButton back = headerButton("Back", androidx.appcompat.R.drawable.abc_ic_ab_back_material, this::onBackPressed);
         back.setId(R.id.settings_back);
         screenTitle = new TextView(this);
-        screenTitle.setTextSize(18); screenTitle.setTextColor(getColor(R.color.text_primary));
+        screenTitle.setTextSize(18); screenTitle.setTextColor(ru.playsoftware.j2meloader.ui.AppPalette.color(this, R.color.text_primary));
         screenTitle.setSingleLine(true); screenTitle.setEllipsize(android.text.TextUtils.TruncateAt.END);
         screenHeader.addView(screenTitle, new LinearLayout.LayoutParams(0, -2, 1));
         root.addView(screenHeader, new LinearLayout.LayoutParams(-1, dp(48)));
@@ -51,7 +51,7 @@ public abstract class CompactSettingsActivity extends BaseActivity {
     protected void focusContentWhenReady() { initialFocus = true; screenContent.requestLayout(); }
     protected ImageButton headerButton(String label, int icon, Runnable action) {
         ImageButton button = new ImageButton(this);
-        button.setImageResource(icon); button.setColorFilter(getColor(R.color.accent));
+        button.setImageResource(icon); button.setColorFilter(ru.playsoftware.j2meloader.ui.AppPalette.color(this, R.color.accent));
         button.setBackgroundResource(R.drawable.bg_library_tab);
         button.setPadding(dp(12), dp(12), dp(12), dp(12));
         button.setContentDescription(label); button.setTooltipText(label);

@@ -12,6 +12,44 @@ combined builds; released experimental features are explicitly identified.
 
 ## 2026-10-18
 
+- **Release preparation, 0.4.0-beta.2 (307):** combine the visual styles, touch
+  layout editor, compact library and native artwork/backup changes below.
+  Clean signed build, production guards and lint passed. Upgrade over Beta 1
+  preserved all 329 readable external files. Verified signed touch placement
+  persistence after game relaunch and captured five fresh interface screenshots.
+  Fresh checks: 39 JVM passes, 66 Retroid and 36 emulator instrumentation passes;
+  one optional capture skipped per device. Source inventory and fresh native
+  source restoration passed. Not yet published at this checkpoint.
+  [Evidence and limits](docs/releases/v0.4.0-beta.2-checks.md).
+
+- **Local, unreleased after 0.4.0 Beta 1:** include custom Symbian/N-Gage covers
+  and icons in whole-phone backups. Restore artwork atomically with the new
+  phone, keeping the original unchanged; support re-export after artwork edits
+  or resets. Continue reading version-1 backups; new version-2 backups require
+  this implementation. Validate image sizes, decoding, paths and file hashes.
+  No new release, upload or production-app replacement.
+  [Verification](docs/checks/2026-10-18-symbian-artwork-backup.md).
+
+- **Local, unreleased after 0.4.0 Beta 1:** extend the existing Artwork menu to
+  Symbian, N-Gage and N-Gage 2.0 cards. Choose separate cover/icon images or
+  restore each automatic image independently. Keep overrides separate from
+  generated art and isolated by system/UID. Fix picker callbacks rejecting
+  native cards' negative IDs; refresh both the library and selected detail art.
+  Rescan, recreation, invalid image and cross-system isolation checks added.
+  At this checkpoint custom art was not in phone backups; the follow-up above
+  adds it. No release or upload.
+  [Verification](docs/checks/2026-10-18-symbian-artwork.md).
+
+- **Local, unreleased after 0.4.0 Beta 1:** add Classic / Retro LCD / High
+  contrast styles separately from brightness, with themed cards, menus, mapper,
+  installer and touch controls. Add a per-game visual touch layout editor with
+  drag/nudge/resize, separate orientation/layout placements and the existing
+  reversible preview/save workflow. Improve square-screen gallery density,
+  compact list rows, filter access, large-font header layout and controller focus
+  retention. Refresh engine appearance from the main process. Debug builds and
+  UI checks only; no new public APK or distribution.
+  [Evidence, screenshots and limits](docs/checks/2026-10-18-visual-polish.md).
+
 - **Released:** [0.4.0 Beta 1](https://github.com/EriArk/JavaEmulator/releases/tag/v0.4.0-beta.1),
   code 306, at 15:33 UTC. One signed adaptive APK replaces separate Phone and
   Handheld downloads and includes the unreleased-after-beta.6 improvements below.

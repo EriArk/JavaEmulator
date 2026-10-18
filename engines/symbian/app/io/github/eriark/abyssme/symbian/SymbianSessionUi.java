@@ -95,7 +95,7 @@ final class SymbianSessionUi {
     private ImageButton icon(String label, int resource, Runnable action) {
         ImageButton button = new ImageButton(activity); button.setImageResource(resource);
         button.setBackgroundResource(R.drawable.bg_quick_setting_button);
-        button.setImageTintList(android.content.res.ColorStateList.valueOf(activity.getColor(ru.playsoftware.j2meloader.R.color.accent)));
+        button.setImageTintList(android.content.res.ColorStateList.valueOf(ru.playsoftware.j2meloader.ui.AppPalette.color(activity, ru.playsoftware.j2meloader.R.color.accent)));
         button.setPadding(dp(12),dp(12),dp(12),dp(12)); button.setContentDescription(label); button.setTooltipText(label);
         button.setOnClickListener(v -> action.run()); return button;
     }

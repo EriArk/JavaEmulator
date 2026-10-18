@@ -7,7 +7,7 @@ import java.util.*;
 import ru.playsoftware.j2meloader.BuildConfig;
 import ru.playsoftware.j2meloader.applist.AppItem;
 
-/** Read-only engine-owned entries. They must never enter the Java install/backup database. */
+/** Engine-owned entries. They must never enter the Java install/backup database. */
 public final class ExternalLibrary {
     public interface Provider { List<AppItem> read(Context context) throws IOException; }
     public abstract static class Item extends AppItem {
@@ -16,6 +16,8 @@ public final class ExternalLibrary {
         public abstract void favorite();
         public void uninstall(Activity activity) { }
         public boolean supportsUninstallReview() { return false; }
+        /** Optional host-owned artwork overrides, separate from engine-generated images. */
+        public java.io.File getArtworkDirectory() { return null; }
         @Override public String getPathExt() { return getPath(); }
         @Override public String getCoverPathExt() { return null; }
     }

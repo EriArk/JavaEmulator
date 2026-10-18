@@ -77,6 +77,7 @@ public final class MophunGameActivity extends Activity {
 
     @Override public void onCreate(Bundle state) {
         super.onCreate(state);
+        ru.playsoftware.j2meloader.ui.AppPalette.apply(this);
         getWindow().getDecorView().setSystemUiVisibility(5894);
         try {
             libraryRoot = new File(Config.getEmulatorDir());
@@ -114,7 +115,7 @@ public final class MophunGameActivity extends Activity {
                 ImageButton menuButton = new ImageButton(this);
                 menuButton.setId(R.id.game_menu_button);
                 menuButton.setImageResource(R.drawable.ic_baseline_tune_24);
-                menuButton.setImageTintList(android.content.res.ColorStateList.valueOf(getColor(ru.playsoftware.j2meloader.R.color.text_primary)));
+                menuButton.setImageTintList(android.content.res.ColorStateList.valueOf(ru.playsoftware.j2meloader.ui.AppPalette.color(this, ru.playsoftware.j2meloader.R.color.text_primary)));
                 menuButton.setBackgroundResource(R.drawable.bg_quick_setting_button);
                 menuButton.setPadding(dp(12), dp(12), dp(12), dp(12));
                 menuButton.setContentDescription("Game menu");
@@ -125,7 +126,7 @@ public final class MophunGameActivity extends Activity {
             screenshotButton = new ImageButton(this);
             screenshotButton.setId(R.id.game_screenshot_button);
             screenshotButton.setImageResource(R.drawable.ic_action_screenshot);
-            screenshotButton.setImageTintList(android.content.res.ColorStateList.valueOf(getColor(ru.playsoftware.j2meloader.R.color.text_primary)));
+            screenshotButton.setImageTintList(android.content.res.ColorStateList.valueOf(ru.playsoftware.j2meloader.ui.AppPalette.color(this, ru.playsoftware.j2meloader.R.color.text_primary)));
             screenshotButton.setBackgroundResource(R.drawable.bg_quick_setting_button);
             screenshotButton.setPadding(dp(12), dp(12), dp(12), dp(12));
             screenshotButton.setContentDescription(getString(R.string.capture_screenshot));

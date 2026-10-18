@@ -8,14 +8,14 @@
     <FrameLayout android:id="@+id/icon_frame" android:layout_width="32dp" android:layout_height="32dp"
         android:layout_marginEnd="12dp">
         <ImageView android:id="@android:id/icon" android:layout_width="24dp" android:layout_height="24dp"
-            android:layout_gravity="center" app:tint="@color/accent" />
+            android:layout_gravity="center" app:tint="?attr/abyss_accent" />
     </FrameLayout>
     <LinearLayout android:layout_width="0dp" android:layout_height="wrap_content" android:layout_weight="1"
         android:orientation="vertical">
         <TextView android:id="@android:id/title" android:layout_width="match_parent" android:layout_height="wrap_content"
-            android:textSize="16sp" android:textColor="@color/text_primary" />
+            android:textSize="16sp" android:textColor="?attr/abyss_text_primary" />
         <TextView android:id="@android:id/summary" android:layout_width="match_parent" android:layout_height="wrap_content"
-            android:textSize="13sp" android:textColor="@color/text_secondary" />
+            android:textSize="13sp" android:textColor="?attr/abyss_text_secondary" />
     </LinearLayout>
     <LinearLayout android:id="@android:id/widget_frame" android:layout_width="wrap_content" android:layout_height="wrap_content"
         android:layout_marginStart="12dp" android:orientation="horizontal" android:gravity="center_vertical" />

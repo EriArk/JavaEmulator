@@ -74,6 +74,8 @@ public final class GameSettingsPages {
                 if (!live || legacyActive) menu.action("Legacy layout editor", R.drawable.ic_action_keyboard, host::legacyControls);
                 controlsFooter(); return;
             }
+            menu.action("Edit touch layout", R.drawable.ic_action_keyboard, () ->
+                    menu.editTouchLayout(draft, this::controls));
             menu.choice("Button theme", new String[]{"Follow app", "Dark", "Light"}, clamp(draft.touchTheme, 3), i -> draft.touchTheme = i);
             menu.choice("Button size", new String[]{"Standard", "Large", "Extra large"}, clamp(draft.touchSize, 3), i -> draft.touchSize = i);
             menu.opacity(Math.max(80, Math.min(100, draft.touchOpacity)), v -> draft.touchOpacity = v);

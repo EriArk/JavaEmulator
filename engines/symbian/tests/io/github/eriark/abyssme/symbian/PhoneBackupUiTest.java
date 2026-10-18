@@ -29,8 +29,17 @@ public final class PhoneBackupUiTest {
         File archive=File.createTempFile("backup-ui-fixture-",".zip",context.getCacheDir());
         SystemFileCatalog.Entry restored=null;
         Map<String,String> sourceBefore=hashes(new File(catalog.runtime(phone),"data/drives"));
+        File originalArt=new File(SymbianLibraryIndex.artworkRoot(context.getFilesDir(),phone.id),Long.toString(original.uid));
+        Map<String,byte[]> priorArt=new LinkedHashMap<>();
+        for(String name:new String[]{"user-icon.png","user-cover.png"}) {
+            File file=new File(originalArt,name);
+            priorArt.put(name,file.isFile()?Files.readAllBytes(file.toPath()):null);
+        }
+        byte[] testArt=SymbianArtworkTest.image(0xff2e8066);
         try {
             Emulator.stopSession();
+            Files.createDirectories(originalArt.toPath());
+            for(String name:priorArt.keySet()) Files.write(new File(originalArt,name).toPath(),testArt);
             new PhoneBackup(context.getFilesDir()).exportPhone(phone,archive,Emulator.portablePhoneSettings(catalog.runtime(phone).getAbsolutePath()),text -> {});
             context.startActivity(new Intent(context,SymbianActivity.class).addFlags(Intent.FLAG_ACTIVITY_NEW_TASK|Intent.FLAG_ACTIVITY_CLEAR_TASK)
                     .putExtra("symbian.backups",true));
@@ -52,17 +61,31 @@ public final class PhoneBackupUiTest {
             SymbianLibraryIndex.Entry game=null;
             for(SymbianLibraryIndex.Entry entry:new SymbianLibraryIndex(context).read())if(entry.system.equals(restored.id)&&entry.title.equals("Snakes"))game=entry;
             assertNotNull("Restored games must be in the shared library",game);
+            File restoredArt=new File(SymbianLibraryIndex.artworkRoot(context.getFilesDir(),restored.id),Long.toString(game.uid));
+            for(String name:priorArt.keySet()) assertArrayEquals(testArt,Files.readAllBytes(new File(restoredArt,name).toPath()));
+            ru.playsoftware.j2meloader.applist.AppItem card=null;
+            for(ru.playsoftware.j2meloader.applist.AppItem item:new SymbianLauncherLibrary().read(context))
+                if(item.getPath().equals(game.key())) card=item;
+            assertNotNull("Restored artwork must reach the launcher",card);
+            assertEquals(new File(restoredArt,"user-cover.png").getAbsolutePath(),card.getCoverPathExt());
+            assertEquals(new File(restoredArt,"user-icon.png").getAbsolutePath(),card.getImagePathExt());
             click("Library"); SystemClock.sleep(1200);
             context.startActivity(new Intent(context,SymbianActivity.class).addFlags(Intent.FLAG_ACTIVITY_NEW_TASK|Intent.FLAG_ACTIVITY_CLEAR_TASK)
                     .putExtra(SymbianLibraryIndex.SYSTEM_EXTRA,game.system).putExtra(SymbianLibraryIndex.UID_EXTRA,game.uid));
-            waitText("Game menu",20000); SystemClock.sleep(9000); capture("symbian-backup-game.png");
-            click("Game menu"); waitText("Resume",5000); click("Exit game"); click("Leave without saving"); SystemClock.sleep(1800);
+            waitText("Show game controls",20000); SystemClock.sleep(9000); capture("symbian-backup-game.png");
+            click("Show game controls"); click("Game menu"); waitText("Resume",5000);
+            click("Exit game"); click("Leave without saving"); SystemClock.sleep(1800);
             equalFiles(sourceBefore,hashes(new File(catalog.runtime(phone),"data/drives")),false);
+            for(String name:priorArt.keySet()) assertArrayEquals(testArt,Files.readAllBytes(new File(originalArt,name).toPath()));
         } finally {
             // Only test-created restored identities are removed, after the host activity is closed.
             context.startActivity(new Intent(context,ru.playsoftware.j2meloader.MainActivity.class)
                     .addFlags(Intent.FLAG_ACTIVITY_NEW_TASK|Intent.FLAG_ACTIVITY_CLEAR_TASK)); SystemClock.sleep(2000);
             Emulator.stopSession();
+            for(Map.Entry<String,byte[]> image:priorArt.entrySet()) {
+                File file=new File(originalArt,image.getKey());
+                if(image.getValue()==null) Files.deleteIfExists(file.toPath()); else Files.write(file.toPath(),image.getValue());
+            }
             if(priorActive==null) Files.deleteIfExists(active.toPath()); else Files.write(active.toPath(),priorActive);
             for(SystemFileCatalog.Entry entry:catalog.list())if(!before.contains(entry.id)&&entry.restored) {
                 PhoneBackupTest.remove(catalog.set(entry.id));

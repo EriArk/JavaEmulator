@@ -2,7 +2,10 @@
 <androidx.preference.PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto" android:title="Settings">
 
-    <ListPreference android:key="pref_theme" android:title="Theme"
+    <Preference android:key="pref_palette" android:title="Visual style"
+        android:icon="@drawable/ic_setting_theme" />
+
+    <ListPreference android:key="pref_theme" android:title="Brightness"
         android:icon="@drawable/ic_setting_theme" android:defaultValue="system"
         android:entries="@array/appearance_entries" android:entryValues="@array/appearance_values"
         app:useSimpleSummaryProvider="true" />

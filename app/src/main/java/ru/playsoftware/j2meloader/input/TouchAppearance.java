@@ -24,7 +24,8 @@ public final class TouchAppearance {
     public static Context palette(Context context, ProfileModel profile) {
         Configuration config = new Configuration(context.getResources().getConfiguration());
         config.uiMode = (config.uiMode & ~Configuration.UI_MODE_NIGHT_MASK) | mode(context, profile);
-        return context.createConfigurationContext(config);
+        return ru.playsoftware.j2meloader.ui.AppPalette.preview(context,
+                ru.playsoftware.j2meloader.ui.AppPalette.selected(context), mode(context, profile));
     }
 
     public static void shortcuts(View root, ProfileModel profile) {
@@ -42,7 +43,7 @@ public final class TouchAppearance {
                 int padding = Math.round(16 * root.getResources().getDisplayMetrics().density);
                 button.setPadding(padding, padding, padding, padding);
             }
-            ImageViewCompat.setImageTintList(button, ColorStateList.valueOf(palette.getColor(R.color.text_primary)));
+            ImageViewCompat.setImageTintList(button, ColorStateList.valueOf(ru.playsoftware.j2meloader.ui.AppPalette.color(palette, R.color.text_primary)));
         }
     }
 }

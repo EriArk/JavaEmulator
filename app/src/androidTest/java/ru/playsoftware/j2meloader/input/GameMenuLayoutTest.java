@@ -151,6 +151,10 @@ public class GameMenuLayoutTest {
         org.junit.Assume.assumeFalse(BuildConfig.HANDHELD_MODE);
         withActivity((instrumentation, activity) -> {
             GameMenuDialog[] dialog = new GameMenuDialog[1];
+            android.graphics.Point displaySize = new android.graphics.Point();
+            activity.getWindowManager().getDefaultDisplay().getRealSize(displaySize);
+            org.junit.Assume.assumeTrue("A square display has no distinct portrait/landscape dimensions",
+                    displaySize.x != displaySize.y);
             try {
                 rotate(instrumentation, activity, ActivityInfo.SCREEN_ORIENTATION_PORTRAIT,
                         Configuration.ORIENTATION_PORTRAIT);

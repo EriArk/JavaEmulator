@@ -13,12 +13,12 @@
         <TextView android:id="@+id/installer_title"
             android:layout_width="0dp" android:layout_height="wrap_content" android:layout_weight="1"
             android:layout_marginHorizontal="8dp" android:maxLines="2" android:ellipsize="end"
-            android:text="MIDlet installer" android:textColor="@color/accent"
+            android:text="MIDlet installer" android:textColor="?attr/abyss_accent"
             android:textSize="18sp" android:textStyle="bold" />
         <ImageButton android:id="@+id/button_close"
             android:layout_width="48dp" android:layout_height="48dp"
             android:background="@drawable/bg_quick_setting_button" android:backgroundTint="@null"
-            android:src="@android:drawable/ic_menu_close_clear_cancel" app:tint="@color/accent"
+            android:src="@android:drawable/ic_menu_close_clear_cancel" app:tint="?attr/abyss_accent"
             android:padding="12dp" android:contentDescription="Close" android:tooltipText="Close" />
     </LinearLayout>
     <ScrollView android:id="@+id/installer_scroll"
@@ -28,14 +28,14 @@
             android:orientation="vertical">
             <TextView android:id="@+id/installation_status"
                 android:layout_width="match_parent" android:layout_height="wrap_content"
-                android:text="@string/loading_info" android:textColor="@color/phone_cyan" android:textSize="14sp" />
+                android:text="@string/loading_info" android:textColor="?attr/abyss_phone_cyan" android:textSize="14sp" />
             <ProgressBar android:id="@+id/installation_progress"
                 style="?android:attr/progressBarStyleHorizontal"
                 android:layout_width="match_parent" android:layout_height="4dp"
                 android:layout_marginVertical="8dp" android:indeterminate="true" />
             <TextView android:id="@+id/installer_message"
                 android:layout_width="match_parent" android:layout_height="wrap_content"
-                android:paddingVertical="8dp" android:textColor="@color/text_primary" android:textSize="15sp" />
+                android:paddingVertical="8dp" android:textColor="?attr/abyss_text_primary" android:textSize="15sp" />
             <LinearLayout android:id="@+id/installer_archive_choices"
                 android:layout_width="match_parent" android:layout_height="wrap_content"
                 android:orientation="vertical" android:visibility="gone" />
@@ -49,12 +49,12 @@
             android:minHeight="48dp" android:padding="8dp"
             android:background="@drawable/bg_quick_setting_button" android:backgroundTint="@null"
             android:text="@string/install" android:textAllCaps="false"
-            android:textColor="@color/accent" android:textSize="15sp" />
+            android:textColor="?attr/abyss_accent" android:textSize="15sp" />
         <Button android:id="@+id/button_start"
             android:layout_width="0dp" android:layout_height="wrap_content" android:layout_weight="1"
             android:layout_marginStart="8dp" android:minHeight="48dp" android:padding="8dp"
             android:background="@drawable/bg_quick_setting_button" android:backgroundTint="@null"
             android:text="@string/START_CMD" android:textAllCaps="false"
-            android:textColor="@color/accent" android:textSize="15sp" />
+            android:textColor="?attr/abyss_accent" android:textSize="15sp" />
     </LinearLayout>
 </LinearLayout>

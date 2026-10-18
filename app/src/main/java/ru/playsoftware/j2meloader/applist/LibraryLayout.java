@@ -13,6 +13,10 @@ public final class LibraryLayout {
 
     public static int format(int value) { return value >= AUTO && value <= PORTRAIT ? value : AUTO; }
 
+    public static boolean inlineCategory(float width, float fontScale) {
+        return width >= 120 + 212 * Math.max(1, fontScale);
+    }
+
     public static boolean compact(float width, float height, float fontScale) {
         return width < 600 || height < 480 || width / Math.max(1, height) < 1.45f
                 || width < 800 * Math.max(1, fontScale);
@@ -27,7 +31,13 @@ public final class LibraryLayout {
                 ? (chosen == PORTRAIT ? 140 : 220) : 144) * Math.min(font, 1.5f));
         int columns = mode == AppsListAdapter.MODE_LIST ? 1 : Math.max(1, width / target);
         int cellArt = Math.max(1, width / columns - 22);
-        int maxArt = Math.max(32, height - Math.round(30 + 44 * font));
+        int titleSpace = Math.round(30 + 44 * font);
+        int maxArt = Math.max(16, height - titleSpace);
+        // Square collections should reveal a second complete row when it fits.
+        if (height >= 360 && width < height * 1.55f && font <= 1.3f) {
+            int twoRows = height / 2 - titleSpace;
+            if (twoRows >= 96) maxArt = Math.min(maxArt, twoRows);
+        }
         if (mode != AppsListAdapter.MODE_GALLERY)
             return new LibraryLayout(columns, cellArt, Math.min(116, maxArt), chosen);
         float ratio = chosen == PORTRAIT ? 2f / 3f : 16f / 9f;

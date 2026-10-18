@@ -50,9 +50,9 @@ remains disabled. No website or Nextcloud deployment in this release checkpoint.
 [checksums](releases/v0.4.0-beta.1/SHA256SUMS.txt),
 [fresh signed-build captures](../screenshots/releases/v0.4.0-beta.1/README.md).
 
-Beta.2 was withheld before publication after final provisioning exposed a mixed
-SIS/N-Gage catalog defect. Its source tag remains as history; beta.3 fixes it.
-Beta.1 remains a historical download, not the recommended current version.
+Historical **0.3.0-beta.2** was withheld before publication after final provisioning
+exposed a mixed SIS/N-Gage catalog defect; **0.3.0-beta.3** fixed it. These are
+older 0.3 builds, not the current 0.4 release series.
 
 | Channel | Current identifier | Availability |
 | --- | --- | --- |
@@ -60,6 +60,53 @@ Beta.1 remains a historical download, not the recommended current version.
 | Public development source | `main`, 0.4.0-beta.1 with publication documentation | Implementation included in the release; old beta.6 assets remain unchanged |
 | Private historical snapshot | `0.1.0-beta.2-experimental.15`, 2026-10-11 | Old Java/Mophun test build, not the current beta |
 | Local-only material | Game fixtures, firmware, diagnostics, device data and signing keys | Not in Git or public release assets; describing testing does not authorize redistribution |
+
+## Local Development After 0.4.0 Beta 1
+
+**2026-10-18: prepared for 0.4.0-beta.2, code 307; not yet published.**
+The signed APK passed an in-place Retroid upgrade and touch-layout persistence
+checks. All 329 readable external files retained their hashes before first launch.
+Fresh checks: 39 JVM passes, 66 Retroid and 36 emulator instrumentation passes
+(one optional capture skipped on each device). Signed and debug evidence remain
+separate. [Release verification](releases/v0.4.0-beta.2-checks.md) and
+[fresh screenshots](../screenshots/releases/v0.4.0-beta.2/README.md).
+No website or Nextcloud deployment; public metadata above is unchanged.
+
+- **Visual styles:** Classic, Retro LCD and High contrast, independently of
+  Light / Dark / System brightness. Shared palette roles cover the library,
+  menus, mapper, installer and modern touch controls. Retro adds LCD colors and
+  inset borders; High contrast uses flat controls and stronger outlines. Game
+  pixels and imported artwork are unchanged. Engine activities refresh the main
+  process appearance snapshot instead of relying on stale process preferences.
+- **Touch layout editor:** Controls > Edit touch layout opens a detached preview.
+  Choose Phone/Gamepad, preview either orientation, drag or nudge control blocks,
+  resize them, and select button theme/opacity. Layout and orientation placements
+  are separate and per-game. Cancel discards the draft; Use layout feeds the
+  existing Try changes / Keep / Undo workflow. Controls remain in their lanes,
+  outside the game area. Existing profiles without placements retain their layout.
+- **Compact library:** near-square galleries can fit two complete artwork rows;
+  header filters adapt to font size and remain available through Collection in
+  the menu. Compact list rows and controller-only hints reduce wasted space.
+  Selection is retained when rebuilding the view. The editor also adapts its
+  split layout to available space and the user's text size.
+- **Symbian/N-Gage artwork:** native game actions now expose the same Artwork
+  menu with separate Icon / Cover selection and Use automatic. Overrides are
+  stored by phone-system identity and game UID, outside generated artwork, so
+  index refreshes and renaming do not replace them. Picker results support native
+  negative IDs and activity recreation.
+  [Implementation and checks](checks/2026-10-18-symbian-artwork.md).
+- **Artwork in phone backups:** custom Symbian/N-Gage covers and icons now
+  travel with each virtual phone. Restore keeps them inside the new phone's
+  staged directory and binds them to its new identity; originals are unchanged.
+  Re-export preserves edits and resets. New version-2 archives require the new
+  implementation; existing version-1 backups still restore without artwork.
+  Images and archive contents are validated before publication.
+  [Verification and limits](checks/2026-10-18-symbian-artwork-backup.md).
+
+Builds, automated checks and Retroid/emulator UI evidence are recorded in
+[the visual polish checkpoint](checks/2026-10-18-visual-polish.md).
+These results do not establish physical phone acceptance, full-game compatibility
+or manual controller comfort. The old Java legacy keypad editor is unchanged.
 
 ## Released in 0.4.0 Beta 1
 

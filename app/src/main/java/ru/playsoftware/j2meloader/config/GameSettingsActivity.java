@@ -21,6 +21,7 @@ public final class GameSettingsActivity extends AppCompatActivity {
 
     @Override public void onCreate(Bundle state) {
         super.onCreate(state);
+        ru.playsoftware.j2meloader.ui.AppPalette.apply(this);
         if (BuildConfig.HANDHELD_MODE) setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_SENSOR_LANDSCAPE);
         String path = getIntent().getDataString();
         if (path == null) { finish(); return; }
@@ -68,9 +69,11 @@ public final class GameSettingsActivity extends AppCompatActivity {
             } catch (RuntimeException ignored) { }
         }
         pages.home();
+        if (state != null) menu.restoreTouchEditor(state.getBundle("touchEditor"), pages.draft(), pages::controls);
     }
     @Override protected void onSaveInstanceState(Bundle state) {
         if (pages != null) state.putString("draft", new com.google.gson.Gson().toJson(pages.draft()));
+        if (menu != null) state.putBundle("touchEditor", menu.saveTouchEditor());
         super.onSaveInstanceState(state);
     }
     @Override protected void onDestroy() {

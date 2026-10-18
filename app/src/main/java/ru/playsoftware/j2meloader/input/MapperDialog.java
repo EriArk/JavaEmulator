@@ -17,9 +17,10 @@ public final class MapperDialog extends Dialog {
     public boolean wasApplied() { return applied; }
     public MapperDialog(Context context, String title, ProfileModel draft, Runnable closed) {
         super(context);
+        ru.playsoftware.j2meloader.ui.AppPalette.apply(getContext());
         requestWindowFeature(Window.FEATURE_NO_TITLE);
         draft.ensureKeyMappingProfiles();
-        mapper = new ControllerMapperView(context, title, draft.keyMappingProfiles, draft.activeKeyMappingProfile,
+        mapper = new ControllerMapperView(getContext(), title, draft.keyMappingProfiles, draft.activeKeyMappingProfile,
                 new ControllerMapperView.Listener() {
                     public void save(ArrayList<ProfileModel.KeyMappingProfile> profiles, int active) {
                         draft.keyMappingProfiles = profiles; draft.setActiveKeyMappingProfile(active); applied = true; dismiss();
@@ -32,7 +33,7 @@ public final class MapperDialog extends Dialog {
     }
     @Override public void show() {
         super.show();
-        getWindow().setBackgroundDrawable(new android.graphics.drawable.ColorDrawable(getContext().getColor(ru.playsoftware.j2meloader.R.color.background)));
+        getWindow().setBackgroundDrawable(new android.graphics.drawable.ColorDrawable(ru.playsoftware.j2meloader.ui.AppPalette.color(getContext(), ru.playsoftware.j2meloader.R.color.background)));
         getWindow().addFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN);
         getWindow().getDecorView().setSystemUiVisibility(5894);
         getWindow().setLayout(WindowManager.LayoutParams.MATCH_PARENT, WindowManager.LayoutParams.MATCH_PARENT);

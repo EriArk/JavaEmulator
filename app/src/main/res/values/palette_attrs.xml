@@ -1,0 +1,37 @@
+<resources>
+    <attr name="abyss_cornerRadius" format="dimension" />
+    <attr name="abyss_controlStroke" format="dimension" />
+    <attr name="abyss_card" format="reference" />
+    <attr name="abyss_primary" format="color" />
+    <attr name="abyss_primary_dark" format="color" />
+    <attr name="abyss_accent" format="color" />
+    <attr name="abyss_background" format="color" />
+    <attr name="abyss_text_primary" format="color" />
+    <attr name="abyss_text_secondary" format="color" />
+    <attr name="abyss_btn_bg_normal" format="color" />
+    <attr name="abyss_btn_bg_pressed" format="color" />
+    <attr name="abyss_config_card" format="color" />
+    <attr name="abyss_config_card_stroke" format="color" />
+    <attr name="abyss_phone_panel" format="color" />
+    <attr name="abyss_phone_panel_alt" format="color" />
+    <attr name="abyss_phone_cyan" format="color" />
+    <attr name="abyss_phone_green" format="color" />
+    <attr name="abyss_phone_line" format="color" />
+    <attr name="abyss_focus_surface" format="color" />
+    <attr name="abyss_selected_surface" format="color" />
+    <attr name="abyss_input_surface" format="color" />
+    <attr name="abyss_menu_surface" format="color" />
+    <attr name="abyss_on_accent" format="color" />
+    <attr name="abyss_mapper_lcd" format="color" />
+    <attr name="abyss_mapper_lcd_text" format="color" />
+    <attr name="abyss_mapper_lcd_line" format="color" />
+    <attr name="abyss_control_a" format="color" />
+    <attr name="abyss_control_b" format="color" />
+    <attr name="abyss_control_x" format="color" />
+    <attr name="abyss_control_y" format="color" />
+    <attr name="abyss_touch_surface" format="color" />
+    <attr name="abyss_touch_button" format="color" />
+    <attr name="abyss_touch_line" format="color" />
+    <attr name="abyss_touch_key_highlight" format="color" />
+    <attr name="abyss_touch_key_shadow" format="color" />
+</resources>

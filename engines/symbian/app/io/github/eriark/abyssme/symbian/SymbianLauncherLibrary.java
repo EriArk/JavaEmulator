@@ -5,8 +5,10 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import java.io.IOException;
+import java.io.File;
 import java.util.*;
 import ru.playsoftware.j2meloader.applist.AppItem;
+import ru.playsoftware.j2meloader.applist.GameArtwork;
 import ru.playsoftware.j2meloader.catalog.ExternalLibrary;
 
 /** Main-process adapter: index and presentation preferences only, never native engine calls. */
@@ -15,7 +17,7 @@ public final class SymbianLauncherLibrary implements ExternalLibrary.Provider {
         List<AppItem> result = new ArrayList<>();
         SharedPreferences preferences = context.getSharedPreferences("symbian-library-presentation", Context.MODE_PRIVATE);
         for (SymbianLibraryIndex.Entry entry : new SymbianLibraryIndex(context).read())
-            result.add(new Item(entry, preferences));
+            result.add(new Item(entry, preferences, context.getFilesDir()));
         return result;
     }
     private static synchronized int stableId(SharedPreferences preferences, String key) {
@@ -30,15 +32,25 @@ public final class SymbianLauncherLibrary implements ExternalLibrary.Provider {
     private static final class Item extends ExternalLibrary.Item {
         private final SymbianLibraryIndex.Entry entry;
         private final SharedPreferences preferences;
-        Item(SymbianLibraryIndex.Entry entry, SharedPreferences preferences) {
+        private final File files;
+        Item(SymbianLibraryIndex.Entry entry, SharedPreferences preferences, File files) {
             super(entry.key(), entry.title, entry.platform, entry.phone);
             this.entry = entry; this.preferences = preferences;
+            this.files = files;
             setId(stableId(preferences, entry.key()));
             setFavorite(preferences.getBoolean(entry.key() + ".favorite", false));
             setLastPlayedAt(preferences.getLong(entry.key() + ".lastPlayed", 0));
             setPlayCount(preferences.getInt(entry.key() + ".playCount", 0));
         }
-        @Override public String getImagePathExt() { return entry.icon.isFile() ? entry.icon.getAbsolutePath() : null; }
+        @Override public File getArtworkDirectory() {
+            return new File(SymbianLibraryIndex.artworkRoot(files, entry.system), Long.toString(entry.uid));
+        }
+        private String artwork(boolean icon) {
+            File custom = new File(getArtworkDirectory(), icon ? GameArtwork.USER_ICON : GameArtwork.USER_COVER);
+            File automatic = icon ? entry.icon : entry.cover;
+            return custom.isFile() ? custom.getAbsolutePath() : automatic.isFile() ? automatic.getAbsolutePath() : null;
+        }
+        @Override public String getImagePathExt() { return artwork(true); }
         @Override public boolean supportsUninstallReview() { return true; }
         @Override public void uninstall(Activity activity) {
             activity.startActivity(new Intent(activity,SymbianActivity.class)
@@ -46,7 +58,7 @@ public final class SymbianLauncherLibrary implements ExternalLibrary.Provider {
                     .putExtra(SymbianLibraryIndex.UID_EXTRA,entry.uid)
                     .putExtra(SymbianLibraryIndex.REMOVE_EXTRA,true));
         }
-        @Override public String getCoverPathExt() { return entry.cover.isFile() ? entry.cover.getAbsolutePath() : null; }
+        @Override public String getCoverPathExt() { return artwork(false); }
         @Override public void favorite() {
             setFavorite(!isFavorite());
             preferences.edit().putBoolean(entry.key() + ".favorite", isFavorite()).apply();

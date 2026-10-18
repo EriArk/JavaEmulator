@@ -33,11 +33,12 @@ public final class SettingsPreviewBar extends LinearLayout {
         setOrientation(HORIZONTAL); setGravity(Gravity.CENTER_VERTICAL);
         Configuration config = new Configuration(getResources().getConfiguration());
         config.uiMode = (config.uiMode & ~Configuration.UI_MODE_NIGHT_MASK) | Configuration.UI_MODE_NIGHT_YES;
-        Context palette = context.createConfigurationContext(config);
+        Context palette = ru.playsoftware.j2meloader.ui.AppPalette.preview(context,
+                ru.playsoftware.j2meloader.ui.AppPalette.selected(context), Configuration.UI_MODE_NIGHT_YES);
         setBackground(palette.getDrawable(R.drawable.bg_quick_map_panel));
         setPadding(dp(4), dp(2), dp(4), dp(2));
         setClickable(true); setFocusable(false);
-        label = new TextView(context); label.setTextColor(palette.getColor(R.color.accent));
+        label = new TextView(context); label.setTextColor(ru.playsoftware.j2meloader.ui.AppPalette.color(palette, R.color.accent));
         label.setTextSize(14); label.setSingleLine(true); label.setGravity(Gravity.CENTER);
         label.setAutoSizeTextTypeUniformWithConfiguration(10, 14, 1, android.util.TypedValue.COMPLEX_UNIT_SP);
         addView(label, new LayoutParams(dp(64), dp(48)));
@@ -56,7 +57,7 @@ public final class SettingsPreviewBar extends LinearLayout {
         ImageButton button = new ImageButton(getContext()); button.setImageResource(icon);
         button.setFocusable(true);
         button.setContentDescription(name); button.setTooltipText(name + " changes");
-        button.setImageTintList(ColorStateList.valueOf(palette.getColor(R.color.text_primary)));
+        button.setImageTintList(ColorStateList.valueOf(ru.playsoftware.j2meloader.ui.AppPalette.color(palette, R.color.text_primary)));
         button.setBackground(palette.getDrawable(R.drawable.bg_touch_shortcut));
         button.setPadding(dp(12), dp(12), dp(12), dp(12));
         button.setBackgroundTintList(null); button.setOnClickListener(v -> action.run());

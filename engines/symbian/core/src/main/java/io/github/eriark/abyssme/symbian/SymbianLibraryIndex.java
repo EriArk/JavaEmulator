@@ -26,6 +26,12 @@ public final class SymbianLibraryIndex {
     private final File root;
     public SymbianLibraryIndex(Context context) { this(new File(context.getFilesDir(), "symbian-library")); }
     SymbianLibraryIndex(File root) { this.root = root; }
+    public static File artworkRoot(File files, String system) {
+        if (system == null || !system.matches("[0-9a-f]{64}")) throw new IllegalArgumentException("Invalid phone identity");
+        File embedded = new File(files, "symbian-systems/" + system + "/artwork");
+        // Restored phones own their overrides, including empty/reset artwork directories.
+        return embedded.isDirectory() ? embedded : new File(files, "symbian-library/user-art/" + system);
+    }
     private File icon(String system, long uid) { return new File(root, system + "-" + uid + ".png"); }
     private File cover(String system, long uid) { return new File(root, system + "-" + uid + "-cover.png"); }
     private static void identity(String system, long uid) throws IOException {

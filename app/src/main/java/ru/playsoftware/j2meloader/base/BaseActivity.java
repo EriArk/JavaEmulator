@@ -30,6 +30,7 @@ import ru.playsoftware.j2meloader.R;
 
 @SuppressLint("Registered")
 public class BaseActivity extends AppCompatActivity {
+	private String palette;
 
 	@Override
 	protected void onCreate(@Nullable Bundle savedInstanceState) {
@@ -37,9 +38,16 @@ public class BaseActivity extends AppCompatActivity {
 		if (sp.getBoolean(PREF_BLACK_BACKGROUND, false)) {
 			setTheme(R.style.ThemeOverlay_App_Dark);
 		}
+		palette = ru.playsoftware.j2meloader.ui.AppPalette.selected(this);
+		ru.playsoftware.j2meloader.ui.AppPalette.apply(this);
 		if (getSupportActionBar() != null) {
 			getSupportActionBar().setElevation(getResources().getDisplayMetrics().density * 2);
 		}
 		super.onCreate(savedInstanceState);
+	}
+
+	@Override protected void onResume() {
+		super.onResume();
+		if (!java.util.Objects.equals(palette, ru.playsoftware.j2meloader.ui.AppPalette.selected(this))) recreate();
 	}
 }

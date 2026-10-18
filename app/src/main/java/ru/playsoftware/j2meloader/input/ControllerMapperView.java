@@ -106,13 +106,13 @@ public final class ControllerMapperView extends LinearLayout {
                                 ArrayList<ProfileModel.KeyMappingProfile> original,
                                 int activeIndex, Listener listener) {
         super(context);
-        BG = context.getColor(ru.playsoftware.j2meloader.R.color.background);
-        PANEL = context.getColor(ru.playsoftware.j2meloader.R.color.phone_panel_alt);
-        LINE = context.getColor(ru.playsoftware.j2meloader.R.color.phone_line);
-        TEXT = context.getColor(ru.playsoftware.j2meloader.R.color.text_primary);
-        MUTED = context.getColor(ru.playsoftware.j2meloader.R.color.text_secondary);
-        AMBER = context.getColor(ru.playsoftware.j2meloader.R.color.accent);
-        CYAN = context.getColor(ru.playsoftware.j2meloader.R.color.phone_cyan);
+        BG = ru.playsoftware.j2meloader.ui.AppPalette.color(context, ru.playsoftware.j2meloader.R.color.background);
+        PANEL = ru.playsoftware.j2meloader.ui.AppPalette.color(context, ru.playsoftware.j2meloader.R.color.phone_panel_alt);
+        LINE = ru.playsoftware.j2meloader.ui.AppPalette.color(context, ru.playsoftware.j2meloader.R.color.phone_line);
+        TEXT = ru.playsoftware.j2meloader.ui.AppPalette.color(context, ru.playsoftware.j2meloader.R.color.text_primary);
+        MUTED = ru.playsoftware.j2meloader.ui.AppPalette.color(context, ru.playsoftware.j2meloader.R.color.text_secondary);
+        AMBER = ru.playsoftware.j2meloader.ui.AppPalette.color(context, ru.playsoftware.j2meloader.R.color.accent);
+        CYAN = ru.playsoftware.j2meloader.ui.AppPalette.color(context, ru.playsoftware.j2meloader.R.color.phone_cyan);
         this.listener = listener;
         for (ProfileModel.KeyMappingProfile p : original) {
             profiles.add(new ProfileModel.KeyMappingProfile(p.name,
@@ -196,25 +196,25 @@ public final class ControllerMapperView extends LinearLayout {
         phone = new LinearLayout(context);
         phone.setOrientation(VERTICAL);
         phone.setPadding(dp(10), dp(10), dp(10), dp(10));
-        phone.setBackground(shape(getContext().getColor(ru.playsoftware.j2meloader.R.color.phone_panel), getContext().getColor(ru.playsoftware.j2meloader.R.color.phone_line), 8));
+        phone.setBackground(shape(ru.playsoftware.j2meloader.ui.AppPalette.color(getContext(), ru.playsoftware.j2meloader.R.color.phone_panel), ru.playsoftware.j2meloader.ui.AppPalette.color(getContext(), ru.playsoftware.j2meloader.R.color.phone_line), 8));
         phone.setMinimumHeight(dp(350));
         ScrollView phoneScroll = new ScrollView(context);
         phoneScroll.setFillViewport(true);
         phoneScroll.addView(phone, new ScrollView.LayoutParams(LayoutParams.MATCH_PARENT, LayoutParams.WRAP_CONTENT));
         destination.addView(phoneScroll, new LayoutParams(LayoutParams.MATCH_PARENT, 0, 1));
         body.addView(destination, new LayoutParams(0, LayoutParams.MATCH_PARENT, 1));
-        lcd = text("", 13, getContext().getColor(ru.playsoftware.j2meloader.R.color.mapper_lcd_text));
+        lcd = text("", 13, ru.playsoftware.j2meloader.ui.AppPalette.color(getContext(), ru.playsoftware.j2meloader.R.color.mapper_lcd_text));
         lcd.setTypeface(Typeface.MONOSPACE);
         lcd.setGravity(Gravity.CENTER);
         lcd.setMaxLines(2);
-        lcd.setBackground(shape(getContext().getColor(ru.playsoftware.j2meloader.R.color.mapper_lcd), getContext().getColor(ru.playsoftware.j2meloader.R.color.mapper_lcd_line), 3));
+        lcd.setBackground(shape(ru.playsoftware.j2meloader.ui.AppPalette.color(getContext(), ru.playsoftware.j2meloader.R.color.mapper_lcd), ru.playsoftware.j2meloader.ui.AppPalette.color(getContext(), ru.playsoftware.j2meloader.R.color.mapper_lcd_line), 3));
         rebuildPhone();
 
         addSection("Buttons");
-        addInput(96, "A", "A", getContext().getColor(ru.playsoftware.j2meloader.R.color.control_a));
-        addInput(97, "B", "B", getContext().getColor(ru.playsoftware.j2meloader.R.color.control_b));
-        addInput(99, "X", "X", getContext().getColor(ru.playsoftware.j2meloader.R.color.control_x));
-        addInput(100, "Y", "Y", getContext().getColor(ru.playsoftware.j2meloader.R.color.control_y));
+        addInput(96, "A", "A", ru.playsoftware.j2meloader.ui.AppPalette.color(getContext(), ru.playsoftware.j2meloader.R.color.control_a));
+        addInput(97, "B", "B", ru.playsoftware.j2meloader.ui.AppPalette.color(getContext(), ru.playsoftware.j2meloader.R.color.control_b));
+        addInput(99, "X", "X", ru.playsoftware.j2meloader.ui.AppPalette.color(getContext(), ru.playsoftware.j2meloader.R.color.control_x));
+        addInput(100, "Y", "Y", ru.playsoftware.j2meloader.ui.AppPalette.color(getContext(), ru.playsoftware.j2meloader.R.color.control_y));
         buildingGroup = 1;
         addSection("D-pad");
         for (int i = 0; i < DPAD.length; i++) addInput(DPAD[i], DIR_ICONS[i], "D-pad " + DIR_NAMES[i], CYAN);
@@ -394,7 +394,7 @@ public final class ControllerMapperView extends LinearLayout {
         TextView badge = text(icon, icon.length() > 1 ? 12 : 20, color);
         badge.setGravity(Gravity.CENTER);
         badge.setTypeface(Typeface.MONOSPACE, Typeface.BOLD);
-        badge.setBackground(shape(getContext().getColor(ru.playsoftware.j2meloader.R.color.input_surface), LINE, icon.length() > 1 ? 5 : 18));
+        badge.setBackground(shape(ru.playsoftware.j2meloader.ui.AppPalette.color(getContext(), ru.playsoftware.j2meloader.R.color.input_surface), LINE, icon.length() > 1 ? 5 : 18));
         row.addView(badge, new LayoutParams(dp(36), dp(36)));
         LinearLayout labels = new LinearLayout(getContext());
         labels.setOrientation(VERTICAL);
@@ -506,7 +506,7 @@ public final class ControllerMapperView extends LinearLayout {
             button.setGravity(Gravity.CENTER);
             button.setContentDescription("Phone key " + keyName(key));
             button.setTooltipText(keyName(key));
-            button.setBackground(states(getContext().getColor(ru.playsoftware.j2meloader.R.color.phone_panel_alt)));
+            button.setBackground(states(ru.playsoftware.j2meloader.ui.AppPalette.color(getContext(), ru.playsoftware.j2meloader.R.color.phone_panel_alt)));
             if (labels[i].contains("\n")) {
                 SpannableString styled = new SpannableString(labels[i]);
                 styled.setSpan(new RelativeSizeSpan(0.43f), labels[i].indexOf('\n') + 1, labels[i].length(), 0);
@@ -731,9 +731,9 @@ public final class ControllerMapperView extends LinearLayout {
 
     private StateListDrawable states(int color) {
         StateListDrawable states = new StateListDrawable();
-        states.addState(new int[]{android.R.attr.state_pressed}, shape(getContext().getColor(ru.playsoftware.j2meloader.R.color.btn_bg_pressed), AMBER, 6));
-        states.addState(new int[]{android.R.attr.state_focused}, shape(getContext().getColor(ru.playsoftware.j2meloader.R.color.focus_surface), CYAN, 6));
-        states.addState(new int[]{android.R.attr.state_selected}, shape(getContext().getColor(ru.playsoftware.j2meloader.R.color.selected_surface), AMBER, 6));
+        states.addState(new int[]{android.R.attr.state_pressed}, shape(ru.playsoftware.j2meloader.ui.AppPalette.color(getContext(), ru.playsoftware.j2meloader.R.color.btn_bg_pressed), AMBER, 6));
+        states.addState(new int[]{android.R.attr.state_focused}, shape(ru.playsoftware.j2meloader.ui.AppPalette.color(getContext(), ru.playsoftware.j2meloader.R.color.focus_surface), CYAN, 6));
+        states.addState(new int[]{android.R.attr.state_selected}, shape(ru.playsoftware.j2meloader.ui.AppPalette.color(getContext(), ru.playsoftware.j2meloader.R.color.selected_surface), AMBER, 6));
         states.addState(new int[]{}, shape(color, LINE, 6));
         return states;
     }

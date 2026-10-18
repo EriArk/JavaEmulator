@@ -28,8 +28,25 @@ public final class GameMenuDialog extends Dialog {
     private View pendingDefaultFocus;
     private Runnable backAction;
     private final String game;
+    private Dialog editor;
+    public void editTouchLayout(ru.playsoftware.j2meloader.config.ProfileModel draft, Runnable done) {
+        if (editor != null) editor.dismiss();
+        editor = new TouchLayoutEditor(getContext(), draft, done);
+        editor.setOnDismissListener(d -> editor = null);
+        editor.show();
+    }
+    public Bundle saveTouchEditor() { return editor == null ? null : editor.onSaveInstanceState(); }
+    public void restoreTouchEditor(Bundle state, ru.playsoftware.j2meloader.config.ProfileModel draft, Runnable done) {
+        if (state == null) return;
+        editTouchLayout(draft, done); editor.onRestoreInstanceState(state);
+    }
+    @Override public void dismiss() {
+        if (editor != null) { editor.dismiss(); editor = null; }
+        super.dismiss();
+    }
     public GameMenuDialog(Context context, String game) {
         super(context); this.game = game;
+        ru.playsoftware.j2meloader.ui.AppPalette.apply(getContext());
         requestWindowFeature(Window.FEATURE_NO_TITLE);
     }
     @Override public void show() {
@@ -82,25 +99,25 @@ public final class GameMenuDialog extends Dialog {
             }
         };
         panel.setOrientation(LinearLayout.VERTICAL);
-        panel.setBackgroundColor(getContext().getColor(ru.playsoftware.j2meloader.R.color.menu_surface));
+        panel.setBackgroundColor(ru.playsoftware.j2meloader.ui.AppPalette.color(getContext(), ru.playsoftware.j2meloader.R.color.menu_surface));
         LinearLayout header = new LinearLayout(getContext());
         header.setPadding(dp(16),dp(6),dp(8),dp(6));
         header.setGravity(Gravity.CENTER_VERTICAL);
         LinearLayout titles = new LinearLayout(getContext());
         titles.setOrientation(LinearLayout.VERTICAL);
         heading = new TextView(getContext());
-        heading.setTextColor(getContext().getColor(ru.playsoftware.j2meloader.R.color.accent)); heading.setTextSize(18);
+        heading.setTextColor(ru.playsoftware.j2meloader.ui.AppPalette.color(getContext(), ru.playsoftware.j2meloader.R.color.accent)); heading.setTextSize(18);
         heading.setMaxLines(2); heading.setEllipsize(android.text.TextUtils.TruncateAt.END);
         titles.addView(heading);
         subtitle = new TextView(getContext());
-        subtitle.setText(game); subtitle.setTextColor(getContext().getColor(ru.playsoftware.j2meloader.R.color.text_secondary)); subtitle.setTextSize(13);
+        subtitle.setText(game); subtitle.setTextColor(ru.playsoftware.j2meloader.ui.AppPalette.color(getContext(), ru.playsoftware.j2meloader.R.color.text_secondary)); subtitle.setTextSize(13);
         subtitle.setSingleLine(true); subtitle.setEllipsize(android.text.TextUtils.TruncateAt.END);
         titles.addView(subtitle);
         header.addView(titles,new LinearLayout.LayoutParams(0,-2,1));
         navigation = new ImageButton(getContext());
         navigation.setBackgroundResource(R.drawable.bg_quick_setting_button);
         navigation.setBackgroundTintList(null);
-        navigation.setImageTintList(android.content.res.ColorStateList.valueOf(getContext().getColor(ru.playsoftware.j2meloader.R.color.accent)));
+        navigation.setImageTintList(android.content.res.ColorStateList.valueOf(ru.playsoftware.j2meloader.ui.AppPalette.color(getContext(), ru.playsoftware.j2meloader.R.color.accent)));
         navigation.setPadding(dp(12),dp(12),dp(12),dp(12));
         navigation.setOnClickListener(v -> navigateBack());
         header.addView(navigation,new LinearLayout.LayoutParams(dp(48),dp(48)));
@@ -166,7 +183,7 @@ public final class GameMenuDialog extends Dialog {
     private void navigateBack() { if (backAction != null) backAction.run(); else dismiss(); }
     public void message(String value) {
         TextView text = new TextView(getContext());
-        text.setText(value); text.setTextSize(14); text.setTextColor(getContext().getColor(ru.playsoftware.j2meloader.R.color.text_secondary));
+        text.setText(value); text.setTextSize(14); text.setTextColor(ru.playsoftware.j2meloader.ui.AppPalette.color(getContext(), ru.playsoftware.j2meloader.R.color.text_secondary));
         text.setPadding(dp(4), dp(6), dp(4), dp(10));
         content.addView(text, new LinearLayout.LayoutParams(-1, -2));
     }
@@ -174,7 +191,7 @@ public final class GameMenuDialog extends Dialog {
         Button button = new Button(getContext());
         button.setText(label); button.setTextSize(15); button.setAllCaps(false);
         button.setGravity(Gravity.CENTER_VERTICAL);
-        button.setTextColor(getContext().getColor(ru.playsoftware.j2meloader.R.color.text_primary));
+        button.setTextColor(ru.playsoftware.j2meloader.ui.AppPalette.color(getContext(), ru.playsoftware.j2meloader.R.color.text_primary));
         button.setBackgroundResource(R.drawable.bg_quick_setting_button);
         button.setBackgroundTintList(null);
         button.setPadding(dp(14),dp(8),dp(14),dp(8));
@@ -182,7 +199,7 @@ public final class GameMenuDialog extends Dialog {
         button.setMinimumHeight(dp(48));
         if (icon != 0) {
             android.graphics.drawable.Drawable drawable = getContext().getDrawable(icon).mutate();
-            drawable.setTint(getContext().getColor(ru.playsoftware.j2meloader.R.color.accent)); drawable.setBounds(0,0,dp(22),dp(22));
+            drawable.setTint(ru.playsoftware.j2meloader.ui.AppPalette.color(getContext(), ru.playsoftware.j2meloader.R.color.accent)); drawable.setBounds(0,0,dp(22),dp(22));
             button.setCompoundDrawables(drawable,null,null,null); button.setCompoundDrawablePadding(dp(12));
         }
         button.setOnClickListener(v -> run.run());
@@ -210,20 +227,20 @@ public final class GameMenuDialog extends Dialog {
         LinearLayout row = new LinearLayout(getContext());
         row.setGravity(Gravity.CENTER_VERTICAL);
         TextView name = new TextView(getContext());
-        name.setText(label); name.setTextSize(15); name.setTextColor(getContext().getColor(ru.playsoftware.j2meloader.R.color.text_primary));
+        name.setText(label); name.setTextSize(15); name.setTextColor(ru.playsoftware.j2meloader.ui.AppPalette.color(getContext(), ru.playsoftware.j2meloader.R.color.text_primary));
         name.setMinHeight(dp(48));
         row.addView(name,new LinearLayout.LayoutParams(0,-2,1));
         name.setGravity(Gravity.CENTER_VERTICAL);
         android.widget.Spinner spinner = new android.widget.Spinner(getContext());
         spinner.setForeground(getContext().getDrawable(R.drawable.bg_settings_focus));
-        spinner.setBackgroundTintList(android.content.res.ColorStateList.valueOf(getContext().getColor(ru.playsoftware.j2meloader.R.color.accent)));
+        spinner.setBackgroundTintList(android.content.res.ColorStateList.valueOf(ru.playsoftware.j2meloader.ui.AppPalette.color(getContext(), ru.playsoftware.j2meloader.R.color.accent)));
         spinner.setContentDescription(label);
         android.widget.ArrayAdapter<String> adapter = new android.widget.ArrayAdapter<String>(
                 getContext(),android.R.layout.simple_spinner_item,options) {
             private View label(int position) {
                 TextView text = new TextView(getContext());
-                text.setText(getItem(position)); text.setTextSize(15); text.setTextColor(getContext().getColor(ru.playsoftware.j2meloader.R.color.accent));
-                text.setBackgroundColor(getContext().getColor(ru.playsoftware.j2meloader.R.color.phone_panel_alt)); text.setGravity(Gravity.CENTER_VERTICAL);
+                text.setText(getItem(position)); text.setTextSize(15); text.setTextColor(ru.playsoftware.j2meloader.ui.AppPalette.color(getContext(), ru.playsoftware.j2meloader.R.color.accent));
+                text.setBackgroundColor(ru.playsoftware.j2meloader.ui.AppPalette.color(getContext(), ru.playsoftware.j2meloader.R.color.phone_panel_alt)); text.setGravity(Gravity.CENTER_VERTICAL);
                 text.setPadding(dp(12),dp(6),dp(12),dp(6)); text.setMinHeight(dp(48));
                 return text;
             }
@@ -246,12 +263,12 @@ public final class GameMenuDialog extends Dialog {
     public void toggle(String label, boolean checked, java.util.function.Consumer<Boolean> change) {
         android.widget.Switch toggle = new android.widget.Switch(getContext());
         toggle.setForeground(getContext().getDrawable(R.drawable.bg_settings_focus));
-        toggle.setText(label); toggle.setTextSize(15); toggle.setTextColor(getContext().getColor(ru.playsoftware.j2meloader.R.color.text_primary));
+        toggle.setText(label); toggle.setTextSize(15); toggle.setTextColor(ru.playsoftware.j2meloader.ui.AppPalette.color(getContext(), ru.playsoftware.j2meloader.R.color.text_primary));
         toggle.setChecked(checked);
         toggle.setThumbTintList(new android.content.res.ColorStateList(
                 new int[][]{new int[]{android.R.attr.state_checked}, new int[]{}},
-                new int[]{getContext().getColor(ru.playsoftware.j2meloader.R.color.accent), getContext().getColor(ru.playsoftware.j2meloader.R.color.text_secondary)}));
-        toggle.setTrackTintList(android.content.res.ColorStateList.valueOf(getContext().getColor(ru.playsoftware.j2meloader.R.color.phone_line)));
+                new int[]{ru.playsoftware.j2meloader.ui.AppPalette.color(getContext(), ru.playsoftware.j2meloader.R.color.accent), ru.playsoftware.j2meloader.ui.AppPalette.color(getContext(), ru.playsoftware.j2meloader.R.color.text_secondary)}));
+        toggle.setTrackTintList(android.content.res.ColorStateList.valueOf(ru.playsoftware.j2meloader.ui.AppPalette.color(getContext(), ru.playsoftware.j2meloader.R.color.phone_line)));
         toggle.setOnCheckedChangeListener((button, value) -> change.accept(value));
         toggle.setMinHeight(dp(52));
         content.addView(toggle, new LinearLayout.LayoutParams(-1, -2));
@@ -259,14 +276,14 @@ public final class GameMenuDialog extends Dialog {
     }
     public void opacity(int value, java.util.function.IntConsumer change) {
         TextView label = new TextView(getContext());
-        label.setText("Opacity: " + value + "%"); label.setTextSize(15); label.setTextColor(getContext().getColor(ru.playsoftware.j2meloader.R.color.text_primary));
+        label.setText("Opacity: " + value + "%"); label.setTextSize(15); label.setTextColor(ru.playsoftware.j2meloader.ui.AppPalette.color(getContext(), ru.playsoftware.j2meloader.R.color.text_primary));
         label.setPadding(0,dp(12),0,0); content.addView(label);
         android.widget.SeekBar slider = new android.widget.SeekBar(getContext());
         slider.setForeground(getContext().getDrawable(R.drawable.bg_settings_focus));
         slider.setContentDescription("Opacity");
         slider.setMax(20); slider.setProgress(value-80);
-        slider.setProgressTintList(android.content.res.ColorStateList.valueOf(getContext().getColor(ru.playsoftware.j2meloader.R.color.accent)));
-        slider.setThumbTintList(android.content.res.ColorStateList.valueOf(getContext().getColor(ru.playsoftware.j2meloader.R.color.accent)));
+        slider.setProgressTintList(android.content.res.ColorStateList.valueOf(ru.playsoftware.j2meloader.ui.AppPalette.color(getContext(), ru.playsoftware.j2meloader.R.color.accent)));
+        slider.setThumbTintList(android.content.res.ColorStateList.valueOf(ru.playsoftware.j2meloader.ui.AppPalette.color(getContext(), ru.playsoftware.j2meloader.R.color.accent)));
         content.addView(slider,new LinearLayout.LayoutParams(-1,dp(48)));
         slider.setOnSeekBarChangeListener(new android.widget.SeekBar.OnSeekBarChangeListener() {
             public void onStartTrackingTouch(android.widget.SeekBar view) { }

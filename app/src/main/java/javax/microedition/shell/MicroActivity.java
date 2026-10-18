@@ -172,6 +172,7 @@ public class MicroActivity extends AppCompatActivity {
 	public void onCreate(Bundle savedInstanceState) {
 		lockNightMode();
 		super.onCreate(savedInstanceState);
+		ru.playsoftware.j2meloader.ui.AppPalette.apply(this);
 		ContextHolder.setCurrentActivity(this);
 
 		binding = ActivityMicroBinding.inflate(getLayoutInflater());

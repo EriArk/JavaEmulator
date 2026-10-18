@@ -52,6 +52,104 @@ public final class PhoneBackupTest {
         File zip=new File(root,UUID.randomUUID()+".zip");
         backup.exportPhone(entry,zip,new String[]{"data-storage: data","registration"},SILENT); return zip;
     }
+    private File art(SystemFileCatalog.Entry entry, long uid, boolean icon) {
+        return new File(SymbianLibraryIndex.artworkRoot(root,entry.id),uid+(icon ? "/user-icon.png" : "/user-cover.png"));
+    }
+    private void image(File file, int color) throws Exception {
+        Files.createDirectories(file.getParentFile().toPath());
+        Files.write(file.toPath(),SymbianArtworkTest.image(color));
+    }
+    @Test public void artworkRoundTripRebindsToNewPhoneAndLauncherWithoutChangingOriginal() throws Exception {
+        SystemFileCatalog.Entry original=phone();
+        byte[] icon=SymbianArtworkTest.image(0xff334455), cover=SymbianArtworkTest.image(0xff669977);
+        image(art(original,123,true),0xff334455); image(art(original,123,false),0xff669977);
+        image(art(original,0xffffffffL,false),0xffcc7799);
+        File zip=archive(original);
+        assertEquals(2,PhoneBackup.inspect(zip).manifest.getInt("version"));
+        SystemFileCatalog.Entry restored=backup.restore(zip,VALID,SILENT);
+        assertTrue(art(restored,123,true).getPath().contains("symbian-systems/"+restored.id+"/artwork"));
+        assertArrayEquals(icon,Files.readAllBytes(art(restored,123,true).toPath()));
+        assertArrayEquals(cover,Files.readAllBytes(art(restored,123,false).toPath()));
+        assertArrayEquals(Files.readAllBytes(art(original,0xffffffffL,false).toPath()),Files.readAllBytes(art(restored,0xffffffffL,false).toPath()));
+        android.content.Context base=InstrumentationRegistry.getInstrumentation().getTargetContext();
+        android.content.Context context=new android.content.ContextWrapper(base) {
+            @Override public File getFilesDir() { return root; }
+            @Override public android.content.SharedPreferences getSharedPreferences(String name,int mode) {
+                return super.getSharedPreferences(root.getName()+name,mode);
+            }
+        };
+        SymbianLibraryIndex index=new SymbianLibraryIndex(context);
+        String[] apps={"123","Game","Symbian"};
+        index.publish(original,apps,false); index.publish(restored,apps,false);
+        for(ru.playsoftware.j2meloader.applist.AppItem item:new SymbianLauncherLibrary().read(context)) {
+            assertArrayEquals(icon,Files.readAllBytes(new File(item.getImagePathExt()).toPath()));
+            assertArrayEquals(cover,Files.readAllBytes(new File(item.getCoverPathExt()).toPath()));
+        }
+        Files.delete(art(restored,123,true).toPath());
+        image(art(restored,123,false),0xffaabbcc);
+        SystemFileCatalog.Entry again=backup.restore(archive(restored),VALID,SILENT);
+        assertFalse(art(again,123,true).exists());
+        assertArrayEquals(SymbianArtworkTest.image(0xffaabbcc),Files.readAllBytes(art(again,123,false).toPath()));
+        assertArrayEquals(icon,Files.readAllBytes(art(original,123,true).toPath()));
+        assertArrayEquals(cover,Files.readAllBytes(art(original,123,false).toPath()));
+        context.getSharedPreferences("symbian-library-presentation",0).edit().clear().commit();
+    }
+    @Test public void versionOneWithoutArtworkStillRestoresAndCanAcquireArtwork() throws Exception {
+        SystemFileCatalog.Entry original=phone();
+        Map<String,byte[]> entries=contents(archive(original));
+        JSONObject manifest=new JSONObject(new String(entries.get(PhoneBackup.MANIFEST),StandardCharsets.UTF_8));
+        JSONArray oldFiles=new JSONArray(), rows=manifest.getJSONArray("files");
+        for(int i=0;i<rows.length();i++) if(!rows.getJSONObject(i).getString("path").equals("artwork")) oldFiles.put(rows.get(i));
+        manifest.put("version",1).put("files",oldFiles); entries.remove("artwork/");
+        entries.put(PhoneBackup.MANIFEST,manifest.toString().getBytes(StandardCharsets.UTF_8));
+        SystemFileCatalog.Entry restored=backup.restore(repack(entries),VALID,SILENT);
+        assertTrue(SymbianLibraryIndex.artworkRoot(root,restored.id).isDirectory());
+        image(art(restored,123,false),0xff123456);
+        SystemFileCatalog.Entry again=backup.restore(archive(restored),VALID,SILENT);
+        assertArrayEquals(SymbianArtworkTest.image(0xff123456),Files.readAllBytes(art(again,123,false).toPath()));
+        assertFalse(art(original,123,false).exists());
+    }
+    private void changeInventory(Map<String,byte[]> entries,String from,String to,byte[] content) throws Exception {
+        JSONObject manifest=new JSONObject(new String(entries.get(PhoneBackup.MANIFEST),StandardCharsets.UTF_8));
+        JSONArray rows=manifest.getJSONArray("files");
+        for(int i=0;i<rows.length();i++) {
+            JSONObject row=rows.getJSONObject(i);
+            if(row.getString("path").equals(from)) {
+                manifest.put("bytes",manifest.getLong("bytes")-row.getLong("size")+content.length);
+                row.put("path",to).put("size",content.length).put("sha256",SystemFileCatalog.digest(content));
+            }
+        }
+        entries.remove(from); entries.put(to,content);
+        entries.put(PhoneBackup.MANIFEST,manifest.toString().getBytes(StandardCharsets.UTF_8));
+    }
+    @Test public void artworkIntegrityImageAndPathChecksRejectWithoutPublishing() throws Exception {
+        SystemFileCatalog.Entry original=phone(); image(art(original,123,false),0xff112233);
+        File zip=archive(original); String path="artwork/123/user-cover.png";
+        byte[] bytes=Files.readAllBytes(art(original,123,false).toPath());
+        Map<String,byte[]> entries=contents(zip); byte[] corrupt=bytes.clone(); corrupt[corrupt.length-1]^=1;
+        entries.put(path,corrupt); rejected(repack(entries));
+        entries=contents(zip); changeInventory(entries,path,path,new byte[]{1,2,3}); rejected(repack(entries));
+        entries=contents(zip); changeInventory(entries,path,path,new byte[0]); rejected(repack(entries));
+        for(String unsafe:new String[]{"artwork/0/user-cover.png","artwork/4294967296/user-cover.png",
+                "artwork/123/other.png","artwork/123/../user-cover.png","artwork/123/nested/user-cover.png"}) {
+            entries=contents(zip); changeInventory(entries,path,unsafe,bytes); rejected(repack(entries));
+        }
+        try { backup.restore(zip,(r,m) -> {throw new IOException("validation failed");},SILENT); fail(); }
+        catch(IOException expected) { }
+        assertEquals(1,catalog.list().size());
+        assertEquals(0,new File(root,"symbian-systems").listFiles(f -> f.getName().startsWith("pending-")).length);
+        assertArrayEquals(bytes,Files.readAllBytes(art(original,123,false).toPath()));
+    }
+    @Test public void oversizedAndLinkedArtworkCannotBeExported() throws Exception {
+        SystemFileCatalog.Entry original=phone(); File cover=art(original,123,false);
+        image(cover,0xff112233);
+        try(RandomAccessFile file=new RandomAccessFile(cover,"rw")) { file.setLength((16L<<20)+1); }
+        try { archive(original); fail(); } catch(IOException expected) { }
+        Files.delete(cover.toPath()); File external=new File(root,"external.png"); image(external,0xff445566);
+        Files.createSymbolicLink(cover.toPath(),external.toPath());
+        try { archive(original); fail(); } catch(IOException expected) { }
+        assertTrue(external.isFile()); Files.delete(cover.toPath());
+    }
     @Test public void roundTripRetainsDrivesProfilesAndBindingsWithoutOverwritingOriginal() throws Exception {
         SystemFileCatalog.Entry original=phone(); catalog.activate(original);
         File zip=archive(original); assertEquals(ImportKind.Kind.BACKUP,ImportKind.inspect(zip,"renamed.bin"));

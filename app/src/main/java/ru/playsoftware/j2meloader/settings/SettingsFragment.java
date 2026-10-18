@@ -38,6 +38,16 @@ public class SettingsFragment extends PreferenceFragmentCompat {
 	public void onCreatePreferences(Bundle bundle, String rootKey) {
 		setPreferencesFromResource(R.xml.preferences, rootKey);
 		styleRows(getPreferenceScreen());
+		Preference palette = findPreference(ru.playsoftware.j2meloader.ui.AppPalette.PREFERENCE);
+		if (palette != null) {
+			String selected = ru.playsoftware.j2meloader.ui.AppPalette.selected(requireContext());
+			int index = java.util.Arrays.asList(ru.playsoftware.j2meloader.ui.AppPalette.VALUES).indexOf(selected);
+			palette.setSummary(ru.playsoftware.j2meloader.ui.AppPalette.NAMES[Math.max(0, index)]);
+			palette.setOnPreferenceClickListener(p -> {
+				new ru.playsoftware.j2meloader.ui.PaletteDialog(requireActivity()).show();
+				return true;
+			});
+		}
 		if (ru.playsoftware.j2meloader.BuildConfig.SYMBIAN_EXPERIMENT && rootKey == null) {
 			Preference systems = new Preference(requireContext()); systems.setKey("pref_system_files");
 			systems.setTitle("System files"); systems.setSummary("Required files for Symbian and N-Gage");

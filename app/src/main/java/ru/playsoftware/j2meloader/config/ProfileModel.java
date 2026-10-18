@@ -148,6 +148,8 @@ public class ProfileModel {
 	public float touchPortraitReach;
 	@SerializedName("touchLandscapeReach")
 	public float touchLandscapeReach;
+	@SerializedName("touchPlacements")
+	public java.util.HashMap<String, ru.playsoftware.j2meloader.input.TouchPlacement> touchPlacements;
 
 	@SerializedName("ButtonShape")
 	public int vkButtonShape;

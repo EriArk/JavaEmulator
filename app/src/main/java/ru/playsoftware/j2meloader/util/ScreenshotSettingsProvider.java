@@ -13,6 +13,12 @@ public final class ScreenshotSettingsProvider extends ContentProvider {
     @Override public boolean onCreate() { return true; }
     @Override public Bundle call(String method, String arg, Bundle extras) {
         android.content.SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(getContext());
+        if ("appearance".equals(method)) {
+            Bundle result = new Bundle();
+            result.putString("palette", preferences.getString("pref_palette", "classic"));
+            result.putInt("nightMode", androidx.appcompat.app.AppCompatDelegate.getDefaultNightMode());
+            return result;
+        }
         String key = arg == null ? Screenshots.BUTTON_PREFERENCE : arg;
         if (!Screenshots.BUTTON_PREFERENCE.equals(key) && !GameShortcuts.DISPLAY_PREFERENCE.equals(key))
             throw new IllegalArgumentException("Unknown shortcut");

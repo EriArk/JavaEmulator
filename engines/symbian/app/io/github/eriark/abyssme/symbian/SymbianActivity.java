@@ -72,6 +72,7 @@ public final class SymbianActivity extends Activity implements Emulator.Host, In
 
     @Override public void onCreate(Bundle saved) {
         super.onCreate(saved);
+        ru.playsoftware.j2meloader.ui.AppPalette.apply(this);
         if (!BuildConfig.HANDHELD_MODE) setRequestedOrientation(android.content.pm.ActivityInfo.SCREEN_ORIENTATION_FULL_SENSOR);
         catalog = new SystemFileCatalog(this);
         if (saved != null) backupSystem = saved.getString("backupSystem");
@@ -203,11 +204,11 @@ public final class SymbianActivity extends Activity implements Emulator.Host, In
     private int dp(int value) { return Math.round(value * getResources().getDisplayMetrics().density); }
     private TextView label(String text, int size) {
         TextView view = new TextView(this); view.setText(text); view.setTextSize(size);
-        view.setTextColor(getColor(ru.playsoftware.j2meloader.R.color.text_primary)); view.setPadding(dp(12), dp(8), dp(12), dp(8));
+        view.setTextColor(ru.playsoftware.j2meloader.ui.AppPalette.color(this, ru.playsoftware.j2meloader.R.color.text_primary)); view.setPadding(dp(12), dp(8), dp(12), dp(8));
         return view;
     }
     private void action(LinearLayout parent, String title, Runnable run) {
-        Button b = new Button(this); b.setText(title); b.setAllCaps(false); b.setTextColor(getColor(ru.playsoftware.j2meloader.R.color.text_primary));
+        Button b = new Button(this); b.setText(title); b.setAllCaps(false); b.setTextColor(ru.playsoftware.j2meloader.ui.AppPalette.color(this, ru.playsoftware.j2meloader.R.color.text_primary));
         b.setTextSize(15); b.setGravity(Gravity.START | Gravity.CENTER_VERTICAL);
         b.setPadding(dp(14),dp(8),dp(14),dp(8));
         b.setBackgroundResource(R.drawable.bg_quick_setting_button); b.setBackgroundTintList(null);
@@ -218,13 +219,13 @@ public final class SymbianActivity extends Activity implements Emulator.Host, In
     private void library() {
         archiveView=null;
         archivePage=false;
-        page = new LinearLayout(this); page.setOrientation(LinearLayout.VERTICAL); page.setBackgroundColor(getColor(ru.playsoftware.j2meloader.R.color.background));
+        page = new LinearLayout(this); page.setOrientation(LinearLayout.VERTICAL); page.setBackgroundColor(ru.playsoftware.j2meloader.ui.AppPalette.color(this, ru.playsoftware.j2meloader.R.color.background));
         page.setPadding(dp(10), dp(8), dp(10), dp(8));
         page.addView(label("System files", 22));
         status = label("", 14); page.addView(status);
         progressBar=new ProgressBar(this,null,android.R.attr.progressBarStyleHorizontal);
         progressBar.setIndeterminate(true);
-        progressBar.setIndeterminateTintList(android.content.res.ColorStateList.valueOf(getColor(ru.playsoftware.j2meloader.R.color.accent)));
+        progressBar.setIndeterminateTintList(android.content.res.ColorStateList.valueOf(ru.playsoftware.j2meloader.ui.AppPalette.color(this, ru.playsoftware.j2meloader.R.color.accent)));
         progressBar.setVisibility(busy?View.VISIBLE:View.GONE);
         page.addView(progressBar,new LinearLayout.LayoutParams(-1,dp(4)));
         if (directLaunch) {

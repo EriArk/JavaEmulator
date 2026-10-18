@@ -1,5 +1,7 @@
 package io.github.eriark.abyssme.symbian;
 
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import org.apache.commons.compress.archivers.zip.ZipArchiveEntry;
 import org.apache.commons.compress.archivers.zip.ZipFile;
 import org.json.*;
@@ -17,6 +19,7 @@ final class PhoneBackup {
     static final long MAX_INPUT = 4L << 30, MAX_EXPANDED = 8L << 30;
     private static final int MAX_FILES = 100000, MAX_MANIFEST = 32 << 20;
     private static final long RESERVE = 64L << 20;
+    private static final int MAX_ARTWORK_BYTES = 16 << 20, MAX_ARTWORK_PIXELS = 8 << 20;
     private final SystemFileCatalog catalog;
     private final File files;
     PhoneBackup(File files) { this.files = files; catalog = new SystemFileCatalog(new File(files,"symbian-systems")); }
@@ -34,7 +37,8 @@ final class PhoneBackup {
         Preview(JSONObject manifest) throws IOException {
             try {
                 this.manifest=manifest;
-                if (manifest.getInt("version") != 1 || !"AbyssME phone backup".equals(manifest.getString("format")))
+                int version = manifest.getInt("version");
+                if ((version != 1 && version != 2) || !"AbyssME phone backup".equals(manifest.getString("format")))
                     throw new IOException("This is not a supported AbyssME phone backup");
                 JSONObject set=manifest.getJSONObject("phone"); validateMetadata(set);
                 phone=set.getString("model") + " / " + set.getString("firmware");
@@ -49,6 +53,7 @@ final class PhoneBackup {
         }
         String description() {
             return phone + "\n\n" + (bytes / (1024*1024)) + " MB unpacked. Includes phone system files, installed games, saves and game settings."
+                    + (manifest.optInt("version") >= 2 ? " Custom covers and icons are included when available." : "")
                     + "\n\nRestores a separate phone. Existing phones, games and saves are not replaced."
                     + "\n\nOnly restore backups you trust.";
         }
@@ -64,6 +69,8 @@ final class PhoneBackup {
             if((path.equals("runtime/config.yml") || path.equals("runtime/data/devices.yml")) && size>131072
                     || path.startsWith("profiles/") && !directory && size>2*1024*1024)
                 throw new IOException("Backup settings are too large");
+            if (path.startsWith("artwork/") && !directory && (size == 0 || size > MAX_ARTWORK_BYTES))
+                throw new IOException("Backup artwork is too large or empty");
         }
         JSONObject json() throws JSONException { return new JSONObject().put("path",path).put("size",size).put("sha256",hash).put("directory",directory); }
     }
@@ -88,6 +95,12 @@ final class PhoneBackup {
                 || path.matches("profiles/[1-9][0-9]{0,9}/(?:config|settings-trial)\\.json(?:\\.bak)?");
         if(dir) allowed|=Arrays.asList("source","runtime","runtime/data","runtime/data/drives","runtime/data/roms","runtime/data/j2me","profiles").contains(path)
                 || path.matches("profiles/[1-9][0-9]{0,9}");
+        if (path.equals("artwork")) allowed = dir;
+        else if (path.startsWith("artwork/")) {
+            allowed = parts.length == (dir ? 2 : 3) && parts[1].matches("[1-9][0-9]{0,9}")
+                    && Long.parseLong(parts[1]) <= 0xffffffffL
+                    && (dir || parts[2].equals("user-icon.png") || parts[2].equals("user-cover.png"));
+        }
         if(!allowed) throw new IOException("Unsupported file in phone backup: " + path);
     }
     static Preview inspect(File archive) throws IOException {
@@ -150,11 +163,13 @@ final class PhoneBackup {
         generated("runtime/data/devices.yml",portableSettings[1],items);
         File profiles=profiles(files,entry.id);
         if(profiles.exists()) collect(profiles,"profiles",items,progress); else addDirectory("profiles",items);
+        File artwork=SymbianLibraryIndex.artworkRoot(files,entry.id);
+        if(artwork.exists()) collect(artwork,"artwork",items,progress); else addDirectory("artwork",items);
         long total=0; JSONArray rows=new JSONArray();
         for(Item item:items) { total+=item.size; rows.put(item.json()); }
         if(total>MAX_EXPANDED || items.size()>MAX_FILES) throw new IOException("Phone backup exceeds supported limits");
         requireSpace(target.getParentFile(),total,File::getUsableSpace);
-        JSONObject manifest=new JSONObject().put("format","AbyssME phone backup").put("version",1)
+        JSONObject manifest=new JSONObject().put("format","AbyssME phone backup").put("version",2)
                 .put("created",System.currentTimeMillis()).put("phone",metadata).put("bytes",total).put("files",rows)
                 .put("bindings",new JSONArray(catalog.sourceBindings(entry)));
         byte[] header=manifest.toString().getBytes(StandardCharsets.UTF_8);
@@ -198,6 +213,7 @@ final class PhoneBackup {
                     }
                     if(crc.getValue()!=entry.getCrc()) throw new IOException("Damaged backup file: " + item.path);
                     if(item.path.startsWith("profiles/")) readJson(new FileInputStream(target),2*1024*1024);
+                    if(item.path.startsWith("artwork/")) validateArtwork(target);
                 }
             }
             JSONObject metadata=new JSONObject(preview.manifest.getJSONObject("phone").toString());
@@ -216,6 +232,7 @@ final class PhoneBackup {
                     || !new File(runtime,"data/roms/"+metadata.getString("firmware").toLowerCase(Locale.ROOT)+"/SYM.ROM").isFile()))
                 throw new IOException("Restored system files are incomplete");
             Files.createDirectories(new File(stage,"profiles").toPath());
+            Files.createDirectories(new File(stage,"artwork").toPath());
             try(FileOutputStream output=new FileOutputStream(new File(stage,"set.json"))) {
                 output.write(metadata.toString().getBytes(StandardCharsets.UTF_8)); output.getFD().sync();
             }
@@ -225,6 +242,16 @@ final class PhoneBackup {
     }
     private static void requireSpace(File folder,long bytes,Space space) throws IOException {
         if(space.available(folder)<bytes+RESERVE) throw new IOException("Not enough free space. Free at least " + ((bytes+RESERVE)/(1024*1024)) + " MB and try again. Existing phones are unchanged.");
+    }
+    private static void validateArtwork(File file) throws IOException {
+        if(file.length()==0 || file.length()>MAX_ARTWORK_BYTES) throw new IOException("Invalid backup artwork size");
+        BitmapFactory.Options bounds=new BitmapFactory.Options(); bounds.inJustDecodeBounds=true;
+        BitmapFactory.decodeFile(file.getAbsolutePath(),bounds);
+        if(bounds.outWidth<=0 || bounds.outHeight<=0 || (long)bounds.outWidth*bounds.outHeight>MAX_ARTWORK_PIXELS)
+            throw new IOException("Invalid or oversized backup image");
+        Bitmap bitmap=BitmapFactory.decodeFile(file.getAbsolutePath());
+        if(bitmap==null) throw new IOException("Unreadable backup image");
+        bitmap.recycle();
     }
     private static void addDirectory(String path,List<Item> items) throws IOException { items.add(new Item(path,0,"",true)); }
     private static void generated(String path,String value,List<Item> items) throws IOException {
@@ -242,6 +269,7 @@ final class PhoneBackup {
             @Override public FileVisitResult visitFile(Path path,BasicFileAttributes attrs) throws IOException {
                 if(!attrs.isRegularFile() || attrs.isSymbolicLink()) throw new IOException("Linked phone files cannot be backed up");
                 if(items.size()>=MAX_FILES) throw new IOException("Too many phone files");
+                if(prefix.equals("artwork")) validateArtwork(path.toFile());
                 progress.update("Checking phone files: " + items.size());
                 MessageDigest digest=SystemFileCatalog.sha256();
                 try(InputStream input=Files.newInputStream(path)) {

@@ -4,7 +4,7 @@
     android:id="@+id/row_root"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
-    android:background="@drawable/bg_game_card"
+    android:background="?attr/abyss_card"
     android:clickable="true"
     android:focusable="true"
     android:foreground="?attr/selectableItemBackground"
@@ -51,7 +51,7 @@
             android:ellipsize="end"
             android:fontFamily="monospace"
             android:maxLines="2"
-            android:textColor="@color/text_primary"
+            android:textColor="?attr/abyss_text_primary"
             android:textSize="13sp"
             android:textStyle="bold"
             tools:text="Example MIDlet Name" />
@@ -72,7 +72,7 @@
                 android:ellipsize="end"
                 android:fontFamily="monospace"
                 android:maxLines="1"
-                android:textColor="@color/text_secondary"
+                android:textColor="?attr/abyss_text_secondary"
                 android:textSize="10sp"
                 tools:text="Example Vendor" />
 
@@ -82,7 +82,7 @@
                 android:layout_height="wrap_content"
                 android:layout_marginStart="8dp"
                 android:fontFamily="monospace"
-                android:textColor="@color/phone_cyan"
+                android:textColor="?attr/abyss_phone_cyan"
                 android:textSize="10sp"
                 tools:text="1.0" />
         </LinearLayout>

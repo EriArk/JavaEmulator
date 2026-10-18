@@ -2,7 +2,7 @@
 <FrameLayout xmlns:android="http://schemas.android.com/apk/res/android" xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="@color/background">
+    android:background="?attr/abyss_background">
     <LinearLayout
         android:id="@+id/library_root"
         android:layout_width="match_parent"
@@ -21,7 +21,7 @@
                 android:layout_weight="1"
                 android:gravity="center"
                 android:text="@string/launcher_title"
-                android:textColor="@color/text_primary"
+                android:textColor="?attr/abyss_text_primary"
                 android:textSize="14sp" />
             <TextView
                 android:id="@+id/library_count"
@@ -30,7 +30,7 @@
                 android:paddingHorizontal="12dp"
                 android:gravity="center"
                 android:text=""
-                android:textColor="@color/text_primary"
+                android:textColor="?attr/abyss_text_primary"
                 android:textSize="14sp" />
             <TextView
                 android:id="@+id/library_category"
@@ -44,9 +44,9 @@
                 android:ellipsize="end"
                 android:text="All games"
                 android:drawableEnd="@android:drawable/arrow_down_float"
-                android:drawableTint="@color/text_secondary"
+                android:drawableTint="?attr/abyss_text_secondary"
                 android:paddingHorizontal="8dp"
-                android:textColor="@color/text_primary"
+                android:textColor="?attr/abyss_text_primary"
                 android:textSize="13sp"
                 android:visibility="gone" />
             <ImageButton
@@ -55,7 +55,7 @@
                 android:layout_height="48dp"
                 android:background="@drawable/bg_library_tab"
                 android:src="@android:drawable/ic_menu_search"
-                app:tint="@color/text_primary"
+                app:tint="?attr/abyss_text_primary"
                 android:padding="12dp"
                 android:contentDescription="@string/search"
                 android:tooltipText="@string/search"
@@ -66,7 +66,7 @@
                 android:layout_height="48dp"
                 android:background="@drawable/bg_library_tab"
                 android:src="@drawable/ic_list"
-                app:tint="@color/text_primary"
+                app:tint="?attr/abyss_text_primary"
                 android:padding="12dp"
                 android:contentDescription="Library menu"
                 android:tooltipText="Library menu"
@@ -77,7 +77,7 @@
                 android:layout_height="48dp"
                 android:background="@drawable/bg_phone_mode"
                 android:src="@drawable/ic_add_white"
-                app:tint="@color/text_primary"
+                app:tint="?attr/abyss_text_primary"
                 android:padding="12dp"
                 android:contentDescription="@string/launcher_add_game"
                 android:tooltipText="@string/launcher_add_game" />
@@ -87,7 +87,7 @@
                 android:layout_height="48dp"
                 android:background="@drawable/bg_phone_mode"
                 android:src="@drawable/ic_setting_folder"
-                app:tint="@color/text_primary"
+                app:tint="?attr/abyss_text_primary"
                 android:padding="12dp"
                 android:contentDescription="@string/launcher_folders"
                 android:tooltipText="@string/launcher_folders" />
@@ -97,7 +97,7 @@
                 android:layout_height="48dp"
                 android:background="@drawable/bg_phone_mode"
                 android:src="@drawable/ic_baseline_tune_24"
-                app:tint="@color/text_primary"
+                app:tint="?attr/abyss_text_primary"
                 android:padding="12dp"
                 android:contentDescription="@string/action_settings"
                 android:tooltipText="@string/action_settings" />
@@ -118,7 +118,7 @@
                 android:focusable="true"
                 android:gravity="center"
                 android:text="All games"
-                android:textColor="@color/text_primary"
+                android:textColor="?attr/abyss_text_primary"
                 android:textSize="14sp" />
             <TextView
                 android:id="@+id/rail_recent"
@@ -130,7 +130,7 @@
                 android:focusable="true"
                 android:gravity="center"
                 android:text="@string/launcher_recent"
-                android:textColor="@color/text_primary"
+                android:textColor="?attr/abyss_text_primary"
                 android:textSize="14sp" />
             <TextView
                 android:id="@+id/rail_favorites"
@@ -142,7 +142,7 @@
                 android:focusable="true"
                 android:gravity="center"
                 android:text="@string/launcher_favorites"
-                android:textColor="@color/text_primary"
+                android:textColor="?attr/abyss_text_primary"
                 android:textSize="14sp" />
         </LinearLayout>
         <LinearLayout
@@ -161,8 +161,8 @@
                 android:imeOptions="actionSearch"
                 android:inputType="text"
                 android:singleLine="true"
-                android:textColor="@color/text_primary"
-                android:textColorHint="@color/text_secondary"
+                android:textColor="?attr/abyss_text_primary"
+                android:textColorHint="?attr/abyss_text_secondary"
                 android:textSize="14sp" />
             <ImageButton
                 android:id="@+id/library_search_close"
@@ -170,7 +170,7 @@
                 android:layout_height="48dp"
                 android:background="@drawable/bg_library_tab"
                 android:src="@android:drawable/ic_menu_close_clear_cancel"
-                app:tint="@color/text_primary"
+                app:tint="?attr/abyss_text_primary"
                 android:padding="12dp"
                 android:contentDescription="Close search"
                 android:tooltipText="Close search"
@@ -181,7 +181,7 @@
                 android:layout_height="48dp"
                 android:background="@drawable/bg_phone_mode"
                 android:src="@drawable/ic_setting_sort"
-                app:tint="@color/text_primary"
+                app:tint="?attr/abyss_text_primary"
                 android:padding="12dp"
                 android:contentDescription="@string/pref_app_sort_title"
                 android:tooltipText="@string/pref_app_sort_title" />
@@ -202,7 +202,7 @@
                 android:focusable="true"
                 android:gravity="center"
                 android:text="@string/view_mode_gallery"
-                android:textColor="@color/text_primary"
+                android:textColor="?attr/abyss_text_primary"
                 android:textSize="14sp" />
             <TextView
                 android:id="@+id/view_mode_list"
@@ -214,7 +214,7 @@
                 android:focusable="true"
                 android:gravity="center"
                 android:text="@string/view_mode_list"
-                android:textColor="@color/text_primary"
+                android:textColor="?attr/abyss_text_primary"
                 android:textSize="14sp" />
             <TextView
                 android:id="@+id/view_mode_grid"
@@ -226,7 +226,7 @@
                 android:focusable="true"
                 android:gravity="center"
                 android:text="@string/view_mode_grid"
-                android:textColor="@color/text_primary"
+                android:textColor="?attr/abyss_text_primary"
                 android:textSize="14sp" />
         </LinearLayout>
         <TextView
@@ -260,7 +260,7 @@
                     android:layout_height="wrap_content"
                     android:layout_gravity="center"
                     android:text="@string/no_data_for_display"
-                    android:textColor="@color/text_secondary"
+                    android:textColor="?attr/abyss_text_secondary"
                     android:textSize="16sp" />
             </FrameLayout>
             <LinearLayout
@@ -286,7 +286,7 @@
                     android:textStyle="bold"
                     android:gravity="center"
                     android:text=""
-                    android:textColor="@color/text_primary"
+                    android:textColor="?attr/abyss_text_primary"
                     android:textSize="14sp" />
                 <TextView
                     android:id="@+id/detail_meta"
@@ -296,7 +296,7 @@
                     android:ellipsize="end"
                     android:gravity="center"
                     android:text=""
-                    android:textColor="@color/text_primary"
+                    android:textColor="?attr/abyss_text_primary"
                     android:textSize="14sp" />
                 <TextView
                     android:id="@+id/detail_play"
@@ -307,7 +307,7 @@
                     android:focusable="true"
                     android:gravity="center"
                     android:text="@string/play"
-                    android:textColor="@color/text_primary"
+                    android:textColor="?attr/abyss_text_primary"
                     android:textSize="14sp" />
                 <TextView
                     android:id="@+id/detail_settings"
@@ -318,7 +318,7 @@
                     android:focusable="true"
                     android:gravity="center"
                     android:text="@string/action_settings"
-                    android:textColor="@color/text_primary"
+                    android:textColor="?attr/abyss_text_primary"
                     android:textSize="14sp" />
                 <TextView
                     android:id="@+id/detail_favorite"
@@ -329,7 +329,7 @@
                     android:focusable="true"
                     android:gravity="center"
                     android:text="@string/add_favorite"
-                    android:textColor="@color/text_primary"
+                    android:textColor="?attr/abyss_text_primary"
                     android:textSize="14sp" />
             </LinearLayout>
         </LinearLayout>
@@ -340,7 +340,7 @@
             android:gravity="center"
             android:background="@drawable/bg_phone_softbar"
             android:text="A  Play     X  Options     Y  Favorite     L/R  View"
-            android:textColor="@color/text_secondary"
+            android:textColor="?attr/abyss_text_secondary"
             android:textSize="12sp" />
     </LinearLayout>
     <com.google.android.material.floatingactionbutton.FloatingActionButton

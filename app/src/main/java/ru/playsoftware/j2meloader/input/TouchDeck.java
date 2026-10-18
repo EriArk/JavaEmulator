@@ -45,6 +45,9 @@ public final class TouchDeck {
     private final Map<Integer, Key> pointers = new HashMap<>();
     private final SparseIntArray held = new SparseIntArray();
     private final RectF viewport = new RectF();
+    private final RectF[] groups = {new RectF(), new RectF()};
+    private final RectF[] lanes = {new RectF(), new RectF()};
+    private final RectF[] originalGroups = {new RectF(), new RectF()};
     private float width, height;
     private boolean numbers;
     private boolean enabled = true;
@@ -57,6 +60,7 @@ public final class TouchDeck {
     public synchronized boolean isEnabled() { return enabled; }
     private android.content.Context themeContext;
     private int themeMode = -1;
+    private String paletteStyle;
     private int surface = 0xff10181c, button = 0xff29363e, accent = 0xffffc15a,
             secondaryAccent = 0xff71d3d5, line = 0xff6c818c, text = 0xffedf1ee,
             muted = 0xffb0c0c5, onAccent = 0xff151b1e;
@@ -71,19 +75,21 @@ public final class TouchDeck {
     private void updateTheme() {
         if (themeContext == null) return;
         int mode = TouchAppearance.mode(themeContext, settings);
-        if (mode == themeMode) return;
+        String style = ru.playsoftware.j2meloader.ui.AppPalette.selected(themeContext);
+        if (mode == themeMode && java.util.Objects.equals(style, paletteStyle)) return;
         themeMode = mode;
+        paletteStyle = style;
         android.content.Context palette = TouchAppearance.palette(themeContext, settings);
-        surface = palette.getColor(R.color.touch_surface);
-        button = palette.getColor(R.color.touch_button);
-        accent = palette.getColor(R.color.accent);
-        secondaryAccent = palette.getColor(R.color.phone_cyan);
-        line = palette.getColor(R.color.touch_line);
-        text = palette.getColor(R.color.text_primary);
-        muted = palette.getColor(R.color.text_secondary);
-        onAccent = palette.getColor(R.color.on_accent);
-        keyHighlight = palette.getColor(R.color.touch_key_highlight);
-        keyShadow = palette.getColor(R.color.touch_key_shadow);
+        surface = ru.playsoftware.j2meloader.ui.AppPalette.color(palette, R.color.touch_surface);
+        button = ru.playsoftware.j2meloader.ui.AppPalette.color(palette, R.color.touch_button);
+        accent = ru.playsoftware.j2meloader.ui.AppPalette.color(palette, R.color.accent);
+        secondaryAccent = ru.playsoftware.j2meloader.ui.AppPalette.color(palette, R.color.phone_cyan);
+        line = ru.playsoftware.j2meloader.ui.AppPalette.color(palette, R.color.touch_line);
+        text = ru.playsoftware.j2meloader.ui.AppPalette.color(palette, R.color.text_primary);
+        muted = ru.playsoftware.j2meloader.ui.AppPalette.color(palette, R.color.text_secondary);
+        onAccent = ru.playsoftware.j2meloader.ui.AppPalette.color(palette, R.color.on_accent);
+        keyHighlight = ru.playsoftware.j2meloader.ui.AppPalette.color(palette, R.color.touch_key_highlight);
+        keyShadow = ru.playsoftware.j2meloader.ui.AppPalette.color(palette, R.color.touch_key_shadow);
     }
     private final Runnable repeat = new Runnable() {
         @Override public void run() {
@@ -148,7 +154,59 @@ public final class TouchDeck {
             }
             if (style() == GAMEPAD) key(right, y, 3 * u, u, numbers ? "Actions" : "123", NUMBERS);
         }
+        applyPlacements();
         sink.invalidate();
+    }
+
+    public int groupCount() { return width <= height && style() == PHONE ? 1 : 2; }
+    public RectF groupBounds(int group) { return new RectF(groups[group]); }
+    public String placementId(int group) { return (width > height ? "landscape" : "portrait") + ":" + style() + ":" + group; }
+    public TouchPlacement placement(int group) {
+        if (settings.touchPlacements == null) settings.touchPlacements = new HashMap<>();
+        String id = placementId(group);
+        TouchPlacement value = settings.touchPlacements.get(id);
+        if (value == null) {
+            value = new TouchPlacement();
+            RectF lane = lanes[group], bounds = originalGroups[group];
+            value.x = lane.width() > bounds.width() ? (bounds.left - lane.left) / (lane.width() - bounds.width()) : .5f;
+            value.y = lane.height() > bounds.height() ? (bounds.top - lane.top) / (lane.height() - bounds.height()) : .5f;
+            settings.touchPlacements.put(id, value);
+        }
+        return value;
+    }
+    public void moveGroup(int group, float dx, float dy) {
+        TouchPlacement placement = placement(group);
+        RectF lane = lanes[group], bounds = groups[group];
+        if (lane.width() - bounds.width() > 1) placement.x = TouchPlacement.bounded(
+                placement.x() + dx / (lane.width() - bounds.width()), 0, 1, .5f);
+        if (lane.height() - bounds.height() > 1) placement.y = TouchPlacement.bounded(
+                placement.y() + dy / (lane.height() - bounds.height()), 0, 1, .5f);
+        layout(width, height);
+    }
+    private int group(Key key) { return groupCount() == 1 || key.bounds.centerX() < width / 2 ? 0 : 1; }
+    private void applyPlacements() {
+        for (int i = 0; i < 2; i++) { groups[i].setEmpty(); originalGroups[i].setEmpty(); }
+        for (Key key : keys) originalGroups[group(key)].union(key.bounds);
+        for (int i = 0; i < groupCount(); i++) {
+            RectF base = originalGroups[i], lane = lanes[i];
+            if (width > height) lane.set(i == 0 ? dp(4) : viewport.right + dp(4), dp(48),
+                    i == 0 ? viewport.left - dp(4) : width - dp(4), height - dp(4));
+            else lane.set(i == 0 ? dp(4) : width / 2 + dp(4), viewport.bottom + dp(8),
+                    groupCount() == 1 || i == 1 ? width - dp(4) : width / 2 - dp(4), height - dp(4));
+            TouchPlacement placement = settings.touchPlacements == null ? null : settings.touchPlacements.get(placementId(i));
+            if (placement == null || base.isEmpty()) { groups[i].set(base); continue; }
+            float scale = Math.min(placement.scale(), Math.min(lane.width() / base.width(), lane.height() / base.height()));
+            scale = Math.max(.1f, scale);
+            float left = lane.left + Math.max(0, lane.width() - base.width() * scale) * placement.x();
+            float top = lane.top + Math.max(0, lane.height() - base.height() * scale) * placement.y();
+            // Group membership must be determined from the original coordinates.
+            for (Key key : keys) if (group(key) == i) {
+                RectF b = key.bounds;
+                b.set(left + (b.left - base.left) * scale, top + (b.top - base.top) * scale,
+                        left + (b.right - base.left) * scale, top + (b.bottom - base.top) * scale);
+            }
+            groups[i].set(left, top, left + base.width() * scale, top + base.height() * scale);
+        }
     }
     private void dpad(float x, float y, float u) {
         String[] labels = {"\u2196", "\u2191", "\u2197", "\u2190", "OK", "\u2192", "\u2199", "\u2193", "\u2198"};
@@ -232,6 +290,7 @@ public final class TouchDeck {
         paint.setTypeface(KEY_FONT);
         for (Key key : keys) {
             RectF rect = new RectF(key.bounds); rect.inset(dp(3),dp(3));
+            float labelScale = Math.min(1, key.bounds.height() / dp(48));
             boolean pressed = pointers.containsValue(key);
             boolean dpad = cross && isDpad(key);
             if (dpad && key.codes.length == 1) pressed = held.get(key.codes[0]) > 0;
@@ -251,15 +310,15 @@ public final class TouchDeck {
             else if (!dpad) canvas.drawRoundRect(rect,dp(6),dp(6),paint);
             paint.setStyle(Paint.Style.FILL);
             paint.setColor(pressed ? onAccent : text);
-            paint.setTextSize(dp(dpad && key.codes.length > 1 ? 13 : key.label.length() > 2 ? 14 : 20));
+            paint.setTextSize(dp(dpad && key.codes.length > 1 ? 13 : key.label.length() > 2 ? 14 : 20) * labelScale);
             if (dpad && key.codes.length > 1 && !pressed) paint.setColor(muted);
             boolean digit = (style() == PHONE || numbers) && key.codes.length == 1 && key.codes[0] >= 48 && key.codes[0] <= 57;
-            if (digit) paint.setTextSize(dp(23));
-            canvas.drawText(key.label,rect.centerX(),rect.centerY()-(paint.ascent()+paint.descent())/2-(digit ? dp(5) : 0),paint);
+            if (digit) paint.setTextSize(dp(23) * labelScale);
+            canvas.drawText(key.label,rect.centerX(),rect.centerY()-(paint.ascent()+paint.descent())/2-(digit ? dp(5) * labelScale : 0),paint);
             if (digit) {
-                paint.setTextSize(dp(9));
+                paint.setTextSize(dp(9) * labelScale);
                 paint.setColor(pressed ? onAccent : muted);
-                canvas.drawText(LETTERS[key.codes[0]-48],rect.centerX(),rect.centerY()+dp(13),paint);
+                canvas.drawText(LETTERS[key.codes[0]-48],rect.centerX(),rect.centerY()+dp(13) * labelScale,paint);
                 if (key.codes[0] == 53) {
                     canvas.drawCircle(rect.left + dp(8), rect.bottom - dp(5), dp(1), paint);
                     canvas.drawCircle(rect.right - dp(8), rect.bottom - dp(5), dp(1), paint);
@@ -269,6 +328,11 @@ public final class TouchDeck {
     }
 
     private void drawPhoneKey(Canvas canvas, RectF face, boolean pressed, int opacity) {
+        if ("contrast".equals(paletteStyle)) {
+            paint.setColor(pressed ? accent : button); paint.setAlpha(opacity * 255 / 100);
+            canvas.drawRoundRect(face, dp(2), dp(2), paint);
+            return;
+        }
         paint.setColor(keyShadow);
         paint.setAlpha(opacity * 255 / 100);
         canvas.drawRoundRect(face, dp(6), dp(6), paint);

@@ -1,8 +1,8 @@
 <?xml version="1.0" encoding="utf-8"?>
 <shape xmlns:android="http://schemas.android.com/apk/res/android">
-    <solid android:color="@color/menu_surface" />
-    <stroke android:width="1dp" android:color="@color/phone_line" />
-    <corners android:radius="8dp" />
+    <solid android:color="?attr/abyss_menu_surface" />
+    <stroke android:width="?attr/abyss_controlStroke" android:color="?attr/abyss_phone_line" />
+    <corners android:radius="?attr/abyss_cornerRadius" />
     <padding
         android:bottom="16dp"
         android:left="16dp"
