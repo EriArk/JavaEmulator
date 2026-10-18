@@ -247,6 +247,29 @@ The static MIDP-1.0 metadata case is not a redistributable MIDP-1.0 gameplay fix
 
 ## Manual acceptance still required
 
+### Phone controls and transient shortcuts
+
+`GameChromeTest`, `TouchDeckTest` and `SettingsTrialTest` cover the shared
+shortcut timer, explicit reveal, game-touch routing, palettes and saved previews.
+The opt-in `ru.playsoftware.j2meloader.input.TouchAppearanceUiTest` also runs a
+real Phone settings flow using a separately supplied JAR:
+
+```shell
+adb -s <device> shell am instrument -w -e touchGameUri <readable-JAR-URI> -e class ru.playsoftware.j2meloader.input.TouchAppearanceUiTest io.github.eriark.abyssme.phone.debug.test/androidx.test.runner.AndroidJUnitRunner
+```
+
+It temporarily selects the Light app theme and restores the previous preference
+on completion. It changes the fixture game's saved layout, orientation and
+control appearance, so use a disposable test game/profile. Captures are written
+to the app's external-files `touch-theme-captures` directory. It checks both
+layouts/orientations, shortcut colors, automatic collapse and saved appearance
+after relaunch. Use the matching test/application APKs and allow a cold emulator
+launch to settle before diagnosing missing controls.
+
+See [October 18 evidence and limits](checks/2026-10-18-phone-touch-appearance.md).
+
+### Remaining acceptance
+
 Physical controller/disconnect testing (#9), Phone recreation with touch on/off
 (#3), actual ES-DE/Beacon launch-return flows (#7), more document providers and
 more game releases remain separate checks. The external-launcher pass is deferred.

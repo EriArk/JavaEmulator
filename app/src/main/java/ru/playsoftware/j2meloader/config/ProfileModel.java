@@ -127,6 +127,8 @@ public class ProfileModel {
 	public Integer touchLayout;
 	@SerializedName("touchSize")
 	public int touchSize;
+	@SerializedName("touchTheme")
+	public int touchTheme;
 	@SerializedName("touchOpacity")
 	public int touchOpacity = 100;
 	@SerializedName("touchPortraitReach")

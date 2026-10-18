@@ -1350,7 +1350,7 @@ public abstract class Canvas extends Displayable {
 								cX,
 								cY));
 					}
-					if (!touchInput && event.getActionMasked() == MotionEvent.ACTION_UP
+					if (ru.playsoftware.j2meloader.BuildConfig.HANDHELD_MODE && !touchInput && event.getActionMasked() == MotionEvent.ACTION_UP
 							&& virtualScreen.contains(x, y)) {
 						ContextHolder.getActivity().showQuickSettingsOverlay();
 					}

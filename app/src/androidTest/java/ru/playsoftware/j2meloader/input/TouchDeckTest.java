@@ -1,6 +1,10 @@
 package ru.playsoftware.j2meloader.input;
 
 import android.graphics.RectF;
+import android.graphics.Bitmap;
+import android.graphics.Canvas;
+import android.content.Context;
+import android.content.res.Configuration;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
 import androidx.test.platform.app.InstrumentationRegistry;
 import com.google.gson.Gson;
@@ -9,10 +13,50 @@ import org.junit.runner.RunWith;
 import java.util.ArrayList;
 import java.util.Arrays;
 import ru.playsoftware.j2meloader.config.ProfileModel;
+import ru.playsoftware.j2meloader.R;
 import static org.junit.Assert.*;
 
 @RunWith(AndroidJUnit4.class)
 public class TouchDeckTest {
+    @Test public void shortcutsSharePaletteWithoutChangingHostOrActions() {
+        InstrumentationRegistry.getInstrumentation().runOnMainSync(() -> {
+            Context original = InstrumentationRegistry.getInstrumentation().getTargetContext();
+            Configuration config = new Configuration(original.getResources().getConfiguration());
+            config.uiMode = (config.uiMode & ~Configuration.UI_MODE_NIGHT_MASK) | Configuration.UI_MODE_NIGHT_NO;
+            Context light = original.createConfigurationContext(config);
+            android.widget.FrameLayout root = new android.widget.FrameLayout(light);
+            int[] clicks = {0};
+            for (int id : new int[]{R.id.game_display_button, R.id.game_screenshot_button, R.id.game_menu_button}) {
+                android.widget.ImageButton button = new android.widget.ImageButton(light);
+                button.setId(id); button.setOnClickListener(view -> clicks[0]++);
+                root.addView(button);
+            }
+            ProfileModel profile = new ProfileModel();
+            for (int theme : new int[]{TouchDeck.THEME_DARK, TouchDeck.THEME_LIGHT, TouchDeck.THEME_APP}) {
+                profile.touchTheme = theme;
+                TouchAppearance.shortcuts(root, profile);
+                if (ru.playsoftware.j2meloader.BuildConfig.HANDHELD_MODE) continue;
+                Context palette = TouchAppearance.palette(light, profile);
+                for (int i = 0; i < root.getChildCount(); i++) {
+                    android.widget.ImageButton button = (android.widget.ImageButton) root.getChildAt(i);
+                    assertEquals(palette.getColor(R.color.text_primary),
+                            androidx.core.widget.ImageViewCompat.getImageTintList(button).getDefaultColor());
+                    for (boolean pressed : new boolean[]{false, true}) {
+                        button.setPressed(pressed);
+                        android.graphics.drawable.Drawable background = button.getBackground();
+                        background.setBounds(0, 0, 96, 96);
+                        Bitmap bitmap = Bitmap.createBitmap(96, 96, Bitmap.Config.ARGB_8888);
+                        background.draw(new Canvas(bitmap));
+                        assertEquals(palette.getColor(pressed ? R.color.touch_surface : R.color.touch_button), bitmap.getPixel(48, 48));
+                        bitmap.recycle();
+                    }
+                    button.performClick();
+                }
+            }
+            assertEquals(ru.playsoftware.j2meloader.BuildConfig.HANDHELD_MODE ? 0 : 9, clicks[0]);
+            assertEquals(Configuration.UI_MODE_NIGHT_NO, light.getResources().getConfiguration().uiMode & Configuration.UI_MODE_NIGHT_MASK);
+        });
+    }
     private TouchDeck create(ProfileModel p, ArrayList<String> events) {
         return new TouchDeck(p,1,new TouchDeck.Sink() {
             public void press(int code) { events.add("+"+code); }
@@ -31,6 +75,7 @@ public class TouchDeckTest {
                     int w=dimensions[0], h=dimensions[1];
                     deck.layout(w,h);
                     RectF area=deck.gameArea(w,h);
+                    assertEquals("No reserved shortcut row", 8, area.top, .01f);
                     assertTrue(area.width()>0 && area.height()>0);
                     ArrayList<TouchDeck.Key> keys=deck.getKeys();
                     for (int i=0;i<keys.size();i++) {
@@ -106,5 +151,83 @@ public class TouchDeckTest {
                 assertNotNull(key(deck,label));
             deck.cancel();
         });
+    }
+
+    @Test public void buttonThemeCanOverrideAppAndChangeLiveWithoutChangingInputs() {
+        InstrumentationRegistry.getInstrumentation().runOnMainSync(() -> {
+            for (int night : new int[]{Configuration.UI_MODE_NIGHT_NO, Configuration.UI_MODE_NIGHT_YES}) {
+                Context context = themed(night);
+                for (int style : new int[]{TouchDeck.PHONE, TouchDeck.GAMEPAD}) {
+                    ProfileModel profile = new ProfileModel(); profile.touchLayout = style;
+                    ArrayList<String> events = new ArrayList<>();
+                    TouchDeck deck = create(profile, events); deck.setTheme(context); deck.layout(360, 640);
+                    TouchDeck.Key five = key(deck, "5");
+                    RectF original = new RectF(five.bounds);
+                    deck.down(0, five.bounds.centerX(), five.bounds.centerY());
+                    for (int theme : new int[]{TouchDeck.THEME_DARK, TouchDeck.THEME_LIGHT, TouchDeck.THEME_APP, 99}) {
+                        profile.touchTheme = theme;
+                        int effective = theme == TouchDeck.THEME_DARK ? Configuration.UI_MODE_NIGHT_YES
+                                : theme == TouchDeck.THEME_LIGHT ? Configuration.UI_MODE_NIGHT_NO : night;
+                        Bitmap bitmap = Bitmap.createBitmap(360, 640, Bitmap.Config.ARGB_8888);
+                        try {
+                            deck.draw(new Canvas(bitmap));
+                            assertEquals(themed(effective).getColor(R.color.touch_surface), bitmap.getPixel(0, 639));
+                            assertEquals("App palette must not change", context.getColor(R.color.touch_surface),
+                                    themed(night).getColor(R.color.touch_surface));
+                            assertEquals(original, key(deck, "5").bounds);
+                            assertEquals(Arrays.asList("+53"), events);
+                        } finally { bitmap.recycle(); }
+                    }
+                    deck.up(0); assertEquals(Arrays.asList("+53", "-53"), events);
+                    deck.cancel();
+                }
+            }
+        });
+    }
+
+    @Test public void oldProfilesFollowAppAndNewThemeSurvivesSerialization() {
+        Gson gson = new Gson();
+        assertEquals(TouchDeck.THEME_APP, gson.fromJson("{}", ProfileModel.class).touchTheme);
+        ProfileModel profile = new ProfileModel(); profile.touchTheme = TouchDeck.THEME_DARK;
+        assertEquals(TouchDeck.THEME_DARK, gson.fromJson(gson.toJson(profile), ProfileModel.class).touchTheme);
+    }
+
+    @Test public void themeAndPressedKeyRenderingHasContrastInBothOrientations() {
+        InstrumentationRegistry.getInstrumentation().runOnMainSync(() -> {
+            for (int[] dimensions : new int[][]{{320, 568}, {360, 640}, {640, 360}}) {
+                for (int style : new int[]{TouchDeck.PHONE, TouchDeck.GAMEPAD}) {
+                    for (int theme : new int[]{TouchDeck.THEME_DARK, TouchDeck.THEME_LIGHT}) {
+                        ProfileModel profile = new ProfileModel(); profile.touchLayout = style; profile.touchTheme = theme;
+                        TouchDeck deck = create(profile, new ArrayList<>()); deck.setTheme(themed(Configuration.UI_MODE_NIGHT_NO));
+                        deck.layout(dimensions[0], dimensions[1]);
+                        TouchDeck.Key five = key(deck, "5");
+                        Bitmap up = Bitmap.createBitmap(dimensions[0], dimensions[1], Bitmap.Config.ARGB_8888);
+                        Bitmap down = Bitmap.createBitmap(dimensions[0], dimensions[1], Bitmap.Config.ARGB_8888);
+                        try {
+                            deck.draw(new Canvas(up));
+                            deck.down(0, five.bounds.centerX(), five.bounds.centerY()); deck.draw(new Canvas(down));
+                            int differences = 0, foreground = 0;
+                            int expectedText = themed(theme == TouchDeck.THEME_DARK
+                                    ? Configuration.UI_MODE_NIGHT_YES : Configuration.UI_MODE_NIGHT_NO).getColor(R.color.text_primary);
+                            for (int y = (int) five.bounds.top; y < five.bounds.bottom; y++) {
+                                for (int x = (int) five.bounds.left; x < five.bounds.right; x++) {
+                                    if (up.getPixel(x, y) != down.getPixel(x, y)) differences++;
+                                    if (up.getPixel(x, y) == expectedText) foreground++;
+                                }
+                            }
+                            assertTrue("Pressed face must visibly change", differences > 200);
+                            assertTrue("Digit must retain the palette foreground", foreground > 10);
+                        } finally { deck.cancel(); up.recycle(); down.recycle(); }
+                    }
+                }
+            }
+        });
+    }
+
+    private Context themed(int night) {
+        Context context = InstrumentationRegistry.getInstrumentation().getTargetContext();
+        Configuration config = new Configuration(context.getResources().getConfiguration());
+        config.uiMode = (config.uiMode & ~Configuration.UI_MODE_NIGHT_MASK) | night;
+        return context.createConfigurationContext(config);
     }
 }

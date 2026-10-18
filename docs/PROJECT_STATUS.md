@@ -53,7 +53,7 @@ Beta.1 remains a historical download, not the recommended current version.
 | Channel | Current identifier | Availability |
 | --- | --- | --- |
 | Public download | `v0.3.0-beta.4`, code 303 | Signed Handheld/Phone APKs, matching app source and dependency/native source bundles |
-| Public development source | `main`, ahead of beta.4 | Unreleased Java resize, automatic screen setup, transfer-recovery and Symbian lifecycle fixes; see below |
+| Public development source | `main`, ahead of beta.4 | Unreleased Java resize, automatic screen setup, transfer-recovery, Symbian lifecycle and Phone control/chrome changes; see below |
 | Private historical snapshot | `0.1.0-beta.2-experimental.15`, 2026-10-11 | Old Java/Mophun test build, not the current beta |
 | Local-only material | Game fixtures, firmware, diagnostics, device data and signing keys | Not in Git or public release assets; describing testing does not authorize redistribution |
 
@@ -82,6 +82,24 @@ Bounce Tales completed live size trials/Undo, restart and exit in the final Phon
 emulator build and combined Handheld debug build on Retroid; inspected game
 images remained visible. No full-playthrough claim.
 [Details, local fixtures and limitations](checks/2026-10-18-runtime-transfer.md).
+
+Phone touch controls now offer **Button theme: Follow app / Dark / Light** per
+game, independently of the app's appearance. Top game shortcut buttons follow
+the same selection; settings dialogs retain the app theme. The standard Phone keypad has
+raised key faces, larger digit labels, alphabet legends and tactile marks on 5;
+landscape navigation uses a connected D-pad. Gamepad controls share the theme
+choice. Existing profiles keep Follow app; Legacy keyboard colors and Handheld
+defaults are unchanged. These are unreleased source changes, not beta.4 APK
+features. [Verification](checks/2026-10-18-phone-touch-appearance.md).
+
+Phone's top game shortcuts now open from a small edge arrow, overlay the game
+and collapse after five seconds without use. The previous portrait shortcut-row
+reservation is removed; normal gameplay taps do not open the panel. Handheld
+behavior is unchanged. This is also unreleased development source.
+Final verification: 43 selected Phone emulator checks, 34 shared-component
+checks on Retroid, and a real Phone settings/relaunch/auto-hide UI case passed.
+[Fresh development captures](../screenshots/development/2026-10-18-phone-controls)
+show both touch layouts and orientations; they are not public-beta screenshots.
 
 ## Changes Released in Beta.4
 

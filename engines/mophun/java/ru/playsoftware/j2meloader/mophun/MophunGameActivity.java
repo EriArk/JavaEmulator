@@ -65,6 +65,7 @@ public final class MophunGameActivity extends Activity implements InputManager.I
     private FrameView frameView;
     private MophunTouchControls touch;
     private ImageButton screenshotButton;
+    private ru.playsoftware.j2meloader.input.GameChrome gameChrome;
     private boolean screenshotPending;
     private ControllerMapperView mapper;
     private GameMenuDialog menu;
@@ -137,6 +138,8 @@ public final class MophunGameActivity extends Activity implements InputManager.I
             FrameLayout.LayoutParams previewLayout = new FrameLayout.LayoutParams(-1, -2, Gravity.TOP);
             previewLayout.topMargin = dp(54);
             root.addView(previewBar, previewLayout);
+            if (!BuildConfig.HANDHELD_MODE) gameChrome = new ru.playsoftware.j2meloader.input.GameChrome(root, profile);
+            updateScreenshotButton();
             if (ProfilesManager.isPreview(profile)) previewBar.start();
             if (getIntent().getBooleanExtra("controls", false)) showControls();
             session.start();
@@ -150,8 +153,11 @@ public final class MophunGameActivity extends Activity implements InputManager.I
 
     private void updateScreenshotButton() {
         if (screenshotButton == null) return;
+        ru.playsoftware.j2meloader.input.TouchAppearance.shortcuts(root, profile);
         screenshotButton.setVisibility(Screenshots.isButtonVisible(this) && mapper == null ? View.VISIBLE : View.GONE);
         screenshotButton.setEnabled(!screenshotPending);
+        if (gameChrome != null) gameChrome.update(visible && hasWindowFocus() && mapper == null && menu == null
+                && (settingsMapper == null || !settingsMapper.isShowing()), false, Screenshots.isButtonVisible(this));
     }
 
     private void takeScreenshot() {
@@ -193,6 +199,7 @@ public final class MophunGameActivity extends Activity implements InputManager.I
     }
 
     private void pauseState() {
+        updateScreenshotButton();
         boolean paused = !visible || isFinishing() || mapper != null || menu != null
                 || (settingsMapper != null && settingsMapper.isShowing()) || !hasWindowFocus();
         if (paused) clearInput();
@@ -315,6 +322,7 @@ public final class MophunGameActivity extends Activity implements InputManager.I
                 });
     }
     private void applyPreview() {
+        updateScreenshotButton();
         clearInput(); mappings = KeyMapper.resolveMappings(profile.getActiveKeyMappings());
         applyOrientation();
         if (touch != null) touch.layout(frameView.getWidth(), frameView.getHeight());
@@ -336,6 +344,7 @@ public final class MophunGameActivity extends Activity implements InputManager.I
         clearInput();
         change.run();
         if (!saveProfile()) rollback.run();
+        updateScreenshotButton();
         touch.layout(frameView.getWidth(), frameView.getHeight());
         frameView.invalidate();
         showTouchPage();
@@ -346,6 +355,10 @@ public final class MophunGameActivity extends Activity implements InputManager.I
         menu.choice("Layout", new String[]{"Phone", "Gamepad"}, profile.touchLayout, index -> {
             int before = profile.touchLayout;
             changeTouch(() -> profile.touchLayout = index, () -> profile.touchLayout = before);
+        });
+        menu.choice("Button theme", new String[]{"Follow app", "Dark", "Light"}, Math.max(0, Math.min(2, profile.touchTheme)), index -> {
+            int before = profile.touchTheme;
+            changeTouch(() -> profile.touchTheme = index, () -> profile.touchTheme = before);
         });
         menu.choice("Size", new String[]{"Standard", "Large", "Extra large"}, Math.max(0, Math.min(2, profile.touchSize)), index -> {
             int before = profile.touchSize;

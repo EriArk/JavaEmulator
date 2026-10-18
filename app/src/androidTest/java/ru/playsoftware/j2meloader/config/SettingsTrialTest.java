@@ -37,6 +37,20 @@ public class SettingsTrialTest {
         ProfilesManager.undoPreview(model); assertEquals(240, model.screenWidth);
     }
 
+    @Test public void touchThemeCanBeTriedUndoneAndKeptPerGame() {
+        ProfilesManager.beginPreview(model); model.touchTheme = 1;
+        assertFalse(ProfilesManager.previewNeedsRestart(model));
+        assertTrue(ProfilesManager.saveConfig(model));
+        assertEquals(0, ProfilesManager.loadConfig(dir).touchTheme);
+        ProfilesManager.undoPreview(model); assertEquals(0, model.touchTheme);
+        ProfilesManager.beginPreview(model); model.touchTheme = 1;
+        assertTrue(ProfilesManager.keepPreview(model));
+        assertEquals(1, ProfilesManager.loadConfig(dir).touchTheme);
+        ProfilesManager.beginPreview(model); model.touchTheme = 2;
+        ProfilesManager.undoPreview(model); assertEquals(1, model.touchTheme);
+        assertEquals(0, new ProfileModel().touchTheme);
+    }
+
     @Test public void frameLimitKeepUndoAndRelaunchRetainConfirmedValue() {
         int original = model.fpsLimit;
         ProfilesManager.beginPreview(model); model.fpsLimit = 20;

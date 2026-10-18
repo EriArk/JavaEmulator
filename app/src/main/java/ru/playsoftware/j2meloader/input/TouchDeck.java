@@ -4,6 +4,7 @@ import android.graphics.Canvas;
 import android.graphics.Paint;
 import android.graphics.Path;
 import android.graphics.RectF;
+import android.graphics.Typeface;
 import android.os.Handler;
 import android.os.Looper;
 import android.util.SparseIntArray;
@@ -23,6 +24,9 @@ public final class TouchDeck {
         void invalidate();
     }
     public static final int PHONE = 0, GAMEPAD = 1, LEGACY = 2;
+    public static final int THEME_APP = 0, THEME_DARK = 1, THEME_LIGHT = 2;
+    private static final Typeface KEY_FONT = Typeface.create("sans-serif-medium", Typeface.NORMAL);
+    private static final String[] LETTERS = {"+", "", "ABC", "DEF", "GHI", "JKL", "MNO", "PQRS", "TUV", "WXYZ"};
     private static final int NUMBERS = 10000;
     public static final class Key {
         public final RectF bounds;
@@ -48,6 +52,7 @@ public final class TouchDeck {
     private int surface = 0xff10181c, button = 0xff29363e, accent = 0xffffc15a,
             secondaryAccent = 0xff71d3d5, line = 0xff6c818c, text = 0xffedf1ee,
             muted = 0xffb0c0c5, onAccent = 0xff151b1e;
+    private int keyHighlight = 0xff50606a, keyShadow = 0xff080c0f;
 
     public synchronized void setTheme(android.content.Context context) {
         themeContext = context;
@@ -57,17 +62,20 @@ public final class TouchDeck {
 
     private void updateTheme() {
         if (themeContext == null) return;
-        int mode = themeContext.getResources().getConfiguration().uiMode;
+        int mode = TouchAppearance.mode(themeContext, settings);
         if (mode == themeMode) return;
         themeMode = mode;
-        surface = themeContext.getColor(R.color.touch_surface);
-        button = themeContext.getColor(R.color.touch_button);
-        accent = themeContext.getColor(R.color.accent);
-        secondaryAccent = themeContext.getColor(R.color.phone_cyan);
-        line = themeContext.getColor(R.color.touch_line);
-        text = themeContext.getColor(R.color.text_primary);
-        muted = themeContext.getColor(R.color.text_secondary);
-        onAccent = themeContext.getColor(R.color.on_accent);
+        android.content.Context palette = TouchAppearance.palette(themeContext, settings);
+        surface = palette.getColor(R.color.touch_surface);
+        button = palette.getColor(R.color.touch_button);
+        accent = palette.getColor(R.color.accent);
+        secondaryAccent = palette.getColor(R.color.phone_cyan);
+        line = palette.getColor(R.color.touch_line);
+        text = palette.getColor(R.color.text_primary);
+        muted = palette.getColor(R.color.text_secondary);
+        onAccent = palette.getColor(R.color.on_accent);
+        keyHighlight = palette.getColor(R.color.touch_key_highlight);
+        keyShadow = palette.getColor(R.color.touch_key_shadow);
     }
     private final Runnable repeat = new Runnable() {
         @Override public void run() {
@@ -86,7 +94,7 @@ public final class TouchDeck {
         float unit = unit(w, h);
         if (w > h) return new RectF(3 * unit + dp(12), dp(8), w - 3 * unit - dp(12), h - dp(8));
         float rows = style() == PHONE ? 6 : 5;
-        return new RectF(dp(8), dp(48), w - dp(8), Math.max(dp(96),
+        return new RectF(dp(8), dp(8), w - dp(8), Math.max(dp(96),
                 h - rows * unit - dp(12) - dp(32) * Math.max(0,Math.min(1,settings.touchPortraitReach))));
     }
     private int style() { return settings.touchLayout == null ? PHONE : settings.touchLayout; }
@@ -207,19 +215,21 @@ public final class TouchDeck {
             canvas.drawRect(0,0,viewport.left,height,paint);
             canvas.drawRect(viewport.right,0,width,height,paint);
         } else canvas.drawRect(0,viewport.bottom,width,height,paint);
-        if (style() == GAMEPAD) drawDpadBase(canvas);
+        boolean cross = style() == GAMEPAD || width > height;
+        if (cross) drawDpadBase(canvas);
         paint.setTextAlign(Paint.Align.CENTER);
+        paint.setTypeface(KEY_FONT);
         for (Key key : keys) {
             RectF rect = new RectF(key.bounds); rect.inset(dp(3),dp(3));
             boolean pressed = pointers.containsValue(key);
-            boolean dpad = style() == GAMEPAD && isDpad(key);
+            boolean dpad = cross && isDpad(key);
             if (dpad && key.codes.length == 1) pressed = held.get(key.codes[0]) > 0;
             boolean action = style() == GAMEPAD && !numbers && key.codes[0] > 0 && key.codes[0] != NUMBERS;
             int opacity = Math.max(80,Math.min(100,settings.touchOpacity));
             paint.setColor(pressed ? accent : button);
             paint.setAlpha(opacity * 255 / 100);
             if (action) canvas.drawOval(rect,paint);
-            else if (!dpad) canvas.drawRoundRect(rect,dp(6),dp(6),paint);
+            else if (!dpad) drawPhoneKey(canvas, rect, pressed, opacity);
             else if (pressed) {
                 paint.setAlpha(210);
                 canvas.drawRoundRect(rect,dp(6),dp(6),paint);
@@ -232,14 +242,35 @@ public final class TouchDeck {
             paint.setColor(pressed ? onAccent : text);
             paint.setTextSize(dp(dpad && key.codes.length > 1 ? 13 : key.label.length() > 2 ? 14 : 20));
             if (dpad && key.codes.length > 1 && !pressed) paint.setColor(muted);
-            boolean digit = style() == PHONE && key.codes.length == 1 && key.codes[0] >= 48 && key.codes[0] <= 57;
+            boolean digit = (style() == PHONE || numbers) && key.codes.length == 1 && key.codes[0] >= 48 && key.codes[0] <= 57;
+            if (digit) paint.setTextSize(dp(23));
             canvas.drawText(key.label,rect.centerX(),rect.centerY()-(paint.ascent()+paint.descent())/2-(digit ? dp(5) : 0),paint);
             if (digit) {
-                String[] letters = {"+", "", "ABC", "DEF", "GHI", "JKL", "MNO", "PQRS", "TUV", "WXYZ"};
                 paint.setTextSize(dp(9));
                 paint.setColor(pressed ? onAccent : muted);
-                canvas.drawText(letters[key.codes[0]-48],rect.centerX(),rect.centerY()+dp(14),paint);
+                canvas.drawText(LETTERS[key.codes[0]-48],rect.centerX(),rect.centerY()+dp(13),paint);
+                if (key.codes[0] == 53) {
+                    canvas.drawCircle(rect.left + dp(8), rect.bottom - dp(5), dp(1), paint);
+                    canvas.drawCircle(rect.right - dp(8), rect.bottom - dp(5), dp(1), paint);
+                }
             }
+        }
+    }
+
+    private void drawPhoneKey(Canvas canvas, RectF face, boolean pressed, int opacity) {
+        paint.setColor(keyShadow);
+        paint.setAlpha(opacity * 255 / 100);
+        canvas.drawRoundRect(face, dp(6), dp(6), paint);
+        face.bottom -= dp(2);
+        if (pressed) face.offset(0, dp(1.5f));
+        paint.setColor(pressed ? accent : button);
+        paint.setAlpha(opacity * 255 / 100);
+        canvas.drawRoundRect(face, dp(6), dp(6), paint);
+        if (!pressed) {
+            paint.setColor(keyHighlight);
+            paint.setStrokeWidth(dp(1));
+            canvas.drawLine(face.left + dp(6), face.top + dp(1.5f),
+                    face.right - dp(6), face.top + dp(1.5f), paint);
         }
     }
 

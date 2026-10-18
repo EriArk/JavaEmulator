@@ -28,9 +28,11 @@
     <color name="control_b">#EF9494</color>
     <color name="control_x">#88CCEF</color>
     <color name="control_y">#EDCF76</color>
-    <color name="touch_surface">#10181C</color>
-    <color name="touch_button">#29363E</color>
+    <color name="touch_surface">#121518</color>
+    <color name="touch_button">#292E33</color>
     <color name="touch_line">#6C818C</color>
+    <color name="touch_key_highlight">#53616A</color>
+    <color name="touch_key_shadow">#070A0C</color>
 
     <color name="nnf_separator_color">@color/nnf_dark_separator_color</color>
 </resources>

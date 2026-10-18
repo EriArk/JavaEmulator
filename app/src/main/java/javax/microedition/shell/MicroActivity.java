@@ -124,6 +124,7 @@ public class MicroActivity extends AppCompatActivity {
 	private ru.playsoftware.j2meloader.input.GameMenuDialog gameMenu;
 	private MapperDialog settingsMapper;
 	private SettingsPreviewBar settingsPreview;
+	private ru.playsoftware.j2meloader.input.GameChrome gameChrome;
 	private final HashSet<Integer> overlayHeldKeys = new HashSet<>();
 	private InputManager inputManager;
 	private final ControllerInput controllerInput = new ControllerInput(KeyMapper::getInputMapping,
@@ -247,6 +248,7 @@ public class MicroActivity extends AppCompatActivity {
 		binding.gameDisplayButton.setVisibility(!BuildConfig.HANDHELD_MODE
 				&& ru.playsoftware.j2meloader.util.GameShortcuts.isDisplayVisible(this) ? View.VISIBLE : View.GONE);
 		binding.gameDisplayButton.setOnClickListener(v -> { openOptionsMenu(); showDisplayPage(); });
+		if (!BuildConfig.HANDHELD_MODE) gameChrome = new ru.playsoftware.j2meloader.input.GameChrome(binding.midletFrame, microLoader.getTouchSettings());
 		inputManager = (InputManager) getSystemService(INPUT_SERVICE);
 		inputManager.registerInputDeviceListener(controllerListener, quickSettingsHandler);
 		inputMethodManager = (InputMethodManager) getSystemService(INPUT_METHOD_SERVICE);
@@ -305,6 +307,7 @@ public class MicroActivity extends AppCompatActivity {
 	@Override
 	public void onWindowFocusChanged(boolean hasFocus) {
 		super.onWindowFocusChanged(hasFocus);
+		updateScreenshotButton();
 		if (!hasFocus) {
 			controllerInput.clear();
 			VirtualKeyboard vk = ContextHolder.getVk();
@@ -603,6 +606,7 @@ public class MicroActivity extends AppCompatActivity {
 
 	private void updateScreenshotButton() {
 		if (binding == null) return;
+		if (microLoader != null) ru.playsoftware.j2meloader.input.TouchAppearance.shortcuts(binding.getRoot(), microLoader.getTouchSettings());
 		boolean unobscured = binding.quickSettingsOverlay.getVisibility() != View.VISIBLE && !isQuickMapVisible();
 		binding.gameDisplayButton.setVisibility(unobscured && !BuildConfig.HANDHELD_MODE
 				&& ru.playsoftware.j2meloader.util.GameShortcuts.isDisplayVisible(this) ? View.VISIBLE : View.GONE);
@@ -610,6 +614,10 @@ public class MicroActivity extends AppCompatActivity {
 		boolean show = current instanceof Canvas && Screenshots.isButtonVisible(this) && unobscured;
 		binding.gameScreenshotButton.setVisibility(show ? View.VISIBLE : View.GONE);
 		binding.gameScreenshotButton.setEnabled(!screenshotPending);
+		if (gameChrome != null) gameChrome.update(visible && hasWindowFocus() && unobscured
+				&& (gameMenu == null || !gameMenu.isShowing())
+				&& (settingsMapper == null || !settingsMapper.isShowing()),
+				ru.playsoftware.j2meloader.util.GameShortcuts.isDisplayVisible(this), show);
 	}
 
 	private void scheduleQuickSettingsHide() {
@@ -618,6 +626,7 @@ public class MicroActivity extends AppCompatActivity {
 	}
 
 	private void applyRuntimeDisplaySettings(boolean updateOrientation) {
+		updateScreenshotButton();
 		if (updateOrientation) {
 			setOrientation(microLoader.getOrientation());
 		}
@@ -788,6 +797,7 @@ public class MicroActivity extends AppCompatActivity {
 		MidletThread.pauseApp();
 		gameMenu = new ru.playsoftware.j2meloader.input.GameMenuDialog(this, appName);
 		gameMenu.setOnDismissListener(d -> {
+			updateScreenshotButton();
 			if (visible && !isQuickMapVisible()) {
 				MidletThread.resumeApp();
 				if (settingsPreview != null) settingsPreview.resume();
@@ -795,6 +805,7 @@ public class MicroActivity extends AppCompatActivity {
 			hideSystemUI();
 		});
 		gameMenu.show();
+		updateScreenshotButton();
 		showGameMenuPage();
 	}
 

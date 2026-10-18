@@ -12,6 +12,26 @@ combined builds; released experimental features are explicitly identified.
 
 ## 2026-10-18
 
+- **Public source, unreleased:** Phone's upper game shortcuts now open from a
+  small edge arrow and collapse after five idle seconds. They overlay the game
+  without reserving a portrait row or resizing the image. Normal game/keypad
+  touches do not reveal the panel; Handheld access remains unchanged.
+- **Public source, unreleased:** Phone's Controls page adds a per-game Button
+  theme (Follow app / Dark / Light), allowing dark touch controls with light app
+  menus. The shared Java/Mophun/Symbian touch deck and top game shortcut buttons
+  use the selected palette;
+  normal settings preview/Undo/Keep preserves confirmed values.
+- **Public source, unreleased:** refreshed the Phone number pad with raised key
+  faces, clearer digit/letter typography and tactile marks on 5. Landscape uses
+  a connected navigation cross. Hit targets, key codes and multitouch behavior
+  remain unchanged; the custom Legacy keyboard is not restyled.
+  [Appearance checks](docs/checks/2026-10-18-phone-touch-appearance.md).
+- **Verified locally:** the Phone control/chrome batch built in both base and
+  combined variants with zero lint errors. The final Phone emulator suite passed
+  43 selected checks; Retroid passed 34 shared-component/input checks. These do
+  not establish physical-phone ergonomics or full-game compatibility.
+  A real Phone UI case also passed theme/layout/orientation changes, relaunch
+  persistence and auto-hide; seven inspected development screenshots are included.
 - **Public source, unreleased:** fixed stale Java Graphics targets after buffer
   growth, GameCanvas buffer resizing and size-notification ordering. Hardened
   GLES context/geometry updates and ignored obsolete surface callbacks. These
