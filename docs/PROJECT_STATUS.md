@@ -69,15 +69,18 @@ Stable-size Java GLES frames now reuse texture storage instead of reallocating
 it every frame; a measured performance improvement has not been established.
 
 Both base and combined developer variants built with zero lint errors. The final
-Phone emulator suite passed 98 selected checks; Retroid passed 98 before the last
-picker-result and texture-reuse follow-ups. Snakes passed a separate native menu/display/screenshot
-check. These are development results, not new release APKs or full-game
+Phone emulator suite passed 98 selected checks. A subsequent physical Retroid
+run passed 100 checks including the final picker-result and texture-reuse changes.
+Snakes passed two native UI checks, including three consecutive restarts and
+Home/return cycles with guest-picture capture. These are development results,
+not new release APKs or full-game
 compatibility claims. The existing frame limiter gained additional actual
 Canvas/GameCanvas-path checks, not a universal game-speed setting.
 The emulator also recovered a real DocumentsUI save-folder selection after
 process death and returned to review with saves included, without auto-importing.
 Bounce Tales completed live size trials/Undo, restart and exit in the final Phone
-emulator build; inspected game images remained visible. No full-playthrough claim.
+emulator build and combined Handheld debug build on Retroid; inspected game
+images remained visible. No full-playthrough claim.
 [Details, local fixtures and limitations](checks/2026-10-18-runtime-transfer.md).
 
 ## Changes Released in Beta.4

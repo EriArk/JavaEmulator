@@ -39,6 +39,20 @@ public final class SymbianSessionUiTest {
             assertFalse(label, ui.getRootInActiveWindow().findAccessibilityNodeInfosByText(label).isEmpty());
         capture(screenshot);
         click("More"); click("Back"); waitNode("Resume", 5000);
+        if ("javaMenuUri".equals(argument)
+                && "true".equals(InstrumentationRegistry.getArguments().getString("javaDisplayTrials"))) {
+            for (String size : new String[]{"128 x 160", "480 x 800", "240 x 320"}) {
+                click("More"); click("Screen presets"); click("Phone resolution"); clickScrollingChoice(size);
+                click("Try changes"); waitNode("Undo", 5000); SystemClock.sleep(1000);
+                capture("java-trial-" + size.replace(" ", "") + ".png"); click("Undo");
+                if (controllerMenu) key(KeyEvent.KEYCODE_BACK, 80); else click("Game menu");
+                waitNode("Resume", 5000);
+            }
+            click("Restart game"); click("Restart"); SystemClock.sleep(8000);
+            capture("java-trial-restarted.png");
+            if (controllerMenu) key(KeyEvent.KEYCODE_BACK, 80); else click("Game menu");
+            waitNode("Resume", 5000);
+        }
         click("Exit game"); waitNode("Leave without saving", 5000); click("Resume");
         if (controllerMenu) key(KeyEvent.KEYCODE_BACK, 80); else click("Game menu");
         click("Exit game"); click("Leave without saving");
@@ -158,6 +172,14 @@ public final class SymbianSessionUiTest {
             click("Back"); waitNode("Resume",5000);
             click("Resume");
         }
+        assertPublishedGamePicture();
+        click("Game menu"); click("Exit game"); click("Leave without saving");
+        SystemClock.sleep(1000);
+    }
+    private void assertPublishedGamePicture() throws Exception {
+        assertPublishedGamePicture(8);
+    }
+    private void assertPublishedGamePicture(int minimumColors) throws Exception {
         Set<Long> before=screenshots();
         click("Game menu"); waitNode("Resume",5000);
         AccessibilityNodeInfo captureAction=null;
@@ -174,11 +196,46 @@ public final class SymbianSessionUiTest {
             try {
                 Set<Integer> colors=new HashSet<>();
                 for(int y=0;y<bitmap.getHeight();y+=8)for(int x=0;x<bitmap.getWidth();x+=8)colors.add(bitmap.getPixel(x,y));
-                assertTrue("Game screenshot must contain the rendered picture",colors.size()>8);
+                assertTrue("Game screenshot must contain the rendered picture",colors.size()>minimumColors);
             } finally {bitmap.recycle();}
         }
-        click("Game menu"); click("Exit game"); click("Leave without saving");
-        SystemClock.sleep(1000);
+    }
+    @Test public void nativeGameSurvivesRepeatedRestartAndBackgroundReturn() throws Exception {
+        Assume.assumeTrue("true".equals(InstrumentationRegistry.getArguments().getString("sessionUi")));
+        SymbianLibraryIndex.Entry game = new SymbianLibraryIndex(context).read().stream()
+                .filter(e -> e.title.equals("Snakes")).findFirst().orElse(null);
+        Assume.assumeNotNull(game);
+        ui = instrumentation.getUiAutomation();
+        Intent launch = new Intent(context, SymbianActivity.class)
+                .addFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK)
+                .putExtra(SymbianLibraryIndex.SYSTEM_EXTRA, game.system)
+                .putExtra(SymbianLibraryIndex.UID_EXTRA, game.uid);
+        context.startActivity(launch);
+        waitNode("Game menu", 20000);
+        SystemClock.sleep(8000);
+        try {
+            // Startup logos can be monochrome; count guest pixels, not Android chrome.
+            assertPublishedGamePicture(1);
+            for (int attempt = 0; attempt < 3; attempt++) {
+                click("Game menu"); click("Restart game"); click("Restart");
+                waitNode("Game menu", 20000);
+                SystemClock.sleep(8000);
+                assertPublishedGamePicture(1);
+                capture("symbian-restart-" + attempt + ".png");
+                key(KeyEvent.KEYCODE_HOME, 80);
+                SystemClock.sleep(1000);
+                context.startActivity(new Intent(context, SymbianActivity.class)
+                        .addFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_REORDER_TO_FRONT));
+                waitNode("Game menu", 10000);
+                SystemClock.sleep(1000);
+                assertPublishedGamePicture(1);
+                click("Game menu"); waitNode("Resume", 5000); click("Resume");
+            }
+            capture("symbian-restart-resumed.png");
+        } finally {
+            click("Game menu"); click("Exit game"); click("Leave without saving");
+            SystemClock.sleep(1000);
+        }
     }
     @Test public void provisionPrivatePhoneCardFixtureWhenExplicitlyRequested() throws Exception {
         Assume.assumeTrue("true".equals(InstrumentationRegistry.getArguments().getString("phoneCardFixture")));
@@ -252,6 +309,24 @@ public final class SymbianSessionUiTest {
         clickNode(node!=null ? node : waitNode(text,10000));
     }
     private void clickPrefix(String text) { AccessibilityNodeInfo node=find(ui.getRootInActiveWindow(),text,true); assertNotNull(text,node); clickNode(node); }
+    private void clickScrollingChoice(String text) {
+        for (int action : new int[]{AccessibilityNodeInfo.ACTION_SCROLL_FORWARD, AccessibilityNodeInfo.ACTION_SCROLL_BACKWARD}) {
+            for (int attempt = 0; attempt < 12; attempt++) {
+                AccessibilityNodeInfo root = ui.getRootInActiveWindow();
+                AccessibilityNodeInfo match = find(root, text, false);
+                if (match != null) { clickNode(match); return; }
+                if (!scroll(root, action)) break;
+                SystemClock.sleep(200);
+            }
+        }
+        throw new AssertionError("Missing scrolling choice: " + text);
+    }
+    private boolean scroll(AccessibilityNodeInfo node, int action) {
+        if (node == null) return false;
+        if (node.isScrollable() && node.performAction(action)) return true;
+        for (int i = 0; i < node.getChildCount(); i++) if (scroll(node.getChild(i), action)) return true;
+        return false;
+    }
     private void clickNode(AccessibilityNodeInfo node) {
         node.performAction(AccessibilityNodeInfo.AccessibilityAction.ACTION_SHOW_ON_SCREEN.getId());
         SystemClock.sleep(150); node.refresh();

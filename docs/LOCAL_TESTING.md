@@ -41,6 +41,28 @@ Use an explicit class list or omit that filter for a broader run. Never run
 UI automation against a device concurrently controlled by another task.
 The latest targeted runtime/transfer evidence is [recorded separately](checks/2026-10-18-runtime-transfer.md).
 
+### Optional real-game lifecycle checks
+
+The combined build's `SymbianSessionUiTest` accepts explicit private fixtures.
+Use a dedicated debug library: these tests launch/restart games, inject input
+and save screenshots. They do not bundle games or system files.
+
+- `-e sessionUi true` enables `nativeGameSurvivesRepeatedRestartAndBackgroundReturn`
+  and `nativeGameUsesSharedDisplayMapperAndPhoneControls`; both need an installed
+  Snakes entry and prepared system in that debug package. The new case repeats
+  restart/Home/return three times and checks guest-only screenshot pixels.
+- `-e javaMenuUri <readable-JAR-URI> -e javaDisplayTrials true` enables live
+  resolution trials/Undo/restart in `javaGameUsesCommonMenuWhenFixtureProvided`.
+  The explicit trial flag is optional; without it the original menu-only flow runs.
+- The full class name is
+  `io.github.eriark.abyssme.symbian.SymbianSessionUiTest`; select methods with
+  `-e class <class>#<method>`. Missing fixtures skip rather than prove support.
+
+October 18 Retroid follow-up: 100 selected runtime/transfer checks, two native
+fixture cases and one Java trial case passed. The Phone test APK compiled, but
+these follow-up UI flows were run on physical Handheld only. The evidence record
+above distinguishes initial harness failures from final results.
+
 ## Mismatched JAD/JAR fallback: 2026-10-10
 
 The old installer was reproduced failing with a null-URI exception after accepting

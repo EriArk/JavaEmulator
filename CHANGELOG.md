@@ -32,10 +32,18 @@ combined builds; released experimental features are explicitly identified.
   29 JVM tests per variant, 98 final emulator checks and 98 earlier Retroid checks.
   A separate Snakes UI/pixel check passed on Retroid. Added Canvas/GameCanvas
   frame-cap coverage; no universal simulation-speed claim. Physical testing was
-  stopped when another task began using the device. Public beta.4 is unchanged.
+  initially paused because another app appeared; concurrent device use was an
+  unconfirmed inference, subsequently corrected by the owner. Public beta.4 is unchanged.
   Final Phone emulator checks also covered Bounce Tales size trials/Undo,
   restart and exit, with inspected game images rather than a full playthrough.
   [Evidence and limits](docs/checks/2026-10-18-runtime-transfer.md).
+- **Physical follow-up:** Retroid passed 100 selected checks with the final
+  runtime/transfer fixes, plus two Snakes UI cases. The new opt-in native test
+  covers three consecutive restarts and Home/return cycles, inspecting captured
+  guest pixels rather than Android menu chrome. This adds regression coverage,
+  not a new runtime fix or a full-game/audio/save acceptance claim.
+  Bounce Tales also passed 128x160 / 480x800 / 240x320 live trials, Undo,
+  restart and exit on Retroid; captured game images were inspected.
 
 ## 2026-10-17
 

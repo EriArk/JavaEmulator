@@ -88,9 +88,10 @@ paired-key forms, malformed/missing dimensions and out-of-range values.
 
 The owner's signed Handheld beta.4 and its library were not upgraded or cleared.
 Retroid checks used `io.github.eriark.abyssme.symbian.debug`. Device interaction
-was stopped when another task began using the device. The unfinished
-multi-game UI run is not counted as a pass. Temporary debug packages/data and
-five copied test JARs were left in place to avoid disturbing the other task.
+was initially stopped after a different app appeared. Concurrent use by another
+chat was an inference, not an established fact; the owner subsequently confirmed
+that the device was available. The unfinished multi-game UI run is not counted
+as a pass. Temporary debug packages/data and five copied test JARs remain local.
 
 No new broad gameplay, sound, save-roundtrip, physical-controller or Asphalt 3
 cold-launch acceptance is claimed. Intermittent Ghost Recon #15 remains open.
@@ -107,3 +108,46 @@ during first conversion is not included as a gameplay result.
 Private captures are under `build/overnight-captures/`.
 Earlier fixture mistakes and interrupted runs are retained separately and are
 not included in the final pass counts.
+
+## Physical follow-up after owner clarification
+
+Retroid Pocket Classic / Android 14 was used exclusively for this follow-up.
+The signed beta and its data were not replaced. The combined Handheld debug APK
+with the final October 18 runtime fixes was installed in the existing isolated
+debug package. APK SHA-256:
+`b6d6d90024624b437753376f05babc5c3073215aa5c22869f41532797829cb2c`.
+
+- `retroid-followup-runtime.txt`: 100 selected Android checks passed in 16.487 s,
+  including final transfer-result recovery, texture reuse with changing frame
+  colors, logical resize, presentation rotation and surface recreation.
+- `retroid-followup-native-final.txt`: two opt-in Snakes checks passed in 77.920 s.
+  The new scenario repeats Restart game and Home/return three times, checks the
+  reopened menu and obtains nonblank guest-only screenshots after each step.
+  Inspected captures show the Nokia startup logo after restart and the Iomo
+  screen after return; this is not a gameplay, sound or save-roundtrip claim.
+- Both combined Handheld and Phone instrumentation APKs compile with the added
+  fixture checks (`retroid-followup-test-build.log`). Phone execution was not
+  repeated during this physical follow-up.
+- `retroid-followup-java-trials-final.txt`: the opt-in Java fixture flow passed
+  in 31.531 s using the supplied Bounce Tales JAR. It selected 128x160, 480x800
+  and 240x320, tried/undid each, restarted and exited. All three trial captures
+  and the restarted menu were inspected: game graphics remained present. Small
+  logical sizes crop fixed-size artwork, while large sizes leave it smaller;
+  this is not a claim that arbitrary logical resolutions suit every game.
+
+The external shell UI helper could not obtain an accessibility root for this
+Java run. A debugger snapshot showed the UI thread idle, not a Java lock cycle;
+the debugger was detached and its ADB forward removed. The final check uses
+Android instrumentation input/accessibility and handles scrolling preset choices
+on the small screen. The failed shell run and the initial offscreen-choice test
+failure are not counted as application compatibility failures or passing checks.
+
+The first new test attempted same-process Activity access, which Android rejects
+because Symbian runs in its own process. It now uses the UI boundary. A second
+fixture assertion incorrectly rejected the monochrome Nokia startup logo; the
+restart check accepts multiple guest colors while the existing later-game UI
+check retains its stricter color threshold. Neither failed attempt is counted
+as a product failure or a passing run.
+
+No new production-code fix or public release was made in this follow-up.
+Commercial games, firmware, debug APKs and captures remain outside Git.
