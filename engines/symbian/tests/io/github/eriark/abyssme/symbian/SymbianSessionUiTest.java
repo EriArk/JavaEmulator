@@ -42,6 +42,9 @@ public final class SymbianSessionUiTest {
         if ("true".equals(InstrumentationRegistry.getArguments().getString("speedTrials"))) speedTrials(screenshot, controllerMenu);
         if ("true".equals(InstrumentationRegistry.getArguments().getString("presentationTrials")))
             presentationTrials(screenshot, controllerMenu);
+        if ("javaMenuUri".equals(argument)
+                && "true".equals(InstrumentationRegistry.getArguments().getString("resizeReturnTrials")))
+            resizeReturnTrials(controllerMenu);
         if ("mophunMenuUri".equals(argument)
                 && "true".equals(InstrumentationRegistry.getArguments().getString("frameRateTrials"))) {
             for (int fps : new int[]{15, 30, 0, 60}) {
@@ -94,6 +97,28 @@ public final class SymbianSessionUiTest {
         click("Exit game"); click("Leave without saving");
         SystemClock.sleep(1000);
     }
+    private void resizeReturnTrials(boolean controllerMenu) throws Exception {
+        ActivityManager.AppTask gameTask = null;
+        for (ActivityManager.AppTask task : context.getSystemService(ActivityManager.class).getAppTasks()) {
+            ComponentName top = task.getTaskInfo().topActivity;
+            if (top != null && top.getClassName().equals("javax.microedition.shell.MicroActivity")) gameTask = task;
+        }
+        assertNotNull("Existing Java game task", gameTask);
+        for (String size : new String[]{"128 x 160", "480 x 800", "320 x 240", "240 x 320"}) {
+            click("More"); click("Screen presets"); click("Phone resolution"); clickScrollingChoice(size);
+            click("Try changes"); waitNode("Undo", 5000); SystemClock.sleep(1000);
+            capture("java-resize-trial-" + size.replace(" ", "") + ".png");
+            assertPublishedGamePicture(1);
+            key(KeyEvent.KEYCODE_HOME, 80); SystemClock.sleep(1000);
+            gameTask.moveToFront(); waitNode("Game menu", 10000); SystemClock.sleep(1000);
+            assertPublishedGamePicture(1);
+            capture("java-resize-return-" + size.replace(" ", "") + ".png");
+            click("Undo"); SystemClock.sleep(1000); assertPublishedGamePicture(1);
+            if (controllerMenu) key(KeyEvent.KEYCODE_BACK, 80); else click("Game menu");
+            waitNode("Resume", 5000);
+        }
+    }
+
     private void presentationTrials(String engine, boolean controllerMenu) throws Exception {
         for (int rotation : new int[]{90, 180, 270, 0}) {
             click("Display"); click("Picture size"); click(rotation == 180 ? "Stretch" : "Fit");

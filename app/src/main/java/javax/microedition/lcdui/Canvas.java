@@ -158,6 +158,7 @@ public abstract class Canvas extends Displayable {
 	private volatile boolean visible;
 	private volatile boolean displayVisible;
 	private volatile boolean sizeChangedCalled;
+	private int notifiedWidth, notifiedHeight;
 	private Image offscreen;
 	private Image offscreenCopy;
 	private int onX, onY, onWidth, onHeight;
@@ -309,15 +310,23 @@ public abstract class Canvas extends Displayable {
 	public void doShowNotify() {
 		if (!displayVisible || visible) return;
 		framePacer.reset();
-		if (!sizeChangedCalled) {
-			try { doSizeChanged(width, height); }
-			catch (Exception e) { Log.e(TAG, "sizeChanged: ", e); }
-			sizeChangedCalled = true;
-		}
+		dispatchSizeChanged();
 		if (!displayVisible) return;
 		visible = true;
 		try { showNotify(); }
 		finally { repaintInternal(); }
+	}
+
+	/** Deliver the current size on the guest event thread, not stale queued dimensions. */
+	public final void dispatchSizeChanged() {
+		if (!displayVisible) return;
+		int w = width, h = height;
+		if (sizeChangedCalled && notifiedWidth == w && notifiedHeight == h) return;
+		notifiedWidth = w;
+		notifiedHeight = h;
+		sizeChangedCalled = true;
+		try { doSizeChanged(w, h); }
+		catch (Exception e) { Log.e(TAG, "sizeChanged: ", e); }
 	}
 
 	public void doHideNotify() {
@@ -578,8 +587,6 @@ public abstract class Canvas extends Displayable {
 			if (isShown()) {
 				Display.getEventQueue().postEventQueued(CanvasEvent.getInstance(this,
 						CanvasEvent.SIZE_CHANGED, width, height));
-			} else {
-				sizeChangedCalled = false;
 			}
 			repaintInternal();
 		} else {
@@ -965,27 +972,35 @@ public abstract class Canvas extends Displayable {
 		}
 
 		private Single<Bitmap> takeScreenShot() {
-			return Single.<ByteBuffer>create(emitter -> {
-						ByteBuffer buf = ByteBuffer.allocateDirect(onWidth * onHeight * 4).order(ByteOrder.nativeOrder());
+			return Single.<Bitmap>create(emitter -> {
 						mView.requestRender();
 						mView.queueEvent(() -> {
+							if (emitter.isDisposed()) return;
 							try {
-								glReadPixels(onX, displayHeight - onHeight - onY, onWidth, onHeight, GL_RGBA, GL_UNSIGNED_BYTE, buf);
-								emitter.onSuccess(buf);
+								if (surface == null || !surface.isValid())
+									throw new IllegalStateException("Game surface is unavailable");
+								// A queued event can precede the requested draw; swapped buffers are not retained.
+								onDrawFrame(null);
+								int w = onWidth, h = onHeight;
+								ByteBuffer buf = ByteBuffer.allocateDirect(w * h * 4).order(ByteOrder.nativeOrder());
+								glReadPixels(onX, displayHeight - h - onY, w, h, GL_RGBA, GL_UNSIGNED_BYTE, buf);
+								Bitmap bitmap = Bitmap.createBitmap(w, h, Bitmap.Config.ARGB_8888);
+								buf.rewind();
+								bitmap.copyPixelsFromBuffer(buf);
+								emitter.onSuccess(bitmap);
 							} catch (Throwable e) {
-								emitter.onError(e);
+								emitter.tryOnError(e);
 							}
 						});
 					}).timeout(3, TimeUnit.SECONDS)
 					.subscribeOn(Schedulers.computation())
 					.observeOn(Schedulers.computation())
-					.map(bb -> {
-						Bitmap rawBitmap = Bitmap.createBitmap(onWidth, onHeight, Bitmap.Config.ARGB_8888);
-						bb.rewind();
-						rawBitmap.copyPixelsFromBuffer(bb);
+					.map(rawBitmap -> {
 						Matrix m = new Matrix();
 						m.setScale(1.0f, -1.0f);
-						return Bitmap.createBitmap(rawBitmap, 0, 0, onWidth, onHeight, m, false);
+						try {
+							return Bitmap.createBitmap(rawBitmap, 0, 0, rawBitmap.getWidth(), rawBitmap.getHeight(), m, false);
+						} finally { rawBitmap.recycle(); }
 					});
 		}
 	}
@@ -1002,6 +1017,8 @@ public abstract class Canvas extends Displayable {
 
 		@Override
 		public void process() {
+			// A repaint queued before a host resize must still follow its guest notification.
+			if (isShown()) dispatchSizeChanged();
 			int l, t, r, b;
 			synchronized (this) {
 				isPending = false;

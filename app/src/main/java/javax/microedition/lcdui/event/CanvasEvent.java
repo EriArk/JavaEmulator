@@ -154,7 +154,7 @@ public class CanvasEvent extends Event {
 
 			case SIZE_CHANGED:
 				try {
-					canvas.doSizeChanged(width, height);
+					canvas.dispatchSizeChanged();
 				} catch (Exception e) {
 					Log.e(TAG, "sizeChanged: ", e);
 				}

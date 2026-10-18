@@ -53,11 +53,27 @@ Beta.1 remains a historical download, not the recommended current version.
 | Channel | Current identifier | Availability |
 | --- | --- | --- |
 | Public download | `v0.3.0-beta.6`, code 305 | Signed Handheld/Phone APKs, matching app source and dependency/native source bundles |
-| Public development source | `main`, beta.6 plus unreleased audio synchronization, safer folder discovery, Mophun ZIP/7z import and Java frame preservation | The changes below require a future build; beta.6 downloads are unchanged |
+| Public development source | `main`, beta.6 plus unreleased audio synchronization, safer folder discovery, Mophun ZIP/7z import and Java display recovery/capture fixes | The changes below require a future build; beta.6 downloads are unchanged |
 | Private historical snapshot | `0.1.0-beta.2-experimental.15`, 2026-10-11 | Old Java/Mophun test build, not the current beta |
 | Local-only material | Game fixtures, firmware, diagnostics, device data and signing keys | Not in Git or public release assets; describing testing does not authorize redistribution |
 
 ## Unreleased After Beta.6
+
+October 18: fix Java resize notification ordering when a frame is already queued,
+coalesce stale resize notifications to the current dimensions, and defer pending
+size callbacks while the game is in the background. On return, the game receives
+its new size before show/paint, including GameCanvas buffer resizing.
+Also fix GLES screenshots that could be black despite a visible game frame:
+capture now explicitly renders before reading pixels and retains the captured
+dimensions through conversion.
+
+Three queue regressions and one screenshot regression failed before their fixes.
+Afterward, Retroid and the Android 15 emulator each passed 61 checks. A real
+Age of Empires II Deluxe workflow passed four resolution trials, Home/return,
+game-image capture and Undo without restarting. Inspected captures show startup
+and in-game pause screens, not gameplay acceptance. Both combined debug variants
+built; no beta or APK distribution was performed.
+[Evidence and limits](checks/2026-10-18-resize-resume.md).
 
 October 18: preserve the last Java game frame when changing scale, rotation or
 smoothing without changing the game's logical resolution. These host-only

@@ -12,6 +12,16 @@ combined builds; released experimental features are explicitly identified.
 
 ## 2026-10-18
 
+- **Public source, unreleased after beta.6:** deliver the current Java screen
+  size before an already-queued paint, suppress stale resize notifications, and
+  defer hidden-game resize callbacks until foreground return. Retain GameCanvas
+  cached-graphics recovery. Fix black GLES screenshots by rendering before pixel
+  readback and using captured dimensions for bitmap conversion. Four focused
+  regressions failed before their fixes. Retroid and emulator each passed 61
+  checks; a real Java workflow passed four resolution/Home/return/Undo cycles
+  without restarting. No new release or APK distribution.
+  [Evidence and limits](docs/checks/2026-10-18-resize-resume.md).
+
 - **Public source, unreleased after beta.6:** preserve directly submitted Java
   frames across host-only scale, rotation, smoothing and surface changes.
   Avoid unnecessary guest paint callbacks that could replace the current frame
