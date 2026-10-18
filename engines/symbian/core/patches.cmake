@@ -141,9 +141,92 @@ abyss_patch_source(epoc "src/software.cpp" "${software_original}" "${software_pa
 unset(software_original)
 unset(software_patched)
 
-abyss_patch_source(epocservs "src/fs/files.cpp"
+get_target_property(fs_source_dir epocservs SOURCE_DIR)
+file(READ "${fs_source_dir}/src/fs/files.cpp" fs_original)
+set(fs_patched "${fs_original}")
+abyss_replace_once(fs_patched "#include <services/fs/fs.h>"
+    "#include <services/fs/fs.h>\n#include \"file_transfer.h\"")
+abyss_replace_once(fs_patched
     "new_node->vfs_node = io->open_file(name, access_mode);"
     "extern void abyss_prepare_ngage_metadata(io_system *, const std::u16string &);\n        if (!(access_mode & WRITE_MODE) && !temporary) abyss_prepare_ngage_metadata(io, name);\n        new_node->vfs_node = io->open_file(name, access_mode);")
+abyss_replace_once(fs_patched [=[        std::int32_t write_pos_provided = *ctx->get_argument_value<std::int32_t>(2);]=]
+    [=[        const bool wide_position = ctx->msg->function & epoc::fs::ipc_arg_slot2_des;
+        const auto position = wide_position ? ctx->get_argument_data_from_descriptor<std::int64_t>(2)
+            : std::optional<std::int64_t>(ctx->get_argument_value<std::int32_t>(2));
+        if (!position) { ctx->complete(epoc::error_argument); return; }
+        const std::int64_t write_pos_provided = *position;]=])
+abyss_replace_once(fs_patched [=[        // Low MaxUint64
+        if ((write_pos_provided != static_cast<int>(0x80000000)) && (write_pos_provided != -1)) {
+            write_pos = write_pos_provided;
+        }
+
+        if (write_pos > size_of_file) {
+            // Fill the file with temporary 0
+            vfs_file->seek(0, file_seek_mode::end);
+            static char ZERO_BYTE = 0;
+
+            if (vfs_file->write_file(&ZERO_BYTE, 1, static_cast<std::uint32_t>(write_pos - size_of_file)) != write_pos - size_of_file) {
+                LOG_WARN(SERVICE_EFSRV, "Unable to supply stubbed bytes for beyond file size write operation!");
+            }
+        }
+
+        // If this write pos is beyond the current end of file, use last pos
+        vfs_file->seek(write_pos, file_seek_mode::beg);
+        size_t wrote_size = vfs_file->write_file(write_data.value().data(), 1, write_len);]=]
+    [=[        const auto transfer = abyssme::plan_file_transfer(true, size_of_file, write_pos,
+            write_pos_provided, write_len, write_data->size(), !wide_position);
+        if (!transfer) { ctx->complete(epoc::error_argument); return; }
+        write_pos = transfer->position;
+        if (vfs_file->seek(write_pos, file_seek_mode::beg) == UINT64_MAX) {
+            ctx->complete(epoc::error_argument); return;
+        }
+        const size_t wrote_size = vfs_file->write_file(write_data->data(), 1, transfer->length);
+        if (wrote_size != transfer->length) { ctx->complete(epoc::error_general); return; }]=])
+abyss_replace_once(fs_patched [=[        vfs_file->seek(read_pos, file_seek_mode::beg);
+
+        uint64_t size = vfs_file->size();
+
+        if (size - read_pos < read_len) {
+            read_len = static_cast<int>(size - read_pos);
+        }]=]
+    [=[        const auto transfer = abyssme::plan_file_transfer(false, vfs_file->size(), last_pos,
+            static_cast<std::int64_t>(read_pos), read_len, ctx->get_argument_max_data_size(0), false);
+        if (!transfer) { ctx->complete(epoc::error_argument); return; }
+        read_len = transfer->length;
+        if (vfs_file->seek(transfer->position, file_seek_mode::beg) == UINT64_MAX) {
+            ctx->complete(epoc::error_argument); return;
+        }]=])
+abyss_replace_once(fs_patched [=[        ctx->write_data_to_descriptor_argument(0, reinterpret_cast<uint8_t *>(read_data.data()), static_cast<std::uint32_t>(read_finish_len));]=]
+    [=[        int descriptor_error = epoc::error_bad_descriptor;
+        if (!ctx->write_data_to_descriptor_argument(0, reinterpret_cast<uint8_t *>(read_data.data()),
+                static_cast<std::uint32_t>(read_finish_len), &descriptor_error)) {
+            ctx->complete(descriptor_error); return;
+        }]=])
+abyss_replace_once(fs_patched "position = ctx->get_argument_value<std::uint32_t>(1).value();"
+    "position = ctx->get_argument_value<std::int32_t>(1).value();")
+abyss_replace_once(fs_patched "position = ctx->get_argument_value<std::uint32_t>(2).value();"
+    "position = ctx->get_argument_value<std::int32_t>(2).value();")
+abyss_replace_once(fs_patched [=[        std::uint8_t *buffer = ctx->get_descriptor_argument_ptr(slot_to_set_length);]=]
+    [=[        if (position > INT64_MAX || buffer_length > INT32_MAX) {
+            target_file->close(); ctx->complete(epoc::error_argument); return;
+        }
+        const auto transfer = abyssme::plan_file_transfer(false, target_file->size(), 0,
+            static_cast<std::int64_t>(position), static_cast<std::int32_t>(buffer_length),
+            ctx->get_argument_max_data_size(slot_to_set_length), false);
+        if (!transfer) {
+            target_file->close(); ctx->complete(epoc::error_argument); return;
+        }
+        std::uint8_t *buffer = ctx->get_descriptor_argument_ptr(slot_to_set_length);]=])
+abyss_replace_once(fs_patched [=[        target_file->seek(position, eka2l1::file_seek_mode::beg);
+        const std::size_t readed_size = target_file->read_file(buffer, buffer_length, 1);]=]
+    [=[        if (target_file->seek(transfer->position, eka2l1::file_seek_mode::beg) == UINT64_MAX) {
+            target_file->close(); ctx->complete(epoc::error_argument); return;
+        }
+        const std::size_t readed_size = transfer->length
+            ? target_file->read_file(buffer, 1, transfer->length) : 0;]=])
+abyss_patch_source(epocservs "src/fs/files.cpp" "${fs_original}" "${fs_patched}")
+unset(fs_original)
+unset(fs_patched)
 
 # HAL/SCDV expose the current logical mode. Do not rotate its presented pixels
 # again based on the physical panel. Keep upstream read-back handling separate.

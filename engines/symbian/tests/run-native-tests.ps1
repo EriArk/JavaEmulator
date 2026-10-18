@@ -6,7 +6,7 @@ $ErrorActionPreference = 'Stop'
 $project = (Resolve-Path (Join-Path $PSScriptRoot '../../..')).Path
 $clang = Join-Path $Sdk 'ndk/28.2.13676358/toolchains/llvm/prebuilt/windows-x86_64/bin/clang++.exe'
 $adb = Join-Path $Sdk 'platform-tools/adb.exe'
-foreach ($test in @('capture_cleanup', 'capture_routing', 'card_identity')) {
+foreach ($test in @('capture_cleanup', 'capture_routing', 'card_identity', 'file_transfer')) {
     $output = Join-Path $project "build/symbian-$test-test"
     New-Item -ItemType Directory -Force (Split-Path $output) | Out-Null
     & $clang --target=aarch64-linux-android29 -static-libstdc++ -std=c++17 `

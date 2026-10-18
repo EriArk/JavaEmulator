@@ -15,6 +15,7 @@
 #include <system/devices.h>
 #include <system/software.h>
 #include <filesystem>
+#include <mutex>
 #include <stdexcept>
 #include <common/algorithm.h>
 #include <common/archive.h>
@@ -430,6 +431,8 @@ extern "C" JNIEXPORT jboolean JNICALL
 Java_com_github_eka2l1_emu_Emulator_launchGame(JNIEnv *, jclass, jint uid) {
     if (!state || !state->symsys || !os_thread_obj) return false;
     auto *kernel = state->symsys->get_kernel_system();
+    // The running guest may rebuild the application registry during startup.
+    const std::lock_guard<eka2l1::kernel_system> guard(*kernel);
     auto *apps = kernel->get_by_name<eka2l1::applist_server>(eka2l1::get_app_list_server_name_by_epocver(kernel->get_epoc_version()));
     auto *reg = apps ? apps->get_registration(static_cast<std::uint32_t>(uid)) : nullptr;
     eka2l1::apa_app_registry package_reg{eka2l1::apa_app_info(), eka2l1::apa_capability()};
@@ -443,7 +446,6 @@ Java_com_github_eka2l1_emu_Emulator_launchGame(JNIEnv *, jclass, jint uid) {
     if (!reg) return false;
     eka2l1::epoc::apa::command_line command;
     command.launch_cmd_ = eka2l1::epoc::apa::command_create;
-    kernel->lock();
     const bool started = apps->launch_app(*reg, command, nullptr, [](eka2l1::kernel::process *process) {
         const auto reason = eka2l1::common::ucs2_to_utf8(process->get_exit_category()) + " (" + std::to_string(process->get_exit_reason()) + ")";
         __android_log_print(ANDROID_LOG_INFO, "AbyssSymbian", "Guest exit: %s", reason.c_str());
@@ -455,7 +457,6 @@ Java_com_github_eka2l1_emu_Emulator_launchGame(JNIEnv *, jclass, jint uid) {
         env->CallStaticVoidMethod(cls, method, text);
         env->DeleteLocalRef(text);
     });
-    kernel->unlock();
     return started;
 }
 

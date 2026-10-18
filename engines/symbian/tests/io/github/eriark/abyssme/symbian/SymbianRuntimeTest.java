@@ -478,42 +478,60 @@ public final class SymbianRuntimeTest {
         Assume.assumeTrue(args.containsKey("launchTitle"));
         Context context = InstrumentationRegistry.getInstrumentation().getTargetContext();
         UiAutomation ui = InstrumentationRegistry.getInstrumentation().getUiAutomation();
-        context.startActivity(new Intent(context, SymbianActivity.class).addFlags(Intent.FLAG_ACTIVITY_NEW_TASK));
         String title = args.getString("launchTitle");
-        waitText(ui, "Phone tools", 30000);
-        clickExact(ui, "Phone tools");
-        long deadline = SystemClock.uptimeMillis() + 30000;
-        AccessibilityNodeInfo game = null;
-        while (SystemClock.uptimeMillis() < deadline && game == null) {
-            AccessibilityNodeInfo root = ui.getRootInActiveWindow();
-            if (root != null) for (AccessibilityNodeInfo node : root.findAccessibilityNodeInfosByText(title)) {
-                if (title.contentEquals(node.getText()) && node.isClickable()) { game = node; break; }
-            }
-            if (game == null) SystemClock.sleep(100);
+        java.util.List<SymbianLibraryIndex.Entry> matches = new java.util.ArrayList<>();
+        for (SymbianLibraryIndex.Entry entry : new SymbianLibraryIndex(context).read()) {
+            if (title.equals(entry.title) && (!args.containsKey("launchSystem")
+                    || entry.system.equals(args.getString("launchSystem")))) matches.add(entry);
         }
-        assertNotNull("Installed game must appear: " + title, game);
-        ui.waitForIdle(500, 5000);
-        assertTrue(game.performAction(AccessibilityNodeInfo.ACTION_CLICK));
+        assertEquals("Select one indexed game (use launchSystem for duplicate titles)", 1, matches.size());
+        SymbianLibraryIndex.Entry game = matches.get(0);
+        InstrumentationRegistry.getInstrumentation().startActivitySync(new Intent(context,
+                ru.playsoftware.j2meloader.MainActivity.class)
+                .addFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK));
+        context.startActivity(new Intent(context, SymbianActivity.class).addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
+                .putExtra(SymbianLibraryIndex.SYSTEM_EXTRA, game.system)
+                .putExtra(SymbianLibraryIndex.UID_EXTRA, game.uid));
+        waitText(ui, ru.playsoftware.j2meloader.BuildConfig.HANDHELD_MODE
+                ? "Game menu" : "Show game controls", 30000);
+        long deadline;
         int seconds = Integer.parseInt(args.getString("seconds", "15"));
         String[] keys = args.getString("keys", "").split(",");
-        for (int i = 0; i < seconds; i++) {
-            SystemClock.sleep(1000);
-            if (i < keys.length && !keys[i].isEmpty()) {
-                int code = Integer.parseInt(keys[i]);
-                long now = SystemClock.uptimeMillis();
-                ui.injectInputEvent(new android.view.KeyEvent(now, now, android.view.KeyEvent.ACTION_DOWN,
-                        code, 0), true);
-                SystemClock.sleep(100);
-                ui.injectInputEvent(new android.view.KeyEvent(now, SystemClock.uptimeMillis(),
-                        android.view.KeyEvent.ACTION_UP, code, 0), true);
+        int cycles = Integer.parseInt(args.getString("cycles", "1"));
+        assertTrue("cycles must be between 1 and 10", cycles >= 1 && cycles <= 10);
+        for (int cycle = 0; cycle < cycles; cycle++) {
+            if (cycle > 0) {
+                press(ui, android.view.KeyEvent.KEYCODE_BACK);
+                waitText(ui, "Restart game", 5000);
+                clickExact(ui, "Restart game");
+                waitText(ui, "Restart", 5000);
+                clickExact(ui, "Restart");
+                SystemClock.sleep(1500);
+                waitText(ui, ru.playsoftware.j2meloader.BuildConfig.HANDHELD_MODE
+                        ? "Game menu" : "Show game controls", 30000);
             }
-            if (i == 2 || i == seconds - 1 || ("true".equals(args.getString("stepScreens")) && i % 5 == 0)) {
-                android.graphics.Bitmap shot = ui.takeScreenshot();
-                assertNotNull(shot);
-                try (java.io.FileOutputStream out = new java.io.FileOutputStream(new File(context.getExternalFilesDir(null),
-                        "symbian-game-" + i + ".png"))) {
-                    assertTrue(shot.compress(android.graphics.Bitmap.CompressFormat.PNG, 100, out));
-                } finally { shot.recycle(); }
+            for (int i = 0; i < seconds; i++) {
+                SystemClock.sleep(1000);
+                if (i < keys.length && !keys[i].isEmpty()) press(ui, Integer.parseInt(keys[i]));
+                if (i == 2 || i == seconds - 1 || ("true".equals(args.getString("stepScreens")) && i % 5 == 0)) {
+                    android.graphics.Bitmap shot = ui.takeScreenshot();
+                    assertNotNull(shot);
+                    try (java.io.FileOutputStream out = new java.io.FileOutputStream(new File(context.getExternalFilesDir(null),
+                            "symbian-game-" + cycle + "-" + i + ".png"))) {
+                        assertTrue(shot.compress(android.graphics.Bitmap.CompressFormat.PNG, 100, out));
+                        if (i == seconds - 1 && "true".equals(args.getString("requireColorFrame"))) {
+                            assertColorFrame(shot);
+                        }
+                    } finally { shot.recycle(); }
+                }
+                if (i >= 5) {
+                    AccessibilityNodeInfo active = ui.getRootInActiveWindow();
+                    assertNotNull("Guest session must retain its Android window", active);
+                    assertEquals(context.getPackageName(), active.getPackageName().toString());
+                    assertFalse("Guest exited before the requested checkpoint",
+                            active.findAccessibilityNodeInfosByText("Game menu").isEmpty()
+                                    && active.findAccessibilityNodeInfosByText("Show game controls").isEmpty());
+                }
             }
         }
         AccessibilityNodeInfo root = ui.getRootInActiveWindow();
@@ -527,7 +545,7 @@ public final class SymbianRuntimeTest {
             ui.injectInputEvent(new android.view.KeyEvent(now, SystemClock.uptimeMillis(), android.view.KeyEvent.ACTION_UP, 4, 0), true);
             SystemClock.sleep(700);
             root = ui.getRootInActiveWindow();
-            java.util.List<AccessibilityNodeInfo> exit = root.findAccessibilityNodeInfosByText("Library");
+            java.util.List<AccessibilityNodeInfo> exit = root.findAccessibilityNodeInfosByText("Exit game");
             assertFalse(exit.isEmpty());
             assertTrue(exit.get(0).performAction(AccessibilityNodeInfo.ACTION_CLICK));
             clickExact(ui, "Leave without saving");
@@ -535,12 +553,32 @@ public final class SymbianRuntimeTest {
             boolean returned = false;
             while (SystemClock.uptimeMillis() < deadline) {
                 root = ui.getRootInActiveWindow();
-                if (root != null && !root.findAccessibilityNodeInfosByText("Add system files").isEmpty()
-                        && root.findAccessibilityNodeInfosByText("Closing game").isEmpty()) { returned = true; break; }
+                if (root != null && !root.findAccessibilityNodeInfosByText("AbyssME").isEmpty()
+                        && root.findAccessibilityNodeInfosByText("Game menu").isEmpty()) { returned = true; break; }
                 SystemClock.sleep(100);
             }
-            assertTrue("Active guest must stop and return to its catalog", returned);
+            assertTrue("Active guest must stop and return to the shared library", returned);
         }
+    }
+    private static void press(UiAutomation ui, int code) {
+        long now = SystemClock.uptimeMillis();
+        assertTrue(ui.injectInputEvent(new android.view.KeyEvent(now, now,
+                android.view.KeyEvent.ACTION_DOWN, code, 0), true));
+        SystemClock.sleep(100);
+        assertTrue(ui.injectInputEvent(new android.view.KeyEvent(now, SystemClock.uptimeMillis(),
+                android.view.KeyEvent.ACTION_UP, code, 0), true));
+    }
+    private static void assertColorFrame(android.graphics.Bitmap shot) {
+        // Opt-in for color-game fixtures. Exclude Android chrome and touch controls;
+        // this rejects blank surfaces, not frozen or otherwise incorrect game frames.
+        java.util.Set<Integer> colors = new java.util.HashSet<>();
+        for (int y = shot.getHeight() / 4; y < shot.getHeight() * 3 / 4; y += 8) {
+            for (int x = shot.getWidth() / 4; x < shot.getWidth() * 3 / 4; x += 8) {
+                colors.add(shot.getPixel(x, y) & 0x00e0e0e0);
+            }
+        }
+        assertTrue("Expected a nonblank color-game frame, found " + colors.size()
+                + " color bins", colors.size() >= 16);
     }
     private static File permittedInput(Context context, String name) throws Exception {
         File root = new File(context.getExternalFilesDir(null), "symbian-input").getCanonicalFile();

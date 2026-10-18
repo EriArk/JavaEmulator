@@ -12,6 +12,16 @@ combined builds; released experimental features are explicitly identified.
 
 ## 2026-10-18
 
+- **Public source, unreleased:** hardened the shared Symbian file server's
+  read, section-read and write bounds; removed an unsafe beyond-EOF write,
+  preserved partial-read lengths and supported wide write offsets. Protected
+  application lookup and launch with one kernel lock. No per-title exceptions
+  or changes to installed game/firmware files. Retroid native checks, both
+  combined debug builds, 29 JVM tests per variant and lint passed. Snakes passed
+  a title-screen/restart/exit check. Asphalt 3 reached a race but still produced
+  a blank screen after restart; the stronger runtime check now fails on that
+  result. This is not a complete Asphalt compatibility fix or a new release.
+  [Evidence](docs/checks/2026-10-18-symbian-file-transfers.md).
 - **Released:** [0.3.0-beta.5](https://github.com/EriArk/JavaEmulator/releases/tag/v0.3.0-beta.5),
   code 304, published at 07:00 UTC. Signed Handheld/Phone APKs and matching app,
   dependency and native source bundles are public. All six asset hashes matched;

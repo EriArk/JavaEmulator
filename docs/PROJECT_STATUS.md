@@ -53,9 +53,26 @@ Beta.1 remains a historical download, not the recommended current version.
 | Channel | Current identifier | Availability |
 | --- | --- | --- |
 | Public download | `v0.3.0-beta.5`, code 304 | Signed Handheld/Phone APKs, matching app source and dependency/native source bundles |
-| Public development source | `main`, beta.5 plus release handoff documentation | October 18 startup, resize, transfer, automatic setup and Phone controls/chrome changes are included in the release; evidence below |
+| Public development source | `main`, beta.5 plus unreleased Symbian file-transfer hardening | The post-release native changes below are not included in the beta.5 APKs |
 | Private historical snapshot | `0.1.0-beta.2-experimental.15`, 2026-10-11 | Old Java/Mophun test build, not the current beta |
 | Local-only material | Game fixtures, firmware, diagnostics, device data and signing keys | Not in Git or public release assets; describing testing does not authorize redistribution |
+
+## Unreleased After Beta.5
+
+October 18: bounded native Symbian file reads, section reads and writes by the
+guest buffer and file length; removed an unsafe beyond-EOF write and retained
+partial-read byte counts. Application lookup and launch now share the guest
+kernel lock. These are shared engine changes, not title-specific settings.
+
+Both combined debug variants built; 29 JVM tests per variant and lint passed
+(zero errors, existing warnings remain). Retroid passed 86 native transfer
+boundary cases, byte-transfer checks and the existing capture/card checks.
+Snakes retained a visible title screen across a menu restart and returned to the
+library. Native Asphalt 3 reached a race, but the same test caught a blank frame
+after restart. **Asphalt cold/repeated launch stability is still unresolved.**
+Audio, save round trips and complete-game compatibility are not claimed.
+[Exact changes, checks and limitations](checks/2026-10-18-symbian-file-transfers.md).
+Debug APKs remain local; the public beta.5 release is unchanged.
 
 ## Changes Released in Beta.5
 
