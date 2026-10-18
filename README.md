@@ -17,7 +17,7 @@ core: a controller-first **Handheld** APK and a portrait/touch-friendly
 > **Project status:** Beta. AbyssME is usable, but compatibility automation and
 > launcher integration still need testing across more games and devices.
 
-[Download 0.3.0 Beta 4](https://github.com/EriArk/JavaEmulator/releases/tag/v0.3.0-beta.4)
+[Download 0.3.0 Beta 5](https://github.com/EriArk/JavaEmulator/releases/tag/v0.3.0-beta.5)
 
 ## Current Beta
 
@@ -25,10 +25,16 @@ For website copy, progress posts and handoffs, start with the
 [current product/development status](docs/PROJECT_STATUS.md) and
 [dated changelog](CHANGELOG.md). They also describe local/private experiments,
 explicitly separated from public downloads. The
-[0.3.0 beta.4 notes](docs/releases/v0.3.0-beta.4.md) include the combined-engine scope,
+[0.3.0 beta.5 notes](docs/releases/v0.3.0-beta.5.md) include the combined-engine scope,
 verification limits and source downloads.
 
-Beta.4 adds **Automatic / Wide / Portrait** Gallery cover formats without
+Beta.5 fixes a shared Java startup deadlock reproduced with **Age of Empires II
+Deluxe**, improves live display changes and transfer recovery, and adds a
+per-game **Button theme** for Phone controls. The refreshed numeric keypad can
+stay dark with light app menus. Phone shortcuts overlay the game and hide after
+five idle seconds, without reserving a top row.
+
+It retains **Automatic / Wide / Portrait** Gallery cover formats without
 cropping, a compact library for square and near-square screens, and **Restart
 game** in the shared in-game menu. Restart uses saved settings and discards
 unconfirmed previews; it is a recovery shortcut, not a general black-screen fix.
@@ -93,14 +99,14 @@ notices; see [licensing](docs/LICENSING.md). Historical release assets are uncha
 
 ## Screenshots
 
-![Handheld library with portrait covers](screenshots/releases/v0.3.0-beta.4/01-handheld-gallery-portrait.png)
+![Handheld library in Grid view](screenshots/releases/v0.3.0-beta.5/01-handheld-grid.png)
 
-<img src="screenshots/releases/v0.3.0-beta.4/08-phone-keypad.png" alt="Phone build playing a Java game in portrait with its numeric keypad" width="270">
+<img src="screenshots/releases/v0.3.0-beta.5/03-phone-keypad.png" alt="Phone build playing Age of Empires II Deluxe in portrait with its numeric keypad" width="270">
 
-Unretouched captures from the signed beta.4 APKs on a Retroid Pocket Classic
+Unretouched captures from the signed beta.5 APKs on a Retroid Pocket Classic
 (Android 14), including the separate Phone variant. These are app screenshots,
 not photographs. Games were installed separately and are not bundled.
-See the [fresh screenshot pack and captions](screenshots/releases/v0.3.0-beta.4/README.md).
+See the [fresh screenshot pack and captions](screenshots/releases/v0.3.0-beta.5/README.md).
 
 ## Highlights
 

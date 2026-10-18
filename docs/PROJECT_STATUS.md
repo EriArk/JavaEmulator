@@ -34,17 +34,17 @@ bundled. The app UI is English.
 
 ## Availability: Do Not Mix These Channels
 
-**Current public beta: [0.3.0-beta.4](https://github.com/EriArk/JavaEmulator/releases/tag/v0.3.0-beta.4)**,
-published **2026-10-17 at 20:32 UTC**, code **303**. Handheld and Phone include
+**Current public beta: [0.3.0-beta.5](https://github.com/EriArk/JavaEmulator/releases/tag/v0.3.0-beta.5)**,
+published **2026-10-18 at 07:00 UTC**, code **304**. Handheld and Phone include
 Java, Mophun and experimental Symbian / N-Gage. Android 10+, arm64-v8a.
 Games and firmware are not included. Both variants can coexist with independent data.
 
 All six uploaded asset digests were checked; both APKs and the checksum list
-were downloaded again and matched. The source tag is `7b4742f8`; later handoff
+were downloaded again and matched. The source tag is `319b6368`; later handoff
 documentation does not change the APKs. GitHub Actions remains disabled.
-[Release notes](releases/v0.3.0-beta.4.md),
-[verification and limits](releases/v0.3.0-beta.4-checks.md),
-[checksums](releases/v0.3.0-beta.4/SHA256SUMS.txt).
+[Release notes](releases/v0.3.0-beta.5.md),
+[verification and limits](releases/v0.3.0-beta.5-checks.md),
+[checksums](releases/v0.3.0-beta.5/SHA256SUMS.txt).
 
 Beta.2 was withheld before publication after final provisioning exposed a mixed
 SIS/N-Gage catalog defect. Its source tag remains as history; beta.3 fixes it.
@@ -52,14 +52,14 @@ Beta.1 remains a historical download, not the recommended current version.
 
 | Channel | Current identifier | Availability |
 | --- | --- | --- |
-| Public download | `v0.3.0-beta.4`, code 303 | Signed Handheld/Phone APKs, matching app source and dependency/native source bundles |
-| Public development source | `main`, ahead of beta.4 | Unreleased Java resize, automatic screen setup, transfer-recovery, Symbian lifecycle and Phone control/chrome changes; see below |
+| Public download | `v0.3.0-beta.5`, code 304 | Signed Handheld/Phone APKs, matching app source and dependency/native source bundles |
+| Public development source | `main`, beta.5 plus release handoff documentation | October 18 startup, resize, transfer, automatic setup and Phone controls/chrome changes are included in the release; evidence below |
 | Private historical snapshot | `0.1.0-beta.2-experimental.15`, 2026-10-11 | Old Java/Mophun test build, not the current beta |
 | Local-only material | Game fixtures, firmware, diagnostics, device data and signing keys | Not in Git or public release assets; describing testing does not authorize redistribution |
 
-## Unreleased Development After Beta.4
+## Changes Released in Beta.5
 
-The beta.5 candidate also repairs a reproduced Java startup deadlock: games
+Beta.5 repairs a reproduced Java startup deadlock: games
 waiting for Canvas visibility inside startApp() can now proceed. Age of Empires
 II Deluxe 02.00.35 reached Quick play on the Phone emulator and Retroid; physical
 Retroid touch navigation, pause/resume and exit were checked. Six startup cases
@@ -98,13 +98,13 @@ the same selection; settings dialogs retain the app theme. The standard Phone ke
 raised key faces, larger digit labels, alphabet legends and tactile marks on 5;
 landscape navigation uses a connected D-pad. Gamepad controls share the theme
 choice. Existing profiles keep Follow app; Legacy keyboard colors and Handheld
-defaults are unchanged. These are unreleased source changes, not beta.4 APK
-features. [Verification](checks/2026-10-18-phone-touch-appearance.md).
+defaults are unchanged. These changes are included in beta.5, not beta.4 APKs.
+[Verification](checks/2026-10-18-phone-touch-appearance.md).
 
 Phone's top game shortcuts now open from a small edge arrow, overlay the game
 and collapse after five seconds without use. The previous portrait shortcut-row
 reservation is removed; normal gameplay taps do not open the panel. Handheld
-behavior is unchanged. This is also unreleased development source.
+behavior is unchanged. This is included in beta.5.
 Final verification: 43 selected Phone emulator checks, 34 shared-component
 checks on Retroid, and a real Phone settings/relaunch/auto-hide UI case passed.
 [Fresh development captures](../screenshots/development/2026-10-18-phone-controls)
@@ -157,23 +157,25 @@ their counts are not new final-release test results.
 
 ## Final Release Evidence and Post Assets
 
-- Both signed release variants built cleanly and passed APK-content guards,
-  29 JVM tests each and lint with zero errors (403/410 warnings remain).
-- Both final signed variants installed on Retroid. Gravity Defied reached a
-  track and restarted to its main menu in a new Java process. Phone G.R.A.W. 2
-  reached its main menu with both touch decks and portrait orientation.
-- The final beta.4 library views, mapper, common menu and restart confirmation
-  were captured. Native restart tests are from the preceding development run,
-  not repeated final-signed tests. Full-game, audio/save and human-controller
-  acceptance remain unverified.
-- Retroid has only Handheld beta.4, code 303, installed. The temporary Phone
-  package was removed with data retention after captures. Its retained data is
-  not a verified full backup. The Handheld library still reports 39 entries.
+- Both signed beta.5 variants built cleanly and passed APK-content guards,
+  29 JVM tests each and lint with zero errors (404/411 warnings remain).
+- Both final signed variants installed on Retroid. Phone Deluxe 02.00.35
+  reached Quick play, accepted touch navigation and portrait preview/Keep,
+  and restarted in a new Java process. Its top shortcuts auto-hide without
+  moving the game picture. Handheld Deep Abyss reached gameplay; native Snakes
+  reached its Single Player menu. Full-game/audio/save acceptance is not claimed.
+- The official installed Retroid variant is Handheld beta.5, code 304. The
+  temporary production Phone package was removed with data retention; isolated
+  developer packages were not purged. The Handheld library retained 39 entries
+  and all 323 readable external files matched hashes across the upgrade. Two
+  protected Mophun directories were not readable; this is not a full save audit.
+- [Final APK checks and limits](releases/v0.3.0-beta.5-checks.md) distinguish
+  signed-device checks from earlier debug/emulator regression coverage.
 - On October 16, 30 more user-supplied Java games were installed on Retroid;
   the reopened library shows 39 entries. Gravity Defied reached its track and
   is favorited. This is device-only provisioning, not a release or a full-game
   compatibility claim. [Collection checks](checks/2026-10-16-retroid-collection.md).
-- [Fresh beta.4 screenshots](../screenshots/releases/v0.3.0-beta.4/) contain 11
+- [Fresh beta.5 screenshots](../screenshots/releases/v0.3.0-beta.5/) contain seven
   real, unretouched final-APK captures for posts and the website. Old promotional
   folders were removed from the current tree; historical links use pinned commits.
   Earlier release/development evidence remains explicitly dated, not relabeled.
@@ -202,7 +204,7 @@ Android 10+. System files can be provided before games; setup explains missing
 requirements, retains imports and reuses compatible components. Native games
 join the common library. Phone supports numeric/Gamepad touch decks; both
 variants offer display/mapping controls, screenshots and whole-phone backups.
-See [release notes](releases/v0.3.0-beta.4.md) for user-facing details and limits.
+See [release notes](releases/v0.3.0-beta.5.md) for user-facing details and limits.
 
 The current feature summary includes the retained 0.2 features and 0.3 beta additions:
 
@@ -1313,7 +1315,7 @@ See [racing evidence and screenshots](https://github.com/EriArk/JavaEmulator/blo
 
 ## Images and Writing Guidance
 
-- **Use for current posts:** [beta.4 captures](../screenshots/releases/v0.3.0-beta.4/README.md), 2026-10-17: 11 signed-build Retroid screenshots covering Gallery formats, Grid/List, gameplay, menus, mapper and both Phone decks. Captions identify the exact build and device.
+- **Use for current posts:** [beta.5 captures](../screenshots/releases/v0.3.0-beta.5/README.md), 2026-10-18: seven signed-build Retroid screenshots covering Gallery/Grid/List, Deluxe gameplay, Phone keypad/shortcuts, the common menu and Mophun gameplay. Captions identify the exact build and device. The older beta.4 pack remains dated evidence, not fresh beta.5 screenshots.
 - [0.2.0-beta.1 release captures](releases/v0.2.0-beta.1.md#captures), 2026-10-13: signed Handheld Asphalt/Deep Abyss on Retroid and signed Phone Deep Abyss in the emulator. Short ADB-driven checks, not whole-game/audio acceptance.
 - [Archived development screenshots, 2026-10-11](https://github.com/EriArk/JavaEmulator/blob/23da5d4b/screenshots/post-2026-10-11/README.md): 12 real emulator PNGs, ZIP, captions and hashes. Label as **development / experimental.15**.
 - [Archived beta.2 screenshots](https://github.com/EriArk/JavaEmulator/blob/23da5d4b/screenshots/website-beta2/manifest.json): older UI, not current captures.

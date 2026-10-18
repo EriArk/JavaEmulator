@@ -12,7 +12,18 @@ combined builds; released experimental features are explicitly identified.
 
 ## 2026-10-18
 
-- **Development, beta.5 candidate:** fixed a shared startup deadlock affecting
+- **Released:** [0.3.0-beta.5](https://github.com/EriArk/JavaEmulator/releases/tag/v0.3.0-beta.5),
+  code 304, published at 07:00 UTC. Signed Handheld/Phone APKs and matching app,
+  dependency and native source bundles are public. All six asset hashes matched;
+  both APKs and the checksum file were downloaded and verified before publication.
+  Final signed Retroid checks covered Deluxe Quick play/portrait/restart, Mophun
+  gameplay, Snakes menus and the retained 39-game library. Both release builds,
+  29 JVM tests per variant, APK guards and lint passed (zero errors, warnings remain).
+  [Checks](docs/releases/v0.3.0-beta.5-checks.md),
+  [seven fresh captures](screenshots/releases/v0.3.0-beta.5/README.md).
+  Retroid's official variant is Handheld beta.5; temporary production Phone was
+  removed with data retention. GitHub Actions remains disabled.
+- **Released in 0.3.0-beta.5:** fixed a shared startup deadlock affecting
   MIDlets that wait for their screen inside startApp(), reproduced with Age of
   Empires II Deluxe 02.00.35. Retained surface-independent rendering and guarded
   pause/resume, declined startup and obsolete queued start requests. No per-game
@@ -22,17 +33,17 @@ combined builds; released experimental features are explicitly identified.
   regression cases plus 21 Canvas cases passed on the emulator; a preceding
   36-case combined Phone run passed on Retroid. Real Mophun Phone appearance and
   native Snakes shared-control UI tests also passed. Android 16 / Deluxe 02.00.39
-  are not claimed verified. Public beta.4 remains current until publication.
-- **Public source, unreleased:** Phone's upper game shortcuts now open from a
+  are not claimed verified. Final signed-APK checks are recorded separately below.
+- **Released in beta.5:** Phone's upper game shortcuts now open from a
   small edge arrow and collapse after five idle seconds. They overlay the game
   without reserving a portrait row or resizing the image. Normal game/keypad
   touches do not reveal the panel; Handheld access remains unchanged.
-- **Public source, unreleased:** Phone's Controls page adds a per-game Button
+- **Released in beta.5:** Phone's Controls page adds a per-game Button
   theme (Follow app / Dark / Light), allowing dark touch controls with light app
   menus. The shared Java/Mophun/Symbian touch deck and top game shortcut buttons
   use the selected palette;
   normal settings preview/Undo/Keep preserves confirmed values.
-- **Public source, unreleased:** refreshed the Phone number pad with raised key
+- **Released in beta.5:** refreshed the Phone number pad with raised key
   faces, clearer digit/letter typography and tactile marks on 5. Landscape uses
   a connected navigation cross. Hit targets, key codes and multitouch behavior
   remain unchanged; the custom Legacy keyboard is not restyled.
@@ -43,21 +54,21 @@ combined builds; released experimental features are explicitly identified.
   not establish physical-phone ergonomics or full-game compatibility.
   A real Phone UI case also passed theme/layout/orientation changes, relaunch
   persistence and auto-hide; seven inspected development screenshots are included.
-- **Public source, unreleased:** fixed stale Java Graphics targets after buffer
+- **Released in beta.5:** fixed stale Java Graphics targets after buffer
   growth, GameCanvas buffer resizing and size-notification ordering. Hardened
   GLES context/geometry updates and ignored obsolete surface callbacks. These
   address shared resize failure classes, not every game's black screen.
   Stable-size GLES frames reuse texture storage; no measured FPS gain is claimed.
-- **Public source, unreleased:** recognize explicit paired screen dimensions
+- **Released in beta.5:** recognize explicit paired screen dimensions
   such as LG TargetLCD, and prefer original over target-display resolution.
   No per-title rules or resetting of existing settings.
-- **Public source, unreleased:** restore transfer source/save/settings folders,
+- **Released in beta.5:** restore transfer source/save/settings folders,
   subfolder access and pending picker state after Android process recreation.
   A returned selection cannot be lost to an automatic rescan; interrupted
   imports/exports are not silently repeated.
   A real emulator process-death/DocumentsUI round trip returned to review with
   the selected game's saves included, without committing an import.
-- **Public source, unreleased:** protect Symbian replacement sessions from stale
+- **Released in beta.5:** protect Symbian replacement sessions from stale
   exits/surfaces and prevent background surface/menu events from resuming games.
 - **Verified locally:** both base and combined variants built; zero lint errors,
   29 JVM tests per variant, 98 final emulator checks and 98 earlier Retroid checks.

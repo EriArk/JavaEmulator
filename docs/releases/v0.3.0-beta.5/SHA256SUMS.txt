@@ -1,0 +1,5 @@
+1c32b9929ba85daab7cab510e426712bd1e19f174a2835c9dc8a0f2bbb5add53  AbyssME-0.3.0-beta.5-dependency-sources.zip
+14de23f08611c08ee539e3f0360f8a9f682d12764a45425775c90cdba23f2f6e  AbyssME-0.3.0-beta.5-handheld.apk
+6b17aab600a9c4d8dc6e4adfc6cc9dfa6a602a8abd1a512f52a917839f0005d4  AbyssME-0.3.0-beta.5-phone.apk
+84577d275cc8693c96cb42fe24787a0b33c40b4eab9be2a8ef93da4577f0d1d7  AbyssME-0.3.0-beta.5-source.zip
+9d497d5ff2596ce0c70cfbd3c80dbb75e46b9564eb83e5a58a565db37abf2cad  AbyssME-0.3.0-beta.5-symbian-sources.zip
