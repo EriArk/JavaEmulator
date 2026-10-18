@@ -18,6 +18,10 @@ public final class MophunEngine implements AdditionalGames.Engine {
         return MophunInstallerDialog.create(uri, autoStart, finishHost);
     }
     @Override public AppItem readInstalled(File directory) throws IOException { return MophunStore.read(directory); }
+    @Override public AppItem installArchiveGame(Context context, File root, File game, String name,
+                                               Uri archive, String entry, boolean single) throws Exception {
+        return MophunStore.install(context, root, Uri.fromFile(game), name, archive, entry, single);
+    }
     @Override public void launch(Context context, String title, File directory, boolean controls) {
         launch(context, title, directory, controls, false);
     }

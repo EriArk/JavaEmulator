@@ -141,9 +141,16 @@ public class FileUtils {
 			}
 			try (OutputStream out = new FileOutputStream(file)) {
 				int len;
+				long total = 0;
 				while ((len = in.read(buf)) > 0) {
+					if (Thread.currentThread().isInterrupted()) throw new java.io.InterruptedIOException("Import cancelled");
+					total += len;
+					if (total > 512L * 1024 * 1024) throw new IOException("Installer input exceeds 512 MB");
 					out.write(buf, 0, len);
 				}
+			} catch (IOException failure) {
+				java.nio.file.Files.deleteIfExists(file.toPath());
+				throw failure;
 			}
 		}
 		// JAR and ZIP share a signature. Inspect the copied container before naming it.

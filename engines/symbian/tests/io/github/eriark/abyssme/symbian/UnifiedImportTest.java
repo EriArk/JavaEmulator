@@ -24,6 +24,32 @@ public final class UnifiedImportTest {
     private ImportKind.Kind zipKind(File root, String name, byte[] data) throws Exception {
         return ImportKind.inspect(zip(root, new String[]{name}, new byte[][]{data}), "selected.zip");
     }
+    private File seven(String... names) throws Exception {
+        File file = new File(root(), "input.7z");
+        try (org.apache.commons.compress.archivers.sevenz.SevenZOutputFile out =
+                     new org.apache.commons.compress.archivers.sevenz.SevenZOutputFile(file)) {
+            for (String name : names) {
+                org.apache.commons.compress.archivers.sevenz.SevenZArchiveEntry entry =
+                        new org.apache.commons.compress.archivers.sevenz.SevenZArchiveEntry();
+                entry.setName(name); entry.setSize(3);
+                out.putArchiveEntry(entry); out.write(new byte[]{1, 2, 3}); out.closeArchiveEntry();
+            }
+        }
+        return file;
+    }
+    @Test public void sevenRoutesJavaMophunNativeAndSystemsWithoutNativeDecoder() throws Exception {
+        assertEquals(ImportKind.Kind.EXISTING, ImportKind.inspect(seven("java/game.JAR", "mophun/game.MPN"), null));
+        assertEquals(ImportKind.Kind.EXISTING, ImportKind.inspect(seven("game.mpn"), null));
+        assertEquals(ImportKind.Kind.CONTAINER, ImportKind.inspect(seven("game.sisx"), null));
+        assertEquals(ImportKind.Kind.CONTAINER, ImportKind.inspect(seven("System/Apps/Snakes/Snakes.app"), null));
+        assertEquals(ImportKind.Kind.SYSTEM, ImportKind.inspect(seven("phone/system.rpkg"), null));
+        assertEquals(ImportKind.Kind.SYSTEM, ImportKind.inspect(seven("data/roms/test/sym.rom", "data/drives/c/game.sis"), null));
+    }
+    @Test public void sevenRejectsAmbiguousTypesAndUnsafePaths() throws Exception {
+        for (String[] names : new String[][]{{"game.mpn", "game.sisx"}, {"phone.rom", "game.jar"}, {"../game.mpn"}}) {
+            try { ImportKind.inspect(seven(names), null); fail(); } catch (IOException expected) { }
+        }
+    }
     @Test public void archiveContentsRouteJavaGamesSystemsAndPlatformSeparately() throws Exception {
         File root = root(); byte[] dummy = {1, 2, 3};
         assertEquals(ImportKind.Kind.EXISTING, zipKind(root, "META-INF/MANIFEST.MF", dummy));

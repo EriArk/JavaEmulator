@@ -76,19 +76,24 @@ public final class MophunStore {
     }
 
     public static AppItem install(Context context, File root, Uri uri) throws Exception {
-        String name = name(context, uri);
+        return install(context, root, uri, name(context, uri), uri, null, true);
+    }
+
+    static AppItem install(Context context, File root, Uri payload, String name, Uri source,
+                           String archiveEntry, boolean single) throws Exception {
         File stagingRoot = new File(root, ".mophun-import");
         if (!stagingRoot.isDirectory() && !stagingRoot.mkdirs()) throw new IOException("Cannot create import directory");
         File stage = Files.createTempDirectory(stagingRoot.toPath(), "stage-").toFile();
         try {
             File game = new File(stage, EXECUTABLE);
             MessageDigest digest = MessageDigest.getInstance("SHA-256");
-            try (InputStream input = context.getContentResolver().openInputStream(uri);
+            try (InputStream input = context.getContentResolver().openInputStream(payload);
                  FileOutputStream output = new FileOutputStream(game)) {
                 if (input == null) throw new IOException("Cannot open game");
                 byte[] buffer = new byte[8192];
                 long size = 0;
                 for (int read; (read = input.read(buffer)) != -1;) {
+                    if (Thread.currentThread().isInterrupted()) throw new java.io.InterruptedIOException("Import cancelled");
                     size += read;
                     if (size > 16 * 1024 * 1024) throw new IOException("Mophun executable exceeds 16 MB");
                     output.write(buffer, 0, read);
@@ -102,20 +107,22 @@ public final class MophunStore {
             String title = name.replaceFirst("(?i)\\.mpn$", "").replace('_', ' ').trim();
             JSONObject meta = new JSONObject().put("version", 1).put("engine", "mophun")
                     .put("sha256", hash.toString()).put("title", title).put("originalName", name)
-                    .put("model", MophunCompatibility.model(hash.toString(), model(name))).put("sourceUri", uri.toString());
+                    .put("model", MophunCompatibility.model(hash.toString(), model(name))).put("sourceUri", source.toString())
+                    .put("archiveEntry", archiveEntry);
             Files.write(new File(stage, AdditionalGames.MANIFEST).toPath(), meta.toString(2).getBytes(StandardCharsets.UTF_8));
             File destination = directory(root, "mophun-" + hash);
             synchronized (LibraryImporter.class) {
+                if (Thread.currentThread().isInterrupted()) throw new java.io.InterruptedIOException("Import cancelled");
                 try (AppDatabase db = AppDatabase.open(context, root.getAbsolutePath())) {
                     AppItem existing = db.appItemDao().getByPath(destination.getName());
                     if (existing != null) {
                         read(destination);
-                        saveCatalog(db, existing, uri);
+                        saveCatalog(db, existing, source, archiveEntry, single);
                         return existing;
                     }
                     if (destination.exists()) {
                         AppItem recovered = read(destination);
-                        saveCatalog(db, recovered, uri);
+                        saveCatalog(db, recovered, source, archiveEntry, single);
                         return recovered;
                     }
                     if (!destination.getParentFile().isDirectory() && !destination.getParentFile().mkdirs())
@@ -123,7 +130,7 @@ public final class MophunStore {
                     if (!stage.renameTo(destination)) throw new IOException("Cannot publish imported game");
                     try {
                         AppItem item = read(destination);
-                        saveCatalog(db, item, uri);
+                        saveCatalog(db, item, source, archiveEntry, single);
                         return item;
                     } catch (Exception failure) {
                         FileUtils.deleteDirectory(destination);
@@ -138,10 +145,15 @@ public final class MophunStore {
 
     /** Replace only the discovered placeholder, never an installed game's data or profile. */
     static void saveCatalog(AppDatabase db, AppItem installed, Uri source) {
+        saveCatalog(db, installed, source, null, true);
+    }
+
+    static void saveCatalog(AppDatabase db, AppItem installed, Uri source, String entry, boolean single) {
         db.runInTransaction(() -> {
             AppItemDao dao = db.appItemDao();
-            String key = SourceIdentity.key(source);
-            AppItem pending = dao.getBySourceKey(key);
+            String base = SourceIdentity.key(source);
+            String key = entry == null ? base : base + "#" + entry;
+            AppItem pending = dao.getBySourceKey(single ? base : key);
             if (pending != null && "indexed".equals(pending.getPreparationState())
                     && pending.getPath().startsWith("pending_")) {
                 installed.setFavorite(installed.isFavorite() || pending.isFavorite());
@@ -152,6 +164,8 @@ public final class MophunStore {
             else dao.update(installed);
             // The bytes were validated and hashed before associating another source URI.
             dao.rememberSourceAlias(new SourceAlias(key, "mophun:" + installed.getSourceHash(), installed.getId()));
+            if (single && entry != null)
+                dao.rememberSourceAlias(new SourceAlias(base, "mophun:" + installed.getSourceHash(), installed.getId()));
         });
     }
 }

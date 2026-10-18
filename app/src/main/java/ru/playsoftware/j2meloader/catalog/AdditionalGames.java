@@ -23,6 +23,10 @@ public final class AdditionalGames {
         DialogFragment installer(Uri uri, boolean autoStart, boolean finishHost);
         AppItem readInstalled(File directory) throws IOException;
         void launch(Context context, String title, File directory, boolean controls);
+        default AppItem installArchiveGame(Context context, File root, File game, String name,
+                                           Uri archive, String entry, boolean single) throws Exception {
+            throw new IOException("This build cannot import this game type");
+        }
     }
     public interface ImportRouter {
         DialogFragment installer(Context context, Uri uri, boolean autoStart, boolean finishHost);

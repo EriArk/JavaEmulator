@@ -26,9 +26,6 @@ import net.lingala.zip4j.ZipFile;
 import net.lingala.zip4j.io.inputstream.ZipInputStream;
 import net.lingala.zip4j.model.FileHeader;
 
-import org.apache.commons.compress.archivers.sevenz.SevenZArchiveEntry;
-import org.apache.commons.compress.archivers.sevenz.SevenZFile;
-
 import java.io.ByteArrayOutputStream;
 import java.io.DataInputStream;
 import java.io.File;
@@ -72,6 +69,7 @@ public class AppInstaller {
 	static final int STATUS_ARCHIVE_CHOICE = 6;
 	static final int STATUS_EXISTING_CHOICES = 7;
 	static final int STATUS_REUSED = 8;
+	static final int STATUS_ADDITIONAL_GAME = 9;
 
 	private final int id;
 	private final Application context;
@@ -156,6 +154,10 @@ public class AppInstaller {
 			}
 			resolveArchive(srcFile, archiveEntries.get(0));
 			name = srcFile.getName();
+			if (GameArchive.mophun(name)) {
+				emitter.onSuccess(STATUS_ADDITIONAL_GAME);
+				return;
+			}
 		}
 
 		if (name.toLowerCase().endsWith(".jad")) {
@@ -220,101 +222,46 @@ public class AppInstaller {
 	Single<Integer> selectArchiveEntry(String entryName) {
 		return Single.create(emitter -> {
 			resolveArchive(archiveSource, entryName);
+			if (GameArchive.mophun(entryName)) {
+				emitter.onSuccess(STATUS_ADDITIONAL_GAME);
+				return;
+			}
 			newDesc = loadManifest(srcJar);
 			emitter.onSuccess(checkDescriptor());
 		});
 	}
 
-	private List<String> listArchiveEntries(File archive) throws IOException, ConverterException {
-		ArrayList<String> entries = new ArrayList<>();
-		if (archive.getName().toLowerCase(Locale.US).endsWith(".zip")) {
-			try (ZipFile zip = new ZipFile(archive)) {
-				for (FileHeader header : zip.getFileHeaders()) {
-					if (!header.isDirectory() && header.getFileName().toLowerCase(Locale.US).endsWith(".jar")) {
-						entries.add(header.getFileName());
-					}
-				}
-			}
-		} else {
-			try (SevenZFile sevenZ = new SevenZFile(archive)) {
-				SevenZArchiveEntry entry;
-				while ((entry = sevenZ.getNextEntry()) != null) {
-					if (!entry.isDirectory() && entry.getName().toLowerCase(Locale.US).endsWith(".jar")) {
-						entries.add(entry.getName());
-					}
-				}
-			}
-		}
-		if (entries.isEmpty()) throw new ConverterException("Archive does not contain a JAR");
-		return entries;
+	private List<String> listArchiveEntries(File archive) throws IOException {
+		return GameArchive.list(archive);
 	}
 
-	private void resolveArchive(File archive, String entryName) throws IOException, ConverterException {
+	private void resolveArchive(File archive, String entryName) throws IOException {
+		if (!cacheDir.exists() && !cacheDir.mkdirs()) throw new IOException("Can't create installer cache");
+		boolean mophun = GameArchive.mophun(entryName);
+		File output = new File(cacheDir, mophun ? "archive-game.mpn" : "archive-game.jar");
+		GameArchive.extract(archive, entryName, output);
 		selectedArchiveEntry = entryName;
-		if (!cacheDir.exists() && !cacheDir.mkdirs()) {
-			throw new ConverterException("Can't create installer cache");
-		}
-		File output = new File(cacheDir, "archive-game.jar");
-		String lower = archive.getName().toLowerCase(Locale.US);
-		if (lower.endsWith(".zip")) {
-			FileHeader selected = null;
-			try (ZipFile zip = new ZipFile(archive)) {
-				for (FileHeader header : zip.getFileHeaders()) {
-					if (!header.isDirectory() && header.getFileName().equals(entryName)) {
-						selected = header;
-						break;
-					}
-				}
-				if (selected == null) throw new ConverterException("Archive does not contain a JAR");
-				if (selected.getUncompressedSize() > 64L * 1024 * 1024) {
-					throw new ConverterException("JAR in archive is too large");
-				}
-				try (InputStream input = zip.getInputStream(selected);
-					 OutputStream target = new FileOutputStream(output)) {
-					copyLimited(input, target);
-				}
-			}
-		} else {
-			try (SevenZFile sevenZ = new SevenZFile(archive)) {
-				SevenZArchiveEntry selected = null;
-				SevenZArchiveEntry entry;
-				while ((entry = sevenZ.getNextEntry()) != null) {
-					if (!entry.isDirectory() && entry.getName().equals(entryName)) {
-						selected = entry;
-						break;
-					}
-				}
-				if (selected == null) throw new ConverterException("Archive does not contain a JAR");
-				if (selected.getSize() > 64L * 1024 * 1024) {
-					throw new ConverterException("JAR in archive is too large");
-				}
-				try (OutputStream target = new FileOutputStream(output)) {
-					byte[] buffer = new byte[32 * 1024];
-					long total = 0;
-					int read;
-					while ((read = sevenZ.read(buffer)) > 0) {
-						total += read;
-						if (total > 64L * 1024 * 1024) throw new ConverterException("JAR is too large");
-						target.write(buffer, 0, read);
-					}
-				}
-			}
-		}
 		srcFile = output;
-		srcJar = output;
-		sourceName = SourceHints.fileName(entryName);
+		srcJar = mophun ? null : output;
+		sourceName = mophun ? GameArchive.leaf(entryName) : SourceHints.fileName(entryName);
 	}
 
-	private void copyLimited(InputStream input, OutputStream output)
-			throws IOException, ConverterException {
-		byte[] buffer = new byte[32 * 1024];
-		long total = 0;
-		int read;
-		while ((read = input.read(buffer)) != -1) {
-			total += read;
-			if (total > 64L * 1024 * 1024) throw new ConverterException("JAR is too large");
-			output.write(buffer, 0, read);
-		}
+	String getSourceName() { return sourceName; }
+
+	Single<Integer> installAdditional() {
+		return Single.fromCallable(() -> {
+			try {
+				ru.playsoftware.j2meloader.catalog.AdditionalGames.Engine engine =
+						ru.playsoftware.j2meloader.catalog.AdditionalGames.get(context);
+				if (engine == null) throw new IOException("Mophun is not available in this build");
+				currentApp = engine.installArchiveGame(context, new File(Config.getEmulatorDir()),
+						srcFile, sourceName, uri, selectedArchiveEntry, archiveEntries.size() == 1);
+				return STATUS_SUCCESS;
+			} finally {
+				clearCache();
+				deleteTemp();
+			}
+		});
 	}
 
 	private void parseKjx() throws ConverterException {

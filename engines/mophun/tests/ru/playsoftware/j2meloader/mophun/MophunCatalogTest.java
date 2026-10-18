@@ -37,6 +37,27 @@ public class MophunCatalogTest {
         item.setSourceKey("mophun:hash"); item.setSourceHash("hash");
         return item;
     }
+    @Test public void singleArchivePromotesPlaceholderAndRemembersContainerAndEntry() {
+        AppItem pending = pending(), ready = installed();
+        MophunStore.saveCatalog(db, ready, source, "folder/game.mpn", true);
+        assertEquals(pending.getId(), ready.getId());
+        assertTrue(db.appItemDao().get(ready.getId()).isFavorite());
+        assertEquals(0, AppRepository.indexGames(db, Collections.singletonList(pending)));
+        assertEquals(ready.getId(), db.appItemDao().getSourceAlias(
+                SourceIdentity.key(source) + "#folder/game.mpn", "mophun:hash").getId());
+    }
+    @Test public void multiArchiveKeepsChooserAndIndependentEntryAliases() {
+        AppItem pending = pending(), first = installed(), second = new AppItem("mophun-second", "Second", "", "");
+        second.setSourceKey("mophun:other"); second.setSourceHash("other");
+        MophunStore.saveCatalog(db, first, source, "one.mpn", false);
+        MophunStore.saveCatalog(db, second, source, "two.mpn", false);
+        assertEquals("indexed", db.appItemDao().get(pending.getId()).getPreparationState());
+        assertNotEquals(first.getId(), second.getId());
+        assertEquals(first.getId(), db.appItemDao().getSourceAlias(
+                SourceIdentity.key(source) + "#one.mpn", "mophun:hash").getId());
+        assertEquals(second.getId(), db.appItemDao().getSourceAlias(
+                SourceIdentity.key(source) + "#two.mpn", "mophun:other").getId());
+    }
     @Test public void installationPromotesPlaceholderAndKeepsFavoriteAndIdentity() {
         AppItem pending = pending(), ready = installed();
         MophunStore.saveCatalog(db, ready, source);

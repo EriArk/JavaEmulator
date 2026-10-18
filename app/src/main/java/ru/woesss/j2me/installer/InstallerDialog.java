@@ -328,6 +328,12 @@ public class InstallerDialog extends DialogFragment {
 		Descriptor nd = installer.getNewDescriptor();
 		SpannableStringBuilder message;
 		switch (status) {
+			case AppInstaller.STATUS_ADDITIONAL_GAME:
+				binding.installerTitle.setText("Mophun installer");
+				binding.installerMessage.setText(installer.getSourceName());
+				if (isAutoStart()) installAdditional();
+				else alertConfirm(new SpannableStringBuilder(installer.getSourceName()), v -> installAdditional());
+				return;
 			case AppInstaller.STATUS_NEW:
 				if (installer.getJar() != null) {
 					convert();
@@ -410,7 +416,16 @@ public class InstallerDialog extends DialogFragment {
 		showButtons();
 	}
 
+	private void installAdditional() {
+		binding.installationStatus.setText("Preparing game");
+		showProgress();
+		hideButtons();
+		compositeDisposable.add(installer.installAdditional().subscribeOn(Schedulers.io())
+				.observeOn(AndroidSchedulers.mainThread()).subscribe(this::onProgress, this::onError));
+	}
+
 	private void showArchiveChoices() {
+		binding.installerTitle.setText("Choose a game");
 		hideProgress();
 		hideButtons();
 		btnClose.setVisibility(View.VISIBLE);

@@ -53,11 +53,26 @@ Beta.1 remains a historical download, not the recommended current version.
 | Channel | Current identifier | Availability |
 | --- | --- | --- |
 | Public download | `v0.3.0-beta.6`, code 305 | Signed Handheld/Phone APKs, matching app source and dependency/native source bundles |
-| Public development source | `main`, beta.6 plus unreleased audio synchronization and safer game-folder discovery | The changes below require a future build; beta.6 downloads are unchanged |
+| Public development source | `main`, beta.6 plus unreleased audio synchronization, safer folder discovery and Mophun ZIP/7z import | The changes below require a future build; beta.6 downloads are unchanged |
 | Private historical snapshot | `0.1.0-beta.2-experimental.15`, 2026-10-11 | Old Java/Mophun test build, not the current beta |
 | Local-only material | Game fixtures, firmware, diagnostics, device data and signing keys | Not in Git or public release assets; describing testing does not authorize redistribution |
 
 ## Unreleased After Beta.6
+
+October 18: open Mophun games directly from **ZIP or 7z**, without extracting
+them manually. Archives containing several JAR/MPN games use the existing game
+chooser; only the selected payload is written out. Single-game archives skip
+the chooser. The combined Symbian build now routes Java/Mophun 7z archives to
+this installer instead of the native-game importer. Reimporting the same MPN
+reuses its installed card and leaves saves/settings intact.
+
+Bounded extraction rejects unsafe/duplicate paths, damaged inputs and oversized
+payloads. Retroid passed 25 import/routing checks plus 31 existing folder/transfer/
+source-alias regressions; the Android 15 emulator passed 17 import checks.
+A real mixed ZIP on Retroid reached the selected Mophun game's rendered menu.
+Both combined debug variants built; this is not full-game compatibility or a
+public APK update. Nested archives, bulk installation and password-protected
+archives are not added. [Evidence and limits](checks/2026-10-18-game-archives.md).
 
 October 18: **Add folder** now discovers loose Mophun `.mpn`, Java `.kjx` and
 standalone `.jad` files alongside JAR/ZIP/7z. Same-name JAR/JAD pairs produce one
@@ -72,7 +87,7 @@ Both Java/Mophun and combined debug variants built. Retroid and the Android 15
 Phone emulator each passed 26 focused folder/import checks. The emulator also
 passed system-picker folder selection, recursive MPN discovery, installation,
 visible game-menu launch and repeat selection without a new pending card.
-This does not add Mophun ZIP/7z extraction, Symbian loose-file indexing, firmware
+That earlier folder-only batch did not add archive extraction (now covered above), Symbian loose-file indexing, firmware
 discovery, automatic folder watching or duplicate detection before reading game
 bytes. [Evidence and boundaries](checks/2026-10-18-game-folders.md).
 No new beta or distribution APK was published.

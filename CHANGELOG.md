@@ -12,6 +12,16 @@ combined builds; released experimental features are explicitly identified.
 
 ## 2026-10-18
 
+- **Public source, unreleased after beta.6:** import Mophun MPN games from ZIP/7z
+  through the existing installer. Mixed JAR/MPN archives show one game chooser;
+  single-game archives skip it. Correct the combined build's 7z routing and
+  retain original source/entry identity. Reimports preserve saves, settings and
+  installed cards. Bound extraction and content staging; reject unsafe paths,
+  duplicates, invalid or oversized payloads. Retroid passed 56 focused/regression
+  checks; the Phone emulator passed 17. A real archive-to-game-menu workflow
+  passed on Retroid. No new beta or distributed APK.
+  [Evidence and limits](docs/checks/2026-10-18-game-archives.md).
+
 - **Public source, unreleased after beta.6:** Add folder now finds loose Mophun
   MPN, KJX and standalone JAD files, without duplicating same-name JAR/JAD pairs.
   Count only committed additions; report blocked subfolders, loading providers
