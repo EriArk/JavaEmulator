@@ -17,7 +17,7 @@ core: a controller-first **Handheld** APK and a portrait/touch-friendly
 > **Project status:** Beta. AbyssME is usable, but compatibility automation and
 > launcher integration still need testing across more games and devices.
 
-[Download 0.3.0 Beta 5](https://github.com/EriArk/JavaEmulator/releases/tag/v0.3.0-beta.5)
+[Download 0.3.0 Beta 6](https://github.com/EriArk/JavaEmulator/releases/tag/v0.3.0-beta.6)
 
 ## Current Beta
 
@@ -25,8 +25,16 @@ For website copy, progress posts and handoffs, start with the
 [current product/development status](docs/PROJECT_STATUS.md) and
 [dated changelog](CHANGELOG.md). They also describe local/private experiments,
 explicitly separated from public downloads. The
-[0.3.0 beta.5 notes](docs/releases/v0.3.0-beta.5.md) include the combined-engine scope,
+[0.3.0 beta.6 notes](docs/releases/v0.3.0-beta.6.md) include the combined-engine scope,
 verification limits and source downloads.
+
+Beta.6 adds separate per-game **Emulation speed** presets from 50% to 200% for
+Java, Mophun and Symbian, with live Try / Keep / Undo in More and Display.
+Mophun and Symbian now also expose the shared **Frame rate limit** presets.
+Speed control is experimental: it scales guest time, not every game's CPU or
+frame pacing. Audio stays at normal tempo. Use 100% for normal play.
+Shared Symbian file-transfer bounds and application-launch locking are also
+hardened; native Asphalt cold relaunch remains unreliable.
 
 Beta.5 fixes a shared Java startup deadlock reproduced with **Age of Empires II
 Deluxe**, improves live display changes and transfer recovery, and adds a
@@ -40,7 +48,7 @@ game** in the shared in-game menu. Restart uses saved settings and discards
 unconfirmed previews; it is a recovery shortcut, not a general black-screen fix.
 
 The release retains Light/Dark/System appearance, hideable Phone shortcuts, touch-key
-feedback, per-game Java FPS presets and safer duplicate Java imports. It improves
+feedback, per-game FPS presets and safer duplicate Java imports. It improves
 Java screen startup and filename-based setup hints, external-launcher return
 paths, system-file import and guarded SIS/SISX removal. N-Gage cards remain
 visible alongside ordinary SIS games on the same virtual phone.
@@ -99,14 +107,14 @@ notices; see [licensing](docs/LICENSING.md). Historical release assets are uncha
 
 ## Screenshots
 
-![Handheld library in Grid view](screenshots/releases/v0.3.0-beta.5/01-handheld-grid.png)
+![Handheld game library](screenshots/releases/v0.3.0-beta.6/01-handheld-library.png)
 
-<img src="screenshots/releases/v0.3.0-beta.5/03-phone-keypad.png" alt="Phone build playing Age of Empires II Deluxe in portrait with its numeric keypad" width="270">
+<img src="screenshots/releases/v0.3.0-beta.6/03-phone-display.png" alt="Phone display settings with separate frame-rate and emulation-speed controls" width="270">
 
-Unretouched captures from the signed beta.5 APKs on a Retroid Pocket Classic
+Unretouched captures from the signed beta.6 APKs on a Retroid Pocket Classic
 (Android 14), including the separate Phone variant. These are app screenshots,
 not photographs. Games were installed separately and are not bundled.
-See the [fresh screenshot pack and captions](screenshots/releases/v0.3.0-beta.5/README.md).
+See the [fresh screenshot pack and captions](screenshots/releases/v0.3.0-beta.6/README.md).
 
 ## Highlights
 

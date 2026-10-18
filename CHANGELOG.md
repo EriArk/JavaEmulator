@@ -12,26 +12,38 @@ combined builds; released experimental features are explicitly identified.
 
 ## 2026-10-18
 
-- **Local release candidate, not yet published:** implemented separate per-game
+- **Released:** [0.3.0-beta.6](https://github.com/EriArk/JavaEmulator/releases/tag/v0.3.0-beta.6),
+  code 305, published at 09:48 UTC. Both signed APKs and three matching source
+  bundles are public. All six uploaded asset digests matched; APKs and checksum
+  list were downloaded and verified before publication. Final signed Retroid
+  checks covered Java startup/live speed trials and native Snakes launch.
+  Handheld upgraded in place; all 323 readable external files retained their
+  hashes before launch. Protected/private files were not independently hashed.
+  Handheld beta.6 remains installed. Both release builds, production guards and
+  lint passed (zero errors, warnings remain). GitHub Actions remains disabled.
+  [Release checks](docs/releases/v0.3.0-beta.6-checks.md),
+  [three new screenshots](screenshots/releases/v0.3.0-beta.6/README.md).
+
+- **Released in beta.6:** implemented separate per-game
   50-200% emulation-speed presets for Java, Mophun and Symbian, with live Try /
   Keep / Undo. Guest clocks remain continuous across changes; host UI and FPS
   limits stay independent. Java timing conversion uses private cache and leaves
   installed files/saves untouched. Retroid and Android emulator each passed 29
   shared timing/settings checks; Retroid live trials passed in Java, Deep Abyss
   and Snakes. Audio is not time-stretched; not every game's pacing follows
-  percentage speed. Preparing code 305, Beta 6, including the earlier native
-  FPS and file-transfer changes. [Evidence](docs/checks/2026-10-18-emulation-speed.md).
+  percentage speed. Includes the earlier native FPS and file-transfer changes.
+  [Evidence](docs/checks/2026-10-18-emulation-speed.md).
 
-- **Public source, unreleased:** added per-game frame-rate presets to Mophun
+- **Released in beta.6:** added per-game frame-rate presets to Mophun
   and Symbian/N-Gage through More and Display, with live Try / Keep / Undo.
   Old native profiles retain 60 FPS; Java limits are unchanged. Mophun uses
   the shared monotonic limiter; Symbian covers swaps, window redraws and direct
   framebuffer polling, including safe Unlimited handling. Retroid checks in
   Deep Abyss and Snakes passed alongside shared settings/pacing checks on
   physical hardware and the Android emulator. This is not a percentage-speed
-  control or a universal fix for fast-running games. No new public APK.
+  control or a universal fix for fast-running games.
   [Evidence](docs/checks/2026-10-18-native-frame-rate.md).
-- **Public source, unreleased:** hardened the shared Symbian file server's
+- **Released in beta.6:** hardened the shared Symbian file server's
   read, section-read and write bounds; removed an unsafe beyond-EOF write,
   preserved partial-read lengths and supported wide write offsets. Protected
   application lookup and launch with one kernel lock. No per-title exceptions
@@ -39,7 +51,7 @@ combined builds; released experimental features are explicitly identified.
   combined debug builds, 29 JVM tests per variant and lint passed. Snakes passed
   a title-screen/restart/exit check. Asphalt 3 reached a race but still produced
   a blank screen after restart; the stronger runtime check now fails on that
-  result. This is not a complete Asphalt compatibility fix or a new release.
+  result. This is not a complete Asphalt compatibility fix.
   [Evidence](docs/checks/2026-10-18-symbian-file-transfers.md).
 - **Released:** [0.3.0-beta.5](https://github.com/EriArk/JavaEmulator/releases/tag/v0.3.0-beta.5),
   code 304, published at 07:00 UTC. Signed Handheld/Phone APKs and matching app,

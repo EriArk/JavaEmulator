@@ -34,17 +34,17 @@ bundled. The app UI is English.
 
 ## Availability: Do Not Mix These Channels
 
-**Current public beta: [0.3.0-beta.5](https://github.com/EriArk/JavaEmulator/releases/tag/v0.3.0-beta.5)**,
-published **2026-10-18 at 07:00 UTC**, code **304**. Handheld and Phone include
+**Current public beta: [0.3.0-beta.6](https://github.com/EriArk/JavaEmulator/releases/tag/v0.3.0-beta.6)**,
+published **2026-10-18 at 09:48 UTC**, code **305**. Handheld and Phone include
 Java, Mophun and experimental Symbian / N-Gage. Android 10+, arm64-v8a.
 Games and firmware are not included. Both variants can coexist with independent data.
 
 All six uploaded asset digests were checked; both APKs and the checksum list
-were downloaded again and matched. The source tag is `319b6368`; later handoff
+were downloaded again and matched. The source tag is `7a428f92`; later handoff
 documentation does not change the APKs. GitHub Actions remains disabled.
-[Release notes](releases/v0.3.0-beta.5.md),
-[verification and limits](releases/v0.3.0-beta.5-checks.md),
-[checksums](releases/v0.3.0-beta.5/SHA256SUMS.txt).
+[Release notes](releases/v0.3.0-beta.6.md),
+[verification and limits](releases/v0.3.0-beta.6-checks.md),
+[checksums](releases/v0.3.0-beta.6/SHA256SUMS.txt).
 
 Beta.2 was withheld before publication after final provisioning exposed a mixed
 SIS/N-Gage catalog defect. Its source tag remains as history; beta.3 fixes it.
@@ -52,12 +52,12 @@ Beta.1 remains a historical download, not the recommended current version.
 
 | Channel | Current identifier | Availability |
 | --- | --- | --- |
-| Public download | `v0.3.0-beta.5`, code 304 | Signed Handheld/Phone APKs, matching app source and dependency/native source bundles |
-| Public development source | `main`, beta.5 plus unreleased native FPS controls and Symbian file-transfer hardening | The post-release changes below are not included in the beta.5 APKs |
+| Public download | `v0.3.0-beta.6`, code 305 | Signed Handheld/Phone APKs, matching app source and dependency/native source bundles |
+| Public development source | `main`, beta.6 plus release handoff documentation | Speed controls, native FPS controls and Symbian file-transfer hardening are included in beta.6 |
 | Private historical snapshot | `0.1.0-beta.2-experimental.15`, 2026-10-11 | Old Java/Mophun test build, not the current beta |
 | Local-only material | Game fixtures, firmware, diagnostics, device data and signing keys | Not in Git or public release assets; describing testing does not authorize redistribution |
 
-## Unreleased After Beta.5
+## Changes Released in Beta.6
 
 October 18: Mophun and Symbian/N-Gage now expose **Frame rate limit** in
 **Game menu > More** and **Display**, matching Java's presets: Unlimited,
@@ -73,9 +73,9 @@ promise that every game will reach the selected FPS or fix every fast game.
 Both debug variants built, shared tests passed on Retroid and the Android
 emulator, and Retroid live-menu checks passed in Deep Abyss and Snakes.
 [Evidence and exact boundaries](checks/2026-10-18-native-frame-rate.md).
-The beta.5 APKs still expose this setting only for Java. No release was created.
+Included in beta.6; the older beta.5 APKs expose this setting only for Java.
 
-October 18, Beta 6 preparation: separate per-game **Emulation speed** presets
+October 18: separate per-game **Emulation speed** presets
 50 / 75 / 100 / 125 / 150 / 200% are implemented for Java, Mophun and Symbian.
 More and Display use live Try / Keep / Undo. Java's original installed files
 and saves stay intact while guest timing hooks are prepared in private cache.
@@ -86,8 +86,11 @@ also passed. **Audio remains at normal tempo**, and busy-loop/frame/audio-paced
 games need not follow the percentage exactly. This is not a universal speed
 fix. [Implementation evidence](checks/2026-10-18-emulation-speed.md).
 Signed Beta 6 publication and upgrade checks are tracked in the
-[release record](releases/v0.3.0-beta.6-checks.md); Beta 5 remains public until
-that record confirms publication.
+[release record](releases/v0.3.0-beta.6-checks.md). Final signed Handheld and
+Phone launch/settings checks passed on Retroid. Its official Handheld is now
+code 305; the temporary Phone installation was removed with its data retained.
+All 323 readable external Handheld files kept their pre-upgrade hashes before
+launch; protected/private files were not independently hashed.
 
 October 18: bounded native Symbian file reads, section reads and writes by the
 guest buffer and file length; removed an unsafe beyond-EOF write and retained
@@ -102,7 +105,7 @@ library. Native Asphalt 3 reached a race, but the same test caught a blank frame
 after restart. **Asphalt cold/repeated launch stability is still unresolved.**
 Audio, save round trips and complete-game compatibility are not claimed.
 [Exact changes, checks and limitations](checks/2026-10-18-symbian-file-transfers.md).
-Debug APKs remain local; the public beta.5 release is unchanged.
+Included in the combined beta.6 APKs. Debug artifacts remain local.
 
 ## Changes Released in Beta.5
 
@@ -195,7 +198,7 @@ their counts are not new final-release test results.
 | Tactile feedback for Phone/Gamepad touch keys across three engines, with Try / Keep / Undo | [Shared touch policy](checks/2026-10-15-phone-shortcuts-feedback.md); human perception remains unverified |
 | Java screen startup, switching and pause/resume fixes without per-title exceptions | [Canvas lifecycle](checks/2026-10-15-canvas-lifecycle.md) |
 | Original JAR filename size/phone hints supplement metadata without resetting existing profiles | [Automatic setup](checks/2026-10-15-source-hints.md) |
-| Per-game Java FPS presets and monotonic frame pacing | [Frame-rate controls](checks/2026-10-15-frame-rate.md); native-engine controls are unreleased, see above; not a universal speed fix |
+| Per-game FPS presets and monotonic frame pacing | [Java controls](checks/2026-10-15-frame-rate.md), [native controls released in beta.6](checks/2026-10-18-native-frame-rate.md); not a universal speed fix |
 | Identical Java imports can reuse existing games/saves or create an intentional separate copy | [Duplicate imports](checks/2026-10-15-source-aliases.md) |
 | Better external-launcher cancellation/exit paths and native `.abyssme` launch files | [Beacon](checks/2026-10-15-beacon-launcher.md), [other frontends](checks/2026-10-15-import-launchers.md); ES-DE unverified |
 | ROM/RPKG ZIP/7z import, persistent errors and Java version/vendor information | [Import and information](checks/2026-10-15-import-launchers.md) |
@@ -204,6 +207,12 @@ their counts are not new final-release test results.
 
 ## Final Release Evidence and Post Assets
 
+- Current beta.6 signed-device, build, source and download evidence is in the
+  [Beta 6 verification record](releases/v0.3.0-beta.6-checks.md). Its
+  [three new captures](../screenshots/releases/v0.3.0-beta.6/) show the retained
+  library and separate speed/FPS controls. Retroid now has Handheld code 305.
+- The following beta.5 checkpoints are retained as historical evidence, not
+  relabeled as new beta.6 tests.
 - Both signed beta.5 variants built cleanly and passed APK-content guards,
   29 JVM tests each and lint with zero errors (404/411 warnings remain).
 - Both final signed variants installed on Retroid. Phone Deluxe 02.00.35
@@ -211,7 +220,7 @@ their counts are not new final-release test results.
   and restarted in a new Java process. Its top shortcuts auto-hide without
   moving the game picture. Handheld Deep Abyss reached gameplay; native Snakes
   reached its Single Player menu. Full-game/audio/save acceptance is not claimed.
-- The official installed Retroid variant is Handheld beta.5, code 304. The
+- At the beta.5 checkpoint, Retroid had Handheld code 304. The
   temporary production Phone package was removed with data retention; isolated
   developer packages were not purged. The Handheld library retained 39 entries
   and all 323 readable external files matched hashes across the upgrade. Two
@@ -251,7 +260,7 @@ Android 10+. System files can be provided before games; setup explains missing
 requirements, retains imports and reuses compatible components. Native games
 join the common library. Phone supports numeric/Gamepad touch decks; both
 variants offer display/mapping controls, screenshots and whole-phone backups.
-See [release notes](releases/v0.3.0-beta.5.md) for user-facing details and limits.
+See [release notes](releases/v0.3.0-beta.6.md) for user-facing details and limits.
 
 The current feature summary includes the retained 0.2 features and 0.3 beta additions:
 
