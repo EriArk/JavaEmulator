@@ -62,6 +62,20 @@ explicit reset/refresh actions to replace it. Games, settings and saves are not
 changed by artwork actions. Mophun can use custom artwork; Java resource scans
 only apply when `res.jar` is present.
 
+## Symbian / N-Gage
+
+From **0.4.0 Beta 2**, native game cards expose the same **Artwork > Icon / Cover**
+actions. Each image can be chosen or reset independently. Custom art is isolated
+by virtual phone and game UID, takes priority over generated art and survives
+library refresh. Java resource scanning is not offered for native games.
+
+Custom images are included in [whole-phone backups](SYMBIAN_PHONE_BACKUPS.md).
+Restoring creates a separate phone with its own artwork; the original is not
+modified. New version-2 backups require Beta 2 or newer to restore. Version-1
+backups remain readable, without custom artwork. See the
+[native artwork checks](checks/2026-10-18-symbian-artwork.md) and
+[backup checks](checks/2026-10-18-symbian-artwork-backup.md).
+
 ## Regression coverage
 
 Runtime-generated PNG/ZIP fixtures cover tiny manifest icons, corrupt resources,

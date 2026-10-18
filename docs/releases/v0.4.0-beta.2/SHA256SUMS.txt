@@ -1,0 +1,4 @@
+16a51bc88e204807ce77e22268eea29cb189c8f8e865a97612b17366cc79c266  AbyssME-0.4.0-beta.2.apk
+86bb2d73c7e153d94dee0394c3d1e7782079b49f844a2882fa2d1bf8abec4fae  AbyssME-0.4.0-beta.2-dependency-sources.zip
+bfa7233e393d91c2d1c10cb4272fb1971672f9a4e83a9013a97c56e362bcfd7c  AbyssME-0.4.0-beta.2-source.zip
+05c9fa026f508429b39fd6f0894fd7adc5bfd8f46e555846c2c41b0492656e61  AbyssME-0.4.0-beta.2-symbian-sources.zip

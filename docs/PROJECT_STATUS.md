@@ -35,20 +35,20 @@ bundled. The app UI is English.
 
 ## Availability: Do Not Mix These Channels
 
-**Current public beta: [0.4.0-beta.1](https://github.com/EriArk/JavaEmulator/releases/tag/v0.4.0-beta.1)**,
-published **2026-10-18 at 15:33 UTC**, code **306**. One adaptive APK includes
+**Current public beta: [0.4.0-beta.2](https://github.com/EriArk/JavaEmulator/releases/tag/v0.4.0-beta.2)**,
+published **2026-10-18 at 20:22 UTC**, code **307**. One adaptive APK includes
 Java, Mophun and experimental Symbian / N-Gage. Android 10+, arm64-v8a.
 Games and firmware are not included. The old Phone app is a separate migration
 source, not a second 0.4 download.
 
 All five uploaded asset digests and sizes matched. The APK and checksum list
 were downloaded again and matched before publication. The source tag points to
-`d6f42706`; later handoff documentation does not change the APK. GitHub Actions
+`ac698c24`; later handoff documentation does not change the APK. GitHub Actions
 remains disabled. No website or Nextcloud deployment in this release checkpoint.
-[Release notes](releases/v0.4.0-beta.1.md),
-[verification and limits](releases/v0.4.0-beta.1-checks.md),
-[checksums](releases/v0.4.0-beta.1/SHA256SUMS.txt),
-[fresh signed-build captures](../screenshots/releases/v0.4.0-beta.1/README.md).
+[Release notes](releases/v0.4.0-beta.2.md),
+[verification and limits](releases/v0.4.0-beta.2-checks.md),
+[checksums](releases/v0.4.0-beta.2/SHA256SUMS.txt),
+[fresh signed-build captures](../screenshots/releases/v0.4.0-beta.2/README.md).
 
 Historical **0.3.0-beta.2** was withheld before publication after final provisioning
 exposed a mixed SIS/N-Gage catalog defect; **0.3.0-beta.3** fixed it. These are
@@ -56,21 +56,22 @@ older 0.3 builds, not the current 0.4 release series.
 
 | Channel | Current identifier | Availability |
 | --- | --- | --- |
-| Public download | `v0.4.0-beta.1`, code 306 | One signed adaptive APK, matching app source and dependency/native source bundles |
-| Public development source | `main`, 0.4.0-beta.1 with publication documentation | Implementation included in the release; old beta.6 assets remain unchanged |
+| Public download | `v0.4.0-beta.2`, code 307 | One signed adaptive APK, matching app source and dependency/native source bundles |
+| Public development source | `main`, 0.4.0-beta.2 with publication documentation | Implementation included in the release; previous release assets remain unchanged |
 | Private historical snapshot | `0.1.0-beta.2-experimental.15`, 2026-10-11 | Old Java/Mophun test build, not the current beta |
 | Local-only material | Game fixtures, firmware, diagnostics, device data and signing keys | Not in Git or public release assets; describing testing does not authorize redistribution |
 
-## Local Development After 0.4.0 Beta 1
+## Released in 0.4.0 Beta 2
 
-**2026-10-18: prepared for 0.4.0-beta.2, code 307; not yet published.**
+**2026-10-18: published in 0.4.0-beta.2, code 307.**
 The signed APK passed an in-place Retroid upgrade and touch-layout persistence
 checks. All 329 readable external files retained their hashes before first launch.
 Fresh checks: 39 JVM passes, 66 Retroid and 36 emulator instrumentation passes
 (one optional capture skipped on each device). Signed and debug evidence remain
 separate. [Release verification](releases/v0.4.0-beta.2-checks.md) and
 [fresh screenshots](../screenshots/releases/v0.4.0-beta.2/README.md).
-No website or Nextcloud deployment; public metadata above is unchanged.
+No website or Nextcloud deployment. Earlier local-only checkpoints below are
+historical evidence; these changes are now included in the public APK.
 
 - **Visual styles:** Classic, Retro LCD and High contrast, independently of
   Light / Dark / System brightness. Shared palette roles cover the library,
@@ -391,11 +392,13 @@ their counts are not new final-release test results.
 
 ## Final Release Evidence and Post Assets
 
-- Current 0.4.0 Beta 1 signed-device, migration, build/source and download evidence
-  is in the [verification record](releases/v0.4.0-beta.1-checks.md). Its
-  [three captures](../screenshots/releases/v0.4.0-beta.1/) show the unified library,
-  shared Controls page and portrait numeric-keypad trial. Retroid now has the
-  unified code 306. Old Phone remains installed with its data for migration safety.
+- Current 0.4.0 Beta 2 signed upgrade, touch persistence, build/source and
+  download evidence is in the [verification record](releases/v0.4.0-beta.2-checks.md).
+  [Five captures](../screenshots/releases/v0.4.0-beta.2/) show Retro Grid, visual
+  styles, touch editor, mapper and the Java main menu above the numeric keypad.
+  Retroid now has the unified code 307. Original game configuration was restored.
+  The [Beta 1 migration evidence](releases/v0.4.0-beta.1-checks.md) remains valid
+  as a dated earlier checkpoint, not a newly repeated migration test.
 - [Beta 6 evidence](releases/v0.3.0-beta.6-checks.md) and its
   [captures](../screenshots/releases/v0.3.0-beta.6/) remain historical records.
 - The following beta.5 checkpoints are retained as historical evidence, not
@@ -447,13 +450,15 @@ Android 10+. System files can be provided before games; setup explains missing
 requirements, retains imports and reuses compatible components. Native games
 join the common library. Numeric/Gamepad touch decks, controller mapping,
 display controls, screenshots and whole-phone backups share the same app.
-See [release notes](releases/v0.4.0-beta.1.md) for user-facing details and limits.
+See [release notes](releases/v0.4.0-beta.2.md) for user-facing details and limits.
 
 The current feature summary includes retained 0.2/0.3 features and the 0.4 additions:
 
 | Area | Current development behavior | Evidence / boundary |
 | --- | --- | --- |
 | Adaptive APK | Auto / Touch / Controller, Auto / Always / Off screen buttons, disconnect pause and menu-based Phone migration | [Implementation](checks/2026-10-18-unified-apk.md), [signed upgrade and migration](releases/v0.4.0-beta.1-checks.md); physical unplug/replug remains unverified |
+| Visual styles and touch editor | Classic / Retro LCD / High contrast, brightness independently; visual control-block editing with reversible per-game trials and separate orientation placements | [Implementation](checks/2026-10-18-visual-polish.md), [signed persistence and captures](releases/v0.4.0-beta.2-checks.md); legacy keypad editor unchanged |
+| Native custom artwork | Separate covers/icons by virtual phone and UID; overrides survive refresh and whole-phone backup/restore | [Artwork](checks/2026-10-18-symbian-artwork.md), [backup coverage](checks/2026-10-18-symbian-artwork-backup.md); new version-2 archives need Beta 2 or newer |
 | Library and small screens | Compact layouts, reachable menus, Gallery covers separate from List/Grid icons, controller focus, custom art and conservative automatic selection | [Compact UI](COMPACT_LIBRARY.md), [artwork](ARTWORK.md); not every tiny-screen/device combination is accepted |
 | Controller mapping | Graphical phone keypad, per-game named schemes/presets, button identification, D-pad/stick directions and diagonal-to-single-key bindings, compact mapper pages | `c49fef57`, `ba252272`; physical-controller/disconnect acceptance remains open in #9 |
 | Phone controls | Phone numeric keypad or virtual Gamepad, portrait game area above buttons, landscape side controls, size/opacity/position settings. Beta.3 adds per-game tactile feedback in the shared Controls page and feedback from new touch layouts | [Settings](SETTINGS_TRIALS.md), [haptic checks and limits](checks/2026-10-15-phone-shortcuts-feedback.md); perceived phone haptics remain unaccepted |
@@ -1559,7 +1564,7 @@ See [racing evidence and screenshots](https://github.com/EriArk/JavaEmulator/blo
 
 ## Images and Writing Guidance
 
-- **Use for current posts:** [beta.5 captures](../screenshots/releases/v0.3.0-beta.5/README.md), 2026-10-18: seven signed-build Retroid screenshots covering Gallery/Grid/List, Deluxe gameplay, Phone keypad/shortcuts, the common menu and Mophun gameplay. Captions identify the exact build and device. The older beta.4 pack remains dated evidence, not fresh beta.5 screenshots.
+- **Use for current posts:** [0.4.0 Beta 2 captures](../screenshots/releases/v0.4.0-beta.2/README.md), 2026-10-18: five signed-build Retroid screenshots covering Retro Grid, visual styles, touch editor, mapper and the Java main menu with a resized keypad. Captions identify the build and device. Older 0.3 and 0.4 Beta 1 packs remain historical evidence, not new Beta 2 screenshots.
 - [0.2.0-beta.1 release captures](releases/v0.2.0-beta.1.md#captures), 2026-10-13: signed Handheld Asphalt/Deep Abyss on Retroid and signed Phone Deep Abyss in the emulator. Short ADB-driven checks, not whole-game/audio acceptance.
 - [Archived development screenshots, 2026-10-11](https://github.com/EriArk/JavaEmulator/blob/23da5d4b/screenshots/post-2026-10-11/README.md): 12 real emulator PNGs, ZIP, captions and hashes. Label as **development / experimental.15**.
 - [Archived beta.2 screenshots](https://github.com/EriArk/JavaEmulator/blob/23da5d4b/screenshots/website-beta2/manifest.json): older UI, not current captures.

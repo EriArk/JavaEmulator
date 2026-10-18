@@ -12,6 +12,16 @@ combined builds; released experimental features are explicitly identified.
 
 ## 2026-10-18
 
+- **Released:** [0.4.0 Beta 2](https://github.com/EriArk/JavaEmulator/releases/tag/v0.4.0-beta.2),
+  code 307, at 20:22 UTC. Publishes the three visual styles, per-game touch layout
+  editor, compact library, native custom artwork and version-2 phone backups
+  described below. Source tag `ac698c24`; final signed rebuild and production
+  guards passed, then installed on Retroid without uninstalling. All five
+  uploaded asset sizes/digests matched; APK and checksums were downloaded again
+  and matched before publication. Updated README, status, download pointers and
+  five signed-device screenshots. GitHub Actions remains disabled. No website
+  or Nextcloud deployment. [Verification](docs/releases/v0.4.0-beta.2-checks.md).
+
 - **Release preparation, 0.4.0-beta.2 (307):** combine the visual styles, touch
   layout editor, compact library and native artwork/backup changes below.
   Clean signed build, production guards and lint passed. Upgrade over Beta 1
