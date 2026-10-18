@@ -44,7 +44,7 @@ public final class GameSettingsPages {
 
     public void display() {
         menu.page("Display");
-        if (javaGame) frameRateChoice();
+        frameRateChoice();
         menu.choice("Picture size", new String[]{"Original", "Fit", "Stretch"}, clamp(draft.screenScaleType, 3),
                 i -> { draft.screenScaleType = i; draft.screenScaleRatio = 100; });
         menu.toggle("Smoothing", draft.screenFilter, value -> draft.screenFilter = value);
@@ -111,13 +111,20 @@ public final class GameSettingsPages {
     }
 
     private void frameRateChoice() {
+        frameRateChoice(menu, draft, javaGame);
+    }
+
+    public static void frameRateChoice(GameMenuDialog menu, ProfileModel draft, boolean javaGame) {
         java.util.ArrayList<Integer> values = new java.util.ArrayList<>();
         java.util.Collections.addAll(values, 0, 15, 20, 25, 30, 50, 60);
-        int current = Math.max(0, draft.fpsLimit);
+        int current = javaGame ? Math.max(0, draft.fpsLimit) : draft.getNativeFpsLimit();
         if (!values.contains(current)) values.add(current);
         String[] labels = new String[values.size()];
         for (int i = 0; i < labels.length; i++) labels[i] = frameRateLabel(values.get(i));
-        menu.choice("Frame rate limit", labels, values.indexOf(current), i -> draft.fpsLimit = values.get(i));
+        menu.choice("Frame rate limit", labels, values.indexOf(current), i -> {
+            if (javaGame) draft.fpsLimit = values.get(i);
+            else draft.nativeFpsLimit = values.get(i);
+        });
     }
 
     public void phonePresets(Runnable back, java.util.function.Consumer<ProfileModel> restart) {

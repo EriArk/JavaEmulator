@@ -37,6 +37,17 @@
 #include <fstream>
 #include <yaml-cpp/yaml.h>
 #include "card_identity.h"
+#include "frame_rate.h"
+
+extern "C" JNIEXPORT void JNICALL
+Java_com_github_eka2l1_emu_Emulator_setFrameRateLimit(JNIEnv *, jclass, jint fps) {
+    abyss::frame_rate::set(fps);
+}
+
+extern "C" JNIEXPORT jint JNICALL
+Java_com_github_eka2l1_emu_Emulator_getFrameRateLimit(JNIEnv *, jclass) {
+    return abyss::frame_rate::limit.load(std::memory_order_relaxed);
+}
 
 extern std::unique_ptr<eka2l1::android::emulator> state;
 extern std::unique_ptr<std::thread> os_thread_obj;

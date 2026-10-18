@@ -95,6 +95,13 @@ public class ProfileModel {
 
 	@SerializedName("FpsLimit")
 	public int fpsLimit;
+	// Null preserves the native engines' historical default; zero explicitly means unlimited.
+	@SerializedName("NativeFpsLimit")
+	public Integer nativeFpsLimit;
+
+	public int getNativeFpsLimit() {
+		return nativeFpsLimit == null ? 60 : Math.max(0, Math.min(240, nativeFpsLimit));
+	}
 
 	@SerializedName("ForceFullscreen")
 	public boolean forceFullscreen;

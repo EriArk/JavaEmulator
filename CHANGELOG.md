@@ -12,6 +12,15 @@ combined builds; released experimental features are explicitly identified.
 
 ## 2026-10-18
 
+- **Public source, unreleased:** added per-game frame-rate presets to Mophun
+  and Symbian/N-Gage through More and Display, with live Try / Keep / Undo.
+  Old native profiles retain 60 FPS; Java limits are unchanged. Mophun uses
+  the shared monotonic limiter; Symbian covers swaps, window redraws and direct
+  framebuffer polling, including safe Unlimited handling. Retroid checks in
+  Deep Abyss and Snakes passed alongside shared settings/pacing checks on
+  physical hardware and the Android emulator. This is not a percentage-speed
+  control or a universal fix for fast-running games. No new public APK.
+  [Evidence](docs/checks/2026-10-18-native-frame-rate.md).
 - **Public source, unreleased:** hardened the shared Symbian file server's
   read, section-read and write bounds; removed an unsafe beyond-EOF write,
   preserved partial-read lengths and supported wide write offsets. Protected

@@ -39,6 +39,39 @@ public final class SymbianSessionUiTest {
             assertFalse(label, ui.getRootInActiveWindow().findAccessibilityNodeInfosByText(label).isEmpty());
         capture(screenshot);
         click("More"); click("Back"); waitNode("Resume", 5000);
+        if ("mophunMenuUri".equals(argument)
+                && "true".equals(InstrumentationRegistry.getArguments().getString("frameRateTrials"))) {
+            for (int fps : new int[]{15, 30, 0, 60}) {
+                click("More"); clickPrefix("Frame rate limit:"); click("Frame rate limit");
+                click(fps == 0 ? "Unlimited" : fps + " FPS");
+                capture("mophun-frame-rate-" + fps + "-menu.png");
+                click("Try changes"); waitNode("Undo", 5000);
+                final ru.playsoftware.j2meloader.mophun.MophunSession[] session = new ru.playsoftware.j2meloader.mophun.MophunSession[1];
+                instrumentation.runOnMainSync(() -> {
+                    for (Activity activity : androidx.test.runner.lifecycle.ActivityLifecycleMonitorRegistry.getInstance()
+                            .getActivitiesInStage(androidx.test.runner.lifecycle.Stage.RESUMED)) {
+                        if (!(activity instanceof ru.playsoftware.j2meloader.mophun.MophunGameActivity)) continue;
+                        try {
+                            java.lang.reflect.Field field = activity.getClass().getDeclaredField("session");
+                            field.setAccessible(true); session[0] = (ru.playsoftware.j2meloader.mophun.MophunSession)field.get(activity);
+                        } catch (ReflectiveOperationException error) { throw new AssertionError(error); }
+                    }
+                });
+                assertNotNull(session[0]); assertEquals(fps, session[0].getFrameRateLimit());
+                SystemClock.sleep(200);
+                int before = session[0].screen().flips; long start = SystemClock.elapsedRealtime();
+                SystemClock.sleep(1500);
+                int frames = session[0].screen().flips - before;
+                long elapsed = SystemClock.elapsedRealtime() - start;
+                android.util.Log.i("AbyssFpsTest", "Mophun limit=" + fps + " frames=" + frames + " elapsedMs=" + elapsed);
+                assertNull(session[0].error()); assertTrue("Game must keep presenting", frames > 0);
+                if (fps > 0) assertTrue("Actual guest cap", frames <= fps * elapsed / 1000 + 3);
+                capture("mophun-frame-rate-" + fps + "-game.png");
+                click("Undo");
+                if (controllerMenu) key(KeyEvent.KEYCODE_BACK,80); else click("Game menu");
+                waitNode("Resume",5000);
+            }
+        }
         if ("javaMenuUri".equals(argument)
                 && "true".equals(InstrumentationRegistry.getArguments().getString("javaDisplayTrials"))) {
             for (String size : new String[]{"128 x 160", "480 x 800", "240 x 320"}) {
@@ -74,6 +107,7 @@ public final class SymbianSessionUiTest {
             public void key(int scan,boolean down){events.add(scan+":"+down);}
             public void pause(boolean paused){pauses.incrementAndGet();}
             public void display(int scale){}
+            public void frameRate(int fps){com.github.eka2l1.emu.Emulator.setFrameRateLimit(fps);}
             public void leave(){}
             public void restart(){events.add("restart");current[0].close();pausesAtRestart.set(pauses.get());}
             public Bitmap capture(){return null;}
@@ -84,6 +118,7 @@ public final class SymbianSessionUiTest {
                     current[0]=new SymbianSessionUi(activity,new TextureView(activity),system,1,"UI fixture",host);
                     activity.setContentView(current[0].root);
                     current[0].profile.screenRotation=180;
+                    current[0].profile.nativeFpsLimit=15;
                     assertTrue(ProfilesManager.saveConfig(current[0].profile));
                     current[0].key(new KeyEvent(KeyEvent.ACTION_DOWN,KeyEvent.KEYCODE_BUTTON_SELECT));
                     current[0].key(new KeyEvent(KeyEvent.ACTION_UP,KeyEvent.KEYCODE_BUTTON_SELECT));
@@ -102,10 +137,13 @@ public final class SymbianSessionUiTest {
                 current[0].close();
                 try {
                     current[0]=new SymbianSessionUi(activity,new TextureView(activity),system,2,"Second game",host);
+                    assertEquals(60,com.github.eka2l1.emu.Emulator.getFrameRateLimit());
                     assertEquals(0,current[0].profile.screenRotation); current[0].close();
                     current[0]=new SymbianSessionUi(activity,new TextureView(activity),other,1,"Other phone",host);
+                    assertEquals(60,com.github.eka2l1.emu.Emulator.getFrameRateLimit());
                     assertEquals(0,current[0].profile.screenRotation); current[0].close();
                     current[0]=new SymbianSessionUi(activity,new TextureView(activity),system,1,"Saved game",host);
+                    assertEquals(15,com.github.eka2l1.emu.Emulator.getFrameRateLimit());
                     assertEquals(180,current[0].profile.screenRotation);
                 } catch(IOException error){throw new AssertionError(error);}
             });
@@ -113,6 +151,16 @@ public final class SymbianSessionUiTest {
                 activity.setContentView(current[0].root);
                 current[0].showMenu();
             });
+            click("More"); clickPrefix("Frame rate limit:"); click("Frame rate limit"); click("30 FPS");
+            capture("symbian-frame-rate-menu.png"); click("Try changes"); waitNode("Undo",5000);
+            assertEquals(30,com.github.eka2l1.emu.Emulator.getFrameRateLimit());
+            click("Undo"); assertEquals(15,com.github.eka2l1.emu.Emulator.getFrameRateLimit());
+            instrumentation.runOnMainSync(() -> current[0].showMenu());
+            click("Display"); click("Frame rate limit"); click("Unlimited"); click("Try changes");
+            waitNode("Keep",5000); assertEquals(0,com.github.eka2l1.emu.Emulator.getFrameRateLimit());
+            click("Keep");
+            assertEquals(0,ProfilesManager.loadConfig(current[0].profile.dir).getNativeFpsLimit());
+            instrumentation.runOnMainSync(() -> current[0].showMenu());
             click("Restart game"); click("Cancel");
             assertFalse(events.contains("restart"));
             instrumentation.runOnMainSync(() -> {
@@ -151,6 +199,20 @@ public final class SymbianSessionUiTest {
         waitNode("Use mapping",5000); capture("symbian-common-mapper.png"); click("Cancel");
         click("Game menu"); waitNode("Resume",5000);
         capture("symbian-common-menu.png");
+        for (int fps : new int[]{15, 30, 0, 60}) {
+            click("More"); clickPrefix("Frame rate limit:"); click("Frame rate limit");
+            click(fps == 0 ? "Unlimited" : fps + " FPS");
+            capture("symbian-frame-rate-" + fps + "-menu.png");
+            click("Try changes"); waitNode("Undo",5000);
+            // SymbianActivity runs in :symbian; a JNI getter here would read a
+            // different process. The in-process host test verifies JNI readback.
+            SystemClock.sleep(1500); capture("symbian-frame-rate-" + fps + "-game.png");
+            click("Game menu"); click("More");
+            assertNotNull(find(ui.getRootInActiveWindow(), "Frame rate limit: "
+                    + (fps == 0 ? "Unlimited" : fps + " FPS"), false));
+            click("Back"); click("Resume"); click("Undo");
+            click("Game menu"); waitNode("Resume",5000);
+        }
         click("Display"); waitNode("Picture size",5000);
         assertTrue(ui.getRootInActiveWindow().findAccessibilityNodeInfosByText("Smoothing").isEmpty());
         click("Image rotation"); click("180\u00b0");

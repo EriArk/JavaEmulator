@@ -233,6 +233,24 @@ unset(fs_patched)
 get_target_property(screen_source_dir epocservs SOURCE_DIR)
 file(READ "${screen_source_dir}/src/window/screen.cpp" screen_original)
 set(screen_patched "${screen_original}")
+abyss_replace_once(screen_patched "#include <services/window/screen.h>"
+    "#include <services/window/screen.h>\n#include \"frame_rate.h\"")
+abyss_replace_once(screen_patched [=[        std::uint64_t delta = tnow - last_vsync;
+
+        const std::uint64_t microsecs_a_frame = 1000000 / refresh_rate;
+
+        if (delta < microsecs_a_frame) {
+            next_vsync_us = microsecs_a_frame - delta;
+        } else {
+            next_vsync_us = 0;
+        }
+
+        // Skip last vsync to next frame
+        last_vsync = ((tnow + microsecs_a_frame - 1) / microsecs_a_frame) * microsecs_a_frame;]=]
+    [=[        // A future last_vsync must not underflow an unsigned delta and bypass pacing.
+        const auto now = timing->microseconds();
+        next_vsync_us = abyss::frame_rate::boundary(now, abyss::frame_rate::interval()) - now;
+        last_vsync = tnow + next_vsync_us;]=])
 abyss_replace_once(screen_patched [=[        // 270 rotation clock-wise makes screen content comes from the top where camera lies, to down where the ports reside.
         // That makes it a standard, non-flip landscape. 0 is obviously standard too. Therefore mode 90 and 180 needs flip.
         const float rotation_draw = ((mode_info.rotation == 90) || (mode_info.rotation == 180)) ? 180.0f : 0.0f;
@@ -249,6 +267,25 @@ abyss_patch_source(epocservs "src/window/screen.cpp" "${screen_original}" "${scr
 unset(screen_original)
 unset(screen_patched)
 
+# Both synchronous swaps and window redraw scheduling must honor the session cap.
+# Unlimited bypasses only this throttle, not guest timers or Android vsync.
+file(READ "${screen_source_dir}/src/window/classes/winuser.cpp" winuser_original)
+set(winuser_patched "${winuser_original}")
+abyss_replace_once(winuser_patched "#include <services/window/screen.h>"
+    "#include <services/window/screen.h>\n#include \"frame_rate.h\"")
+abyss_replace_once(winuser_patched "const std::uint64_t time_spend_per_frame_us = 1000000 / scr->refresh_rate;"
+    "const std::uint64_t time_spend_per_frame_us = abyss::frame_rate::interval();")
+abyss_replace_once(winuser_patched [=[const std::uint64_t next_frame_boundary = ((crr + time_spend_per_frame_us)
+                / time_spend_per_frame_us) * time_spend_per_frame_us;]=]
+    "const std::uint64_t next_frame_boundary = abyss::frame_rate::boundary(crr, time_spend_per_frame_us);")
+abyss_replace_once(winuser_patched [=[            if (drawer) {
+                drawer->sleep(static_cast<std::uint32_t>(wait_time));]=]
+    [=[            if (drawer && wait_time != 0) {
+                drawer->sleep(static_cast<std::uint32_t>(wait_time));]=])
+abyss_patch_source(epocservs "src/window/classes/winuser.cpp" "${winuser_original}" "${winuser_patched}")
+unset(winuser_original)
+unset(winuser_patched)
+
 get_target_property(group_source_dir epocservs SOURCE_DIR)
 file(READ "${group_source_dir}/include/services/window/window.h" window_header)
 abyss_replace_once(window_header
@@ -262,7 +299,10 @@ target_include_directories(epocservs PRIVATE "${CMAKE_CURRENT_SOURCE_DIR}")
 file(READ "${group_source_dir}/src/window/window.cpp" window_original)
 set(window_patched "${window_original}")
 abyss_replace_once(window_patched "#include <services/window/window.h>"
-    "#include <services/window/window.h>\n#include \"capture_cleanup.h\"\n#include \"capture_routing.h\"")
+    "#include <services/window/window.h>\n#include \"capture_cleanup.h\"\n#include \"capture_routing.h\"\n#include \"frame_rate.h\"")
+string(REPLACE "schedule_event(DIRECT_FRAMEBUFFER_REFRESH_INTERVAL_US, direct_framebuffer_refresh_evt_, 0)"
+    "schedule_event(abyss::frame_rate::poll_interval(DIRECT_FRAMEBUFFER_REFRESH_INTERVAL_US), direct_framebuffer_refresh_evt_, 0)"
+    window_patched "${window_patched}")
 abyss_replace_once(window_patched [=[        if (!rqueue.empty() && notifier.pri_ == 0) {
             notifier.pri_ = rqueue.top().pri_ + 1;
         }

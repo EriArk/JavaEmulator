@@ -24,6 +24,7 @@ final class SymbianSessionUi {
         RectF touchBounds();
         void pause(boolean paused);
         void display(int scale);
+        void frameRate(int fps);
         void leave();
         void restart();
         Bitmap capture() throws IOException;
@@ -99,7 +100,7 @@ final class SymbianSessionUi {
         clear(); mappings = KeyMapper.resolveMappings(profile.getActiveKeyMappings());
         activity.setRequestedOrientation(BuildConfig.HANDHELD_MODE || profile.orientation == 3 ? ActivityInfo.SCREEN_ORIENTATION_SENSOR_LANDSCAPE
                 : profile.orientation == 2 ? ActivityInfo.SCREEN_ORIENTATION_SENSOR_PORTRAIT : ActivityInfo.SCREEN_ORIENTATION_FULL_SENSOR);
-        host.display(scale()); layout(); updateShortcuts();
+        host.display(scale()); host.frameRate(profile.getNativeFpsLimit()); layout(); updateShortcuts();
     }
     private void layout() {
         if (closed || root.getWidth() == 0 || root.getHeight() == 0) return;
@@ -184,12 +185,15 @@ final class SymbianSessionUi {
     private void morePage() {
         menu.page("More");
         menu.setBackAction(this::home);
+        menu.action("Frame rate limit: " + GameSettingsPages.frameRateLabel(profile.getNativeFpsLimit()),
+                R.drawable.ic_baseline_tune_24, () -> pages().frameRate(this::morePage));
         menu.action(activity.getString(R.string.on_screen_shortcuts), R.drawable.ic_baseline_tune_24,
                 () -> ru.playsoftware.j2meloader.util.GameShortcuts.page(activity, menu, false,
                         this::updateShortcuts, this::morePage));
     }
     private void displayPage() {
         ProfileModel draft = ProfilesManager.copy(profile); menu.page("Display");
+        GameSettingsPages.frameRateChoice(menu, draft, false);
         menu.choice("Picture size", new String[]{"Original", "Fit", "Stretch"}, scale(), i -> draft.screenScaleType = i);
         menu.choice("Image rotation", new String[]{"0\u00b0","90\u00b0","180\u00b0","270\u00b0"},
                 Math.floorMod(draft.screenRotation / 90, 4), i -> draft.screenRotation = i * 90);

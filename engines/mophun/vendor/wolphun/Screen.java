@@ -39,6 +39,8 @@ public final class Screen {
     public double gamma = 1.0;
     public volatile int flips = 0;
     public Runnable hostCheckpoint = () -> { };
+    // Host pacing replaces the standalone limiter, never runs in addition to it.
+    public Runnable hostFramePacer;
     public volatile boolean messageBoxActive;
 
     // ---- buffer de APRESENTAÇÃO (frame COMPLETO) ----
@@ -214,8 +216,9 @@ public final class Screen {
     // ---- present: pacing + empurra o frame p/ a SurfaceView ----
     public void present(){
         hostCheckpoint.run();
+        if (hostFramePacer != null) hostFramePacer.run();
         flips++;
-        if(targetFps>0){
+        if(hostFramePacer == null && targetFps>0){
             long interval = 1000000000L/targetFps;
             long now = System.nanoTime();
             if(lastFrameNanos>0){

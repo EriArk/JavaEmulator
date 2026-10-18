@@ -70,6 +70,24 @@ public class SettingsTrialTest {
         ProfilesManager.beginPreview(model); model.screenWidth = 176;
         ProfilesManager.undoPreview(model); assertEquals(128, model.screenWidth);
     }
+
+    @Test public void nativeFrameLimitDefaultUnlimitedAndLaunchDraftRemainDistinct() throws Exception {
+        assertNull(ProfilesManager.loadConfig(dir).nativeFpsLimit);
+        assertEquals(60, ProfilesManager.loadConfig(dir).getNativeFpsLimit());
+        ProfileModel draft = ProfilesManager.copy(model); draft.nativeFpsLimit = 15;
+        SettingsTrial.stage(draft); SettingsTrial.claim(model);
+        assertEquals(15, model.getNativeFpsLimit());
+        assertEquals(60, ProfilesManager.loadConfig(dir).getNativeFpsLimit());
+        ProfilesManager.undoPreview(model); assertNull(model.nativeFpsLimit);
+        ProfilesManager.beginPreview(model); model.nativeFpsLimit = 0;
+        assertFalse(ProfilesManager.previewNeedsRestart(model));
+        assertTrue(ProfilesManager.keepPreview(model));
+        ProfileModel restarted = ProfilesManager.loadConfig(dir);
+        assertEquals(0, restarted.getNativeFpsLimit());
+        ProfilesManager.beginPreview(restarted); restarted.nativeFpsLimit = 30;
+        ProfilesManager.undoPreview(restarted); assertEquals(0, restarted.getNativeFpsLimit());
+        assertEquals(60, new ProfileModel().getNativeFpsLimit());
+    }
     @Test public void launchDraftIsConsumedOnceAndCrashKeepsConfirmedProfile() throws Exception {
         ProfileModel draft = ProfilesManager.copy(model); draft.screenWidth = 128;
         SettingsTrial.stage(draft);

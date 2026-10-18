@@ -80,6 +80,7 @@ public final class SymbianTouchTest {
                     public void key(int scan,boolean down){keys.add(down?scan:-scan);}
                     public void pause(boolean paused){}
                     public void display(int scale){}
+                    public void frameRate(int fps){}
                     public void leave(){}
                     public void restart(){}
                     public Bitmap capture(){return null;}

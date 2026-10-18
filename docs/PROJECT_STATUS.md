@@ -53,11 +53,31 @@ Beta.1 remains a historical download, not the recommended current version.
 | Channel | Current identifier | Availability |
 | --- | --- | --- |
 | Public download | `v0.3.0-beta.5`, code 304 | Signed Handheld/Phone APKs, matching app source and dependency/native source bundles |
-| Public development source | `main`, beta.5 plus unreleased Symbian file-transfer hardening | The post-release native changes below are not included in the beta.5 APKs |
+| Public development source | `main`, beta.5 plus unreleased native FPS controls and Symbian file-transfer hardening | The post-release changes below are not included in the beta.5 APKs |
 | Private historical snapshot | `0.1.0-beta.2-experimental.15`, 2026-10-11 | Old Java/Mophun test build, not the current beta |
 | Local-only material | Game fixtures, firmware, diagnostics, device data and signing keys | Not in Git or public release assets; describing testing does not authorize redistribution |
 
 ## Unreleased After Beta.5
+
+October 18: Mophun and Symbian/N-Gage now expose **Frame rate limit** in
+**Game menu > More** and **Display**, matching Java's presets: Unlimited,
+15, 20, 25, 30, 50 and 60 FPS. Changes apply live through Try / Keep / Undo
+and persist per game (also per virtual phone for Symbian). Old native profiles
+retain 60 FPS. Java's existing saved limit remains independent.
+
+Mophun uses the shared monotonic pacer instead of a second hidden 60 FPS cap.
+Symbian applies the limit to swaps, window redraws and direct-framebuffer
+polling; Unlimited avoids division by zero and unnecessary guest sleeps.
+This controls frame pacing, **not emulation speed in percent**, and does not
+promise that every game will reach the selected FPS or fix every fast game.
+Both debug variants built, shared tests passed on Retroid and the Android
+emulator, and Retroid live-menu checks passed in Deep Abyss and Snakes.
+[Evidence and exact boundaries](checks/2026-10-18-native-frame-rate.md).
+The beta.5 APKs still expose this setting only for Java. No release was created.
+
+Proposed next step: a separate per-game emulation-speed control with 100% as
+normal speed. Guest timers, waits and audio must be investigated per engine;
+percentage speed control is not implemented or included in these builds.
 
 October 18: bounded native Symbian file reads, section reads and writes by the
 guest buffer and file length; removed an unsafe beyond-EOF write and retained
@@ -165,7 +185,7 @@ their counts are not new final-release test results.
 | Tactile feedback for Phone/Gamepad touch keys across three engines, with Try / Keep / Undo | [Shared touch policy](checks/2026-10-15-phone-shortcuts-feedback.md); human perception remains unverified |
 | Java screen startup, switching and pause/resume fixes without per-title exceptions | [Canvas lifecycle](checks/2026-10-15-canvas-lifecycle.md) |
 | Original JAR filename size/phone hints supplement metadata without resetting existing profiles | [Automatic setup](checks/2026-10-15-source-hints.md) |
-| Per-game FPS presets and monotonic frame pacing | [Frame-rate controls](checks/2026-10-15-frame-rate.md); not a universal speed fix |
+| Per-game Java FPS presets and monotonic frame pacing | [Frame-rate controls](checks/2026-10-15-frame-rate.md); native-engine controls are unreleased, see above; not a universal speed fix |
 | Identical Java imports can reuse existing games/saves or create an intentional separate copy | [Duplicate imports](checks/2026-10-15-source-aliases.md) |
 | Better external-launcher cancellation/exit paths and native `.abyssme` launch files | [Beacon](checks/2026-10-15-beacon-launcher.md), [other frontends](checks/2026-10-15-import-launchers.md); ES-DE unverified |
 | ROM/RPKG ZIP/7z import, persistent errors and Java version/vendor information | [Import and information](checks/2026-10-15-import-launchers.md) |

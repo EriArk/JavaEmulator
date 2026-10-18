@@ -98,6 +98,7 @@ public final class MophunGameActivity extends Activity implements InputManager.I
             session = new MophunSession(new File(directory, MophunStore.EXECUTABLE),
                     new File(Config.getDataDir(), directory.getName()), model,
                     model == 2 ? 128 : 101, model == 2 ? 160 : 80, getCacheDir());
+            session.setFrameRateLimit(profile.getNativeFpsLimit());
             MophunInput sink = new MophunInput(session::screen);
             input = new ControllerInput(key -> mappings.get(key, 0), sink);
             inputManager = getSystemService(InputManager.class);
@@ -295,6 +296,8 @@ public final class MophunGameActivity extends Activity implements InputManager.I
     private void showMorePage() {
         menu.page("More");
         menu.setBackAction(this::showMenuPage);
+        menu.action("Frame rate limit: " + ru.playsoftware.j2meloader.config.GameSettingsPages.frameRateLabel(profile.getNativeFpsLimit()),
+                R.drawable.ic_baseline_tune_24, () -> settingsPages().frameRate(this::showMorePage));
         menu.action(getString(R.string.on_screen_shortcuts), R.drawable.ic_baseline_tune_24,
                 () -> ru.playsoftware.j2meloader.util.GameShortcuts.page(this, menu, false,
                         this::updateScreenshotButton, this::showMorePage));
@@ -322,6 +325,7 @@ public final class MophunGameActivity extends Activity implements InputManager.I
                 });
     }
     private void applyPreview() {
+        if (session != null) session.setFrameRateLimit(profile.getNativeFpsLimit());
         updateScreenshotButton();
         clearInput(); mappings = KeyMapper.resolveMappings(profile.getActiveKeyMappings());
         applyOrientation();

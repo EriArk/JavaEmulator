@@ -16,6 +16,9 @@ public final class MophunSession implements AutoCloseable {
     private final int model, width, height;
     private final Thread worker;
     private final MophunClock clock = new MophunClock();
+    private volatile int frameRateLimit = 60;
+    private final javax.microedition.lcdui.FramePacer framePacer =
+            new javax.microedition.lcdui.FramePacer(() -> frameRateLimit);
     private volatile boolean stopped, paused, parked, finished;
     private volatile Screen screen;
     private volatile Throwable error;
@@ -41,12 +44,20 @@ public final class MophunSession implements AutoCloseable {
     public boolean finished() { return finished; }
     public boolean parked() { return parked; }
 
+    public void setFrameRateLimit(int fps) {
+        frameRateLimit = Math.max(0, Math.min(240, fps));
+        framePacer.reset();
+    }
+
+    public int getFrameRateLimit() { return frameRateLimit; }
+
     public synchronized void pause(boolean value) {
         if (paused == value) return;
         if (screen != null) screen.clearButtons();
         clock.pause(value);
         if (midi != null) midi.pause(value);
         paused = value;
+        framePacer.reset();
     }
 
     private static final class SessionStopped extends RuntimeException { }
@@ -109,6 +120,10 @@ public final class MophunSession implements AutoCloseable {
             Screen target = new Screen(width, height, 1, 1);
             target.hostCheckpoint = this::checkpoint;
             target.targetFps = 60;
+            target.hostFramePacer = () -> {
+                framePacer.awaitFrame();
+                checkpoint();
+            };
             Pip2 vm = new Pip2(exe, 4 * 1024 * 1024, 256 * 1024);
             sdk = new Sdk(vm, target, clock);
             sdk.soundEnabled = false;

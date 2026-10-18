@@ -40,7 +40,7 @@ game** in the shared in-game menu. Restart uses saved settings and discards
 unconfirmed previews; it is a recovery shortcut, not a general black-screen fix.
 
 The release retains Light/Dark/System appearance, hideable Phone shortcuts, touch-key
-feedback, per-game FPS presets and safer duplicate Java imports. It improves
+feedback, per-game Java FPS presets and safer duplicate Java imports. It improves
 Java screen startup and filename-based setup hints, external-launcher return
 paths, system-file import and guarded SIS/SISX removal. N-Gage cards remain
 visible alongside ordinary SIS games on the same virtual phone.

@@ -51,6 +51,8 @@ public final class Emulator {
     public static native boolean startSession();
     public static native void stopSession();
     public static native void pauseSession(boolean paused);
+    public static native void setFrameRateLimit(int fps);
+    public static native int getFrameRateLimit();
     public static native String[] getDevices();
     public static native String[] getDeviceInfo();
     public static native String[] getDeviceFirmwareCodes();

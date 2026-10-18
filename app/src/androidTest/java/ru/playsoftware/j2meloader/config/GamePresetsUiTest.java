@@ -101,6 +101,33 @@ public class GamePresetsUiTest {
         });
     }
 
+    @Test public void nativeFrameRateKeepsLegacyDefaultAndDoesNotChangeJavaLimit() {
+        scenario.onActivity(activity -> {
+            source.fpsLimit = 37;
+            pages = new GameSettingsPages(menu, source, true, false, new GameSettingsPages.Host() {
+                public void preview(ProfileModel draft) { applied = ProfilesManager.copy(draft); }
+                public void mapping(ProfileModel draft, Runnable back) { }
+                public void advanced() { }
+                public void back() { }
+            });
+            pages.display();
+        }); idle();
+        scenario.onActivity(activity -> assertEquals("60 FPS",
+                ((Spinner) find(root(), Spinner.class, null)).getSelectedItem().toString()));
+        choose(0);
+        scenario.onActivity(activity -> {
+            assertEquals(60, source.getNativeFpsLimit()); assertNull(applied);
+            find(root(), TextView.class, "Try changes").performClick();
+            assertEquals(0, applied.getNativeFpsLimit()); assertEquals(37, applied.fpsLimit);
+            ProfilesManager.beginPreview(source); ProfilesManager.copyInto(applied, source);
+            assertEquals(0, source.getNativeFpsLimit());
+            ProfilesManager.undoPreview(source);
+            assertEquals(60, source.getNativeFpsLimit()); assertEquals(37, source.fpsLimit);
+            source.nativeFpsLimit = -20; assertEquals(0, source.getNativeFpsLimit());
+            source.nativeFpsLimit = 1000; assertEquals(240, source.getNativeFpsLimit());
+        });
+    }
+
     @Test public void phonePresetOnlyReachesHostAfterExplicitRestartAction() {
         scenario.onActivity(activity -> pages.phonePresets(() -> backs++, draft -> applied = ProfilesManager.copy(draft))); idle();
         choose(4); // Sony Ericsson.

@@ -3,7 +3,7 @@ package javax.microedition.lcdui;
 import java.util.function.IntSupplier;
 
 /** Paces guest frame submissions, not guest clocks or Android presentation. */
-final class FramePacer {
+public final class FramePacer {
     interface Clock {
         long now();
         void await(Object lock, long nanos) throws InterruptedException;
@@ -14,7 +14,7 @@ final class FramePacer {
     private int previousLimit;
     private boolean ready;
 
-    FramePacer(IntSupplier limit) {
+    public FramePacer(IntSupplier limit) {
         this(limit, new Clock() {
             public long now() { return System.nanoTime(); }
             public void await(Object lock, long nanos) throws InterruptedException {
@@ -25,9 +25,9 @@ final class FramePacer {
 
     FramePacer(IntSupplier limit, Clock clock) { this.limit = limit; this.clock = clock; }
 
-    synchronized void reset() { ready = false; notifyAll(); }
+    public synchronized void reset() { ready = false; notifyAll(); }
 
-    synchronized void awaitFrame() {
+    public synchronized void awaitFrame() {
         for (;;) {
             int fps = limit.getAsInt();
             long now = clock.now();

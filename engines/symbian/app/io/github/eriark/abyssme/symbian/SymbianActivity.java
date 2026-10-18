@@ -915,6 +915,7 @@ public final class SymbianActivity extends Activity implements Emulator.Host, In
                         public void key(int scan, boolean down) { if (running && attached && !closing) Emulator.pressKey(scan, down ? 0 : 1); }
                         public void pause(boolean paused) { menuOpen = paused; if (running && attached && !closing) Emulator.pauseSession(!resumed || paused); }
                         public void display(int scale) { if (running && attached && !closing) Emulator.setScreenParams(Color.BLACK,100,scale,2,"",0,true); }
+                        public void frameRate(int fps) { if (running && !closing) Emulator.setFrameRateLimit(fps); }
                         public void leave() { returnToLibrary(); }
                         public void restart() { restartGame(uid); }
                         public android.graphics.Bitmap capture() throws IOException {

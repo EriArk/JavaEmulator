@@ -71,6 +71,7 @@ public final class SymbianNativeTouchTest {
                         public void key(int key,boolean down){if(attached.get())Emulator.pressKey(key,down?0:1);}
                         public void pause(boolean value){if(attached.get())Emulator.pauseSession(value);}
                         public void display(int scale){if(attached.get())Emulator.setScreenParams(Color.BLACK,100,scale,2,"",0,true);}
+                        public void frameRate(int fps){Emulator.setFrameRateLimit(fps);}
                         public void leave(){}
                         public void restart(){}
                         public Bitmap capture(){return null;}
