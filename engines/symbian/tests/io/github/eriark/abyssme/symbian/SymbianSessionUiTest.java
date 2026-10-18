@@ -295,7 +295,16 @@ public final class SymbianSessionUiTest {
     }
     private AccessibilityNodeInfo waitNode(String text,long timeout) {
         long end=SystemClock.uptimeMillis()+timeout;
-        do { AccessibilityNodeInfo found=find(ui.getRootInActiveWindow(),text,false); if(found!=null)return found; SystemClock.sleep(100); } while(SystemClock.uptimeMillis()<end);
+        do {
+            AccessibilityNodeInfo root = ui.getRootInActiveWindow();
+            AccessibilityNodeInfo found = find(root, text, false);
+            if (found != null) return found;
+            if ("Game menu".equals(text) && !BuildConfig.HANDHELD_MODE) {
+                AccessibilityNodeInfo reveal = find(root, "Show game controls", false);
+                if (reveal != null) clickNode(reveal);
+            }
+            SystemClock.sleep(100);
+        } while(SystemClock.uptimeMillis()<end);
         throw new AssertionError("Missing: "+text);
     }
     private AccessibilityNodeInfo description(AccessibilityNodeInfo node,String text) {

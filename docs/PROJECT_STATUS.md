@@ -59,6 +59,15 @@ Beta.1 remains a historical download, not the recommended current version.
 
 ## Unreleased Development After Beta.4
 
+The beta.5 candidate also repairs a reproduced Java startup deadlock: games
+waiting for Canvas visibility inside startApp() can now proceed. Age of Empires
+II Deluxe 02.00.35 reached Quick play on the Phone emulator and Retroid; physical
+Retroid touch navigation, pause/resume and exit were checked. Six startup cases
+and 21 existing Canvas cases passed on the emulator. Real Mophun Phone appearance
+and Snakes shared-control UI checks passed on Retroid. This is not Android 16,
+Deluxe 02.00.39, audio/save or full-campaign acceptance.
+[Cause, regression coverage and limits](checks/2026-10-18-java-startup.md).
+
 October 18: fixed shared Java drawing-buffer and GLES lifecycle problems during
 live screen changes. Improved automatic setup for explicit LG width/height and
 Nokia original-versus-target resolution declarations. Existing saved settings

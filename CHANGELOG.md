@@ -12,6 +12,17 @@ combined builds; released experimental features are explicitly identified.
 
 ## 2026-10-18
 
+- **Development, beta.5 candidate:** fixed a shared startup deadlock affecting
+  MIDlets that wait for their screen inside startApp(), reproduced with Age of
+  Empires II Deluxe 02.00.35. Retained surface-independent rendering and guarded
+  pause/resume, declined startup and obsolete queued start requests. No per-game
+  exception or changed JAR. [Evidence](docs/checks/2026-10-18-java-startup.md).
+- **Verified locally:** Deluxe reached Quick play on Retroid and the Phone
+  emulator; Retroid touch navigation, pause/resume and exit worked. Six startup
+  regression cases plus 21 Canvas cases passed on the emulator; a preceding
+  36-case combined Phone run passed on Retroid. Real Mophun Phone appearance and
+  native Snakes shared-control UI tests also passed. Android 16 / Deluxe 02.00.39
+  are not claimed verified. Public beta.4 remains current until publication.
 - **Public source, unreleased:** Phone's upper game shortcuts now open from a
   small edge arrow and collapse after five idle seconds. They overlay the game
   without reserving a portrait row or resizing the image. Normal game/keypad

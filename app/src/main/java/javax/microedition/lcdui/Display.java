@@ -133,7 +133,7 @@ public class Display {
 		}
 	}
 
-	/** The application manager publishes the display only after startApp returns. */
+	/** The application manager controls visibility independently of a guest startup callback. */
 	public static void setForeground(boolean value) {
 		Display display = instance;
 		if (display == null) return;

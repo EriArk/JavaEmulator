@@ -54,6 +54,7 @@ public class MidletThread extends HandlerThread implements Handler.Callback {
 	private MIDlet midlet;
 	private final Handler handler;
 	private volatile int state;
+	private volatile boolean foregroundRequested;
 
 	private MidletThread(MicroLoader microLoader, String mainClass) {
 		super("MidletMain");
@@ -89,17 +90,26 @@ public class MidletThread extends HandlerThread implements Handler.Callback {
 	}
 
 	static void pauseApp() {
-		if (instance != null)
+		if (instance != null) {
+			instance.foregroundRequested = false;
+			// A guest can still be inside startApp; do not queue visibility behind it.
+			Display.setForeground(false);
 			instance.handler.obtainMessage(PAUSE).sendToTarget();
+		}
 	}
 
 	public static void resumeApp() {
 		MicroActivity activity = ContextHolder.getActivity();
-		if (instance != null && activity != null && activity.isVisible())
+		if (instance != null && activity != null && activity.isVisible()) {
+			instance.foregroundRequested = true;
+			if (instance.state == STARTED) Display.setForeground(true);
 			instance.handler.obtainMessage(START).sendToTarget();
+		}
 	}
 
 	static void destroyApp() {
+		if (instance != null) instance.foregroundRequested = false;
+		Display.setForeground(false);
 		Thread.setDefaultUncaughtExceptionHandler(uncaughtExceptionHandler);
 		new Thread(() -> {
 			try {
@@ -138,19 +148,25 @@ public class MidletThread extends HandlerThread implements Handler.Callback {
 				}
 				break;
 			case START:
-				if (state != PAUSED) {
+				MicroActivity activity = ContextHolder.getActivity();
+				if (state != PAUSED || !foregroundRequested || activity == null || !activity.isVisible()) {
 					break;
 				}
 				try {
 					state = STARTED;
+					// Some MIDlets wait for isShown/paint inside startApp itself.
+					Display.setForeground(true);
 					midlet.startApp();
-					MicroActivity activity = ContextHolder.getActivity();
-					Display.setForeground(state == STARTED && activity != null && activity.isVisible());
+					activity = ContextHolder.getActivity();
+					Display.setForeground(state == STARTED && foregroundRequested
+							&& activity != null && activity.isVisible());
 				} catch (MIDletStateChangeException e) {
 					state = PAUSED;
+					Display.setForeground(false);
 					Log.w(TAG, "Midlet doesn't want to start!", e);
 				} catch (Throwable t) {
 					state = DESTROYED;
+					Display.setForeground(false);
 					throw new RuntimeException("Failed startApp", t);
 				}
 				break;
