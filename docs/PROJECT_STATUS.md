@@ -35,21 +35,23 @@ bundled. The app UI is English.
 
 ## Availability: Do Not Mix These Channels
 
-**Current public beta: [0.4.0-beta.3](https://github.com/EriArk/JavaEmulator/releases/tag/v0.4.0-beta.3)**,
-published **2026-10-19 at 03:54:59 UTC**, code **308**. One adaptive APK includes
+**Current public beta: [0.4.0-beta.3-r1](https://github.com/EriArk/JavaEmulator/releases/tag/v0.4.0-beta.3)**,
+added **2026-10-19** to the existing Beta 3 release, code **309**. No new release
+page was created. Original Beta 3 was published at 03:54:59 UTC, code 308; its
+assets and source tag remain unchanged. One adaptive APK includes
 Java, Mophun and experimental Symbian / N-Gage. Android 10+, arm64-v8a.
 Games and firmware are not included. The old Phone app is a separate migration
 source, not a second 0.4 download.
 
-All five uploaded asset digests and sizes matched. The APK and checksum list
-were downloaded again and matched before publication; an unauthenticated public
-APK download also matched after publication. The source tag points to
-`6245cad0`; later handoff documentation does not change the APK. GitHub Actions
+All five revision asset digests and sizes matched. Unauthenticated public APK
+and checksum downloads also matched. Matching revision source tag
+`v0.4.0-beta.3-r1` points to `0b22cb63`; the original tag still points to
+`6245cad0`. Later handoff documentation does not change the APK. GitHub Actions
 remains disabled. No website or Nextcloud deployment in this release checkpoint.
-[Release notes](releases/v0.4.0-beta.3.md),
-[verification and limits](releases/v0.4.0-beta.3-checks.md),
-[checksums](releases/v0.4.0-beta.3/SHA256SUMS.txt),
-[candidate/debug captures with provenance](../screenshots/development/2026-10-19-beta3-preparation/README.md).
+[Release notes](releases/v0.4.0-beta.3-r1.md),
+[verification and limits](releases/v0.4.0-beta.3-r1-checks.md),
+[checksums](releases/v0.4.0-beta.3-r1/SHA256SUMS.txt),
+[candidate/debug captures with provenance](../screenshots/development/2026-10-19-fast-forward/README.md).
 
 Historical **0.3.0-beta.2** was withheld before publication after final provisioning
 exposed a mixed SIS/N-Gage catalog defect; **0.3.0-beta.3** fixed it. These are
@@ -57,20 +59,23 @@ older 0.3 builds, not the current 0.4 release series.
 
 | Channel | Current identifier | Availability |
 | --- | --- | --- |
-| Public download | `v0.4.0-beta.3`, code 308 | One signed adaptive APK, matching app source and dependency/native source bundles |
-| Public development source | `main`, 0.4.0-beta.3 with publication documentation | Implementation included in the release; previous release assets remain unchanged |
+| Public download | `0.4.0-beta.3-r1`, code 309, on existing Beta 3 page | One signed adaptive APK, matching app source and dependency/native source bundles |
+| Public development source | `main`, 0.4.0-beta.3-r1 with publication documentation | Implementation included in the revision; previous release assets remain unchanged |
 | Private historical snapshot | `0.1.0-beta.2-experimental.15`, 2026-10-11 | Old Java/Mophun test build, not the current beta |
 | Local-only material | Game fixtures, firmware, diagnostics, device data and signing keys | Not in Git or public release assets; describing testing does not authorize redistribution |
 
-## Beta 3 Revision Preparation: Fast-forward
+## Released in Beta 3 Revision 1: Fast-forward
 
-Implemented locally after Beta 3: temporary per-game 150/200/300/400% speed,
+Published as an update to Beta 3: temporary per-game 150/200/300/400% speed,
 controller Hold/Toggle mapping including trigger axes, and optional touch
 shortcut/direct game-menu command across all three engines. Original speed and
 frame cap return on stop; activation is not persisted. Settings use Try/Keep/Undo.
-Native clock/audio and Retroid shared checks passed; publication and further
-device evidence are tracked in [revision verification](releases/v0.4.0-beta.3-r1-checks.md).
-See [behavior and limits](FAST_FORWARD.md). Not yet a public APK at this checkpoint.
+Native clock/audio and Retroid shared checks passed, with live Java/Mophun/N-Gage
+shortcut flows and phone-emulator checks. Final signed APK upgraded Retroid from
+308 to 309; all 329 readable external-file hashes matched and the library reopened.
+See [revision verification](releases/v0.4.0-beta.3-r1-checks.md) and
+[behavior and limits](FAST_FORWARD.md). Requested 4x is not guaranteed gameplay
+acceleration; Little Big City and Green Farm were not individually verified.
 
 ## Released in 0.4.0 Beta 3
 

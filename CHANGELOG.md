@@ -10,7 +10,7 @@ stated otherwise. **Experimental** in older checkpoints means local/private
 combined builds; released experimental features are explicitly identified.
 **Released** means an actual GitHub release asset.
 
-## 2026-10-19 - Configurable Fast-forward (Beta 3 revision preparation)
+## 2026-10-19 - Beta 3 Revision 1 Published: Configurable Fast-forward
 
 - Add temporary per-game 150/200/300/400% acceleration for Java, Mophun and
   Symbian/N-Gage, with on-screen toggle, direct game-menu action and controller
@@ -19,8 +19,17 @@ combined builds; released experimental features are explicitly identified.
 - Restore the previous speed/frame cap on stop, menu/focus loss and controller
   disconnect. Keep activation out of saved profiles and backups; fast-forward
   settings participate in Try/Keep/Undo. Extend shared clocks/audio to 400%.
-- Candidate 0.4.0-beta.3-r1, code 309, for the existing Beta 3 release page.
-  Not a publication statement. No new Beta 4 release is planned for this patch.
+- **Released:** 0.4.0-beta.3-r1, code 309, on the existing Beta 3 release page.
+  Original assets/tag retained; no new release page. Matching source tag points
+  to `0b22cb63`. All five uploaded revision asset digests/sizes matched; public
+  APK/checksum downloads were verified. GitHub Actions remains disabled.
+- Final signed build, production guards and lint passed (zero lint errors).
+  Fresh JVM run: 44 passes. Final Retroid shared UI/live Java, Mophun and N-Gage
+  check: six passes; final phone-emulator UI rerun: six passes. Earlier clock,
+  audio and controller suites are detailed in the evidence record below.
+  Signed upgrade from 308 preserved all 329 readable external-file hashes;
+  the library and Bounce Tales menu/fast-forward smoke check passed.
+  No full-game, physical-button comfort or listening acceptance is claimed.
   [Behavior and limits](docs/FAST_FORWARD.md),
   [verification](docs/releases/v0.4.0-beta.3-r1-checks.md).
 

@@ -10,7 +10,7 @@ library, automatic first-launch preparation, and fast per-game controller
 mapping. Mophun and experimental Symbian / N-Gage support share the same
 library, display controls and in-game menu.
 
-**0.4.0 Beta 3 uses one APK for phones and handhelds**, with automatic controller
+**0.4.0 Beta 3 Revision 1 uses one APK for phones and handhelds**, with automatic controller
 detection and optional touch buttons. Existing Handheld installs update in place;
 users of the former Phone app can use the menu-based
 [migration workflow](docs/LIBRARY_TRANSFER.md#moving-from-abyssme-phone).
@@ -18,7 +18,10 @@ users of the former Phone app can use the menu-based
 > **Project status:** Beta. AbyssME is usable, but compatibility automation and
 > launcher integration still need testing across more games and devices.
 
-[Download 0.4.0 Beta 3](https://github.com/EriArk/JavaEmulator/releases/tag/v0.4.0-beta.3)
+[Download 0.4.0 Beta 3 Revision 1](https://github.com/EriArk/JavaEmulator/releases/download/v0.4.0-beta.3/AbyssME-0.4.0-beta.3-r1.apk)
+
+Use the **beta.3-r1** APK on the existing Beta 3 release page. Original Beta 3
+assets remain available for reference; the revision updates that app in place.
 
 ## Current Beta
 
@@ -26,8 +29,15 @@ For website copy, progress posts and handoffs, start with the
 [current product/development status](docs/PROJECT_STATUS.md) and
 [dated changelog](CHANGELOG.md). They also describe local/private experiments,
 explicitly separated from public downloads. The
-[0.4.0 Beta 3 notes](docs/releases/v0.4.0-beta.3.md) include the combined-engine scope,
+[0.4.0 Beta 3 Revision 1 notes](docs/releases/v0.4.0-beta.3-r1.md) include the combined-engine scope,
 verification limits and source downloads.
+
+**Fast-forward** offers per-game 1.5x, 2x, 3x and 4x targets across all three
+engines. Use the game menu, optional on-screen shortcut, or assign a controller
+button/trigger with Hold or Toggle behavior. Open **Game menu > More >
+Fast-forward settings**, then Try/Keep your changes. Stopping restores the prior
+speed and frame cap. Actual acceleration depends on the game and hardware;
+audio pitch changes with speed. [Details and limits](docs/FAST_FORWARD.md).
 
 Filter All games, Recent or Favorites by platform, return to your previous scroll
 position, or use **Play last**. **Edit card** groups title and artwork actions.
