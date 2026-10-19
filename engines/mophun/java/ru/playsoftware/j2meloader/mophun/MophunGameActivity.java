@@ -172,17 +172,28 @@ public final class MophunGameActivity extends Activity {
         if (screen == null) return;
         int[] pixels = new int[screen.pw * screen.ph];
         if (!screen.copyPresented(pixels)) return;
+        ru.playsoftware.j2meloader.util.ScreenshotEffect effect = new ru.playsoftware.j2meloader.util.ScreenshotEffect(profile);
+        int rotation = Math.floorMod(profile.screenRotation / 90, 4) * 90;
         screenshotPending = true;
         updateScreenshotButton();
         // Copy the presented frame before encoding; gameplay continues on its worker.
         disk.execute(() -> {
             Bitmap bitmap = Bitmap.createBitmap(pixels, screen.pw, screen.ph, Bitmap.Config.ARGB_8888);
+            Bitmap oriented = bitmap;
             int result = R.string.screenshot_gallery_saved;
-            try { Screenshots.save(getApplicationContext(), bitmap); }
+            try {
+                if (rotation != 0) {
+                    android.graphics.Matrix matrix = new android.graphics.Matrix(); matrix.postRotate(rotation);
+                    oriented = Bitmap.createBitmap(bitmap, 0, 0, bitmap.getWidth(), bitmap.getHeight(), matrix, false);
+                }
+                boolean quarter = rotation % 180 != 0;
+                Screenshots.save(getApplicationContext(), oriented, effect,
+                        quarter ? screen.h : screen.w, quarter ? screen.w : screen.h);
+            }
             catch (Exception error) {
                 android.util.Log.w("Mophun", "Screenshot", error);
                 result = R.string.screenshot_failed;
-            } finally { bitmap.recycle(); }
+            } finally { if (oriented != bitmap) oriented.recycle(); bitmap.recycle(); }
             int message = result;
             handler.post(() -> {
                 screenshotPending = false;
@@ -571,6 +582,8 @@ public final class MophunGameActivity extends Activity {
     }
 
     private final class FrameView extends View {
+        private final ru.playsoftware.j2meloader.ui.LcdEffect lcdEffect = new ru.playsoftware.j2meloader.ui.LcdEffect();
+        private final RectF lcdBounds = new RectF();
         private final Paint paint = new Paint();
         private final Rect destination = new Rect();
         private Bitmap bitmap;
@@ -578,6 +591,8 @@ public final class MophunGameActivity extends Activity {
         private boolean errorShown;
         FrameView() {
             super(MophunGameActivity.this);
+            // The game surface is not a menu item; Android's focus wash tints the whole frame.
+            setDefaultFocusHighlightEnabled(false);
             paint.setFilterBitmap(false);
             setOnClickListener(v -> showMenu());
         }
@@ -614,6 +629,9 @@ public final class MophunGameActivity extends Activity {
                     destination.set(-width / 2, -height / 2, width - width / 2, height - height / 2);
                     paint.setFilterBitmap(profile.screenFilter);
                     canvas.drawBitmap(bitmap, null, destination, paint);
+                    lcdBounds.set(destination);
+                    lcdEffect.draw(canvas, lcdBounds, screen.w, screen.h, 0,
+                            profile.screenEffect, profile.screenEffectIntensity);
                     canvas.restore();
                 }
             }

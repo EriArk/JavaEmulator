@@ -162,6 +162,16 @@ public abstract class Canvas extends Displayable {
 	private Image offscreen;
 	private Image offscreenCopy;
 	private int onX, onY, onWidth, onHeight;
+	private static volatile int lcdMode, lcdIntensity;
+	private final RectF lcdClip = new RectF();
+	private final ru.playsoftware.j2meloader.ui.LcdEffect lcdEffect = new ru.playsoftware.j2meloader.ui.LcdEffect();
+	private final Layer lcdLayer = g -> {
+		int save = g.getCanvas().save();
+		g.getCanvas().clipRect(lcdClip);
+		lcdEffect.draw(g.getCanvas(), virtualScreen, width, height, drawRotation, lcdMode, lcdIntensity);
+		g.getCanvas().restoreToCount(save);
+	};
+	public static void setScreenEffect(int mode, int intensity) { lcdMode = mode; lcdIntensity = intensity; }
 	private final FramePacer framePacer = new FramePacer(() -> fpsLimit);
 	private Handler uiHandler;
 	private Overlay overlay;
@@ -212,6 +222,7 @@ public abstract class Canvas extends Displayable {
 	}
 
 	public void updateRenderingSettings() {
+		ContextHolder.getActivity().binding.overlayView.postInvalidate();
 		canvasWrapper.setFilterBitmap(filter);
 		if (renderer != null) {
 			renderer.updateFilter();
@@ -369,8 +380,9 @@ public abstract class Canvas extends Displayable {
 			Bitmap bitmap;
 			if (screenshotRawMode) {
 				synchronized (bufferLock) {
-					bitmap = Bitmap.createBitmap(offscreenCopy.getBitmap(), 0, 0,
-							offscreenCopy.getWidth(), offscreenCopy.getHeight());
+					// A full-size createBitmap may alias the live game buffer.
+					bitmap = Bitmap.createBitmap(offscreenCopy.getWidth(), offscreenCopy.getHeight(), Bitmap.Config.ARGB_8888);
+					new android.graphics.Canvas(bitmap).drawBitmap(offscreenCopy.getBitmap(), 0, 0, null);
 				}
 			} else {
 				bitmap = Bitmap.createBitmap(onWidth, onHeight, Bitmap.Config.ARGB_8888);
@@ -382,6 +394,18 @@ public abstract class Canvas extends Displayable {
 				}
 			}
 			emitter.onSuccess(bitmap);
+		});
+	}
+
+	public Single<Bitmap> getScreenShot(ru.playsoftware.j2meloader.util.ScreenshotEffect effect) {
+		boolean quarter = !screenshotRawMode && drawRotation % 180 != 0;
+		int guestWidth = quarter ? height : width, guestHeight = quarter ? width : height;
+		return getScreenShot().map(frame -> {
+			try {
+				Bitmap output = effect.render(frame, guestWidth, guestHeight);
+				if (output != frame) frame.recycle();
+				return output;
+			} catch (RuntimeException | Error error) { frame.recycle(); throw error; }
 		});
 	}
 
@@ -559,6 +583,8 @@ public abstract class Canvas extends Displayable {
 
 		RectF screen = new RectF(0, 0, displayWidth, displayHeight);
 		virtualScreen.set(onX, onY, onX + onWidth, onY + onHeight);
+		lcdClip.set(available);
+		ContextHolder.getActivity().binding.overlayView.postInvalidate();
 
 		synchronized (bufferLock) {
 			if (offscreen == null) {
@@ -1421,6 +1447,7 @@ public abstract class Canvas extends Displayable {
 				overlayView.addLayer(fpsCounter);
 			}
 			overlayView.addLayer(softBar, 0);
+			overlayView.addLayer(lcdLayer, 0);
 			overlayView.setVisibility(true);
 			overlay = ContextHolder.getVk();
 			if (overlay != null) {
@@ -1443,6 +1470,7 @@ public abstract class Canvas extends Displayable {
 				fpsCounter = null;
 			}
 			overlayView.removeLayer(softBar);
+			overlayView.removeLayer(lcdLayer);
 			softBar.closeMenu();
 			overlayView.setVisibility(false);
 			if (overlay != null) {

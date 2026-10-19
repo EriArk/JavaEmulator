@@ -79,7 +79,7 @@ public final class SymbianArtworkUiTest {
         ui=InstrumentationRegistry.getInstrumentation().getUiAutomation();
         try(ActivityScenario<MainActivity> scenario=ActivityScenario.launch(MainActivity.class)) {
             scenario.onActivity(a->call(fragment(a),"showActions",new Class[]{View.class,AppItem.class},a.getWindow().getDecorView(),item));
-            click("Artwork"); screenshot("snakes-artwork-menu"); click("Cover");
+            click("Edit card"); click("Artwork"); screenshot("snakes-artwork-menu"); click("Cover");
             assertNotNull(find(ui.getRootInActiveWindow(),"Choose image"));
             assertNotNull(find(ui.getRootInActiveWindow(),"Use automatic"));
             click("Back"); click("Close");
@@ -94,10 +94,10 @@ public final class SymbianArtworkUiTest {
             scenario.onActivity(a->{pending(fragment(a),item.getId(),true); call(fragment(a),"onArtworkPicked",new Class[]{Uri.class},Uri.fromFile(image));});
             waitImage(icon,chosen);
             scenario.onActivity(a->call(fragment(a),"showActions",new Class[]{View.class,AppItem.class},a.getWindow().getDecorView(),item));
-            click("Artwork"); click("Cover"); click("Use automatic"); waitImage(cover,null);
+            click("Edit card"); click("Artwork"); click("Cover"); click("Use automatic"); waitImage(cover,null);
             assertArrayEquals(chosen,Files.readAllBytes(icon.toPath()));
             scenario.onActivity(a->call(fragment(a),"showActions",new Class[]{View.class,AppItem.class},a.getWindow().getDecorView(),item));
-            click("Artwork"); click("Icon"); click("Use automatic"); waitImage(icon,null);
+            click("Edit card"); click("Artwork"); click("Icon"); click("Use automatic"); waitImage(icon,null);
             scenario.onActivity(a->{pending(fragment(a),item.getId(),false); call(fragment(a),"onArtworkPicked",new Class[]{Uri.class},(Object)null);});
             assertFalse(cover.exists());
         } finally {

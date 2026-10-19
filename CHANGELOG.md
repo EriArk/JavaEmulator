@@ -1,7 +1,7 @@
 # AbyssME Changelog
 
 User-facing development history, reconstructed from commits, release notes and
-local/private build records through **2026-10-18**. This is not a claim that all
+local/private build records through **2026-10-19**. This is not a claim that all
 listed work is in a public APK. See [current status](docs/PROJECT_STATUS.md) for
 availability, verification, known limits and screenshot guidance.
 
@@ -9,6 +9,59 @@ Labels: **Public source** means implemented on `main` but unreleased unless
 stated otherwise. **Experimental** in older checkpoints means local/private
 combined builds; released experimental features are explicitly identified.
 **Released** means an actual GitHub release asset.
+
+## 2026-10-19 - Portable Symbian titles and Beta 3 preparation (unreleased)
+
+- Custom Symbian/N-Gage card titles now belong to virtual-phone data and travel
+  with phone backups, including subsequent edits and re-exports. Existing local
+  title preferences migrate without replacing newer edits.
+- Archive format 3 validates title metadata before restoring a separate phone.
+  Formats 1 and 2 remain readable; new archives need Beta 3 or newer at the
+  destination. Android row IDs, favorites and play history remain local.
+- Failed title saves leave the editor open. Retroid passed 21 backup/artwork
+  checks, a complete restore-to-launcher/native-startup flow, 20 shared
+  library/LCD checks and a separate artwork UI recreation check. Conditional
+  skips and evidence limits are listed in the
+  [checkpoint](docs/checks/2026-10-19-phone-titles.md).
+- Next candidate is 0.4.0-beta.3, code 308. Public GitHub release is still
+  0.4.0-beta.2 as checked on 2026-10-19; no publication or site/cloud deployment
+  is implied by this preparation entry.
+- Signed candidate built with clean release/guards/lint and 39 fresh JVM passes.
+  Installed over Beta 2 on Retroid; all 329 readable external-file hashes were
+  retained and the 40-game library opened. Phone emulator: 21 passes and one
+  optional capture skip. [Candidate details](docs/releases/v0.4.0-beta.3-checks.md).
+
+## 2026-10-19
+
+- **Local, unreleased after 0.4.0 Beta 2:** improve library navigation with a
+  persisted platform filter combined with Recent/Favorites, per-collection scroll
+  restoration and Play last. Expose favorites consistently on touch, group title
+  and artwork under Edit card, and retain native custom titles across rescans.
+  Correct stale asynchronous filter results, locale-dependent search, late native
+  selection loss and scroll-margin drift. Capture light phone and dark handheld
+  interfaces; keep release packages and existing game files unchanged.
+  [Verification and limits](docs/checks/2026-10-19-library-session.md).
+
+- **Local, unreleased after 0.4.0 Beta 2:** add per-game Clean / With LCD effect
+  screenshot export for Java, Mophun and Symbian/N-Gage. PNGs exclude app controls;
+  LCD export size is bounded, and old profiles keep Clean by default. Correct
+  uneven LCD grid bands at fractional scales and use logical Mophun pixels even
+  with HD rendering. Mophun exports now honor image rotation; Java raw capture
+  no longer risks sharing its live bitmap with screenshot processing.
+  [Verification and availability](docs/checks/2026-10-19-lcd-export.md).
+
+- **Local, unreleased after 0.4.0 Beta 2:** add Off / LCD Soft / LCD Classic
+  screen effects to Java, Mophun and Symbian/N-Gage. Shared Display controls
+  expose intensity and reversible per-game trials. Grid geometry follows guest
+  pixels and rotation, fades at low scale and leaves touch controls/menu pixels
+  alone. Existing profiles remain Off. Verified mode changes, Undo and saved
+  selection after relaunch on Retroid and the emulator; 34 focused checks passed
+  on each, plus 39 JVM tests. A short Mophun menu sample showed no extra jank;
+  this is not a whole-game FPS guarantee. Fresh screenshots and documentation
+  added. Removed Android's unwanted full-frame focus tint on the Mophun game
+  surface without changing menu focus. Production app and published Beta 2
+  unchanged; no release/upload.
+  [Verification](docs/checks/2026-10-19-lcd-effects.md).
 
 ## 2026-10-18
 

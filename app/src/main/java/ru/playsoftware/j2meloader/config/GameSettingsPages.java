@@ -49,6 +49,7 @@ public final class GameSettingsPages {
         menu.choice("Picture size", new String[]{"Original", "Fit", "Stretch"}, clamp(draft.screenScaleType, 3),
                 i -> { draft.screenScaleType = i; draft.screenScaleRatio = 100; });
         menu.toggle("Smoothing", draft.screenFilter, value -> draft.screenFilter = value);
+        screenEffectChoice(menu, draft);
         menu.choice("Image rotation", new String[]{"0\u00b0", "90\u00b0", "180\u00b0", "270\u00b0"},
                 Math.floorMod(draft.screenRotation / 90, 4), i -> draft.screenRotation = i * 90);
         if (!BuildConfig.HANDHELD_MODE) menu.choice("Orientation", new String[]{"Auto", "Portrait", "Landscape"},
@@ -109,6 +110,15 @@ public final class GameSettingsPages {
     }
 
     public static String frameRateLabel(int fps) { return fps <= 0 ? "Unlimited" : fps + " FPS"; }
+
+    public static void screenEffectChoice(GameMenuDialog menu, ProfileModel draft) {
+        menu.choice("Screen effect", ru.playsoftware.j2meloader.ui.LcdEffect.NAMES,
+                ru.playsoftware.j2meloader.ui.LcdEffect.mode(draft.screenEffect), i -> draft.screenEffect = i);
+        menu.percentage("Effect intensity", ru.playsoftware.j2meloader.ui.LcdEffect.intensity(draft.screenEffectIntensity),
+                0, i -> draft.screenEffectIntensity = i);
+        menu.choice("Screenshot image", new String[]{"Clean", "With LCD effect"},
+                draft.screenshotWithEffect ? 1 : 0, i -> draft.screenshotWithEffect = i == 1);
+    }
 
     public void speed(Runnable back) {
         menu.page("Emulation speed");

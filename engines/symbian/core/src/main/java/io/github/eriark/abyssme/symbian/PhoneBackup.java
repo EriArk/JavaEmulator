@@ -38,7 +38,7 @@ final class PhoneBackup {
             try {
                 this.manifest=manifest;
                 int version = manifest.getInt("version");
-                if ((version != 1 && version != 2) || !"AbyssME phone backup".equals(manifest.getString("format")))
+                if ((version < 1 || version > 3) || !"AbyssME phone backup".equals(manifest.getString("format")))
                     throw new IOException("This is not a supported AbyssME phone backup");
                 JSONObject set=manifest.getJSONObject("phone"); validateMetadata(set);
                 phone=set.getString("model") + " / " + set.getString("firmware");
@@ -54,6 +54,7 @@ final class PhoneBackup {
         String description() {
             return phone + "\n\n" + (bytes / (1024*1024)) + " MB unpacked. Includes phone system files, installed games, saves and game settings."
                     + (manifest.optInt("version") >= 2 ? " Custom covers and icons are included when available." : "")
+                    + (manifest.optInt("version") >= 3 ? " Custom game titles are included too." : "")
                     + "\n\nRestores a separate phone. Existing phones, games and saves are not replaced."
                     + "\n\nOnly restore backups you trust.";
         }
@@ -71,6 +72,8 @@ final class PhoneBackup {
                 throw new IOException("Backup settings are too large");
             if (path.startsWith("artwork/") && !directory && (size == 0 || size > MAX_ARTWORK_BYTES))
                 throw new IOException("Backup artwork is too large or empty");
+            if (path.equals(PhoneLibraryTitles.FILE) && (directory || size == 0 || size > PhoneLibraryTitles.MAX_BYTES))
+                throw new IOException("Invalid library titles size");
         }
         JSONObject json() throws JSONException { return new JSONObject().put("path",path).put("size",size).put("sha256",hash).put("directory",directory); }
     }
@@ -90,6 +93,7 @@ final class PhoneBackup {
         if(parts.length>64) throw new IOException("Backup paths are too deep");
         for(String part:parts) if(part.isEmpty() || part.equals(".") || part.equals("..")) throw new IOException("Unsafe backup path");
         boolean allowed=path.equals("source/phone.rom") || path.equals("source/phone.rpkg")
+                || !dir && path.equals(PhoneLibraryTitles.FILE)
                 || path.equals("runtime/config.yml") || path.equals("runtime/data/devices.yml")
                 || path.startsWith("runtime/data/drives/") || path.startsWith("runtime/data/roms/") || path.startsWith("runtime/data/j2me/")
                 || path.matches("profiles/[1-9][0-9]{0,9}/(?:config|settings-trial)\\.json(?:\\.bak)?");
@@ -120,6 +124,8 @@ final class PhoneBackup {
             for(int i=0;i<rows.length();i++) {
                 JSONObject row=rows.getJSONObject(i);
                 Item item=new Item(row.getString("path"),row.getLong("size"),row.getString("sha256"),row.getBoolean("directory"));
+                if (item.path.equals(PhoneLibraryTitles.FILE) && preview.manifest.getInt("version") < 3)
+                    throw new IOException("Library titles require backup version 3");
                 if(!folded.add(item.path.toLowerCase(Locale.ROOT))) throw new IOException("Duplicate backup path");
                 items.put(item.path,item); total+=item.size;
                 if(total>MAX_EXPANDED) throw new IOException("Phone backup is too large");
@@ -165,11 +171,12 @@ final class PhoneBackup {
         if(profiles.exists()) collect(profiles,"profiles",items,progress); else addDirectory("profiles",items);
         File artwork=SymbianLibraryIndex.artworkRoot(files,entry.id);
         if(artwork.exists()) collect(artwork,"artwork",items,progress); else addDirectory("artwork",items);
+        generated(PhoneLibraryTitles.FILE,PhoneLibraryTitles.read(files,entry.id).toString(),items);
         long total=0; JSONArray rows=new JSONArray();
         for(Item item:items) { total+=item.size; rows.put(item.json()); }
         if(total>MAX_EXPANDED || items.size()>MAX_FILES) throw new IOException("Phone backup exceeds supported limits");
         requireSpace(target.getParentFile(),total,File::getUsableSpace);
-        JSONObject manifest=new JSONObject().put("format","AbyssME phone backup").put("version",2)
+        JSONObject manifest=new JSONObject().put("format","AbyssME phone backup").put("version",3)
                 .put("created",System.currentTimeMillis()).put("phone",metadata).put("bytes",total).put("files",rows)
                 .put("bindings",new JSONArray(catalog.sourceBindings(entry)));
         byte[] header=manifest.toString().getBytes(StandardCharsets.UTF_8);
@@ -214,6 +221,8 @@ final class PhoneBackup {
                     if(crc.getValue()!=entry.getCrc()) throw new IOException("Damaged backup file: " + item.path);
                     if(item.path.startsWith("profiles/")) readJson(new FileInputStream(target),2*1024*1024);
                     if(item.path.startsWith("artwork/")) validateArtwork(target);
+                    if(item.path.equals(PhoneLibraryTitles.FILE))
+                        PhoneLibraryTitles.validate(readJson(new FileInputStream(target),PhoneLibraryTitles.MAX_BYTES));
                 }
             }
             JSONObject metadata=new JSONObject(preview.manifest.getJSONObject("phone").toString());

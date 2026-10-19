@@ -1,6 +1,6 @@
 # AbyssME - Current Product and Development Status
 
-**Last updated: 2026-10-18.** Verification dates are recorded per section.
+**Last updated: 2026-10-19.** Verification dates are recorded per section.
 This is the starting point for website copy,
 announcements, progress posts and project handoffs. It includes work that exists
 only in local experiments or private test builds. Describing that work here
@@ -60,6 +60,54 @@ older 0.3 builds, not the current 0.4 release series.
 | Public development source | `main`, 0.4.0-beta.2 with publication documentation | Implementation included in the release; previous release assets remain unchanged |
 | Private historical snapshot | `0.1.0-beta.2-experimental.15`, 2026-10-11 | Old Java/Mophun test build, not the current beta |
 | Local-only material | Game fixtures, firmware, diagnostics, device data and signing keys | Not in Git or public release assets; describing testing does not authorize redistribution |
+
+## Local Development After 0.4.0 Beta 2
+
+**Beta 3 candidate, 2026-10-19, local only:** signed `0.4.0-beta.3`, code 308,
+combines the library, LCD/export and portable-title work below. Clean release,
+APK guards and lint passed; 39 fresh JVM checks passed. Installed over signed
+Beta 2 on Retroid, with all 329 readable external-file hashes preserved before
+launch; the 40-game library reopened. Fresh phone-emulator checks: 21 passes,
+one optional capture skip. Source publication/tagging and final release bundles
+are still pending. [Draft notes](releases/v0.4.0-beta.3.md),
+[preparation evidence and limits](releases/v0.4.0-beta.3-checks.md).
+
+**Portable native titles, 2026-10-19, Beta 3 preparation:** custom Symbian/N-Gage
+titles now travel in phone backups, stay independent between restored phones,
+and survive rescans and subsequent exports. Existing local names migrate;
+older backup formats still restore. New version-3 archives require the updated
+app on the receiving device. Retroid: 21 backup/artwork checks and the complete
+restore/launcher-title/native-startup UI flow passed. See
+[transfer evidence](checks/2026-10-19-phone-titles.md). Public release remains
+Beta 2, freshly checked through GitHub on 2026-10-19; no new release published.
+
+**Library navigation and card editing, 2026-10-19, local debug/source only:**
+Recent/Favorites now combine with a persisted platform filter. Library navigation
+remembers a stable game/scroll anchor; Play last starts the latest recorded game
+across platforms without claiming save-state resume. Java/Mophun favorites are
+available directly in touch game options. Edit card groups title and artwork
+actions across engines; native title overrides survive rescans without changing
+guest files. Async filtering and late native-selection restoration were corrected.
+The later [title transfer follow-up](checks/2026-10-19-phone-titles.md) adds native
+title overrides to phone backups; this is still unreleased work.
+Retroid and phone-emulator checks/captures are documented in the
+[library checkpoint](checks/2026-10-19-library-session.md). No new public APK.
+
+**2026-10-19, local source/debug builds only. Not in the public Beta 2 APK.**
+LCD Soft / LCD Classic effects now work on Java Canvas, Mophun and Symbian/N-Gage
+presentation, with Off by default. Display offers one intensity slider, live
+Try / Keep / Undo and per-game persistence. The original GPU optical mask follows
+guest pixel size and rotation, excludes controls/letterboxing, and fades its grid
+at small scales. No renderer replacement, frame history or GPU readback.
+Retroid Mophun/native and emulator Java UI trials passed; each environment passed
+34 focused checks. A short Mophun menu presentation sample showed no additional
+jank, not a universal performance guarantee. A follow-up replaces the minified
+repeating texture with pixel-aligned lines to remove uneven grid bands, and adds
+per-game Clean / With LCD effect screenshot export. See the separate
+[export and grid correction checkpoint](checks/2026-10-19-lcd-export.md) for its
+verification and limits. No release, website or Nextcloud distribution.
+[Behavior](SCREEN_EFFECTS.md), [evidence](checks/2026-10-19-lcd-effects.md),
+[captures](../screenshots/development/2026-10-19-lcd-effects/README.md).
 
 ## Released in 0.4.0 Beta 2
 

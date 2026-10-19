@@ -65,7 +65,7 @@ public final class PhoneBackupTest {
         image(art(original,123,true),0xff334455); image(art(original,123,false),0xff669977);
         image(art(original,0xffffffffL,false),0xffcc7799);
         File zip=archive(original);
-        assertEquals(2,PhoneBackup.inspect(zip).manifest.getInt("version"));
+        assertEquals(3,PhoneBackup.inspect(zip).manifest.getInt("version"));
         SystemFileCatalog.Entry restored=backup.restore(zip,VALID,SILENT);
         assertTrue(art(restored,123,true).getPath().contains("symbian-systems/"+restored.id+"/artwork"));
         assertArrayEquals(icon,Files.readAllBytes(art(restored,123,true).toPath()));
@@ -99,7 +99,13 @@ public final class PhoneBackupTest {
         Map<String,byte[]> entries=contents(archive(original));
         JSONObject manifest=new JSONObject(new String(entries.get(PhoneBackup.MANIFEST),StandardCharsets.UTF_8));
         JSONArray oldFiles=new JSONArray(), rows=manifest.getJSONArray("files");
-        for(int i=0;i<rows.length();i++) if(!rows.getJSONObject(i).getString("path").equals("artwork")) oldFiles.put(rows.get(i));
+        for(int i=0;i<rows.length();i++) {
+            JSONObject row=rows.getJSONObject(i);
+            if(row.getString("path").equals(PhoneLibraryTitles.FILE)) {
+                manifest.put("bytes",manifest.getLong("bytes")-row.getLong("size"));
+                entries.remove(PhoneLibraryTitles.FILE);
+            } else if(!row.getString("path").equals("artwork")) oldFiles.put(row);
+        }
         manifest.put("version",1).put("files",oldFiles); entries.remove("artwork/");
         entries.put(PhoneBackup.MANIFEST,manifest.toString().getBytes(StandardCharsets.UTF_8));
         SystemFileCatalog.Entry restored=backup.restore(repack(entries),VALID,SILENT);
@@ -121,6 +127,94 @@ public final class PhoneBackupTest {
         }
         entries.remove(from); entries.put(to,content);
         entries.put(PhoneBackup.MANIFEST,manifest.toString().getBytes(StandardCharsets.UTF_8));
+    }
+    @Test public void titlesRoundTripThroughLauncherMigrationRescanAndReexport() throws Exception {
+        SystemFileCatalog.Entry original=phone();
+        android.content.Context base=InstrumentationRegistry.getInstrumentation().getTargetContext();
+        android.content.Context context=new android.content.ContextWrapper(base) {
+            @Override public File getFilesDir() { return root; }
+            @Override public android.content.SharedPreferences getSharedPreferences(String name,int mode) {
+                return super.getSharedPreferences(root.getName()+name,mode);
+            }
+        };
+        android.content.SharedPreferences prefs=context.getSharedPreferences("symbian-library-presentation",0);
+        String key="symbian:"+original.id+"/123";
+        try {
+            assertTrue(prefs.edit().putString(key+".title","My custom title").putBoolean(key+".favorite",true)
+                    .putLong(key+".lastPlayed",123456).commit());
+            SymbianLibraryIndex index=new SymbianLibraryIndex(context);
+            String[] apps={"123","Native title","N-Gage","4294967295","Second game","Symbian"};
+            index.publish(original,apps,false);
+            assertEquals("My custom title",new SymbianLauncherLibrary().read(context).get(0).getTitle());
+            assertFalse(prefs.contains(key+".title"));
+            PhoneLibraryTitles.rename(root,original.id,0xffffffffL,"Second custom title");
+            SystemFileCatalog.Entry restored=backup.restore(archive(original),VALID,SILENT);
+            index.publish(restored,apps,false);
+            Set<Integer> ids=new HashSet<>();
+            for(ru.playsoftware.j2meloader.applist.AppItem item:new SymbianLauncherLibrary().read(context)) {
+                assertTrue(ids.add(item.getId()));
+                assertEquals(item.getPath().endsWith("/123")?"My custom title":"Second custom title",item.getTitle());
+                if(item.getPath().contains(restored.id)) {
+                    assertFalse(item.isFavorite()); assertEquals(0,item.getLastPlayedAt());
+                    if(item.getPath().endsWith("/123"))
+                        ((ru.playsoftware.j2meloader.catalog.ExternalLibrary.Item)item).rename("Edited restored copy");
+                }
+            }
+            index.publish(restored,apps,false);
+            assertEquals("Edited restored copy",PhoneLibraryTitles.read(root,restored.id).getJSONObject("titles").getString("123"));
+            assertEquals("My custom title",PhoneLibraryTitles.read(root,original.id).getJSONObject("titles").getString("123"));
+            SystemFileCatalog.Entry again=backup.restore(archive(restored),VALID,SILENT);
+            assertEquals("Edited restored copy",PhoneLibraryTitles.read(root,again.id).getJSONObject("titles").getString("123"));
+            // A failed preference cleanup retry must not replace a newer file-based edit.
+            prefs.edit().putString(key+".title","Stale preference").commit();
+            PhoneLibraryTitles.migrate(root,original.id,prefs);
+            assertEquals("My custom title",PhoneLibraryTitles.read(root,original.id).getJSONObject("titles").getString("123"));
+        } finally { prefs.edit().clear().commit(); }
+    }
+    @Test public void invalidTitlesAndFailedRestoreNeverPublishMetadata() throws Exception {
+        SystemFileCatalog.Entry original=phone();
+        PhoneLibraryTitles.rename(root,original.id,123,"Kept original");
+        File zip=archive(original);
+        for(String json:new String[]{"{}","{\"version\":2,\"titles\":{}}",
+                "{\"version\":1,\"titles\":{\"0\":\"Bad\"}}",
+                "{\"version\":1,\"titles\":{\"4294967296\":\"Bad\"}}",
+                "{\"version\":1,\"titles\":{\"../123\":\"Bad\"}}",
+                "{\"version\":1,\"titles\":{\"123\":false}}",
+                "{\"version\":1,\"titles\":{\"123\":\" \"}}",
+                "{\"version\":1,\"titles\":{\"123\":\"a\\nb\"}}"}) {
+            Map<String,byte[]> entries=contents(zip);
+            changeInventory(entries,PhoneLibraryTitles.FILE,PhoneLibraryTitles.FILE,json.getBytes(StandardCharsets.UTF_8));
+            rejected(repack(entries));
+        }
+        Map<String,byte[]> entries=contents(zip);
+        changeInventory(entries,PhoneLibraryTitles.FILE,PhoneLibraryTitles.FILE,new byte[PhoneLibraryTitles.MAX_BYTES+1]);
+        rejected(repack(entries));
+        try { PhoneLibraryTitles.rename(root,original.id,123,String.join("",Collections.nCopies(161,"x"))); fail(); }
+        catch(IOException expected) { }
+        try { backup.restore(zip,(r,m) -> {throw new IOException("validation failed");},SILENT); fail(); }
+        catch(IOException expected) { }
+        assertEquals(1,catalog.list().size());
+        assertEquals("Kept original",PhoneLibraryTitles.read(root,original.id).getJSONObject("titles").getString("123"));
+    }
+    @Test public void versionTwoWithoutTitlesRestoresWithNativeNames() throws Exception {
+        SystemFileCatalog.Entry original=phone();
+        Map<String,byte[]> entries=contents(archive(original));
+        JSONObject manifest=new JSONObject(new String(entries.get(PhoneBackup.MANIFEST),StandardCharsets.UTF_8));
+        JSONArray rows=manifest.getJSONArray("files"), kept=new JSONArray();
+        for(int i=0;i<rows.length();i++) {
+            JSONObject row=rows.getJSONObject(i);
+            if(row.getString("path").equals(PhoneLibraryTitles.FILE))
+                manifest.put("bytes",manifest.getLong("bytes")-row.getLong("size"));
+            else kept.put(row);
+        }
+        manifest.put("version",2).put("files",kept);
+        entries.remove(PhoneLibraryTitles.FILE);
+        entries.put(PhoneBackup.MANIFEST,manifest.toString().getBytes(StandardCharsets.UTF_8));
+        SystemFileCatalog.Entry restored=backup.restore(repack(entries),VALID,SILENT);
+        assertEquals(0,PhoneLibraryTitles.read(root,restored.id).getJSONObject("titles").length());
+        PhoneLibraryTitles.rename(root,restored.id,123,"New title");
+        SystemFileCatalog.Entry again=backup.restore(archive(restored),VALID,SILENT);
+        assertEquals("New title",PhoneLibraryTitles.read(root,again.id).getJSONObject("titles").getString("123"));
     }
     @Test public void artworkIntegrityImageAndPathChecksRejectWithoutPublishing() throws Exception {
         SystemFileCatalog.Entry original=phone(); image(art(original,123,false),0xff112233);

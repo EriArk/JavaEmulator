@@ -19,7 +19,6 @@ package ru.playsoftware.j2meloader.applist;
 
 import android.graphics.Bitmap;
 import android.graphics.drawable.Drawable;
-import android.text.TextUtils;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -31,7 +30,6 @@ import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 
 import java.util.ArrayList;
-import java.util.Comparator;
 import java.util.List;
 
 import ru.playsoftware.j2meloader.R;
@@ -49,15 +47,20 @@ public class AppsListAdapter extends RecyclerView.Adapter<AppsListAdapter.ViewHo
 		void onAppClicked(AppItem item);
 		void onAppFocused(AppItem item);
 		void onAppActionsRequested(View anchor, AppItem item);
+		default void onItemsFiltered() { }
 	}
 
 	private final Listener listener;
+	private final Listener filteredListener;
 	private List<AppItem> list = new ArrayList<>();
 	private List<AppItem> filteredList = new ArrayList<>();
 	private final AppFilter appFilter = new AppFilter();
 	private String filterConstraint = "";
 	private int displayMode = MODE_GALLERY;
 	private int category = CATEGORY_LIBRARY;
+	private int platform;
+	private long filterGeneration;
+	public void restoreSelection(String path) { focusedPath = path; }
 	private int availableHeight = Integer.MAX_VALUE;
 	private LibraryLayout layout;
 	public void setLibraryLayout(LibraryLayout value) {
@@ -82,6 +85,7 @@ public class AppsListAdapter extends RecyclerView.Adapter<AppsListAdapter.ViewHo
 	}
 
 	public AppsListAdapter(Listener listener) {
+		filteredListener = listener;
 		this.listener = new Listener() {
 			public void onAppClicked(AppItem item) { listener.onAppClicked(item); }
 			public void onAppFocused(AppItem item) {
@@ -89,6 +93,7 @@ public class AppsListAdapter extends RecyclerView.Adapter<AppsListAdapter.ViewHo
 				listener.onAppFocused(item);
 			}
 			public void onAppActionsRequested(View anchor, AppItem item) { listener.onAppActionsRequested(anchor, item); }
+			public void onItemsFiltered() { listener.onItemsFiltered(); }
 		};
 		setHasStableIds(true);
 	}
@@ -120,8 +125,15 @@ public class AppsListAdapter extends RecyclerView.Adapter<AppsListAdapter.ViewHo
 		return displayMode;
 	}
 
-	public void setCategory(int category) {
+	public synchronized void setCategory(int category) {
 		this.category = category;
+		filterGeneration++;
+		appFilter.filter(filterConstraint);
+	}
+
+	public synchronized void setPlatform(int platform) {
+		this.platform = platform;
+		filterGeneration++;
 		appFilter.filter(filterConstraint);
 	}
 
@@ -139,14 +151,16 @@ public class AppsListAdapter extends RecyclerView.Adapter<AppsListAdapter.ViewHo
 		holder.bind(item, displayMode, availableHeight, compact, layout, listener);
 	}
 
-	public void setItems(List<AppItem> items) {
-		list = items;
+	public synchronized void setItems(List<AppItem> items) {
+		list = new ArrayList<>(items);
+		filterGeneration++;
 		appFilter.filter(filterConstraint);
 	}
 
-	public void setSearchQuery(CharSequence query) {
+	public synchronized void setSearchQuery(CharSequence query) {
 		// Store the requested query before asynchronous database/filter callbacks can arrive.
 		filterConstraint = query == null ? "" : query.toString();
+		filterGeneration++;
 		appFilter.filter(filterConstraint);
 	}
 
@@ -272,49 +286,43 @@ public class AppsListAdapter extends RecyclerView.Adapter<AppsListAdapter.ViewHo
 	}
 
 	private class AppFilter extends Filter {
+		private class Snapshot {
+			final long generation;
+			final List<AppItem> items;
+			Snapshot(long generation, List<AppItem> items) { this.generation = generation; this.items = items; }
+		}
 
 		@Override
 		protected FilterResults performFiltering(CharSequence constraint) {
 			FilterResults results = new FilterResults();
-			ArrayList<AppItem> resultList = new ArrayList<>();
-			String needle = constraint == null ? "" : constraint.toString().toLowerCase();
-			for (AppItem item : list) {
-				if (category == CATEGORY_RECENT && item.getLastPlayedAt() == 0) {
-					continue;
-				}
-				if (category == CATEGORY_FAVORITES && !item.isFavorite()) {
-					continue;
-				}
-				if (!TextUtils.isEmpty(needle)) {
-					String title = item.getTitle() == null ? "" : item.getTitle();
-					String author = item.getAuthor() == null ? "" : item.getAuthor();
-					if (!title.toLowerCase().contains(needle)
-							&& !author.toLowerCase().contains(needle)) {
-						continue;
-					}
-				}
-				resultList.add(item);
+			List<AppItem> source;
+			int requestedCategory, requestedPlatform;
+			String query;
+			long generation;
+			synchronized (AppsListAdapter.this) {
+				source = new ArrayList<>(list);
+				requestedCategory = category; requestedPlatform = platform;
+				query = filterConstraint; generation = filterGeneration;
 			}
-			if (category == CATEGORY_RECENT) {
-				resultList.sort(Comparator.comparingLong(AppItem::getLastPlayedAt).reversed());
-			}
+			List<AppItem> resultList = LibraryQuery.select(source, requestedCategory, requestedPlatform, query);
 			results.count = resultList.size();
-			results.values = resultList;
+			results.values = new Snapshot(generation, resultList);
 			return results;
 		}
 
 		@Override
 		protected void publishResults(CharSequence constraint, FilterResults results) {
-			if (!TextUtils.equals(filterConstraint, constraint)) return;
-			if (results.values != null) {
-				//noinspection unchecked
-				filteredList = (List<AppItem>) results.values;
+			if (results.values instanceof Snapshot) {
+				Snapshot snapshot = (Snapshot) results.values;
+				if (snapshot.generation != filterGeneration) return;
+				filteredList = snapshot.items;
 				AppItem selected = getFirstItem();
 				for (AppItem item : filteredList) {
 					if (item.getPath().equals(focusedPath)) { selected = item; break; }
 				}
+				filteredListener.onAppFocused(selected);
 				notifyDataSetChanged();
-				listener.onAppFocused(selected);
+				listener.onItemsFiltered();
 			} else {
 				notifyDataSetChanged();
 			}

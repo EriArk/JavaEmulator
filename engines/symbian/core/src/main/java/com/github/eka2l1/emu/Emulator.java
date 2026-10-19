@@ -95,6 +95,7 @@ public final class Emulator {
     public static native void pressKey(int key, int state);
     public static native void touchScreen(int x, int y, int z, int action, int pointer);
     public static native int[] touchBounds();
+    public static native int[] displayGeometry();
     public static native void setScreenParams(int background, int scale, int type, int gravity,
                                             String image, float opacity, boolean keepAspect);
     public static native void submitInput(String text);

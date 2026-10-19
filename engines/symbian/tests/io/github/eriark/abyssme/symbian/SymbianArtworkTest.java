@@ -42,6 +42,17 @@ public final class SymbianArtworkTest {
     }
     private List<AppItem> items() throws Exception { return new SymbianLauncherLibrary().read(context); }
     private File directory(AppItem item) { return ((ExternalLibrary.Item)item).getArtworkDirectory(); }
+    @Test public void customTitleSurvivesRescanAndDoesNotRenameAnotherPhone() throws Exception {
+        AppItem before=items().get(0);
+        ((ExternalLibrary.Item)before).rename("  My game  ");
+        index.publish(system(1),new String[]{"123","Changed by engine","Symbian"},false);
+        AppItem after=items().get(0);
+        assertEquals("My game",after.getTitle());
+        assertEquals(before.getId(),after.getId()); assertEquals(before.getPath(),after.getPath());
+        assertEquals("Other phone",items().get(1).getTitle());
+        ((ExternalLibrary.Item)after).rename("   ");
+        assertEquals("My game",items().get(0).getTitle());
+    }
     @Test public void allPlatformsAndPhonesHaveIndependentCustomArt() throws Exception {
         Set<File> directories=new HashSet<>();
         for(AppItem item:items()) {

@@ -170,6 +170,27 @@ Java_com_github_eka2l1_emu_Emulator_touchBounds(JNIEnv *env, jclass) {
     return result;
 }
 
+// LCD presentation uses guest pixels, independently of the scaled touch viewport.
+extern "C" JNIEXPORT jintArray JNICALL
+Java_com_github_eka2l1_emu_Emulator_displayGeometry(JNIEnv *env, jclass) {
+    if (!state || !state->symsys || !os_thread_obj || !state->winserv) return nullptr;
+    auto *kernel = state->symsys->get_kernel_system();
+    std::lock_guard<eka2l1::kernel_system> kernel_lock(*kernel);
+    auto *screen = state->winserv->get_current_focus_screen();
+    if (!screen) return nullptr;
+    std::lock_guard<std::mutex> screen_lock(screen->screen_mutex);
+    int sw = screen->current_mode().size.x, sh = screen->current_mode().size.y;
+    int width = static_cast<int>(std::round(sw * screen->logic_scale_factor_x));
+    int height = static_cast<int>(std::round(sh * screen->logic_scale_factor_y));
+    if (screen->ui_rotation % 180 != 0) { std::swap(width, height); std::swap(sw, sh); }
+    if (width <= 0 || height <= 0 || sw <= 0 || sh <= 0) return nullptr;
+    jint geometry[] = {screen->absolute_pos.x, screen->absolute_pos.y,
+        screen->absolute_pos.x + width, screen->absolute_pos.y + height, sw, sh};
+    auto result = env->NewIntArray(6);
+    if (result) env->SetIntArrayRegion(result, 0, 6, geometry);
+    return result;
+}
+
 // Portable snapshots retain guest identity/settings, never host paths, network secrets or scripts.
 extern "C" JNIEXPORT jobjectArray JNICALL
 Java_com_github_eka2l1_emu_Emulator_portablePhoneSettings(JNIEnv *env, jclass, jstring directory) {

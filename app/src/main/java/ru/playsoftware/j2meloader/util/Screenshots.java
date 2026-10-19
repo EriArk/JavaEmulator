@@ -12,7 +12,7 @@ import java.io.OutputStream;
 import java.util.UUID;
 import ru.playsoftware.j2meloader.BuildConfig;
 
-/** Shared screenshot preference and gallery storage for both game engines. */
+/** Shared screenshot preference and gallery storage for all game engines. */
 public final class Screenshots {
     public static final String BUTTON_PREFERENCE = "pref_screenshot_button";
     private Screenshots() { }
@@ -32,6 +32,14 @@ public final class Screenshots {
     }
 
     /** Call off the UI thread. Pending entries are removed if writing fails. */
+    public static Uri save(Context context, Bitmap bitmap, ScreenshotEffect effect,
+                           int guestWidth, int guestHeight) throws IOException {
+        Bitmap output = effect.render(bitmap, guestWidth, guestHeight);
+        try { return save(context, output); }
+        finally { if (output != bitmap) output.recycle(); }
+    }
+
+    /** Caller retains ownership of the input bitmap. */
     public static Uri save(Context context, Bitmap bitmap) throws IOException {
         ContentResolver resolver = context.getContentResolver();
         ContentValues values = new ContentValues();

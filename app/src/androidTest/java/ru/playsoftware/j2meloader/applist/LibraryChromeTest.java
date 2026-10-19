@@ -34,7 +34,7 @@ public class LibraryChromeTest {
         }
         String original = Config.getEmulatorDir();
         Method init = Config.class.getDeclaredMethod("initDirs", String.class); init.setAccessible(true);
-        try {
+        try (LibraryPreferencesSnapshot snapshot = new LibraryPreferencesSnapshot(context)) {
             init.invoke(null, root.getPath());
             try (ActivityScenario<MainActivity> scenario = ActivityScenario.launch(MainActivity.class)) {
                 awaitCount(scenario, 2);

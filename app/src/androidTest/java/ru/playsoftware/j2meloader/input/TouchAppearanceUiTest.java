@@ -65,6 +65,133 @@ public class TouchAppearanceUiTest {
     private final Instrumentation instrumentation = InstrumentationRegistry.getInstrumentation();
     private final Context context = instrumentation.getTargetContext();
     private UiAutomation ui;
+    private androidx.test.core.app.ActivityScenario<MainActivity> lcdLibrary;
+
+    @Test public void lcdEffectsApplyUndoAndPersist() throws Exception {
+        String uri=InstrumentationRegistry.getArguments().getString("touchGameUri");
+        Assume.assumeNotNull(uri);
+        checkLcdEffects(() -> launch(uri));
+    }
+
+    public void checkLcdEffects(Runnable launchGame) throws Exception {
+        ui=instrumentation.getUiAutomation();
+        launchGame.run();
+        waitNode("Show game controls",60000); SystemClock.sleep(2500);
+        change("Display","Screen effect","Off"); capture("lcd-0-off");
+        change("Display","Screen effect","LCD Soft"); capture("lcd-1-soft");
+        change("Display","Screen effect","LCD Classic"); capture("lcd-2-classic");
+        click("Game menu"); click("Display"); capture("lcd-3-settings");
+        click("Screen effect"); click("Off"); click("Try changes"); click("Undo");
+        click("Game menu"); click("Display"); waitNode("LCD Classic");
+        click("Back"); click("Close");
+        change("Display","Image rotation","90\u00b0"); capture("lcd-4-rotated");
+        change("Display","Image rotation","0\u00b0");
+        leave(); launchGame.run(); waitNode("Show game controls",60000);
+        click("Game menu"); click("Display"); waitNode("LCD Classic");
+        click("Back"); click("Close"); capture("lcd-5-relaunched");
+        change("Display","Screen effect","Off"); leave();
+        if (lcdLibrary != null) { lcdLibrary.close(); lcdLibrary = null; }
+    }
+
+    @Test public void screenshotExportsWhenRequested() throws Exception {
+        String uri=InstrumentationRegistry.getArguments().getString("exportGameUri");
+        Assume.assumeNotNull(uri);
+        checkScreenshotExports(() -> launch(uri));
+    }
+
+    public void checkScreenshotExports(Runnable launchGame) throws Exception {
+        ui=instrumentation.getUiAutomation();
+        boolean visible=ru.playsoftware.j2meloader.util.Screenshots.isButtonVisible(context);
+        java.util.ArrayList<Uri> created=new java.util.ArrayList<>();
+        try {
+            ru.playsoftware.j2meloader.util.Screenshots.setButtonVisible(context,true);
+            launchGame.run(); waitNode("Show game controls",60000);
+            change("Display","Image rotation","0\u00b0");
+            change("Display","Screen effect","LCD Classic");
+            change("Display","Screenshot image","Clean");
+            Bitmap clean=export("export-clean",created);
+            change("Display","Screenshot image","With LCD effect");
+            Bitmap styled=export("export-lcd",created);
+            assertTrue(styled.getWidth()>=clean.getWidth()); assertTrue(styled.getHeight()>=clean.getHeight());
+            assertFalse(clean.sameAs(styled));
+            double ratio=(double)styled.getWidth()/styled.getHeight();
+            assertEquals((double)clean.getWidth()/clean.getHeight(),ratio,.01);
+            clean.recycle(); styled.recycle();
+            click("Game menu"); click("Display"); capture("lcd-export-settings");
+            click("Screenshot image"); click("Clean"); click("Try changes"); click("Undo");
+            click("Game menu"); click("Display"); assertChoice("Screenshot image","With LCD effect"); click("Back"); click("Close");
+            change("Display","Image rotation","90\u00b0");
+            Bitmap rotated=export("export-lcd-rotated",created);
+            assertEquals(1/ratio,(double)rotated.getWidth()/rotated.getHeight(),.02); rotated.recycle();
+            change("Display","Image rotation","0\u00b0");
+            leave(); launchGame.run(); waitNode("Show game controls",60000);
+            click("Game menu"); click("Display"); assertChoice("Screenshot image","With LCD effect"); click("Back"); click("Close");
+            change("Display","Screenshot image","Clean");
+            change("Display","Screen effect","Off"); leave();
+        } finally {
+            ru.playsoftware.j2meloader.util.Screenshots.setButtonVisible(context,visible);
+            for(Uri uri:created) context.getContentResolver().delete(uri,null,null);
+            if(lcdLibrary!=null) {lcdLibrary.close();lcdLibrary=null;}
+        }
+    }
+
+    private void assertChoice(String setting,String value) {
+        AccessibilityNodeInfo node=description(ui.getRootInActiveWindow(),setting);
+        assertNotNull(node);
+        node.performAction(AccessibilityNodeInfo.AccessibilityAction.ACTION_SHOW_ON_SCREEN.getId());
+        waitNode(value);
+    }
+
+    private long latestExport() {
+        try(android.database.Cursor cursor=context.getContentResolver().query(
+                android.provider.MediaStore.Images.Media.EXTERNAL_CONTENT_URI,new String[]{"_id"},
+                "relative_path=? AND is_pending=0 AND owner_package_name=?",
+                new String[]{"Pictures/AbyssME/",context.getPackageName()},"_id DESC")) {
+            return cursor!=null && cursor.moveToFirst()?cursor.getLong(0):0;
+        }
+    }
+
+    private Bitmap export(String name,java.util.List<Uri> created) throws Exception {
+        long before=latestExport();
+        if(find(ui.getRootInActiveWindow(),"Show game controls")!=null) click("Show game controls");
+        click(find(ui.getRootInActiveWindow(),"Take screenshot")!=null?"Take screenshot":"Screenshot");
+        long until=SystemClock.uptimeMillis()+15000, id;
+        do {SystemClock.sleep(100);id=latestExport();} while(id<=before && SystemClock.uptimeMillis()<until);
+        assertTrue("Screenshot was not published",id>before);
+        Uri uri=android.content.ContentUris.withAppendedId(android.provider.MediaStore.Images.Media.EXTERNAL_CONTENT_URI,id);
+        created.add(uri);
+        File dir=new File(context.getExternalFilesDir(null),"lcd-exports"); assertTrue(dir.isDirectory()||dir.mkdirs());
+        try(java.io.InputStream in=context.getContentResolver().openInputStream(uri)) {
+            java.nio.file.Files.copy(in,new File(dir,name+".png").toPath(),java.nio.file.StandardCopyOption.REPLACE_EXISTING);
+        }
+        Bitmap bitmap=android.graphics.BitmapFactory.decodeFile(new File(dir,name+".png").getPath());
+        assertNotNull(bitmap); return bitmap;
+    }
+
+    @Test public void lcdPresentationCostWhenRequested() throws Exception {
+        Assume.assumeTrue("true".equals(InstrumentationRegistry.getArguments().getString("lcdPerf")));
+        String uri=InstrumentationRegistry.getArguments().getString("touchGameUri");
+        Assume.assumeNotNull(uri); ui=instrumentation.getUiAutomation(); launch(uri);
+        File dir=new File(context.getExternalFilesDir(null),"lcd-performance");
+        assertTrue(dir.isDirectory()||dir.mkdirs());
+        int sample=0;
+        for(String mode:new String[]{"Off","LCD Classic","LCD Soft","Off"}) {
+            change("Display","Screen effect",mode);
+            SystemClock.sleep(6000); // Let shortcuts disappear before measuring steady presentation.
+            shellTo("dumpsys gfxinfo " + context.getPackageName() + " reset",new File(dir,"reset.txt"));
+            SystemClock.sleep(8000);
+            shellTo("dumpsys gfxinfo " + context.getPackageName() + " framestats",
+                    new File(dir,(sample++)+"-"+mode.replace(' ','-')+".txt"));
+        }
+        leave();
+    }
+    private void shellTo(String command,File file) throws Exception {
+        try(java.io.InputStream input=new android.os.ParcelFileDescriptor.AutoCloseInputStream(ui.executeShellCommand(command));
+            FileOutputStream output=new FileOutputStream(file)) {
+            byte[] bytes=new byte[8192]; int count;
+            while((count=input.read(bytes))!=-1) output.write(bytes,0,count);
+        }
+    }
 
     @Test public void lightAppCanKeepDarkControlsInBothLayoutsAndOrientations() throws Exception {
         String uri = InstrumentationRegistry.getArguments().getString("touchGameUri");
@@ -109,8 +236,14 @@ public class TouchAppearanceUiTest {
     }
 
     private void launch(String uri) {
-        context.startActivity(new Intent(Intent.ACTION_VIEW, Uri.parse(uri), context, MainActivity.class)
-                .addFlags(Intent.FLAG_ACTIVITY_NEW_TASK));
+        // An installed converted directory avoids Android storage grants/import dialogs.
+        if (uri.startsWith("/")) {
+            if (lcdLibrary == null) lcdLibrary = androidx.test.core.app.ActivityScenario.launch(MainActivity.class);
+            lcdLibrary.onActivity(activity -> ru.playsoftware.j2meloader.config.Config.startApp(activity,"LCD test",uri,false));
+        } else {
+            context.startActivity(new Intent(Intent.ACTION_VIEW, Uri.parse(uri), context, MainActivity.class)
+                    .addFlags(Intent.FLAG_ACTIVITY_NEW_TASK));
+        }
         waitNode("Show game controls", 60000); SystemClock.sleep(2500);
     }
     private void leave() {
@@ -193,6 +326,7 @@ public class TouchAppearanceUiTest {
         catch (java.util.concurrent.TimeoutException error) { throw new AssertionError("UI did not settle", error); }
     }
     private void capture(String name) throws Exception {
+        if (name.startsWith("lcd-")) SystemClock.sleep(2000);
         ui.waitForIdle(300, 5000);
         if (name.matches("0[134567]-.*") && find(ui.getRootInActiveWindow(), "Show game controls") != null) {
             click("Show game controls"); SystemClock.sleep(200);

@@ -16,8 +16,12 @@ public final class SymbianLauncherLibrary implements ExternalLibrary.Provider {
     @Override public List<AppItem> read(Context context) throws IOException {
         List<AppItem> result = new ArrayList<>();
         SharedPreferences preferences = context.getSharedPreferences("symbian-library-presentation", Context.MODE_PRIVATE);
-        for (SymbianLibraryIndex.Entry entry : new SymbianLibraryIndex(context).read())
-            result.add(new Item(entry, preferences, context.getFilesDir()));
+        Map<String, org.json.JSONObject> titles = new HashMap<>();
+        for (SymbianLibraryIndex.Entry entry : new SymbianLibraryIndex(context).read()) {
+            if (!titles.containsKey(entry.system)) titles.put(entry.system,
+                    PhoneLibraryTitles.migrate(context.getFilesDir(), entry.system, preferences));
+            result.add(new Item(entry, preferences, context.getFilesDir(), titles.get(entry.system)));
+        }
         return result;
     }
     private static synchronized int stableId(SharedPreferences preferences, String key) {
@@ -33,11 +37,12 @@ public final class SymbianLauncherLibrary implements ExternalLibrary.Provider {
         private final SymbianLibraryIndex.Entry entry;
         private final SharedPreferences preferences;
         private final File files;
-        Item(SymbianLibraryIndex.Entry entry, SharedPreferences preferences, File files) {
+        Item(SymbianLibraryIndex.Entry entry, SharedPreferences preferences, File files, org.json.JSONObject titles) {
             super(entry.key(), entry.title, entry.platform, entry.phone);
             this.entry = entry; this.preferences = preferences;
             this.files = files;
             setId(stableId(preferences, entry.key()));
+            setTitle(titles.optString(Long.toString(entry.uid), entry.title));
             setFavorite(preferences.getBoolean(entry.key() + ".favorite", false));
             setLastPlayedAt(preferences.getLong(entry.key() + ".lastPlayed", 0));
             setPlayCount(preferences.getInt(entry.key() + ".playCount", 0));
@@ -62,6 +67,11 @@ public final class SymbianLauncherLibrary implements ExternalLibrary.Provider {
         @Override public void favorite() {
             setFavorite(!isFavorite());
             preferences.edit().putBoolean(entry.key() + ".favorite", isFavorite()).apply();
+        }
+        @Override public void rename(String title) throws IOException {
+            if (title == null || title.trim().isEmpty()) return;
+            PhoneLibraryTitles.rename(files, entry.system, entry.uid, title);
+            setTitle(title.trim());
         }
         @Override public void launch(Activity activity, boolean settings) {
             Intent intent = new Intent(activity, SymbianActivity.class).putExtra(SymbianLibraryIndex.SYSTEM_EXTRA, entry.system);

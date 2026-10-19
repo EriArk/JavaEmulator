@@ -181,6 +181,22 @@ public final class GameMenuDialog extends Dialog {
         navigation.setTooltipText(navigation.getContentDescription());
     }
     private void navigateBack() { if (backAction != null) backAction.run(); else dismiss(); }
+    public android.widget.EditText textInput(String label, String value) {
+        android.widget.EditText input = new android.widget.EditText(getContext());
+        input.setSingleLine(true);
+        input.setInputType(android.text.InputType.TYPE_CLASS_TEXT | android.text.InputType.TYPE_TEXT_FLAG_CAP_SENTENCES);
+        input.setFilters(new android.text.InputFilter[]{new android.text.InputFilter.LengthFilter(160)});
+        input.setHint(label); input.setContentDescription(label); input.setText(value);
+        input.setTextSize(16);
+        input.setTextColor(ru.playsoftware.j2meloader.ui.AppPalette.color(getContext(), R.color.text_primary));
+        input.setHintTextColor(ru.playsoftware.j2meloader.ui.AppPalette.color(getContext(), R.color.text_secondary));
+        input.setBackgroundResource(R.drawable.bg_phone_input);
+        input.setPadding(dp(12), dp(12), dp(12), dp(12));
+        LinearLayout.LayoutParams params = new LinearLayout.LayoutParams(-1, -2);
+        params.bottomMargin = dp(8); input.setMinHeight(dp(48));
+        content.addView(input, params);
+        return input;
+    }
     public void message(String value) {
         TextView text = new TextView(getContext());
         text.setText(value); text.setTextSize(14); text.setTextColor(ru.playsoftware.j2meloader.ui.AppPalette.color(getContext(), ru.playsoftware.j2meloader.R.color.text_secondary));
@@ -275,22 +291,25 @@ public final class GameMenuDialog extends Dialog {
         focusDefault(toggle);
     }
     public void opacity(int value, java.util.function.IntConsumer change) {
+        percentage("Opacity", value, 80, change);
+    }
+    public void percentage(String title, int value, int minimum, java.util.function.IntConsumer change) {
         TextView label = new TextView(getContext());
-        label.setText("Opacity: " + value + "%"); label.setTextSize(15); label.setTextColor(ru.playsoftware.j2meloader.ui.AppPalette.color(getContext(), ru.playsoftware.j2meloader.R.color.text_primary));
+        label.setText(title + ": " + value + "%"); label.setTextSize(15); label.setTextColor(ru.playsoftware.j2meloader.ui.AppPalette.color(getContext(), ru.playsoftware.j2meloader.R.color.text_primary));
         label.setPadding(0,dp(12),0,0); content.addView(label);
         android.widget.SeekBar slider = new android.widget.SeekBar(getContext());
         slider.setForeground(getContext().getDrawable(R.drawable.bg_settings_focus));
-        slider.setContentDescription("Opacity");
-        slider.setMax(20); slider.setProgress(value-80);
+        slider.setContentDescription(title);
+        slider.setMax(100-minimum); slider.setProgress(value-minimum);
         slider.setProgressTintList(android.content.res.ColorStateList.valueOf(ru.playsoftware.j2meloader.ui.AppPalette.color(getContext(), ru.playsoftware.j2meloader.R.color.accent)));
         slider.setThumbTintList(android.content.res.ColorStateList.valueOf(ru.playsoftware.j2meloader.ui.AppPalette.color(getContext(), ru.playsoftware.j2meloader.R.color.accent)));
         content.addView(slider,new LinearLayout.LayoutParams(-1,dp(48)));
         slider.setOnSeekBarChangeListener(new android.widget.SeekBar.OnSeekBarChangeListener() {
             public void onStartTrackingTouch(android.widget.SeekBar view) { }
-            public void onStopTrackingTouch(android.widget.SeekBar view) { change.accept(view.getProgress()+80); }
+            public void onStopTrackingTouch(android.widget.SeekBar view) { change.accept(view.getProgress()+minimum); }
             public void onProgressChanged(android.widget.SeekBar view,int progress,boolean fromUser) {
-                label.setText("Opacity: " + (progress+80) + "%");
-                if (fromUser && !view.isPressed()) change.accept(progress+80);
+                label.setText(title + ": " + (progress+minimum) + "%");
+                if (fromUser && !view.isPressed()) change.accept(progress+minimum);
             }
         });
     }

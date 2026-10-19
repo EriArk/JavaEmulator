@@ -38,7 +38,7 @@ public class LibraryFocusTest {
         Method init = Config.class.getDeclaredMethod("initDirs", String.class); init.setAccessible(true);
         SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(context);
         int oldMode = preferences.getInt("pref_library_view_mode", 0);
-        try {
+        try (LibraryPreferencesSnapshot snapshot = new LibraryPreferencesSnapshot(context)) {
             init.invoke(null, root.getPath());
             for (int mode = 0; mode < 3; mode++) {
                 preferences.edit().putInt("pref_library_view_mode", mode).commit();

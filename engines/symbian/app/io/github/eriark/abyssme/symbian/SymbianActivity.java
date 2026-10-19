@@ -420,6 +420,7 @@ public final class SymbianActivity extends Activity implements Emulator.Host, In
                 Emulator.stopSession();
                 SystemFileCatalog.Entry entry=catalog.read(selected);
                 PreparedSystemArchive.Progress progress=transferProgress();
+                PhoneLibraryTitles.migrate(getFilesDir(),entry.id,getSharedPreferences("symbian-library-presentation",MODE_PRIVATE));
                 new PhoneBackup(getFilesDir()).exportPhone(entry,archive,Emulator.portablePhoneSettings(catalog.runtime(entry).getAbsolutePath()),progress);
                 progress.update("Saving backup to selected location");
                 try(java.io.InputStream input=new java.io.FileInputStream(archive);
@@ -898,13 +899,18 @@ public final class SymbianActivity extends Activity implements Emulator.Host, In
                         if (output != null) output.release();
                         output = null; return true;
                     }
-                    @Override public void onSurfaceTextureUpdated(android.graphics.SurfaceTexture texture) { }
+                    @Override public void onSurfaceTextureUpdated(android.graphics.SurfaceTexture texture) {
+                        if (surface == sessionSurface && sessionUi != null) sessionUi.frameAvailable();
+                    }
                 });
                 try {
                     String identity = "legacy", title = "Symbian game";
                     for (SystemFileCatalog.Entry entry : systems) if (catalog.runtime(entry).equals(runtimeRoot)) identity = entry.id;
                     for (int i = 0; i + 1 < apps.length; i += 2) if (Long.parseLong(apps[i]) == Integer.toUnsignedLong(uid)) title = apps[i + 1];
                     sessionUi = new SymbianSessionUi(this, surface, identity, Integer.toUnsignedLong(uid), title, new SymbianSessionUi.Host() {
+                        public int[] displayGeometry() {
+                            return running && attached && !closing ? Emulator.displayGeometry() : null;
+                        }
                         public android.graphics.RectF touchBounds() {
                             if (!running || !attached || closing || menuOpen) return null;
                             int[] bounds = Emulator.touchBounds();

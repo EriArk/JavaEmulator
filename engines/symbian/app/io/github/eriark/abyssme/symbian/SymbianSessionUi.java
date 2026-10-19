@@ -22,6 +22,7 @@ import javax.microedition.lcdui.keyboard.KeyMapper;
 final class SymbianSessionUi {
     interface Host extends SymbianInput.NativeKeys, SymbianTouch.Sink {
         RectF touchBounds();
+        default int[] displayGeometry() { return null; }
         void pause(boolean paused);
         void display(int scale);
         void frameRate(int fps);
@@ -50,6 +51,18 @@ final class SymbianSessionUi {
     private MapperDialog mapper;
     private boolean closed, visible = true, focused = true, selectDown, screenshotPending;
     private int selectDevice;
+    private int[] lcdGeometry;
+    private long nextLcdGeometry;
+    void frameAvailable() {
+        if (closed || profile.screenEffect == 0) return;
+        long now = SystemClock.uptimeMillis();
+        if (now < nextLcdGeometry) return;
+        nextLcdGeometry = now + 200;
+        int[] geometry = host.displayGeometry();
+        if (!java.util.Arrays.equals(geometry, lcdGeometry)) {
+            lcdGeometry = geometry; deckView.invalidate();
+        }
+    }
     private final Runnable holdSelect = this::heldSelect;
     private void heldSelect() { if (selectDown) { selectDown = false; showMapping(profile); } }
 
@@ -101,6 +114,7 @@ final class SymbianSessionUi {
     }
     int scale() { return Math.max(0, Math.min(2, profile.screenScaleType)); }
     void apply() {
+        lcdGeometry = null; nextLcdGeometry = 0;
         TouchAppearance.shortcuts(root, profile);
         clear(); mappings = KeyMapper.resolveMappings(profile.getActiveKeyMappings());
         activity.setRequestedOrientation(BuildConfig.HANDHELD_MODE || profile.orientation == 3 ? ActivityInfo.SCREEN_ORIENTATION_SENSOR_LANDSCAPE
@@ -208,6 +222,7 @@ final class SymbianSessionUi {
         ProfileModel draft = ProfilesManager.copy(profile); menu.page("Display");
         GameSettingsPages.frameRateChoice(menu, draft, false);
         GameSettingsPages.speedChoice(menu, draft);
+        GameSettingsPages.screenEffectChoice(menu, draft);
         menu.choice("Picture size", new String[]{"Original", "Fit", "Stretch"}, scale(), i -> draft.screenScaleType = i);
         menu.choice("Image rotation", new String[]{"0\u00b0","90\u00b0","180\u00b0","270\u00b0"},
                 Math.floorMod(draft.screenRotation / 90, 4), i -> draft.screenRotation = i * 90);
@@ -267,12 +282,18 @@ final class SymbianSessionUi {
         }
         if (bitmap == null) { retryScreenshot(remaining); return; }
         int rotation = Math.floorMod(profile.screenRotation / 90,4)*90;
+        ru.playsoftware.j2meloader.util.ScreenshotEffect effect = new ru.playsoftware.j2meloader.util.ScreenshotEffect(profile);
+        int[] geometry = host.displayGeometry();
+        int guestWidth = geometry != null && geometry.length == 6 ? geometry[4] : bitmap.getWidth();
+        int guestHeight = geometry != null && geometry.length == 6 ? geometry[5] : bitmap.getHeight();
         disk.execute(() -> {
             Bitmap output = bitmap; boolean saved = false;
             try {
                 if (rotation != 0) { Matrix matrix = new Matrix(); matrix.postRotate(rotation);
                     output = Bitmap.createBitmap(bitmap,0,0,bitmap.getWidth(),bitmap.getHeight(),matrix,false); }
-                Screenshots.save(activity.getApplicationContext(),output); saved = true;
+                boolean quarter = rotation % 180 != 0;
+                Screenshots.save(activity.getApplicationContext(),output,effect,
+                        quarter ? guestHeight : guestWidth, quarter ? guestWidth : guestHeight); saved = true;
             } catch (Exception error) { android.util.Log.e("AbyssSymbian","Screenshot",error); }
             finally { if (output != bitmap) output.recycle(); bitmap.recycle(); }
             boolean success = saved; handler.post(() -> screenshotDone(success));
@@ -295,6 +316,8 @@ final class SymbianSessionUi {
         disk.shutdown();
     }
     private final class DeckView extends View {
+        private final ru.playsoftware.j2meloader.ui.LcdEffect lcdEffect = new ru.playsoftware.j2meloader.ui.LcdEffect();
+        private final RectF lcdBounds = new RectF();
         final TouchDeck deck;
         final SymbianTouch touch = new SymbianTouch(host);
         private final Matrix inverse = new Matrix();
@@ -325,7 +348,20 @@ final class SymbianSessionUi {
             if (point[0] < 0 || point[1] < 0 || point[0] >= surface.getWidth() || point[1] >= surface.getHeight()) return;
             touch.down(id,point[0],point[1],event.getPressure(index),host.touchBounds());
         }
-        @Override protected void onDraw(Canvas canvas) { if (!BuildConfig.HANDHELD_MODE) deck.draw(canvas); }
+        @Override protected void onDraw(Canvas canvas) {
+            if (lcdGeometry != null && lcdGeometry.length == 6) {
+                int save = canvas.save();
+                canvas.clipRect(BuildConfig.HANDHELD_MODE ? new RectF(0,0,getWidth(),getHeight()) : deck.gameArea(getWidth(),getHeight()));
+                canvas.translate(surface.getLeft(), surface.getTop());
+                canvas.concat(surface.getMatrix());
+                canvas.clipRect(0, 0, surface.getWidth(), surface.getHeight());
+                lcdBounds.set(lcdGeometry[0], lcdGeometry[1], lcdGeometry[2], lcdGeometry[3]);
+                lcdEffect.draw(canvas, lcdBounds, lcdGeometry[4], lcdGeometry[5], 0,
+                        profile.screenEffect, profile.screenEffectIntensity);
+                canvas.restoreToCount(save);
+            }
+            if (!BuildConfig.HANDHELD_MODE) deck.draw(canvas);
+        }
         @Override public boolean onTouchEvent(MotionEvent event) {
             if (closed || !visible || !focused || menu != null || mapper != null) { cancel(); return true; }
             int index = event.getActionIndex(), id = event.getPointerId(index);

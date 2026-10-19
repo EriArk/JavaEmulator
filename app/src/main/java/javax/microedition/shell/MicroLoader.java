@@ -379,6 +379,7 @@ public class MicroLoader {
 			Canvas.setBackgroundColor(params.screenBackgroundColor);
 			Canvas.setScale(params.screenGravity, params.screenScaleType, params.screenScaleRatio);
 			Canvas.setFilterBitmap(params.screenFilter);
+			Canvas.setScreenEffect(params.screenEffect, params.screenEffectIntensity);
 			EventQueue.setImmediate(params.immediateMode);
 			Canvas.setGraphicsMode(params.graphicsMode, params.parallelRedrawScreen);
 			ShaderInfo shader = params.shader;
@@ -402,12 +403,13 @@ public class MicroLoader {
 	}
 
 	void takeScreenshot(Canvas canvas, SingleObserver<String> observer) {
-		canvas.getScreenShot()
+		canvas.getScreenShot(new ru.playsoftware.j2meloader.util.ScreenshotEffect(params))
 				.subscribeOn(Schedulers.computation())
 				.observeOn(Schedulers.io())
 				.map(bitmap -> {
-					return ru.playsoftware.j2meloader.util.Screenshots.save(
-							ContextHolder.getAppContext(), bitmap).toString();
+					try { return ru.playsoftware.j2meloader.util.Screenshots.save(
+							ContextHolder.getAppContext(), bitmap).toString(); }
+					finally { bitmap.recycle(); }
 				})
 				.observeOn(AndroidSchedulers.mainThread())
 				.subscribe(observer);
@@ -439,6 +441,7 @@ public class MicroLoader {
 	}
 
 	void applyPreviewSettings() {
+		Canvas.setScreenEffect(params.screenEffect, params.screenEffectIntensity);
 		GuestTime.speed(params.getEmulationSpeed());
 		Canvas.setLimitFps(params.fpsLimit);
 		Displayable.setVirtualSize(params.screenWidth, params.screenHeight);

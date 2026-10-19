@@ -36,8 +36,12 @@ public final class PhoneBackupUiTest {
             priorArt.put(name,file.isFile()?Files.readAllBytes(file.toPath()):null);
         }
         byte[] testArt=SymbianArtworkTest.image(0xff2e8066);
+        PhoneLibraryTitles.read(context.getFilesDir(),phone.id);
+        File titles=new File(catalog.set(phone.id),PhoneLibraryTitles.FILE);
+        byte[] priorTitles=titles.isFile()?Files.readAllBytes(titles.toPath()):null;
         try {
             Emulator.stopSession();
+            PhoneLibraryTitles.rename(context.getFilesDir(),phone.id,original.uid,"Snakes - restored title test");
             Files.createDirectories(originalArt.toPath());
             for(String name:priorArt.keySet()) Files.write(new File(originalArt,name).toPath(),testArt);
             new PhoneBackup(context.getFilesDir()).exportPhone(phone,archive,Emulator.portablePhoneSettings(catalog.runtime(phone).getAbsolutePath()),text -> {});
@@ -67,6 +71,7 @@ public final class PhoneBackupUiTest {
             for(ru.playsoftware.j2meloader.applist.AppItem item:new SymbianLauncherLibrary().read(context))
                 if(item.getPath().equals(game.key())) card=item;
             assertNotNull("Restored artwork must reach the launcher",card);
+            assertEquals("Snakes - restored title test",card.getTitle());
             assertEquals(new File(restoredArt,"user-cover.png").getAbsolutePath(),card.getCoverPathExt());
             assertEquals(new File(restoredArt,"user-icon.png").getAbsolutePath(),card.getImagePathExt());
             click("Library"); SystemClock.sleep(1200);
@@ -82,6 +87,7 @@ public final class PhoneBackupUiTest {
             context.startActivity(new Intent(context,ru.playsoftware.j2meloader.MainActivity.class)
                     .addFlags(Intent.FLAG_ACTIVITY_NEW_TASK|Intent.FLAG_ACTIVITY_CLEAR_TASK)); SystemClock.sleep(2000);
             Emulator.stopSession();
+            if(priorTitles==null) Files.deleteIfExists(titles.toPath()); else Files.write(titles.toPath(),priorTitles);
             for(Map.Entry<String,byte[]> image:priorArt.entrySet()) {
                 File file=new File(originalArt,image.getKey());
                 if(image.getValue()==null) Files.deleteIfExists(file.toPath()); else Files.write(file.toPath(),image.getValue());

@@ -75,6 +75,13 @@ public class ProfileModel {
 	@SerializedName("ScreenFilter")
 	public boolean screenFilter;
 
+	@SerializedName("ScreenEffect")
+	public int screenEffect;
+	@SerializedName("ScreenEffectIntensity")
+	public int screenEffectIntensity = 70;
+	@SerializedName("ScreenshotWithEffect")
+	public boolean screenshotWithEffect;
+
 	@SerializedName("ImmediateMode")
 	public boolean immediateMode;
 

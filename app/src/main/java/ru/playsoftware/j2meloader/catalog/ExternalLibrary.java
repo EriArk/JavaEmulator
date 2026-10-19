@@ -14,6 +14,7 @@ public final class ExternalLibrary {
         protected Item(String path, String title, String platform, String phone) { super(path, title, platform, phone); }
         public abstract void launch(Activity activity, boolean systemSettings);
         public abstract void favorite();
+        public abstract void rename(String title) throws java.io.IOException;
         public void uninstall(Activity activity) { }
         public boolean supportsUninstallReview() { return false; }
         /** Optional host-owned artwork overrides, separate from engine-generated images. */

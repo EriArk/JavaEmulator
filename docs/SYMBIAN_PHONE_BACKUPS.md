@@ -2,12 +2,32 @@
 
 Originally verified on 2026-10-14 on `codex/symbian-integration`; the base
 whole-phone workflow is included in the published combined beta, as recorded in
-[PROJECT_STATUS](PROJECT_STATUS.md). The artwork extension below is local and
-unreleased on 2026-10-18. No private phone archive was published.
+[PROJECT_STATUS](PROJECT_STATUS.md). Custom artwork is included in public
+0.4.0-beta.2. The title extension below is local preparation for Beta 3 on
+2026-10-19. No private phone archive was published.
 
-## Custom Artwork Follow-Up (Local, 2026-10-18)
+## Custom Titles (Beta 3 Preparation, 2026-10-19)
 
-New backups include user-selected covers and icons for Symbian, N-Gage and
+New backups use archive format version 3 and also include custom game titles.
+Restore continues to accept versions 1 and 2. Update the destination app to
+Beta 3 or newer before restoring a version-3 backup; public Beta 2 cannot read it.
+
+Titles live in a bounded, versioned `library-titles.json` within each phone.
+Keys are guest application UIDs, not Android library row IDs or title matches.
+The file is verified and promoted with the restored phone, so identically named
+games or matching UIDs on different phones remain independent. Rescans and later
+backup exports preserve current edits. Existing local preference overrides are
+migrated before library reads or menu-driven export, with durable file writes
+before removing the legacy values. A failed title save keeps the editor open.
+
+Native titles are used when an older backup has no overrides. Favorites, recent
+history and Android row IDs remain local. Titles are limited to 160 characters;
+invalid UIDs, blank/control-character titles and oversized metadata are rejected.
+See [title transfer checks](checks/2026-10-19-phone-titles.md).
+
+## Custom Artwork Follow-Up (2026-10-18)
+
+Beta 2 backups include user-selected covers and icons for Symbian, N-Gage and
 N-Gage 2.0. They use archive format version 2. Restore still accepts version-1
 backups without artwork. Older app versions cannot read version-2 backups;
 update the destination app before transferring one.
