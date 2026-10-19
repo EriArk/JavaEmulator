@@ -18,7 +18,7 @@ public final class GameChrome {
     private final FrameLayout root;
     private final ProfileModel profile;
     private final ImageButton handle;
-    private final View display, screenshot, menu;
+    private final View display, screenshot, menu, fastForward;
     private boolean available, expanded, displayEnabled, screenshotEnabled;
     private final Runnable timeout = this::collapse;
 
@@ -28,6 +28,7 @@ public final class GameChrome {
         display = root.findViewById(R.id.game_display_button);
         screenshot = root.findViewById(R.id.game_screenshot_button);
         menu = root.findViewById(R.id.game_menu_button);
+        fastForward = root.findViewById(R.id.game_fast_forward_button);
         handle = new ImageButton(root.getContext());
         handle.setId(R.id.game_controls_handle);
         handle.setImageResource(R.drawable.ic_arrow_down);
@@ -36,7 +37,7 @@ public final class GameChrome {
         handle.setTooltipText("Show game controls");
         handle.setOnClickListener(view -> reveal());
         root.addView(handle, new FrameLayout.LayoutParams(dp(48), dp(48), Gravity.TOP | Gravity.END));
-        for (View button : new View[]{display, screenshot, menu}) {
+        for (View button : new View[]{display, screenshot, menu, fastForward}) {
             if (button == null) continue;
             button.setOnTouchListener((view, event) -> {
                 if (event.getActionMasked() == MotionEvent.ACTION_DOWN) handler.removeCallbacks(timeout);
@@ -76,11 +77,13 @@ public final class GameChrome {
         if (available && expanded) handler.postDelayed(timeout, HIDE_DELAY_MS);
     }
 
-    private void render() {
+    public void render() {
         visible(handle, available && !expanded);
         visible(display, available && expanded && displayEnabled);
         visible(screenshot, available && expanded && screenshotEnabled);
         visible(menu, available && expanded);
+        visible(fastForward, available && profile.fastForwardOnScreen
+                && (expanded || fastForward != null && fastForward.isSelected()));
     }
 
     private static void visible(View view, boolean visible) {

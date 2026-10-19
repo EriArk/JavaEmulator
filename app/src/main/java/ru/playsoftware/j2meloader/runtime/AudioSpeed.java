@@ -13,7 +13,7 @@ public final class AudioSpeed {
     public void reset() { applied = 100; rejected = -1; }
 
     public void applyPlaying(MediaPlayer player, int percent) {
-        int next = percent <= 0 ? 100 : Math.max(50, Math.min(200, percent));
+        int next = EmulationClock.normalize(percent);
         if (rejected == next || applied == next) return;
         try {
             // Rate conversion intentionally changes pitch as well as tempo.

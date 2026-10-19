@@ -107,6 +107,14 @@ public class ProfileModel {
 	public Integer nativeFpsLimit;
 	@SerializedName("EmulationSpeed")
 	public int emulationSpeed = 100;
+	@SerializedName("FastForwardSpeed")
+	public int fastForwardSpeed = 200;
+	@SerializedName("FastForwardButton")
+	public int fastForwardButton;
+	@SerializedName("FastForwardToggle")
+	public boolean fastForwardToggle;
+	@SerializedName("FastForwardOnScreen")
+	public boolean fastForwardOnScreen = true;
 
 	public int getEmulationSpeed() {
 		return ru.playsoftware.j2meloader.runtime.EmulationClock.normalize(emulationSpeed);

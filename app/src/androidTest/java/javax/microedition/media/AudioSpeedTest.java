@@ -60,7 +60,8 @@ public class AudioSpeedTest {
             GuestTime.speed(100);
             player.setDataSource(file.getAbsolutePath());
             player.start();
-            for (int speed : new int[]{50, 200, 100}) {
+            for (int speed : new int[]{50, 200, 400, 100}) {
+                player.seekTo(0);
                 GuestTime.speed(speed);
                 SystemClock.sleep(1200);
                 int before = player.getCurrentPosition();

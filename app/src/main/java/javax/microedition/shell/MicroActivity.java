@@ -125,6 +125,7 @@ public class MicroActivity extends AppCompatActivity {
 	private MapperDialog settingsMapper;
 	private SettingsPreviewBar settingsPreview;
 	private ru.playsoftware.j2meloader.input.GameChrome gameChrome;
+	private ru.playsoftware.j2meloader.input.FastForwardControl fastForward;
 	private final HashSet<Integer> overlayHeldKeys = new HashSet<>();
 	private ru.playsoftware.j2meloader.input.DeviceControls devices;
 	private final ControllerInput controllerInput = new ControllerInput(KeyMapper::getInputMapping,
@@ -134,6 +135,7 @@ public class MicroActivity extends AppCompatActivity {
 				public void repeat(int key) { if (current instanceof Canvas) ((Canvas) current).postKeyRepeated(key); }
 			});
 	private void releaseControllerState() {
+		if (fastForward != null) fastForward.cancel();
 		cancelQuickMapTrigger();
 		controllerInput.clear();
 		VirtualKeyboard vk = ContextHolder.getVk();
@@ -257,7 +259,11 @@ public class MicroActivity extends AppCompatActivity {
 		binding.gameDisplayButton.setVisibility(!BuildConfig.HANDHELD_MODE
 				&& ru.playsoftware.j2meloader.util.GameShortcuts.isDisplayVisible(this) ? View.VISIBLE : View.GONE);
 		binding.gameDisplayButton.setOnClickListener(v -> { openOptionsMenu(); showDisplayPage(); });
+		fastForward = new ru.playsoftware.j2meloader.input.FastForwardControl(binding.midletFrame,
+				microLoader.getTouchSettings(), GuestTime::available, GuestTime::speed, Canvas::setLimitFps, true);
+		controllerInput.shortcut(fastForward::binding, fastForward::button);
 		if (!BuildConfig.HANDHELD_MODE) gameChrome = new ru.playsoftware.j2meloader.input.GameChrome(binding.midletFrame, microLoader.getTouchSettings());
+		fastForward.changed(() -> { if (gameChrome != null) gameChrome.render(); });
 		devices = new ru.playsoftware.j2meloader.input.DeviceControls(this, this::releaseControllerState,
 				this::updateControllerMode, this::controllerDisconnected);
 		updateControllerMode();
@@ -297,6 +303,7 @@ public class MicroActivity extends AppCompatActivity {
 
 	@Override
 	public void onPause() {
+		if (fastForward != null) fastForward.cancel();
 		if (settingsPreview != null) settingsPreview.suspend();
 		controllerInput.clear();
 		VirtualKeyboard vk = ContextHolder.getVk();
@@ -321,6 +328,7 @@ public class MicroActivity extends AppCompatActivity {
 		super.onWindowFocusChanged(hasFocus);
 		updateScreenshotButton();
 		if (!hasFocus) {
+			if (fastForward != null) fastForward.cancel();
 			cancelQuickMapTrigger();
 			MidletThread.pauseApp();
 			controllerInput.clear();
@@ -330,6 +338,7 @@ public class MicroActivity extends AppCompatActivity {
 		if (hasFocus && visible && !isQuickMapVisible()
 				&& (gameMenu == null || !gameMenu.isShowing())
 				&& (settingsMapper == null || !settingsMapper.isShowing())) {
+			if (fastForward != null) fastForward.configure();
 			if (devices != null && devices.resumeRequired()) openOptionsMenu();
 			else MidletThread.resumeApp();
 		}
@@ -483,7 +492,7 @@ public class MicroActivity extends AppCompatActivity {
 		if (handleQuickMapKeyEvent(event)) {
 			return true;
 		}
-		if (current instanceof Canvas && event.getKeyCode() != menuKey
+		if ((current instanceof Canvas || fastForward != null && fastForward.binding() == key) && event.getKeyCode() != menuKey
 				&& (KeyEvent.isGamepadButton(event.getKeyCode()) || ControllerInput.direction(event.getKeyCode()) != 0)) {
 			controllerInput.key(event.getDeviceId(), event.getKeyCode(),
 					event.getAction() == KeyEvent.ACTION_DOWN, event.getRepeatCount() != 0);
@@ -511,7 +520,8 @@ public class MicroActivity extends AppCompatActivity {
 			if (event.getAction() == MotionEvent.ACTION_MOVE) controllerMapper.captureAxes(event);
 			return true;
 		}
-		if (current instanceof Canvas && event.getAction() == MotionEvent.ACTION_MOVE
+		if ((current instanceof Canvas || fastForward != null && (fastForward.binding() == KeyEvent.KEYCODE_BUTTON_L2
+				|| fastForward.binding() == KeyEvent.KEYCODE_BUTTON_R2)) && event.getAction() == MotionEvent.ACTION_MOVE
 				&& isFromSource(event, InputDevice.SOURCE_JOYSTICK)) {
 			controllerInput.axes(event.getDeviceId(), getCenteredAxis(event, MotionEvent.AXIS_X),
 					getCenteredAxis(event, MotionEvent.AXIS_Y), getCenteredAxis(event, MotionEvent.AXIS_HAT_X),
@@ -689,6 +699,7 @@ public class MicroActivity extends AppCompatActivity {
 	}
 
 	private void previewSettings(ProfileModel draft) {
+		if (fastForward != null) fastForward.stop();
 		controllerInput.clear();
 		VirtualKeyboard vk = ContextHolder.getVk();
 		if (vk != null) vk.cancel();
@@ -726,6 +737,7 @@ public class MicroActivity extends AppCompatActivity {
 				|| binding.displayableContainer.getChildCount() == 0) {
 			return;
 		}
+		if (fastForward != null) fastForward.stop();
 		controllerInput.clear();
 		if (settingsPreview != null) settingsPreview.suspend();
 		VirtualKeyboard vk = ContextHolder.getVk();
@@ -813,6 +825,7 @@ public class MicroActivity extends AppCompatActivity {
 				|| (settingsMapper != null && settingsMapper.isShowing())) return;
 		cancelQuickMapTrigger();
 		if (settingsPreview != null) settingsPreview.suspend();
+		if (fastForward != null) fastForward.stop();
 		controllerInput.clear();
 		VirtualKeyboard vk = ContextHolder.getVk();
 		if (vk != null) vk.cancel();
@@ -856,7 +869,7 @@ public class MicroActivity extends AppCompatActivity {
 				gameMenu.dismiss();
 				MidletThread.destroyApp();
 			}
-		}, current instanceof Canvas ? this::takeScreenshot : null);
+		}, current instanceof Canvas ? this::takeScreenshot : null, fastForward);
 	}
 
 	private void showDisplayPage() {
@@ -881,6 +894,8 @@ public class MicroActivity extends AppCompatActivity {
 
 	private void showMorePage() {
 		gameMenu.page("More");
+		gameMenu.action("Fast-forward settings", android.R.drawable.ic_media_ff,
+				() -> settingsPages().fastForward(this::showMorePage));
 		gameMenu.setBackAction(this::showGameMenuPage);
 		gameMenu.action("Screen presets", R.drawable.ic_quick_size,
 				() -> settingsPages().screenPresets(this::showMorePage));
@@ -1232,6 +1247,7 @@ public class MicroActivity extends AppCompatActivity {
 
 	@Override
 	protected void onDestroy() {
+		if (fastForward != null) fastForward.cancel();
 		if (settingsPreview != null) settingsPreview.stop();
 		if (settingsMapper != null) { settingsMapper.setOnDismissListener(null); settingsMapper.dismiss(); }
 		cancelQuickMapTrigger();

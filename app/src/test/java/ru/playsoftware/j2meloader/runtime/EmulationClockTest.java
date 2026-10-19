@@ -23,11 +23,11 @@ public class EmulationClockTest {
     }
     @Test public void waitsAndInvalidSettings() {
         EmulationClock clock = new EmulationClock(() -> 0);
-        for (int speed : new int[]{50,75,100,125,150,200}) {
+        for (int speed : new int[]{50,75,100,125,150,200,300,400}) {
             clock.speed(speed); assertEquals(1000, clock.hostDelay(speed * 10));
         }
         clock.speed(0); assertEquals(100, clock.speed());
-        clock.speed(500); assertEquals(200, clock.speed());
+        clock.speed(500); assertEquals(400, clock.speed());
         clock.speed(1); assertEquals(50, clock.speed());
         assertEquals(0, clock.hostDelay(0));
     }

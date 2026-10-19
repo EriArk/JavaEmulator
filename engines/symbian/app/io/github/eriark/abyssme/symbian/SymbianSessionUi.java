@@ -46,6 +46,7 @@ final class SymbianSessionUi {
     private final SettingsPreviewBar preview;
     private final ImageButton camera;
     private final GameChrome gameChrome;
+    private final FastForwardControl fastForward;
     private final DeviceControls devices;
     private GameMenuDialog menu;
     private MapperDialog mapper;
@@ -97,8 +98,11 @@ final class SymbianSessionUi {
         root.addView(camera, new FrameLayout.LayoutParams(dp(48),dp(48), Gravity.TOP | Gravity.START));
         preview = new SettingsPreviewBar(activity, this::keep, this::undo);
         preview.attachTo(root);
+        fastForward = new FastForwardControl(root, profile, () -> true, host::speed, host::frameRate, false);
+        input.shortcut(fastForward::binding, fastForward::button);
         gameChrome = BuildConfig.HANDHELD_MODE ? null : new GameChrome(root, profile);
-        devices = new DeviceControls(activity, this::clear, this::layout, () -> {
+        fastForward.changed(() -> { if (gameChrome != null) gameChrome.render(); });
+        devices = new DeviceControls(activity, () -> { fastForward.cancel(); clear(); }, this::layout, () -> {
             if (visible) showMenu();
             pause();
         });
@@ -114,6 +118,7 @@ final class SymbianSessionUi {
     }
     int scale() { return Math.max(0, Math.min(2, profile.screenScaleType)); }
     void apply() {
+        fastForward.configure();
         lcdGeometry = null; nextLcdGeometry = 0;
         TouchAppearance.shortcuts(root, profile);
         clear(); mappings = KeyMapper.resolveMappings(profile.getActiveKeyMappings());
@@ -137,10 +142,12 @@ final class SymbianSessionUi {
         surface.setRotation(Math.floorMod(profile.screenRotation / 90, 4) * 90); deckView.invalidate();
     }
     void clear() {
+        if (fastForward != null) fastForward.stop();
         handler.removeCallbacks(holdSelect); selectDown = false;
         input.clear(); if (deckView != null) deckView.cancel(); keys.clear();
     }
     void visible(boolean value) {
+        if (!value) fastForward.cancel();
         visible = value;
         if (value && devices.resumeRequired()) showMenu();
         if (value) updateShortcuts(); pause();
@@ -150,7 +157,7 @@ final class SymbianSessionUi {
         if (gameChrome != null) gameChrome.update(!closed && visible && focused && menu == null && mapper == null,
                 false, Screenshots.isButtonVisible(activity));
     }
-    void focused(boolean value) { focused = value; pause(); }
+    void focused(boolean value) { if (!value) fastForward.cancel(); focused = value; pause(); }
     private void pause() {
         updateShortcuts();
         boolean paused = closed || !visible || !focused || menu != null || mapper != null || devices.resumeRequired();
@@ -176,7 +183,7 @@ final class SymbianSessionUi {
             }
             return true;
         }
-        if (mappings.get(code, 0) == 0) return false;
+        if (mappings.get(code, 0) == 0 && fastForward.binding() != code) return false;
         input.key(event.getDeviceId(), code, event.getAction() == KeyEvent.ACTION_DOWN, event.getRepeatCount() > 0); return true;
     }
     boolean motion(MotionEvent event) {
@@ -189,6 +196,7 @@ final class SymbianSessionUi {
     }
     void showMenu() {
         if (closed || menu != null || mapper != null) return;
+        fastForward.cancel();
         menu = new GameMenuDialog(activity, title);
         menu.setOnDismissListener(d -> { menu = null; devices.resume(); if (!closed) pause(); }); menu.show(); pause(); home();
     }
@@ -205,10 +213,12 @@ final class SymbianSessionUi {
                 if (ProfilesManager.isPreview(profile)) undo();
                 host.restart();
             }
-        }, this::screenshot).home();
+        }, this::screenshot, fastForward).home();
     }
     private void morePage() {
         menu.page("More");
+        menu.action("Fast-forward settings", android.R.drawable.ic_media_ff,
+                () -> pages().fastForward(this::morePage));
         menu.action("Emulation speed: " + profile.getEmulationSpeed() + "%",
                 R.drawable.ic_baseline_tune_24, () -> pages().speed(this::morePage));
         menu.setBackAction(this::home);
@@ -307,6 +317,7 @@ final class SymbianSessionUi {
         if (!closed) Toast.makeText(activity, success ? R.string.screenshot_gallery_saved : R.string.screenshot_failed, Toast.LENGTH_SHORT).show();
     }
     void close() {
+        fastForward.cancel();
         if (closed) return; closed = true; clear(); preview.stop();
         devices.close();
         updateShortcuts();

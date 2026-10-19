@@ -18,6 +18,9 @@ public class MophunFrameRateTest {
             session.setEmulationSpeed(50); assertEquals(50,session.getEmulationSpeed());
             assertEquals(60,session.getFrameRateLimit());
             session.setFrameRateLimit(15); assertEquals(50,session.getEmulationSpeed());
+            session.setEmulationSpeed(400); assertEquals(400,session.getEmulationSpeed());
+            assertEquals(15,session.getFrameRateLimit());
+            session.setEmulationSpeed(75); assertEquals(75,session.getEmulationSpeed());
         }
     }
     @Test public void presentedFramesUseHostPacerWithoutTheOldSixtyFpsCap() {

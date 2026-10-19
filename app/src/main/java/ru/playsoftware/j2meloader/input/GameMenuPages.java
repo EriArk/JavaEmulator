@@ -18,16 +18,22 @@ public final class GameMenuPages {
     private final GameMenuDialog menu;
     private final Host host;
     private final Runnable screenshot;
+    private final FastForwardControl fastForward;
 
     public GameMenuPages(GameMenuDialog menu, Host host, Runnable screenshot) {
+        this(menu, host, screenshot, null);
+    }
+    public GameMenuPages(GameMenuDialog menu, Host host, Runnable screenshot, FastForwardControl fastForward) {
         this.menu = menu;
         this.host = host;
         this.screenshot = screenshot;
+        this.fastForward = fastForward;
     }
 
     public void home() {
         menu.page("Game menu");
         menu.action("Resume", android.R.drawable.ic_media_play, menu::dismiss);
+        if (fastForward != null) fastForward.menuAction(menu);
         menu.action("Display", R.drawable.ic_quick_size, host::display);
         menu.action("Controls", R.drawable.ic_action_keyboard, host::controls);
         if (screenshot != null) menu.action("Screenshot", R.drawable.ic_action_screenshot, () -> {

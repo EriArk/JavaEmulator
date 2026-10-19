@@ -62,6 +62,16 @@ older 0.3 builds, not the current 0.4 release series.
 | Private historical snapshot | `0.1.0-beta.2-experimental.15`, 2026-10-11 | Old Java/Mophun test build, not the current beta |
 | Local-only material | Game fixtures, firmware, diagnostics, device data and signing keys | Not in Git or public release assets; describing testing does not authorize redistribution |
 
+## Beta 3 Revision Preparation: Fast-forward
+
+Implemented locally after Beta 3: temporary per-game 150/200/300/400% speed,
+controller Hold/Toggle mapping including trigger axes, and optional touch
+shortcut/direct game-menu command across all three engines. Original speed and
+frame cap return on stop; activation is not persisted. Settings use Try/Keep/Undo.
+Native clock/audio and Retroid shared checks passed; publication and further
+device evidence are tracked in [revision verification](releases/v0.4.0-beta.3-r1-checks.md).
+See [behavior and limits](FAST_FORWARD.md). Not yet a public APK at this checkpoint.
+
 ## Released in 0.4.0 Beta 3
 
 **Published 2026-10-19:** signed `0.4.0-beta.3`, code 308,

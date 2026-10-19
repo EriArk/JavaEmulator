@@ -33,6 +33,16 @@ public final class ControllerInput {
     private final Sink sink;
     private final Map<Integer, Device> devices = new LinkedHashMap<>();
     private Set<Integer> held = new LinkedHashSet<>();
+    private static final int SHORTCUT = Integer.MAX_VALUE;
+    private java.util.function.IntSupplier shortcutKey = () -> 0;
+    private java.util.function.Consumer<Boolean> shortcut = down -> { };
+
+    public synchronized void shortcut(java.util.function.IntSupplier key, java.util.function.Consumer<Boolean> action) {
+        clear(); shortcutKey = key; shortcut = action;
+    }
+    private int mapped(int input) {
+        return input != 0 && input == shortcutKey.getAsInt() ? SHORTCUT : mapping.get(input);
+    }
 
     public ControllerInput(Mapping mapping, Sink sink) {
         this.mapping = mapping;
@@ -84,8 +94,8 @@ public final class ControllerInput {
             if (!down || (bit != 0 ? (device.dpad & bit) == 0 : !device.buttons.contains(input))) return;
             Set<Integer> repeated = new LinkedHashSet<>();
             if (bit != 0) addDirections(repeated, device.dpad | device.hat, false);
-            else add(repeated, mapping.get(input));
-            for (int key : repeated) if (held.contains(key)) sink.repeat(key);
+            else add(repeated, mapped(input));
+            for (int key : repeated) if (key != SHORTCUT && held.contains(key)) sink.repeat(key);
             return;
         }
         if (bit != 0) device.dpad = down ? device.dpad | bit : device.dpad & ~bit;
@@ -119,14 +129,18 @@ public final class ControllerInput {
         for (Device device : devices.values()) {
             addDirections(next, device.dpad | device.hat, false);
             addDirections(next, device.stick, true);
-            for (int button : device.buttons) add(next, mapping.get(button));
-            if (device.leftTrigger) add(next, mapping.get(104));
-            if (device.rightTrigger) add(next, mapping.get(105));
+            for (int button : device.buttons) add(next, mapped(button));
+            if (device.leftTrigger) add(next, mapped(104));
+            if (device.rightTrigger) add(next, mapped(105));
         }
         // Release replaced cardinal outputs before pressing a diagonal. Output sets
         // also prevent a second source from releasing a key that is still held.
-        for (int key : held) if (!next.contains(key)) sink.release(key);
-        for (int key : next) if (!held.contains(key)) sink.press(key);
+        for (int key : held) if (!next.contains(key)) {
+            if (key == SHORTCUT) shortcut.accept(false); else sink.release(key);
+        }
+        for (int key : next) if (!held.contains(key)) {
+            if (key == SHORTCUT) shortcut.accept(true); else sink.press(key);
+        }
         held = next;
     }
 

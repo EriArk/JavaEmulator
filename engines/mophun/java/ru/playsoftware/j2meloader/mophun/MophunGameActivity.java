@@ -66,6 +66,7 @@ public final class MophunGameActivity extends Activity {
     private MophunTouchControls touch;
     private ImageButton screenshotButton;
     private ru.playsoftware.j2meloader.input.GameChrome gameChrome;
+    private ru.playsoftware.j2meloader.input.FastForwardControl fastForward;
     private boolean screenshotPending;
     private ControllerMapperView mapper;
     private GameMenuDialog menu;
@@ -137,10 +138,16 @@ public final class MophunGameActivity extends Activity {
             setContentView(root);
             previewBar = new ru.playsoftware.j2meloader.input.SettingsPreviewBar(this, this::keepPreview, this::undoPreview);
             previewBar.attachTo(root);
+            fastForward = new ru.playsoftware.j2meloader.input.FastForwardControl(root, profile, () -> true,
+                    session::setEmulationSpeed, session::setFrameRateLimit, false);
+            input.shortcut(fastForward::binding, fastForward::button);
+            fastForward.configure();
             if (!BuildConfig.HANDHELD_MODE) gameChrome = new ru.playsoftware.j2meloader.input.GameChrome(root, profile);
+            fastForward.changed(() -> { if (gameChrome != null) gameChrome.render(); });
             updateScreenshotButton();
             if (ProfilesManager.isPreview(profile)) previewBar.start();
             devices = new ru.playsoftware.j2meloader.input.DeviceControls(this, () -> {
+                fastForward.cancel();
                 cancelSelect(); clearInput();
             }, this::updateControllerMode, () -> {
                 if (visible) showMenu();
@@ -211,6 +218,7 @@ public final class MophunGameActivity extends Activity {
     }
 
     private void clearInput() {
+        if (fastForward != null) fastForward.stop();
         if (touch != null) touch.cancel();
         if (input != null) input.clear();
     }
@@ -235,6 +243,7 @@ public final class MophunGameActivity extends Activity {
 
     @Override public void onWindowFocusChanged(boolean focused) {
         super.onWindowFocusChanged(focused);
+        if (!focused && fastForward != null) fastForward.cancel();
         if (!focused) cancelSelect();
         else getWindow().getDecorView().setSystemUiVisibility(5894);
         pauseState();
@@ -295,6 +304,7 @@ public final class MophunGameActivity extends Activity {
 
     private void showMenu() {
         if (menu != null || mapper != null || session == null) return;
+        if (fastForward != null) fastForward.cancel();
         cancelSelect();
         input.clear();
         menu = new GameMenuDialog(this, title);
@@ -315,11 +325,13 @@ public final class MophunGameActivity extends Activity {
             public void undo() { undoPreview(); }
             public void restart() { restartGame(); }
             public void exit() { leaveGame(); }
-        }, this::takeScreenshot).home();
+        }, this::takeScreenshot, fastForward).home();
     }
 
     private void showMorePage() {
         menu.page("More");
+        menu.action("Fast-forward settings", android.R.drawable.ic_media_ff,
+                () -> settingsPages().fastForward(this::showMorePage));
         menu.action("Emulation speed: " + profile.getEmulationSpeed() + "%",
                 R.drawable.ic_baseline_tune_24, () -> settingsPages().speed(this::showMorePage));
         menu.setBackAction(this::showMenuPage);
@@ -352,6 +364,7 @@ public final class MophunGameActivity extends Activity {
                 });
     }
     private void applyPreview() {
+        if (fastForward != null) fastForward.configure();
         updateControllerMode();
         if (session != null) session.setEmulationSpeed(profile.getEmulationSpeed());
         if (session != null) session.setFrameRateLimit(profile.getNativeFpsLimit());
@@ -482,7 +495,7 @@ public final class MophunGameActivity extends Activity {
             }
             return true;
         }
-        if (input != null && mappings.get(key, 0) != 0) {
+        if (input != null && (mappings.get(key, 0) != 0 || fastForward != null && fastForward.binding() == key)) {
             input.key(event.getDeviceId(), key, event.getAction() == KeyEvent.ACTION_DOWN, event.getRepeatCount() > 0);
             return true;
         }
@@ -503,6 +516,7 @@ public final class MophunGameActivity extends Activity {
     }
 
     @Override protected void onPause() {
+        if (fastForward != null) fastForward.cancel();
         visible = false;
         cancelSelect();
         if (input != null) input.clear();
@@ -519,6 +533,7 @@ public final class MophunGameActivity extends Activity {
         if (frameView != null) frameView.postInvalidateOnAnimation();
     }
     @Override protected void onDestroy() {
+        if (fastForward != null) fastForward.cancel();
         if (previewBar != null) previewBar.stop();
         if (settingsMapper != null) { settingsMapper.setOnDismissListener(null); settingsMapper.dismiss(); }
         visible = false;

@@ -73,7 +73,7 @@ public:
         history.clear();
     }
     template<class Source> std::size_t render(std::int16_t *out, std::size_t frames, int percent, Source source) {
-        percent = std::clamp(percent, 50, 200);
+        percent = std::clamp(percent, 50, 400);
         if (!active && percent == 100) {
             auto produced = std::min<std::size_t>(frames, source(out, frames));
             history.append(produced, 100);

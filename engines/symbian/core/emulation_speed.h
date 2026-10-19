@@ -23,7 +23,7 @@ class clock {
 public:
     explicit clock(std::uint64_t now) : anchor(now) {}
     std::uint64_t read(std::uint64_t now) { std::lock_guard<std::mutex> guard(lock); advance(now); return elapsed; }
-    void set(std::uint64_t now, int value) { std::lock_guard<std::mutex> guard(lock); advance(now); percent = value <= 0 ? 100 : std::clamp(value, 50, 200); }
+    void set(std::uint64_t now, int value) { std::lock_guard<std::mutex> guard(lock); advance(now); percent = value <= 0 ? 100 : std::clamp(value, 50, 400); }
     void pause(std::uint64_t now, bool value) { std::lock_guard<std::mutex> guard(lock); advance(now); paused = value; }
     int get() { std::lock_guard<std::mutex> guard(lock); return percent; }
 };

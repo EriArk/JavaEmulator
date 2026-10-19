@@ -11,7 +11,7 @@ int main() {
     clock.pause(2100,false); assert(clock.read(2200) == 350);
     clock.set(2200,100); assert(clock.read(2300) == 450);
     assert(clock.read(2250) == 450); assert(clock.read(2400) == 550);
-    for (int speed : {50,75,100,125,150,200}) {
+    for (int speed : {50,75,100,125,150,200,300,400}) {
         abyss::speed::set(speed);
         assert(abyss::speed::host_delay(speed * 10) == 1000);
         abyss::frame_rate::set(30);

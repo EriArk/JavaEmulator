@@ -11,7 +11,7 @@ public final class EmulationClock implements LongSupplier {
     private boolean paused;
 
     public EmulationClock(LongSupplier source) { this.source = source; anchor = source.getAsLong(); }
-    public static int normalize(int value) { return value <= 0 ? 100 : Math.max(50, Math.min(200, value)); }
+    public static int normalize(int value) { return value <= 0 ? 100 : Math.max(50, Math.min(400, value)); }
     private void advance() {
         long now = source.getAsLong();
         if (now < anchor) return;

@@ -10,6 +10,20 @@ stated otherwise. **Experimental** in older checkpoints means local/private
 combined builds; released experimental features are explicitly identified.
 **Released** means an actual GitHub release asset.
 
+## 2026-10-19 - Configurable Fast-forward (Beta 3 revision preparation)
+
+- Add temporary per-game 150/200/300/400% acceleration for Java, Mophun and
+  Symbian/N-Gage, with on-screen toggle, direct game-menu action and controller
+  Hold/Toggle mapping. Triggers support both axes and digital events without
+  leaking the reserved input into the game.
+- Restore the previous speed/frame cap on stop, menu/focus loss and controller
+  disconnect. Keep activation out of saved profiles and backups; fast-forward
+  settings participate in Try/Keep/Undo. Extend shared clocks/audio to 400%.
+- Candidate 0.4.0-beta.3-r1, code 309, for the existing Beta 3 release page.
+  Not a publication statement. No new Beta 4 release is planned for this patch.
+  [Behavior and limits](docs/FAST_FORWARD.md),
+  [verification](docs/releases/v0.4.0-beta.3-r1-checks.md).
+
 ## 2026-10-19 - 0.4.0 Beta 3 Published
 
 - **Released:** [0.4.0 Beta 3](https://github.com/EriArk/JavaEmulator/releases/tag/v0.4.0-beta.3),

@@ -31,7 +31,7 @@ public final class TouchAppearance {
     public static void shortcuts(View root, ProfileModel profile) {
         if (BuildConfig.HANDHELD_MODE || root == null || profile == null) return;
         Context palette = palette(root.getContext(), profile);
-        for (int id : new int[]{R.id.game_display_button, R.id.game_screenshot_button, R.id.game_menu_button, R.id.game_controls_handle}) {
+        for (int id : new int[]{R.id.game_display_button, R.id.game_screenshot_button, R.id.game_menu_button, R.id.game_controls_handle, R.id.game_fast_forward_button}) {
             ImageButton button = root.findViewById(id);
             if (button == null) continue;
             ViewCompat.setBackgroundTintList(button, null);

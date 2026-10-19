@@ -65,6 +65,7 @@ public final class GameSettingsPages {
         menu.choice("On-screen buttons", new String[]{"Auto", "Always", "Off"}, draft.getTouchVisibility(),
                 i -> draft.touchVisibility = i);
         menu.action("Controller mapping", R.drawable.ic_action_keyboard, () -> host.mapping(draft, this::controls));
+        menu.action("Fast-forward", android.R.drawable.ic_media_ff, () -> fastForward(this::controls));
         if (!BuildConfig.HANDHELD_MODE) {
             int layout = draft.touchLayout == null ? 0 : clamp(draft.touchLayout, javaGame ? 3 : 2);
             menu.choice("Touch layout", javaGame ? new String[]{"Phone", "Gamepad", "Legacy"} : new String[]{"Phone", "Gamepad"}, layout, i -> {
@@ -128,6 +129,27 @@ public final class GameSettingsPages {
     }
 
     private boolean speedAvailable() { return !live || !javaGame || javax.microedition.shell.GuestTime.available(); }
+
+    public void fastForward(Runnable back) {
+        menu.page("Fast-forward");
+        if (speedAvailable()) {
+            int[] rates = {150, 200, 300, 400};
+            int selected = 1;
+            for (int i = 0; i < rates.length; i++) if (rates[i] == draft.fastForwardSpeed) selected = i;
+            menu.choice("Target speed", new String[]{"150% (1.5x)", "200% (2x)", "300% (3x)", "400% (4x)"},
+                    selected, i -> draft.fastForwardSpeed = rates[i]);
+            int[] keys = ru.playsoftware.j2meloader.input.FastForwardControl.BUTTONS;
+            int binding = 0;
+            for (int i = 0; i < keys.length; i++) if (keys[i] == draft.fastForwardButton) binding = i;
+            menu.choice("Controller button", ru.playsoftware.j2meloader.input.FastForwardControl.BUTTON_NAMES,
+                    binding, i -> draft.fastForwardButton = keys[i]);
+            menu.choice("Controller mode", new String[]{"Hold", "Toggle"}, draft.fastForwardToggle ? 1 : 0,
+                    i -> draft.fastForwardToggle = i == 1);
+            menu.toggle("On-screen shortcut", draft.fastForwardOnScreen, v -> draft.fastForwardOnScreen = v);
+            trialAction();
+        } else menu.message("Original JAR required. Reimport this game to enable speed control; keep its existing saves.");
+        menu.setBackAction(back);
+    }
 
     public static void speedChoice(GameMenuDialog menu, ProfileModel draft) {
         java.util.ArrayList<Integer> values = new java.util.ArrayList<>();

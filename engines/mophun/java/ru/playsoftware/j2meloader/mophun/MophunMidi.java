@@ -34,7 +34,7 @@ public final class MophunMidi implements MidiBridge.Backend, AutoCloseable {
     public Throwable error() { return error; }
 
     public void speed(int percent) {
-        speed = percent <= 0 ? 100 : Math.max(50, Math.min(200, percent));
+        speed = ru.playsoftware.j2meloader.runtime.EmulationClock.normalize(percent);
         if (!closed) handler.post(() -> {
             if (player != null && playing && !paused) audioSpeed.applyPlaying(player, speed);
         });

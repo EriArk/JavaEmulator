@@ -33,7 +33,7 @@ public class GuestTimeDeviceTest {
             assertArrayEquals(new byte[]{1,2,3}, Files.readAllBytes(oldDex.toPath()));
             assertTrue(dex.setReadOnly());
             Class<?> fixture = new dalvik.system.DexClassLoader(dex.getPath(), root.getPath(), null, getClass().getClassLoader()).loadClass("ClockFixture");
-            for (int speed : new int[]{50,100,200}) {
+            for (int speed : new int[]{50,100,200,300,400}) {
                 GuestTime.speed(speed);
                 long guest = (Long)fixture.getMethod("read").invoke(null), real = SystemClock.elapsedRealtime();
                 SystemClock.sleep(300);
@@ -45,7 +45,7 @@ public class GuestTimeDeviceTest {
     }
     @Test public void sleepsTimersAndInterruptsHonorGuestTime() throws Exception {
         try {
-            for (int speed : new int[]{50,200}) {
+            for (int speed : new int[]{50,200,400}) {
                 GuestTime.speed(speed);
                 long real = SystemClock.elapsedRealtime(); GuestTime.sleep(200);
                 long elapsed = SystemClock.elapsedRealtime() - real;

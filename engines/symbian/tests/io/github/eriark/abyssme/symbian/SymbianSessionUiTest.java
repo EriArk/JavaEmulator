@@ -19,6 +19,47 @@ public final class SymbianSessionUiTest {
     private final Instrumentation instrumentation = InstrumentationRegistry.getInstrumentation();
     private final Context context = instrumentation.getTargetContext();
     private UiAutomation ui;
+    @Test public void fastForwardUsesSharedInputAndRestoresNativeHostOnFocusLoss() throws Exception {
+        MainActivity activity = (MainActivity) instrumentation.startActivitySync(new Intent(context, MainActivity.class)
+                .addFlags(Intent.FLAG_ACTIVITY_NEW_TASK));
+        String seed = UUID.randomUUID().toString().replace("-", ""), system = seed + seed;
+        SymbianSessionUi[] current = {null}; int[] speed = {0}, frames = {0}; List<Boolean> keys = new ArrayList<>();
+        try {
+            instrumentation.runOnMainSync(() -> {
+                try {
+                    current[0] = new SymbianSessionUi(activity,new TextureView(activity),system,1,"Fast-forward",new SymbianSessionUi.Host() {
+                        public android.graphics.RectF touchBounds() { return null; }
+                        public void touch(int x,int y,int pressure,int action,int pointer) { }
+                        public void key(int scan,boolean down) { keys.add(down); }
+                        public void pause(boolean value) { }
+                        public void display(int scale) { }
+                        public void speed(int value) { speed[0] = value; }
+                        public void frameRate(int value) { frames[0] = value; }
+                        public void leave() { } public void restart() { } public Bitmap capture() { return null; }
+                    });
+                    activity.setContentView(current[0].root);
+                    current[0].profile.emulationSpeed = 75;
+                    current[0].profile.fastForwardSpeed = 400;
+                    current[0].profile.fastForwardButton = KeyEvent.KEYCODE_BUTTON_R1;
+                    current[0].profile.nativeFpsLimit = 30;
+                    current[0].apply();
+                    current[0].key(new KeyEvent(KeyEvent.ACTION_DOWN,KeyEvent.KEYCODE_BUTTON_R1));
+                    assertEquals(400,speed[0]); assertEquals(120,frames[0]); assertTrue(keys.isEmpty());
+                    current[0].key(new KeyEvent(KeyEvent.ACTION_UP,KeyEvent.KEYCODE_BUTTON_R1));
+                    assertEquals(75,speed[0]); assertEquals(30,frames[0]);
+                    current[0].profile.fastForwardToggle = true; current[0].apply();
+                    current[0].key(new KeyEvent(KeyEvent.ACTION_DOWN,KeyEvent.KEYCODE_BUTTON_R1));
+                    current[0].key(new KeyEvent(KeyEvent.ACTION_UP,KeyEvent.KEYCODE_BUTTON_R1));
+                    assertEquals(400,speed[0]); current[0].focused(false);
+                    assertEquals(75,speed[0]); assertEquals(30,frames[0]);
+                    assertEquals(75,current[0].profile.emulationSpeed);
+                } catch (Exception error) { throw new AssertionError(error); }
+            });
+        } finally {
+            instrumentation.runOnMainSync(() -> { if (current[0] != null) current[0].close(); activity.finish(); });
+            ru.playsoftware.j2meloader.util.FileUtils.deleteDirectory(PhoneBackup.profiles(context.getFilesDir(),system));
+        }
+    }
     @Test public void javaGameUsesCommonMenuWhenFixtureProvided() throws Exception {
         commonEngineMenu("javaMenuUri", "java-common-menu.png");
     }
@@ -39,6 +80,7 @@ public final class SymbianSessionUiTest {
             assertFalse(label, ui.getRootInActiveWindow().findAccessibilityNodeInfosByText(label).isEmpty());
         capture(screenshot);
         click("More"); click("Back"); waitNode("Resume", 5000);
+        if ("true".equals(InstrumentationRegistry.getArguments().getString("fastForwardTrials"))) fastForwardTrials(screenshot);
         if ("true".equals(InstrumentationRegistry.getArguments().getString("unifiedControlsTrials"))) {
             for (String visibility : new String[]{"Always", "Off", "Auto"}) {
                 click("Controls"); capture(screenshot + "-controls.png");
@@ -129,6 +171,46 @@ public final class SymbianSessionUiTest {
         }
     }
 
+    private void fastForwardTrials(String engine) throws Exception {
+        click("More"); click("Fast-forward settings");
+        click("Target speed"); click("400% (4x)");
+        click("Controller button"); clickScrollingChoice("R1");
+        click("Controller mode"); click("Hold");
+        capture(engine + "-fast-forward-settings.png");
+        click("Try changes"); waitNode("Undo",5000); SystemClock.sleep(500);
+        long now = SystemClock.uptimeMillis();
+        KeyEvent down = new KeyEvent(now,now,KeyEvent.ACTION_DOWN,KeyEvent.KEYCODE_BUTTON_R1,0,0,0,0,0,InputDevice.SOURCE_GAMEPAD);
+        KeyEvent up = new KeyEvent(now,now+200,KeyEvent.ACTION_UP,KeyEvent.KEYCODE_BUTTON_R1,0,0,0,0,0,InputDevice.SOURCE_GAMEPAD);
+        try {
+            assertTrue(ui.injectInputEvent(down,true)); waitNode("Stop fast-forward",3000);
+            capture(engine + "-fast-forward-held.png");
+        } finally { ui.injectInputEvent(up,true); }
+        SystemClock.sleep(200);
+        assertNull(description(ui.getRootInActiveWindow(),"Stop fast-forward"));
+        click("Game menu"); click("Fast-forward 400%"); waitNode("Stop fast-forward",3000);
+        SystemClock.sleep(5500); waitNode("Stop fast-forward",1000);
+        capture(engine + "-fast-forward-active.png");
+        click("Stop fast-forward");
+        click("Undo"); click("Game menu"); waitNode("Resume",5000);
+    }
+    @Test public void nativeFastForwardWhenFixtureProvided() throws Exception {
+        Assume.assumeTrue("true".equals(InstrumentationRegistry.getArguments().getString("fastForwardTrials")));
+        SymbianLibraryIndex.Entry game = new SymbianLibraryIndex(context).read().stream()
+                .filter(e -> e.title.equals("Snakes")).findFirst().orElse(null);
+        Assume.assumeNotNull(game); ui = instrumentation.getUiAutomation();
+        context.startActivity(new Intent(context,SymbianActivity.class).addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
+                .putExtra(SymbianLibraryIndex.SYSTEM_EXTRA,game.system).putExtra(SymbianLibraryIndex.UID_EXTRA,game.uid));
+        waitNode("Game menu",20000); SystemClock.sleep(4000); click("Game menu");
+        try { fastForwardTrials("snakes"); }
+        catch (Throwable failure) { capture("snakes-fast-forward-failure.png"); throw failure; }
+        finally {
+            instrumentation.runOnMainSync(() -> {
+                for (Activity activity : new ArrayList<>(androidx.test.runner.lifecycle.ActivityLifecycleMonitorRegistry.getInstance()
+                        .getActivitiesInStage(androidx.test.runner.lifecycle.Stage.RESUMED)))
+                    if (activity instanceof SymbianActivity) activity.finish();
+            });
+        }
+    }
     private void presentationTrials(String engine, boolean controllerMenu) throws Exception {
         for (int rotation : new int[]{90, 180, 270, 0}) {
             click("Display"); click("Picture size"); click(rotation == 180 ? "Stretch" : "Fit");

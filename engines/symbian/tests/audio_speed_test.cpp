@@ -13,7 +13,7 @@ int main() {
     assert(history.position(150) == 150);
     assert(history.position(250) == 250);
     history.clear(); assert(history.position(100) == 0);
-    for (unsigned channels : {1, 2}) for (int speed : {50, 75, 100, 125, 150, 200}) {
+    for (unsigned channels : {1, 2}) for (int speed : {50, 75, 100, 125, 150, 200, 300, 400}) {
         stream_rate rate(22050, channels);
         std::uint64_t consumed = 0, output = 0;
         auto source = [&](std::int16_t *buffer, std::size_t requested) {
@@ -55,12 +55,12 @@ int main() {
     };
     std::array<short, 512> buffer;
     double expected = 0;
-    for (int speed : {50, 200, 75, 100, 150, 125, 100}) {
+    for (int speed : {50, 200, 400, 300, 75, 100, 150, 125, 100}) {
         for (int i = 0; i < 100; ++i) {
             assert(live.render(buffer.data(), 256, speed, source) == 256);
             expected += 256 * speed / 100.0;
         }
         assert(std::abs(static_cast<double>(consumed) - expected) < 300);
     }
-    std::puts("Audio speed: mono/stereo, six rates, bounds, EOF, reset, live changes and position history passed");
+    std::puts("Audio speed: mono/stereo, eight rates, bounds, EOF, reset, live changes and position history passed");
 }
