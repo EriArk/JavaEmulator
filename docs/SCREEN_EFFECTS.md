@@ -1,6 +1,7 @@
 # LCD Screen Effects
 
-Development after 0.4.0 Beta 2. Not included in the published Beta 2 APK.
+Included in public [0.4.0 Beta 3](releases/v0.4.0-beta.3.md), published 2026-10-19.
+Not included in the older Beta 2 APK.
 
 Open **Game menu > Display > Screen effect** (also available in the library's
 per-game Display settings). Choose **Off**, **LCD Soft** or **LCD Classic** and

@@ -10,7 +10,7 @@ library, automatic first-launch preparation, and fast per-game controller
 mapping. Mophun and experimental Symbian / N-Gage support share the same
 library, display controls and in-game menu.
 
-**0.4.0 Beta 2 uses one APK for phones and handhelds**, with automatic controller
+**0.4.0 Beta 3 uses one APK for phones and handhelds**, with automatic controller
 detection and optional touch buttons. Existing Handheld installs update in place;
 users of the former Phone app can use the menu-based
 [migration workflow](docs/LIBRARY_TRANSFER.md#moving-from-abyssme-phone).
@@ -18,7 +18,7 @@ users of the former Phone app can use the menu-based
 > **Project status:** Beta. AbyssME is usable, but compatibility automation and
 > launcher integration still need testing across more games and devices.
 
-[Download 0.4.0 Beta 2](https://github.com/EriArk/JavaEmulator/releases/tag/v0.4.0-beta.2)
+[Download 0.4.0 Beta 3](https://github.com/EriArk/JavaEmulator/releases/tag/v0.4.0-beta.3)
 
 ## Current Beta
 
@@ -26,15 +26,22 @@ For website copy, progress posts and handoffs, start with the
 [current product/development status](docs/PROJECT_STATUS.md) and
 [dated changelog](CHANGELOG.md). They also describe local/private experiments,
 explicitly separated from public downloads. The
-[0.4.0 Beta 2 notes](docs/releases/v0.4.0-beta.2.md) include the combined-engine scope,
+[0.4.0 Beta 3 notes](docs/releases/v0.4.0-beta.3.md) include the combined-engine scope,
 verification limits and source downloads.
+
+Filter All games, Recent or Favorites by platform, return to your previous scroll
+position, or use **Play last**. **Edit card** groups title and artwork actions.
+Optional **LCD Soft / LCD Classic** effects follow the game's pixels, with
+adjustable intensity and per-game preview. Screenshots can be exported clean or
+with the LCD effect, without emulator controls. Effects remain Off by default.
 
 Choose **Classic, Retro LCD or High contrast** independently of light/dark
 brightness. **Controls > Edit touch layout** offers a visual editor for moving
 and resizing control blocks, with separate portrait and landscape placements
 per game. Try the result before keeping it. Symbian / N-Gage cards now support
-custom covers and icons too; these travel with whole-phone backups. New phone
-backups require Beta 2 or newer to restore; older backups remain supported.
+custom covers, icons and titles; these travel with whole-phone backups. New
+format-3 phone backups require Beta 3 or newer to restore; older backups remain
+supported. Favorites and recent-play history are not transferred in phone backups.
 
 The unified app supports portrait and landscape, controller navigation, and
 numeric-keypad or gamepad touch layouts. Per-game **Control mode** and
@@ -42,8 +49,8 @@ numeric-keypad or gamepad touch layouts. Per-game **Control mode** and
 a controller releases held input and pauses; reconnecting does not resume play
 without user action. Saved game orientation and mappings are preserved.
 
-This release also improves Java display changes and screenshots, adds Mophun
-ZIP/7z import and more reliable folder discovery, and makes the Keep/Undo preview
+Earlier 0.4 updates improved Java display changes and screenshots, added Mophun
+ZIP/7z import and more reliable folder discovery, and made the Keep/Undo preview
 panel compact. Separate per-game **Emulation speed** (50-200%) and **Frame rate
 limit** controls remain available for all three engines. Audio now follows speed
 where supported; tempo and pitch change together, without pitch-preserving time
@@ -130,6 +137,11 @@ Unretouched captures from the signed 0.4.0 Beta 2 APK on a Retroid Pocket Classi
 not photographs. Games were installed separately and are not bundled.
 See the [fresh screenshot pack and captions](screenshots/releases/v0.4.0-beta.2/README.md).
 
+Beta 3 additions: [LCD pictures and game-only exports](screenshots/development/2026-10-19-lcd-export/README.md),
+[library menus](screenshots/development/2026-10-19-library-session/README.md) and
+[signed-candidate collection / debug restore preview](screenshots/development/2026-10-19-beta3-preparation/README.md).
+Each pack identifies its build and test environment.
+
 ## Highlights
 
 - Adaptive portrait/landscape interface with Gallery, List, and Grid views
@@ -157,7 +169,7 @@ broader device acceptance remains tracked in [#3](https://github.com/EriArk/Java
 ## Install
 
 1. Open [Releases](https://github.com/EriArk/JavaEmulator/releases).
-2. Download `AbyssME-0.4.0-beta.2.apk` for either a phone or a handheld.
+2. Download `AbyssME-0.4.0-beta.3.apk` for either a phone or a handheld.
 3. Allow installation from your browser or file manager when Android asks.
 4. Install the APK and open AbyssME.
 

@@ -10,7 +10,24 @@ stated otherwise. **Experimental** in older checkpoints means local/private
 combined builds; released experimental features are explicitly identified.
 **Released** means an actual GitHub release asset.
 
-## 2026-10-19 - Portable Symbian titles and Beta 3 preparation (unreleased)
+## 2026-10-19 - 0.4.0 Beta 3 Published
+
+- **Released:** [0.4.0 Beta 3](https://github.com/EriArk/JavaEmulator/releases/tag/v0.4.0-beta.3),
+  code 308, at 03:54:59 UTC. Includes the LCD effects/export, library navigation
+  and portable native titles described in the preparation entries below.
+- Source tag `6245cad0`; final clean signed build, APK guards and lint passed.
+  Fresh JVM run: 39 passes. Installed the final APK on Retroid over the candidate;
+  all 329 readable external-file hashes matched and the library reopened.
+- Exported and restored all 49 pinned engine archives; resolved sources for 118
+  runtime artifacts. Uploaded APK, matching app source, dependency/native source
+  bundles and checksums. All five remote digests/sizes matched. Downloaded APK
+  and checksums before publication, then verified an unauthenticated public APK
+  download after publication.
+- Updated README, download pointers and status for announcement/site handoff.
+  No APKs added to Git, no Actions enablement, website or Nextcloud deployment.
+  [Verification and limits](docs/releases/v0.4.0-beta.3-checks.md).
+
+## 2026-10-19 - Portable Symbian titles and Beta 3 preparation (historical checkpoint)
 
 - Custom Symbian/N-Gage card titles now belong to virtual-phone data and travel
   with phone backups, including subsequent edits and re-exports. Existing local

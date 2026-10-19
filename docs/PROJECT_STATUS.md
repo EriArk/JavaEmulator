@@ -35,20 +35,21 @@ bundled. The app UI is English.
 
 ## Availability: Do Not Mix These Channels
 
-**Current public beta: [0.4.0-beta.2](https://github.com/EriArk/JavaEmulator/releases/tag/v0.4.0-beta.2)**,
-published **2026-10-18 at 20:22 UTC**, code **307**. One adaptive APK includes
+**Current public beta: [0.4.0-beta.3](https://github.com/EriArk/JavaEmulator/releases/tag/v0.4.0-beta.3)**,
+published **2026-10-19 at 03:54:59 UTC**, code **308**. One adaptive APK includes
 Java, Mophun and experimental Symbian / N-Gage. Android 10+, arm64-v8a.
 Games and firmware are not included. The old Phone app is a separate migration
 source, not a second 0.4 download.
 
 All five uploaded asset digests and sizes matched. The APK and checksum list
-were downloaded again and matched before publication. The source tag points to
-`ac698c24`; later handoff documentation does not change the APK. GitHub Actions
+were downloaded again and matched before publication; an unauthenticated public
+APK download also matched after publication. The source tag points to
+`6245cad0`; later handoff documentation does not change the APK. GitHub Actions
 remains disabled. No website or Nextcloud deployment in this release checkpoint.
-[Release notes](releases/v0.4.0-beta.2.md),
-[verification and limits](releases/v0.4.0-beta.2-checks.md),
-[checksums](releases/v0.4.0-beta.2/SHA256SUMS.txt),
-[fresh signed-build captures](../screenshots/releases/v0.4.0-beta.2/README.md).
+[Release notes](releases/v0.4.0-beta.3.md),
+[verification and limits](releases/v0.4.0-beta.3-checks.md),
+[checksums](releases/v0.4.0-beta.3/SHA256SUMS.txt),
+[candidate/debug captures with provenance](../screenshots/development/2026-10-19-beta3-preparation/README.md).
 
 Historical **0.3.0-beta.2** was withheld before publication after final provisioning
 exposed a mixed SIS/N-Gage catalog defect; **0.3.0-beta.3** fixed it. These are
@@ -56,32 +57,34 @@ older 0.3 builds, not the current 0.4 release series.
 
 | Channel | Current identifier | Availability |
 | --- | --- | --- |
-| Public download | `v0.4.0-beta.2`, code 307 | One signed adaptive APK, matching app source and dependency/native source bundles |
-| Public development source | `main`, 0.4.0-beta.2 with publication documentation | Implementation included in the release; previous release assets remain unchanged |
+| Public download | `v0.4.0-beta.3`, code 308 | One signed adaptive APK, matching app source and dependency/native source bundles |
+| Public development source | `main`, 0.4.0-beta.3 with publication documentation | Implementation included in the release; previous release assets remain unchanged |
 | Private historical snapshot | `0.1.0-beta.2-experimental.15`, 2026-10-11 | Old Java/Mophun test build, not the current beta |
 | Local-only material | Game fixtures, firmware, diagnostics, device data and signing keys | Not in Git or public release assets; describing testing does not authorize redistribution |
 
-## Local Development After 0.4.0 Beta 2
+## Released in 0.4.0 Beta 3
 
-**Beta 3 candidate, 2026-10-19, local only:** signed `0.4.0-beta.3`, code 308,
+**Published 2026-10-19:** signed `0.4.0-beta.3`, code 308,
 combines the library, LCD/export and portable-title work below. Clean release,
 APK guards and lint passed; 39 fresh JVM checks passed. Installed over signed
 Beta 2 on Retroid, with all 329 readable external-file hashes preserved before
 launch; the 40-game library reopened. Fresh phone-emulator checks: 21 passes,
-one optional capture skip. Source publication/tagging and final release bundles
-are still pending. [Draft notes](releases/v0.4.0-beta.3.md),
-[preparation evidence and limits](releases/v0.4.0-beta.3-checks.md).
+one optional capture skip. The final committed-source APK also passed build,
+guards, lint and 39 JVM checks, then installed over the candidate with all 329
+readable file hashes retained. Published with three matching source bundles and
+checksums. [Release notes](releases/v0.4.0-beta.3.md),
+[evidence and limits](releases/v0.4.0-beta.3-checks.md).
 
-**Portable native titles, 2026-10-19, Beta 3 preparation:** custom Symbian/N-Gage
+**Portable native titles:** custom Symbian/N-Gage
 titles now travel in phone backups, stay independent between restored phones,
 and survive rescans and subsequent exports. Existing local names migrate;
 older backup formats still restore. New version-3 archives require the updated
 app on the receiving device. Retroid: 21 backup/artwork checks and the complete
 restore/launcher-title/native-startup UI flow passed. See
-[transfer evidence](checks/2026-10-19-phone-titles.md). Public release remains
-Beta 2, freshly checked through GitHub on 2026-10-19; no new release published.
+[transfer evidence](checks/2026-10-19-phone-titles.md). These checks preceded
+publication and used the isolated debug package, not the signed APK.
 
-**Library navigation and card editing, 2026-10-19, local debug/source only:**
+**Library navigation and card editing:**
 Recent/Favorites now combine with a persisted platform filter. Library navigation
 remembers a stable game/scroll anchor; Play last starts the latest recorded game
 across platforms without claiming save-state resume. Java/Mophun favorites are
@@ -89,11 +92,11 @@ available directly in touch game options. Edit card groups title and artwork
 actions across engines; native title overrides survive rescans without changing
 guest files. Async filtering and late native-selection restoration were corrected.
 The later [title transfer follow-up](checks/2026-10-19-phone-titles.md) adds native
-title overrides to phone backups; this is still unreleased work.
+title overrides to phone backups; both changes are included in Beta 3.
 Retroid and phone-emulator checks/captures are documented in the
-[library checkpoint](checks/2026-10-19-library-session.md). No new public APK.
+[library checkpoint](checks/2026-10-19-library-session.md).
 
-**2026-10-19, local source/debug builds only. Not in the public Beta 2 APK.**
+**LCD effects and screenshot export:** included in Beta 3, not in Beta 2.
 LCD Soft / LCD Classic effects now work on Java Canvas, Mophun and Symbian/N-Gage
 presentation, with Off by default. Display offers one intensity slider, live
 Try / Keep / Undo and per-game persistence. The original GPU optical mask follows
@@ -105,7 +108,7 @@ jank, not a universal performance guarantee. A follow-up replaces the minified
 repeating texture with pixel-aligned lines to remove uneven grid bands, and adds
 per-game Clean / With LCD effect screenshot export. See the separate
 [export and grid correction checkpoint](checks/2026-10-19-lcd-export.md) for its
-verification and limits. No release, website or Nextcloud distribution.
+verification and limits. No website or Nextcloud deployment in this release.
 [Behavior](SCREEN_EFFECTS.md), [evidence](checks/2026-10-19-lcd-effects.md),
 [captures](../screenshots/development/2026-10-19-lcd-effects/README.md).
 

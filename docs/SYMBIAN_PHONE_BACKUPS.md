@@ -3,10 +3,10 @@
 Originally verified on 2026-10-14 on `codex/symbian-integration`; the base
 whole-phone workflow is included in the published combined beta, as recorded in
 [PROJECT_STATUS](PROJECT_STATUS.md). Custom artwork is included in public
-0.4.0-beta.2. The title extension below is local preparation for Beta 3 on
+0.4.0-beta.2. The title extension below is included in public Beta 3, published
 2026-10-19. No private phone archive was published.
 
-## Custom Titles (Beta 3 Preparation, 2026-10-19)
+## Custom Titles (Beta 3, 2026-10-19)
 
 New backups use archive format version 3 and also include custom game titles.
 Restore continues to accept versions 1 and 2. Update the destination app to
