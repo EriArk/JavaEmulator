@@ -24,7 +24,7 @@ public final class FastForwardControl {
     public FastForwardControl(FrameLayout root, ProfileModel profile, BooleanSupplier available,
                               IntConsumer speed, IntConsumer frames, boolean javaGame) {
         this.profile = profile; this.available = available;
-        button = new ImageButton(root.getContext()) {
+        button = new androidx.appcompat.widget.AppCompatImageButton(root.getContext()) {
             @Override public void onWindowFocusChanged(boolean focused) {
                 super.onWindowFocusChanged(focused);
                 if (focused) post(FastForwardControl.this::startPending);
