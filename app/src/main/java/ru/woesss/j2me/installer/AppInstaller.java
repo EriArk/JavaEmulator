@@ -523,10 +523,20 @@ public class AppInstaller {
 		appDirName = currentApp.getPath();
 		targetDir = new File(Config.getAppDir(), appDirName);
 		int versionStatus = newDesc.compareVersion(currentApp.getVersion());
+		// A completed catalog row can survive an interrupted write of its prepared files.
+		// Reimport the supplied source in place; conversion preserves RMS and settings.
+		if (srcJar != null && !hasPreparedFiles(currentApp)) {
+			return STATUS_NEW;
+		}
 		if (versionStatus == STATUS_EQUAL && srcJar != null && currentApp.getSourceHash() != null) {
 			try {
-				if (!currentApp.getSourceHash().equals(SourceIdentity.sha256(srcJar))) {
+				String sourceHash = SourceIdentity.sha256(srcJar);
+				if (!currentApp.getSourceHash().equals(sourceHash)) {
 					return STATUS_NEWEST;
+				}
+				if (!sourceHash.equals(SourceIdentity.sha256(
+						new File(targetDir, Config.MIDLET_RES_FILE)))) {
+					return STATUS_NEW;
 				}
 			} catch (IOException e) {
 				Log.w(TAG, "Unable to compare source hash", e);
@@ -537,9 +547,25 @@ public class AppInstaller {
 
 	List<AppItem> getExistingChoices() { return existingChoices; }
 
+	private boolean hasPreparedFiles(AppItem item) {
+		File directory = new File(item.getPathExt());
+		File dex = new File(directory, Config.MIDLET_DEX_FILE);
+		File jar = new File(directory, Config.MIDLET_RES_FILE);
+		File descriptor = new File(directory, Config.MIDLET_MANIFEST_FILE);
+		if (!dex.isFile() || dex.length() == 0 || !jar.isFile() || jar.length() == 0
+				|| !descriptor.isFile() || descriptor.length() == 0) return false;
+		try {
+			Descriptor stored = new Descriptor(descriptor, false);
+			return stored.getName() != null && stored.getAttrs().containsKey("MIDlet-1");
+		} catch (IOException e) {
+			Log.w(TAG, "Prepared descriptor needs reimport", e);
+			return false;
+		}
+	}
+
 	private boolean matchesInstalled(AppItem item) throws IOException {
 		if (item == null || !incomingHash.equals(item.getSourceHash())
-				|| "indexed".equals(item.getPreparationState())) return false;
+				|| "indexed".equals(item.getPreparationState()) || !hasPreparedFiles(item)) return false;
 		File jar = new File(item.getPathExt(), Config.MIDLET_RES_FILE);
 		return jar.isFile() && incomingHash.equals(SourceIdentity.sha256(jar));
 	}

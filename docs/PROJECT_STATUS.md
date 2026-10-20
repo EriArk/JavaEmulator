@@ -60,9 +60,26 @@ older 0.3 builds, not the current 0.4 release series.
 | Channel | Current identifier | Availability |
 | --- | --- | --- |
 | Public download | `0.4.0-beta.3-r1`, code 309, on existing Beta 3 page | One signed adaptive APK, matching app source and dependency/native source bundles |
-| Development source | Java frame-cadence corrections after 0.4.0-beta.3-r1 | Unreleased; Debug emulator checks only. Public revision APK unchanged |
+| Development source | Java cadence, GameCanvas input, Canvas overlay cleanup and interrupted-import recovery after 0.4.0-beta.3-r1 | Unreleased; Debug emulator checks only. Public revision APK unchanged |
 | Private historical snapshot | `0.1.0-beta.2-experimental.15`, 2026-10-11 | Old Java/Mophun test build, not the current beta |
 | Local-only material | Game fixtures, firmware, diagnostics, device data and signing keys | Not in Git or public release assets; describing testing does not authorize redistribution |
+
+## Unreleased: Twenty-game Java Sample
+
+An Android-emulator sample of 20 supplied Java variants exposed shared problems:
+short GameCanvas button taps could disappear between polls, interrupted prepared
+installations could be reused despite empty files, and Canvas controls could
+remain over native LCDUI menus. These paths have been corrected without
+game-title exceptions. Reimporting the original source preserves the existing
+game's settings and RMS data.
+
+The sample includes MIDP 1.0, ordinary Canvas, GameCanvas, Nokia APIs and four
+M3G-reference games. Checkpoints range from startup menus to running scenes;
+this is not a claim that all 20 games are fully compatible. Fixed-resolution
+variants still expose auto-size limitations. Retroid is unavailable, and audio,
+full-game saves and physical-controller acceptance were not established.
+See the [fixture matrix, fixes, checks and remaining findings](checks/2026-10-20-java-game-sweep.md).
+No public APK update; these improvements are unreleased source.
 
 ## Unreleased: Java Frame Cadence
 

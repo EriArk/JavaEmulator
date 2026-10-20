@@ -578,6 +578,115 @@ public class CanvasLifecycleTest {
         assertFalse(first.isShown()); assertSame(second, host.getCurrent());
     }
 
+    @Test public void clearingCanvasViewReleasesOverlayBeforeNativeScreenAndReattaches() throws Exception {
+        int oldW = Displayable.getVirtualWidth(), oldH = Displayable.getVirtualHeight();
+        Field mode = Canvas.class.getDeclaredField("graphicsMode"); mode.setAccessible(true);
+        Field view = Canvas.class.getDeclaredField("innerView"); view.setAccessible(true);
+        Field visible = javax.microedition.lcdui.overlay.OverlayView.class.getDeclaredField("visible");
+        visible.setAccessible(true);
+        Field layers = javax.microedition.lcdui.overlay.OverlayView.class.getDeclaredField("layers");
+        layers.setAccessible(true);
+        int oldMode = mode.getInt(null);
+        try {
+            for (int renderer : new int[]{0, 1, 3}) {
+                Canvas.setGraphicsMode(renderer, renderer != 1);
+                Canvas.setScale(2, 1, 100);
+                Displayable.setVirtualSize(128, 160);
+                Screen[] canvas = new Screen[1];
+                try (androidx.test.core.app.ActivityScenario<ru.playsoftware.j2meloader.MainActivity> scenario =
+                             androidx.test.core.app.ActivityScenario.launch(ru.playsoftware.j2meloader.MainActivity.class)) {
+                    scenario.onActivity(activity -> {
+                        ContextHolder.setCurrentActivity(host);
+                        canvas[0] = new Screen();
+                        activity.setContentView(canvas[0].getDisplayableView());
+                        display.setCurrent(canvas[0]); Display.setForeground(true);
+                    });
+                    drain(); assertGreenSurface((android.view.SurfaceView) view.get(canvas[0]));
+                    assertTrue(visible.getBoolean(host.binding.overlayView));
+                    scenario.onActivity(activity -> {
+                        canvas[0].clearDisplayableView();
+                        activity.setContentView(new android.widget.TextView(activity));
+                    });
+                    InstrumentationRegistry.getInstrumentation().waitForIdleSync();
+                    assertFalse("Old Canvas controls must not cover a native screen",
+                            visible.getBoolean(host.binding.overlayView));
+                    assertTrue("Old soft bar and LCD layers must be detached",
+                            ((java.util.List<?>) layers.get(host.binding.overlayView)).isEmpty());
+                    scenario.onActivity(activity -> activity.setContentView(canvas[0].getDisplayableView()));
+                    drain(); assertGreenSurface((android.view.SurfaceView) view.get(canvas[0]));
+                    assertTrue("Returning to Canvas restores the overlay",
+                            visible.getBoolean(host.binding.overlayView));
+                    scenario.onActivity(activity -> canvas[0].clearDisplayableView());
+                }
+            }
+        } finally { mode.setInt(null, oldMode); Displayable.setVirtualSize(oldW, oldH); }
+    }
+
+    private javax.microedition.lcdui.game.GameCanvas gameCanvas(boolean suppress) throws Exception {
+        javax.microedition.lcdui.game.GameCanvas[] result = new javax.microedition.lcdui.game.GameCanvas[1];
+        InstrumentationRegistry.getInstrumentation().runOnMainSync(() ->
+                result[0] = new javax.microedition.lcdui.game.GameCanvas(suppress));
+        display.setCurrent(result[0]); Display.setForeground(true); drain();
+        return result[0];
+    }
+
+    @Test public void gameCanvasLatchesShortPressesUntilNextPoll() throws Exception {
+        for (boolean suppress : new boolean[]{false, true}) {
+            javax.microedition.lcdui.game.GameCanvas canvas = gameCanvas(suppress);
+            canvas.postKeyPressed(Canvas.KEY_NUM5);
+            canvas.postKeyReleased(Canvas.KEY_NUM5);
+            assertEquals("A complete tap between frames must not disappear",
+                    javax.microedition.lcdui.game.GameCanvas.FIRE_PRESSED, canvas.getKeyStates());
+            assertEquals("A released tap is reported once", 0, canvas.getKeyStates());
+        }
+    }
+
+    @Test public void gameCanvasKeepsHeldKeysAndIndependentAliases() throws Exception {
+        javax.microedition.lcdui.game.GameCanvas canvas = gameCanvas(true);
+        int left = javax.microedition.lcdui.game.GameCanvas.LEFT_PRESSED;
+        canvas.postKeyPressed(Canvas.KEY_LEFT);
+        canvas.postKeyPressed(Canvas.KEY_NUM4);
+        assertEquals(left, canvas.getKeyStates());
+        canvas.postKeyReleased(Canvas.KEY_LEFT);
+        assertEquals("Releasing one alias must not release the other", left, canvas.getKeyStates());
+        assertEquals("Polling does not release a held key", left, canvas.getKeyStates());
+        canvas.postKeyRepeated(Canvas.KEY_NUM4);
+        canvas.postKeyReleased(Canvas.KEY_NUM4);
+        assertEquals("Repeat is not a new press", 0, canvas.getKeyStates());
+    }
+
+    @Test public void gameCanvasLatchesMultipleActionsAcrossThreads() throws Exception {
+        javax.microedition.lcdui.game.GameCanvas canvas = gameCanvas(true);
+        for (int i = 0; i < 100; i++) {
+            Thread input = new Thread(() -> {
+                canvas.postKeyPressed(Canvas.KEY_NUM2);
+                canvas.postKeyPressed(Canvas.KEY_NUM5);
+                canvas.postKeyReleased(Canvas.KEY_NUM2);
+                canvas.postKeyReleased(Canvas.KEY_NUM5);
+            });
+            input.start(); input.join(2000);
+            assertFalse(input.isAlive());
+            assertEquals(javax.microedition.lcdui.game.GameCanvas.UP_PRESSED
+                    | javax.microedition.lcdui.game.GameCanvas.FIRE_PRESSED, canvas.getKeyStates());
+            assertEquals(0, canvas.getKeyStates());
+        }
+    }
+
+    @Test public void gameCanvasDoesNotReportKeysWhileHiddenOrReplayThemOnResume() throws Exception {
+        javax.microedition.lcdui.game.GameCanvas canvas = gameCanvas(true);
+        canvas.postKeyPressed(Canvas.KEY_NUM5);
+        Display.setForeground(false); drain();
+        assertEquals("Hidden canvases report no keys", 0, canvas.getKeyStates());
+        canvas.postKeyPressed(Canvas.KEY_NUM4);
+        canvas.postKeyReleased(Canvas.KEY_NUM4);
+        Display.setForeground(true); drain();
+        assertEquals("Resume must not replay stale keys", 0, canvas.getKeyStates());
+        canvas.postKeyReleased(Canvas.KEY_NUM5);
+        assertEquals(0, canvas.getKeyStates());
+        canvas.postKeyPressed(Canvas.KEY_NUM5);
+        assertEquals(javax.microedition.lcdui.game.GameCanvas.FIRE_PRESSED, canvas.getKeyStates());
+    }
+
     @Test public void gameCanvasFlushAndKeyPollingSurvivePauseWithoutSurface() throws Exception {
         Field fullscreen = Canvas.class.getDeclaredField("forceFullscreen"); fullscreen.setAccessible(true);
         boolean oldFullscreen = fullscreen.getBoolean(null);

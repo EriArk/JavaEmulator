@@ -172,4 +172,49 @@ public class InstallerSourceAliasTest {
             } finally { Files.write(target.toPath(), old); }
         }
     }
+
+    @Test public void reopeningSourceRepairsEmptyPreparedFilesWithoutLosingUserData() throws Exception {
+        try (InstallerJadTest.Fixture f = new InstallerJadTest.Fixture(false, true)) {
+            f.open(); f.awaitSuccess(); AppItem original = f.find(); f.closeDialog();
+            original.setTitle("My repaired game"); original.setFavorite(true); original.setPlayCount(7);
+            f.repository.saveInstalled(original);
+            File save = new File(Config.getDataDir(), original.getPath() + "/save-marker");
+            File settings = new File(Config.getConfigsDir(), original.getPath() + "/settings-marker");
+            save.getParentFile().mkdirs(); settings.getParentFile().mkdirs();
+            byte[] marker = {1, 3, 5, 7};
+            Files.write(save.toPath(), marker); Files.write(settings.toPath(), marker);
+            for (String name : new String[]{Config.MIDLET_DEX_FILE,
+                    Config.MIDLET_MANIFEST_FILE, Config.MIDLET_RES_FILE}) {
+                File damaged = new File(original.getPathExt(), name);
+                Files.write(damaged.toPath(), new byte[0]);
+                f.open(); f.awaitSuccess(); f.closeDialog();
+                assertTrue(name + " must be rebuilt", damaged.length() > 0);
+                AppItem after = f.find();
+                assertEquals(original.getId(), after.getId());
+                assertEquals(original.getPath(), after.getPath());
+                assertEquals("My repaired game", after.getTitle());
+                assertTrue(after.isFavorite()); assertEquals(7, after.getPlayCount());
+                assertArrayEquals(marker, Files.readAllBytes(save.toPath()));
+                assertArrayEquals(marker, Files.readAllBytes(settings.toPath()));
+                assertEquals(1, f.repository.getAll().firstOrError().blockingGet().size());
+            }
+        }
+    }
+
+    @Test public void rememberedAliasDoesNotLaunchAZeroLengthDex() throws Exception {
+        try (InstallerJadTest.Fixture f = new InstallerJadTest.Fixture(false, true)) {
+            f.open(); f.awaitSuccess(); AppItem original = f.find(); f.closeDialog();
+            Uri alias = content(f, f.jar);
+            prompt(f, alias); choose(f, 0); f.closeDialog();
+            File dex = new File(original.getPathExt(), Config.MIDLET_DEX_FILE);
+            Files.write(dex.toPath(), new byte[0]);
+            f.open(alias); f.awaitSuccess(); f.closeDialog();
+            AppItem copy = f.repository.getBySourceKey(
+                    ru.playsoftware.j2meloader.catalog.SourceIdentity.key(alias));
+            assertNotNull(copy);
+            assertNotEquals(original.getId(), copy.getId());
+            assertTrue(new File(copy.getPathExt(), Config.MIDLET_DEX_FILE).length() > 0);
+            assertTrue("The damaged original is kept, not silently deleted", dex.exists());
+        }
+    }
 }

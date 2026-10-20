@@ -16,6 +16,8 @@
 
 package javax.microedition.lcdui.game;
 
+import java.util.HashSet;
+
 import javax.microedition.lcdui.Canvas;
 import javax.microedition.lcdui.Graphics;
 import javax.microedition.lcdui.Image;
@@ -33,7 +35,9 @@ public class GameCanvas extends Canvas {
 	public static final int GAME_D_PRESSED = 1 << Canvas.GAME_D;
 
 	private final Image image;
+	private final HashSet<Integer> keysDown = new HashSet<>();
 	private int keyState;
+	private int latchedKeyState;
 	private final boolean suppressCommands;
 
 	public GameCanvas(boolean suppressCommands) {
@@ -81,7 +85,12 @@ public class GameCanvas extends Canvas {
 	public void postKeyPressed(int keyCode) {
 		int code = convertGameKeyCode(keyCode);
 		if (code != 0) {
-			this.keyState |= code;
+			synchronized (keysDown) {
+				if (isShown() && keysDown.add(keyCode)) {
+					keyState |= code;
+					latchedKeyState |= code;
+				}
+			}
 			if (suppressCommands) {
 				return;
 			}
@@ -93,7 +102,14 @@ public class GameCanvas extends Canvas {
 	public void postKeyReleased(int keyCode) {
 		int code = convertGameKeyCode(keyCode);
 		if (code != 0) {
-			keyState &= ~code;
+			synchronized (keysDown) {
+				keysDown.remove(keyCode);
+				// An arrow and its numeric alias can be held independently.
+				keyState = 0;
+				for (int down : keysDown) {
+					keyState |= convertGameKeyCode(down);
+				}
+			}
 			if (suppressCommands) {
 				return;
 			}
@@ -111,7 +127,15 @@ public class GameCanvas extends Canvas {
 
 	@SuppressWarnings("unused")
 	public int getKeyStates() {
-		return keyState;
+		synchronized (keysDown) {
+			if (!isShown()) {
+				return 0;
+			}
+			// MIDP polling must also catch complete taps between game frames.
+			int result = keyState | latchedKeyState;
+			latchedKeyState = 0;
+			return result;
+		}
 	}
 
 	public Graphics getGraphics() {
@@ -137,7 +161,25 @@ public class GameCanvas extends Canvas {
 
 	@Override
 	public void doShowNotify() {
-		keyState = 0;
+		if (!isShown()) {
+			clearKeys();
+		}
 		super.doShowNotify();
+	}
+
+	@Override
+	public void doHideNotify() {
+		if (!isShown()) {
+			clearKeys();
+		}
+		super.doHideNotify();
+	}
+
+	private void clearKeys() {
+		synchronized (keysDown) {
+			keysDown.clear();
+			keyState = 0;
+			latchedKeyState = 0;
+		}
 	}
 }

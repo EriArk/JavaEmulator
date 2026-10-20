@@ -10,6 +10,21 @@ stated otherwise. **Experimental** in older checkpoints means local/private
 combined builds; released experimental features are explicitly identified.
 **Released** means an actual GitHub release asset.
 
+## 2026-10-20 - Java Sample: Input, Screen Cleanup and Import Recovery (Unreleased)
+
+- Sampled 20 supplied Java variants across older MIDP, Nokia APIs, Canvas,
+  GameCanvas and M3G, recording the actual checkpoint reached for each.
+- Preserve complete button taps between GameCanvas polls; handle held aliases
+  independently and reset stale input across hide/resume.
+- Rebuild missing/empty prepared files when reopening their original JAR,
+  retaining the installed entry, settings and RMS data.
+- Remove obsolete Canvas controls and graphic layers when leaving for a native
+  LCDUI menu; restore them when returning to the game.
+- Added regression coverage with before-fix failures. Remaining auto-resolution
+  and startup findings are documented, not hidden behind per-title patches.
+  Emulator evidence only; public APKs unchanged.
+  [Results and limits](docs/checks/2026-10-20-java-game-sweep.md).
+
 ## 2026-10-20 - Java Frame Cadence Corrections (Unreleased)
 
 - Keep the shared frame limiter's cadence through small scheduler oversleeps,

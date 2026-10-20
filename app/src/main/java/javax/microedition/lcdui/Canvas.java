@@ -150,6 +150,7 @@ public abstract class Canvas extends Displayable {
 	protected int maxHeight;
 	private LinearLayout layout;
 	private SurfaceView innerView;
+	private ViewCallbacks viewCallbacks;
 	private Surface surface;
 	private GLRenderer renderer;
 	private int displayWidth;
@@ -666,6 +667,7 @@ public abstract class Canvas extends Displayable {
 				innerView = canvasView;
 			}
 			ViewCallbacks callback = new ViewCallbacks(innerView);
+			viewCallbacks = callback;
 			innerView.getHolder().addCallback(callback);
 			innerView.setOnTouchListener(callback);
 			innerView.setOnKeyListener(callback);
@@ -679,6 +681,9 @@ public abstract class Canvas extends Displayable {
 
 	@Override
 	public void clearDisplayableView() {
+		// Detach now: the later surfaceDestroyed callback rejects obsolete innerView instances.
+		if (viewCallbacks != null) viewCallbacks.releaseSurface();
+		viewCallbacks = null;
 		super.clearDisplayableView();
 		layout = null;
 		innerView = null;
@@ -1458,7 +1463,11 @@ public abstract class Canvas extends Displayable {
 		@Override
 		public void surfaceDestroyed(@NonNull SurfaceHolder holder) {
 			if (mView != innerView) return;
-			if (renderer != null) {
+			releaseSurface();
+		}
+
+		private void releaseSurface() {
+			if (renderer != null && surface != null) {
 				renderer.stop();
 			}
 			synchronized (surfaceLock) {
