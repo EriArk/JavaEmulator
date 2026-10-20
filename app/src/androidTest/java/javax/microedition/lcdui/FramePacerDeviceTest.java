@@ -43,6 +43,42 @@ public class FramePacerDeviceTest {
         } finally { timer.shutdownNow(); }
     }
 
+    @Test public void sixtyFpsCadencePreservesWallClock() {
+        FramePacer pacer = new FramePacer(() -> 60);
+        long began = System.nanoTime();
+        pacer.awaitFrame();
+        for (int i = 0; i < 120; i++) pacer.awaitFrame();
+        long elapsed = System.nanoTime() - began;
+        report("120 intervals at 60 FPS: " + elapsed / 1_000_000.0 + " ms");
+        assertTrue("No premature 60 FPS budget", elapsed >= 1_999_999_000L);
+    }
+
+    @Test public void mainLooperRetainsFrameRequestedDuringPresentation() throws Exception {
+        android.os.Handler handler = new android.os.Handler(android.os.Looper.getMainLooper());
+        CountDownLatch entered = new CountDownLatch(1), release = new CountDownLatch(1),
+                second = new CountDownLatch(1);
+        AtomicInteger frame = new AtomicInteger(1), drawn = new AtomicInteger();
+        FramePresenter presenter = new FramePresenter(handler::post, () -> {
+            int captured = frame.get();
+            if (captured == 1) {
+                entered.countDown();
+                try { release.await(5, TimeUnit.SECONDS); }
+                catch (InterruptedException e) { Thread.currentThread().interrupt(); }
+            }
+            drawn.set(captured);
+            if (captured == 2) second.countDown();
+        });
+        try {
+            presenter.request(); assertTrue(entered.await(5, TimeUnit.SECONDS));
+            frame.set(2);
+            for (int i = 0; i < 100; i++) presenter.request();
+            release.countDown();
+            assertTrue("Latest frame must not wait for a third game submission",
+                    second.await(5, TimeUnit.SECONDS));
+            assertEquals(2, drawn.get());
+        } finally { release.countDown(); }
+    }
+
     private static void report(String message) {
         Bundle result = new Bundle();
         result.putString("stream", "\nFramePacer: " + message + "\n");

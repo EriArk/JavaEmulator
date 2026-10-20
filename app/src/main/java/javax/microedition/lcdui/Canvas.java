@@ -173,7 +173,7 @@ public abstract class Canvas extends Displayable {
 	};
 	public static void setScreenEffect(int mode, int intensity) { lcdMode = mode; lcdIntensity = intensity; }
 	private final FramePacer framePacer = new FramePacer(() -> fpsLimit);
-	private Handler uiHandler;
+	private FramePresenter framePresenter;
 	private Overlay overlay;
 	private FpsCounter fpsCounter;
 	private boolean skipLeftSoft;
@@ -192,7 +192,8 @@ public abstract class Canvas extends Displayable {
 			renderer = new GLRenderer();
 		}
 		if (parallelRedraw) {
-			uiHandler = new Handler(Looper.getMainLooper(), msg -> repaintScreen());
+			Handler uiHandler = new Handler(Looper.getMainLooper());
+			framePresenter = new FramePresenter(uiHandler::post, this::repaintScreen);
 		}
 		displayWidth = ContextHolder.getDisplayWidth();
 		displayHeight = ContextHolder.getDisplayHeight();
@@ -801,7 +802,6 @@ public abstract class Canvas extends Displayable {
 			if (fpsCounter != null) {
 				fpsCounter.increment();
 			}
-			if (parallelRedraw) uiHandler.removeMessages(0);
 		} catch (Exception e) {
 			Log.w(TAG, "repaintScreen: " + e);
 		}
@@ -1493,8 +1493,8 @@ public abstract class Canvas extends Displayable {
 			}
 		} else if (!parallelRedraw) {
 			repaintScreen();
-		} else if (!uiHandler.hasMessages(0)) {
-			uiHandler.sendEmptyMessage(0);
+		} else {
+			framePresenter.request();
 		}
 	}
 

@@ -69,4 +69,28 @@ public class FramePacerTest {
         FramePacer pacer = new FramePacer(() -> 20, time);
         pacer.awaitFrame(); pacer.awaitFrame(); assertEquals(50_000_000L, time.now);
     }
+
+    @Test public void schedulerOversleepDoesNotAccumulateIntoPermanentSlowdown() {
+        for (int fps : new int[]{20, 30, 60, 120}) {
+            Time time = new Time() {
+                @Override public void await(Object lock, long nanos) throws InterruptedException {
+                    super.await(lock, nanos + 2_000_000L);
+                }
+            };
+            FramePacer pacer = new FramePacer(() -> fps, time);
+            pacer.awaitFrame();
+            for (int i = 0; i < fps * 10; i++) pacer.awaitFrame();
+            assertEquals("Only the final oversleep remains at " + fps,
+                    fps * 10L * (1_000_000_000L / fps) + 2_000_000L, time.now);
+        }
+    }
+
+    @Test public void aMissedPeriodDropsTheBacklogInsteadOfBursting() {
+        Time time = new Time(); FramePacer pacer = new FramePacer(() -> 60, time);
+        pacer.awaitFrame();
+        time.now = 80_000_000L;
+        pacer.awaitFrame(); assertEquals(0, time.waited);
+        pacer.awaitFrame(); assertEquals(16_666_666L, time.waited);
+        pacer.awaitFrame(); assertEquals(33_333_332L, time.waited);
+    }
 }

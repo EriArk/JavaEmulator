@@ -1,6 +1,6 @@
 # AbyssME - Current Product and Development Status
 
-**Last updated: 2026-10-19.** Verification dates are recorded per section.
+**Last updated: 2026-10-20.** Verification dates are recorded per section.
 This is the starting point for website copy,
 announcements, progress posts and project handoffs. It includes work that exists
 only in local experiments or private test builds. Describing that work here
@@ -60,9 +60,23 @@ older 0.3 builds, not the current 0.4 release series.
 | Channel | Current identifier | Availability |
 | --- | --- | --- |
 | Public download | `0.4.0-beta.3-r1`, code 309, on existing Beta 3 page | One signed adaptive APK, matching app source and dependency/native source bundles |
-| Public development source | `main`, 0.4.0-beta.3-r1 with publication documentation | Implementation included in the revision; previous release assets remain unchanged |
+| Development source | Java frame-cadence corrections after 0.4.0-beta.3-r1 | Unreleased; Debug emulator checks only. Public revision APK unchanged |
 | Private historical snapshot | `0.1.0-beta.2-experimental.15`, 2026-10-11 | Old Java/Mophun test build, not the current beta |
 | Local-only material | Game fixtures, firmware, diagnostics, device data and signing keys | Not in Git or public release assets; describing testing does not authorize redistribution |
+
+## Unreleased: Java Frame Cadence
+
+Corrected accumulated scheduler oversleep in the shared Java frame limiter and
+a lost-redraw race in parallel Canvas presentation. No new CPU-frequency setting,
+default renderer change or guest-clock acceleration. The Retroid collection's
+Metal Slug Mobile Impact has its own approximately 10 Hz loop; these corrections
+do not remove that game-owned limit or claim 60 FPS support.
+
+Fresh checks: 49 JVM passes and 37 Android 15 phone-emulator passes, including
+live frame pacing, Canvas lifecycle and guest clocks. Retroid is unavailable.
+See [fixture identity, before/after evidence and limits](checks/2026-10-20-java-frame-cadence.md).
+No public APK update in this checkpoint; the release availability above was last
+verified on 2026-10-19, not rechecked live in this investigation.
 
 ## Released in Beta 3 Revision 1: Fast-forward
 

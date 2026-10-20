@@ -1,7 +1,7 @@
 # AbyssME Changelog
 
 User-facing development history, reconstructed from commits, release notes and
-local/private build records through **2026-10-19**. This is not a claim that all
+local/private build records through **2026-10-20**. This is not a claim that all
 listed work is in a public APK. See [current status](docs/PROJECT_STATUS.md) for
 availability, verification, known limits and screenshot guidance.
 
@@ -9,6 +9,19 @@ Labels: **Public source** means implemented on `main` but unreleased unless
 stated otherwise. **Experimental** in older checkpoints means local/private
 combined builds; released experimental features are explicitly identified.
 **Released** means an actual GitHub release asset.
+
+## 2026-10-20 - Java Frame Cadence Corrections (Unreleased)
+
+- Keep the shared frame limiter's cadence through small scheduler oversleeps,
+  without accumulating catch-up work after a pause or a missed period.
+- Preserve redraw requests arriving during parallel software/hardware Canvas
+  presentation. Bursts still coalesce to the latest frame.
+- Identified the Retroid collection's Metal Slug Mobile Impact and confirmed its
+  own 100 ms game loop. No title-specific patches, fake CPU setting or claim of
+  converting that game to 60 FPS.
+- Fresh JVM checks: 49 passes; Android 15 emulator: 37 passes; Debug build/lint
+  passed. Retroid unavailable; release APKs unchanged.
+  [Evidence and limits](docs/checks/2026-10-20-java-frame-cadence.md).
 
 ## 2026-10-19 - Beta 3 Revision 1 Published: Configurable Fast-forward
 

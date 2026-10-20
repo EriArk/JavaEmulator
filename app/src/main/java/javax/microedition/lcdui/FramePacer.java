@@ -38,10 +38,11 @@ public final class FramePacer {
                 ready = true;
                 return;
             }
-            long remaining = Math.max(1, 1_000_000_000L / fps) - (now - last);
+            long interval = Math.max(1, 1_000_000_000L / fps);
+            long remaining = interval - (now - last);
             if (remaining <= 0) {
-                // Never accumulate catch-up frames after a pause or slow paint.
-                last = now;
+                // Keep the cadence through scheduler jitter, but never build a backlog.
+                last = remaining > -interval ? last + interval : now;
                 return;
             }
             try {
