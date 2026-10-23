@@ -10,7 +10,7 @@ library, automatic first-launch preparation, and fast per-game controller
 mapping. Mophun and experimental Symbian / N-Gage support share the same
 library, display controls and in-game menu.
 
-**0.4.0 Beta 3 Revision 1 uses one APK for phones and handhelds**, with automatic controller
+**0.5.0 Beta 1 uses one APK for phones and handhelds**, with automatic controller
 detection and optional touch buttons. Existing Handheld installs update in place;
 users of the former Phone app can use the menu-based
 [migration workflow](docs/LIBRARY_TRANSFER.md#moving-from-abyssme-phone).
@@ -18,10 +18,10 @@ users of the former Phone app can use the menu-based
 > **Project status:** Beta. AbyssME is usable, but compatibility automation and
 > launcher integration still need testing across more games and devices.
 
-[Download 0.4.0 Beta 3 Revision 1](https://github.com/EriArk/JavaEmulator/releases/download/v0.4.0-beta.3/AbyssME-0.4.0-beta.3-r1.apk)
+[Download 0.5.0 Beta 1](https://github.com/EriArk/JavaEmulator/releases/download/v0.5.0-beta.1/AbyssME-0.5.0-beta.1.apk)
 
-Use the **beta.3-r1** APK on the existing Beta 3 release page. Original Beta 3
-assets remain available for reference; the revision updates that app in place.
+Use the **0.5.0-beta.1** APK. It updates the official unified app in place;
+older releases remain available for reference.
 
 ## Current Beta
 
@@ -29,8 +29,21 @@ For website copy, progress posts and handoffs, start with the
 [current product/development status](docs/PROJECT_STATUS.md) and
 [dated changelog](CHANGELOG.md). They also describe local/private experiments,
 explicitly separated from public downloads. The
-[0.4.0 Beta 3 Revision 1 notes](docs/releases/v0.4.0-beta.3-r1.md) include the combined-engine scope,
+[0.5.0 Beta 1 notes](docs/releases/v0.5.0-beta.1.md) include the combined-engine scope,
 verification limits and source downloads.
+
+**Image presets** for Java and Mophun now include Pixel sharp, Smooth,
+Enhanced (FSR), xBRZ and CRT EasyMode. Open **Game menu > Display > Enhancements**
+and try a preset before keeping it. xBRZ and CRT are standalone effects, without
+extra filtering or interpolation. **Integer** picture size enlarges by whole
+pixel multiples. Optional frame interpolation and Mophun CPU budget remain
+experimental and off/original by default; they do not guarantee 60 FPS.
+Symbian/N-Gage does not use these new GPU effects.
+[Options and limits](docs/EXPERIMENTAL_ENHANCEMENTS.md),
+[fresh signed-app screenshots](screenshots/releases/v0.5.0-beta.1/README.md).
+
+This beta also improves Java frame pacing, short button taps and interrupted
+imports. Mophun screenshots can use the enhanced image or original pixels.
 
 **Fast-forward** offers per-game 1.5x, 2x, 3x and 4x targets across all three
 engines. Use the game menu, optional on-screen shortcut, or assign a controller

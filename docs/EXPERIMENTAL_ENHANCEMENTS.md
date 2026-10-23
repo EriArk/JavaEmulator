@@ -1,7 +1,7 @@
 # Experimental Rendering and CPU Budget
 
 These are opt-in experimental features enabled in the **0.5.0-beta.1**
-release candidate. They are absent from the older 0.4.0-beta.3-r1 APK. See
+release. They are absent from the older 0.4.0-beta.3-r1 APK. See
 [current availability](PROJECT_STATUS.md) before downloading. Effects remain
 off and the Mophun CPU budget remains 100% by default; imported profiles with
 explicit experimental settings now apply those settings in Release as well.
@@ -71,7 +71,7 @@ Java advanced input is disabled without deleting its saved value. Mophun Canvas
 and GLES output use the same aligned picture origin, including odd dimensions.
 The existing LCD mask follows the resulting source-cell boundaries; its optical
 style and low-scale fade remain unchanged. Symbian's native scaling is not
-extended by this change. This geometry option is included in the 0.5 candidate
+extended by this change. This geometry option is included in the 0.5 release
 alongside the optional image effects.
 [Retroid checks](checks/2026-10-23-integer-scaling.md).
 

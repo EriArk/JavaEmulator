@@ -1,7 +1,7 @@
 # AbyssME Changelog
 
 User-facing development history, reconstructed from commits, release notes and
-local/private build records through **2026-10-23**. This is not a claim that all
+local/private build records through **2026-10-24**. This is not a claim that all
 listed work is in a public APK. See [current status](docs/PROJECT_STATUS.md) for
 availability, verification, known limits and screenshot guidance.
 
@@ -10,10 +10,11 @@ stated otherwise. **Experimental** in older checkpoints means local/private
 combined builds; released experimental features are explicitly identified.
 **Released** means an actual GitHub release asset.
 
-## 2026-10-24 - 0.5.0 Beta 1 Preparation
+## 2026-10-24 - 0.5.0 Beta 1 (Released)
 
-- Prepare 0.5.0-beta.1, code 310, as a new release approved by the maintainer,
-  preserving older APKs and immutable source tags. Publication is not complete yet.
+- Publish 0.5.0-beta.1, code 310, as a new release approved by the maintainer,
+  preserving older APKs and immutable source tags. Published 2026-10-23 at
+  21:32:23 UTC (2026-10-24 in the maintainer's timezone).
 - Enable the verified Java/Mophun image presets and experimental enhancements
   in Release: Pixel sharp, Smooth, FSR, xBRZ, CRT EasyMode, optional frame
   interpolation and Mophun CPU budget. Defaults remain unchanged. Imported
@@ -24,6 +25,15 @@ combined builds; released experimental features are explicitly identified.
 - Symbian/N-Gage remains included, but does not gain these new GPU effects.
   No claim of universal 60 FPS, full-game acceptance or proportional speedup.
   [Release notes](docs/releases/v0.5.0-beta.1.md).
+- Verify the signed upgrade on Retroid, with 327 readable external files
+  unchanged, actual shader trials and native Snakes gameplay. Publish five
+  matching APK/source/checksum assets; anonymous APK/checksum downloads match.
+  Add [signed-app screenshots](screenshots/releases/v0.5.0-beta.1/README.md) and
+  [verification boundaries](docs/releases/v0.5.0-beta.1-checks.md).
+
+The development entries below retain their original checkpoint labels. Their
+Debug-only/unreleased descriptions are superseded by this release where listed
+above; local audition tools and private game captures are not runtime features.
 
 ## 2026-10-23 - Faster xBRZ Without Lowering Resolution (Unreleased)
 

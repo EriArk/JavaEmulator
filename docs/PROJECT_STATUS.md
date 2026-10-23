@@ -35,23 +35,23 @@ bundled. The app UI is English.
 
 ## Availability: Do Not Mix These Channels
 
-**Current public beta: [0.4.0-beta.3-r1](https://github.com/EriArk/JavaEmulator/releases/tag/v0.4.0-beta.3)**,
-added **2026-10-19** to the existing Beta 3 release, code **309**. No new release
-page was created. Original Beta 3 was published at 03:54:59 UTC, code 308; its
-assets and source tag remain unchanged. One adaptive APK includes
+**Current public beta: [0.5.0-beta.1](https://github.com/EriArk/JavaEmulator/releases/tag/v0.5.0-beta.1)**,
+code **310**, published **2026-10-23 at 21:32:23 UTC** (2026-10-24 locally).
+The maintainer approved a new 0.5 release instead of another Beta 3 revision.
+Older 0.4 release pages, assets and source tags remain unchanged. One adaptive APK includes
 Java, Mophun and experimental Symbian / N-Gage. Android 10+, arm64-v8a.
 Games and firmware are not included. The old Phone app is a separate migration
 source, not a second 0.4 download.
 
-All five revision asset digests and sizes matched. Unauthenticated public APK
-and checksum downloads also matched. Matching revision source tag
-`v0.4.0-beta.3-r1` points to `0b22cb63`; the original tag still points to
-`6245cad0`. Later handoff documentation does not change the APK. GitHub Actions
+All five release asset digests and sizes matched. Unauthenticated public APK
+and checksum downloads also matched. Matching source tag
+`v0.5.0-beta.1` points to `9c01d685`; the older Beta 3 and r1 tags still point to
+`6245cad0` and `0b22cb63`. Later handoff documentation does not change the APK. GitHub Actions
 remains disabled. No website or Nextcloud deployment in this release checkpoint.
-[Release notes](releases/v0.4.0-beta.3-r1.md),
-[verification and limits](releases/v0.4.0-beta.3-r1-checks.md),
-[checksums](releases/v0.4.0-beta.3-r1/SHA256SUMS.txt),
-[candidate/debug captures with provenance](../screenshots/development/2026-10-19-fast-forward/README.md).
+[Release notes](releases/v0.5.0-beta.1.md),
+[verification and limits](releases/v0.5.0-beta.1-checks.md),
+[checksums](releases/v0.5.0-beta.1/SHA256SUMS.txt),
+[signed-app captures with provenance](../screenshots/releases/v0.5.0-beta.1/README.md).
 
 Historical **0.3.0-beta.2** was withheld before publication after final provisioning
 exposed a mixed SIS/N-Gage catalog defect; **0.3.0-beta.3** fixed it. These are
@@ -59,14 +59,14 @@ older 0.3 builds, not the current 0.4 release series.
 
 | Channel | Current identifier | Availability |
 | --- | --- | --- |
-| Public download | `0.4.0-beta.3-r1`, code 309, on existing Beta 3 page | One signed adaptive APK, matching app source and dependency/native source bundles |
-| Development source | `0.5.0-beta.1` candidate, code 310; Java/Mophun presets and optional enhancements enabled in Release | Publication pending. Effects off and CPU budget 100% by default; public r1 APK unchanged |
+| Public download | `0.5.0-beta.1`, code 310, separate 0.5 release page | One signed adaptive APK, matching app source and dependency/native source bundles |
+| Development source | Runtime matches the 0.5 tag; later commits document publication and checks | Java/Mophun presets and optional enhancements enabled in Release. Effects off and CPU budget 100% by default |
 | Private historical snapshot | `0.1.0-beta.2-experimental.15`, 2026-10-11 | Old Java/Mophun test build, not the current beta |
 | Local-only material | Game fixtures, firmware, diagnostics, device data and signing keys | Not in Git or public release assets; describing testing does not authorize redistribution |
 
-## 0.5 Beta Preparation
+## Released in 0.5 Beta 1
 
-The 0.5 candidate promotes the verified Java/Mophun enhancements from Debug-only
+The 0.5 release promotes the verified Java/Mophun enhancements from Debug-only
 development to optional Release controls, while preserving existing defaults.
 This includes xBRZ, CRT EasyMode, FSR, frame interpolation, Mophun CPU budget,
 enhanced capture, Integer scaling and the shared Java cadence/input/import fixes.
@@ -75,9 +75,11 @@ Release too. Symbian/N-Gage is retained without these new GPU options.
 
 The following development sections record checks made before this promotion;
 their Debug-only and unreleased wording describes those dated checkpoints,
-not an additional feature gate in the 0.5 candidate. Publication and signed
-upgrade checks are pending. The maintainer approved a new 0.5 release instead
-of updating the Beta 3 page. See [release notes](releases/v0.5.0-beta.1.md).
+not an additional feature gate in the 0.5 release. Signed upgrade verification
+preserved all 327 readable external files on Retroid; internal data and two
+inaccessible Mophun directories were not hashed. Java xBRZ, Mophun CRT and native
+Snakes were checked in the signed app. No universal 60 FPS or complete-game claim.
+See [release notes](releases/v0.5.0-beta.1.md).
 
 ## Development Evidence: Pixel-Aligned Scaling
 
@@ -710,10 +712,12 @@ join the common library. Numeric/Gamepad touch decks, controller mapping,
 display controls, screenshots and whole-phone backups share the same app.
 See [release notes](releases/v0.4.0-beta.2.md) for user-facing details and limits.
 
-The current feature summary includes retained 0.2/0.3 features and the 0.4 additions:
+The current feature summary includes retained 0.2/0.3 features and the 0.4/0.5 additions:
 
 | Area | Current development behavior | Evidence / boundary |
 | --- | --- | --- |
+| Image presets and scaling | Released opt-in Java/Mophun Pixel sharp, Smooth, FSR, xBRZ and CRT EasyMode; separate Integer picture size and enhanced/original Mophun capture | [Options](EXPERIMENTAL_ENHANCEMENTS.md), [signed 0.5 checks](releases/v0.5.0-beta.1-checks.md); Java GLES required, no Symbian GPU integration |
+| Experimental motion and CPU budget | Optional Java/Mophun frame interpolation; independent Mophun 100-300% instruction budget, original defaults retained | [Boundaries](EXPERIMENTAL_ENHANCEMENTS.md); not universal 60 FPS or calibrated CPU overclocking |
 | Adaptive APK | Auto / Touch / Controller, Auto / Always / Off screen buttons, disconnect pause and menu-based Phone migration | [Implementation](checks/2026-10-18-unified-apk.md), [signed upgrade and migration](releases/v0.4.0-beta.1-checks.md); physical unplug/replug remains unverified |
 | Visual styles and touch editor | Classic / Retro LCD / High contrast, brightness independently; visual control-block editing with reversible per-game trials and separate orientation placements | [Implementation](checks/2026-10-18-visual-polish.md), [signed persistence and captures](releases/v0.4.0-beta.2-checks.md); legacy keypad editor unchanged |
 | Native custom artwork | Separate covers/icons by virtual phone and UID; overrides survive refresh and whole-phone backup/restore | [Artwork](checks/2026-10-18-symbian-artwork.md), [backup coverage](checks/2026-10-18-symbian-artwork-backup.md); new version-2 archives need Beta 2 or newer |

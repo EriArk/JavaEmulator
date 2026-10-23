@@ -5,18 +5,19 @@ not one of the old experimental APKs in this directory.
 
 ## Current published beta
 
-[AbyssME 0.4.0 Beta 3 Revision 1](https://github.com/EriArk/JavaEmulator/releases/tag/v0.4.0-beta.3)
+[AbyssME 0.5.0 Beta 1](https://github.com/EriArk/JavaEmulator/releases/tag/v0.5.0-beta.1)
 provides one adaptive arm64 APK for phones and handhelds, with Java, Mophun and
 experimental Symbian / N-Gage. Games and firmware are not bundled:
 
-- `AbyssME-0.4.0-beta.3-r1.apk`: controller and touch use, portrait and landscape,
-  plus configurable fast-forward. Code 309 updates the original Beta 3 in place.
-- Use the revision assets; original Beta 3 files remain historical downloads.
+- `AbyssME-0.5.0-beta.1.apk`: controller and touch use, portrait and landscape,
+  plus image presets, Integer scaling and optional Java/Mophun enhancements.
+  Code 310 updates the official unified app in place.
+- Older release files remain historical downloads.
 - Existing Handheld installs update in place; use the in-app migration workflow
   for the separate old Phone app. Keep it installed until saves are checked.
 
-Use the [SHA-256 list](../docs/releases/v0.4.0-beta.3-r1/SHA256SUMS.txt) to verify downloads.
-See the [release notes](../docs/releases/v0.4.0-beta.3-r1.md) and
+Use the [SHA-256 list](../docs/releases/v0.5.0-beta.1/SHA256SUMS.txt) to verify downloads.
+See the [release notes](../docs/releases/v0.5.0-beta.1.md) and
 [current limitations](../README.md#known-limitations) before reporting a problem.
 
 ## Historical files
