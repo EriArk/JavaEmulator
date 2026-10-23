@@ -17,8 +17,8 @@ public final class EnhancementPipeline {
     private final FloatBuffer quad = ByteBuffer.allocateDirect(64).order(ByteOrder.nativeOrder()).asFloatBuffer();
     private final FrameInterpolationClock clock = new FrameInterpolationClock();
     private final int[] inputs = new int[2];
-    private final Target flow = new Target(), interpolated = new Target(), upscaled = new Target(), sharpened = new Target();
-    private Program easu, rcas, estimate, resolve;
+    private final Target flow = new Target(), sceneState = new Target(), interpolated = new Target(), upscaled = new Target(), sharpened = new Target();
+    private Program easu, rcas, estimate, resolve, scene;
     private long serial = Long.MIN_VALUE;
     private int current, tw, th, sw, sh;
     private boolean history, motionEnabled, animating, uploaded, motionPending;
@@ -93,6 +93,9 @@ public final class EnhancementPipeline {
                 flow.size(Math.max(1,(sw+7)/8),Math.max(1,(sh+7)/8));
                 begin(estimate,flow,inputs[current],sw,sh,tw,th);
                 second(estimate,"previous",inputs[1-current],1); draw();
+                if (scene==null) scene=new Program("motion-scene.fsh");
+                sceneState.size(1,1);
+                begin(scene,sceneState,flow.texture,flow.width,flow.height,flow.width,flow.height); draw();
             }
             motionPending=false;
         }
@@ -105,6 +108,7 @@ public final class EnhancementPipeline {
             begin(resolve,interpolated,texture,sw,sh,tw,th);
             second(resolve,"previous",history?inputs[1-current]:texture,1);
             second(resolve,"motion",flow.texture!=0?flow.texture:texture,2);
+            second(resolve,"sceneState",sceneState.texture,3);
             glUniform1f(resolve.uniform("phase"),phase); draw();
             texture=interpolated.texture; textureW=sw; textureH=sh;
         }
@@ -197,9 +201,9 @@ public final class EnhancementPipeline {
     }
 
     public void close() {
-        flow.close(); interpolated.close(); upscaled.close(); sharpened.close();
+        flow.close(); sceneState.close(); interpolated.close(); upscaled.close(); sharpened.close();
         glDeleteTextures(2,inputs,0);
-        for(Program p:new Program[]{easu,rcas,estimate,resolve}) if(p!=null) glDeleteProgram(p.id);
+        for(Program p:new Program[]{easu,rcas,estimate,resolve,scene}) if(p!=null) glDeleteProgram(p.id);
     }
     private static final class Target {
         int texture,fbo,width,height;

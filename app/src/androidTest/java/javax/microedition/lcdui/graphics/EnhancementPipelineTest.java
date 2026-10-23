@@ -199,6 +199,132 @@ public class EnhancementPipelineTest {
         }
     }
 
+    @Test public void newlyAppearingPixelsSurviveBorrowedMotion() throws Exception {
+        for(int[] v:new int[][]{{-2,0},{2,0},{0,-2},{0,2},{-2,-2},{2,2}}) {
+            Bitmap a=solid(32,24,0xFF000000), b=solid(32,24,0xFF000000);
+            b.setPixel(12,12,0xFFFF0000); pipeline.resetHistory();
+            pipeline.render(a,1,32,24,32,24,false,true,50,0);
+            pipeline.render(b,2,32,24,32,24,false,true,50,50_000_000);
+            replaceMotionField(v[0],v[1]);
+            int t=pipeline.render(b,2,32,24,32,24,false,true,50,66_666_666);
+            assertEquals("Do not erase a new object with a neighboring block's motion",0xFFFF0000,pixel(t,12,12));
+            a.recycle(); b.recycle();
+        }
+    }
+
+    @Test public void disappearingPixelsDoNotPullUnrelatedBackground() throws Exception {
+        Bitmap a=solid(32,24,0xFF0000FF), b=solid(32,24,0xFF0000FF);
+        a.setPixel(12,12,0xFFFF0000); b.setPixel(12,12,0xFF000000);
+        pipeline.render(a,1,32,24,32,24,false,true,50,0);
+        pipeline.render(b,2,32,24,32,24,false,true,50,50_000_000);
+        replaceMotionField(-2,0);
+        int t=pipeline.render(b,2,32,24,32,24,false,true,50,66_666_666);
+        assertEquals("A disappearance must retain the revealed current pixel",0xFF000000,pixel(t,12,12));
+        a.recycle(); b.recycle();
+    }
+
+    private int motionPixel(String name,int x,int y) throws Exception {
+        java.lang.reflect.Field field=EnhancementPipeline.class.getDeclaredField(name); field.setAccessible(true);
+        Object target=field.get(pipeline);
+        java.lang.reflect.Field texture=target.getClass().getDeclaredField("texture"); texture.setAccessible(true);
+        return pixel(texture.getInt(target),x,y);
+    }
+
+    @Test public void matchingCrossDoesNotHideChangedDiagonalDetails() throws Exception {
+        Bitmap a=solid(32,24,0xFF000000), b=solid(32,24,0xFF000000);
+        for(int d=-2;d<=2;d++) {
+            a.setPixel(9+d,11,0xFFFFFFFF); a.setPixel(9,11+d,0xFFFFFFFF);
+            b.setPixel(11+d,11,0xFFFFFFFF); b.setPixel(11,11+d,0xFFFFFFFF);
+        }
+        for(int dy:new int[]{-1,1}) for(int dx:new int[]{-1,1}) b.setPixel(11+dx,11+dy,0xFFFF0000);
+        pipeline.render(a,1,32,24,32,24,false,true,50,0);
+        pipeline.render(b,2,32,24,32,24,false,true,50,50_000_000);
+        assertEquals("Diagonal disagreement must invalidate the block",0,motionPixel("flow",1,1)&255);
+        a.recycle(); b.recycle();
+    }
+
+    @Test public void sceneCutRejectsAnAccidentallyMatchingLocalPatch() {
+        Bitmap a=solid(32,24,0xFFFF0000), b=solid(32,24,0xFF0000FF);
+        for(int y=7;y<17;y++) for(int x=6;x<20;x++) {
+            a.setPixel(x,y,x>=10 && x<14?0xFFFFFFFF:0xFF000000);
+            b.setPixel(x,y,x>=12 && x<16?0xFFFFFFFF:0xFF000000);
+        }
+        pipeline.render(a,1,32,24,32,24,false,true,50,0);
+        pipeline.render(b,2,32,24,32,24,false,true,50,50_000_000);
+        int t=pipeline.render(b,2,32,24,32,24,false,true,50,66_666_666);
+        assertEquals("A local match must not survive a scene cut",0xFF000000,pixel(t,11,11));
+        a.recycle(); b.recycle();
+    }
+
+    private Bitmap textureFixture() {
+        Bitmap frame=solid(32,32,0xFFFF00FF);
+        java.util.Random random=new java.util.Random(10723);
+        for(int y=0;y<23;y++) for(int x=0;x<31;x++) frame.setPixel(x,y,0xFF000000|random.nextInt(1<<24));
+        return frame;
+    }
+
+    private Bitmap shifted(Bitmap source,int dx,int dy) {
+        Bitmap frame=solid(32,32,0xFFFF00FF);
+        for(int y=0;y<23;y++) for(int x=0;x<31;x++)
+            frame.setPixel(x,y,source.getPixel(Math.max(0,Math.min(30,x-dx)),Math.max(0,Math.min(22,y-dy))));
+        return frame;
+    }
+
+    private void assertRegion(int texture,Bitmap source,int dx,int dy) {
+        int[] fbo=new int[1]; glGenFramebuffers(1,fbo,0); glBindFramebuffer(GL_FRAMEBUFFER,fbo[0]);
+        glFramebufferTexture2D(GL_FRAMEBUFFER,GL_COLOR_ATTACHMENT0,GL_TEXTURE_2D,texture,0);
+        assertEquals(GL_FRAMEBUFFER_COMPLETE,glCheckFramebufferStatus(GL_FRAMEBUFFER));
+        // Stay inside blocks whose complete matching patches remain valid for every tested shift.
+        ByteBuffer pixels=ByteBuffer.allocateDirect(15*7*4); glReadPixels(8,8,15,7,GL_RGBA,GL_UNSIGNED_BYTE,pixels);
+        glBindFramebuffer(GL_FRAMEBUFFER,0); glDeleteFramebuffers(1,fbo,0);
+        for(int y=0;y<7;y++) for(int x=0;x<15;x++) {
+            int p=(y*15+x)*4;
+            int actual=0xFF000000|((pixels.get(p)&255)<<16)|((pixels.get(p+1)&255)<<8)|(pixels.get(p+2)&255);
+            assertEquals("Translated pixel "+(x+8)+","+(y+8),source.getPixel(x+8-dx,y+8-dy),actual);
+        }
+        assertEquals(GL_NO_ERROR,glGetError());
+    }
+
+    @Test public void texturedScrollPreservesHorizontalVerticalAndDiagonalIntermediatePositions() throws Exception {
+        for(int[] d:new int[][]{{-4,0},{4,0},{0,-4},{0,4},{-2,-2},{2,-2},{-2,2},{2,2}}) {
+            Bitmap a=textureFixture(), b=shifted(a,d[0],d[1]); pipeline.resetHistory();
+            pipeline.render(a,1,31,23,31,23,false,true,50,0);
+            pipeline.render(b,2,31,23,31,23,false,true,50,50_000_000);
+            assertEquals("Translation is not a scene cut",0,motionPixel("sceneState",0,0)&0xFF0000);
+            int t=pipeline.render(b,2,31,23,31,23,false,true,50,66_666_666);
+            assertRegion(t,a,d[0]/2,d[1]/2);
+            t=pipeline.render(b,2,31,23,31,23,false,true,50,90_000_000);
+            assertRegion(t,a,d[0],d[1]); assertFalse(pipeline.animating());
+            a.recycle(); b.recycle();
+        }
+    }
+
+    @Test public void localizedNewObjectDoesNotDisableScrollingElsewhere() throws Exception {
+        Bitmap a=textureFixture(), b=shifted(a,2,0);
+        for(int y=10;y<=12;y++) for(int x=10;x<=12;x++) b.setPixel(x,y,0xFFFF0000);
+        pipeline.render(a,1,31,23,31,23,false,true,50,0);
+        pipeline.render(b,2,31,23,31,23,false,true,50,50_000_000);
+        int t=pipeline.render(b,2,31,23,31,23,false,true,50,66_666_666);
+        assertEquals(0,motionPixel("sceneState",0,0)&0xFF0000);
+        assertEquals("New object is current, not smeared",0xFFFF0000,pixel(t,11,11));
+        assertEquals("Other blocks still interpolate",a.getPixel(20,12),pixel(t,21,12));
+        a.recycle(); b.recycle();
+    }
+
+    @Test public void motionRecoversAfterSceneCutAndResize() throws Exception {
+        Bitmap a=solid(32,32,0xFFFFFFFF), b=textureFixture(), c=shifted(b,2,0);
+        pipeline.render(a,1,31,23,31,23,false,true,50,0);
+        pipeline.render(b,2,31,23,31,23,false,true,50,50_000_000);
+        assertEquals(0xFF0000,motionPixel("sceneState",0,0)&0xFF0000);
+        pipeline.render(c,3,31,23,31,23,false,true,50,100_000_000);
+        assertEquals(0,motionPixel("sceneState",0,0)&0xFF0000);
+        int t=pipeline.render(c,3,31,23,31,23,false,true,50,116_666_666);
+        assertRegion(t,b,1,0);
+        t=pipeline.render(b,4,16,12,16,12,false,true,50,150_000_000);
+        assertFalse(pipeline.animating()); assertEquals(b.getPixel(8,6),pixel(t,8,6));
+        a.recycle(); b.recycle(); c.recycle();
+    }
+
     @Test public void nativeSharpeningHandlesPaddedInputWithoutUpscaling() throws Exception {
         Bitmap b=solid(32,32,0xFFFF00FF);
         for(int y=0;y<24;y++) for(int x=0;x<32;x++) b.setPixel(x,y,0xFF123456);

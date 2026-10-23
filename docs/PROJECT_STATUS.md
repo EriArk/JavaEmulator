@@ -85,7 +85,8 @@ Beta 3 Revision 1 release page was rechecked on October 23; no release mutation.
 [latency, artifact and GPU refinement](checks/2026-10-23-enhancement-refinement.md),
 [guest-buffer unlock and coherent submission checks](checks/2026-10-23-enhancement-upload.md),
 [fused final sharpening](checks/2026-10-23-enhancement-presentation.md),
-[EASU flat-region optimization and software-renderer fallback](checks/2026-10-23-easu-flat-regions.md).
+[EASU flat-region optimization and software-renderer fallback](checks/2026-10-23-easu-flat-regions.md),
+[interpolation artifact guards](checks/2026-10-23-motion-guards.md).
 
 The enhanced Java path now releases the guest-buffer lock after texture upload;
 motion/FSR work and presentation no longer hold it. Submitted geometry and frame
@@ -105,6 +106,14 @@ the original deringing result; software renderers use a branchless equivalent
 to avoid a measured SwiftShader slowdown. Gains depend on scene content, and
 detailed images can have a small overhead. This remains Debug-only development,
 not a claim of higher guest FPS or universal GPU performance improvement.
+
+Interpolation now checks diagonal patch details, rejects unsupported border
+matches and verifies both motion endpoints before warping. A small GPU-only
+scene-cut guard prevents accidental local matches from leaving ghosts after
+broad transitions. New/disappearing pixels retain the current real image when
+the block motion cannot explain them. These are shared image-based rules, not
+game-specific fixes. Conservative fallbacks and the four-pixel search limit
+remain; this is still an opt-in Debug prototype, not artifact-free frame generation.
 
 ## Unreleased: Twenty-game Java Sample
 

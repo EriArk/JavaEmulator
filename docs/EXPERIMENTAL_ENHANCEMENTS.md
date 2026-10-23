@@ -63,13 +63,28 @@ Raw-image capture bypasses these GPU passes.
 ## Interpolation and Smoothness
 
 The prototype estimates backward motion in 8-pixel blocks, searching up to
-four guest pixels in either direction with a nine-sample cross at pixel centers.
+four guest pixels in either direction with a 3x3 patch at pixel centers.
 It warps the previous/current images
 and rejects uncertain matches or disagreeing pixels to the current real frame.
 Unchanged pixels retain their real coordinates to protect static HUD/text;
 out-of-bounds warps and disagreeing color channels fall back to the current pixel.
+Matching patches cannot extend beyond the guest viewport. Both full-motion
+endpoints must agree photometrically before intermediate warping, so a borrowed
+neighboring vector cannot erase a newly appeared pixel or refill a removed one
+with unrelated background. This is not forward/backward optical-flow estimation.
+
+A one-pixel GPU pass samples 16 positions in the flow residual once per source
+pair. If at least 12 have mean RGB mismatch >= 0.12, resolve uses the real current
+frame throughout that transition. This coarse scene-cut guard prevents local
+accidental matches from surviving a broad image change; it is not a complete
+scene classifier. It adds no CPU readback or guest-buffer lock. See
+[artifact regression checks](checks/2026-10-23-motion-guards.md).
+
 This can still produce block boundaries, incorrect motion and occlusion artifacts.
 Fast scrolling beyond the search radius and fine repeating patterns are limits.
+The conservative HUD/endpoint guards can leave thin objects on unchanged
+backgrounds and edge regions unsmoothed. Cuts with extensive shared imagery can
+escape the coarse guard; difficult motion falls back rather than inventing detail.
 
 Presentation waits behind the newest guest image by up to one measured source
 interval, capped at 33.3 ms. Only intervals from 20 to 200 ms are interpolated;

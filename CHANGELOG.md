@@ -10,6 +10,20 @@ stated otherwise. **Experimental** in older checkpoints means local/private
 combined builds; released experimental features are explicitly identified.
 **Released** means an actual GitHub release asset.
 
+## 2026-10-23 - Guard Interpolation Against False Motion (Unreleased)
+
+- Preserve newly appeared/disappeared pixels when a neighboring block's motion
+  cannot explain both frame endpoints. Include diagonal detail in matching and
+  reject templates that rely on repeated border pixels.
+- Add a coarse GPU-only scene-cut guard so an accidental local match does not
+  leave a ghost across a broad image transition. Keep normal horizontal,
+  vertical and diagonal scrolling, and recover on the following frame.
+- Reproduce four defects on the previous Retroid Debug build before applying
+  shared shader fixes. Add seven regression tests, including scrolling and
+  reset/recovery controls. [Evidence and limits](docs/checks/2026-10-23-motion-guards.md).
+- No guest timing/input, ordinary rendering or effect-default change. Effects
+  remain Debug-only and opt-in; no public APK or release update.
+
 ## 2026-10-23 - Reduce EASU Work on Flat Regions (Unreleased)
 
 - Reuse EASU sample coordinates and avoid eight outer texture fetches plus
