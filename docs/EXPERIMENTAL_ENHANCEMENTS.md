@@ -7,6 +7,33 @@ image/CPU settings. Existing profiles retain their original behavior.
 Open **Game menu > Display > Enhancements**. Changes use the existing per-game
 Try / Keep / Undo workflow and profile backup serialization.
 
+## Image Presets
+
+The Enhancements page starts with **Image preset**:
+
+- **Pixel sharp:** nearest-neighbor scaling, without FSR. Preserves source texel
+  colors and hard edges; non-integer magnification can still produce uneven pixel
+  widths. This is not an integer-scaling mode.
+- **Smooth:** linear filtering without FSR. Deliberately softens enlarged pixels.
+- **Enhanced (FSR):** EASU plus 50% RCAS sharpening, without an additional linear
+  filter. This is an alternative for softer imagery, not a universal pixel-art
+  improvement. It does not reconstruct detail missing from a tiny source image.
+- **Custom:** derived from existing spatial settings, with manual controls in
+  **Fine tuning**. Imported profiles are not rewritten to fit a preset.
+
+Image presets leave frame interpolation, CPU budget, speed/FPS, LCD decoration,
+screen size/rotation and custom shaders unchanged. Interpolation remains a
+separate opt-in switch. No additional preset field or profile migration is needed.
+Java configurations without the supported GLES path only offer Pixel sharp,
+Smooth and Custom; the editor never silently changes the renderer or removes a
+custom shader. These controls remain on the Debug-only Enhancements page.
+
+The [sharpness comparison](checks/2026-10-23-image-presets.md) uses identical
+captured source pixels at identical scale. FSR and linear filtering both soften
+high-frequency pixel art, while Pixel sharp preserves the source palette. Static
+frame interpolation did not add blur in the tested fixture. Existing user
+settings and release defaults are not changed automatically.
+
 ## Platform Scope
 
 | Setting | Current implementation | Not a promise of |

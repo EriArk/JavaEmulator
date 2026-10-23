@@ -41,13 +41,19 @@ public class GamePresetsUiTest {
     private void choose(int index) {
         scenario.onActivity(activity -> ((Spinner) find(root(), Spinner.class, null)).setSelection(index)); idle();
     }
+    private void choose(String label, int index) {
+        scenario.onActivity(activity -> ((Spinner)find((View)find(root(),TextView.class,label).getParent(),
+                Spinner.class,null)).setSelection(index)); idle();
+    }
 
     @Test public void enhancementsRequireTryAndNeverChangeGuestSpeed() {
         scenario.onActivity(activity -> {
             pages.enhancements();
-            find(root(), TextView.class, "FSR 1.0 upscaling").performClick();
             find(root(), TextView.class, "Frame interpolation").performClick();
             assertFalse(source.fsrUpscaling); assertNull(applied);
+        });
+        choose("Image preset", ImagePresets.ENHANCED);
+        scenario.onActivity(activity -> {
             find(root(), TextView.class, "Try changes").performClick();
             assertTrue(applied.fsrUpscaling); assertTrue(applied.frameInterpolation);
             assertEquals(source.emulationSpeed, applied.emulationSpeed);
@@ -65,10 +71,9 @@ public class GamePresetsUiTest {
             });
             pages.enhancements();
             find(root(), TextView.class, "Frame interpolation").performClick();
-            find(root(), TextView.class, "FSR 1.0 upscaling").performClick();
             assertFalse(source.frameInterpolation); assertFalse(source.fsrUpscaling);
         });
-        idle();
+        idle(); choose("Image preset", ImagePresets.ENHANCED);
         scenario.onActivity(activity -> {
             View budget = find(root(), TextView.class, "CPU budget");
             ((Spinner)find((View)budget.getParent(), Spinner.class, null)).setSelection(2);
@@ -84,6 +89,43 @@ public class GamePresetsUiTest {
             assertFalse(applied.mophunCaptureEnhanced);
             assertEquals(source.getNativeFpsLimit(), applied.getNativeFpsLimit());
         });
+    }
+
+    @Test public void imagePresetFineTuningAndBackKeepDraftWithoutApplying() {
+        scenario.onActivity(a -> pages.enhancements()); idle();
+        choose("Image preset", ImagePresets.ENHANCED);
+        scenario.onActivity(a -> find(root(),TextView.class,"Fine tuning").performClick());
+        scenario.onActivity(a -> {
+            find(root(),TextView.class,"Smoothing").performClick();
+            pages.enhancements();
+            assertEquals(ImagePresets.CUSTOM,ImagePresets.selected(pages.draft(),true));
+            assertFalse(source.fsrUpscaling); assertNull(applied);
+        }); idle();
+        choose("Image preset",ImagePresets.PIXEL_SHARP);
+        scenario.onActivity(a -> {
+            assertFalse(pages.draft().fsrUpscaling); assertFalse(pages.draft().screenFilter);
+            find(root(),TextView.class,"Try changes").performClick();
+            assertFalse(applied.fsrUpscaling); assertFalse(applied.screenFilter);
+        });
+    }
+
+    @Test public void unsupportedRendererOffersSharpAndSmoothWithoutDiscardingShader() {
+        for (boolean shader : new boolean[]{false,true}) {
+            scenario.onActivity(a -> {
+                pages.draft().graphicsMode=shader?1:0;
+                pages.draft().shader=shader?new ShaderInfo("Custom","Test"):null;
+                pages.draft().fsrUpscaling=true;
+                pages.enhancements();
+                assertEquals(3,((Spinner)find(root(),Spinner.class,null)).getCount());
+                assertNull(find(root(),TextView.class,"Frame interpolation"));
+            }); idle();
+            choose("Image preset",ImagePresets.PIXEL_SHARP);
+            scenario.onActivity(a -> {
+                assertFalse(pages.draft().fsrUpscaling); assertFalse(pages.draft().screenFilter);
+                assertEquals(shader?1:0,pages.draft().graphicsMode);
+                assertEquals(shader,pages.draft().shader!=null);
+            });
+        }
     }
 
     @Test public void tactileFeedbackIsPerGameAndRequiresTryForEveryTouchLayout() {

@@ -71,6 +71,11 @@ Keep / Undo. Java OpenGL ES presentation supports an AMD FSR 1.0 EASU/RCAS
 adaptation and a separate motion-estimated intermediate-frame prototype. Mophun
 now has an optional GLES presentation adapter using the same pipeline and load
 protection, with its existing Canvas output retained as the fallback.
+The Debug Enhancements page now offers **Pixel sharp / Smooth / Enhanced (FSR)**
+image presets and a separate Fine tuning page. Existing custom values are inferred,
+not migrated or overwritten; motion interpolation and CPU/speed remain independent.
+Same-frame GPU comparisons confirm that FSR can soften pixel art, so it is not
+automatically enabled as a universal visual upgrade.
 Mophun screenshots and automatic missing artwork can now capture that enhanced
 image, or retain source pixels through the per-game Enhanced / Original choice.
 Rotation is preserved without capturing control overlays; existing user-picked
@@ -97,7 +102,8 @@ Beta 3 Revision 1 release page was rechecked on October 23; no release mutation.
 [source-paced interpolation and submission timestamps](checks/2026-10-23-interpolation-cadence.md),
 [interpolation load protection](checks/2026-10-23-interpolation-load.md),
 [Mophun GPU presentation integration](checks/2026-10-23-mophun-gpu.md),
-[enhanced/original screenshot and artwork export](checks/2026-10-23-mophun-capture.md).
+[enhanced/original screenshot and artwork export](checks/2026-10-23-mophun-capture.md),
+[image presets and sharpness comparison](checks/2026-10-23-image-presets.md).
 
 The enhanced Java path now releases the guest-buffer lock after texture upload;
 motion/FSR work and presentation no longer hold it. Submitted geometry and frame

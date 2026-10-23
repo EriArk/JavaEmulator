@@ -106,6 +106,77 @@ public class EnhancementPresentationTest {
         }
     }
 
+    private Bitmap image(Bitmap source, int width, int height, int preset, boolean motion, long serial, long now) {
+        ru.playsoftware.j2meloader.config.ProfileModel settings=new ru.playsoftware.j2meloader.config.ProfileModel();
+        ru.playsoftware.j2meloader.config.ImagePresets.apply(settings,preset,true);
+        pipeline.upload(source,serial,source.getWidth(),source.getHeight(),motion,serial*50_000_000);
+        int texture=pipeline.renderForPresentation(width,height,settings.fsrUpscaling,settings.fsrSharpness,now);
+        try(Target target=new Target(width,height)) {
+            glBindFramebuffer(GL_FRAMEBUFFER,target.fbo); glViewport(0,0,width,height);
+            vertices.clear(); vertices.put(new float[]{-1,-1,0,0,-1,1,0,1,1,-1,1,0,1,1,1,1}).rewind();
+            pipeline.presentTexture(texture,vertices,settings.screenFilter && !settings.fsrUpscaling);
+            Bitmap result=Bitmap.createBitmap(width,height,Bitmap.Config.ARGB_8888);
+            result.copyPixelsFromBuffer(ByteBuffer.wrap(target.pixels())); return result;
+        }
+    }
+
+    private void comparison(Bitmap source, String name, int width, int height) throws Exception {
+        android.content.Context context=androidx.test.platform.app.InstrumentationRegistry.getInstrumentation().getTargetContext();
+        Bitmap sheet=Bitmap.createBitmap(width*3+32,height+64,Bitmap.Config.ARGB_8888);
+        android.graphics.Canvas canvas=new android.graphics.Canvas(sheet); canvas.drawColor(0xFF101417);
+        android.graphics.Paint label=new android.graphics.Paint(android.graphics.Paint.ANTI_ALIAS_FLAG);
+        label.setColor(0xFFF5F5F5); label.setTextSize(20);
+        String[] names=ru.playsoftware.j2meloader.config.ImagePresets.names(true);
+        for(int mode=0;mode<3;mode++) {
+            Bitmap result=image(source,width,height,mode,false,1,50_000_000);
+            canvas.drawText(names[mode],8+mode*(width+8),28,label);
+            canvas.drawBitmap(result,8+mode*(width+8),48,null); result.recycle();
+        }
+        try(java.io.FileOutputStream file=new java.io.FileOutputStream(new java.io.File(context.getExternalFilesDir(null),name+".png"))) {
+            assertTrue(sheet.compress(Bitmap.CompressFormat.PNG,100,file));
+        } finally { sheet.recycle(); }
+    }
+
+    @Test public void spatialPresetsSeparateExactPixelsFromSoftFiltersAndStaticMotionDoesNotBlur() throws Exception {
+        Bitmap source=Bitmap.createBitmap(32,24,Bitmap.Config.ARGB_8888);
+        for(int y=0;y<24;y++) for(int x=0;x<32;x++)
+            source.setPixel(x,y,(x<16 ? (x+y)%2==0 : (x==20 || y==5 || y==11 || y==18))?0xFFFFFFFF:0xFF000000);
+        try {
+            int[] soft=new int[3];
+            for(int mode=0;mode<3;mode++) {
+                Bitmap result=image(source,128,96,mode,false,1,50_000_000);
+                for(int y=0;y<96;y++) for(int x=0;x<128;x++) {
+                    int color=result.getPixel(x,y);
+                    if(mode==0) assertEquals(source.getPixel(x/4,y/4),color);
+                    if(color!=0xFF000000 && color!=0xFFFFFFFF) soft[mode]++;
+                }
+                result.recycle();
+            }
+            assertEquals(0,soft[0]); assertTrue(soft[1]>0); assertTrue(soft[2]>0);
+            Bitmap real=image(source,128,96,2,true,10,500_000_000);
+            Bitmap intermediate=image(source,128,96,2,true,11,575_000_000);
+            assertTrue("Unchanged frames must not acquire motion blur",real.sameAs(intermediate));
+            real.recycle(); intermediate.recycle();
+            android.os.Bundle report=new android.os.Bundle();
+            report.putString("stream","\nResampled pixels / 12288: sharp="+soft[0]+" smooth="+soft[1]+" FSR="+soft[2]+"\n");
+            androidx.test.platform.app.InstrumentationRegistry.getInstrumentation().sendStatus(0,report);
+            comparison(source,"image-presets-pixels",256,192);
+        } finally { source.recycle(); }
+    }
+
+    @Test public void compareOptionalCapturedGameAtIdenticalScaleAndFrame() throws Exception {
+        String name=androidx.test.platform.app.InstrumentationRegistry.getArguments().getString("imageFixture");
+        Assume.assumeNotNull(name);
+        android.content.Context context=androidx.test.platform.app.InstrumentationRegistry.getInstrumentation().getTargetContext();
+        java.io.File root=context.getExternalFilesDir(null), file=new java.io.File(root,name);
+        assertTrue(file.getCanonicalPath().startsWith(root.getCanonicalPath()+java.io.File.separator));
+        Bitmap source=android.graphics.BitmapFactory.decodeFile(file.getPath()); assertNotNull(source);
+        try {
+            assertTrue(source.getWidth()<=512 && source.getHeight()<=512);
+            comparison(source,"image-presets-game",source.getWidth()*3,source.getHeight()*3);
+        } finally { source.recycle(); }
+    }
+
     @Test public void fusedOutputMatchesReferenceAcrossScalesRotationsAndStrengths() {
         Bitmap frame=fixture(32,32,0);
         pipeline.upload(frame,1,32,24,false,0);

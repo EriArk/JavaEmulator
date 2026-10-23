@@ -92,13 +92,15 @@ public final class GameSettingsPages {
 
     public void enhancements() {
         menu.page("Enhancements (experimental)");
-        if (!javaGame || (draft.graphicsMode == 1 && draft.shader == null)) {
-            menu.toggle("FSR 1.0 upscaling", draft.fsrUpscaling, v -> draft.fsrUpscaling = v);
-            menu.percentage("Sharpness", Math.max(0, Math.min(100, draft.fsrSharpness)), 0, v -> draft.fsrSharpness = v);
+        boolean gpu = enhancementGpuAvailable();
+        menu.choice("Image preset", ImagePresets.names(gpu), ImagePresets.selected(draft, gpu), i -> {
+            if (i == ImagePresets.names(gpu).length - 1) { enhancementTuning(); return; }
+            ImagePresets.apply(draft, i, gpu);
+        });
+        if (gpu) {
             menu.toggle("Frame interpolation", draft.frameInterpolation, v -> draft.frameInterpolation = v);
-        } else {
-            menu.message("Requires OpenGL ES without a custom shader.");
         }
+        menu.action("Fine tuning", R.drawable.ic_baseline_tune_24, this::enhancementTuning);
         if (!javaGame) {
             menu.choice("Capture image", new String[]{"Enhanced", "Original"},
                     draft.mophunCaptureEnhanced ? 0 : 1, i -> draft.mophunCaptureEnhanced = i == 0);
@@ -109,6 +111,22 @@ public final class GameSettingsPages {
                     selected, i -> draft.mophunCpuBudget=budgets[i]);
         }
         trialAction(); menu.setBackAction(this::display);
+    }
+
+    private boolean enhancementGpuAvailable() {
+        return !javaGame || (draft.graphicsMode == 1 && draft.shader == null);
+    }
+
+    private void enhancementTuning() {
+        menu.page("Image fine tuning");
+        menu.toggle("Smoothing", draft.screenFilter, value -> draft.screenFilter = value);
+        if (enhancementGpuAvailable()) {
+            menu.toggle("FSR 1.0 upscaling", draft.fsrUpscaling, v -> draft.fsrUpscaling = v);
+            menu.percentage("Sharpness", Math.max(0, Math.min(100, draft.fsrSharpness)), 0, v -> draft.fsrSharpness = v);
+        } else {
+            menu.message("Requires OpenGL ES without a custom shader.");
+        }
+        trialAction(); menu.setBackAction(this::enhancements);
     }
 
     /** Embed controls without exposing another engine's display options. */

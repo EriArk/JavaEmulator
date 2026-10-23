@@ -10,6 +10,21 @@ stated otherwise. **Experimental** in older checkpoints means local/private
 combined builds; released experimental features are explicitly identified.
 **Released** means an actual GitHub release asset.
 
+## 2026-10-23 - Image Presets and Sharpness Comparison (Unreleased)
+
+- Add Pixel sharp, Smooth and Enhanced (FSR) presets to the Debug Enhancements
+  page; move manual filtering/sharpness into Fine tuning. Preserve Custom values
+  and the existing Try / Keep / Undo and profile saving workflow.
+- Keep interpolation, CPU budget, emulation speed/FPS, LCD effects and geometry
+  independent from spatial presets. Do not replace custom shaders or force a
+  different Java renderer. Leave existing profiles and release defaults intact.
+- Compare identical source frames with the shared GPU pipeline. Pixel sharp
+  preserves exact source colors; FSR and linear filtering soften high-frequency
+  detail. Static interpolation did not add blur in the regression fixture.
+  No title-specific patch or unverified shader change was made.
+- Unreleased source/local Debug builds only; no public APK update.
+  [Comparison, checks and limits](docs/checks/2026-10-23-image-presets.md).
+
 ## 2026-10-23 - Mophun Enhanced Image Capture (Unreleased)
 
 - Save Mophun screenshots and automatic missing covers from the processed GPU
