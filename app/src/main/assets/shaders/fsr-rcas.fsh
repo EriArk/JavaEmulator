@@ -3,9 +3,10 @@
 precision highp float;
 uniform sampler2D sampler0;
 uniform vec2 sourceSize;
+uniform vec2 textureSize;
 uniform float sharpness;
 varying vec2 v_texcoord0;
-vec3 fetch(vec2 d) { return texture2D(sampler0,clamp(v_texcoord0+d/sourceSize,0.5/sourceSize,1.0-0.5/sourceSize)).rgb; }
+vec3 fetch(vec2 d) { return texture2D(sampler0,clamp(v_texcoord0*sourceSize+d,vec2(0.5),sourceSize-0.5)/textureSize).rgb; }
 void main() {
     vec3 b=fetch(vec2(0,-1)), d=fetch(vec2(-1,0)), e=fetch(vec2(0)), f=fetch(vec2(1,0)), h=fetch(vec2(0,1));
     vec3 mn=min(min(b,d),min(f,h)), mx=max(max(b,d),max(f,h));

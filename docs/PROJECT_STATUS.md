@@ -75,13 +75,14 @@ calibrated phone CPU frequency. Java/ART has no emulated phone CPU clock.
 All image effects default off. Release builds hide the page and ignore these
 experimental runtime values, including imported profiles. No new APK was
 published. No Symbian CPU change or Mophun/Symbian GPU path is included.
-Interpolation adds up to 100 ms presentation delay and can introduce artifacts;
+Interpolation uses a presentation window capped at 33.3 ms and can introduce artifacts;
 it does not improve logic/input rate. No universal 60 FPS or automatic game
 enhancement profile is claimed. Retroid is available again. The existing public
 Beta 3 Revision 1 release page was rechecked on October 23; no release mutation.
 
 [Implementation and limits](EXPERIMENTAL_ENHANCEMENTS.md),
-[device evidence and measured cost](checks/2026-10-23-enhancements.md).
+[initial device evidence](checks/2026-10-23-enhancements.md),
+[latency, artifact and GPU refinement](checks/2026-10-23-enhancement-refinement.md).
 
 ## Unreleased: Twenty-game Java Sample
 

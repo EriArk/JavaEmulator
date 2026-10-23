@@ -10,6 +10,21 @@ stated otherwise. **Experimental** in older checkpoints means local/private
 combined builds; released experimental features are explicitly identified.
 **Released** means an actual GitHub release asset.
 
+## 2026-10-23 - Interpolation and GPU Refinement (Unreleased)
+
+- Cap the experimental interpolation window at 33.3 ms instead of 100 ms.
+  Slow games hold the completed image afterward; this is not universal 60 FPS.
+- Protect unchanged HUD/text pixels and viewport edges from motion warping;
+  reject inconsistent color channels instead of blending a ghost image.
+- Skip motion search for already-fast streams and static blocks; reuse template
+  samples and cached shader uniform locations. Skip completed-frame resolve.
+- Fix ambiguous thin-edge motion matching using adjacent pixel samples and
+  pixel-center sampling; verify horizontal and vertical motion in both directions.
+- Fix FSR changing pixels at native size with zero sharpness. Run EASU only for
+  real upscaling and skip RCAS at zero strength, including padded Canvas input.
+- Keep the features Debug-only, opt-in and unreleased. See
+  [checks and limits](docs/checks/2026-10-23-enhancement-refinement.md).
+
 ## 2026-10-23 - Experimental Image Enhancements and Mophun CPU Budget (Unreleased)
 
 - Add opt-in, Debug-only Java OpenGL ES FSR 1.0 upscaling with adjustable RCAS

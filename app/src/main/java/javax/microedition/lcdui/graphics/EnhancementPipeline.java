@@ -57,7 +57,7 @@ public final class EnhancementPipeline {
             current=1-current;
             configure(inputs[current]); GLUtils.texSubImage2D(GL_TEXTURE_2D,0,0,0,frame);
             clock.frame(now); serial=frameSerial;
-            if (motion && history) {
+            if (motion && history && clock.phase(now)<1f) {
                 if (estimate==null) estimate=new Program("motion-estimate.fsh");
                 flow.size(Math.max(1,(sw+7)/8),Math.max(1,(sh+7)/8));
                 begin(estimate,flow,inputs[current],sw,sh,tw,th);
@@ -67,7 +67,7 @@ public final class EnhancementPipeline {
         int texture=inputs[current], textureW=tw, textureH=th;
         float phase=motion && history ? clock.phase(now) : 1f;
         animating=phase<1f;
-        if (motion) {
+        if (animating) {
             if (resolve==null) resolve=new Program("motion-resolve.fsh");
             interpolated.size(sw,sh);
             begin(resolve,interpolated,texture,sw,sh,tw,th);
@@ -78,15 +78,20 @@ public final class EnhancementPipeline {
         }
         history=true;
         // EASU is an upscaler, not a downsampling filter.
-        if (fsr && outW>=sw && outH>=sh) {
+        boolean upscale=fsr && outW>=sw && outH>=sh && (outW>sw || outH>sh);
+        if (upscale) {
             if (easu==null) easu=new Program("fsr-easu.fsh");
-            if (rcas==null) rcas=new Program("fsr-rcas.fsh");
-            upscaled.size(outW,outH); sharpened.size(outW,outH);
+            upscaled.size(outW,outH);
             begin(easu,upscaled,texture,sw,sh,textureW,textureH); draw();
-            begin(rcas,sharpened,upscaled.texture,outW,outH,outW,outH);
+            texture=upscaled.texture; textureW=outW; textureH=outH;
+        }
+        if (fsr && strength>0 && outW>=sw && outH>=sh) {
+            if (rcas==null) rcas=new Program("fsr-rcas.fsh");
+            sharpened.size(outW,outH);
+            begin(rcas,sharpened,texture,outW,outH,textureW,textureH);
             glUniform1f(rcas.uniform("sharpness"),Math.max(0,Math.min(100,strength))/100f);
             draw(); texture=sharpened.texture;
-        } else if (!motion) {
+        } else if (!upscale && (textureW!=sw || textureH!=sh)) {
             // Crop padded Canvas textures even when EASU is bypassed during minification.
             if (resolve==null) resolve=new Program("motion-resolve.fsh");
             interpolated.size(sw,sh);
@@ -145,6 +150,7 @@ public final class EnhancementPipeline {
     }
     private static final class Program {
         final int id;
+        private final java.util.Map<String,Integer> uniforms=new java.util.HashMap<>();
         Program(String fragment) {
             int v=0,f=0,p=0;
             try {
@@ -158,7 +164,11 @@ public final class EnhancementPipeline {
             } catch(RuntimeException e) { if(p!=0) glDeleteProgram(p); throw e; }
             finally { if(v!=0) glDeleteShader(v); if(f!=0) glDeleteShader(f); }
         }
-        int uniform(String name) { return glGetUniformLocation(id,name); }
+        int uniform(String name) {
+            Integer location=uniforms.get(name);
+            if(location==null) { location=glGetUniformLocation(id,name); uniforms.put(name,location); }
+            return location;
+        }
         static int compile(int type,String text) {
             int shader=glCreateShader(type); glShaderSource(shader,text); glCompileShader(shader);
             int[] status=new int[1]; glGetShaderiv(shader,GL_COMPILE_STATUS,status,0);

@@ -38,28 +38,41 @@ is not enabled. The UI maps sharpness 0-100% to a 0-1 RCAS strength multiplier;
 against AMD's reference GPU implementation or an AMD-certified integration.
 
 FSR runs before host rotation. It excludes padded backing pixels and bypasses
-upscaling when the requested output is smaller than the guest viewport.
+upscaling unless the requested output is larger than the guest viewport in at
+least one axis and no smaller in the other. At native size, only optional RCAS
+sharpening runs; native size with 0% sharpness preserves the original pixels.
+Zero sharpness bypasses RCAS, including during upscaling.
 LCD presentation remains a separate overlay. In-app screenshot capture retains
 its existing clean/LCD behavior; it does not capture these GPU passes.
 
 ## Interpolation and Smoothness
 
-The first version estimates backward motion in 8-pixel blocks, searching up to
-four guest pixels in either direction. It warps the previous/current images
+The prototype estimates backward motion in 8-pixel blocks, searching up to
+four guest pixels in either direction with a nine-sample cross at pixel centers.
+It warps the previous/current images
 and rejects uncertain matches or disagreeing pixels to the current real frame.
+Unchanged pixels retain their real coordinates to protect static HUD/text;
+out-of-bounds warps and disagreeing color channels fall back to the current pixel.
 This can still produce block boundaries, incorrect motion and occlusion artifacts.
 Fast scrolling beyond the search radius and fine repeating patterns are limits.
 
 Presentation waits behind the newest guest image by up to one measured source
-interval, capped at 100 ms. Only intervals from 20 to 200 ms are interpolated;
+interval, capped at 33.3 ms. Only intervals from 20 to 200 ms are interpolated;
 startup, long pauses and already-fast streams fall back to real frames. This
-delay can be undesirable in action games. It is not a low-latency mode.
+delay can be undesirable in action games. Slower streams finish interpolation
+early and hold the current frame: this does not produce evenly spaced 60 FPS.
+The cap is an algorithmic presentation window, not measured end-to-end latency.
 
 Intermediate redraws follow Android animation/vsync callbacks. They stop when
 the interpolation finishes or the surface pauses. The FPS counter counts new
 guest submissions, not synthetic redraws. Unchanged completed output is cached,
 so an idle redraw does not repeat the upscale passes. Guest clocks, input and
 game logic do not advance during a synthetic redraw.
+
+Static motion blocks skip the displacement search; the current template is
+sampled once per block. Streams outside the interpolation interval skip motion
+estimation entirely. Finished frames skip the resolve pass, and uniform locations
+are cached. These optimizations do not eliminate FSR cost on each new guest frame.
 
 ## Resource and Failure Boundaries
 
