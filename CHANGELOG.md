@@ -10,6 +10,20 @@ stated otherwise. **Experimental** in older checkpoints means local/private
 combined builds; released experimental features are explicitly identified.
 **Released** means an actual GitHub release asset.
 
+## 2026-10-23 - More Reliable Intermediate Frames (Unreleased)
+
+- Fix inconsistent pixel selection during odd-pixel motion in the shared Java
+  and Mophun GPU interpolator. Snap the displacement once for both frames.
+- Reject ambiguous opposite-direction matches in repeating patterns, retaining
+  current real pixels instead of trusting search order or distance bias.
+- Refresh the live interpolation phase after motion-pass preparation so CPU-side
+  stalls do not replay an already-expired transition. Keep guest timing and the
+  existing maximum 50 ms interpolation window unchanged.
+- Reproduce both shader defects before repair on Retroid; verify 94 selected
+  device checks, 75 JVM tests and the Deep Abyss first-level introduction.
+  Effects remain Debug-only/off by default; no public APK update.
+  [Evidence and limits](docs/checks/2026-10-23-motion-rounding.md).
+
 ## 2026-10-23 - Integer Scaling and LCD Alignment (Unreleased)
 
 - Add Integer picture size for Java and Mophun: use the largest whole-pixel

@@ -1047,7 +1047,7 @@ public abstract class Canvas extends Displayable {
 				}
 			}
 			if (!allowMotion) enhancements.skipInterpolation();
-			int texture = enhancements.renderForPresentation(outW, outH, fsr, sharpness, System.nanoTime());
+			int texture = enhancements.renderForPresentation(outW, outH, fsr, sharpness);
 			glViewport(0, 0, screenW, screenH);
 			program.use(); glActiveTexture(GL_TEXTURE0); glBindTexture(GL_TEXTURE_2D, texture);
 			glUniform1i(program.uTextureUnit, 0);

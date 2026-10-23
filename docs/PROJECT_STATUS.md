@@ -60,7 +60,7 @@ older 0.3 builds, not the current 0.4 release series.
 | Channel | Current identifier | Availability |
 | --- | --- | --- |
 | Public download | `0.4.0-beta.3-r1`, code 309, on existing Beta 3 page | One signed adaptive APK, matching app source and dependency/native source bundles |
-| Development source | Java cadence/input/import fixes; experimental FSR, frame interpolation and Mophun CPU budget | Unreleased. Enhancements are Debug-only; Retroid and emulator evidence below. Public revision APK unchanged |
+| Development source | Java cadence/input/import fixes; experimental FSR, corrected motion rounding/ambiguity handling and Mophun CPU budget | Unreleased. Enhancements are Debug-only; dated Retroid and emulator evidence below. Public revision APK unchanged |
 | Private historical snapshot | `0.1.0-beta.2-experimental.15`, 2026-10-11 | Old Java/Mophun test build, not the current beta |
 | Local-only material | Game fixtures, firmware, diagnostics, device data and signing keys | Not in Git or public release assets; describing testing does not authorize redistribution |
 
@@ -81,6 +81,16 @@ a locally installed Debug APK, not a public release update.
 [Evidence and limits](checks/2026-10-23-integer-scaling.md).
 
 ## Unreleased: Experimental Enhancements
+
+The shared Java/Mophun interpolator now uses one pixel-rounding decision for
+both source frames, fixing wrong intermediate pixels on odd displacements.
+It rejects nearly equal opposite-direction matches in repeating patterns instead
+of guessing a direction. Live presentation also refreshes its interpolation
+phase after motion-pass preparation, skipping a transition that has expired.
+Both shader defects reproduced on Retroid before repair. The final local Debug
+build passed 94 selected Retroid checks and 75 JVM tests; Deep Abyss reached its
+first-level introduction with effects active. No end-to-end latency or complete-
+game acceptance is claimed. [Evidence and limits](checks/2026-10-23-motion-rounding.md).
 
 Debug builds now have a per-game **Display > Enhancements** page using Try /
 Keep / Undo. Java OpenGL ES presentation supports an AMD FSR 1.0 EASU/RCAS

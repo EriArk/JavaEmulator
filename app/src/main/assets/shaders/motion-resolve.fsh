@@ -11,7 +11,7 @@ varying vec2 v_texcoord0;
 vec2 uv(vec2 p) { return (clamp(p,vec2(0),sourceSize-1.0)+0.5)/textureSize; }
 float largest(vec3 c) { return max(c.r,max(c.g,c.b)); }
 void main() {
-    vec2 p=v_texcoord0*sourceSize-0.5;
+    vec2 p=floor(v_texcoord0*sourceSize);
     vec4 now=texture2D(sampler0,uv(p));
     if(phase>=1.0) { gl_FragColor=now; return; }
     if(texture2D(sceneState,vec2(0.5)).r>0.5) { gl_FragColor=now; return; }
@@ -27,7 +27,9 @@ void main() {
     // A block's motion cannot explain newly appeared/disappeared pixels unless both endpoints agree.
     if(largest(abs(texture2D(previous,uv(oldPos)).rgb-now.rgb))>0.06 ||
        largest(abs(texture2D(sampler0,uv(newPos)).rgb-old.rgb))>0.06) { gl_FragColor=now; return; }
-    vec2 aPos=p+v*phase, bPos=p-v*(1.0-phase);
+    // Snap once: independently sampling half-pixel boundaries can select different
+    // source pixels on either side of the same match, especially for odd motion.
+    vec2 aPos=p+floor(v*phase+0.5), bPos=aPos-v;
     if(any(lessThan(min(aPos,bPos),vec2(-0.001))) ||
        any(greaterThan(max(aPos,bPos),sourceSize-1.0+0.001))) { gl_FragColor=now; return; }
     vec4 a=texture2D(previous,uv(aPos));

@@ -161,6 +161,19 @@ endpoints must agree photometrically before intermediate warping, so a borrowed
 neighboring vector cannot erase a newly appeared pixel or refill a removed one
 with unrelated background. This is not forward/backward optical-flow estimation.
 
+Resolve snaps the guest pixel and the interpolated displacement explicitly,
+then derives the second sample from the first plus the integer motion vector.
+Both frames therefore use one rounding decision instead of independently sampling
+nearest-filter half-pixel boundaries. This fixes inconsistent intermediate pixels
+for odd displacements without adding a blur filter.
+
+During the existing search, the estimator also retains minimum raw patch errors
+for negative/positive motion on each axis. If an opposite-direction candidate is
+within 0.002 mean RGB error of the selected match, confidence is rejected. Search
+order and distance penalties cannot disambiguate a repeating pattern. This adds
+no texture reads or search pass. It is conservative: ambiguous areas retain the
+current real frame and may remain unsmoothed, rather than receiving guessed motion.
+
 A one-pixel GPU pass samples 16 positions in the flow residual once per source
 pair. If at least 12 have mean RGB mismatch >= 0.12, resolve uses the real current
 frame throughout that transition. This coarse scene-cut guard prevents local
@@ -182,6 +195,14 @@ interval, capped at 50 ms: about 33.3 ms at 30 FPS, 40 ms at 25 FPS and 50 ms at
 pair then held it. Slower streams skip the overdue part of the interval instead
 of compressing its whole motion into a faster animation. Draw timestamps cannot
 rewind an already presented point in the current timeline.
+
+Live Java and Mophun presentation reads the monotonic clock again after motion
+program/target preparation and search submission, immediately before resolve.
+If that CPU-side work consumes the window, resolve is skipped and the current
+real frame is used without scheduling another intermediate redraw. Explicit-time
+reference/capture paths keep their supplied timestamp. This does not measure or
+hide subsequent GPU execution, FSR processing or compositor delay.
+[Rounding, ambiguity and preparation-deadline checks](checks/2026-10-23-motion-rounding.md).
 
 Only source intervals from 20 to 200 ms are eligible; startup, long pauses and
 already-fast streams fall back to real frames. The delay can be undesirable in

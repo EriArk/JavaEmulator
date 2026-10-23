@@ -311,6 +311,39 @@ public class EnhancementPipelineTest {
         a.recycle(); b.recycle();
     }
 
+    @Test public void oddPixelMotionUsesOneRoundingDecisionForBothFrames() {
+        for(int[] d:new int[][]{{-1,0},{1,0},{-3,0},{3,0},{0,-1},{0,1},{0,-3},{0,3},{-3,1},{3,-1}}) {
+            Bitmap a=textureFixture(), b=shifted(a,d[0],d[1]); pipeline.resetHistory();
+            pipeline.render(a,1,31,23,31,23,false,true,0,0);
+            pipeline.upload(b,2,31,23,true,50_000_000);
+            for(int step=1;step<=4;step++) {
+                int t=pipeline.renderUploaded(31,23,false,0,50_000_000+step*12_500_000L);
+                int dx=-(int)Math.floor(-d[0]*step/4.0+0.5);
+                int dy=-(int)Math.floor(-d[1]*step/4.0+0.5);
+                assertRegion(t,a,dx,dy);
+            }
+            a.recycle(); b.recycle();
+        }
+    }
+
+    @Test public void equallyMatchingOppositeMotionKeepsTheCurrentFrame() throws Exception {
+        for(boolean vertical:new boolean[]{false,true}) {
+            Bitmap a=solid(32,24,0xFF000000), b=solid(32,24,0xFF000000);
+            for(int y=0;y<24;y++) for(int x=0;x<32;x++) {
+                int p=vertical?y:x;
+                a.setPixel(x,y,p%4<2?0xFFFFFFFF:0xFF000000);
+                b.setPixel(x,y,p%4<2?0xFF000000:0xFFFFFFFF);
+            }
+            pipeline.resetHistory();
+            pipeline.render(a,1,32,24,32,24,false,true,0,0);
+            pipeline.upload(b,2,32,24,true,50_000_000);
+            int t=pipeline.renderUploaded(32,24,false,0,75_000_000);
+            assertEquals("Opposite exact matches must not claim a reliable direction",0,motionPixel("flow",1,1)&255);
+            for(int y=8;y<15;y++) for(int x=8;x<23;x++) assertEquals(b.getPixel(x,y),pixel(t,x,y));
+            a.recycle(); b.recycle();
+        }
+    }
+
     @Test public void sourceCadenceControlsActualGpuIntermediatePositions() {
         for(long interval:new long[]{33_333_333,40_000_000,50_000_000}) {
             Bitmap a=textureFixture(), b=shifted(a,4,0); pipeline.resetHistory();
@@ -349,6 +382,24 @@ public class EnhancementPipelineTest {
         t=pipeline.renderForPresentation(31,23,false,0,125_000_000);
         assertRegion(t,a,3,0); assertTrue(pipeline.animating());
         a.recycle(); b.recycle(); c.recycle();
+    }
+
+    @Test public void livePresentationIncludesPassPreparationTimeAndStopsAtDeadline() {
+        for(long readyToDraw:new long[]{87_500_000,100_000_000,150_000_000}) {
+            Bitmap a=textureFixture(), b=shifted(a,4,0); pipeline.resetHistory();
+            pipeline.render(a,1,31,23,31,23,false,true,0,0);
+            pipeline.upload(b,2,31,23,true,50_000_000);
+            int[] reads={0};
+            int t=pipeline.renderForPresentation(31,23,false,0,
+                    () -> reads[0]++==0?50_000_000:readyToDraw);
+            assertEquals("Read the clock again after motion pass preparation",2,reads[0]);
+            assertRegion(t,a,readyToDraw<100_000_000?3:4,0);
+            assertEquals(readyToDraw<100_000_000,pipeline.animating());
+            // A capture/reference draw at an older time must not rewind the live result.
+            t=pipeline.renderForPresentation(31,23,false,0,50_000_000);
+            assertRegion(t,a,readyToDraw<100_000_000?3:4,0);
+            a.recycle(); b.recycle();
+        }
     }
 
     @Test public void suppressingAnActivePairFinishesItWithoutChangingFsrOrReallocatingInputs() throws Exception {

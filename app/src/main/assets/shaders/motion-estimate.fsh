@@ -29,6 +29,7 @@ void main() {
     topLeft=currentAt(p+vec2(-1,-1)); topRight=currentAt(p+vec2(1,-1));
     bottomLeft=currentAt(p+vec2(-1,1)); bottomRight=currentAt(p+vec2(1,1));
     float zero=errorAt(p,best), score=zero, residual=zero;
+    vec4 directionalError=vec4(1.0); // -x, +x, -y, +y; reuses the existing search samples.
     // Static blocks cannot benefit from motion search. Do not re-fetch their template per candidate.
     if(zero<0.002) { gl_FragColor=vec4(0.5,0.5,0,0); return; }
     for(int y=-4;y<=4;y++) for(int x=-4;x<=4;x++) {
@@ -36,8 +37,19 @@ void main() {
         // Do not manufacture a matching patch by repeating clamped border pixels.
         if(any(lessThan(min(p,p+v),vec2(1))) || any(greaterThan(max(p,p+v),sourceSize-2.0))) continue;
         float error=errorAt(p,v), e=error+0.0005*dot(v,v);
+        if(x<0) directionalError.x=min(directionalError.x,error);
+        if(x>0) directionalError.y=min(directionalError.y,error);
+        if(y<0) directionalError.z=min(directionalError.z,error);
+        if(y>0) directionalError.w=min(directionalError.w,error);
         if(e<score) { score=e; residual=error; best=v; }
     }
-    float confidence=(score<0.04 && zero-score>0.01)?1.0:0.0;
+    // Repeated patterns can match opposite directions equally well. Distance bias
+    // and search order are not evidence of motion; prefer the real frame there.
+    float similar=residual+0.002;
+    bool ambiguous=(best.x<0.0 && directionalError.y<=similar)
+        || (best.x>0.0 && directionalError.x<=similar)
+        || (best.y<0.0 && directionalError.w<=similar)
+        || (best.y>0.0 && directionalError.z<=similar);
+    float confidence=(!ambiguous && score<0.04 && zero-score>0.01)?1.0:0.0;
     gl_FragColor=vec4((best+4.0)/8.0,confidence,residual);
 }

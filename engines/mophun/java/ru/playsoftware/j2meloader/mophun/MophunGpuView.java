@@ -212,7 +212,7 @@ final class MophunGpuView extends GLSurfaceView implements GLSurfaceView.Rendere
         pipeline.upload(bitmap, stamp[0], source.pw, source.ph, current.motion, stamp[1]);
         if (!allow) pipeline.skipInterpolation();
         int texture = pipeline.renderForPresentation(current.width, current.height,
-                current.fsr, current.sharpness, System.nanoTime());
+                current.fsr, current.sharpness);
         glBindFramebuffer(GL_FRAMEBUFFER, 0); glViewport(0, 0, surfaceWidth, surfaceHeight);
         glDisable(GL_SCISSOR_TEST); glClearColor(16f/255, 20f/255, 23f/255, 1); glClear(GL_COLOR_BUFFER_BIT);
         int left = Math.max(0, (int)Math.ceil(current.area.left));

@@ -6,6 +6,7 @@ import android.opengl.GLUtils;
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
 import java.nio.FloatBuffer;
+import java.util.function.LongSupplier;
 import javax.microedition.util.ContextHolder;
 import ru.playsoftware.j2meloader.runtime.FrameInterpolationClock;
 import static android.opengl.GLES20.*;
@@ -86,7 +87,21 @@ public final class EnhancementPipeline {
         return renderUploaded(outW,outH,fsr,strength,now,true);
     }
 
+    /** Live draw: include CPU-side pass preparation in the interpolation deadline. */
+    public int renderForPresentation(int outW, int outH, boolean fsr, int strength) {
+        return renderForPresentation(outW,outH,fsr,strength,System::nanoTime);
+    }
+
+    int renderForPresentation(int outW, int outH, boolean fsr, int strength, LongSupplier drawClock) {
+        return renderUploaded(outW,outH,fsr,strength,drawClock.getAsLong(),true,drawClock);
+    }
+
     private int renderUploaded(int outW, int outH, boolean fsr, int strength, long now, boolean presentation) {
+        return renderUploaded(outW,outH,fsr,strength,now,presentation,null);
+    }
+
+    private int renderUploaded(int outW, int outH, boolean fsr, int strength, long now,
+                               boolean presentation, LongSupplier drawClock) {
         validateOutput(outW,outH);
         if (!uploaded) throw new IllegalStateException("No uploaded enhancement frame");
         if (!motionPending && !animating && cachedTexture!=0 && cachedWidth==outW && cachedHeight==outH
@@ -110,6 +125,12 @@ public final class EnhancementPipeline {
         if (animating) {
             if (resolve==null) resolve=new Program("motion-resolve.fsh");
             interpolated.size(sw,sh);
+            // Compilation/allocation/submission may consume the remaining window.
+            // Do not resolve an old phase or schedule more animation after it expires.
+            if (drawClock!=null) phase=clock.phase(drawClock.getAsLong());
+            animating=phase<1f;
+        }
+        if (animating) {
             begin(resolve,interpolated,texture,sw,sh,tw,th);
             second(resolve,"previous",history?inputs[1-current]:texture,1);
             second(resolve,"motion",flow.texture!=0?flow.texture:texture,2);
