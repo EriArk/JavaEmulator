@@ -10,6 +10,20 @@ stated otherwise. **Experimental** in older checkpoints means local/private
 combined builds; released experimental features are explicitly identified.
 **Released** means an actual GitHub release asset.
 
+## 2026-10-23 - Small-Object Interpolation and GPU Surface Recovery (Unreleased)
+
+- Recover intermediate positions for small sprites on verified uniform
+  backgrounds, including motion across neighboring flow tiles. Preserve static
+  HUD details and prefer real pixels for uncertain matches or occlusion.
+- Reject conflicting neighbor motion and never override a locally rejected
+  match. Keep guest speed, the 50 ms interpolation window and image presets intact.
+- Invalidate Mophun GPU presentation/capture when its surface is destroyed;
+  fence old acknowledgements across pause and recreation. This repairs a stale
+  capture request reproduced during the extended device checks.
+- Verify 102 selected Retroid checks, 49 emulator GPU checks and 75 JVM tests; keep effects Debug-only
+  and off by default. No public APK update or Symbian rendering change.
+  [Evidence, cost and limits](docs/checks/2026-10-23-sparse-motion.md).
+
 ## 2026-10-23 - More Reliable Intermediate Frames (Unreleased)
 
 - Fix inconsistent pixel selection during odd-pixel motion in the shared Java

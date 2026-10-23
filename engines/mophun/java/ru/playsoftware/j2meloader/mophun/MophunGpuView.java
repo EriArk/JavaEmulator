@@ -7,6 +7,7 @@ import android.graphics.RectF;
 import android.opengl.GLSurfaceView;
 import android.os.Handler;
 import android.os.Looper;
+import android.view.SurfaceHolder;
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
 import java.nio.FloatBuffer;
@@ -33,6 +34,7 @@ final class MophunGpuView extends GLSurfaceView implements GLSurfaceView.Rendere
     private volatile State state, presented;
     private volatile boolean active, failed, animating;
     private volatile long renderedSerial;
+    private volatile int presentationEpoch;
     private EnhancementPipeline pipeline;
     private PresentationFence fence;
     private Screen source;
@@ -64,7 +66,8 @@ final class MophunGpuView extends GLSurfaceView implements GLSurfaceView.Rendere
      * It may run on either thread; it must not wait for the UI/GL thread. */
     boolean capture(Consumer<Bitmap> callback) {
         State expected = presented;
-        if (!active || failed || expected == null || !capturing.compareAndSet(false, true)) return false;
+        if (!active || failed || expected == null || !getHolder().getSurface().isValid()
+                || !capturing.compareAndSet(false, true)) return false;
         Capture request = new Capture(callback);
         captureRequest = request;
         main.postDelayed(request.timeout, 2000);
@@ -135,6 +138,7 @@ final class MophunGpuView extends GLSurfaceView implements GLSurfaceView.Rendere
 
     void active(boolean value) {
         if (active == value) return;
+        presentationEpoch++;
         active = value; presented = null;
         if (value) {
             if (suspended) onResume();
@@ -159,7 +163,21 @@ final class MophunGpuView extends GLSurfaceView implements GLSurfaceView.Rendere
         if (next.same(before)) next = before;
         state = next;
         if (next != before || renderedSerial != screen.presentationSerial() || animating) requestRender();
-        return presented == next;
+        return getHolder().getSurface().isValid() && presented == next;
+    }
+
+    @Override public void surfaceCreated(SurfaceHolder holder) {
+        presentationEpoch++; presented = null; renderedSerial = 0;
+        super.surfaceCreated(holder);
+    }
+
+    @Override public void surfaceDestroyed(SurfaceHolder holder) {
+        // A queued acknowledgement from the old surface must not expose stale pixels after recreation.
+        presentationEpoch++; presented = null; renderedSerial = 0; animating = false;
+        Capture pending = captureRequest;
+        if (pending != null) pending.finish(null);
+        super.surfaceDestroyed(holder);
+        post(changed);
     }
 
     @Override public void onSurfaceCreated(GL10 gl, EGLConfig config) {
@@ -188,6 +206,7 @@ final class MophunGpuView extends GLSurfaceView implements GLSurfaceView.Rendere
     }
 
     private void draw(State current) {
+        int epoch = presentationEpoch;
         long started = System.nanoTime();
         boolean allow = true;
         if (current.motion) {
@@ -234,7 +253,8 @@ final class MophunGpuView extends GLSurfaceView implements GLSurfaceView.Rendere
         // GLSurfaceView swaps after onDrawFrame returns, before consuming this GL-thread event.
         // Do not uncover the SurfaceView while it still has no submitted buffer.
         queueEvent(() -> {
-            if (!active || failed || state != current) return;
+            if (!active || failed || state != current || epoch != presentationEpoch
+                    || !getHolder().getSurface().isValid()) return;
             renderedSerial = submittedSerial;
             if (presented != current) { presented = current; post(changed); }
         });

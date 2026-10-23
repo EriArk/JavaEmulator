@@ -102,9 +102,24 @@ public class MophunPresentationTest {
         }
         Bitmap capture() throws Exception {
             Bitmap bitmap=Bitmap.createBitmap(260,240,Bitmap.Config.ARGB_8888);
-            CountDownLatch done=new CountDownLatch(1); int[] result={-1};
-            PixelCopy.request(view,bitmap,r -> {result[0]=r;done.countDown();},new Handler(Looper.getMainLooper()));
-            assertTrue(done.await(5,TimeUnit.SECONDS)); assertEquals(PixelCopy.SUCCESS,result[0]); return bitmap;
+            long deadline=System.nanoTime()+TimeUnit.SECONDS.toNanos(10);
+            boolean success=false;
+            try {
+                do {
+                    CountDownLatch done=new CountDownLatch(1); int[] result={PixelCopy.ERROR_SOURCE_INVALID};
+                    // Serialize validation/request with the UI surface callbacks, not a sleep after draw().
+                    scenario.onActivity(a -> {
+                        if(!view.getHolder().getSurface().isValid()) { done.countDown(); return; }
+                        PixelCopy.request(view,bitmap,r -> {result[0]=r;done.countDown();},new Handler(Looper.getMainLooper()));
+                    });
+                    assertTrue(done.await(5,TimeUnit.SECONDS));
+                    if(result[0]==PixelCopy.SUCCESS) { success=true; return bitmap; }
+                    assertTrue("Unexpected copy failure: "+result[0],result[0]==PixelCopy.ERROR_SOURCE_INVALID
+                            || result[0]==PixelCopy.ERROR_SOURCE_NO_DATA);
+                    assertFalse("GPU fallback",failed.get()); view.requestRender(); Thread.sleep(20);
+                } while(System.nanoTime()<deadline);
+                throw new AssertionError("No valid presented surface for capture");
+            } finally { if(!success) bitmap.recycle(); }
         }
         Bitmap export() throws Exception {
             AtomicReference<Bitmap> result = new AtomicReference<>(); CountDownLatch done = new CountDownLatch(1);
@@ -183,6 +198,25 @@ public class MophunPresentationTest {
             host.draw(8,6,0,true);
             Bitmap image=host.capture(); assertEquals(0xFFFF0000,image.getPixel(120,120)); image.recycle();
             assertEquals(5,host.screen.presentationSerial()); assertEquals(5,host.screen.flips);
+        }
+    }
+
+    @Test public void detachedSurfaceCannotReportReadyOrExportStalePixels() throws Exception {
+        try(Host host=new Host()) {
+            host.draw(160,120,0,false);
+            AtomicReference<android.view.ViewGroup> parent=new AtomicReference<>();
+            host.scenario.onActivity(a -> {
+                parent.set((android.view.ViewGroup)host.view.getParent()); parent.get().removeView(host.view);
+                assertFalse(host.view.getHolder().getSurface().isValid());
+                assertFalse("A destroyed surface is not a presented image",
+                        host.view.update(host.screen,host.area,160,120,0,host.profile,false));
+                assertFalse("No stale GPU capture after detach",host.view.capture(image -> {
+                    if(image!=null) image.recycle();
+                }));
+                parent.get().addView(host.view,new FrameLayout.LayoutParams(260,240));
+            });
+            host.draw(160,120,0,false);
+            Bitmap image=host.capture(); assertEquals(0xFFFF0000,image.getPixel(95,95)); image.recycle();
         }
     }
 

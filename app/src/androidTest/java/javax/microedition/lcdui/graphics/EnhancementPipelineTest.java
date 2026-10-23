@@ -239,7 +239,7 @@ public class EnhancementPipelineTest {
         for(int dy:new int[]{-1,1}) for(int dx:new int[]{-1,1}) b.setPixel(11+dx,11+dy,0xFFFF0000);
         pipeline.render(a,1,32,24,32,24,false,true,50,0);
         pipeline.render(b,2,32,24,32,24,false,true,50,50_000_000);
-        assertEquals("Diagonal disagreement must invalidate the block",0,motionPixel("flow",1,1)&255);
+        assertTrue("Diagonal disagreement must invalidate the block",(motionPixel("flow",1,1)&255)<128);
         a.recycle(); b.recycle();
     }
 
@@ -356,6 +356,146 @@ public class EnhancementPipelineTest {
             }
             a.recycle(); b.recycle();
         }
+    }
+
+    private int[] pixels(int texture,int width,int height) {
+        int[] f=new int[1]; glGenFramebuffers(1,f,0); glBindFramebuffer(GL_FRAMEBUFFER,f[0]);
+        glFramebufferTexture2D(GL_FRAMEBUFFER,GL_COLOR_ATTACHMENT0,GL_TEXTURE_2D,texture,0);
+        assertEquals(GL_FRAMEBUFFER_COMPLETE,glCheckFramebufferStatus(GL_FRAMEBUFFER));
+        ByteBuffer data=ByteBuffer.allocateDirect(width*height*4);
+        glReadPixels(0,0,width,height,GL_RGBA,GL_UNSIGNED_BYTE,data);
+        glBindFramebuffer(GL_FRAMEBUFFER,0); glDeleteFramebuffers(1,f,0);
+        int[] colors=new int[width*height];
+        for(int i=0;i<colors.length;i++) colors[i]=0xFF000000|((data.get(i*4)&255)<<16)
+                |((data.get(i*4+1)&255)<<8)|(data.get(i*4+2)&255);
+        assertEquals(GL_NO_ERROR,glGetError()); return colors;
+    }
+
+    private int sparsePair(Bitmap a,Bitmap b) {
+        pipeline.resetHistory();
+        pipeline.render(a,1,a.getWidth(),a.getHeight(),a.getWidth(),a.getHeight(),false,true,0,0);
+        pipeline.upload(b,2,b.getWidth(),b.getHeight(),true,50_000_000);
+        return pipeline.renderUploaded(b.getWidth(),b.getHeight(),false,0,75_000_000);
+    }
+
+    @Test public void isolatedPixelsMoveAcrossUnchangedBackgroundWithoutCopies() {
+        for(int background:new int[]{0xFF000000,0xFFFFFFFF})
+        for(int[] d:new int[][]{{4,0},{-4,0},{0,4},{0,-4},{4,4},{-4,-4}}) {
+            int x=d[0]<0?13:9, y=d[1]<0?13:9;
+            Bitmap a=solid(32,24,background), b=solid(32,24,background);
+            a.setPixel(x,y,0xFFFF0000); b.setPixel(x+d[0],y+d[1],0xFFFF0000);
+            int[] actual=pixels(sparsePair(a,b),32,24), expected=new int[32*24];
+            java.util.Arrays.fill(expected,background);
+            expected[(y+d[1]/2)*32+x+d[0]/2]=0xFFFF0000;
+            assertArrayEquals("One intermediate object, no old/current copies: "+d[0]+","+d[1],expected,actual);
+            a.recycle(); b.recycle();
+        }
+    }
+
+    @Test public void sparseMotionCrossesBlockBoundariesInBothAxes() {
+        for(int[] endpoints:new int[][]{{13,11,17,11},{17,11,13,11},{11,13,11,17},
+                {11,17,11,13},{13,13,17,17},{17,17,13,13}}) {
+            Bitmap a=solid(32,24,0xFF000000), b=solid(32,24,0xFF000000);
+            a.setPixel(endpoints[0],endpoints[1],0xFFFF0000);
+            b.setPixel(endpoints[2],endpoints[3],0xFFFF0000);
+            int[] actual=pixels(sparsePair(a,b),32,24), expected=new int[32*24];
+            java.util.Arrays.fill(expected,0xFF000000);
+            expected[(endpoints[1]+endpoints[3])/2*32+(endpoints[0]+endpoints[2])/2]=0xFFFF0000;
+            assertArrayEquals("Do not clip an intermediate object at the flow tile edge",expected,actual);
+            a.recycle(); b.recycle();
+        }
+    }
+
+    @Test public void sparseMotionPreservesStaticAndChangingOccluders() {
+        for(int mode=0;mode<3;mode++) {
+            Bitmap a=solid(32,24,0xFF000000), b=solid(32,24,0xFF000000);
+            a.setPixel(9,11,0xFFFF0000); b.setPixel(13,11,0xFFFF0000);
+            if(mode!=1) a.setPixel(11,11,0xFF00FF00);
+            if(mode!=2) b.setPixel(11,11,0xFF00FF00);
+            int t=sparsePair(a,b);
+            assertEquals("Preserve a HUD, new occluder or revealed current pixel",
+                    b.getPixel(11,11),pixel(t,11,11));
+            for(int color:pixels(t,32,24)) assertTrue("No blended trails",
+                    color==0xFF000000 || color==0xFFFF0000 || color==0xFF00FF00);
+            a.recycle(); b.recycle();
+        }
+    }
+
+    @Test public void smallSpritesKeepTheirAreaAcrossPartialTilesAndOddMotion() throws Exception {
+        for(int[] size:new int[][]{{32,24},{31,23}})
+        for(int extent:new int[]{1,2,3}) for(int shift:new int[]{-4,-3,3,4}) {
+            int x=shift<0?17:13, y=9;
+            Bitmap a=solid(size[0],size[1],0xFF182030), b=solid(size[0],size[1],0xFF182030);
+            for(int j=0;j<extent;j++) for(int i=0;i<extent;i++) {
+                a.setPixel(x+i,y+j,0xFFFFAA00); b.setPixel(x+shift+i,y+j,0xFFFFAA00);
+            }
+            int[] actual=pixels(sparsePair(a,b),size[0],size[1]), expected=new int[size[0]*size[1]];
+            java.util.Arrays.fill(expected,0xFF182030);
+            int advance=-(int)Math.floor(-shift*0.5+0.5);
+            for(int j=0;j<extent;j++) for(int i=0;i<extent;i++)
+                expected[(y+j)*size[0]+x+advance+i]=0xFFFFAA00;
+            assertArrayEquals("Sprite extent="+extent+", shift="+shift+", width="+size[0],expected,actual);
+            if(size[0]==32 && extent==3 && shift==4) captureSparseComparison(a,b,actual);
+            a.recycle(); b.recycle();
+        }
+    }
+
+    private void captureSparseComparison(Bitmap a,Bitmap b,int[] intermediate) throws Exception {
+        if(!"true".equals(androidx.test.platform.app.InstrumentationRegistry.getArguments()
+                .getString("enhancementCapture"))) return;
+        Bitmap middle=Bitmap.createBitmap(intermediate,a.getWidth(),a.getHeight(),Bitmap.Config.ARGB_8888);
+        int panelWidth=a.getWidth()*8, pictureHeight=a.getHeight()*8;
+        Bitmap image=Bitmap.createBitmap(panelWidth*3,pictureHeight+48,Bitmap.Config.ARGB_8888);
+        android.graphics.Canvas canvas=new android.graphics.Canvas(image);
+        canvas.drawColor(0xFF101417);
+        android.graphics.Paint paint=new android.graphics.Paint(); paint.setColor(0xFFF2F4F5);
+        paint.setTextSize(18); paint.setAntiAlias(true);
+        String[] labels={"Previous real frame","Intermediate GPU frame","Current real frame"};
+        Bitmap[] frames={a,middle,b};
+        for(int i=0;i<3;i++) {
+            canvas.drawText(labels[i],i*panelWidth+10,29,paint);
+            canvas.drawBitmap(frames[i],null,new android.graphics.Rect(i*panelWidth,48,
+                    (i+1)*panelWidth,pictureHeight+48),null);
+        }
+        java.io.File file=new java.io.File(androidx.test.platform.app.InstrumentationRegistry
+                .getInstrumentation().getTargetContext().getExternalFilesDir(null),"sparse-motion-comparison.png");
+        try(java.io.FileOutputStream output=new java.io.FileOutputStream(file)) {
+            assertTrue(image.compress(Bitmap.CompressFormat.PNG,100,output));
+        } finally { middle.recycle(); image.recycle(); }
+    }
+
+    @Test public void borrowedSparseMotionDoesNotCopyStaticDetails() {
+        Bitmap a=solid(32,24,0xFF000000), b=solid(32,24,0xFF000000);
+        for(int x:new int[]{9,13}) { a.setPixel(x,11,0xFFFFFFFF); b.setPixel(x,11,0xFFFFFFFF); }
+        a.setPixel(17,11,0xFFFF0000); b.setPixel(21,11,0xFFFF0000);
+        int t=sparsePair(a,b);
+        assertEquals("Do not create a third static white detail",0xFF000000,pixel(t,11,11));
+        assertEquals(0xFFFFFFFF,pixel(t,9,11)); assertEquals(0xFFFFFFFF,pixel(t,13,11));
+        assertEquals("Neighboring genuine motion still advances",0xFFFF0000,pixel(t,19,11));
+        a.recycle(); b.recycle();
+    }
+
+    @Test public void sparseFlowBorrowingRejectsOppositeNeighbors() throws Exception {
+        Bitmap a=solid(40,24,0xFF000000), b=solid(40,24,0xFF000000);
+        a.setPixel(9,11,0xFFFF0000); b.setPixel(11,11,0xFFFF0000);
+        a.setPixel(29,11,0xFF00FF00); b.setPixel(27,11,0xFF00FF00);
+        int t=sparsePair(a,b);
+        assertTrue("No invented direction between opposing objects",(motionPixel("flow",2,1)&255)<128);
+        assertEquals(0xFFFF0000,pixel(t,10,11)); assertEquals(0xFF00FF00,pixel(t,28,11));
+        for(int x=16;x<24;x++) assertEquals(0xFF000000,pixel(t,x,11));
+        a.recycle(); b.recycle();
+    }
+
+    @Test public void rejectedSparseMatchCannotBorrowANeighborsDirection() throws Exception {
+        Bitmap a=solid(40,24,0xFF000000), b=solid(40,24,0xFF000000);
+        a.setPixel(9,11,0xFF00FF00); b.setPixel(11,11,0xFF00FF00);
+        a.setPixel(17,11,0xFFFF0000); a.setPixel(21,11,0xFFFF0000);
+        b.setPixel(19,11,0xFFFF0000);
+        int t=sparsePair(a,b);
+        assertTrue("Do not override a locally rejected match",(motionPixel("flow",2,1)&255)<128);
+        for(int x=16;x<24;x++) assertEquals("Retain the real ambiguous object",b.getPixel(x,11),pixel(t,x,11));
+        assertEquals("Independent valid motion still works",0xFF00FF00,pixel(t,10,11));
+        a.recycle(); b.recycle();
     }
 
     @Test public void delayedUploadDoesNotRestartInterpolationFromOldPixels() {

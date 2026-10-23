@@ -18,8 +18,8 @@ public final class EnhancementPipeline {
     private final FloatBuffer quad = ByteBuffer.allocateDirect(64).order(ByteOrder.nativeOrder()).asFloatBuffer();
     private final FrameInterpolationClock clock = new FrameInterpolationClock();
     private final int[] inputs = new int[2];
-    private final Target flow = new Target(), sceneState = new Target(), interpolated = new Target(), upscaled = new Target(), sharpened = new Target();
-    private Program easu, rcas, estimate, resolve, scene, copy;
+    private final Target estimatedFlow = new Target(), flow = new Target(), sceneState = new Target(), interpolated = new Target(), upscaled = new Target(), sharpened = new Target();
+    private Program easu, rcas, estimate, spread, resolve, scene, copy;
     private long serial = Long.MIN_VALUE;
     private int current, tw, th, sw, sh;
     private boolean history, motionEnabled, animating, uploaded, motionPending;
@@ -110,12 +110,16 @@ public final class EnhancementPipeline {
         if (motionPending) {
             if (clock.phase(now)<1f) {
                 if (estimate==null) estimate=new Program("motion-estimate.fsh");
-                flow.size(Math.max(1,(sw+7)/8),Math.max(1,(sh+7)/8));
-                begin(estimate,flow,inputs[current],sw,sh,tw,th);
+                estimatedFlow.size(Math.max(1,(sw+7)/8),Math.max(1,(sh+7)/8));
+                begin(estimate,estimatedFlow,inputs[current],sw,sh,tw,th);
                 second(estimate,"previous",inputs[1-current],1); draw();
                 if (scene==null) scene=new Program("motion-scene.fsh");
                 sceneState.size(1,1);
-                begin(scene,sceneState,flow.texture,flow.width,flow.height,flow.width,flow.height); draw();
+                begin(scene,sceneState,estimatedFlow.texture,estimatedFlow.width,estimatedFlow.height,
+                        estimatedFlow.width,estimatedFlow.height); draw();
+                if (spread==null) spread=new Program("motion-spread.fsh");
+                flow.size(estimatedFlow.width,estimatedFlow.height);
+                begin(spread,flow,estimatedFlow.texture,flow.width,flow.height,flow.width,flow.height); draw();
             }
             motionPending=false;
         }
@@ -241,9 +245,9 @@ public final class EnhancementPipeline {
     }
 
     public void close() {
-        flow.close(); sceneState.close(); interpolated.close(); upscaled.close(); sharpened.close();
+        estimatedFlow.close(); flow.close(); sceneState.close(); interpolated.close(); upscaled.close(); sharpened.close();
         glDeleteTextures(2,inputs,0);
-        for(Program p:new Program[]{easu,rcas,estimate,resolve,scene,copy}) if(p!=null) glDeleteProgram(p.id);
+        for(Program p:new Program[]{easu,rcas,estimate,spread,resolve,scene,copy}) if(p!=null) glDeleteProgram(p.id);
     }
     private static final class Target {
         int texture,fbo,width,height;

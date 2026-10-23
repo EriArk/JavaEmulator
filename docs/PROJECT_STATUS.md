@@ -82,6 +82,15 @@ a locally installed Debug APK, not a public release update.
 
 ## Unreleased: Experimental Enhancements
 
+Small sprites on verified uniform backgrounds can now occupy their intermediate
+positions, including across flow-tile boundaries. Static HUD details remain fixed;
+ambiguous directions, conflicting neighbors and occlusion prefer current real
+pixels. This is bounded sparse-motion recovery, not general object segmentation.
+Mophun GPU surface destruction also invalidates presentation/capture readiness and
+old frame acknowledgements, preventing stale requests across recreation. The local
+Debug build passed 102 selected Retroid checks, 49 emulator GPU checks and 75 JVM tests. No public APK
+update. [Evidence, cost and limits](checks/2026-10-23-sparse-motion.md).
+
 The shared Java/Mophun interpolator now uses one pixel-rounding decision for
 both source frames, fixing wrong intermediate pixels on odd displacements.
 It rejects nearly equal opposite-direction matches in repeating patterns instead

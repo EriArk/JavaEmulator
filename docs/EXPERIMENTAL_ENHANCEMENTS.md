@@ -154,7 +154,7 @@ The prototype estimates backward motion in 8-pixel blocks, searching up to
 four guest pixels in either direction with a 3x3 patch at pixel centers.
 It warps the previous/current images
 and rejects uncertain matches or disagreeing pixels to the current real frame.
-Unchanged pixels retain their real coordinates to protect static HUD/text;
+Unchanged foreground pixels retain their real coordinates to protect static HUD/text;
 out-of-bounds warps and disagreeing color channels fall back to the current pixel.
 Matching patches cannot extend beyond the guest viewport. Both full-motion
 endpoints must agree photometrically before intermediate warping, so a borrowed
@@ -174,6 +174,26 @@ order and distance penalties cannot disambiguate a repeating pattern. This adds
 no texture reads or search pass. It is conservative: ambiguous areas retain the
 current real frame and may remain unsmoothed, rather than receiving guessed motion.
 
+For sparse objects, tiles with identical background corners in both frames are
+scanned (at most 8x8 pixels). Each frame may contain at most 16 non-background
+pixels in that tile. A changed current foreground pixel becomes the matching
+anchor, so a small sprite need not overlap the original center patch. Matching
+radius, endpoint checks and opposite-direction rejection still apply.
+
+A small flow-grid pass carries an unambiguous sparse vector to adjacent eligible
+background tiles. It is one hop, not recursive propagation. Conflicting neighbors,
+dense/unsupported tiles and locally rejected moving anchors are not filled. The
+scene-cut pass uses the original residuals before propagation. Flow B stores
+rejected (0), eligible background (.25), borrowed sparse (.625), matched sparse
+(.75), or matched dense (1); values below .5 never authorize warping.
+
+Only verified unchanged background may receive the intermediate foreground.
+Static HUD pixels remain fixed; both source endpoints must actually change to
+avoid copying stationary details into a borrowed-motion tile. New/disappearing
+occluders retain real current pixels when endpoint checks fail. This adds a bounded
+tile scan and one flow-sized target/pass, with no CPU pixel scan, readback or
+guest-lock extension. [Sparse motion and lifecycle checks](checks/2026-10-23-sparse-motion.md).
+
 A one-pixel GPU pass samples 16 positions in the flow residual once per source
 pair. If at least 12 have mean RGB mismatch >= 0.12, resolve uses the real current
 frame throughout that transition. This coarse scene-cut guard prevents local
@@ -183,8 +203,9 @@ scene classifier. It adds no CPU readback or guest-buffer lock. See
 
 This can still produce block boundaries, incorrect motion and occlusion artifacts.
 Fast scrolling beyond the search radius and fine repeating patterns are limits.
-The conservative HUD/endpoint guards can leave thin objects on unchanged
-backgrounds and edge regions unsmoothed. Cuts with extensive shared imagery can
+The conservative HUD/endpoint guards can still leave objects on textured
+backgrounds, mixed-motion tiles and edge regions unsmoothed. Sparse recovery is
+not general object segmentation or complete occlusion reconstruction. Cuts with extensive shared imagery can
 escape the coarse guard; difficult motion falls back rather than inventing detail.
 
 Presentation follows guest-frame completion timestamps, captured alongside the
