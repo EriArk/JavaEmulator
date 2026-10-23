@@ -42,6 +42,39 @@ public class GamePresetsUiTest {
         scenario.onActivity(activity -> ((Spinner) find(root(), Spinner.class, null)).setSelection(index)); idle();
     }
 
+    @Test public void enhancementsRequireTryAndNeverChangeGuestSpeed() {
+        scenario.onActivity(activity -> {
+            pages.enhancements();
+            find(root(), TextView.class, "FSR 1.0 upscaling").performClick();
+            find(root(), TextView.class, "Frame interpolation").performClick();
+            assertFalse(source.fsrUpscaling); assertNull(applied);
+            find(root(), TextView.class, "Try changes").performClick();
+            assertTrue(applied.fsrUpscaling); assertTrue(applied.frameInterpolation);
+            assertEquals(source.emulationSpeed, applied.emulationSpeed);
+            assertEquals(source.fpsLimit, applied.fpsLimit);
+        });
+    }
+
+    @Test public void mophunBudgetIsSeparateAndRequiresTry() {
+        scenario.onActivity(activity -> {
+            pages = new GameSettingsPages(menu, source, true, false, new GameSettingsPages.Host() {
+                public void preview(ProfileModel draft) { applied = ProfilesManager.copy(draft); }
+                public void mapping(ProfileModel draft, Runnable back) { }
+                public void advanced() { }
+                public void back() { }
+            });
+            pages.enhancements();
+            assertNull(find(root(), TextView.class, "Frame interpolation"));
+        });
+        idle(); choose(2);
+        scenario.onActivity(activity -> {
+            assertNull(applied); assertEquals(100, source.mophunCpuBudget);
+            find(root(), TextView.class, "Try changes").performClick();
+            assertEquals(200, applied.mophunCpuBudget); assertEquals(100, applied.emulationSpeed);
+            assertEquals(source.getNativeFpsLimit(), applied.getNativeFpsLimit());
+        });
+    }
+
     @Test public void tactileFeedbackIsPerGameAndRequiresTryForEveryTouchLayout() {
         org.junit.Assume.assumeFalse(ru.playsoftware.j2meloader.BuildConfig.HANDHELD_MODE);
         scenario.onActivity(activity -> {

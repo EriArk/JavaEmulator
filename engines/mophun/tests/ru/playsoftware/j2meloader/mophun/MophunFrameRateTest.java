@@ -8,6 +8,22 @@ import javax.microedition.lcdui.FramePacer;
 import static org.junit.Assert.*;
 
 public class MophunFrameRateTest {
+    @Test public void cpuBudgetIsIndependentFromClockAndFrameLimit() throws Exception {
+        File root=InstrumentationRegistry.getInstrumentation().getTargetContext().getCacheDir();
+        try(MophunSession session=new MophunSession(new File(root,"unused.mpn"),root,0,101,80)) {
+            if (!ru.playsoftware.j2meloader.BuildConfig.DEBUG) {
+                session.setCpuBudget(300); assertEquals(100, session.getCpuBudget()); return;
+            }
+            session.setFrameRateLimit(30); session.setEmulationSpeed(100);
+            for(int budget:new int[]{100,150,200,300}) {
+                session.setCpuBudget(budget); assertEquals(budget,session.getCpuBudget());
+                assertEquals(100,session.getEmulationSpeed()); assertEquals(30,session.getFrameRateLimit());
+            }
+            session.pause(true); session.pause(false); assertEquals(300,session.getCpuBudget());
+            session.setCpuBudget(-1); assertEquals(100,session.getCpuBudget());
+            session.setCpuBudget(Integer.MAX_VALUE); assertEquals(300,session.getCpuBudget());
+        }
+    }
     @Test public void speedChangesGameClockButNotFrameCapOrPausedTime() throws Exception {
         long[] real = {0}; MophunClock clock = new MophunClock(() -> real[0]);
         clock.speed(50); real[0] = 200; assertEquals(100,clock.getAsLong());

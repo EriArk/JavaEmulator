@@ -1,7 +1,7 @@
 # AbyssME Changelog
 
 User-facing development history, reconstructed from commits, release notes and
-local/private build records through **2026-10-20**. This is not a claim that all
+local/private build records through **2026-10-23**. This is not a claim that all
 listed work is in a public APK. See [current status](docs/PROJECT_STATUS.md) for
 availability, verification, known limits and screenshot guidance.
 
@@ -9,6 +9,26 @@ Labels: **Public source** means implemented on `main` but unreleased unless
 stated otherwise. **Experimental** in older checkpoints means local/private
 combined builds; released experimental features are explicitly identified.
 **Released** means an actual GitHub release asset.
+
+## 2026-10-23 - Experimental Image Enhancements and Mophun CPU Budget (Unreleased)
+
+- Add opt-in, Debug-only Java OpenGL ES FSR 1.0 upscaling with adjustable RCAS
+  sharpness and a separate motion-estimated frame-interpolation prototype.
+- Align intermediate redraw requests with Android animation/vsync callbacks;
+  cache completed unchanged output. Count guest frame submissions rather than
+  synthetic redraws in the FPS counter.
+- Reset interpolation history on menu/background transitions, resize and context
+  recreation; restore original rendering after shader/FBO errors. Bound texture
+  allocation and do not silently replace custom shaders or renderers.
+- Add per-game Mophun CPU budgets of 100/150/200/300%, changing VM instructions
+  per scheduling slice without changing SDK time or the frame cap. This is not
+  a calibrated CPU frequency or a guaranteed speed increase.
+- Use the existing Try / Keep / Undo and profile serialization paths. Existing
+  profiles default off/100%; Release builds hide and ignore the experimental
+  options. Preserve AMD's MIT notice and document the exact shader provenance.
+- Retroid and emulator validation, GPU cost and remaining quality/latency limits
+  are recorded in [the evidence report](docs/checks/2026-10-23-enhancements.md).
+  No public APK or release tag was changed; Symbian behavior is unchanged.
 
 ## 2026-10-20 - Java Sample: Input, Screen Cleanup and Import Recovery (Unreleased)
 

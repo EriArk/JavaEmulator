@@ -17,6 +17,11 @@ public final class MophunSession implements AutoCloseable {
     private final Thread worker;
     private final MophunClock clock = new MophunClock();
     private volatile int frameRateLimit = 60;
+    private volatile int cpuBudget = 100;
+    public void setCpuBudget(int percent) {
+        cpuBudget = ru.playsoftware.j2meloader.BuildConfig.DEBUG ? Math.max(100, Math.min(300, percent)) : 100;
+    }
+    public int getCpuBudget() { return cpuBudget; }
     private final javax.microedition.lcdui.FramePacer framePacer =
             new javax.microedition.lcdui.FramePacer(() -> frameRateLimit);
     private volatile boolean stopped, paused, parked, finished;
@@ -153,7 +158,8 @@ public final class MophunSession implements AutoCloseable {
             while (!stopped && !vm.stopped) {
                 checkpoint();
                 int flips = target.flips;
-                vm.run(50000);
+                // More guest instructions per scheduling slice; clock and frame pacing stay independent.
+                vm.run(500 * cpuBudget);
                 if (target.flips == flips) Thread.sleep(1);
             }
         } catch (SessionStopped ignored) {

@@ -74,6 +74,14 @@ public class ProfileModel {
 
 	@SerializedName("ScreenFilter")
 	public boolean screenFilter;
+	@SerializedName("FsrUpscaling")
+	public boolean fsrUpscaling;
+	@SerializedName("FsrSharpness")
+	public int fsrSharpness = 50;
+	@SerializedName("FrameInterpolation")
+	public boolean frameInterpolation;
+	@SerializedName("MophunCpuBudget")
+	public int mophunCpuBudget = 100;
 
 	@SerializedName("ScreenEffect")
 	public int screenEffect;

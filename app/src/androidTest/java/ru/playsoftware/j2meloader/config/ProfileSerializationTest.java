@@ -17,6 +17,17 @@ import static org.junit.Assert.*;
 
 /** Run against R8 builds too: debug alone cannot catch renamed/removed fields. */
 public class ProfileSerializationTest {
+    @Test public void enhancementsDefaultOffAndSurviveSaveAndUndo() throws Exception {
+        ProfileModel old = roundTrip("{}");
+        assertFalse(old.fsrUpscaling); assertFalse(old.frameInterpolation);
+        assertEquals(50, old.fsrSharpness); assertEquals(100, old.mophunCpuBudget);
+        ProfileModel enhanced = roundTrip("{\"FsrUpscaling\":true,\"FsrSharpness\":75,\"FrameInterpolation\":true,\"MophunCpuBudget\":200}");
+        ProfilesManager.beginPreview(old); ProfilesManager.copyInto(enhanced, old);
+        assertTrue(old.fsrUpscaling); assertTrue(old.frameInterpolation); assertEquals(200, old.mophunCpuBudget);
+        ProfilesManager.undoPreview(old);
+        assertFalse(old.fsrUpscaling); assertFalse(old.frameInterpolation);
+        assertEquals(50, old.fsrSharpness); assertEquals(100, old.mophunCpuBudget);
+    }
     @Test public void everyPersistedFieldHasAStableNameAndRemainsWritable() {
         for (Field field : ProfileModel.class.getFields()) {
             int flags = field.getModifiers();

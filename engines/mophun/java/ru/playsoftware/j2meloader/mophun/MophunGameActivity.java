@@ -101,6 +101,7 @@ public final class MophunGameActivity extends Activity {
                     new File(Config.getDataDir(), directory.getName()), model,
                     model == 2 ? 128 : 101, model == 2 ? 160 : 80, getCacheDir());
             session.setFrameRateLimit(profile.getNativeFpsLimit());
+            session.setCpuBudget(profile.mophunCpuBudget);
             session.setEmulationSpeed(profile.getEmulationSpeed());
             MophunInput sink = new MophunInput(session::screen);
             input = new ControllerInput(key -> mappings.get(key, 0), sink);
@@ -368,6 +369,7 @@ public final class MophunGameActivity extends Activity {
         updateControllerMode();
         if (session != null) session.setEmulationSpeed(profile.getEmulationSpeed());
         if (session != null) session.setFrameRateLimit(profile.getNativeFpsLimit());
+        if (session != null) session.setCpuBudget(profile.mophunCpuBudget);
         updateScreenshotButton();
         clearInput(); mappings = KeyMapper.resolveMappings(profile.getActiveKeyMappings());
         applyOrientation();

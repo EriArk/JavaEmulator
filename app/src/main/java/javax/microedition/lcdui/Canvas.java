@@ -162,6 +162,14 @@ public abstract class Canvas extends Displayable {
 	private int notifiedWidth, notifiedHeight;
 	private Image offscreen;
 	private Image offscreenCopy;
+	private long frameSerial;
+	private static volatile boolean fsrEnabled, interpolationEnabled;
+	private static volatile int fsrSharpness = 50;
+	public static void setEnhancements(boolean fsr, boolean interpolation, int sharpness) {
+		fsrEnabled = ru.playsoftware.j2meloader.BuildConfig.DEBUG && fsr;
+		interpolationEnabled = ru.playsoftware.j2meloader.BuildConfig.DEBUG && interpolation;
+		fsrSharpness = Math.max(0, Math.min(100, sharpness));
+	}
 	private int onX, onY, onWidth, onHeight;
 	private static volatile int lcdMode, lcdIntensity;
 	private final RectF lcdClip = new RectF();
@@ -356,6 +364,7 @@ public abstract class Canvas extends Displayable {
 
 	void setDisplayVisible(boolean value) {
 		displayVisible = value;
+		if (renderer != null) renderer.invalidateHistory();
 		Display.getEventQueue().postEventQueued(CanvasEvent.getInstance(this,
 				value ? CanvasEvent.SHOW_NOTIFY : CanvasEvent.HIDE_NOTIFY));
 	}
@@ -766,6 +775,7 @@ public abstract class Canvas extends Displayable {
 		limitFps();
 		synchronized (bufferLock) {
 			offscreenCopy.getSingleGraphics().flush(image, x, y, width, height);
+			frameSerial++;
 		}
 		requestFlushToScreen();
 	}
@@ -775,6 +785,7 @@ public abstract class Canvas extends Displayable {
 		limitFps();
 		synchronized (bufferLock) {
 			image.copyTo(offscreenCopy, x, y);
+			frameSerial++;
 		}
 		requestFlushToScreen();
 	}
@@ -896,9 +907,27 @@ public abstract class Canvas extends Displayable {
 		private volatile boolean geometryDirty = true;
 		private volatile boolean filterDirty = true;
 		private int textureWidth, textureHeight;
+		private javax.microedition.lcdui.graphics.EnhancementPipeline enhancements;
+		private boolean enhancementFailed;
+		private long countedSerial = Long.MIN_VALUE;
+		private volatile boolean running;
+		private final java.util.concurrent.atomic.AtomicBoolean historyDirty = new java.util.concurrent.atomic.AtomicBoolean();
+		private final FloatBuffer enhancedVbo = ByteBuffer.allocateDirect(64).order(ByteOrder.nativeOrder()).asFloatBuffer();
+		private final Runnable interpolationTick = () -> { if (running && displayVisible) mView.requestRender(); };
+
+		void invalidateHistory() {
+			historyDirty.set(true);
+			if (mView != null) {
+				mView.removeCallbacks(interpolationTick);
+				mView.requestRender();
+			}
+		}
 
 		@Override
 		public void onSurfaceCreated(GL10 gl, EGLConfig config) {
+			// All previous GL names belonged to the lost context.
+			enhancements = null; enhancementFailed = false;
+			countedSerial = Long.MIN_VALUE;
 			program = new ShaderProgram(shaderFilter);
 			int c = Canvas.backgroundColor;
 			glClearColor((c >> 16 & 0xff) / 255.0f, (c >> 8 & 0xff) / 255.0f, (c & 0xff) / 255.0f, 1.0f);
@@ -922,10 +951,48 @@ public abstract class Canvas extends Displayable {
 
 		@Override
 		public void onDrawFrame(GL10 gl) {
+			glBindFramebuffer(GLES20.GL_FRAMEBUFFER, 0);
+			glViewport(0, 0, displayWidth, displayHeight);
 			glClear(GL_COLOR_BUFFER_BIT);
 			synchronized (bufferLock) {
 				// Client-side vertex memory must stay unchanged until GL consumes the draw.
 				synchronized (vbo) {
+					if (historyDirty.getAndSet(false)) {
+						if (enhancements != null) enhancements.resetHistory();
+					}
+					if (shaderFilter == null && !enhancementFailed && (fsrEnabled || interpolationEnabled)) {
+						try {
+							if (enhancements == null) enhancements = new javax.microedition.lcdui.graphics.EnhancementPipeline();
+							boolean rotated = Math.floorMod(drawRotation, 180) != 0;
+							int texture = enhancements.render(offscreenCopy.getBitmap(), frameSerial, width, height,
+									rotated ? onHeight : onWidth, rotated ? onWidth : onHeight,
+									fsrEnabled, interpolationEnabled && displayVisible, fsrSharpness, System.nanoTime());
+							glViewport(0, 0, displayWidth, displayHeight);
+							program.use(); glActiveTexture(GL_TEXTURE0); glBindTexture(GL_TEXTURE_2D, texture);
+							glUniform1i(program.uTextureUnit, 0);
+							enhancedVbo.clear();
+							float tw = (float) width / offscreenCopy.getBitmap().getWidth();
+							float th = (float) height / offscreenCopy.getBitmap().getHeight();
+							for (int i = 0; i < 16; i += 4) enhancedVbo.put(vbo.get(i)).put(vbo.get(i+1))
+									.put(vbo.get(i+2)/tw).put(vbo.get(i+3)/th);
+							program.loadVbo(enhancedVbo, width, height);
+							glDrawArrays(GL_TRIANGLE_STRIP, 0, 4);
+							mView.removeCallbacks(interpolationTick);
+							if (running && displayVisible && enhancements.animating()) mView.postOnAnimation(interpolationTick);
+							countGuestFrame();
+							return;
+						} catch (RuntimeException e) {
+							android.util.Log.w(TAG, "Enhancements unavailable; using original presentation", e);
+							enhancementFailed = true;
+							ViewHandler.postEvent(() -> android.widget.Toast.makeText(ContextHolder.getAppContext(),
+									"Enhancements unavailable. Original picture restored.", android.widget.Toast.LENGTH_LONG).show());
+						}
+					}
+					if (enhancements != null) { enhancements.close(); enhancements = null; geometryDirty = true; }
+					if (!fsrEnabled && !interpolationEnabled) enhancementFailed = false;
+					mView.removeCallbacks(interpolationTick);
+					glBindFramebuffer(GLES20.GL_FRAMEBUFFER, 0); glViewport(0, 0, displayWidth, displayHeight);
+					program.use(); glActiveTexture(GL_TEXTURE0); glBindTexture(GL_TEXTURE_2D, bgTextureId[0]);
 					if (geometryDirty) {
 						geometryDirty = false;
 						Bitmap bitmap = offscreenCopy.getBitmap();
@@ -945,10 +1012,15 @@ public abstract class Canvas extends Displayable {
 						GLUtils.texSubImage2D(GL_TEXTURE_2D, 0, 0, 0, frame);
 					}
 					glDrawArrays(GL_TRIANGLE_STRIP, 0, 4);
+					countGuestFrame();
 				}
 			}
-			if (fpsCounter != null) {
-				fpsCounter.increment();
+		}
+
+		private void countGuestFrame() {
+			if (countedSerial != frameSerial) {
+				countedSerial = frameSerial;
+				if (fpsCounter != null) fpsCounter.increment();
 			}
 		}
 
@@ -995,10 +1067,13 @@ public abstract class Canvas extends Displayable {
 		}
 
 		public void stop() {
+			running = false; mView.removeCallbacks(interpolationTick);
+			mView.queueEvent(() -> { if (enhancements != null) enhancements.resetHistory(); });
 			mView.onPause();
 		}
 
 		public void start() {
+			running = true;
 			mView.onResume();
 		}
 
@@ -1074,6 +1149,7 @@ public abstract class Canvas extends Displayable {
 			}
 			synchronized (bufferLock) {
 				offscreen.copyTo(offscreenCopy);
+				frameSerial++;
 			}
 			if (surface == null || !surface.isValid()) {
 				return;

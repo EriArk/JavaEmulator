@@ -41,6 +41,9 @@ public class ShaderProgram {
 	public int uTexelDelta;
 	public int uSetting;
 	public int uPixelDelta;
+	private int programId;
+
+	public void use() { glUseProgram(programId); }
 
 	public ShaderProgram(ShaderInfo shader) {
 		if (shader != null) {
@@ -103,6 +106,7 @@ public class ShaderProgram {
 			glDeleteProgram(program);
 			return -1;
 		}
+		programId = program;
 		return program;
 	}
 

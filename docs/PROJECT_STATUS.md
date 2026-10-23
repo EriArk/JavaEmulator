@@ -1,6 +1,6 @@
 # AbyssME - Current Product and Development Status
 
-**Last updated: 2026-10-20.** Verification dates are recorded per section.
+**Last updated: 2026-10-23.** Verification dates are recorded per section.
 This is the starting point for website copy,
 announcements, progress posts and project handoffs. It includes work that exists
 only in local experiments or private test builds. Describing that work here
@@ -60,9 +60,28 @@ older 0.3 builds, not the current 0.4 release series.
 | Channel | Current identifier | Availability |
 | --- | --- | --- |
 | Public download | `0.4.0-beta.3-r1`, code 309, on existing Beta 3 page | One signed adaptive APK, matching app source and dependency/native source bundles |
-| Development source | Java cadence, GameCanvas input, Canvas overlay cleanup and interrupted-import recovery after 0.4.0-beta.3-r1 | Unreleased; Debug emulator checks only. Public revision APK unchanged |
+| Development source | Java cadence/input/import fixes; experimental FSR, frame interpolation and Mophun CPU budget | Unreleased. Enhancements are Debug-only; Retroid and emulator evidence below. Public revision APK unchanged |
 | Private historical snapshot | `0.1.0-beta.2-experimental.15`, 2026-10-11 | Old Java/Mophun test build, not the current beta |
 | Local-only material | Game fixtures, firmware, diagnostics, device data and signing keys | Not in Git or public release assets; describing testing does not authorize redistribution |
+
+## Unreleased: Experimental Enhancements
+
+Debug builds now have a per-game **Display > Enhancements** page using Try /
+Keep / Undo. Java OpenGL ES presentation supports an AMD FSR 1.0 EASU/RCAS
+adaptation and a separate motion-estimated intermediate-frame prototype.
+Mophun supports an independent 100-300% instruction-slice budget; this is not a
+calibrated phone CPU frequency. Java/ART has no emulated phone CPU clock.
+
+All image effects default off. Release builds hide the page and ignore these
+experimental runtime values, including imported profiles. No new APK was
+published. No Symbian CPU change or Mophun/Symbian GPU path is included.
+Interpolation adds up to 100 ms presentation delay and can introduce artifacts;
+it does not improve logic/input rate. No universal 60 FPS or automatic game
+enhancement profile is claimed. Retroid is available again. The existing public
+Beta 3 Revision 1 release page was rechecked on October 23; no release mutation.
+
+[Implementation and limits](EXPERIMENTAL_ENHANCEMENTS.md),
+[device evidence and measured cost](checks/2026-10-23-enhancements.md).
 
 ## Unreleased: Twenty-game Java Sample
 

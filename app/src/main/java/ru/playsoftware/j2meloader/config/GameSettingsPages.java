@@ -50,6 +50,7 @@ public final class GameSettingsPages {
                 i -> { draft.screenScaleType = i; draft.screenScaleRatio = 100; });
         menu.toggle("Smoothing", draft.screenFilter, value -> draft.screenFilter = value);
         screenEffectChoice(menu, draft);
+        if (BuildConfig.DEBUG) menu.action("Enhancements", R.drawable.ic_quick_quality, this::enhancements);
         menu.choice("Image rotation", new String[]{"0\u00b0", "90\u00b0", "180\u00b0", "270\u00b0"},
                 Math.floorMod(draft.screenRotation / 90, 4), i -> draft.screenRotation = i * 90);
         if (!BuildConfig.HANDHELD_MODE) menu.choice("Orientation", new String[]{"Auto", "Portrait", "Landscape"},
@@ -87,6 +88,26 @@ public final class GameSettingsPages {
                     i -> draft.touchLandscapeReach = i);
         }
         controlsFooter();
+    }
+
+    public void enhancements() {
+        menu.page("Enhancements (experimental)");
+        if (javaGame) {
+            if (draft.graphicsMode == 1 && draft.shader == null) {
+                menu.toggle("FSR 1.0 upscaling", draft.fsrUpscaling, v -> draft.fsrUpscaling = v);
+                menu.percentage("Sharpness", Math.max(0, Math.min(100, draft.fsrSharpness)), 0, v -> draft.fsrSharpness = v);
+                menu.toggle("Frame interpolation", draft.frameInterpolation, v -> draft.frameInterpolation = v);
+            } else {
+                menu.message("Requires OpenGL ES without a custom shader.");
+            }
+        } else {
+            int[] budgets = {100, 150, 200, 300};
+            int selected = 0;
+            for (int i=0;i<budgets.length;i++) if (budgets[i]==draft.mophunCpuBudget) selected=i;
+            menu.choice("CPU budget", new String[]{"100% (Original)","150%","200%","300%"},
+                    selected, i -> draft.mophunCpuBudget=budgets[i]);
+        }
+        trialAction(); menu.setBackAction(this::display);
     }
 
     /** Embed controls without exposing another engine's display options. */

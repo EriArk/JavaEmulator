@@ -338,6 +338,59 @@ public class CanvasLifecycleTest {
         assertSurfaceColor(view, 0xFF00FF00);
     }
 
+    @Test public void enhancementsSurviveResizeRotationToggleAndContextRecreation() throws Exception {
+        org.junit.Assume.assumeTrue(ru.playsoftware.j2meloader.BuildConfig.DEBUG);
+        int oldW = Displayable.getVirtualWidth(), oldH = Displayable.getVirtualHeight();
+        Field mode = Canvas.class.getDeclaredField("graphicsMode"); mode.setAccessible(true);
+        int oldMode = mode.getInt(null);
+        Field view = Canvas.class.getDeclaredField("innerView"); view.setAccessible(true);
+        Field renderer = Canvas.class.getDeclaredField("renderer"); renderer.setAccessible(true);
+        Screen[] canvas = new Screen[1];
+        try (androidx.test.core.app.ActivityScenario<ru.playsoftware.j2meloader.MainActivity> scenario =
+                     androidx.test.core.app.ActivityScenario.launch(ru.playsoftware.j2meloader.MainActivity.class)) {
+            scenario.onActivity(activity -> {
+                ContextHolder.setCurrentActivity(host); ContextHolder.setVk(null);
+                Canvas.setGraphicsMode(1, false); Canvas.setScale(2, 1, 100);
+                Canvas.setEnhancements(true, true, 50); Displayable.setVirtualSize(128, 160);
+                canvas[0] = new Screen(); activity.setContentView(canvas[0].getDisplayableView());
+                display.setCurrent(canvas[0]); Display.setForeground(true);
+            });
+            drain(); assertGreenSurface((android.view.SurfaceView) view.get(canvas[0]));
+            for (int rotation : new int[]{90, 180, 270, 0}) {
+                scenario.onActivity(activity -> {
+                    Displayable.setVirtualSize(rotation == 180 ? 176 : 240, rotation == 180 ? 220 : 320);
+                    Canvas.setScreenRotation(rotation); canvas[0].updateSize(); canvas[0].updateRenderingSettings();
+                });
+                drain(); assertGreenSurface((android.view.SurfaceView) view.get(canvas[0]));
+            }
+            Object gl = renderer.get(canvas[0]);
+            Field failed = gl.getClass().getDeclaredField("enhancementFailed"); failed.setAccessible(true);
+            assertFalse("Pixels must come from enhancements, not the fallback", failed.getBoolean(gl));
+            Field pipeline = gl.getClass().getDeclaredField("enhancements"); pipeline.setAccessible(true);
+            assertNotNull(pipeline.get(gl));
+            Display.setForeground(false); drain();
+            assertGreenSurface((android.view.SurfaceView) view.get(canvas[0]));
+            Display.setForeground(true); drain();
+            assertGreenSurface((android.view.SurfaceView) view.get(canvas[0]));
+            for (boolean enabled : new boolean[]{false, true}) {
+                scenario.onActivity(activity -> {
+                    Canvas.setEnhancements(enabled, enabled, 50); canvas[0].color = enabled ? 0x00FF00 : 0xFF0000;
+                    canvas[0].repaint(); canvas[0].updateRenderingSettings();
+                });
+                drain(); assertSurfaceColor((android.view.SurfaceView) view.get(canvas[0]), enabled ? 0xFF00FF00 : 0xFFFF0000);
+            }
+            android.view.SurfaceView surface = (android.view.SurfaceView) view.get(canvas[0]);
+            scenario.onActivity(activity -> surface.setVisibility(android.view.View.GONE));
+            android.os.SystemClock.sleep(150);
+            scenario.onActivity(activity -> surface.setVisibility(android.view.View.VISIBLE));
+            drain(); assertGreenSurface(surface); assertFalse(failed.getBoolean(gl));
+            assertNotNull(pipeline.get(gl));
+        } finally {
+            Canvas.setEnhancements(false, false, 50); Displayable.setVirtualSize(oldW, oldH);
+            Canvas.setScreenRotation(0); Canvas.setGraphicsMode(oldMode, false);
+        }
+    }
+
     @Test public void glesScreenshotRedrawsDiscardedBackBuffer() throws Exception {
         int oldW = Displayable.getVirtualWidth(), oldH = Displayable.getVirtualHeight();
         Field mode = Canvas.class.getDeclaredField("graphicsMode"); mode.setAccessible(true);

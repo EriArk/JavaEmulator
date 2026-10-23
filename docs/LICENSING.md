@@ -26,6 +26,7 @@ historical artifacts, not part of the new combined distribution.
 | Mophun | Wolphun `780649421fc5b1faabc7589c3165f17a6a316848`, GPLv3; selected source and modifications in [engines/mophun](../engines/mophun) |
 | Underlying Mophun VM/3D work | Wolphun credits nofun; Radrat Softworks copyright and Apache-2.0 license are included |
 | Mascot Capsule | Existing Apache-2.0 implementation; independent of M3G, retained |
+| Experimental FSR 1.0 shaders | AMD FidelityFX-FSR `a21ffb8f6c13233ba336352bdff293894c706575`, MIT; GLES2 EASU/RCAS adaptation, [provenance and modifications](EXPERIMENTAL_ENHANCEMENTS.md), [retained notice](../app/src/main/assets/licenses/FSR-MIT.txt) |
 | MicroEmulator portions | Existing Apache-2.0 alternative selected where the headers offer Apache/LGPL alternatives |
 
 The root GPL scope does not remove Apache notices. The
