@@ -82,6 +82,14 @@ a locally installed Debug APK, not a public release update.
 
 ## Unreleased: Experimental Enhancements
 
+Owner selection now also has a standalone retro-filter audition: SuperEagle,
+HQ2x/3x/4x, xBR no-blend, xBRZ, ScaleFX, AdvCartoon and CRT EasyMode/Geom, plus
+an unfiltered control. All 11 same-frame cases rendered on Retroid without FSR
+or interpolation. This is an opt-in test harness with external local shaders,
+not production presets or a public APK change. The separate emulator attempt
+ended in a startup ANR before tests; visual choice and runtime integration remain
+open. [Numbered captures, adapter details and limits](checks/2026-10-23-retro-shader-audition.md).
+
 An owner visual-review set now compares the same frozen Deep Abyss first-level
 frame through five Retroid GPU configurations: Pixel sharp, Smooth and FSR at
 0/50/100% sharpness. Labelled full-frame sheets and matching crops remain local;

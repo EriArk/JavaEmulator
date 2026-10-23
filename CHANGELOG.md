@@ -10,6 +10,20 @@ stated otherwise. **Experimental** in older checkpoints means local/private
 combined builds; released experimental features are explicitly identified.
 **Released** means an actual GitHub release asset.
 
+## 2026-10-23 - Retro Shader Selection (Local Audition)
+
+- Compare ten standalone retro filters and an unfiltered control using the same
+  captured game frame on Retroid. Include SuperEagle, HQ2x/3x/4x, xBR no-blend,
+  xBRZ, ScaleFX, Advanced Cartoon, CRT EasyMode and CRT Geom.
+- Export individually numbered images without FSR, interpolation or an extra
+  LCD overlay. Preserve opaque capture for RGB-only shaders and adapt a CRT
+  macro/local-name collision without changing its formulas.
+- Add a reproducible, opt-in test harness and staging helper; shaders and game
+  captures remain local, outside APK assets. All 11 Retroid cases pass; the
+  emulator attempt ends before testing in a startup ANR. No production menu,
+  saved profile or public release changes. Owner selection is pending.
+  [Evidence and limits](docs/checks/2026-10-23-retro-shader-audition.md).
+
 ## 2026-10-23 - Same-Frame Visual Review (Development Only)
 
 - Export labelled Pixel sharp, Smooth and FSR 0/50/100% comparisons from one
