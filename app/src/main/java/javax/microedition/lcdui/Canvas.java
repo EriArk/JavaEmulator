@@ -606,20 +606,20 @@ public abstract class Canvas extends Displayable {
 				offscreen.setSize(width, height);
 				offscreenCopy.setSize(width, height);
 			}
+			if (graphicsMode == 1) {
+				float gl = 2.0f * virtualScreen.left / displayWidth - 1.0f;
+				float gt = 1.0f - 2.0f * virtualScreen.top / displayHeight;
+				float gr = 2.0f * virtualScreen.right / displayWidth - 1.0f;
+				float gb = 1.0f - 2.0f * virtualScreen.bottom / displayHeight;
+				float th = (float) height / offscreen.getBitmap().getHeight();
+				float tw = (float) width / offscreen.getBitmap().getWidth();
+				renderer.updateSize(gl, gt, gr, gb, th, tw);
+			}
 		}
 		if (overlay != null) {
 			overlay.resize(screen, onX, onY, onX + onWidth, onY + onHeight + softBarHeight);
 		}
 
-		if (graphicsMode == 1) {
-			float gl = 2.0f * virtualScreen.left / displayWidth - 1.0f;
-			float gt = 1.0f - 2.0f * virtualScreen.top / displayHeight;
-			float gr = 2.0f * virtualScreen.right / displayWidth - 1.0f;
-			float gb = 1.0f - 2.0f * virtualScreen.bottom / displayHeight;
-			float th = (float) height / offscreen.getBitmap().getHeight();
-			float tw = (float) width / offscreen.getBitmap().getWidth();
-			renderer.updateSize(gl, gt, gr, gb, th, tw);
-		}
 		if (width != oldWidth || height != oldHeight) {
 			if (isShown()) {
 				Display.getEventQueue().postEventQueued(CanvasEvent.getInstance(this,
@@ -907,6 +907,7 @@ public abstract class Canvas extends Displayable {
 		private volatile boolean geometryDirty = true;
 		private volatile boolean filterDirty = true;
 		private int textureWidth, textureHeight;
+		private int outputWidth, outputHeight, viewportWidth, viewportHeight;
 		private javax.microedition.lcdui.graphics.EnhancementPipeline enhancements;
 		private boolean enhancementFailed;
 		private long countedSerial = Long.MIN_VALUE;
@@ -954,40 +955,21 @@ public abstract class Canvas extends Displayable {
 			glBindFramebuffer(GLES20.GL_FRAMEBUFFER, 0);
 			glViewport(0, 0, displayWidth, displayHeight);
 			glClear(GL_COLOR_BUFFER_BIT);
+			if (historyDirty.getAndSet(false) && enhancements != null) enhancements.resetHistory();
+			if (shaderFilter == null && !enhancementFailed && (fsrEnabled || interpolationEnabled)) {
+				try {
+					drawEnhancedFrame();
+					return;
+				} catch (RuntimeException e) {
+					android.util.Log.w(TAG, "Enhancements unavailable; using original presentation", e);
+					enhancementFailed = true;
+					ViewHandler.postEvent(() -> android.widget.Toast.makeText(ContextHolder.getAppContext(),
+							"Enhancements unavailable. Original picture restored.", android.widget.Toast.LENGTH_LONG).show());
+				}
+			}
 			synchronized (bufferLock) {
 				// Client-side vertex memory must stay unchanged until GL consumes the draw.
 				synchronized (vbo) {
-					if (historyDirty.getAndSet(false)) {
-						if (enhancements != null) enhancements.resetHistory();
-					}
-					if (shaderFilter == null && !enhancementFailed && (fsrEnabled || interpolationEnabled)) {
-						try {
-							if (enhancements == null) enhancements = new javax.microedition.lcdui.graphics.EnhancementPipeline();
-							boolean rotated = Math.floorMod(drawRotation, 180) != 0;
-							int texture = enhancements.render(offscreenCopy.getBitmap(), frameSerial, width, height,
-									rotated ? onHeight : onWidth, rotated ? onWidth : onHeight,
-									fsrEnabled, interpolationEnabled && displayVisible, fsrSharpness, System.nanoTime());
-							glViewport(0, 0, displayWidth, displayHeight);
-							program.use(); glActiveTexture(GL_TEXTURE0); glBindTexture(GL_TEXTURE_2D, texture);
-							glUniform1i(program.uTextureUnit, 0);
-							enhancedVbo.clear();
-							float tw = (float) width / offscreenCopy.getBitmap().getWidth();
-							float th = (float) height / offscreenCopy.getBitmap().getHeight();
-							for (int i = 0; i < 16; i += 4) enhancedVbo.put(vbo.get(i)).put(vbo.get(i+1))
-									.put(vbo.get(i+2)/tw).put(vbo.get(i+3)/th);
-							program.loadVbo(enhancedVbo, width, height);
-							glDrawArrays(GL_TRIANGLE_STRIP, 0, 4);
-							mView.removeCallbacks(interpolationTick);
-							if (running && displayVisible && enhancements.animating()) mView.postOnAnimation(interpolationTick);
-							countGuestFrame();
-							return;
-						} catch (RuntimeException e) {
-							android.util.Log.w(TAG, "Enhancements unavailable; using original presentation", e);
-							enhancementFailed = true;
-							ViewHandler.postEvent(() -> android.widget.Toast.makeText(ContextHolder.getAppContext(),
-									"Enhancements unavailable. Original picture restored.", android.widget.Toast.LENGTH_LONG).show());
-						}
-					}
 					if (enhancements != null) { enhancements.close(); enhancements = null; geometryDirty = true; }
 					if (!fsrEnabled && !interpolationEnabled) enhancementFailed = false;
 					mView.removeCallbacks(interpolationTick);
@@ -1012,14 +994,45 @@ public abstract class Canvas extends Displayable {
 						GLUtils.texSubImage2D(GL_TEXTURE_2D, 0, 0, 0, frame);
 					}
 					glDrawArrays(GL_TRIANGLE_STRIP, 0, 4);
-					countGuestFrame();
+					countGuestFrame(frameSerial);
 				}
 			}
 		}
 
-		private void countGuestFrame() {
-			if (countedSerial != frameSerial) {
-				countedSerial = frameSerial;
+		private void drawEnhancedFrame() {
+			if (enhancements == null) enhancements = new javax.microedition.lcdui.graphics.EnhancementPipeline();
+			boolean fsr = fsrEnabled, motion = interpolationEnabled && displayVisible;
+			int sharpness = fsrSharpness;
+			int w, h, outW, outH, screenW, screenH;
+			long serial;
+			// Only upload reads the mutable guest pixels. Snapshot geometry for this exact submission.
+			synchronized (bufferLock) {
+				synchronized (vbo) {
+					Bitmap frame = offscreenCopy.getBitmap();
+					w = offscreenCopy.getWidth(); h = offscreenCopy.getHeight(); serial = frameSerial;
+					outW = outputWidth; outH = outputHeight;
+					screenW = viewportWidth; screenH = viewportHeight;
+					enhancedVbo.clear();
+					float tw = (float) w / frame.getWidth(), th = (float) h / frame.getHeight();
+					for (int i = 0; i < 16; i += 4) enhancedVbo.put(vbo.get(i)).put(vbo.get(i+1))
+							.put(vbo.get(i+2)/tw).put(vbo.get(i+3)/th);
+					enhancements.upload(frame, serial, w, h, motion, System.nanoTime());
+				}
+			}
+			int texture = enhancements.renderUploaded(outW, outH, fsr, sharpness, System.nanoTime());
+			glViewport(0, 0, screenW, screenH);
+			program.use(); glActiveTexture(GL_TEXTURE0); glBindTexture(GL_TEXTURE_2D, texture);
+			glUniform1i(program.uTextureUnit, 0);
+			program.loadVbo(enhancedVbo, w, h);
+			glDrawArrays(GL_TRIANGLE_STRIP, 0, 4);
+			mView.removeCallbacks(interpolationTick);
+			if (running && displayVisible && enhancements.animating()) mView.postOnAnimation(interpolationTick);
+			countGuestFrame(serial);
+		}
+
+		private void countGuestFrame(long serial) {
+			if (countedSerial != serial) {
+				countedSerial = serial;
 				if (fpsCounter != null) fpsCounter.increment();
 			}
 		}
@@ -1043,6 +1056,9 @@ public abstract class Canvas extends Displayable {
 
 		public void updateSize(float gl, float gt, float gr, float gb, float th, float tw) {
 			synchronized (vbo) {
+				boolean rotated = Math.floorMod(drawRotation, 180) != 0;
+				outputWidth = rotated ? onHeight : onWidth; outputHeight = rotated ? onWidth : onHeight;
+				viewportWidth = displayWidth; viewportHeight = displayHeight;
 				FloatBuffer vertex_bg = vbo;
 				vertex_bg.rewind();
 				putVertex(vertex_bg, gl, gt, 0, 0, tw, th);

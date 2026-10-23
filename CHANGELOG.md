@@ -10,6 +10,21 @@ stated otherwise. **Experimental** in older checkpoints means local/private
 combined builds; released experimental features are explicitly identified.
 **Released** means an actual GitHub release asset.
 
+## 2026-10-23 - Separate Guest Drawing From Enhancement Passes (Unreleased)
+
+- Release the Java guest-buffer lock immediately after texture upload and
+  geometry capture. Motion estimation, FSR, sharpening and final presentation
+  now run without blocking new guest-buffer writes for their entire duration.
+- Keep a GL-owned vertex snapshot and the uploaded frame's identity. Concurrent
+  resize/rotation does not mutate the vertices being presented, and the FPS
+  counter cannot count a newer submission before it is drawn.
+- Preserve bounded textures, idle caching and reset/fallback behavior without
+  an extra CPU frame copy. Expired interpolation skips unnecessary motion search.
+- Reproduce the old locking problem on Retroid, then verify concurrent guest
+  flush/input, uploaded-pixel ownership and colored corners through rotation.
+  See [evidence and remaining limits](docs/checks/2026-10-23-enhancement-upload.md).
+  Enhancements remain Debug-only and off by default; no public APK change.
+
 ## 2026-10-23 - Interpolation and GPU Refinement (Unreleased)
 
 - Cap the experimental interpolation window at 33.3 ms instead of 100 ms.

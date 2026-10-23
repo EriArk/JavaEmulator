@@ -21,7 +21,7 @@ public final class EnhancementPipeline {
     private Program easu, rcas, estimate, resolve;
     private long serial = Long.MIN_VALUE;
     private int current, tw, th, sw, sh;
-    private boolean history, motionEnabled, animating;
+    private boolean history, motionEnabled, animating, uploaded, motionPending;
     private int cachedTexture, cachedWidth, cachedHeight, cachedStrength;
     private boolean cachedFsr;
 
@@ -34,13 +34,21 @@ public final class EnhancementPipeline {
     public boolean animating() { return animating; }
     public void resetHistory() {
         history=false; clock.reset(); serial=Long.MIN_VALUE; animating=false; cachedTexture=0;
+        uploaded=false; motionPending=false;
     }
 
     /** Returns a texture containing only the guest viewport, ready for host rotation. */
     public int render(Bitmap frame, long frameSerial, int width, int height, int outW, int outH,
                       boolean fsr, boolean motion, int strength, long now) {
-        if (width<=0 || height<=0 || outW<=0 || outH<=0
-                || (long)outW*outH>4_194_304L || (long)frame.getWidth()*frame.getHeight()>1_048_576L)
+        validateOutput(outW,outH);
+        upload(frame,frameSerial,width,height,motion,now);
+        return renderUploaded(outW,outH,fsr,strength,now);
+    }
+
+    /** GL thread only. The caller protects the Bitmap until this returns, not during GPU passes. */
+    public void upload(Bitmap frame, long frameSerial, int width, int height, boolean motion, long now) {
+        if (width<=0 || height<=0 || width>frame.getWidth() || height>frame.getHeight()
+                || (long)frame.getWidth()*frame.getHeight()>1_048_576L)
             throw new IllegalArgumentException("Enhancement texture budget exceeded");
         if (tw!=frame.getWidth() || th!=frame.getHeight() || sw!=width || sh!=height || motionEnabled!=motion) {
             tw=frame.getWidth(); th=frame.getHeight(); sw=width; sh=height; motionEnabled=motion;
@@ -50,22 +58,31 @@ public final class EnhancementPipeline {
             }
             resetHistory();
         }
-        boolean fresh=serial!=frameSerial;
-        if (!fresh && !animating && cachedTexture!=0 && cachedWidth==outW && cachedHeight==outH
-                && cachedFsr==fsr && cachedStrength==strength) return cachedTexture;
-        if (fresh) {
+        if (!uploaded || serial!=frameSerial) {
             current=1-current;
             configure(inputs[current]); GLUtils.texSubImage2D(GL_TEXTURE_2D,0,0,0,frame);
             clock.frame(now); serial=frameSerial;
-            if (motion && history && clock.phase(now)<1f) {
+            uploaded=true; cachedTexture=0; motionPending=motion && history;
+        }
+    }
+
+    /** Uses GPU-owned pixels only. No reference to the guest Bitmap survives upload(). */
+    public int renderUploaded(int outW, int outH, boolean fsr, int strength, long now) {
+        validateOutput(outW,outH);
+        if (!uploaded) throw new IllegalStateException("No uploaded enhancement frame");
+        if (!motionPending && !animating && cachedTexture!=0 && cachedWidth==outW && cachedHeight==outH
+                && cachedFsr==fsr && cachedStrength==strength) return cachedTexture;
+        if (motionPending) {
+            if (clock.phase(now)<1f) {
                 if (estimate==null) estimate=new Program("motion-estimate.fsh");
                 flow.size(Math.max(1,(sw+7)/8),Math.max(1,(sh+7)/8));
                 begin(estimate,flow,inputs[current],sw,sh,tw,th);
                 second(estimate,"previous",inputs[1-current],1); draw();
             }
+            motionPending=false;
         }
         int texture=inputs[current], textureW=tw, textureH=th;
-        float phase=motion && history ? clock.phase(now) : 1f;
+        float phase=motionEnabled && history ? clock.phase(now) : 1f;
         animating=phase<1f;
         if (animating) {
             if (resolve==null) resolve=new Program("motion-resolve.fsh");
@@ -104,6 +121,11 @@ public final class EnhancementPipeline {
         if(error!=GL_NO_ERROR) throw new IllegalStateException("Enhancement GL error: "+error);
         cachedTexture=texture; cachedWidth=outW; cachedHeight=outH; cachedFsr=fsr; cachedStrength=strength;
         return texture;
+    }
+
+    private static void validateOutput(int width,int height) {
+        if (width<=0 || height<=0 || (long)width*height>4_194_304L)
+            throw new IllegalArgumentException("Enhancement texture budget exceeded");
     }
 
     private void begin(Program p, Target t, int texture, int w, int h, int texW, int texH) {

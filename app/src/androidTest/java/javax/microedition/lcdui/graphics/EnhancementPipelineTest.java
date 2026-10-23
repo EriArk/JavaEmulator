@@ -44,6 +44,67 @@ public class EnhancementPipelineTest {
             assertEquals(c,pixel(t,48,36)); assertEquals(c,pixel(t,0,0)); b.recycle();
         }
     }
+    @Test public void uploadedPixelsOutliveSourceMutationAndRecycling() throws Exception {
+        Bitmap frame=solid(32,24,0xFFFF0000);
+        pipeline.upload(frame,1,32,24,true,0);
+        frame.eraseColor(0xFF0000FF); frame.recycle();
+        for(String name:new String[]{"easu","rcas","estimate","resolve"}) {
+            java.lang.reflect.Field field=EnhancementPipeline.class.getDeclaredField(name); field.setAccessible(true);
+            assertNull("Upload must not compile or execute image passes: "+name,field.get(pipeline));
+        }
+        assertEquals(0xFFFF0000,pixel(pipeline.renderUploaded(96,72,true,50,0),48,36));
+        assertEquals(0xFFFF0000,pixel(pipeline.renderUploaded(32,24,false,0,10_000_000),16,12));
+    }
+
+    @Test public void splitSubmissionPreservesHistoryAndRequiresUploadAfterReset() {
+        Bitmap a=solid(32,24,0xFF000000), b=solid(32,24,0xFF000000);
+        for(int y=0;y<24;y++) for(int x=10;x<14;x++) { a.setPixel(x,y,0xFFFFFFFF); b.setPixel(x+2,y,0xFFFFFFFF); }
+        pipeline.upload(a,1,32,24,true,0); pipeline.renderUploaded(32,24,false,0,0);
+        pipeline.upload(b,2,32,24,true,50_000_000);
+        a.recycle(); b.recycle();
+        int output=pipeline.renderUploaded(32,24,false,0,66_666_666);
+        assertEquals(0xFFFFFFFF,pixel(output,11,12)); assertTrue(pipeline.animating());
+        output=pipeline.renderUploaded(32,24,false,0,90_000_000);
+        assertEquals(0xFF000000,pixel(output,11,12)); assertFalse(pipeline.animating());
+        pipeline.resetHistory();
+        try { pipeline.renderUploaded(32,24,false,0,100_000_000); fail("Reset requires a fresh upload"); }
+        catch(IllegalStateException expected) { assertEquals("No uploaded enhancement frame",expected.getMessage()); }
+    }
+
+    @Test public void expiredUploadSkipsMotionAndInvalidViewportIsRejected() throws Exception {
+        Bitmap frame=solid(32,24,0xFF123456);
+        pipeline.upload(frame,1,32,24,true,0); pipeline.renderUploaded(32,24,false,0,0);
+        pipeline.upload(frame,2,32,24,true,50_000_000);
+        assertEquals(0xFF123456,pixel(pipeline.renderUploaded(32,24,false,0,100_000_000),16,12));
+        java.lang.reflect.Field estimator=EnhancementPipeline.class.getDeclaredField("estimate"); estimator.setAccessible(true);
+        assertNull(estimator.get(pipeline)); assertFalse(pipeline.animating());
+        try { pipeline.upload(frame,3,33,24,true,150_000_000); fail("Viewport must fit its backing image"); }
+        catch(IllegalArgumentException expected) { assertEquals(GL_NO_ERROR,glGetError()); }
+        frame.recycle();
+    }
+
+    @Test public void reportUploadAndUnlockedProcessingCosts() {
+        Bitmap a=solid(240,320,0xFF000000), b=solid(240,320,0xFF000000);
+        for(int y=0;y<320;y++) for(int x=0;x<240;x++) {
+            a.setPixel(x,y,((x/4+y/4)%2==0)?0xFFFFFFFF:0xFF000000);
+            b.setPixel(x,y,(((x+2)/4+y/4)%2==0)?0xFFFFFFFF:0xFF000000);
+        }
+        long[] upload=new long[30], process=new long[30];
+        for(int i=0;i<35;i++) {
+            long start=System.nanoTime();
+            pipeline.upload(i%2==0?a:b,i,240,320,true,i*50_000_000L);
+            long submitted=System.nanoTime();
+            pipeline.renderUploaded(720,960,true,50,i*50_000_000L+10_000_000); glFinish();
+            long finished=System.nanoTime();
+            if(i>=5) { upload[i-5]=submitted-start; process[i-5]=finished-submitted; }
+        }
+        java.util.Arrays.sort(upload); java.util.Arrays.sort(process);
+        android.os.Bundle result=new android.os.Bundle();
+        result.putString("stream","\nUpload medianMs="+upload[15]/1e6+" p95Ms="+upload[28]/1e6
+                +" unlockedProcessing medianMs="+process[15]/1e6+" p95Ms="+process[28]/1e6+"\n");
+        androidx.test.platform.app.InstrumentationRegistry.getInstrumentation().sendStatus(0,result);
+        a.recycle(); b.recycle(); assertEquals(GL_NO_ERROR,glGetError());
+    }
     @Test public void viewportExcludesPaddingAndRetainsCornerOrientation() {
         Bitmap b=solid(32,32,0xFFFF00FF);
         for(int y=0;y<24;y++) for(int x=0;x<32;x++) b.setPixel(x,y,y<12?(x<16?0xFFFF0000:0xFF00FF00):(x<16?0xFF0000FF:0xFFFFFFFF));

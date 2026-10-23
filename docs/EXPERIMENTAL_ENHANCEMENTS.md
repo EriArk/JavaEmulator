@@ -74,6 +74,14 @@ sampled once per block. Streams outside the interpolation interval skip motion
 estimation entirely. Finished frames skip the resolve pass, and uniform locations
 are cached. These optimizations do not eliminate FSR cost on each new guest frame.
 
+The enhanced Canvas path locks guest pixels only while uploading the source
+texture and capturing geometry. Shader compilation, motion search, upscale,
+sharpening and final presentation run afterward using GPU-owned pixels and a
+GL-thread-owned vertex snapshot. No extra CPU frame copy or unbounded queue is
+introduced. Texture uploads can still stall on the driver; this is not a claim
+of completely asynchronous or zero-wait rendering. The non-enhanced renderer
+retains its existing upload/draw synchronization.
+
 ## Resource and Failure Boundaries
 
 - Both image effects default off, independently, for every game.

@@ -44,6 +44,7 @@ public class CanvasLifecycleTest {
         final List<String> events = Collections.synchronizedList(new ArrayList<>());
         volatile int frame, painted = -1, keys;
         volatile int color = 0x00FF00;
+        boolean quadrants;
         int notifiedW, notifiedH;
         boolean failShow;
         Runnable onSize, onShow;
@@ -61,6 +62,12 @@ public class CanvasLifecycleTest {
         protected void paint(Graphics g) {
             events.add("paint"); painted = frame;
             g.setColor(color); g.fillRect(0, 0, getWidth(), getHeight());
+            if(quadrants) {
+                g.setColor(0xFF0000); g.fillRect(0,0,getWidth()/2,getHeight()/2);
+                g.setColor(0x00FF00); g.fillRect(getWidth()/2,0,getWidth(),getHeight()/2);
+                g.setColor(0x0000FF); g.fillRect(0,getHeight()/2,getWidth()/2,getHeight());
+                g.setColor(0xFFFFFF); g.fillRect(getWidth()/2,getHeight()/2,getWidth(),getHeight());
+            }
         }
     }
 
@@ -388,6 +395,120 @@ public class CanvasLifecycleTest {
         } finally {
             Canvas.setEnhancements(false, false, 50); Displayable.setVirtualSize(oldW, oldH);
             Canvas.setScreenRotation(0); Canvas.setGraphicsMode(oldMode, false);
+        }
+    }
+
+    @Test public void enhancedPresentationDoesNotHoldGuestBufferOrCountANewerSubmission() throws Exception {
+        org.junit.Assume.assumeTrue(ru.playsoftware.j2meloader.BuildConfig.DEBUG);
+        int oldW=Displayable.getVirtualWidth(), oldH=Displayable.getVirtualHeight();
+        Field mode=Canvas.class.getDeclaredField("graphicsMode"); mode.setAccessible(true);
+        int oldMode=mode.getInt(null);
+        Field view=Canvas.class.getDeclaredField("innerView"); view.setAccessible(true);
+        Field renderer=Canvas.class.getDeclaredField("renderer"); renderer.setAccessible(true);
+        Field lock=Canvas.class.getDeclaredField("bufferLock"); lock.setAccessible(true);
+        Field serial=Canvas.class.getDeclaredField("frameSerial"); serial.setAccessible(true);
+        Screen[] canvas=new Screen[1];
+        CountDownLatch presenting=new CountDownLatch(1), release=new CountDownLatch(1), done=new CountDownLatch(1);
+        java.util.concurrent.atomic.AtomicReference<Throwable> failure=new java.util.concurrent.atomic.AtomicReference<>();
+        java.util.concurrent.atomic.AtomicBoolean lockHeld=new java.util.concurrent.atomic.AtomicBoolean();
+        long[] captured=new long[2];
+        try (androidx.test.core.app.ActivityScenario<ru.playsoftware.j2meloader.MainActivity> scenario=
+                     androidx.test.core.app.ActivityScenario.launch(ru.playsoftware.j2meloader.MainActivity.class)) {
+            scenario.onActivity(activity -> {
+                ContextHolder.setCurrentActivity(host); ContextHolder.setVk(null);
+                Canvas.setGraphicsMode(1,false); Canvas.setScale(2,1,100);
+                Canvas.setEnhancements(true,true,50); Displayable.setVirtualSize(128,160);
+                canvas[0]=new Screen(); activity.setContentView(canvas[0].getDisplayableView());
+                display.setCurrent(canvas[0]); Display.setForeground(true);
+            });
+            drain();
+            android.opengl.GLSurfaceView surface=(android.opengl.GLSurfaceView)view.get(canvas[0]);
+            assertGreenSurface(surface);
+            Object gl=renderer.get(canvas[0]), bufferLock=lock.get(canvas[0]);
+            Field program=gl.getClass().getDeclaredField("program"); program.setAccessible(true);
+            Field counted=gl.getClass().getDeclaredField("countedSerial"); counted.setAccessible(true);
+            surface.queueEvent(() -> {
+                Object original=null;
+                try {
+                    original=program.get(gl);
+                    // Stall final presentation deterministically, without changing the production pipeline.
+                    program.set(gl,new javax.microedition.lcdui.graphics.ShaderProgram(null) {
+                        @Override public void loadVbo(java.nio.FloatBuffer vertices,float w,float h) {
+                            lockHeld.set(Thread.holdsLock(bufferLock));
+                            presenting.countDown();
+                            try { if(!release.await(5,TimeUnit.SECONDS)) throw new AssertionError("Presentation hold timed out"); }
+                            catch(InterruptedException e) { throw new AssertionError(e); }
+                            super.loadVbo(vertices,w,h);
+                        }
+                    });
+                    synchronized(bufferLock) { captured[0]=serial.getLong(canvas[0]); }
+                    ((android.opengl.GLSurfaceView.Renderer)gl).onDrawFrame(null);
+                    captured[1]=counted.getLong(gl);
+                } catch(Throwable e) { failure.set(e); }
+                finally {
+                    try { if(original!=null) program.set(gl,original); } catch(Exception e) { failure.set(e); }
+                    done.countDown();
+                }
+            });
+            try {
+                assertTrue(presenting.await(10,TimeUnit.SECONDS));
+                assertFalse("GPU presentation must not hold the guest buffer",lockHeld.get());
+                Image next=Image.createImage(128,160,0xFF123456);
+                CountDownLatch flushed=new CountDownLatch(1);
+                Thread producer=new Thread(() -> { canvas[0].flushBuffer(next,0,0); flushed.countDown(); });
+                producer.start();
+                assertTrue("A new guest frame can be submitted while GPU presentation is held",flushed.await(2,TimeUnit.SECONDS));
+                producer.join(2000);
+                canvas[0].postKeyPressed(Canvas.KEY_FIRE); drain();
+                assertTrue("Input callbacks remain responsive",canvas[0].keys>0);
+            } finally { release.countDown(); assertTrue(done.await(10,TimeUnit.SECONDS)); }
+            if(failure.get()!=null) throw new AssertionError(failure.get());
+            assertEquals("Only the uploaded submission is counted",captured[0],captured[1]);
+            assertSurfaceColor(surface,0xFF123456);
+        } finally {
+            release.countDown(); Canvas.setEnhancements(false,false,50);
+            Displayable.setVirtualSize(oldW,oldH); Canvas.setGraphicsMode(oldMode,false);
+        }
+    }
+
+    @Test public void enhancedGeometryKeepsColoredCornersThroughResizeAndRotation() throws Exception {
+        org.junit.Assume.assumeTrue(ru.playsoftware.j2meloader.BuildConfig.DEBUG);
+        int oldW=Displayable.getVirtualWidth(), oldH=Displayable.getVirtualHeight();
+        Field mode=Canvas.class.getDeclaredField("graphicsMode"); mode.setAccessible(true);
+        Field raw=Canvas.class.getDeclaredField("screenshotRawMode"); raw.setAccessible(true);
+        int oldMode=mode.getInt(null); boolean oldRaw=raw.getBoolean(null);
+        Screen[] canvas=new Screen[1];
+        int[][] corners={{0xFFFF0000,0xFF00FF00,0xFF0000FF,0xFFFFFFFF},
+                {0xFF0000FF,0xFFFF0000,0xFFFFFFFF,0xFF00FF00},
+                {0xFFFFFFFF,0xFF0000FF,0xFF00FF00,0xFFFF0000},
+                {0xFF00FF00,0xFFFFFFFF,0xFFFF0000,0xFF0000FF}};
+        try (androidx.test.core.app.ActivityScenario<ru.playsoftware.j2meloader.MainActivity> scenario=
+                     androidx.test.core.app.ActivityScenario.launch(ru.playsoftware.j2meloader.MainActivity.class)) {
+            raw.setBoolean(null,false);
+            scenario.onActivity(activity -> {
+                ContextHolder.setCurrentActivity(host); ContextHolder.setVk(null);
+                Canvas.setGraphicsMode(1,false); Canvas.setScale(2,1,100);
+                Canvas.setEnhancements(true,true,50); Displayable.setVirtualSize(128,160);
+                canvas[0]=new Screen(); canvas[0].quadrants=true;
+                activity.setContentView(canvas[0].getDisplayableView());
+                display.setCurrent(canvas[0]); Display.setForeground(true);
+            });
+            for(int rotation=0;rotation<360;rotation+=90) {
+                final int angle=rotation;
+                scenario.onActivity(activity -> {
+                    Displayable.setVirtualSize(angle==180?176:240,angle==180?220:320);
+                    Canvas.setScreenRotation(angle); canvas[0].updateSize(); canvas[0].updateRenderingSettings();
+                });
+                drain();
+                android.graphics.Bitmap picture=canvas[0].getScreenShot().blockingGet();
+                try {
+                    for(int i=0;i<4;i++) assertEquals("Rotation "+angle+", corner "+i,corners[angle/90][i],
+                            picture.getPixel(picture.getWidth()*(i%2==0?1:9)/10,picture.getHeight()*(i<2?1:9)/10));
+                } finally { picture.recycle(); }
+            }
+        } finally {
+            raw.setBoolean(null,oldRaw); Canvas.setEnhancements(false,false,50);
+            Canvas.setScreenRotation(0); Displayable.setVirtualSize(oldW,oldH); Canvas.setGraphicsMode(oldMode,false);
         }
     }
 

@@ -82,7 +82,14 @@ Beta 3 Revision 1 release page was rechecked on October 23; no release mutation.
 
 [Implementation and limits](EXPERIMENTAL_ENHANCEMENTS.md),
 [initial device evidence](checks/2026-10-23-enhancements.md),
-[latency, artifact and GPU refinement](checks/2026-10-23-enhancement-refinement.md).
+[latency, artifact and GPU refinement](checks/2026-10-23-enhancement-refinement.md),
+[guest-buffer unlock and coherent submission checks](checks/2026-10-23-enhancement-upload.md).
+
+The enhanced Java path now releases the guest-buffer lock after texture upload;
+motion/FSR work and presentation no longer hold it. Submitted geometry and frame
+identity are captured together, without an extra CPU image copy. This allows
+guest drawing/input to continue during effect processing, but does not remove
+driver upload stalls or prove a game-wide FPS/input-latency gain.
 
 ## Unreleased: Twenty-game Java Sample
 
