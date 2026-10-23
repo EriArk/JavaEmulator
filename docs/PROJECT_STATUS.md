@@ -82,6 +82,14 @@ a locally installed Debug APK, not a public release update.
 
 ## Unreleased: Experimental Enhancements
 
+xBRZ now performs expensive corner analysis at guest resolution and reuses the
+decisions during enlargement, instead of repeating that work for every output
+pixel. Retroid's paired captured-frame cost fell from about 44.2 to 6.9 ms;
+this is GPU processing cost, not a claim of six times the game FPS. The selected
+Deep Abyss frame matches exactly; synthetic comparisons differ by at most one
+RGB code value. Defaults, CRT EasyMode and the Debug-only boundary are unchanged.
+[Optimization checks and limits](checks/2026-10-23-xbrz-two-pass.md).
+
 The owner selected **xBRZ and CRT EasyMode** from the standalone audition.
 Both are now per-game presets in the Debug Java/Mophun Enhancements page, with
 Try / Keep / Undo. Selecting either disables FSR, interpolation, smoothing and

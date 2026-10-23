@@ -16,6 +16,7 @@ public class EnhancementPresentationTest {
     private EGLSurface surface;
     private EnhancementPipeline pipeline;
     private ShaderProgram copy;
+    private int xbrzMaxDelta, xbrzChangedChannels, xbrzComparedChannels;
     private final FloatBuffer vertices=ByteBuffer.allocateDirect(64).order(ByteOrder.nativeOrder()).asFloatBuffer();
 
     @Before public void setup() {
@@ -86,6 +87,147 @@ public class EnhancementPresentationTest {
         glUniform1i(copy.uTextureUnit,0); copy.loadVbo(vertices,target.width,target.height);
         if(!fused || !pipeline.presentSharpened(vertices)) glDrawArrays(GL_TRIANGLE_STRIP,0,4);
         assertEquals(GL_NO_ERROR,glGetError());
+    }
+
+    private FloatBuffer fullQuad() {
+        FloatBuffer quad=ByteBuffer.allocateDirect(64).order(ByteOrder.nativeOrder()).asFloatBuffer();
+        quad.put(new float[]{-1,-1,0,0,-1,1,0,1,1,-1,1,0,1,1,1,1}).rewind();
+        return quad;
+    }
+
+    private Bitmap xbrzFixture(int width,int height,int kind) {
+        Bitmap bitmap=Bitmap.createBitmap(width,height,Bitmap.Config.ARGB_8888);
+        java.util.Random random=new java.util.Random(12345+kind);
+        int[] palette={0xFF101010,0xFF303030,0xFFFFFFFF,0xFFFC8F00,0xFF2040C0,0xFF309040};
+        for(int y=0;y<height;y++) for(int x=0;x<width;x++) {
+            int color;
+            if(kind==0) color=palette[(x/3+y/5)%palette.length];
+            else if(kind==1) color=palette[random.nextInt(palette.length)];
+            else if(kind==2) color=0xFF000000|random.nextInt(1<<24);
+            else { int c=(x*3+y*7)&255; color=0xFF000000|c<<16|c<<8|c; }
+            bitmap.setPixel(x,y,color);
+        }
+        return bitmap;
+    }
+
+    private void compareXbrz(Bitmap bitmap,int width,int height) {
+        pipeline.setRetroShader(1); pipeline.resetHistory();
+        try(RetroShaderProgram reference=new RetroShaderProgram(1);
+            Target source=new Target(bitmap.getWidth(),bitmap.getHeight());
+            Target expected=new Target(width,height); Target actual=new Target(width,height)) {
+            glBindTexture(GL_TEXTURE_2D,source.texture); GLUtils.texImage2D(GL_TEXTURE_2D,0,bitmap,0);
+            glBindFramebuffer(GL_FRAMEBUFFER,expected.fbo); glViewport(0,0,width,height);
+            reference.draw(source.texture,bitmap.getWidth(),bitmap.getHeight(),width,height,fullQuad());
+            byte[] a=expected.pixels();
+            pipeline.upload(bitmap,1,bitmap.getWidth(),bitmap.getHeight(),false,0);
+            int texture=pipeline.renderForPresentation(width,height,false,0,1);
+            present(actual,texture,false,0,0);
+            byte[] b=actual.pixels(); int maximum=0,changed=0;
+            for(int i=0;i<a.length;i++) { int delta=Math.abs((a[i]&255)-(b[i]&255)); maximum=Math.max(maximum,delta); if(delta!=0) changed++; }
+            xbrzMaxDelta=Math.max(xbrzMaxDelta,maximum); xbrzChangedChannels+=changed; xbrzComparedChannels+=a.length;
+            assertTrue("xBRZ "+bitmap.getWidth()+"x"+bitmap.getHeight()+" -> "+width+"x"+height
+                    +" max="+maximum+" changed channels="+changed,maximum<=1);
+            assertEquals(GL_NO_ERROR,glGetError());
+        }
+    }
+
+    @Test public void splitXbrzMatchesReferenceAcrossPatternsAndScales() {
+        for(int kind=0;kind<4;kind++) {
+            Bitmap source=xbrzFixture(31,23,kind);
+            try {
+                for(int[] size:new int[][]{{31,23},{47,35},{62,46},{97,81},{155,69}})
+                    compareXbrz(source,size[0],size[1]);
+            } finally { source.recycle(); }
+        }
+        Bitmap large=xbrzFixture(240,320,1);
+        try { compareXbrz(large,720,960); } finally { large.recycle(); }
+        for(int[] size:new int[][]{{1,1},{1,7},{9,1}}) {
+            Bitmap edge=xbrzFixture(size[0],size[1],1);
+            try { compareXbrz(edge,size[0]*4,size[1]*4); } finally { edge.recycle(); }
+        }
+        reportXbrzParity("synthetic");
+    }
+
+    private void reportXbrzParity(String label) {
+        android.os.Bundle result=new android.os.Bundle();
+        result.putString("stream","\nxBRZ "+label+" comparison: changed channels="+xbrzChangedChannels
+                +"/"+xbrzComparedChannels+" max delta="+xbrzMaxDelta+"\n");
+        androidx.test.platform.app.InstrumentationRegistry.getInstrumentation().sendStatus(0,result);
+    }
+
+    @Test public void splitXbrzAnalysisTracksGuestFramesNotOutputSize() throws Exception {
+        java.lang.reflect.Field valid=EnhancementPipeline.class.getDeclaredField("xbrzEdgesValid"); valid.setAccessible(true);
+        java.lang.reflect.Field target=EnhancementPipeline.class.getDeclaredField("xbrzEdges"); target.setAccessible(true);
+        Object edges=target.get(pipeline);
+        java.lang.reflect.Field width=edges.getClass().getDeclaredField("width"); width.setAccessible(true);
+        java.lang.reflect.Field height=edges.getClass().getDeclaredField("height"); height.setAccessible(true);
+        Bitmap a=xbrzFixture(31,23,1),b=xbrzFixture(31,23,2);
+        try {
+            pipeline.setRetroShader(1); pipeline.upload(a,1,31,23,false,0);
+            assertFalse(valid.getBoolean(pipeline));
+            pipeline.renderForPresentation(93,69,false,0,0);
+            assertTrue(valid.getBoolean(pipeline)); assertEquals(31,width.getInt(edges)); assertEquals(23,height.getInt(edges));
+            pipeline.upload(a,1,31,23,false,1);
+            assertTrue(valid.getBoolean(pipeline));
+            pipeline.renderForPresentation(155,115,false,0,1);
+            assertTrue(valid.getBoolean(pipeline)); assertEquals(31,width.getInt(edges));
+            pipeline.upload(b,2,31,23,false,2); assertFalse(valid.getBoolean(pipeline));
+            pipeline.renderForPresentation(155,115,false,0,2); assertTrue(valid.getBoolean(pipeline));
+            pipeline.setRetroShader(2); assertFalse(valid.getBoolean(pipeline));
+            pipeline.setRetroShader(1); pipeline.upload(a,1,31,23,false,3);
+            pipeline.renderForPresentation(31,23,false,0,3);
+            assertFalse("Small scales use the original single pass",valid.getBoolean(pipeline));
+            pipeline.renderForPresentation(62,46,false,0,3); assertTrue(valid.getBoolean(pipeline));
+            pipeline.resetHistory(); assertFalse(valid.getBoolean(pipeline));
+        } finally { a.recycle(); b.recycle(); }
+    }
+
+    @Test public void splitXbrzMatchesPrivateReviewSource() {
+        org.junit.Assume.assumeTrue("true".equals(androidx.test.platform.app.InstrumentationRegistry.getArguments().getString("retroShaderReview")));
+        java.io.File root=new java.io.File(androidx.test.platform.app.InstrumentationRegistry.getInstrumentation()
+                .getTargetContext().getExternalFilesDir(null),"retro-review");
+        Bitmap source=android.graphics.BitmapFactory.decodeFile(new java.io.File(root,"source.png").getPath());
+        assertNotNull(source);
+        try {
+            compareXbrz(source,384,480); compareXbrz(source,576,720);
+            reportXbrzParity("private captured frame");
+            reportXbrzCost(source,576,720,"private captured frame");
+        }
+        finally { source.recycle(); }
+    }
+
+    @Test public void splitXbrzPairedCostAgainstReference() {
+        Bitmap bitmap=xbrzFixture(128,160,1);
+        try { reportXbrzCost(bitmap,576,720,"dense palette"); } finally { bitmap.recycle(); }
+    }
+
+    private void reportXbrzCost(Bitmap bitmap,int width,int height,String label) {
+        FloatBuffer quad=fullQuad(); pipeline.setRetroShader(1);
+        try(RetroShaderProgram reference=new RetroShaderProgram(1);
+            Target source=new Target(bitmap.getWidth(),bitmap.getHeight()); Target output=new Target(width,height)) {
+            long[][] samples=new long[2][20];
+            for(int i=0;i<26;i++) for(int order=0;order<2;order++) {
+                int path=(i+order)%2;
+                glFinish(); long started=System.nanoTime();
+                if(path==0) {
+                    glBindTexture(GL_TEXTURE_2D,source.texture); GLUtils.texSubImage2D(GL_TEXTURE_2D,0,0,0,bitmap);
+                    glBindFramebuffer(GL_FRAMEBUFFER,output.fbo); glViewport(0,0,width,height);
+                    reference.draw(source.texture,bitmap.getWidth(),bitmap.getHeight(),width,height,quad);
+                } else {
+                    pipeline.upload(bitmap,i,bitmap.getWidth(),bitmap.getHeight(),false,started);
+                    int texture=pipeline.renderForPresentation(width,height,false,0,started);
+                    present(output,texture,false,0,0);
+                }
+                glFinish(); if(i>=6) samples[path][i-6]=System.nanoTime()-started;
+            }
+            for(long[] times:samples) java.util.Arrays.sort(times);
+            android.os.Bundle result=new android.os.Bundle();
+            result.putString("stream","\nxBRZ "+label+" "+bitmap.getWidth()+"x"+bitmap.getHeight()
+                    +" -> "+width+"x"+height+" reference median="+samples[0][10]/1e6
+                    +"ms p95="+samples[0][19]/1e6+"ms split+copy median="+samples[1][10]/1e6
+                    +"ms p95="+samples[1][19]/1e6+"ms\n");
+            androidx.test.platform.app.InstrumentationRegistry.getInstrumentation().sendStatus(0,result);
+        }
     }
 
     @Test public void retroShadersCompileCropAndSwitchWithoutOtherEffects() {

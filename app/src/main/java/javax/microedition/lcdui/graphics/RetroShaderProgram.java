@@ -5,17 +5,25 @@ import java.nio.FloatBuffer;
 import javax.microedition.util.ContextHolder;
 import static android.opengl.GLES20.*;
 
-/** Fixed, single-pass Libretro GLSL adapter. Only accepts cropped, nearest-filtered guest textures. */
+/** Libretro GLSL adapter. Only accepts cropped, nearest-filtered guest textures. */
 final class RetroShaderProgram implements AutoCloseable {
-    private final int id, texture, inputSize, textureSize, outputSize, matrix, frameDirection, frameCount;
+    enum XbrzPass { ANALYZE, RESOLVE }
+    private final int id, texture, inputSize, textureSize, outputSize, matrix, frameDirection, frameCount, blendInfo;
     private static final float[] IDENTITY={1,0,0,0,0,1,0,0,0,0,1,0,0,0,0,1};
     RetroShaderProgram(int mode) {
-        String path=mode==1?"xbrz.glsl":"crt-easymode.glsl";
+        this(mode==1?"xbrz.glsl":"crt-easymode.glsl",null,"");
+    }
+    RetroShaderProgram(XbrzPass pass) {
+        this("xbrz.glsl",pass==XbrzPass.RESOLVE?"xbrz-resolve.glsl":null,
+                pass==XbrzPass.ANALYZE?"#define ABYSS_XBRZ_ANALYZE\n":"");
+    }
+    private RetroShaderProgram(String path,String fragmentPath,String defines) {
         String code=ContextHolder.getAssetAsString("shaders/retro/"+path);
         int vertex=0, fragment=0, program=0;
         try {
             vertex=compile(GL_VERTEX_SHADER,"#define VERTEX\n"+code);
-            fragment=compile(GL_FRAGMENT_SHADER,"#define FRAGMENT\n"+code);
+            fragment=compile(GL_FRAGMENT_SHADER,"#define FRAGMENT\n"+defines
+                    +(fragmentPath==null?code:ContextHolder.getAssetAsString("shaders/retro/"+fragmentPath)));
             program=glCreateProgram(); glAttachShader(program,vertex); glAttachShader(program,fragment);
             glBindAttribLocation(program,0,"VertexCoord"); glBindAttribLocation(program,1,"TexCoord");
             glLinkProgram(program); int[] status=new int[1]; glGetProgramiv(program,GL_LINK_STATUS,status,0);
@@ -27,9 +35,17 @@ final class RetroShaderProgram implements AutoCloseable {
         textureSize=glGetUniformLocation(id,"TextureSize"); outputSize=glGetUniformLocation(id,"OutputSize");
         matrix=glGetUniformLocation(id,"MVPMatrix"); frameDirection=glGetUniformLocation(id,"FrameDirection");
         frameCount=glGetUniformLocation(id,"FrameCount");
+        blendInfo=glGetUniformLocation(id,"BlendInfo");
     }
     void draw(int source,int width,int height,int outWidth,int outHeight,FloatBuffer quad) {
+        draw(source,width,height,outWidth,outHeight,quad,0);
+    }
+    void draw(int source,int width,int height,int outWidth,int outHeight,FloatBuffer quad,int decisions) {
         glUseProgram(id); glActiveTexture(GL_TEXTURE0); glBindTexture(GL_TEXTURE_2D,source);
+        if(blendInfo>=0) {
+            glActiveTexture(GL_TEXTURE1); glBindTexture(GL_TEXTURE_2D,decisions);
+            glUniform1i(blendInfo,1); glActiveTexture(GL_TEXTURE0);
+        }
         glUniform1i(texture,0); glUniform2f(inputSize,width,height); glUniform2f(textureSize,width,height);
         glUniform2f(outputSize,outWidth,outHeight); glUniformMatrix4fv(matrix,1,false,IDENTITY,0);
         glUniform1i(frameDirection,1); glUniform1i(frameCount,0);

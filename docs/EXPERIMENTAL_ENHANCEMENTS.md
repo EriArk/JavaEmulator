@@ -38,10 +38,16 @@ custom shader. These controls remain on the Debug-only Enhancements page.
 
 The two shaders use the same bounded Java/Mophun pipeline: crop texture padding
 before processing, cache repeated frames, and apply host rotation afterwards.
-Their original bodies/defaults and license notices are bundled from the pinned
-Libretro revision. Symbian does not use this path. See the
+The shaders and license notices come from the pinned Libretro revision.
+xBRZ analyzes corners once at guest resolution and resolves the original blend
+formulas at output size when magnifying to at least four times the source pixel
+count (neither axis is reduced). Smaller scales retain the original single pass.
+Its packed decision texture costs four bytes per source pixel and is reused
+across output resizes until new source pixels arrive. No CPU readback, lower
+working resolution, new sharpener or altered edge thresholds are involved.
+CRT EasyMode is unchanged. Symbian does not use this path. See the
 [integration checks](checks/2026-10-23-retro-shader-integration.md) and
-[license inventory](LICENSING.md).
+[xBRZ optimization checks](checks/2026-10-23-xbrz-two-pass.md).
 
 The [sharpness comparison](checks/2026-10-23-image-presets.md) uses identical
 captured source pixels at identical scale. FSR and linear filtering both soften

@@ -21,6 +21,9 @@ public final class EnhancementPipeline {
     private final Target estimatedFlow = new Target(), flow = new Target(), sceneState = new Target(), interpolated = new Target(), upscaled = new Target(), sharpened = new Target();
     private Program easu, rcas, estimate, spread, resolve, scene, copy;
     private RetroShaderProgram xbrz, crt;
+    private RetroShaderProgram xbrzAnalyze, xbrzResolve;
+    private final Target xbrzEdges = new Target();
+    private boolean xbrzEdgesValid;
     private int retroShader;
     private long serial = Long.MIN_VALUE;
     private int current, tw, th, sw, sh;
@@ -50,6 +53,7 @@ public final class EnhancementPipeline {
     }
     public void resetHistory() {
         history=false; clock.reset(); serial=Long.MIN_VALUE; animating=false; cachedTexture=0;
+        xbrzEdgesValid=false;
         uploaded=false; motionPending=false;
         presentationStrength=0;
     }
@@ -80,6 +84,7 @@ public final class EnhancementPipeline {
             configure(inputs[current]); GLUtils.texSubImage2D(GL_TEXTURE_2D,0,0,0,frame);
             clock.frame(readyNanos); serial=frameSerial;
             uploaded=true; cachedTexture=0; motionPending=motion && history;
+            xbrzEdgesValid=false;
             presentationStrength=0;
         }
     }
@@ -211,15 +216,34 @@ public final class EnhancementPipeline {
             second(resolve,"previous",texture,1); second(resolve,"motion",texture,2);
             glUniform1f(resolve.uniform("phase"),1f); draw(); texture=interpolated.texture;
         }
-        RetroShaderProgram program;
-        if(retroShader==1) { if(xbrz==null) xbrz=new RetroShaderProgram(1); program=xbrz; }
-        else { if(crt==null) crt=new RetroShaderProgram(2); program=crt; }
-        upscaled.size(width,height); glBindFramebuffer(GL_FRAMEBUFFER,upscaled.fbo); glViewport(0,0,width,height);
-        program.draw(texture,sw,sh,width,height,quad);
+        if(retroShader==1 && width>=sw && height>=sh && (long)width*height>=4L*sw*sh) {
+            drawSplitXbrz(texture,width,height);
+        } else {
+            RetroShaderProgram program;
+            if(retroShader==1) { if(xbrz==null) xbrz=new RetroShaderProgram(1); program=xbrz; }
+            else { if(crt==null) crt=new RetroShaderProgram(2); program=crt; }
+            upscaled.size(width,height); glBindFramebuffer(GL_FRAMEBUFFER,upscaled.fbo); glViewport(0,0,width,height);
+            program.draw(texture,sw,sh,width,height,quad);
+        }
         glBindFramebuffer(GL_FRAMEBUFFER,0); glActiveTexture(GL_TEXTURE0);
         int error=glGetError(); if(error!=GL_NO_ERROR) throw new IllegalStateException("Retro shader GL error: "+error);
         cachedTexture=upscaled.texture; cachedWidth=width; cachedHeight=height;
         return cachedTexture;
+    }
+
+    private void drawSplitXbrz(int texture,int width,int height) {
+        if(xbrzAnalyze==null) xbrzAnalyze=new RetroShaderProgram(RetroShaderProgram.XbrzPass.ANALYZE);
+        if(xbrzResolve==null) xbrzResolve=new RetroShaderProgram(RetroShaderProgram.XbrzPass.RESOLVE);
+        if(!xbrzEdgesValid) {
+            xbrzEdges.size(sw,sh); glBindFramebuffer(GL_FRAMEBUFFER,xbrzEdges.fbo); glViewport(0,0,sw,sh);
+            // These RGBA channels are decision bits, not colors. Never dither them.
+            boolean dither=glIsEnabled(GL_DITHER); glDisable(GL_DITHER);
+            try { xbrzAnalyze.draw(texture,sw,sh,sw,sh,quad); }
+            finally { if(dither) glEnable(GL_DITHER); }
+            xbrzEdgesValid=true;
+        }
+        upscaled.size(width,height); glBindFramebuffer(GL_FRAMEBUFFER,upscaled.fbo); glViewport(0,0,width,height);
+        xbrzResolve.draw(texture,sw,sh,width,height,quad,xbrzEdges.texture);
     }
 
     /** Present the processed texture in caller-owned geometry without another output-sized target. */
@@ -277,6 +301,8 @@ public final class EnhancementPipeline {
 
     public void close() {
         if(xbrz!=null) xbrz.close(); if(crt!=null) crt.close();
+        if(xbrzAnalyze!=null) xbrzAnalyze.close(); if(xbrzResolve!=null) xbrzResolve.close();
+        xbrzEdges.close();
         estimatedFlow.close(); flow.close(); sceneState.close(); interpolated.close(); upscaled.close(); sharpened.close();
         glDeleteTextures(2,inputs,0);
         for(Program p:new Program[]{easu,rcas,estimate,spread,resolve,scene,copy}) if(p!=null) glDeleteProgram(p.id);

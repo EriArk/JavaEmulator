@@ -10,6 +10,20 @@ stated otherwise. **Experimental** in older checkpoints means local/private
 combined builds; released experimental features are explicitly identified.
 **Released** means an actual GitHub release asset.
 
+## 2026-10-23 - Faster xBRZ Without Lowering Resolution (Unreleased)
+
+- Analyze xBRZ edges once per guest pixel, then resolve the original ordered
+  blends at output resolution. Cache the decision texture through output-only
+  resizes and invalidate it for new guest frames, size changes and mode resets.
+- Keep the original single-pass path for small scales. Do not add interpolation,
+  FSR, reduced-resolution processing or different edge thresholds.
+- Verify the selected captured frame against the original shader with exact
+  pixel agreement on Retroid. Paired processing cost falls from about 44.2 to
+  6.9 ms in that fixture; this is not a whole-game FPS measurement.
+- Update adaptation provenance, regression fixtures and evidence. Public APKs,
+  defaults and Symbian are unchanged; this remains opt-in Debug functionality.
+  [Evidence and limits](docs/checks/2026-10-23-xbrz-two-pass.md).
+
 ## 2026-10-23 - xBRZ and CRT EasyMode Presets (Unreleased)
 
 - Integrate the two owner-selected shaders as standalone per-game Java/Mophun

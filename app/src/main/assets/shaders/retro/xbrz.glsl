@@ -172,6 +172,16 @@ float get_left_ratio(vec2 center, vec2 origin, vec2 direction, vec2 scale)
 
 #define P(x,y) COMPAT_TEXTURE(Source, coord + SourceSize.zw * vec2(x, y)).rgb
 
+// AbyssME: optional source-resolution analysis pass. The default remains the
+// upstream single-pass reference. Each RGBA byte stores one corner's decisions.
+#ifdef ABYSS_XBRZ_ANALYZE
+float packCorner(bool lineBlend, bool shallow, bool steep, float secondColor)
+{
+  return (1.0 + (lineBlend ? 2.0 : 0.0) + (shallow ? 4.0 : 0.0)
+          + (steep ? 8.0 : 0.0) + 16.0 * secondColor) / 255.0;
+}
+#endif
+
 void main()
 {
   //---------------------------------------
@@ -254,6 +264,9 @@ void main()
   }
 
   vec3 res = E;
+#ifdef ABYSS_XBRZ_ANALYZE
+  vec4 blendInfo = vec4(0.0);
+#endif
 
   // Pixel Tap Mapping: -|-|-|-|-
   //                    -|-|B|C|-
@@ -270,17 +283,22 @@ void main()
 
     vec2 origin = vec2(0.0, 1.0 / sqrt(2.0));
     vec2 direction = vec2(1.0, -1.0);
+    bool haveShallowLine = false, haveSteepLine = false;
     if(doLineBlend)
     {
-      bool haveShallowLine = (STEEP_DIRECTION_THRESHOLD * dist_F_G <= dist_H_C) && neq(E,G) && neq(D,G);
-      bool haveSteepLine = (STEEP_DIRECTION_THRESHOLD * dist_H_C <= dist_F_G) && neq(E,C) && neq(B,C);
+      haveShallowLine = (STEEP_DIRECTION_THRESHOLD * dist_F_G <= dist_H_C) && neq(E,G) && neq(D,G);
+      haveSteepLine = (STEEP_DIRECTION_THRESHOLD * dist_H_C <= dist_F_G) && neq(E,C) && neq(B,C);
       origin = haveShallowLine? vec2(0.0, 0.25) : vec2(0.0, 0.5);
       direction.x += haveShallowLine? 1.0: 0.0;
       direction.y -= haveSteepLine? 1.0: 0.0;
     }
 
+#ifdef ABYSS_XBRZ_ANALYZE
+    blendInfo.z = packCorner(doLineBlend, haveShallowLine, haveSteepLine, step(DistYCbCr(E, F), DistYCbCr(E, H)));
+#else
     vec3 blendPix = mix(H,F, step(DistYCbCr(E, F), DistYCbCr(E, H)));
     res = mix(res, blendPix, get_left_ratio(pos, origin, direction, scale));
+#endif
   }
 
   // Pixel Tap Mapping: -|-|-|-|-
@@ -298,10 +316,11 @@ void main()
 
     vec2 origin = vec2(-1.0 / sqrt(2.0), 0.0);
     vec2 direction = vec2(1.0, 1.0);
+    bool haveShallowLine = false, haveSteepLine = false;
     if(doLineBlend)
     {
-      bool haveShallowLine = (STEEP_DIRECTION_THRESHOLD * dist_H_A <= dist_D_I) && neq(E,A) && neq(B,A);
-      bool haveSteepLine  = (STEEP_DIRECTION_THRESHOLD * dist_D_I <= dist_H_A) && neq(E,I) && neq(F,I);
+      haveShallowLine = (STEEP_DIRECTION_THRESHOLD * dist_H_A <= dist_D_I) && neq(E,A) && neq(B,A);
+      haveSteepLine  = (STEEP_DIRECTION_THRESHOLD * dist_D_I <= dist_H_A) && neq(E,I) && neq(F,I);
       origin = haveShallowLine? vec2(-0.25, 0.0) : vec2(-0.5, 0.0);
       direction.y += haveShallowLine? 1.0: 0.0;
       direction.x += haveSteepLine? 1.0: 0.0;
@@ -309,8 +328,12 @@ void main()
     origin = origin;
     direction = direction;
 
+#ifdef ABYSS_XBRZ_ANALYZE
+    blendInfo.w = packCorner(doLineBlend, haveShallowLine, haveSteepLine, step(DistYCbCr(E, D), DistYCbCr(E, H)));
+#else
     vec3 blendPix = mix(H,D, step(DistYCbCr(E, D), DistYCbCr(E, H)));
     res = mix(res, blendPix, get_left_ratio(pos, origin, direction, scale));
+#endif
   }
 
   // Pixel Tap Mapping: -|-|x|x|-
@@ -328,18 +351,23 @@ void main()
 
     vec2 origin = vec2(1.0 / sqrt(2.0), 0.0);
     vec2 direction = vec2(-1.0, -1.0);
+    bool haveShallowLine = false, haveSteepLine = false;
 
     if(doLineBlend)
     {
-      bool haveShallowLine = (STEEP_DIRECTION_THRESHOLD * dist_B_I <= dist_F_A) && neq(E,I) && neq(H,I);
-      bool haveSteepLine  = (STEEP_DIRECTION_THRESHOLD * dist_F_A <= dist_B_I) && neq(E,A) && neq(D,A);
+      haveShallowLine = (STEEP_DIRECTION_THRESHOLD * dist_B_I <= dist_F_A) && neq(E,I) && neq(H,I);
+      haveSteepLine  = (STEEP_DIRECTION_THRESHOLD * dist_F_A <= dist_B_I) && neq(E,A) && neq(D,A);
       origin = haveShallowLine? vec2(0.25, 0.0) : vec2(0.5, 0.0);
       direction.y -= haveShallowLine? 1.0: 0.0;
       direction.x -= haveSteepLine? 1.0: 0.0;
     }
 
+#ifdef ABYSS_XBRZ_ANALYZE
+    blendInfo.y = packCorner(doLineBlend, haveShallowLine, haveSteepLine, step(DistYCbCr(E, B), DistYCbCr(E, F)));
+#else
     vec3 blendPix = mix(F,B, step(DistYCbCr(E, B), DistYCbCr(E, F)));
     res = mix(res, blendPix, get_left_ratio(pos, origin, direction, scale));
+#endif
   }
 
   // Pixel Tap Mapping: -|x|x|-|-
@@ -357,19 +385,28 @@ void main()
 
     vec2 origin = vec2(0.0, -1.0 / sqrt(2.0));
     vec2 direction = vec2(-1.0, 1.0);
+    bool haveShallowLine = false, haveSteepLine = false;
     if(doLineBlend)
     {
-      bool haveShallowLine = (STEEP_DIRECTION_THRESHOLD * dist_D_C <= dist_B_G) && neq(E,C) && neq(F,C);
-      bool haveSteepLine  = (STEEP_DIRECTION_THRESHOLD * dist_B_G <= dist_D_C) && neq(E,G) && neq(H,G);
+      haveShallowLine = (STEEP_DIRECTION_THRESHOLD * dist_D_C <= dist_B_G) && neq(E,C) && neq(F,C);
+      haveSteepLine  = (STEEP_DIRECTION_THRESHOLD * dist_B_G <= dist_D_C) && neq(E,G) && neq(H,G);
       origin = haveShallowLine? vec2(0.0, -0.25) : vec2(0.0, -0.5);
       direction.x -= haveShallowLine? 1.0: 0.0;
       direction.y += haveSteepLine? 1.0: 0.0;
     }
 
+#ifdef ABYSS_XBRZ_ANALYZE
+    blendInfo.x = packCorner(doLineBlend, haveShallowLine, haveSteepLine, step(DistYCbCr(E, B), DistYCbCr(E, D)));
+#else
     vec3 blendPix = mix(D,B, step(DistYCbCr(E, B), DistYCbCr(E, D)));
     res = mix(res, blendPix, get_left_ratio(pos, origin, direction, scale));
+#endif
   }
 
+#ifdef ABYSS_XBRZ_ANALYZE
+    FragColor = blendInfo;
+#else
  	FragColor = vec4(res, 1.0);
+#endif
 } 
 #endif

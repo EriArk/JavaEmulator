@@ -16,7 +16,13 @@ CRT Shader by EasyMode. Upstream declaration: "License: GPL".
 For this distribution we follow GPLv3 (unspecified-version option, section 14).
 The original notice and parameters remain in the shader.
 
-The shader bodies and default parameters are unchanged. AbyssME's GLES2
-adapter supplies stage defines, uniforms, guest-size cropping and framebuffer
-presentation. Neither shader is chained with FSR, interpolation or LCD effects.
+xBRZ adaptation (2026): ABYSS_XBRZ_ANALYZE emits four packed per-corner
+decisions at guest resolution. shaders/retro/xbrz-resolve.glsl is derived from
+the retained get_left_ratio and ordered blend formulas and applies those
+decisions at output resolution. The default branch retains the original
+single-pass algorithm for comparison and small scales. No thresholds/default
+parameters were changed. The new adapter/resolve work is GPL-3.0-only.
+CRT EasyMode's body and defaults are unchanged. AbyssME's GLES2 adapter supplies
+stage defines, uniforms, guest-size cropping and framebuffer presentation.
+Neither shader is chained with FSR, interpolation or LCD effects.
 Complete GPLv3 terms are included in this assets/licenses directory.
