@@ -226,6 +226,20 @@ public class MophunGpuGameTest {
                     scenario.onActivity(activity -> activity.dispatchKeyEvent(new android.view.KeyEvent(
                             android.view.KeyEvent.ACTION_UP, android.view.KeyEvent.KEYCODE_BUTTON_A)));
                     Thread.sleep(2000); capture("mophun-gpu-after-confirm");
+                    if ("true".equals(InstrumentationRegistry.getArguments().getString("reviewSource"))) {
+                        Bitmap[] source={null};
+                        scenario.onActivity(activity -> {
+                            wolphun.Screen screen=((MophunSession)field(activity,"session")).screen();
+                            int[] pixels=new int[screen.pw*screen.ph];
+                            assertTrue(screen.copyPresented(pixels));
+                            source[0]=Bitmap.createBitmap(pixels,screen.pw,screen.ph,Bitmap.Config.ARGB_8888);
+                        });
+                        File destination=new File(InstrumentationRegistry.getInstrumentation().getTargetContext()
+                                .getExternalFilesDir(null),"visual-review-source.png");
+                        try(FileOutputStream output=new FileOutputStream(destination)) {
+                            assertTrue(source[0].compress(Bitmap.CompressFormat.PNG,100,output));
+                        } finally { source[0].recycle(); }
+                    }
                     scenario.onActivity(activity -> {
                         assertNull(((MophunSession)field(activity,"session")).error());
                         assertEquals(false,field(field(activity,"gpuView"),"failed"));

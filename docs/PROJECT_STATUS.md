@@ -82,6 +82,14 @@ a locally installed Debug APK, not a public release update.
 
 ## Unreleased: Experimental Enhancements
 
+An owner visual-review set now compares the same frozen Deep Abyss first-level
+frame through five Retroid GPU configurations: Pixel sharp, Smooth and FSR at
+0/50/100% sharpness. Labelled full-frame sheets and matching crops remain local;
+no commercial artwork is added to Git. Ten targeted Retroid checks passed.
+These are diagnostic composites, not evidence of complete-game acceptance or
+motion quality. Runtime/release gates are unchanged; owner visual review remains
+open. [Reproduction and limits](checks/2026-10-23-visual-review.md).
+
 Small sprites on verified uniform backgrounds can now occupy their intermediate
 positions, including across flow-tile boundaries. Static HUD details remain fixed;
 ambiguous directions, conflicting neighbors and occlusion prefer current real

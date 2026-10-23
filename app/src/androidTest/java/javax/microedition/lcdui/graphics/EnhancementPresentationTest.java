@@ -107,8 +107,13 @@ public class EnhancementPresentationTest {
     }
 
     private Bitmap image(Bitmap source, int width, int height, int preset, boolean motion, long serial, long now) {
+        return image(source,width,height,preset,motion,serial,now,50);
+    }
+
+    private Bitmap image(Bitmap source, int width, int height, int preset, boolean motion, long serial, long now, int sharpness) {
         ru.playsoftware.j2meloader.config.ProfileModel settings=new ru.playsoftware.j2meloader.config.ProfileModel();
         ru.playsoftware.j2meloader.config.ImagePresets.apply(settings,preset,true);
+        settings.fsrSharpness=sharpness;
         pipeline.upload(source,serial,source.getWidth(),source.getHeight(),motion,serial*50_000_000);
         int texture=pipeline.renderForPresentation(width,height,settings.fsrUpscaling,settings.fsrSharpness,now);
         try(Target target=new Target(width,height)) {
@@ -175,6 +180,62 @@ public class EnhancementPresentationTest {
             assertTrue(source.getWidth()<=512 && source.getHeight()<=512);
             comparison(source,"image-presets-game",source.getWidth()*3,source.getHeight()*3);
         } finally { source.recycle(); }
+    }
+
+    @Test public void exportOptionalFiveModeVisualReview() throws Exception {
+        String name=androidx.test.platform.app.InstrumentationRegistry.getArguments().getString("imageFixture");
+        Assume.assumeNotNull(name);
+        android.content.Context context=androidx.test.platform.app.InstrumentationRegistry.getInstrumentation().getTargetContext();
+        java.io.File root=context.getExternalFilesDir(null), file=new java.io.File(root,name);
+        assertTrue(file.getCanonicalPath().startsWith(root.getCanonicalPath()+java.io.File.separator));
+        Bitmap source=android.graphics.BitmapFactory.decodeFile(file.getPath()); assertNotNull(source);
+        try {
+            assertTrue(source.getWidth()<=512 && source.getHeight()<=512);
+            int width=source.getWidth()*3, height=source.getHeight()*3;
+            String[] titles={"A - Pixel sharp", "B - Smooth", "C - FSR / 0%", "D - FSR / 50%", "E - FSR / 100%"};
+            String[] details={"Nearest / FSR off", "Linear / FSR off", "EASU + RCAS", "Enhanced preset", "EASU + RCAS"};
+            android.graphics.Paint label=new android.graphics.Paint(android.graphics.Paint.ANTI_ALIAS_FLAG);
+            android.graphics.Paint pixels=new android.graphics.Paint(); pixels.setFilterBitmap(false);
+            int tileWidth=Math.max(384,width), tileHeight=height+96;
+            Bitmap sheet=Bitmap.createBitmap((tileWidth+16)*2+16,(tileHeight+16)*3+16,Bitmap.Config.ARGB_8888);
+            android.graphics.Canvas canvas=new android.graphics.Canvas(sheet); canvas.drawColor(0xFF101417);
+            Bitmap detail=Bitmap.createBitmap(816,3*304+16,Bitmap.Config.ARGB_8888);
+            android.graphics.Canvas zoom=new android.graphics.Canvas(detail); zoom.drawColor(0xFF101417);
+            for(int mode=0;mode<5;mode++) {
+                Bitmap result=image(source,width,height,Math.min(mode,2),false,1,50_000_000,Math.max(0,(mode-2)*50));
+                Bitmap tile=Bitmap.createBitmap(tileWidth,tileHeight,Bitmap.Config.ARGB_8888);
+                android.graphics.Canvas panel=new android.graphics.Canvas(tile); panel.drawColor(0xFF101417);
+                label.setColor(0xFFFFC766); label.setTextSize(26); panel.drawText(titles[mode],8,30,label);
+                label.setColor(0xFFE5E9ED); label.setTextSize(18); panel.drawText(details[mode]+" / 3x",8,58,label);
+                panel.drawBitmap(result,(tileWidth-width)/2f,80,pixels);
+                canvas.drawBitmap(tile,16+(mode%2)*(tileWidth+16),16+(mode/2)*(tileHeight+16),pixels);
+                writeReviewPng(root,"visual-review-"+(char)('a'+mode)+".png",tile);
+                int dx=16+(mode%2)*400, dy=16+(mode/2)*304;
+                label.setColor(0xFFFFC766); label.setTextSize(24); zoom.drawText(titles[mode],dx,dy+26,label);
+                android.graphics.Rect crop=new android.graphics.Rect(width/4,height/2,3*width/4,3*height/4);
+                float factor=Math.min(384f/crop.width(),240f/crop.height());
+                zoom.drawBitmap(result,crop,new android.graphics.RectF(dx,dy+48,
+                        dx+crop.width()*factor,dy+48+crop.height()*factor),pixels);
+                result.recycle(); tile.recycle();
+            }
+            label.setColor(0xFFE5E9ED); label.setTextSize(22);
+            int x=32+tileWidth,y=32+2*(tileHeight+16);
+            for(String line:new String[]{"Same frozen source frame",source.getWidth()+" x "+source.getHeight()+" -> "+width+" x "+height,
+                    "GPU: "+android.os.Build.MODEL, "LCD: off", "Interpolation: off", "Composed comparison", "Not five live screenshots"}) {
+                y+=34; canvas.drawText(line,x,y,label);
+            }
+            writeReviewPng(root,"visual-review-sheet.png",sheet); sheet.recycle();
+            label.setTextSize(20);
+            zoom.drawText("Same crop / nearest magnification",416,670,label);
+            zoom.drawText("Inspect edges, not smoothness",416,706,label);
+            writeReviewPng(root,"visual-review-detail.png",detail); detail.recycle();
+        } finally { source.recycle(); }
+    }
+
+    private static void writeReviewPng(java.io.File root,String name,Bitmap bitmap) throws Exception {
+        try(java.io.FileOutputStream output=new java.io.FileOutputStream(new java.io.File(root,name))) {
+            assertTrue(bitmap.compress(Bitmap.CompressFormat.PNG,100,output));
+        }
     }
 
     @Test public void fusedOutputMatchesReferenceAcrossScalesRotationsAndStrengths() {

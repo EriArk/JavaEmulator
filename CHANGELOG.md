@@ -10,6 +10,16 @@ stated otherwise. **Experimental** in older checkpoints means local/private
 combined builds; released experimental features are explicitly identified.
 **Released** means an actual GitHub release asset.
 
+## 2026-10-23 - Same-Frame Visual Review (Development Only)
+
+- Export labelled Pixel sharp, Smooth and FSR 0/50/100% comparisons from one
+  captured game frame through the actual Retroid GPU, with matching zoomed crops.
+  Keep LCD and interpolation off for the spatial comparison.
+- Capture a separate three-frame synthetic interpolation comparison. These are
+  composed diagnostics, not five live screenshots or proof of perceived smoothness.
+- Pass 10 targeted Retroid checks. Runtime code and public APKs are unchanged;
+  visual acceptance is pending. [Evidence](docs/checks/2026-10-23-visual-review.md).
+
 ## 2026-10-23 - Small-Object Interpolation and GPU Surface Recovery (Unreleased)
 
 - Recover intermediate positions for small sprites on verified uniform
