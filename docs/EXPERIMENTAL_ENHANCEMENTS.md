@@ -113,6 +113,31 @@ the final draw when sharpening is enabled; the swapped screen buffer cannot be
 assumed to retain its previous contents. Guest clocks, input and
 game logic do not advance during a synthetic redraw.
 
+### Optional-Work Load Protection
+
+Canvas temporarily suppresses interpolation when CPU submission repeatedly
+exceeds the host refresh budget, or an EGL completion fence is still pending
+after that budget. The budget uses the display refresh rate at surface setup
+(30-240 Hz, otherwise 60 Hz). CPU evidence accumulates to three over-budget
+submissions; cheap submissions reduce it. Recovery requires at least 500 ms
+without a renewed suppression and three submissions below 75% of the budget.
+
+Suppression finishes the current pair with the real current image, skipping
+motion search/resolve and ending the extra redraw chain. It never withholds
+guest frame requests or holds an intermediate image indefinitely. Recovery can
+interpolate the next pair, but cannot rewind a pair already completed. FSR,
+sharpness, guest FPS limits and saved settings are not changed. Ordinary rendering
+and FSR-only use do not allocate completion fences.
+
+The EGL 1.5 probe owns at most one fence, polls with zero timeout and flushes
+submitted commands without `glFinish` or pixel readback. It is not a GPU timer.
+Unsupported/unavailable probes use CPU-only protection; probe failures do not
+disable the image effects. Pause, context recreation and disabling interpolation
+clear the transient pressure state and fence. The monitor runs outside the
+guest buffer lock. This is best-effort protection: driver calls can still stall,
+swap/compositor delays are not measured, and expensive FSR alone can remain slow.
+See [load-protection checks and API references](checks/2026-10-23-interpolation-load.md).
+
 Static motion blocks skip the displacement search; the current template is
 sampled once per block. Streams outside the interpolation interval skip motion
 estimation entirely. Finished frames skip the resolve pass, and uniform locations

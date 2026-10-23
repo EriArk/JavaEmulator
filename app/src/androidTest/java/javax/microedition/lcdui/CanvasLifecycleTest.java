@@ -503,6 +503,58 @@ public class CanvasLifecycleTest {
         }
     }
 
+    @Test public void loadProtectionShowsCurrentFrameWithoutChangingEnhancementSettings() throws Exception {
+        int oldW=Displayable.getVirtualWidth(), oldH=Displayable.getVirtualHeight();
+        Field mode=Canvas.class.getDeclaredField("graphicsMode"); mode.setAccessible(true);
+        int oldMode=mode.getInt(null);
+        Field view=Canvas.class.getDeclaredField("innerView"); view.setAccessible(true);
+        Field renderer=Canvas.class.getDeclaredField("renderer"); renderer.setAccessible(true);
+        Screen[] canvas=new Screen[1];
+        CountDownLatch done=new CountDownLatch(1);
+        java.util.concurrent.atomic.AtomicReference<Throwable> failure=new java.util.concurrent.atomic.AtomicReference<>();
+        try(androidx.test.core.app.ActivityScenario<ru.playsoftware.j2meloader.MainActivity> scenario=
+                    androidx.test.core.app.ActivityScenario.launch(ru.playsoftware.j2meloader.MainActivity.class)) {
+            scenario.onActivity(activity -> {
+                ContextHolder.setCurrentActivity(host); ContextHolder.setVk(null);
+                Canvas.setGraphicsMode(1,false); Canvas.setScale(2,1,100); Canvas.setEnhancements(true,true,50);
+                Displayable.setVirtualSize(128,160);
+                canvas[0]=new Screen(); activity.setContentView(canvas[0].getDisplayableView());
+                display.setCurrent(canvas[0]); Display.setForeground(true);
+            });
+            drain(); android.opengl.GLSurfaceView surface=(android.opengl.GLSurfaceView)view.get(canvas[0]);
+            assertGreenSurface(surface); Object gl=renderer.get(canvas[0]);
+            surface.queueEvent(() -> {
+                try {
+                    Field guard=gl.getClass().getDeclaredField("interpolationLoad"); guard.setAccessible(true);
+                    ru.playsoftware.j2meloader.runtime.InterpolationLoadGuard g=
+                            (ru.playsoftware.j2meloader.runtime.InterpolationLoadGuard)guard.get(gl);
+                    g.reset(); long now=System.nanoTime();
+                    for(int i=0;i<3;i++) g.submitted(now,30_000_000,16_666_666);
+                    assertFalse(g.allow(now,false));
+                    canvas[0].flushBuffer(Image.createImage(128,160,0xFF123456),0,0);
+                    ((android.opengl.GLSurfaceView.Renderer)gl).onDrawFrame(null);
+                    Field pipeline=gl.getClass().getDeclaredField("enhancements"); pipeline.setAccessible(true);
+                    javax.microedition.lcdui.graphics.EnhancementPipeline p=
+                            (javax.microedition.lcdui.graphics.EnhancementPipeline)pipeline.get(gl);
+                    assertNotNull(p); assertFalse("No synthetic redraw chain under pressure",p.animating());
+                    Field failed=gl.getClass().getDeclaredField("enhancementFailed"); failed.setAccessible(true);
+                    assertFalse("Not the error fallback",failed.getBoolean(gl));
+                    for(String setting:new String[]{"fsrEnabled","interpolationEnabled"}) {
+                        Field field=Canvas.class.getDeclaredField(setting); field.setAccessible(true);
+                        assertTrue("Keep the user's selected enhancement",field.getBoolean(null));
+                    }
+                } catch(Throwable e) { failure.set(e); }
+                finally { done.countDown(); }
+            });
+            assertTrue(done.await(10,TimeUnit.SECONDS));
+            if(failure.get()!=null) throw new AssertionError(failure.get());
+            assertSurfaceColor(surface,0xFF123456);
+        } finally {
+            Canvas.setEnhancements(false,false,50); Displayable.setVirtualSize(oldW,oldH);
+            Canvas.setGraphicsMode(oldMode,false);
+        }
+    }
+
     @Test public void enhancedGeometryKeepsColoredCornersThroughResizeAndRotation() throws Exception {
         org.junit.Assume.assumeTrue(ru.playsoftware.j2meloader.BuildConfig.DEBUG);
         int oldW=Displayable.getVirtualWidth(), oldH=Displayable.getVirtualHeight();

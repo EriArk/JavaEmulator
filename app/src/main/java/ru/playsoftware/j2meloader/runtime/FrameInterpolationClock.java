@@ -9,6 +9,9 @@ public final class FrameInterpolationClock {
     private boolean hasFrame, hasPresented;
     public void reset() { hasFrame = hasPresented = false; interval = delay = 0; }
 
+    /** Finish this pair without changing the next source interval or retaining a partial frame. */
+    public void finish() { delay = 0; presented = last; hasPresented = hasFrame; }
+
     /** Timestamp of completed guest pixels, not the time the GL thread happens to upload them. */
     public void frame(long readyNanos) {
         interval = hasFrame ? readyNanos - last : 0;

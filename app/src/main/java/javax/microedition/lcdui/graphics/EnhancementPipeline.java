@@ -35,6 +35,11 @@ public final class EnhancementPipeline {
     }
 
     public boolean animating() { return animating; }
+    public void skipInterpolation() {
+        if (!motionPending && !animating) return;
+        clock.finish(); motionPending=false; animating=false; cachedTexture=0;
+        presentationStrength=0;
+    }
     public void resetHistory() {
         history=false; clock.reset(); serial=Long.MIN_VALUE; animating=false; cachedTexture=0;
         uploaded=false; motionPending=false;

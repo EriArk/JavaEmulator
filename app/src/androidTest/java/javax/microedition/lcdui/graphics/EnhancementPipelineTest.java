@@ -336,6 +336,63 @@ public class EnhancementPipelineTest {
         a.recycle(); b.recycle();
     }
 
+    @Test public void suppressedPairSkipsSearchAndKeepsCurrentPixelsWithNextPairRecovery() throws Exception {
+        Bitmap a=textureFixture(), b=shifted(a,4,0), c=shifted(a,2,0);
+        pipeline.render(a,1,31,23,31,23,false,true,50,0);
+        pipeline.upload(b,2,31,23,true,50_000_000); pipeline.skipInterpolation();
+        int t=pipeline.renderForPresentation(31,23,false,0,50_000_000);
+        assertRegion(t,a,4,0); assertFalse(pipeline.animating());
+        java.lang.reflect.Field estimate=EnhancementPipeline.class.getDeclaredField("estimate"); estimate.setAccessible(true);
+        assertNull("No motion search under pressure",estimate.get(pipeline));
+        assertRegion(pipeline.renderForPresentation(31,23,false,0,75_000_000),a,4,0);
+        pipeline.upload(c,3,31,23,true,100_000_000);
+        t=pipeline.renderForPresentation(31,23,false,0,125_000_000);
+        assertRegion(t,a,3,0); assertTrue(pipeline.animating());
+        a.recycle(); b.recycle(); c.recycle();
+    }
+
+    @Test public void suppressingAnActivePairFinishesItWithoutChangingFsrOrReallocatingInputs() throws Exception {
+        Bitmap a=textureFixture(), b=shifted(a,4,0);
+        pipeline.render(a,1,31,23,62,46,true,true,50,0);
+        pipeline.render(b,2,31,23,62,46,true,true,50,75_000_000);
+        assertTrue(pipeline.animating());
+        java.lang.reflect.Field inputs=EnhancementPipeline.class.getDeclaredField("inputs"); inputs.setAccessible(true);
+        int[] before=((int[])inputs.get(pipeline)).clone();
+        pipeline.skipInterpolation();
+        int actual=pipeline.renderUploaded(62,46,true,50,75_000_000);
+        assertFalse(pipeline.animating()); assertArrayEquals(before,(int[])inputs.get(pipeline));
+        try {
+            EnhancementPipeline reference=new EnhancementPipeline();
+            try {
+                int expected=reference.render(b,1,31,23,62,46,true,false,50,75_000_000);
+                for(int y=0;y<46;y+=3) for(int x=0;x<62;x+=3)
+                    assertEquals(pixel(expected,x,y),pixel(actual,x,y));
+            } finally { reference.close(); }
+        } finally { a.recycle(); b.recycle(); }
+    }
+
+    @Test public void completionFenceIsReusableAndOptional() {
+        assertTrue(EGL14.eglMakeCurrent(display,EGL14.EGL_NO_SURFACE,EGL14.EGL_NO_SURFACE,EGL14.EGL_NO_CONTEXT));
+        try(PresentationFence unavailable=new PresentationFence()) {
+            assertFalse(unavailable.available()); unavailable.submitted(0);
+            assertFalse(unavailable.behind(50_000_000,16_666_666));
+        } finally { assertTrue(EGL14.eglMakeCurrent(display,surface,surface,context)); }
+        try(PresentationFence fence=new PresentationFence()) {
+            android.os.Bundle report=new android.os.Bundle();
+            report.putString("stream","\nEGL completion probe available="+fence.available()+"\n");
+            androidx.test.platform.app.InstrumentationRegistry.getInstrumentation().sendStatus(0,report);
+            for(int i=0;i<10;i++) {
+                glClearColor(1,0,0,1); glClear(GL_COLOR_BUFFER_BIT); fence.submitted(0);
+                assertFalse("Do not classify unfinished work before its budget",fence.behind(1,16_666_666));
+                fence.behind(20_000_000,16_666_666); // A zero-timeout probe is allowed to find either state.
+                glFinish(); // Test-only synchronization to verify the completed state.
+                assertFalse(fence.behind(30_000_000,16_666_666));
+                fence.close(); assertFalse(fence.behind(40_000_000,16_666_666));
+            }
+            assertEquals(EGL14.EGL_SUCCESS,EGL14.eglGetError()); assertEquals(GL_NO_ERROR,glGetError());
+        }
+    }
+
     @Test public void motionRecoversAfterSceneCutAndResize() throws Exception {
         Bitmap a=solid(32,32,0xFFFFFFFF), b=textureFixture(), c=shifted(b,2,0);
         pipeline.render(a,1,31,23,31,23,false,true,50,0);

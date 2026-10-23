@@ -3,6 +3,12 @@ import org.junit.Test;
 import static org.junit.Assert.*;
 
 public class FrameInterpolationClockTest {
+    @Test public void finishingAPairCannotRewindAndNextSourcePairCanInterpolate() {
+        FrameInterpolationClock c=new FrameInterpolationClock(); c.frame(0); c.frame(50_000_000);
+        assertEquals(0.5f,c.phase(75_000_000),0.0001f);
+        c.finish(); assertEquals(1f,c.phase(75_000_000),0);
+        c.frame(100_000_000); assertEquals(0.5f,c.phase(125_000_000),0.0001f);
+    }
     @Test public void twentyAndTwentyFiveFpsDoNotFinishThenHoldBeforeNextFrame() {
         for(long interval:new long[]{40_000_000,50_000_000}) {
             FrameInterpolationClock c=new FrameInterpolationClock(); c.frame(0); c.frame(interval);

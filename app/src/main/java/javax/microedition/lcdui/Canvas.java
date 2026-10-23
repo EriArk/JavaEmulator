@@ -913,6 +913,10 @@ public abstract class Canvas extends Displayable {
 		private int outputWidth, outputHeight, viewportWidth, viewportHeight;
 		private javax.microedition.lcdui.graphics.EnhancementPipeline enhancements;
 		private boolean enhancementFailed;
+		private final ru.playsoftware.j2meloader.runtime.InterpolationLoadGuard interpolationLoad =
+				new ru.playsoftware.j2meloader.runtime.InterpolationLoadGuard();
+		private javax.microedition.lcdui.graphics.PresentationFence presentationFence;
+		private long refreshPeriod = ru.playsoftware.j2meloader.runtime.InterpolationLoadGuard.refreshPeriod(60);
 		private long countedSerial = Long.MIN_VALUE;
 		private volatile boolean running;
 		private final java.util.concurrent.atomic.AtomicBoolean historyDirty = new java.util.concurrent.atomic.AtomicBoolean();
@@ -929,6 +933,7 @@ public abstract class Canvas extends Displayable {
 
 		@Override
 		public void onSurfaceCreated(GL10 gl, EGLConfig config) {
+			resetInterpolationLoad();
 			// All previous GL names belonged to the lost context.
 			enhancements = null; enhancementFailed = false;
 			countedSerial = Long.MIN_VALUE;
@@ -949,6 +954,9 @@ public abstract class Canvas extends Displayable {
 
 		@Override
 		public void onSurfaceChanged(GL10 gl, int width, int height) {
+			android.view.Display display = mView.getDisplay();
+			refreshPeriod = ru.playsoftware.j2meloader.runtime.InterpolationLoadGuard.refreshPeriod(
+					display == null ? 60 : display.getRefreshRate());
 			glViewport(0, 0, width, height);
 			glUniform2f(program.uPixelDelta, 1.0f / width, 1.0f / height);
 		}
@@ -970,6 +978,7 @@ public abstract class Canvas extends Displayable {
 							"Enhancements unavailable. Original picture restored.", android.widget.Toast.LENGTH_LONG).show());
 				}
 			}
+			resetInterpolationLoad();
 			synchronized (bufferLock) {
 				// Client-side vertex memory must stay unchanged until GL consumes the draw.
 				synchronized (vbo) {
@@ -1003,8 +1012,14 @@ public abstract class Canvas extends Displayable {
 		}
 
 		private void drawEnhancedFrame() {
+			long started = System.nanoTime();
 			if (enhancements == null) enhancements = new javax.microedition.lcdui.graphics.EnhancementPipeline();
 			boolean fsr = fsrEnabled, motion = interpolationEnabled && displayVisible;
+			boolean allowMotion = true;
+			if (motion) {
+				if (presentationFence == null) presentationFence = new javax.microedition.lcdui.graphics.PresentationFence();
+				allowMotion = interpolationLoad.allow(started, presentationFence.behind(started, refreshPeriod));
+			} else resetInterpolationLoad();
 			int sharpness = fsrSharpness;
 			int w, h, outW, outH, screenW, screenH;
 			long serial;
@@ -1022,6 +1037,7 @@ public abstract class Canvas extends Displayable {
 					enhancements.upload(frame, serial, w, h, motion, frameReadyNanos);
 				}
 			}
+			if (!allowMotion) enhancements.skipInterpolation();
 			int texture = enhancements.renderForPresentation(outW, outH, fsr, sharpness, System.nanoTime());
 			glViewport(0, 0, screenW, screenH);
 			program.use(); glActiveTexture(GL_TEXTURE0); glBindTexture(GL_TEXTURE_2D, texture);
@@ -1029,9 +1045,20 @@ public abstract class Canvas extends Displayable {
 			program.loadVbo(enhancedVbo, w, h);
 			if (!enhancements.presentSharpened(enhancedVbo)) glDrawArrays(GL_TRIANGLE_STRIP, 0, 4);
 			program.use(); // Surface callbacks update this program's uniforms between draws.
+			if (motion) {
+				long submitted = System.nanoTime();
+				presentationFence.submitted(submitted);
+				long finished = System.nanoTime();
+				interpolationLoad.submitted(finished, finished - started, refreshPeriod);
+			}
 			mView.removeCallbacks(interpolationTick);
 			if (running && displayVisible && enhancements.animating()) mView.postOnAnimation(interpolationTick);
 			countGuestFrame(serial);
+		}
+
+		private void resetInterpolationLoad() {
+			interpolationLoad.reset();
+			if (presentationFence != null) { presentationFence.close(); presentationFence = null; }
 		}
 
 		private void countGuestFrame(long serial) {
@@ -1088,7 +1115,10 @@ public abstract class Canvas extends Displayable {
 
 		public void stop() {
 			running = false; mView.removeCallbacks(interpolationTick);
-			mView.queueEvent(() -> { if (enhancements != null) enhancements.resetHistory(); });
+			mView.queueEvent(() -> {
+				resetInterpolationLoad();
+				if (enhancements != null) enhancements.resetHistory();
+			});
 			mView.onPause();
 		}
 

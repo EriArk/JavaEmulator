@@ -10,6 +10,21 @@ stated otherwise. **Experimental** in older checkpoints means local/private
 combined builds; released experimental features are explicitly identified.
 **Released** means an actual GitHub release asset.
 
+## 2026-10-23 - Yield Interpolation Under Rendering Pressure (Unreleased)
+
+- Temporarily stop optional motion search/intermediate redraws when CPU
+  submission repeatedly exceeds the refresh budget or GPU work remains pending
+  past that budget. Finish the current pair with real pixels instead of freezing
+  an intermediate image. Keep incoming guest frames and FSR presentation.
+- Add a bounded EGL 1.5 completion probe with zero-timeout polling and CPU-only
+  fallback. No GPU timer, requested GPU wait, frame readback or extra guest-buffer
+  lock. Recover after 500 ms and healthy submissions rather than oscillating.
+- Keep saved settings, guest clocks/input and FPS limits intact; reset transient
+  protection on pause, context recreation or disabling interpolation. Add policy,
+  actual-pixel, optional-fence and Canvas integration checks.
+- Debug-only and off by default, with no public APK/release change.
+  [Evidence and limitations](docs/checks/2026-10-23-interpolation-load.md).
+
 ## 2026-10-23 - Pace Intermediate Frames From Guest Submissions (Unreleased)
 
 - Timestamp completed pixels in Canvas repaint, GameCanvas flush and extended

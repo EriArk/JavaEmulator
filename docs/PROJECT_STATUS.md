@@ -87,7 +87,8 @@ Beta 3 Revision 1 release page was rechecked on October 23; no release mutation.
 [fused final sharpening](checks/2026-10-23-enhancement-presentation.md),
 [EASU flat-region optimization and software-renderer fallback](checks/2026-10-23-easu-flat-regions.md),
 [interpolation artifact guards](checks/2026-10-23-motion-guards.md),
-[source-paced interpolation and submission timestamps](checks/2026-10-23-interpolation-cadence.md).
+[source-paced interpolation and submission timestamps](checks/2026-10-23-interpolation-cadence.md),
+[interpolation load protection](checks/2026-10-23-interpolation-load.md).
 
 The enhanced Java path now releases the guest-buffer lock after texture upload;
 motion/FSR work and presentation no longer hold it. Submitted geometry and frame
@@ -123,6 +124,14 @@ of accelerating then holding. The delay budget is now up to 50 ms rather than
 game logic. Late rendering consumes the existing window, and variable cadence
 does not rewind the presentation timeline. Real GPU stalls, sparse motion and
 frame drops remain limits; no measured input-to-photon improvement is claimed.
+
+Under detected rendering pressure, interpolation now temporarily yields to real
+frames and stops its extra redraw chain. It returns after a cooldown and healthy
+submissions, without changing the user's FSR/sharpness or saved settings. A
+zero-timeout EGL completion probe supplements CPU submission timing where EGL
+1.5 is available; unsupported devices keep CPU-only protection. This is not a
+precise GPU timer or a guarantee against every slowdown. Effects remain opt-in
+Debug development; no public APK update.
 
 ## Unreleased: Twenty-game Java Sample
 
