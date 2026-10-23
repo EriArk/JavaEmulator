@@ -47,6 +47,12 @@ the permission's wording, is the selected integration path.
 
 ## Dependency Materials
 
+The unreleased multiplayer temporary-contact actor is a Java adaptation of the
+owner's GPLv3 TrainerOS implementation at `d69e50dc`, not a Qt library linked into
+Android. The adaptation retains a GPL-3.0-only source header and its protocol/
+modification provenance in [MULTIPLAYER](MULTIPLAYER.md). It introduces no new
+binary dependency, credentials, bundled service or license change.
+
 `tools/release-inventory.gradle` inventories the actual resolved release graph,
 records artifact hashes and POM declarations, and collects available source JARs.
 POM declarations alone are not a license audit: inherited/missing declarations,

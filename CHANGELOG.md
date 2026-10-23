@@ -10,6 +10,23 @@ stated otherwise. **Experimental** in older checkpoints means local/private
 combined builds; released experimental features are explicitly identified.
 **Released** means an actual GitHub release asset.
 
+## 2026-10-24 - Lobby Lite Foundation (Unreleased)
+
+- Adapt TrainerOS's temporary lobby-contact lifecycle to Android Java, including
+  account-local atomic journaling, Keep as friend, bilateral cleanup, recovery,
+  pre-existing relationship protection and late-reply/rate-limit handling.
+- Add the host room/preparation/Ready model with exact game/adapter identity,
+  generation checks and one launch attempt; keep lobby and game lifetimes separate.
+- Add bounded L2CAP packet framing over a supplied ordered stream. Preserve
+  partial/coalesced packet boundaries, negotiated MTUs and close behavior without
+  modifying the existing physical Bluetooth backend.
+- Pass 111 JVM tests and four Retroid Android checks. Fix Android's trusted
+  system-directory alias handling found during the device pass while retaining
+  account/journal symlink rejection.
+- This is an internal foundation, not playable online multiplayer: authentication,
+  Lobby UI, P2P transport and virtual game-network integration remain unwired.
+  No public APK or server update. [Details and evidence](docs/MULTIPLAYER.md).
+
 ## 2026-10-24 - 0.5.0 Beta 1 (Released)
 
 - Publish 0.5.0-beta.1, code 310, as a new release approved by the maintainer,

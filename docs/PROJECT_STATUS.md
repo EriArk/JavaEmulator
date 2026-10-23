@@ -60,9 +60,26 @@ older 0.3 builds, not the current 0.4 release series.
 | Channel | Current identifier | Availability |
 | --- | --- | --- |
 | Public download | `0.5.0-beta.1`, code 310, separate 0.5 release page | One signed adaptive APK, matching app source and dependency/native source bundles |
-| Development source | Runtime matches the 0.5 tag; later commits document publication and checks | Java/Mophun presets and optional enhancements enabled in Release. Effects off and CPU budget 100% by default |
+| Development source | 0.5 runtime plus unreleased multiplayer foundation | Temporary-contact/session models and L2CAP framing are not yet wired to app UI or real games. Released effects/defaults are unchanged |
 | Private historical snapshot | `0.1.0-beta.2-experimental.15`, 2026-10-11 | Old Java/Mophun test build, not the current beta |
 | Local-only material | Game fixtures, firmware, diagnostics, device data and signing keys | Not in Git or public release assets; describing testing does not authorize redistribution |
+
+## Multiplayer Foundation (Unreleased)
+
+The first Android Lobby Lite foundation reuses TrainerOS's temporary-friendship
+protocol: admitted host/member pairs, account-private recovery journal, Keep as
+friend and cautious bilateral cleanup. The host session model fences stale Ready
+and preparation callbacks and produces a single launch attempt. A separate
+L2CAP packet channel preserves message boundaries over a supplied ordered stream.
+
+These components are not yet connected to Fluxer authentication, the app UI,
+virtual Bluetooth discovery or real games. **Online multiplayer is not available.**
+Existing physical Bluetooth and single-player launch paths are unchanged.
+111 JVM tests (36 new) and four Android instrumentation checks passed on Retroid;
+provider tests are simulated and network checks are loopback, not two-device
+gameplay. A local Debug APK was installed separately; no public APK, bot,
+server or Nextcloud deployment was changed. [Implementation, evidence and next
+steps](MULTIPLAYER.md). Issues #34-37 remain open.
 
 ## Released in 0.5 Beta 1
 
