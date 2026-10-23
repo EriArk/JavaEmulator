@@ -18,7 +18,7 @@ public final class EnhancementPipeline {
     private final FrameInterpolationClock clock = new FrameInterpolationClock();
     private final int[] inputs = new int[2];
     private final Target flow = new Target(), sceneState = new Target(), interpolated = new Target(), upscaled = new Target(), sharpened = new Target();
-    private Program easu, rcas, estimate, resolve, scene;
+    private Program easu, rcas, estimate, resolve, scene, copy;
     private long serial = Long.MIN_VALUE;
     private int current, tw, th, sw, sh;
     private boolean history, motionEnabled, animating, uploaded, motionPending;
@@ -167,6 +167,20 @@ public final class EnhancementPipeline {
         return true;
     }
 
+    /** Present the processed texture in caller-owned geometry without another output-sized target. */
+    public void presentTexture(int texture, FloatBuffer vertices, boolean filter) {
+        if (presentSharpened(vertices)) return;
+        if (copy == null) copy = new Program("simple.fsh");
+        source(copy, texture, sw, sh, sw, sh);
+        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, filter ? GL_LINEAR : GL_NEAREST);
+        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, filter ? GL_LINEAR : GL_NEAREST);
+        vertices(vertices); draw();
+        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+        int error = glGetError();
+        if (error != GL_NO_ERROR) throw new IllegalStateException("Enhancement presentation GL error: " + error);
+    }
+
     private static void validateOutput(int width,int height) {
         if (width<=0 || height<=0 || (long)width*height>4_194_304L)
             throw new IllegalArgumentException("Enhancement texture budget exceeded");
@@ -208,7 +222,7 @@ public final class EnhancementPipeline {
     public void close() {
         flow.close(); sceneState.close(); interpolated.close(); upscaled.close(); sharpened.close();
         glDeleteTextures(2,inputs,0);
-        for(Program p:new Program[]{easu,rcas,estimate,resolve,scene}) if(p!=null) glDeleteProgram(p.id);
+        for(Program p:new Program[]{easu,rcas,estimate,resolve,scene,copy}) if(p!=null) glDeleteProgram(p.id);
     }
     private static final class Target {
         int texture,fbo,width,height;

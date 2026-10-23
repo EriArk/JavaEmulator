@@ -68,13 +68,15 @@ older 0.3 builds, not the current 0.4 release series.
 
 Debug builds now have a per-game **Display > Enhancements** page using Try /
 Keep / Undo. Java OpenGL ES presentation supports an AMD FSR 1.0 EASU/RCAS
-adaptation and a separate motion-estimated intermediate-frame prototype.
+adaptation and a separate motion-estimated intermediate-frame prototype. Mophun
+now has an optional GLES presentation adapter using the same pipeline and load
+protection, with its existing Canvas output retained as the fallback.
 Mophun supports an independent 100-300% instruction-slice budget; this is not a
 calibrated phone CPU frequency. Java/ART has no emulated phone CPU clock.
 
 All image effects default off. Release builds hide the page and ignore these
 experimental runtime values, including imported profiles. No new APK was
-published. No Symbian CPU change or Mophun/Symbian GPU path is included.
+published. No Symbian CPU change or Symbian GPU enhancement path is included.
 Interpolation uses a source-paced presentation window capped at 50 ms and can introduce artifacts;
 it does not improve logic/input rate. No universal 60 FPS or automatic game
 enhancement profile is claimed. Retroid is available again. The existing public
@@ -88,7 +90,8 @@ Beta 3 Revision 1 release page was rechecked on October 23; no release mutation.
 [EASU flat-region optimization and software-renderer fallback](checks/2026-10-23-easu-flat-regions.md),
 [interpolation artifact guards](checks/2026-10-23-motion-guards.md),
 [source-paced interpolation and submission timestamps](checks/2026-10-23-interpolation-cadence.md),
-[interpolation load protection](checks/2026-10-23-interpolation-load.md).
+[interpolation load protection](checks/2026-10-23-interpolation-load.md),
+[Mophun GPU presentation integration](checks/2026-10-23-mophun-gpu.md).
 
 The enhanced Java path now releases the guest-buffer lock after texture upload;
 motion/FSR work and presentation no longer hold it. Submitted geometry and frame

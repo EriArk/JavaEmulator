@@ -12,15 +12,44 @@ Try / Keep / Undo workflow and profile backup serialization.
 | Setting | Current implementation | Not a promise of |
 | --- | --- | --- |
 | CPU budget, 100/150/200/300% | Mophun: 50,000/75,000/100,000/150,000 VM instructions per scheduling slice | A calibrated phone CPU frequency or a proportional performance increase |
-| FSR 1.0 + sharpness | Java Canvas/GameCanvas presentation using OpenGL ES, without a custom shader | More guest FPS, reconstructed detail, or better pixel art in every game |
-| Frame interpolation | Java OpenGL ES: bounded image-based motion estimation and intermediate presentation frames | Faster game logic/input, universal 60 FPS, FSR 3 or AI frame generation |
+| FSR 1.0 + sharpness | Java Canvas/GameCanvas OpenGL ES without a custom shader, and optional Mophun GLES presentation | More guest FPS, reconstructed detail, or better pixel art in every game |
+| Frame interpolation | Shared Java/Mophun GLES pipeline: bounded image-based motion estimation and intermediate presentation frames | Faster game logic/input, universal 60 FPS, FSR 3 or AI frame generation |
 
 Java games run as converted DEX through Android ART. There is no emulated Java
 phone CPU clock to increase. Mophun's budget reduces instruction-slice yielding;
 its SDK clock, sleeps, audio clock and frame limit remain separate. Games that
 time themselves by busy loops can nevertheless change speed. Increasing this
 budget can increase CPU use, battery use and heat. The default remains 100%.
-No Symbian CPU setting or Mophun/Symbian GPU enhancement path is added here.
+No Symbian CPU setting or Symbian GPU enhancement path is added here.
+
+### Mophun Presentation Adapter
+
+Mophun uses a GLES2 surface only when an image enhancement is selected. The
+existing Android View remains above it for touch controls and LCD effects. Canvas
+draws the game normally when effects are off, while the GPU surface is starting,
+or after a rendering failure. A failed adapter stays on Canvas until the activity
+is recreated; saved preferences are not silently rewritten.
+
+The completed Screen snapshot now carries an atomic serial/timestamp pair.
+The adapter copies only a new completed frame into GL-owned pixels, releases the
+guest snapshot lock before upload, and reuses the shared motion/FSR pipeline.
+UI redraws and generated frames never increment the guest serial or flips.
+There is one latest render state, not a queue of game frames. The UI no longer
+copies each game frame as well when GPU presentation is ready. With effects off,
+Canvas also avoids copying unchanged frames.
+
+Picture size, game-area clipping, rotation and filtering remain per-game. FSR
+runs before host rotation and shares the fused sharpening draw. Pausing the game
+disables interpolation; Activity pause/disabling effects releases GPU resources.
+The existing CPU/EGL load guard suppresses optional motion work under detected
+pressure. Neither this adapter nor its load guard changes Mophun CPU budget,
+SDK clocks, audio, frame limits, controller bindings or saves.
+
+Mophun's in-app screenshot/artwork capture still uses the completed source image
+with the existing rotation/LCD export options, not GPU-generated intermediate
+pixels or FSR. Android system screenshots include the composed GPU picture.
+This remains a Debug-only prototype, not a measured gameplay speedup or a
+universal smoothness guarantee. See [verification and limits](checks/2026-10-23-mophun-gpu.md).
 
 ## FSR Implementation and Provenance
 

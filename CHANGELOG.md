@@ -10,6 +10,21 @@ stated otherwise. **Experimental** in older checkpoints means local/private
 combined builds; released experimental features are explicitly identified.
 **Released** means an actual GitHub release asset.
 
+## 2026-10-23 - Shared GPU Enhancements for Mophun (Unreleased)
+
+- Add optional Mophun GLES presentation using the same FSR 1.0, sharpening,
+  motion interpolation and load protection as Java. Keep Canvas output when
+  effects are off or GPU rendering fails; do not change guest timing or saves.
+- Preserve touch keypad/gamepad overlays, LCD effects, rotation and game-area
+  clipping. Expose image effects beside CPU budget in the Debug per-game
+  Enhancements page, using the existing Try / Keep / Undo workflow.
+- Stamp completed Mophun frames atomically and avoid copying/uploading duplicate
+  host redraws. Keep shader work outside the guest snapshot lock, bound retained
+  frames and release resources on Activity pause or disabling effects.
+- Debug-only, opt-in and off by default. No public APK, tag or release update.
+  In-app Mophun screenshots still export source pixels, not GPU enhancements.
+  [Checks and remaining limits](docs/checks/2026-10-23-mophun-gpu.md).
+
 ## 2026-10-23 - Yield Interpolation Under Rendering Pressure (Unreleased)
 
 - Temporarily stop optional motion search/intermediate redraws when CPU

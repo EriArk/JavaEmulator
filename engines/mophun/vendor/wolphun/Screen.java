@@ -49,6 +49,22 @@ public final class Screen {
     // A SurfaceView lê 'presented' -> nunca mostra frame pela metade => sem tearing/piscada.
     private final Object frameLock = new Object();
     private int[] presented;
+    private volatile long presentationSerial;
+    private long presentationNanos;
+
+    public long presentationSerial() { return presentationSerial; }
+
+    /** Copies pixels and their identity atomically; duplicate host redraws are not guest frames. */
+    public boolean copyPresented(int[] out, long[] stamp, long afterSerial) {
+        synchronized (frameLock) {
+            if (presented == null || presentationSerial == afterSerial) return false;
+            if (out.length != presented.length || stamp.length < 2) throw new IllegalArgumentException("Frame size");
+            System.arraycopy(presented, 0, out, 0, presented.length);
+            stamp[0] = presentationSerial;
+            stamp[1] = presentationNanos;
+            return true;
+        }
+    }
     /** copia o último frame COMPLETO para 'out'. false se ainda não houve nenhum frame. */
     public boolean copyPresented(int[] out){
         synchronized(frameLock){
@@ -235,6 +251,8 @@ public final class Screen {
             if(presented==null || presented.length!=fb.length) presented=new int[fb.length];
             if(gamma==1.0) System.arraycopy(fb, 0, presented, 0, fb.length);
             else { ensureGammaLut(); for(int i=0;i<fb.length;i++) presented[i]=applyGamma(fb[i]); }
+            presentationNanos = System.nanoTime();
+            presentationSerial++;
         }
     }
 

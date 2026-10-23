@@ -64,13 +64,16 @@ public class GamePresetsUiTest {
                 public void back() { }
             });
             pages.enhancements();
-            assertNull(find(root(), TextView.class, "Frame interpolation"));
+            find(root(), TextView.class, "Frame interpolation").performClick();
+            find(root(), TextView.class, "FSR 1.0 upscaling").performClick();
+            assertFalse(source.frameInterpolation); assertFalse(source.fsrUpscaling);
         });
         idle(); choose(2);
         scenario.onActivity(activity -> {
             assertNull(applied); assertEquals(100, source.mophunCpuBudget);
             find(root(), TextView.class, "Try changes").performClick();
             assertEquals(200, applied.mophunCpuBudget); assertEquals(100, applied.emulationSpeed);
+            assertTrue(applied.frameInterpolation); assertTrue(applied.fsrUpscaling);
             assertEquals(source.getNativeFpsLimit(), applied.getNativeFpsLimit());
         });
     }

@@ -92,15 +92,14 @@ public final class GameSettingsPages {
 
     public void enhancements() {
         menu.page("Enhancements (experimental)");
-        if (javaGame) {
-            if (draft.graphicsMode == 1 && draft.shader == null) {
-                menu.toggle("FSR 1.0 upscaling", draft.fsrUpscaling, v -> draft.fsrUpscaling = v);
-                menu.percentage("Sharpness", Math.max(0, Math.min(100, draft.fsrSharpness)), 0, v -> draft.fsrSharpness = v);
-                menu.toggle("Frame interpolation", draft.frameInterpolation, v -> draft.frameInterpolation = v);
-            } else {
-                menu.message("Requires OpenGL ES without a custom shader.");
-            }
+        if (!javaGame || (draft.graphicsMode == 1 && draft.shader == null)) {
+            menu.toggle("FSR 1.0 upscaling", draft.fsrUpscaling, v -> draft.fsrUpscaling = v);
+            menu.percentage("Sharpness", Math.max(0, Math.min(100, draft.fsrSharpness)), 0, v -> draft.fsrSharpness = v);
+            menu.toggle("Frame interpolation", draft.frameInterpolation, v -> draft.frameInterpolation = v);
         } else {
+            menu.message("Requires OpenGL ES without a custom shader.");
+        }
+        if (!javaGame) {
             int[] budgets = {100, 150, 200, 300};
             int selected = 0;
             for (int i=0;i<budgets.length;i++) if (budgets[i]==draft.mophunCpuBudget) selected=i;

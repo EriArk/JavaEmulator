@@ -63,6 +63,8 @@ public final class MophunGameActivity extends Activity {
     private String title;
     private FrameLayout root;
     private FrameView frameView;
+    private MophunGpuView gpuView;
+    private boolean gamePaused = true;
     private MophunTouchControls touch;
     private ImageButton screenshotButton;
     private ru.playsoftware.j2meloader.input.GameChrome gameChrome;
@@ -238,8 +240,28 @@ public final class MophunGameActivity extends Activity {
                 || (settingsMapper != null && settingsMapper.isShowing()) || !hasWindowFocus()
                 || (devices != null && devices.resumeRequired());
         if (paused) clearInput();
+        gamePaused = paused;
         if (session != null) session.pause(paused);
+        updateGpu();
         if (previewBar != null) { if (paused) previewBar.suspend(); else previewBar.resume(); }
+    }
+
+    private void updateGpu() {
+        if (profile == null || frameView == null) return;
+        boolean enabled = MophunGpuView.enabled(profile);
+        if (enabled && gpuView == null) {
+            gpuView = new MophunGpuView(this, () -> frameView.invalidate(), () -> {
+                if (isDestroyed()) return;
+                frameView.invalidate();
+                Toast.makeText(this, "Enhancements unavailable. Original picture restored.", Toast.LENGTH_LONG).show();
+            });
+            root.addView(gpuView, 0, new FrameLayout.LayoutParams(-1, -1));
+        }
+        if (gpuView != null) {
+            gpuView.active(enabled && visible && !isFinishing());
+            gpuView.setVisibility(enabled ? View.VISIBLE : View.GONE);
+        }
+        frameView.invalidate();
     }
 
     @Override public void onWindowFocusChanged(boolean focused) {
@@ -365,6 +387,7 @@ public final class MophunGameActivity extends Activity {
                 });
     }
     private void applyPreview() {
+        updateGpu();
         if (fastForward != null) fastForward.configure();
         updateControllerMode();
         if (session != null) session.setEmulationSpeed(profile.getEmulationSpeed());
@@ -535,6 +558,7 @@ public final class MophunGameActivity extends Activity {
         if (frameView != null) frameView.postInvalidateOnAnimation();
     }
     @Override protected void onDestroy() {
+        if (gpuView != null) gpuView.active(false);
         if (fastForward != null) fastForward.cancel();
         if (previewBar != null) previewBar.stop();
         if (settingsMapper != null) { settingsMapper.setOnDismissListener(null); settingsMapper.dismiss(); }
@@ -605,6 +629,8 @@ public final class MophunGameActivity extends Activity {
         private final Rect destination = new Rect();
         private Bitmap bitmap;
         private int[] pixels;
+        private final long[] stamp = new long[2];
+        private Screen source;
         private boolean errorShown;
         FrameView() {
             super(MophunGameActivity.this);
@@ -624,15 +650,10 @@ public final class MophunGameActivity extends Activity {
             return true;
         }
         @Override protected void onDraw(Canvas canvas) {
-            canvas.drawColor(0xff101417);
             Screen screen = session.screen();
+            if (screen == null) canvas.drawColor(0xff101417);
             if (screen != null) {
-                if (bitmap == null) {
-                    bitmap = Bitmap.createBitmap(screen.pw, screen.ph, Bitmap.Config.ARGB_8888);
-                    pixels = new int[screen.pw * screen.ph];
-                }
-                if (screen.copyPresented(pixels)) {
-                    bitmap.setPixels(pixels, 0, screen.pw, 0, 0, screen.pw, screen.ph);
+                if (screen.presentationSerial() != 0) {
                     RectF area = touch == null ? new RectF(0, 0, getWidth(), getHeight()) : touch.gameArea();
                     int rotation = Math.floorMod(profile.screenRotation, 360);
                     boolean quarter = rotation == 90 || rotation == 270;
@@ -641,16 +662,29 @@ public final class MophunGameActivity extends Activity {
                     float scale = profile.screenScaleType == 0 ? 1 : Math.min(availableW / screen.pw, availableH / screen.ph);
                     int width = Math.round(profile.screenScaleType == 2 ? availableW : screen.pw * scale);
                     int height = Math.round(profile.screenScaleType == 2 ? availableH : screen.ph * scale);
+                    boolean enhanced = MophunGpuView.enabled(profile) && gpuView != null
+                            && gpuView.update(screen, area, width, height, rotation, profile, gamePaused);
+                    if (!enhanced) {
+                        canvas.drawColor(0xff101417);
+                        if (source != screen) {
+                            source = screen; stamp[0] = 0;
+                            if (bitmap != null) bitmap.recycle();
+                            bitmap = Bitmap.createBitmap(screen.pw, screen.ph, Bitmap.Config.ARGB_8888);
+                            pixels = new int[screen.pw * screen.ph];
+                        }
+                        if (screen.copyPresented(pixels, stamp, stamp[0]))
+                            bitmap.setPixels(pixels, 0, screen.pw, 0, 0, screen.pw, screen.ph);
+                    }
                     canvas.save(); canvas.clipRect(area);
                     canvas.translate(area.centerX(), area.centerY()); canvas.rotate(rotation);
                     destination.set(-width / 2, -height / 2, width - width / 2, height - height / 2);
                     paint.setFilterBitmap(profile.screenFilter);
-                    canvas.drawBitmap(bitmap, null, destination, paint);
+                    if (!enhanced) canvas.drawBitmap(bitmap, null, destination, paint);
                     lcdBounds.set(destination);
                     lcdEffect.draw(canvas, lcdBounds, screen.w, screen.h, 0,
                             profile.screenEffect, profile.screenEffectIntensity);
                     canvas.restore();
-                }
+                } else canvas.drawColor(0xff101417);
             }
             if (touch != null) touch.draw(canvas);
             if (session.error() != null && !errorShown) {
@@ -665,6 +699,8 @@ public final class MophunGameActivity extends Activity {
         }
         @Override protected void onDetachedFromWindow() {
             if (touch != null) touch.cancel();
+            if (bitmap != null) bitmap.recycle();
+            bitmap = null; pixels = null; source = null;
             super.onDetachedFromWindow();
         }
     }
