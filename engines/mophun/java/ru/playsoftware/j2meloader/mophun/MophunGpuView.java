@@ -5,9 +5,13 @@ import android.content.Context;
 import android.graphics.Bitmap;
 import android.graphics.RectF;
 import android.opengl.GLSurfaceView;
+import android.os.Handler;
+import android.os.Looper;
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
 import java.nio.FloatBuffer;
+import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.function.Consumer;
 import javax.microedition.khronos.egl.EGLConfig;
 import javax.microedition.khronos.opengles.GL10;
 import javax.microedition.lcdui.graphics.EnhancementPipeline;
@@ -36,6 +40,11 @@ final class MophunGpuView extends GLSurfaceView implements GLSurfaceView.Rendere
     private int[] pixels;
     private int surfaceWidth, surfaceHeight;
     private boolean suspended;
+    private State drawn;
+    private int drawnTexture;
+    private final Handler main = new Handler(Looper.getMainLooper());
+    private final AtomicBoolean capturing = new AtomicBoolean();
+    private volatile Capture captureRequest;
 
     MophunGpuView(Context context, Runnable changed, Runnable failure) {
         super(context);
@@ -51,6 +60,79 @@ final class MophunGpuView extends GLSurfaceView implements GLSurfaceView.Rendere
         return BuildConfig.DEBUG && (profile.fsrUpscaling || profile.frameInterpolation);
     }
 
+    /** One explicit readback at a time. Callback owns the unrotated bitmap, or receives null.
+     * It may run on either thread; it must not wait for the UI/GL thread. */
+    boolean capture(Consumer<Bitmap> callback) {
+        State expected = presented;
+        if (!active || failed || expected == null || !capturing.compareAndSet(false, true)) return false;
+        Capture request = new Capture(callback);
+        captureRequest = request;
+        main.postDelayed(request.timeout, 2000);
+        queueEvent(() -> {
+            if (request.done.get()) return;
+            Bitmap image = null;
+            try {
+                if (pipeline != null && drawn == expected && glGetString(GL_VERSION) != null)
+                    image = readImage(expected);
+            } catch (RuntimeException error) {
+                android.util.Log.w("MophunGpu", "Capture unavailable; using source image", error);
+            }
+            request.finish(image);
+        });
+        return true;
+    }
+
+    private final class Capture {
+        final Consumer<Bitmap> callback;
+        final AtomicBoolean done = new AtomicBoolean();
+        final Runnable timeout = () -> finish(null);
+        Capture(Consumer<Bitmap> callback) { this.callback = callback; }
+        void finish(Bitmap image) {
+            if (!done.compareAndSet(false, true)) { if (image != null) image.recycle(); return; }
+            main.removeCallbacks(timeout); captureRequest = null;
+            capturing.set(false); callback.accept(image);
+        }
+    }
+
+    private Bitmap readImage(State frame) {
+        // Re-present the existing texture (including fused RCAS) into an owned target.
+        // Never re-upload, advance interpolation or read the discarded swap-chain buffer.
+        int width = frame.width, height = frame.height;
+        if (width <= 0 || height <= 0 || width > 4096 || height > 4096
+                || (long) width * height > 4_194_304L) return null;
+        int[] target = new int[1], texture = new int[1], previous = new int[1], viewport = new int[4];
+        glGetIntegerv(GL_FRAMEBUFFER_BINDING, previous, 0); glGetIntegerv(GL_VIEWPORT, viewport, 0);
+        boolean scissor = glIsEnabled(GL_SCISSOR_TEST);
+        try {
+            glGenTextures(1, texture, 0); glBindTexture(GL_TEXTURE_2D, texture[0]);
+            glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+            glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+            glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+            glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+            glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, width, height, 0, GL_RGBA, GL_UNSIGNED_BYTE, null);
+            glGenFramebuffers(1, target, 0); glBindFramebuffer(GL_FRAMEBUFFER, target[0]);
+            glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, texture[0], 0);
+            if (glCheckFramebufferStatus(GL_FRAMEBUFFER) != GL_FRAMEBUFFER_COMPLETE)
+                throw new IllegalStateException("Incomplete capture target");
+            glDisable(GL_SCISSOR_TEST); glViewport(0, 0, width, height);
+            FloatBuffer quad = ByteBuffer.allocateDirect(64).order(ByteOrder.nativeOrder()).asFloatBuffer();
+            // Texture row zero is the top guest row; put it at the bottom for readPixels.
+            quad.put(new float[]{-1,-1,0,0, -1,1,0,1, 1,-1,1,0, 1,1,1,1}).rewind();
+            pipeline.presentTexture(drawnTexture, quad, frame.filter && !frame.fsr);
+            ByteBuffer rgba = ByteBuffer.allocateDirect(width * height * 4);
+            glReadPixels(0, 0, width, height, GL_RGBA, GL_UNSIGNED_BYTE, rgba);
+            if (glGetError() != GL_NO_ERROR) throw new IllegalStateException("Capture readback failed");
+            Bitmap image = Bitmap.createBitmap(width, height, Bitmap.Config.ARGB_8888);
+            image.copyPixelsFromBuffer(rgba);
+            return image;
+        } finally {
+            glBindFramebuffer(GL_FRAMEBUFFER, previous[0]);
+            glViewport(viewport[0], viewport[1], viewport[2], viewport[3]);
+            if (scissor) glEnable(GL_SCISSOR_TEST);
+            glDeleteFramebuffers(1, target, 0); glDeleteTextures(1, texture, 0);
+        }
+    }
+
     void active(boolean value) {
         if (active == value) return;
         active = value; presented = null;
@@ -60,6 +142,8 @@ final class MophunGpuView extends GLSurfaceView implements GLSurfaceView.Rendere
         } else {
             queueEvent(this::release);
             onPause(); suspended = true;
+            Capture pending = captureRequest;
+            if (pending != null) pending.finish(null);
         }
     }
 
@@ -81,6 +165,7 @@ final class MophunGpuView extends GLSurfaceView implements GLSurfaceView.Rendere
         // Old texture names belonged to the destroyed context. EGL sync lifetime is display-owned.
         if (fence != null) fence.close();
         fence = null; pipeline = null; source = null; load.reset();
+        drawn = null; drawnTexture = 0;
         if (bitmap != null) bitmap.recycle();
         bitmap = null; pixels = null; presented = null; animating = false; renderedSerial = 0;
     }
@@ -137,6 +222,7 @@ final class MophunGpuView extends GLSurfaceView implements GLSurfaceView.Rendere
         glScissor(left, surfaceHeight-bottom, Math.max(0,right-left), Math.max(0,bottom-top));
         current.vertices(vertices, surfaceWidth, surfaceHeight);
         pipeline.presentTexture(texture, vertices, current.filter && !current.fsr);
+        drawn = current; drawnTexture = texture;
         glDisable(GL_SCISSOR_TEST);
         if (current.motion) {
             fence.submitted(System.nanoTime());
@@ -154,6 +240,7 @@ final class MophunGpuView extends GLSurfaceView implements GLSurfaceView.Rendere
     }
 
     private void release() {
+        drawn = null; drawnTexture = 0;
         if (fence != null) fence.close(); fence = null; load.reset();
         if (pipeline != null) pipeline.close(); pipeline = null;
         if (bitmap != null) bitmap.recycle(); bitmap = null; pixels = null; source = null;

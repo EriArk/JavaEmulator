@@ -13,6 +13,8 @@ import java.util.Arrays;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.concurrent.atomic.AtomicInteger;
+import java.util.concurrent.atomic.AtomicReference;
 import org.junit.Test;
 import ru.playsoftware.j2meloader.config.ProfileModel;
 import ru.playsoftware.j2meloader.settings.SettingsActivity;
@@ -90,6 +92,11 @@ public class MophunPresentationTest {
             PixelCopy.request(view,bitmap,r -> {result[0]=r;done.countDown();},new Handler(Looper.getMainLooper()));
             assertTrue(done.await(5,TimeUnit.SECONDS)); assertEquals(PixelCopy.SUCCESS,result[0]); return bitmap;
         }
+        Bitmap export() throws Exception {
+            AtomicReference<Bitmap> result = new AtomicReference<>(); CountDownLatch done = new CountDownLatch(1);
+            scenario.onActivity(a -> assertTrue(view.capture(image -> { result.set(image); done.countDown(); })));
+            assertTrue(done.await(5, TimeUnit.SECONDS)); assertNotNull(result.get()); return result.get();
+        }
         public void close() { scenario.onActivity(a -> view.active(false)); scenario.close(); }
     }
 
@@ -130,6 +137,102 @@ public class MophunPresentationTest {
             host.draw(8,6,0,true);
             Bitmap image=host.capture(); assertEquals(0xFFFF0000,image.getPixel(120,120)); image.recycle();
             assertEquals(5,host.screen.presentationSerial()); assertEquals(5,host.screen.flips);
+        }
+    }
+
+    @Test public void exportMatchesPresentedPixelsWithoutAdvancingHistoryOrRotatingTwice() throws Exception {
+        try (Host host = new Host()) {
+            host.profile.frameInterpolation = true;
+            for (int rotation = 0; rotation < 360; rotation += 90) {
+                host.draw(160, 120, rotation, false);
+                Bitmap exported = host.export(), visible = host.capture();
+                assertEquals(160, exported.getWidth()); assertEquals(120, exported.getHeight());
+                android.graphics.Matrix matrix = new android.graphics.Matrix(); matrix.postRotate(rotation);
+                Bitmap rotated = Bitmap.createBitmap(exported, 0, 0, 160, 120, matrix, false);
+                int left = 120 - rotated.getWidth()/2, top = 120 - rotated.getHeight()/2;
+                for (int y = 0; y < rotated.getHeight(); y++) for (int x = 0; x < rotated.getWidth(); x++) {
+                    int expected = visible.getPixel(left+x, top+y), actual = rotated.getPixel(x,y);
+                    for (int shift = 0; shift < 32; shift += 8)
+                        assertTrue("capture mismatch at " + x + "," + y + " rotation " + rotation,
+                                Math.abs(((expected >>> shift)&255)-((actual >>> shift)&255)) <= 2);
+                }
+                if (rotated != exported) rotated.recycle(); exported.recycle(); visible.recycle();
+                assertEquals(1, host.screen.flips);
+                Object pipeline = field(host.view, "pipeline");
+                assertEquals(1L, field(pipeline, "serial")); assertEquals(true, field(pipeline, "history"));
+                assertFalse(host.failed.get());
+            }
+        }
+    }
+
+    @Test public void captureCompletesBeforePauseAndInactiveViewRejectsNewWork() throws Exception {
+        try (Host host = new Host()) {
+            host.draw(160,120,0,false);
+            AtomicReference<Bitmap> result = new AtomicReference<>(); AtomicInteger calls = new AtomicInteger();
+            host.scenario.onActivity(a -> {
+                assertTrue(host.view.capture(image -> { result.set(image); calls.incrementAndGet(); }));
+                host.view.active(false);
+                assertEquals(1, calls.get());
+                assertFalse(host.view.capture(image -> fail("Inactive view accepted capture")));
+            });
+            if (result.get() != null) result.get().recycle();
+            Thread.sleep(2100); assertEquals(1, calls.get());
+            host.scenario.onActivity(a -> host.view.active(true)); host.draw(160,120,0,false);
+            Bitmap image = host.export(); assertEquals(0xFFFF0000,image.getPixel(20,20)); image.recycle();
+        }
+    }
+
+    @Test public void exportingAnIntermediateFrameDoesNotAdvanceItsClock() throws Exception {
+        try (Host host = new Host()) {
+            host.profile.frameInterpolation = true; host.draw(160,120,0,false);
+            java.util.concurrent.FutureTask<Void> prepare = new java.util.concurrent.FutureTask<>(() -> {
+                javax.microedition.lcdui.graphics.EnhancementPipeline pipeline =
+                        (javax.microedition.lcdui.graphics.EnhancementPipeline)field(host.view,"pipeline");
+                Bitmap a = Bitmap.createBitmap(16,12,Bitmap.Config.ARGB_8888);
+                Bitmap b = Bitmap.createBitmap(16,12,Bitmap.Config.ARGB_8888);
+                try {
+                    for (int y=0;y<12;y++) for (int x=0;x<16;x++) {
+                        int color = 0xFF000000 | x*13<<16 | y*17<<8 | ((x+y)%2)*255;
+                        a.setPixel(x,y,color); b.setPixel((x+2)%16,y,color);
+                    }
+                    pipeline.resetHistory();
+                    pipeline.upload(a,1,16,12,true,0); pipeline.renderForPresentation(160,120,true,50,0);
+                    pipeline.upload(b,2,16,12,true,50_000_000);
+                    int texture = pipeline.renderForPresentation(160,120,true,50,75_000_000);
+                    Field field = host.view.getClass().getDeclaredField("drawnTexture"); field.setAccessible(true);
+                    field.setInt(host.view,texture); assertTrue(pipeline.animating());
+                } finally { a.recycle(); b.recycle(); }
+                return null;
+            });
+            host.view.queueEvent(prepare); prepare.get(5,TimeUnit.SECONDS);
+            Bitmap first=host.export(), second=host.export();
+            assertTrue(first.sameAs(second)); first.recycle(); second.recycle();
+            Object pipeline=field(host.view,"pipeline");
+            assertEquals(2L,field(pipeline,"serial")); assertEquals(true,field(pipeline,"history"));
+            assertEquals(true,field(pipeline,"animating"));
+            assertEquals(25_000_000L,field(field(pipeline,"clock"),"presented"));
+            assertEquals(1,host.screen.flips);
+        }
+    }
+
+    @Test public void stalledCaptureTimesOutOnceAndLateWorkCannotResetRenderer() throws Exception {
+        try (Host host = new Host()) {
+            host.draw(160,120,0,false);
+            CountDownLatch blocked = new CountDownLatch(1), resume = new CountDownLatch(1), completed = new CountDownLatch(1);
+            AtomicInteger calls = new AtomicInteger();
+            host.view.queueEvent(() -> {
+                blocked.countDown();
+                try { resume.await(5,TimeUnit.SECONDS); } catch(InterruptedException e) { Thread.currentThread().interrupt(); }
+            });
+            try {
+                assertTrue(blocked.await(2,TimeUnit.SECONDS));
+                host.scenario.onActivity(a -> {
+                    assertTrue(host.view.capture(image -> { assertNull(image); calls.incrementAndGet(); completed.countDown(); }));
+                    assertFalse(host.view.capture(image -> fail("Duplicate capture accepted")));
+                });
+                assertTrue(completed.await(3,TimeUnit.SECONDS)); assertEquals(1,calls.get());
+            } finally { resume.countDown(); }
+            Bitmap image = host.export(); image.recycle(); assertEquals(1,calls.get()); assertFalse(host.failed.get());
         }
     }
 

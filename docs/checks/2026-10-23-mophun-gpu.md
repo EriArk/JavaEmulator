@@ -40,8 +40,9 @@ preferences. Try / Keep / Undo and profile serialization retain their contracts.
 The view still uses the existing UI-vsync polling for source discovery and LCD/
 touch drawing. This does not claim zero UI cost, battery savings, or universal
 overload detection. EGL/compositor/swap timing is not a precise GPU benchmark.
-In-app Mophun screenshots/artwork retain source-image capture, with existing
-rotation/LCD export; system captures include the composed enhanced picture.
+At this checkpoint, in-app Mophun screenshots/artwork retained source-image
+capture; system captures included the composed enhanced picture. The subsequent
+[capture checkpoint](2026-10-23-mophun-capture.md) adds enhanced/original exports.
 
 ## Verification
 

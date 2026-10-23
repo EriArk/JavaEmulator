@@ -68,12 +68,20 @@ public class GamePresetsUiTest {
             find(root(), TextView.class, "FSR 1.0 upscaling").performClick();
             assertFalse(source.frameInterpolation); assertFalse(source.fsrUpscaling);
         });
-        idle(); choose(2);
+        idle();
+        scenario.onActivity(activity -> {
+            View budget = find(root(), TextView.class, "CPU budget");
+            ((Spinner)find((View)budget.getParent(), Spinner.class, null)).setSelection(2);
+            View capture = find(root(), TextView.class, "Capture image");
+            ((Spinner)find((View)capture.getParent(), Spinner.class, null)).setSelection(1);
+        }); idle();
         scenario.onActivity(activity -> {
             assertNull(applied); assertEquals(100, source.mophunCpuBudget);
+            assertTrue(source.mophunCaptureEnhanced);
             find(root(), TextView.class, "Try changes").performClick();
             assertEquals(200, applied.mophunCpuBudget); assertEquals(100, applied.emulationSpeed);
             assertTrue(applied.frameInterpolation); assertTrue(applied.fsrUpscaling);
+            assertFalse(applied.mophunCaptureEnhanced);
             assertEquals(source.getNativeFpsLimit(), applied.getNativeFpsLimit());
         });
     }

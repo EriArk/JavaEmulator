@@ -21,12 +21,21 @@ public class ProfileSerializationTest {
         ProfileModel old = roundTrip("{}");
         assertFalse(old.fsrUpscaling); assertFalse(old.frameInterpolation);
         assertEquals(50, old.fsrSharpness); assertEquals(100, old.mophunCpuBudget);
+        assertTrue(old.mophunCaptureEnhanced);
         ProfileModel enhanced = roundTrip("{\"FsrUpscaling\":true,\"FsrSharpness\":75,\"FrameInterpolation\":true,\"MophunCpuBudget\":200}");
         ProfilesManager.beginPreview(old); ProfilesManager.copyInto(enhanced, old);
         assertTrue(old.fsrUpscaling); assertTrue(old.frameInterpolation); assertEquals(200, old.mophunCpuBudget);
         ProfilesManager.undoPreview(old);
         assertFalse(old.fsrUpscaling); assertFalse(old.frameInterpolation);
         assertEquals(50, old.fsrSharpness); assertEquals(100, old.mophunCpuBudget);
+    }
+    @Test public void originalMophunCaptureSurvivesSaveAndPreviewUndo() throws Exception {
+        ProfileModel profile = roundTrip("{\"MophunCaptureEnhanced\":false}");
+        assertFalse(profile.mophunCaptureEnhanced);
+        ProfilesManager.beginPreview(profile);
+        ProfileModel draft = ProfilesManager.copy(profile); draft.mophunCaptureEnhanced = true;
+        ProfilesManager.copyInto(draft, profile); assertTrue(profile.mophunCaptureEnhanced);
+        ProfilesManager.undoPreview(profile); assertFalse(profile.mophunCaptureEnhanced);
     }
     @Test public void everyPersistedFieldHasAStableNameAndRemainsWritable() {
         for (Field field : ProfileModel.class.getFields()) {

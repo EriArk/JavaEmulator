@@ -82,6 +82,8 @@ public class ProfileModel {
 	public boolean frameInterpolation;
 	@SerializedName("MophunCpuBudget")
 	public int mophunCpuBudget = 100;
+	@SerializedName("MophunCaptureEnhanced")
+	public boolean mophunCaptureEnhanced = true;
 
 	@SerializedName("ScreenEffect")
 	public int screenEffect;

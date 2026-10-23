@@ -45,11 +45,25 @@ The existing CPU/EGL load guard suppresses optional motion work under detected
 pressure. Neither this adapter nor its load guard changes Mophun CPU budget,
 SDK clocks, audio, frame limits, controller bindings or saves.
 
-Mophun's in-app screenshot/artwork capture still uses the completed source image
-with the existing rotation/LCD export options, not GPU-generated intermediate
-pixels or FSR. Android system screenshots include the composed GPU picture.
+Mophun's **Capture image > Enhanced / Original** choice in Enhancements controls
+screenshots and automatic missing artwork. Enhanced captures the most recently
+rendered GPU image, including FSR, sharpening and any intermediate pixels, without
+touch controls, letterboxing or clipping the full game image to the host viewport.
+Original captures completed source pixels at source resolution. Both respect
+image rotation. The existing Clean / With LCD effect screenshot option controls
+LCD decoration separately; automatic artwork does not add LCD decoration.
+
+Capture re-presents the existing texture into a temporary bounded target; it does
+not upload another guest frame or advance/reset interpolation history. Encoding
+and storage use the disk worker. One GPU readback is allowed at a time, with a
+two-second completion timeout and an at-shutter source snapshot fallback. This
+does not guarantee zero driver stall during explicit readback. Missing artwork
+is captured before Activity pause releases the GPU; user-picked artwork retains
+priority and existing images are not overwritten. Android system screenshots
+still include all composed controls and overlays.
 This remains a Debug-only prototype, not a measured gameplay speedup or a
-universal smoothness guarantee. See [verification and limits](checks/2026-10-23-mophun-gpu.md).
+universal smoothness guarantee. See [presentation checks](checks/2026-10-23-mophun-gpu.md)
+and [image capture checks](checks/2026-10-23-mophun-capture.md).
 
 ## FSR Implementation and Provenance
 

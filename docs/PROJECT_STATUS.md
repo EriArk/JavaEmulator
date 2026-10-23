@@ -71,6 +71,11 @@ Keep / Undo. Java OpenGL ES presentation supports an AMD FSR 1.0 EASU/RCAS
 adaptation and a separate motion-estimated intermediate-frame prototype. Mophun
 now has an optional GLES presentation adapter using the same pipeline and load
 protection, with its existing Canvas output retained as the fallback.
+Mophun screenshots and automatic missing artwork can now capture that enhanced
+image, or retain source pixels through the per-game Enhanced / Original choice.
+Rotation is preserved without capturing control overlays; existing user-picked
+artwork keeps priority. Capture does not advance interpolation history. Unavailable
+GPU capture falls back to a completed source snapshot taken at the shutter.
 Mophun supports an independent 100-300% instruction-slice budget; this is not a
 calibrated phone CPU frequency. Java/ART has no emulated phone CPU clock.
 
@@ -91,7 +96,8 @@ Beta 3 Revision 1 release page was rechecked on October 23; no release mutation.
 [interpolation artifact guards](checks/2026-10-23-motion-guards.md),
 [source-paced interpolation and submission timestamps](checks/2026-10-23-interpolation-cadence.md),
 [interpolation load protection](checks/2026-10-23-interpolation-load.md),
-[Mophun GPU presentation integration](checks/2026-10-23-mophun-gpu.md).
+[Mophun GPU presentation integration](checks/2026-10-23-mophun-gpu.md),
+[enhanced/original screenshot and artwork export](checks/2026-10-23-mophun-capture.md).
 
 The enhanced Java path now releases the guest-buffer lock after texture upload;
 motion/FSR work and presentation no longer hold it. Submitted geometry and frame

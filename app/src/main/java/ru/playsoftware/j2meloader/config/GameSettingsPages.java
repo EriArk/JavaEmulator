@@ -100,6 +100,8 @@ public final class GameSettingsPages {
             menu.message("Requires OpenGL ES without a custom shader.");
         }
         if (!javaGame) {
+            menu.choice("Capture image", new String[]{"Enhanced", "Original"},
+                    draft.mophunCaptureEnhanced ? 0 : 1, i -> draft.mophunCaptureEnhanced = i == 0);
             int[] budgets = {100, 150, 200, 300};
             int selected = 0;
             for (int i=0;i<budgets.length;i++) if (budgets[i]==draft.mophunCpuBudget) selected=i;

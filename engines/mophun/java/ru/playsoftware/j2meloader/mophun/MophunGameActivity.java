@@ -180,15 +180,11 @@ public final class MophunGameActivity extends Activity {
         if (screenshotPending || !visible || isFinishing() || session == null) return;
         Screen screen = session.screen();
         if (screen == null) return;
-        int[] pixels = new int[screen.pw * screen.ph];
-        if (!screen.copyPresented(pixels)) return;
         ru.playsoftware.j2meloader.util.ScreenshotEffect effect = new ru.playsoftware.j2meloader.util.ScreenshotEffect(profile);
         int rotation = Math.floorMod(profile.screenRotation / 90, 4) * 90;
         screenshotPending = true;
         updateScreenshotButton();
-        // Copy the presented frame before encoding; gameplay continues on its worker.
-        disk.execute(() -> {
-            Bitmap bitmap = Bitmap.createBitmap(pixels, screen.pw, screen.ph, Bitmap.Config.ARGB_8888);
+        if (!captureFrame(profile.mophunCaptureEnhanced, bitmap -> {
             Bitmap oriented = bitmap;
             int result = R.string.screenshot_gallery_saved;
             try {
@@ -203,7 +199,7 @@ public final class MophunGameActivity extends Activity {
             catch (Exception error) {
                 android.util.Log.w("Mophun", "Screenshot", error);
                 result = R.string.screenshot_failed;
-            } finally { if (oriented != bitmap) oriented.recycle(); bitmap.recycle(); }
+            } finally { if (oriented != bitmap) oriented.recycle(); }
             int message = result;
             handler.post(() -> {
                 screenshotPending = false;
@@ -211,7 +207,29 @@ public final class MophunGameActivity extends Activity {
                 updateScreenshotButton();
                 Toast.makeText(getApplicationContext(), message, Toast.LENGTH_SHORT).show();
             });
-        });
+        })) { screenshotPending = false; updateScreenshotButton(); }
+    }
+
+    /** Snapshot source pixels at the shutter as a fallback; encode only on the disk worker.
+     * GPU callbacks may arrive while pausing. Never post their owned bitmap through Activity teardown. */
+    private boolean captureFrame(boolean enhanced, java.util.function.Consumer<Bitmap> writer) {
+        Screen screen = session == null ? null : session.screen();
+        if (screen == null) return false;
+        int width = screen.pw, height = screen.ph;
+        int[] pixels = new int[width * height];
+        if (!screen.copyPresented(pixels)) return false;
+        java.util.function.Consumer<Bitmap> save = gpu -> {
+            try {
+                disk.execute(() -> {
+                    Bitmap bitmap = gpu != null ? gpu : Bitmap.createBitmap(pixels, width, height, Bitmap.Config.ARGB_8888);
+                    try { writer.accept(bitmap); } finally { bitmap.recycle(); }
+                });
+            } catch (java.util.concurrent.RejectedExecutionException stopped) {
+                if (gpu != null) gpu.recycle();
+            }
+        };
+        if (!enhanced || gpuView == null || !gpuView.capture(save)) save.accept(null);
+        return true;
     }
 
     private void applyOrientation() {
@@ -545,8 +563,10 @@ public final class MophunGameActivity extends Activity {
         visible = false;
         cancelSelect();
         if (input != null) input.clear();
-        pauseState();
+        // Queue the last displayed image before pauseState releases the GL context.
+        if (session != null) session.pause(true);
         captureArtwork();
+        pauseState();
         super.onPause();
     }
     @Override protected void onResume() {
@@ -581,35 +601,39 @@ public final class MophunGameActivity extends Activity {
     }
 
     private void captureArtwork() {
-        if (session == null || directory == null || captured || new File(directory, "cover.png").exists()) return;
+        if (session == null || directory == null || captured || new File(directory, "cover.png").exists()
+                || new File(directory, ru.playsoftware.j2meloader.applist.GameArtwork.USER_COVER).exists()) return;
         Screen screen = session.screen();
         if (screen == null || screen.flips < 20) return;
-        int[] pixels = new int[screen.pw * screen.ph];
-        if (!screen.copyPresented(pixels)) return;
-        captured = true;
         File gameDir = directory;
-        disk.execute(() -> {
-            Bitmap bitmap = Bitmap.createBitmap(pixels, screen.pw, screen.ph, Bitmap.Config.ARGB_8888);
-            Bitmap icon = IconArtUtils.createFallback(title, 128, 128, bitmap);
+        int rotation = Math.floorMod(profile.screenRotation / 90, 4) * 90;
+        captured = captureFrame(profile.mophunCaptureEnhanced, bitmap -> {
+            Bitmap oriented = bitmap, icon = null;
             try {
+                if (rotation != 0) {
+                    android.graphics.Matrix matrix = new android.graphics.Matrix(); matrix.postRotate(rotation);
+                    oriented = Bitmap.createBitmap(bitmap, 0, 0, bitmap.getWidth(), bitmap.getHeight(), matrix, false);
+                }
+                icon = IconArtUtils.createFallback(title, 128, 128, oriented);
                 synchronized (ru.playsoftware.j2meloader.catalog.LibraryImporter.class) {
                     if (!gameDir.isDirectory()) return;
                     try (AppDatabase db = AppDatabase.open(getApplicationContext(), libraryRoot.getAbsolutePath())) {
                         AppItem item = db.appItemDao().getByPath(gameDir.getName());
                         if (item == null) return;
-                        if (!new File(gameDir, "cover.png").exists()) {
-                            writePng(new File(gameDir, "cover.png"), bitmap);
-                            item.setCoverPathExt("cover.png");
+                        if (!new File(gameDir, "cover.png").exists()
+                                && !new File(gameDir, ru.playsoftware.j2meloader.applist.GameArtwork.USER_COVER).exists()) {
+                            writePng(new File(gameDir, "cover.png"), oriented);
                         }
-                        if (!new File(gameDir, "icon.png").exists()) {
+                        if (!new File(gameDir, "icon.png").exists()
+                                && !new File(gameDir, ru.playsoftware.j2meloader.applist.GameArtwork.USER_ICON).exists()) {
                             writePng(new File(gameDir, "icon.png"), icon);
-                            item.setImagePathExt("icon.png");
                         }
+                        ru.playsoftware.j2meloader.applist.GameArtwork.applyPaths(item, gameDir);
                         db.appItemDao().update(item);
                     }
                 }
             } catch (Exception failure) { android.util.Log.w("Mophun", "Artwork capture", failure); }
-            finally { bitmap.recycle(); icon.recycle(); }
+            finally { if (oriented != bitmap) oriented.recycle(); if (icon != null) icon.recycle(); }
         });
     }
 

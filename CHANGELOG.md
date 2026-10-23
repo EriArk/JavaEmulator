@@ -10,6 +10,21 @@ stated otherwise. **Experimental** in older checkpoints means local/private
 combined builds; released experimental features are explicitly identified.
 **Released** means an actual GitHub release asset.
 
+## 2026-10-23 - Mophun Enhanced Image Capture (Unreleased)
+
+- Save Mophun screenshots and automatic missing covers from the processed GPU
+  image, including FSR/sharpening and intermediate frames. Add a per-game
+  Enhanced / Original capture choice using Try / Keep / Undo; retain source
+  resolution in Original mode. Exclude controls and preserve image rotation.
+- Preserve interpolation history during capture, bound readback resources and
+  fall back to an at-shutter source snapshot if GPU capture is unavailable.
+  Keep PNG encoding/storage off the UI thread and capture missing art before
+  releasing GPU resources on Activity pause.
+- Fix automatic artwork taking priority over a user-selected icon. Use the
+  library's shared artwork precedence; do not overwrite existing custom images.
+- Unreleased source/local Debug checks, not a public APK update. GPU effects
+  remain Debug-only and off by default. [Evidence and limits](docs/checks/2026-10-23-mophun-capture.md).
+
 ## 2026-10-23 - Shared GPU Enhancements for Mophun (Unreleased)
 
 - Add optional Mophun GLES presentation using the same FSR 1.0, sharpening,
@@ -22,7 +37,8 @@ combined builds; released experimental features are explicitly identified.
   host redraws. Keep shader work outside the guest snapshot lock, bound retained
   frames and release resources on Activity pause or disabling effects.
 - Debug-only, opt-in and off by default. No public APK, tag or release update.
-  In-app Mophun screenshots still export source pixels, not GPU enhancements.
+  At this checkpoint, in-app screenshots still exported source pixels; the
+  subsequent capture change above removes that limitation.
   [Checks and remaining limits](docs/checks/2026-10-23-mophun-gpu.md).
 
 ## 2026-10-23 - Yield Interpolation Under Rendering Pressure (Unreleased)
