@@ -1,8 +1,10 @@
 # Experimental Rendering and CPU Budget
 
-These are opt-in **Debug-only** development features, not part of the published
-0.4.0-beta.3-r1 APK. Release builds hide the page and ignore imported experimental
-image/CPU settings. Existing profiles retain their original behavior.
+These are opt-in experimental features enabled in the **0.5.0-beta.1**
+release candidate. They are absent from the older 0.4.0-beta.3-r1 APK. See
+[current availability](PROJECT_STATUS.md) before downloading. Effects remain
+off and the Mophun CPU budget remains 100% by default; imported profiles with
+explicit experimental settings now apply those settings in Release as well.
 
 Open **Game menu > Display > Enhancements**. Changes use the existing per-game
 Try / Keep / Undo workflow and profile backup serialization.
@@ -34,7 +36,7 @@ controls and custom shaders. `RetroShader` is persisted per game (0 off, 1 xBRZ,
 profile backup use existing serialization without a profile migration.
 Java configurations without the supported GLES path only offer Pixel sharp,
 Smooth and Custom; the editor never silently changes the renderer or removes a
-custom shader. These controls remain on the Debug-only Enhancements page.
+custom shader. These controls are on the experimental Enhancements page.
 
 The two shaders use the same bounded Java/Mophun pipeline: crop texture padding
 before processing, cache repeated frames, and apply host rotation afterwards.
@@ -69,8 +71,8 @@ Java advanced input is disabled without deleting its saved value. Mophun Canvas
 and GLES output use the same aligned picture origin, including odd dimensions.
 The existing LCD mask follows the resulting source-cell boundaries; its optical
 style and low-scale fade remain unchanged. Symbian's native scaling is not
-extended by this change. Unlike FSR/interpolation, this geometry option is not
-Debug-gated, but has not been published in a release APK yet.
+extended by this change. This geometry option is included in the 0.5 candidate
+alongside the optional image effects.
 [Retroid checks](checks/2026-10-23-integer-scaling.md).
 
 ## Platform Scope
@@ -127,7 +129,7 @@ does not guarantee zero driver stall during explicit readback. Missing artwork
 is captured before Activity pause releases the GPU; user-picked artwork retains
 priority and existing images are not overwritten. Android system screenshots
 still include all composed controls and overlays.
-This remains a Debug-only prototype, not a measured gameplay speedup or a
+This remains an experimental presentation path, not a measured gameplay speedup or a
 universal smoothness guarantee. See [presentation checks](checks/2026-10-23-mophun-gpu.md)
 and [image capture checks](checks/2026-10-23-mophun-capture.md).
 

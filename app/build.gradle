@@ -37,8 +37,8 @@ android {
         applicationId "io.github.eriark.abyssme"
         minSdk MIN_SDK
         targetSdk TARGET_SDK
-        versionCode 309
-        versionName "0.4.0-beta.3-r1"
+        versionCode 310
+        versionName "0.5.0-beta.1"
         resValue 'string', 'app_name', rootProject.name
         // Legacy build flag retained for old test/source consumers. All builds are adaptive.
         buildConfigField 'boolean', 'HANDHELD_MODE', 'false'

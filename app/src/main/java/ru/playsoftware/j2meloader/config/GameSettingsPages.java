@@ -48,11 +48,11 @@ public final class GameSettingsPages {
         if (speedAvailable()) speedChoice(menu, draft);
         menu.choice("Picture size", new String[]{"Original", "Fit", "Stretch", "Integer"}, clamp(draft.screenScaleType, 4),
                 i -> { draft.screenScaleType = i; draft.screenScaleRatio = 100; });
-        if (!BuildConfig.DEBUG || !enhancementGpuAvailable() || draft.getRetroShader() == 0) {
+        if (!enhancementGpuAvailable() || draft.getRetroShader() == 0) {
             menu.toggle("Smoothing", draft.screenFilter, value -> draft.screenFilter = value);
             screenEffectChoice(menu, draft);
         }
-        if (BuildConfig.DEBUG) menu.action("Enhancements", R.drawable.ic_quick_quality, this::enhancements);
+        menu.action("Enhancements", R.drawable.ic_quick_quality, this::enhancements);
         menu.choice("Image rotation", new String[]{"0\u00b0", "90\u00b0", "180\u00b0", "270\u00b0"},
                 Math.floorMod(draft.screenRotation / 90, 4), i -> draft.screenRotation = i * 90);
         if (!BuildConfig.HANDHELD_MODE) menu.choice("Orientation", new String[]{"Auto", "Portrait", "Landscape"},

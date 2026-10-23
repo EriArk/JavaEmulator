@@ -19,7 +19,10 @@ tasks.register('verifyProductionApks') {
                 'Lru/playsoftware/j2meloader/mophun/MophunPreviewActivity;']
             new java.util.zip.ZipFile(new File(folder, metadata.elements[0].outputFile)).withCloseable { zip ->
                 ['assets/FREEJ2ME-LICENSE.txt', 'assets/FREEJ2ME-SOURCE.json',
-                 'assets/licenses/WOLPHUN-GPL-3.0.txt', 'assets/licenses/NOFUN-APACHE-2.0.txt'].each {
+                 'assets/licenses/WOLPHUN-GPL-3.0.txt', 'assets/licenses/NOFUN-APACHE-2.0.txt',
+                 'assets/licenses/FSR-MIT.txt', 'assets/licenses/RETRO-SHADERS.txt',
+                 'assets/shaders/retro/xbrz.glsl', 'assets/shaders/retro/xbrz-resolve.glsl',
+                 'assets/shaders/retro/crt-easymode.glsl'].each {
                     if (zip.getEntry(it) == null) throw new GradleException("Missing notice: $it")
                 }
                 zip.entries().each { entry ->

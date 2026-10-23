@@ -396,7 +396,6 @@ public class CanvasLifecycleTest {
     }
 
     @Test public void enhancementsSurviveResizeRotationToggleAndContextRecreation() throws Exception {
-        org.junit.Assume.assumeTrue(ru.playsoftware.j2meloader.BuildConfig.DEBUG);
         int oldW = Displayable.getVirtualWidth(), oldH = Displayable.getVirtualHeight();
         Field mode = Canvas.class.getDeclaredField("graphicsMode"); mode.setAccessible(true);
         int oldMode = mode.getInt(null);
@@ -509,7 +508,6 @@ public class CanvasLifecycleTest {
     }
 
     @Test public void enhancedPresentationDoesNotHoldGuestBufferOrCountANewerSubmission() throws Exception {
-        org.junit.Assume.assumeTrue(ru.playsoftware.j2meloader.BuildConfig.DEBUG);
         int oldW=Displayable.getVirtualWidth(), oldH=Displayable.getVirtualHeight();
         Field mode=Canvas.class.getDeclaredField("graphicsMode"); mode.setAccessible(true);
         int oldMode=mode.getInt(null);
@@ -644,7 +642,6 @@ public class CanvasLifecycleTest {
     }
 
     @Test public void enhancedGeometryKeepsColoredCornersThroughResizeAndRotation() throws Exception {
-        org.junit.Assume.assumeTrue(ru.playsoftware.j2meloader.BuildConfig.DEBUG);
         int oldW=Displayable.getVirtualWidth(), oldH=Displayable.getVirtualHeight();
         Field mode=Canvas.class.getDeclaredField("graphicsMode"); mode.setAccessible(true);
         Field raw=Canvas.class.getDeclaredField("screenshotRawMode"); raw.setAccessible(true);

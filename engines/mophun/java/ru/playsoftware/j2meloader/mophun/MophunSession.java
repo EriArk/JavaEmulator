@@ -19,7 +19,7 @@ public final class MophunSession implements AutoCloseable {
     private volatile int frameRateLimit = 60;
     private volatile int cpuBudget = 100;
     public void setCpuBudget(int percent) {
-        cpuBudget = ru.playsoftware.j2meloader.BuildConfig.DEBUG ? Math.max(100, Math.min(300, percent)) : 100;
+        cpuBudget = Math.max(100, Math.min(300, percent));
     }
     public int getCpuBudget() { return cpuBudget; }
     private final javax.microedition.lcdui.FramePacer framePacer =

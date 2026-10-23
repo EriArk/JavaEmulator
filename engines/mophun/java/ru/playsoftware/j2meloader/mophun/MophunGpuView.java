@@ -17,7 +17,6 @@ import javax.microedition.khronos.egl.EGLConfig;
 import javax.microedition.khronos.opengles.GL10;
 import javax.microedition.lcdui.graphics.EnhancementPipeline;
 import javax.microedition.lcdui.graphics.PresentationFence;
-import ru.playsoftware.j2meloader.BuildConfig;
 import ru.playsoftware.j2meloader.config.ProfileModel;
 import ru.playsoftware.j2meloader.runtime.InterpolationLoadGuard;
 import wolphun.Screen;
@@ -59,7 +58,7 @@ final class MophunGpuView extends GLSurfaceView implements GLSurfaceView.Rendere
     }
 
     static boolean enabled(ProfileModel profile) {
-        return BuildConfig.DEBUG && (profile.fsrUpscaling || profile.frameInterpolation || profile.getRetroShader() != 0);
+        return profile.fsrUpscaling || profile.frameInterpolation || profile.getRetroShader() != 0;
     }
 
     /** One explicit readback at a time. Callback owns the unrotated bitmap, or receives null.

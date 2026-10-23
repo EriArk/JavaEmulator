@@ -1,6 +1,6 @@
 # AbyssME - Current Product and Development Status
 
-**Last updated: 2026-10-23.** Verification dates are recorded per section.
+**Last updated: 2026-10-24.** Verification dates are recorded per section.
 This is the starting point for website copy,
 announcements, progress posts and project handoffs. It includes work that exists
 only in local experiments or private test builds. Describing that work here
@@ -60,11 +60,26 @@ older 0.3 builds, not the current 0.4 release series.
 | Channel | Current identifier | Availability |
 | --- | --- | --- |
 | Public download | `0.4.0-beta.3-r1`, code 309, on existing Beta 3 page | One signed adaptive APK, matching app source and dependency/native source bundles |
-| Development source | Java cadence/input/import fixes; experimental FSR, corrected motion rounding/ambiguity handling and Mophun CPU budget | Unreleased. Enhancements are Debug-only; dated Retroid and emulator evidence below. Public revision APK unchanged |
+| Development source | `0.5.0-beta.1` candidate, code 310; Java/Mophun presets and optional enhancements enabled in Release | Publication pending. Effects off and CPU budget 100% by default; public r1 APK unchanged |
 | Private historical snapshot | `0.1.0-beta.2-experimental.15`, 2026-10-11 | Old Java/Mophun test build, not the current beta |
 | Local-only material | Game fixtures, firmware, diagnostics, device data and signing keys | Not in Git or public release assets; describing testing does not authorize redistribution |
 
-## Unreleased: Pixel-Aligned Scaling
+## 0.5 Beta Preparation
+
+The 0.5 candidate promotes the verified Java/Mophun enhancements from Debug-only
+development to optional Release controls, while preserving existing defaults.
+This includes xBRZ, CRT EasyMode, FSR, frame interpolation, Mophun CPU budget,
+enhanced capture, Integer scaling and the shared Java cadence/input/import fixes.
+Explicit experimental settings imported from a Debug profile now apply in
+Release too. Symbian/N-Gage is retained without these new GPU options.
+
+The following development sections record checks made before this promotion;
+their Debug-only and unreleased wording describes those dated checkpoints,
+not an additional feature gate in the 0.5 candidate. Publication and signed
+upgrade checks are pending. The maintainer approved a new 0.5 release instead
+of updating the Beta 3 page. See [release notes](releases/v0.5.0-beta.1.md).
+
+## Development Evidence: Pixel-Aligned Scaling
 
 Java and Mophun now offer **Display > Picture size > Integer**, also available
 in Java's advanced scale selector. It uses the largest whole source-pixel
@@ -80,7 +95,7 @@ serialization and live Deep Abyss touch layouts. This is unreleased source and
 a locally installed Debug APK, not a public release update.
 [Evidence and limits](checks/2026-10-23-integer-scaling.md).
 
-## Unreleased: Experimental Enhancements
+## Development Evidence: Experimental Enhancements
 
 xBRZ now performs expensive corner analysis at guest resolution and reuses the
 decisions during enlargement, instead of repeating that work for every output
@@ -210,7 +225,7 @@ zero-timeout EGL completion probe supplements CPU submission timing where EGL
 precise GPU timer or a guarantee against every slowdown. Effects remain opt-in
 Debug development; no public APK update.
 
-## Unreleased: Twenty-game Java Sample
+## Development Evidence: Twenty-game Java Sample
 
 An Android-emulator sample of 20 supplied Java variants exposed shared problems:
 short GameCanvas button taps could disappear between polls, interrupted prepared
@@ -227,7 +242,7 @@ full-game saves and physical-controller acceptance were not established.
 See the [fixture matrix, fixes, checks and remaining findings](checks/2026-10-20-java-game-sweep.md).
 No public APK update; these improvements are unreleased source.
 
-## Unreleased: Java Frame Cadence
+## Development Evidence: Java Frame Cadence
 
 Corrected accumulated scheduler oversleep in the shared Java frame limiter and
 a lost-redraw race in parallel Canvas presentation. No new CPU-frequency setting,

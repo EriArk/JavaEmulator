@@ -171,9 +171,9 @@ public abstract class Canvas extends Displayable {
 		setEnhancements(fsr, interpolation, sharpness, 0);
 	}
 	public static void setEnhancements(boolean fsr, boolean interpolation, int sharpness, int retro) {
-		retroShader = ru.playsoftware.j2meloader.BuildConfig.DEBUG && (retro == 1 || retro == 2) ? retro : 0;
-		fsrEnabled = ru.playsoftware.j2meloader.BuildConfig.DEBUG && fsr && retroShader == 0;
-		interpolationEnabled = ru.playsoftware.j2meloader.BuildConfig.DEBUG && interpolation && retroShader == 0;
+		retroShader = (retro == 1 || retro == 2) ? retro : 0;
+		fsrEnabled = fsr && retroShader == 0;
+		interpolationEnabled = interpolation && retroShader == 0;
 		fsrSharpness = Math.max(0, Math.min(100, sharpness));
 	}
 	private int onX, onY, onWidth, onHeight;

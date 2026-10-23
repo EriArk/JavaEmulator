@@ -10,6 +10,21 @@ stated otherwise. **Experimental** in older checkpoints means local/private
 combined builds; released experimental features are explicitly identified.
 **Released** means an actual GitHub release asset.
 
+## 2026-10-24 - 0.5.0 Beta 1 Preparation
+
+- Prepare 0.5.0-beta.1, code 310, as a new release approved by the maintainer,
+  preserving older APKs and immutable source tags. Publication is not complete yet.
+- Enable the verified Java/Mophun image presets and experimental enhancements
+  in Release: Pixel sharp, Smooth, FSR, xBRZ, CRT EasyMode, optional frame
+  interpolation and Mophun CPU budget. Defaults remain unchanged. Imported
+  profiles with explicitly enabled experimental settings now apply in Release.
+- Include Integer picture size, aligned Mophun LCD geometry, processed Mophun
+  capture, Java cadence/input fixes and interrupted-import recovery developed
+  since r1. Preserve existing games, saves and per-game settings on upgrade.
+- Symbian/N-Gage remains included, but does not gain these new GPU effects.
+  No claim of universal 60 FPS, full-game acceptance or proportional speedup.
+  [Release notes](docs/releases/v0.5.0-beta.1.md).
+
 ## 2026-10-23 - Faster xBRZ Without Lowering Resolution (Unreleased)
 
 - Analyze xBRZ edges once per guest pixel, then resolve the original ordered
