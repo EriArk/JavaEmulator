@@ -24,6 +24,9 @@ public final class EnhancementPipeline {
     private boolean history, motionEnabled, animating, uploaded, motionPending;
     private int cachedTexture, cachedWidth, cachedHeight, cachedStrength;
     private boolean cachedFsr;
+    private boolean cachedPresentation;
+    private int presentationTexture, presentationWidth, presentationHeight, presentationTexWidth, presentationTexHeight;
+    private int presentationStrength;
 
     public EnhancementPipeline() {
         quad.put(new float[]{-1,-1,0,0, -1,1,0,1, 1,-1,1,0, 1,1,1,1}).rewind();
@@ -35,6 +38,7 @@ public final class EnhancementPipeline {
     public void resetHistory() {
         history=false; clock.reset(); serial=Long.MIN_VALUE; animating=false; cachedTexture=0;
         uploaded=false; motionPending=false;
+        presentationStrength=0;
     }
 
     /** Returns a texture containing only the guest viewport, ready for host rotation. */
@@ -63,15 +67,26 @@ public final class EnhancementPipeline {
             configure(inputs[current]); GLUtils.texSubImage2D(GL_TEXTURE_2D,0,0,0,frame);
             clock.frame(now); serial=frameSerial;
             uploaded=true; cachedTexture=0; motionPending=motion && history;
+            presentationStrength=0;
         }
     }
 
     /** Uses GPU-owned pixels only. No reference to the guest Bitmap survives upload(). */
     public int renderUploaded(int outW, int outH, boolean fsr, int strength, long now) {
+        return renderUploaded(outW,outH,fsr,strength,now,false);
+    }
+
+    /** Defer RCAS to the final draw, avoiding an output-sized target and copy pass. */
+    public int renderForPresentation(int outW, int outH, boolean fsr, int strength, long now) {
+        return renderUploaded(outW,outH,fsr,strength,now,true);
+    }
+
+    private int renderUploaded(int outW, int outH, boolean fsr, int strength, long now, boolean presentation) {
         validateOutput(outW,outH);
         if (!uploaded) throw new IllegalStateException("No uploaded enhancement frame");
         if (!motionPending && !animating && cachedTexture!=0 && cachedWidth==outW && cachedHeight==outH
-                && cachedFsr==fsr && cachedStrength==strength) return cachedTexture;
+                && cachedFsr==fsr && cachedStrength==strength && cachedPresentation==presentation) return cachedTexture;
+        presentationStrength=0;
         if (motionPending) {
             if (clock.phase(now)<1f) {
                 if (estimate==null) estimate=new Program("motion-estimate.fsh");
@@ -103,11 +118,17 @@ public final class EnhancementPipeline {
             texture=upscaled.texture; textureW=outW; textureH=outH;
         }
         if (fsr && strength>0 && outW>=sw && outH>=sh) {
-            if (rcas==null) rcas=new Program("fsr-rcas.fsh");
-            sharpened.size(outW,outH);
-            begin(rcas,sharpened,texture,outW,outH,textureW,textureH);
-            glUniform1f(rcas.uniform("sharpness"),Math.max(0,Math.min(100,strength))/100f);
-            draw(); texture=sharpened.texture;
+            if (presentation) {
+                presentationTexture=texture; presentationWidth=outW; presentationHeight=outH;
+                presentationTexWidth=textureW; presentationTexHeight=textureH;
+                presentationStrength=Math.min(100,strength);
+            } else {
+                if (rcas==null) rcas=new Program("fsr-rcas.fsh");
+                sharpened.size(outW,outH);
+                begin(rcas,sharpened,texture,outW,outH,textureW,textureH);
+                glUniform1f(rcas.uniform("sharpness"),Math.min(100,strength)/100f);
+                draw(); texture=sharpened.texture;
+            }
         } else if (!upscale && (textureW!=sw || textureH!=sh)) {
             // Crop padded Canvas textures even when EASU is bypassed during minification.
             if (resolve==null) resolve=new Program("motion-resolve.fsh");
@@ -120,7 +141,21 @@ public final class EnhancementPipeline {
         int error=glGetError();
         if(error!=GL_NO_ERROR) throw new IllegalStateException("Enhancement GL error: "+error);
         cachedTexture=texture; cachedWidth=outW; cachedHeight=outH; cachedFsr=fsr; cachedStrength=strength;
+        cachedPresentation=presentation;
         return texture;
+    }
+
+    /** Draw into the caller's framebuffer/viewport with normalized guest UVs, including host rotation.
+     * Returns false when the caller should present the returned texture normally. */
+    public boolean presentSharpened(FloatBuffer vertices) {
+        if (presentationStrength==0) return false;
+        if (rcas==null) rcas=new Program("fsr-rcas.fsh");
+        source(rcas,presentationTexture,presentationWidth,presentationHeight,presentationTexWidth,presentationTexHeight);
+        glUniform1f(rcas.uniform("sharpness"),presentationStrength/100f);
+        vertices(vertices); draw();
+        int error=glGetError();
+        if(error!=GL_NO_ERROR) throw new IllegalStateException("Enhancement presentation GL error: "+error);
+        return true;
     }
 
     private static void validateOutput(int width,int height) {
@@ -130,11 +165,16 @@ public final class EnhancementPipeline {
 
     private void begin(Program p, Target t, int texture, int w, int h, int texW, int texH) {
         glBindFramebuffer(GL_FRAMEBUFFER,t.fbo); glViewport(0,0,t.width,t.height);
+        source(p,texture,w,h,texW,texH); vertices(quad);
+    }
+    private static void source(Program p, int texture, int w, int h, int texW, int texH) {
         glUseProgram(p.id); glActiveTexture(GL_TEXTURE0); glBindTexture(GL_TEXTURE_2D,texture);
         glUniform1i(p.uniform("sampler0"),0);
         glUniform2f(p.uniform("sourceSize"),w,h); glUniform2f(p.uniform("textureSize"),texW,texH);
-        quad.position(0); glVertexAttribPointer(0,2,GL_FLOAT,false,16,quad); glEnableVertexAttribArray(0);
-        quad.position(2); glVertexAttribPointer(1,2,GL_FLOAT,false,16,quad); glEnableVertexAttribArray(1);
+    }
+    private static void vertices(FloatBuffer vertices) {
+        vertices.position(0); glVertexAttribPointer(0,2,GL_FLOAT,false,16,vertices); glEnableVertexAttribArray(0);
+        vertices.position(2); glVertexAttribPointer(1,2,GL_FLOAT,false,16,vertices); glEnableVertexAttribArray(1);
     }
     private static void second(Program p,String name,int texture,int unit) {
         glActiveTexture(GL_TEXTURE0+unit); glBindTexture(GL_TEXTURE_2D,texture); glUniform1i(p.uniform(name),unit);

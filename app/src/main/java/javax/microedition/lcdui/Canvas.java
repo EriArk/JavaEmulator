@@ -1019,12 +1019,13 @@ public abstract class Canvas extends Displayable {
 					enhancements.upload(frame, serial, w, h, motion, System.nanoTime());
 				}
 			}
-			int texture = enhancements.renderUploaded(outW, outH, fsr, sharpness, System.nanoTime());
+			int texture = enhancements.renderForPresentation(outW, outH, fsr, sharpness, System.nanoTime());
 			glViewport(0, 0, screenW, screenH);
 			program.use(); glActiveTexture(GL_TEXTURE0); glBindTexture(GL_TEXTURE_2D, texture);
 			glUniform1i(program.uTextureUnit, 0);
 			program.loadVbo(enhancedVbo, w, h);
-			glDrawArrays(GL_TRIANGLE_STRIP, 0, 4);
+			if (!enhancements.presentSharpened(enhancedVbo)) glDrawArrays(GL_TRIANGLE_STRIP, 0, 4);
+			program.use(); // Surface callbacks update this program's uniforms between draws.
 			mView.removeCallbacks(interpolationTick);
 			if (running && displayVisible && enhancements.animating()) mView.postOnAnimation(interpolationTick);
 			countGuestFrame(serial);

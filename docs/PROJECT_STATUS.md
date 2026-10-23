@@ -83,13 +83,20 @@ Beta 3 Revision 1 release page was rechecked on October 23; no release mutation.
 [Implementation and limits](EXPERIMENTAL_ENHANCEMENTS.md),
 [initial device evidence](checks/2026-10-23-enhancements.md),
 [latency, artifact and GPU refinement](checks/2026-10-23-enhancement-refinement.md),
-[guest-buffer unlock and coherent submission checks](checks/2026-10-23-enhancement-upload.md).
+[guest-buffer unlock and coherent submission checks](checks/2026-10-23-enhancement-upload.md),
+[fused final sharpening](checks/2026-10-23-enhancement-presentation.md).
 
 The enhanced Java path now releases the guest-buffer lock after texture upload;
 motion/FSR work and presentation no longer hold it. Submitted geometry and frame
 identity are captured together, without an extra CPU image copy. This allows
 guest drawing/input to continue during effect processing, but does not remove
 driver upload stalls or prove a game-wide FPS/input-latency gain.
+
+Final sharpening now shares the Canvas presentation draw rather than using an
+extra full-output texture and copy. The equations, guest resolution and effect
+defaults are unchanged; quality is checked against the retained texture-output
+path. This saves about 2.64 MiB of RGBA target storage at 720x960, not a promise
+of an equivalent FPS increase.
 
 ## Unreleased: Twenty-game Java Sample
 

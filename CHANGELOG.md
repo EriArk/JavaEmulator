@@ -10,6 +10,19 @@ stated otherwise. **Experimental** in older checkpoints means local/private
 combined builds; released experimental features are explicitly identified.
 **Released** means an actual GitHub release asset.
 
+## 2026-10-23 - Fused Sharpening and Presentation (Unreleased)
+
+- Apply experimental FSR sharpening directly during final Canvas presentation,
+  instead of writing and then copying a separate output-sized texture. Keep the
+  same RCAS equations and restore the normal shader state for surface callbacks.
+- Save one output-sized RGBA target (about 2.64 MiB at 720x960) on the Canvas
+  path. This does not change guest resolution, image defaults or emulation speed.
+- Retain the texture-output path for same-GPU quality and cost comparisons;
+  cover rotations, padding, fractional scale, sharpness, interpolation, cached
+  draws and disabling/resetting effects. See
+  [verification and measured costs](docs/checks/2026-10-23-enhancement-presentation.md).
+- Keep effects Debug-only and opt-in. No public APK or release asset update.
+
 ## 2026-10-23 - Separate Guest Drawing From Enhancement Passes (Unreleased)
 
 - Release the Java guest-buffer lock immediately after texture upload and

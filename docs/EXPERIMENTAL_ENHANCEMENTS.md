@@ -37,13 +37,17 @@ is not enabled. The UI maps sharpness 0-100% to a 0-1 RCAS strength multiplier;
 0% removes sharpening, not the EASU upscale. This is not a bit-exact validation
 against AMD's reference GPU implementation or an AMD-certified integration.
 
-FSR runs before host rotation. It excludes padded backing pixels and bypasses
+EASU runs before host rotation. RCAS uses guest-oriented coordinates in the final
+presentation draw, including rotation. The retained texture-output path remains
+the reference for GPU comparisons. The Canvas path avoids a separate full-output
+RCAS texture and its subsequent copy. It excludes padded backing pixels and bypasses
 upscaling unless the requested output is larger than the guest viewport in at
 least one axis and no smaller in the other. At native size, only optional RCAS
 sharpening runs; native size with 0% sharpness preserves the original pixels.
 Zero sharpness bypasses RCAS, including during upscaling.
-LCD presentation remains a separate overlay. In-app screenshot capture retains
-its existing clean/LCD behavior; it does not capture these GPU passes.
+LCD presentation remains a separate overlay. GLES game-image screenshots include
+the active GPU presentation; the clean/LCD choice controls the extra LCD effect.
+Raw-image capture bypasses these GPU passes.
 
 ## Interpolation and Smoothness
 
@@ -66,7 +70,9 @@ The cap is an algorithmic presentation window, not measured end-to-end latency.
 Intermediate redraws follow Android animation/vsync callbacks. They stop when
 the interpolation finishes or the surface pauses. The FPS counter counts new
 guest submissions, not synthetic redraws. Unchanged completed output is cached,
-so an idle redraw does not repeat the upscale passes. Guest clocks, input and
+so an idle redraw does not repeat EASU or motion processing. RCAS still runs in
+the final draw when sharpening is enabled; the swapped screen buffer cannot be
+assumed to retain its previous contents. Guest clocks, input and
 game logic do not advance during a synthetic redraw.
 
 Static motion blocks skip the displacement search; the current template is
