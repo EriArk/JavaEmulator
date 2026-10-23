@@ -716,7 +716,7 @@ public final class MophunGameActivity extends Activity {
                     if (!enhanced) canvas.drawBitmap(bitmap, null, destination, paint);
                     lcdBounds.set(destination);
                     lcdEffect.draw(canvas, lcdBounds, screen.w, screen.h, 0,
-                            profile.screenEffect, profile.screenEffectIntensity);
+                            BuildConfig.DEBUG && profile.getRetroShader() != 0 ? 0 : profile.screenEffect, profile.screenEffectIntensity);
                     canvas.restore();
                 } else canvas.drawColor(0xff101417);
             }

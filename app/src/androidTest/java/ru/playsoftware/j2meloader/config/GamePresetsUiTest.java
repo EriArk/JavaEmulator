@@ -46,6 +46,35 @@ public class GamePresetsUiTest {
                 Spinner.class,null)).setSelection(index)); idle();
     }
 
+    @Test public void standaloneRetroPresetsHideConflictingControlsAndRequireTry() {
+        scenario.onActivity(a -> {
+            pages.draft().screenEffect=2; pages.draft().fsrUpscaling=true;
+            pages.draft().frameInterpolation=true; pages.draft().screenFilter=true;
+            pages.enhancements();
+        }); idle();
+        for(int mode : new int[]{ImagePresets.XBRZ,ImagePresets.CRT_EASY}) {
+            choose("Image preset",mode);
+            scenario.onActivity(a -> {
+                assertNull(find(root(),TextView.class,"Frame interpolation"));
+                assertNull(find(root(),TextView.class,"Fine tuning"));
+                assertEquals(0,source.getRetroShader());
+                pages.display();
+                assertNull(find(root(),TextView.class,"Smoothing"));
+                assertNull(find(root(),TextView.class,"Screen effect"));
+                pages.enhancements();
+                find(root(),TextView.class,"Try changes").performClick();
+                assertEquals(mode,ImagePresets.selected(applied,true));
+                assertFalse(applied.frameInterpolation); assertFalse(applied.fsrUpscaling);
+                assertEquals(0,applied.screenEffect);
+            }); idle();
+        }
+        choose("Image preset",ImagePresets.CUSTOM);
+        scenario.onActivity(a -> {
+            assertEquals(0,pages.draft().getRetroShader());
+            assertNotNull(find(root(),TextView.class,"FSR 1.0 upscaling"));
+        });
+    }
+
     @Test public void enhancementsRequireTryAndNeverChangeGuestSpeed() {
         scenario.onActivity(activity -> {
             pages.enhancements();

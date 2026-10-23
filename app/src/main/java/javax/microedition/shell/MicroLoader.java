@@ -380,7 +380,7 @@ public class MicroLoader {
 			Canvas.setScale(params.screenGravity, params.screenScaleType, params.screenScaleRatio);
 			Canvas.setFilterBitmap(params.screenFilter);
 			Canvas.setScreenEffect(params.screenEffect, params.screenEffectIntensity);
-			Canvas.setEnhancements(params.fsrUpscaling, params.frameInterpolation, params.fsrSharpness);
+			Canvas.setEnhancements(params.fsrUpscaling, params.frameInterpolation, params.fsrSharpness, params.getRetroShader());
 			EventQueue.setImmediate(params.immediateMode);
 			Canvas.setGraphicsMode(params.graphicsMode, params.parallelRedrawScreen);
 			ShaderInfo shader = params.shader;
@@ -442,7 +442,7 @@ public class MicroLoader {
 	}
 
 	void applyPreviewSettings() {
-		Canvas.setEnhancements(params.fsrUpscaling, params.frameInterpolation, params.fsrSharpness);
+		Canvas.setEnhancements(params.fsrUpscaling, params.frameInterpolation, params.fsrSharpness, params.getRetroShader());
 		Canvas.setScreenEffect(params.screenEffect, params.screenEffectIntensity);
 		GuestTime.speed(params.getEmulationSpeed());
 		Canvas.setLimitFps(params.fpsLimit);

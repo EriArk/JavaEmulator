@@ -48,8 +48,10 @@ public final class GameSettingsPages {
         if (speedAvailable()) speedChoice(menu, draft);
         menu.choice("Picture size", new String[]{"Original", "Fit", "Stretch", "Integer"}, clamp(draft.screenScaleType, 4),
                 i -> { draft.screenScaleType = i; draft.screenScaleRatio = 100; });
-        menu.toggle("Smoothing", draft.screenFilter, value -> draft.screenFilter = value);
-        screenEffectChoice(menu, draft);
+        if (!BuildConfig.DEBUG || !enhancementGpuAvailable() || draft.getRetroShader() == 0) {
+            menu.toggle("Smoothing", draft.screenFilter, value -> draft.screenFilter = value);
+            screenEffectChoice(menu, draft);
+        }
         if (BuildConfig.DEBUG) menu.action("Enhancements", R.drawable.ic_quick_quality, this::enhancements);
         menu.choice("Image rotation", new String[]{"0\u00b0", "90\u00b0", "180\u00b0", "270\u00b0"},
                 Math.floorMod(draft.screenRotation / 90, 4), i -> draft.screenRotation = i * 90);
@@ -94,13 +96,15 @@ public final class GameSettingsPages {
         menu.page("Enhancements (experimental)");
         boolean gpu = enhancementGpuAvailable();
         menu.choice("Image preset", ImagePresets.names(gpu), ImagePresets.selected(draft, gpu), i -> {
-            if (i == ImagePresets.names(gpu).length - 1) { enhancementTuning(); return; }
+            if (i == ImagePresets.names(gpu).length - 1) { draft.retroShader = 0; enhancementTuning(); return; }
+            int oldShader = draft.getRetroShader();
             ImagePresets.apply(draft, i, gpu);
+            if (oldShader != draft.getRetroShader()) enhancements();
         });
-        if (gpu) {
+        if (gpu && draft.getRetroShader() == 0) {
             menu.toggle("Frame interpolation", draft.frameInterpolation, v -> draft.frameInterpolation = v);
         }
-        menu.action("Fine tuning", R.drawable.ic_baseline_tune_24, this::enhancementTuning);
+        if (draft.getRetroShader() == 0) menu.action("Fine tuning", R.drawable.ic_baseline_tune_24, this::enhancementTuning);
         if (!javaGame) {
             menu.choice("Capture image", new String[]{"Enhanced", "Original"},
                     draft.mophunCaptureEnhanced ? 0 : 1, i -> draft.mophunCaptureEnhanced = i == 0);

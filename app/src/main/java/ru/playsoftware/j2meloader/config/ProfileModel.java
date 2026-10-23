@@ -74,6 +74,9 @@ public class ProfileModel {
 
 	@SerializedName("ScreenFilter")
 	public boolean screenFilter;
+	@SerializedName("RetroShader")
+	public int retroShader;
+	public int getRetroShader() { return retroShader >= 1 && retroShader <= 2 ? retroShader : 0; }
 	@SerializedName("FsrUpscaling")
 	public boolean fsrUpscaling;
 	@SerializedName("FsrSharpness")

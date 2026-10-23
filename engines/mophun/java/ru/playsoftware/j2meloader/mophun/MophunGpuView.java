@@ -59,7 +59,7 @@ final class MophunGpuView extends GLSurfaceView implements GLSurfaceView.Rendere
     }
 
     static boolean enabled(ProfileModel profile) {
-        return BuildConfig.DEBUG && (profile.fsrUpscaling || profile.frameInterpolation);
+        return BuildConfig.DEBUG && (profile.fsrUpscaling || profile.frameInterpolation || profile.getRetroShader() != 0);
     }
 
     /** One explicit readback at a time. Callback owns the unrotated bitmap, or receives null.
@@ -158,7 +158,7 @@ final class MophunGpuView extends GLSurfaceView implements GLSurfaceView.Rendere
         State next = new State(screen, area, width, height, rotation, profile.fsrUpscaling,
                 profile.frameInterpolation && !paused, profile.fsrSharpness, profile.screenFilter,
                 InterpolationLoadGuard.refreshPeriod(getDisplay() == null ? 60 : getDisplay().getRefreshRate()),
-                profile.screenScaleType == ru.playsoftware.j2meloader.ui.PictureScale.INTEGER);
+                profile.screenScaleType == ru.playsoftware.j2meloader.ui.PictureScale.INTEGER, profile.getRetroShader());
         State before = state;
         if (next.same(before)) next = before;
         state = next;
@@ -216,6 +216,7 @@ final class MophunGpuView extends GLSurfaceView implements GLSurfaceView.Rendere
             load.reset(); if (fence != null) { fence.close(); fence = null; }
         }
         if (pipeline == null) pipeline = new EnhancementPipeline();
+        pipeline.setRetroShader(current.retro);
         if (source != current.screen) {
             source = current.screen; stamp[0] = 0; renderedSerial = 0;
             if (source.pw <= 0 || source.ph <= 0 || (long)source.pw*source.ph > 1_048_576L)
@@ -271,21 +272,26 @@ final class MophunGpuView extends GLSurfaceView implements GLSurfaceView.Rendere
     static final class State {
         final Screen screen;
         final RectF area;
-        final int width, height, rotation, sharpness;
+        final int width, height, rotation, sharpness, retro;
         final boolean fsr, motion, filter, integer;
         final long budget;
         State(Screen screen, RectF area, int width, int height, int rotation,
               boolean fsr, boolean motion, int sharpness, boolean filter, long budget, boolean integer) {
+            this(screen, area, width, height, rotation, fsr, motion, sharpness, filter, budget, integer, 0);
+        }
+        State(Screen screen, RectF area, int width, int height, int rotation,
+              boolean fsr, boolean motion, int sharpness, boolean filter, long budget, boolean integer, int retro) {
             this.screen=screen; this.area=new RectF(area); this.width=width; this.height=height;
-            this.rotation=rotation; this.fsr=fsr; this.motion=motion; this.sharpness=sharpness;
-            this.filter=filter; this.budget=budget;
+            this.retro=retro==1 || retro==2 ? retro : 0;
+            this.rotation=rotation; this.fsr=fsr && this.retro==0; this.motion=motion && this.retro==0; this.sharpness=sharpness;
+            this.filter=filter && this.retro==0; this.budget=budget;
             this.integer=integer;
         }
         boolean same(State other) {
             return other != null && screen==other.screen && area.equals(other.area) && width==other.width
                     && height==other.height && rotation==other.rotation && sharpness==other.sharpness
                     && fsr==other.fsr && motion==other.motion && filter==other.filter && budget==other.budget
-                    && integer==other.integer;
+                    && integer==other.integer && retro==other.retro;
         }
         void vertices(FloatBuffer buffer, int viewWidth, int viewHeight) {
             double angle=Math.toRadians(rotation);

@@ -10,6 +10,19 @@ stated otherwise. **Experimental** in older checkpoints means local/private
 combined builds; released experimental features are explicitly identified.
 **Released** means an actual GitHub release asset.
 
+## 2026-10-23 - xBRZ and CRT EasyMode Presets (Unreleased)
+
+- Integrate the two owner-selected shaders as standalone per-game Java/Mophun
+  image presets in the experimental Debug menu, with live Try / Keep / Undo.
+- Disable FSR, smoothing, interpolation and LCD decoration when selecting either
+  preset; preserve game geometry, rotation, speed, CPU budget and controls.
+- Reuse the bounded shared GPU pipeline, crop texture padding before filtering,
+  cache repeated frames and retain ordinary rendering as a failure fallback.
+- Include original upstream shader notices and pinned provenance. Verify output,
+  menu state, serialization and surface recovery on Retroid; do not change the
+  public beta, Symbian rendering or existing profile defaults.
+  [Evidence and limits](docs/checks/2026-10-23-retro-shader-integration.md).
+
 ## 2026-10-23 - Retro Shader Selection (Local Audition)
 
 - Compare ten standalone retro filters and an unfiltered control using the same

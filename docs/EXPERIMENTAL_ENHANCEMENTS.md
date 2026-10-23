@@ -20,13 +20,28 @@ The Enhancements page starts with **Image preset**:
   improvement. It does not reconstruct detail missing from a tiny source image.
 - **Custom:** derived from existing spatial settings, with manual controls in
   **Fine tuning**. Imported profiles are not rewritten to fit a preset.
+- **xBRZ:** standalone edge-aware pixel-art upscaling from Libretro's
+  xbrz-freescale shader. No FSR or extra smoothing is chained after it.
+- **CRT EasyMode:** standalone flat CRT presentation with the upstream mask,
+  scanline and gamma defaults. It is not an LCD overlay.
 
-Image presets leave frame interpolation, CPU budget, speed/FPS, LCD decoration,
-screen size/rotation and custom shaders unchanged. Interpolation remains a
-separate opt-in switch. No additional preset field or profile migration is needed.
+Pixel sharp, Smooth and Enhanced leave frame interpolation and LCD decoration
+unchanged. Selecting xBRZ or CRT EasyMode turns off FSR, smoothing, interpolation
+and LCD decoration; conflicting controls are hidden until another image mode
+is selected. All presets preserve CPU budget, speed/FPS, screen size/rotation,
+controls and custom shaders. `RetroShader` is persisted per game (0 off, 1 xBRZ,
+2 CRT EasyMode); absent/unknown values behave as off. Try / Keep / Undo and
+profile backup use existing serialization without a profile migration.
 Java configurations without the supported GLES path only offer Pixel sharp,
 Smooth and Custom; the editor never silently changes the renderer or removes a
 custom shader. These controls remain on the Debug-only Enhancements page.
+
+The two shaders use the same bounded Java/Mophun pipeline: crop texture padding
+before processing, cache repeated frames, and apply host rotation afterwards.
+Their original bodies/defaults and license notices are bundled from the pinned
+Libretro revision. Symbian does not use this path. See the
+[integration checks](checks/2026-10-23-retro-shader-integration.md) and
+[license inventory](LICENSING.md).
 
 The [sharpness comparison](checks/2026-10-23-image-presets.md) uses identical
 captured source pixels at identical scale. FSR and linear filtering both soften

@@ -1,0 +1,22 @@
+Selected Libretro GLSL shaders
+=============================
+Source: https://github.com/libretro/glsl-shaders
+Revision: cba01a48b0974a1232bea68d999a7c21bc4c233e
+
+shaders/retro/xbrz.glsl
+Upstream: xbrz/shaders/xbrz-freescale.glsl
+Hyllian's xBR vertex code and texel mapping: Copyright (C) 2011/2016
+Hyllian (sergiogdb@gmail.com), MIT. Full permission/warranty notice remains
+in the shader. Includes xBRZ code/concepts credited to Zenju under GNU GPLv3,
+with the upstream MAME linking exception retained in the shader header.
+
+shaders/retro/crt-easymode.glsl
+Upstream: crt/shaders/crt-easymode.glsl
+CRT Shader by EasyMode. Upstream declaration: "License: GPL".
+For this distribution we follow GPLv3 (unspecified-version option, section 14).
+The original notice and parameters remain in the shader.
+
+The shader bodies and default parameters are unchanged. AbyssME's GLES2
+adapter supplies stage defines, uniforms, guest-size cropping and framebuffer
+presentation. Neither shader is chained with FSR, interpolation or LCD effects.
+Complete GPLv3 terms are included in this assets/licenses directory.

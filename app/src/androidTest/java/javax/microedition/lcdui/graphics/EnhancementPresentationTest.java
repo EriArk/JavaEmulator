@@ -88,6 +88,88 @@ public class EnhancementPresentationTest {
         assertEquals(GL_NO_ERROR,glGetError());
     }
 
+    @Test public void retroShadersCompileCropAndSwitchWithoutOtherEffects() {
+        Bitmap padded=fixture(32,32,0), cropped=Bitmap.createBitmap(padded,0,0,32,24);
+        try {
+            for(int mode=1;mode<=2;mode++) {
+                pipeline.setRetroShader(mode);
+                pipeline.upload(padded,1,32,24,true,0);
+                int texture=pipeline.renderForPresentation(96,72,true,100,1);
+                assertFalse(pipeline.animating());
+                assertFalse(pipeline.presentSharpened(vertices));
+                try(Target a=new Target(96,72); Target b=new Target(96,72)) {
+                    present(a,texture,false,0,0);
+                    pipeline.upload(cropped,2,32,24,false,2);
+                    texture=pipeline.renderForPresentation(96,72,false,0,3);
+                    present(b,texture,false,0,0);
+                    assertArrayEquals("Padding must never enter the shader",a.pixels(),b.pixels());
+                    assertEquals(texture,pipeline.renderForPresentation(96,72,false,0,4));
+                }
+                // New geometry, rotation and new guest pixels must not reuse the cached output.
+                pipeline.upload(padded,3,32,24,true,20_000_000);
+                try(Target rotated=new Target(67,83)) {
+                    texture=pipeline.renderForPresentation(83,67,true,100,21_000_000);
+                    present(rotated,texture,false,90,0);
+                    byte[] pixels=rotated.pixels();
+                    int sum=0; for(int i=0;i<pixels.length;i+=4) sum+=pixels[i]&255;
+                    assertTrue(sum>1000); assertFalse(pipeline.animating());
+                }
+            }
+            pipeline.setRetroShader(0);
+            pipeline.upload(cropped,3,32,24,false,0);
+            pipeline.renderForPresentation(96,72,true,50,1);
+            try(Target target=new Target(96,72)) {
+                glBindFramebuffer(GL_FRAMEBUFFER,target.fbo); glViewport(0,0,96,72);
+                assertTrue(pipeline.presentSharpened(vertices));
+            }
+            assertEquals(GL_NO_ERROR,glGetError());
+        } finally { padded.recycle(); cropped.recycle(); }
+    }
+
+    @Test public void retroShadersBoundedGpuTiming() {
+        Bitmap frame=fixture(128,160,0);
+        try {
+            for(int mode=1;mode<=2;mode++) {
+                pipeline.setRetroShader(mode);
+                long[] times=new long[16];
+                for(int i=-4;i<times.length;i++) {
+                    glFinish(); long start=System.nanoTime();
+                    pipeline.upload(frame,i,128,160,false,start);
+                    pipeline.renderForPresentation(576,720,false,0,start);
+                    glFinish(); if(i>=0) times[i]=System.nanoTime()-start;
+                }
+                java.util.Arrays.sort(times);
+                android.os.Bundle result=new android.os.Bundle();
+                result.putString("stream","\nRetro mode="+mode+" 128x160 -> 576x720 upload+shader medianMs="
+                        +times[8]/1e6+" maxMs="+times[15]/1e6+" (not whole-game FPS)\n");
+                androidx.test.platform.app.InstrumentationRegistry.getInstrumentation().sendStatus(0,result);
+            }
+        } finally { frame.recycle(); }
+    }
+
+    @Test public void retroReviewSourceExportsProductionOutput() throws Exception {
+        org.junit.Assume.assumeTrue("true".equals(androidx.test.platform.app.InstrumentationRegistry.getArguments().getString("retroShaderReview")));
+        java.io.File root=new java.io.File(androidx.test.platform.app.InstrumentationRegistry.getInstrumentation()
+                .getTargetContext().getExternalFilesDir(null),"retro-review");
+        Bitmap source=android.graphics.BitmapFactory.decodeFile(new java.io.File(root,"source.png").getPath());
+        assertNotNull("Stage the private review source first",source);
+        try {
+            for(int mode=1;mode<=2;mode++) {
+                pipeline.setRetroShader(mode);
+                pipeline.upload(source,1,source.getWidth(),source.getHeight(),false,0);
+                int texture=pipeline.renderForPresentation(384,480,false,0,1);
+                try(Target target=new Target(384,480)) {
+                    present(target,texture,false,0,0);
+                    Bitmap image=Bitmap.createBitmap(384,480,Bitmap.Config.ARGB_8888);
+                    image.copyPixelsFromBuffer(ByteBuffer.wrap(target.pixels()));
+                    try(java.io.FileOutputStream output=new java.io.FileOutputStream(new java.io.File(root,"production-"+mode+".png"))) {
+                        assertTrue(image.compress(Bitmap.CompressFormat.PNG,100,output));
+                    } finally { image.recycle(); }
+                }
+            }
+        } finally { source.recycle(); }
+    }
+
     private void compare(int width,int height,int strength,int rotation,boolean motion) {
         int pad=3;
         try(Target reference=new Target((rotation%180==0?width:height)+2*pad,(rotation%180==0?height:width)+2*pad);

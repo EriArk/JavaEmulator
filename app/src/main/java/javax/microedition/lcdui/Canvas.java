@@ -166,9 +166,14 @@ public abstract class Canvas extends Displayable {
 	private long frameReadyNanos = System.nanoTime();
 	private static volatile boolean fsrEnabled, interpolationEnabled;
 	private static volatile int fsrSharpness = 50;
+	private static volatile int retroShader;
 	public static void setEnhancements(boolean fsr, boolean interpolation, int sharpness) {
-		fsrEnabled = ru.playsoftware.j2meloader.BuildConfig.DEBUG && fsr;
-		interpolationEnabled = ru.playsoftware.j2meloader.BuildConfig.DEBUG && interpolation;
+		setEnhancements(fsr, interpolation, sharpness, 0);
+	}
+	public static void setEnhancements(boolean fsr, boolean interpolation, int sharpness, int retro) {
+		retroShader = ru.playsoftware.j2meloader.BuildConfig.DEBUG && (retro == 1 || retro == 2) ? retro : 0;
+		fsrEnabled = ru.playsoftware.j2meloader.BuildConfig.DEBUG && fsr && retroShader == 0;
+		interpolationEnabled = ru.playsoftware.j2meloader.BuildConfig.DEBUG && interpolation && retroShader == 0;
 		fsrSharpness = Math.max(0, Math.min(100, sharpness));
 	}
 	private int onX, onY, onWidth, onHeight;
@@ -178,7 +183,8 @@ public abstract class Canvas extends Displayable {
 	private final Layer lcdLayer = g -> {
 		int save = g.getCanvas().save();
 		g.getCanvas().clipRect(lcdClip);
-		lcdEffect.draw(g.getCanvas(), virtualScreen, width, height, drawRotation, lcdMode, lcdIntensity);
+		lcdEffect.draw(g.getCanvas(), virtualScreen, width, height, drawRotation,
+				retroShader == 0 || graphicsMode != 1 || shaderFilter != null ? lcdMode : 0, lcdIntensity);
 		g.getCanvas().restoreToCount(save);
 	};
 	public static void setScreenEffect(int mode, int intensity) { lcdMode = mode; lcdIntensity = intensity; }
@@ -976,7 +982,7 @@ public abstract class Canvas extends Displayable {
 			glViewport(0, 0, displayWidth, displayHeight);
 			glClear(GL_COLOR_BUFFER_BIT);
 			if (historyDirty.getAndSet(false) && enhancements != null) enhancements.resetHistory();
-			if (shaderFilter == null && !enhancementFailed && (fsrEnabled || interpolationEnabled)) {
+			if (shaderFilter == null && !enhancementFailed && (fsrEnabled || interpolationEnabled || retroShader != 0)) {
 				try {
 					drawEnhancedFrame();
 					return;
@@ -992,7 +998,7 @@ public abstract class Canvas extends Displayable {
 				// Client-side vertex memory must stay unchanged until GL consumes the draw.
 				synchronized (vbo) {
 					if (enhancements != null) { enhancements.close(); enhancements = null; geometryDirty = true; }
-					if (!fsrEnabled && !interpolationEnabled) enhancementFailed = false;
+					if (!fsrEnabled && !interpolationEnabled && retroShader == 0) enhancementFailed = false;
 					mView.removeCallbacks(interpolationTick);
 					glBindFramebuffer(GLES20.GL_FRAMEBUFFER, 0); glViewport(0, 0, displayWidth, displayHeight);
 					program.use(); glActiveTexture(GL_TEXTURE0); glBindTexture(GL_TEXTURE_2D, bgTextureId[0]);
@@ -1023,7 +1029,9 @@ public abstract class Canvas extends Displayable {
 		private void drawEnhancedFrame() {
 			long started = System.nanoTime();
 			if (enhancements == null) enhancements = new javax.microedition.lcdui.graphics.EnhancementPipeline();
-			boolean fsr = fsrEnabled, motion = interpolationEnabled && displayVisible;
+			int retro = retroShader;
+			enhancements.setRetroShader(retro);
+			boolean fsr = fsrEnabled && retro == 0, motion = interpolationEnabled && displayVisible && retro == 0;
 			boolean allowMotion = true;
 			if (motion) {
 				if (presentationFence == null) presentationFence = new javax.microedition.lcdui.graphics.PresentationFence();

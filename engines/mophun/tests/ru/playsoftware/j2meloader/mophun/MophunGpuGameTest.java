@@ -56,7 +56,20 @@ public class MophunGpuGameTest {
                     profile.controlMode=1; profile.touchVisibility=1; profile.touchLayout=0; profile.orientation=2;
                     invoke(activity,"applyPreview");
                 });
-                for(int preset=0;preset<3;preset++) {
+                if ("true".equals(InstrumentationRegistry.getArguments().getString("mophunPlay"))) {
+                    Thread.sleep(1200);
+                    int confirmations=Math.max(1,Math.min(3,Integer.parseInt(
+                            InstrumentationRegistry.getArguments().getString("mophunConfirmCount","1"))));
+                    for(int confirm=0;confirm<confirmations;confirm++) {
+                        scenario.onActivity(activity -> activity.dispatchKeyEvent(new android.view.KeyEvent(
+                                android.view.KeyEvent.ACTION_DOWN,android.view.KeyEvent.KEYCODE_BUTTON_A)));
+                        Thread.sleep(100);
+                        scenario.onActivity(activity -> activity.dispatchKeyEvent(new android.view.KeyEvent(
+                                android.view.KeyEvent.ACTION_UP,android.view.KeyEvent.KEYCODE_BUTTON_A)));
+                        Thread.sleep(1500);
+                    }
+                }
+                for(int preset=0;preset<5;preset++) {
                     final int mode=preset;
                     scenario.onActivity(activity -> {
                         invoke(activity,"showMenu");
@@ -78,7 +91,7 @@ public class MophunGpuGameTest {
                         ((ru.playsoftware.j2meloader.input.SettingsPreviewBar)field(activity,"previewBar")).stop();
                     });
                     // Surface creation is asynchronous. Check readiness before a potentially slow screenshot.
-                    if(mode==2) {
+                    if(mode>=2) {
                         boolean[] ready={false};
                         long deadline=android.os.SystemClock.uptimeMillis()+10000;
                         do {
@@ -96,8 +109,14 @@ public class MophunGpuGameTest {
                     scenario.onActivity(activity -> {
                         assertNull(((MophunSession)field(activity,"session")).error());
                         MophunGpuView view=(MophunGpuView)field(activity,"gpuView");
-                        if(mode==2) { assertNotNull(view); assertEquals(false,field(view,"failed")); assertNotNull(field(view,"presented")); }
+                        if(mode>=2) { assertNotNull(view); assertEquals(false,field(view,"failed")); assertNotNull(field(view,"presented")); }
                         else if(view!=null) assertEquals(false,field(view,"active"));
+                    });
+                    InstrumentationRegistry.getInstrumentation().waitForIdleSync();
+                    Thread.sleep(350); // Let the dialog exit animation finish before capturing pixels.
+                    scenario.onActivity(activity -> {
+                        android.app.Dialog dialog=(android.app.Dialog)field(activity,"menu");
+                        assertTrue(dialog==null || !dialog.isShowing());
                     });
                     capture("mophun-image-preset-"+preset);
                 }

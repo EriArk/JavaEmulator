@@ -82,13 +82,16 @@ a locally installed Debug APK, not a public release update.
 
 ## Unreleased: Experimental Enhancements
 
-Owner selection now also has a standalone retro-filter audition: SuperEagle,
-HQ2x/3x/4x, xBR no-blend, xBRZ, ScaleFX, AdvCartoon and CRT EasyMode/Geom, plus
-an unfiltered control. All 11 same-frame cases rendered on Retroid without FSR
-or interpolation. This is an opt-in test harness with external local shaders,
-not production presets or a public APK change. The separate emulator attempt
-ended in a startup ANR before tests; visual choice and runtime integration remain
-open. [Numbered captures, adapter details and limits](checks/2026-10-23-retro-shader-audition.md).
+The owner selected **xBRZ and CRT EasyMode** from the standalone audition.
+Both are now per-game presets in the Debug Java/Mophun Enhancements page, with
+Try / Keep / Undo. Selecting either disables FSR, interpolation, smoothing and
+LCD decoration without changing size, rotation, CPU/speed or controls. The
+selected shader sources/notices are bundled; other audition shaders and game
+captures remain local. Retroid verification covers GLES2 output, crop/rotation,
+surface recovery, menu previews and persistence. Symbian and public release
+APKs are unchanged; this is not a full-game compatibility or smoothness claim.
+[Integration evidence and limits](checks/2026-10-23-retro-shader-integration.md),
+[original 11-case audition](checks/2026-10-23-retro-shader-audition.md).
 
 An owner visual-review set now compares the same frozen Deep Abyss first-level
 frame through five Retroid GPU configurations: Pixel sharp, Smooth and FSR at

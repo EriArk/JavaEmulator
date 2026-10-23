@@ -27,6 +27,7 @@ historical artifacts, not part of the new combined distribution.
 | Underlying Mophun VM/3D work | Wolphun credits nofun; Radrat Softworks copyright and Apache-2.0 license are included |
 | Mascot Capsule | Existing Apache-2.0 implementation; independent of M3G, retained |
 | Experimental FSR 1.0 shaders | AMD FidelityFX-FSR `a21ffb8f6c13233ba336352bdff293894c706575`, MIT; GLES2 EASU/RCAS adaptation, [provenance and modifications](EXPERIMENTAL_ENHANCEMENTS.md), [retained notice](../app/src/main/assets/licenses/FSR-MIT.txt) |
+| xBRZ / CRT EasyMode shaders | Libretro GLSL `cba01a48b0974a1232bea68d999a7c21bc4c233e`; xBRZ has retained Hyllian MIT and Zenju GPLv3 notices; EasyMode declares GPL without a version, with GPLv3 selected under [section 14](https://www.gnu.org/licenses/gpl-3.0.en.html#section14). Unmodified shader bodies/defaults, original notices and [provenance](../app/src/main/assets/licenses/RETRO-SHADERS.txt) included; GLES2 integration is Debug-only |
 | MicroEmulator portions | Existing Apache-2.0 alternative selected where the headers offer Apache/LGPL alternatives |
 
 The root GPL scope does not remove Apache notices. The

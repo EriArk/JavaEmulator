@@ -20,6 +20,8 @@ public final class EnhancementPipeline {
     private final int[] inputs = new int[2];
     private final Target estimatedFlow = new Target(), flow = new Target(), sceneState = new Target(), interpolated = new Target(), upscaled = new Target(), sharpened = new Target();
     private Program easu, rcas, estimate, spread, resolve, scene, copy;
+    private RetroShaderProgram xbrz, crt;
+    private int retroShader;
     private long serial = Long.MIN_VALUE;
     private int current, tw, th, sw, sh;
     private boolean history, motionEnabled, animating, uploaded, motionPending;
@@ -36,6 +38,11 @@ public final class EnhancementPipeline {
     }
 
     public boolean animating() { return animating; }
+    public void setRetroShader(int mode) {
+        int next = mode == 1 || mode == 2 ? mode : 0;
+        if (retroShader == next) return;
+        retroShader = next; resetHistory();
+    }
     public void skipInterpolation() {
         if (!motionPending && !animating) return;
         clock.finish(); motionPending=false; animating=false; cachedTexture=0;
@@ -104,6 +111,7 @@ public final class EnhancementPipeline {
                                boolean presentation, LongSupplier drawClock) {
         validateOutput(outW,outH);
         if (!uploaded) throw new IllegalStateException("No uploaded enhancement frame");
+        if (retroShader != 0) return renderRetro(outW,outH);
         if (!motionPending && !animating && cachedTexture!=0 && cachedWidth==outW && cachedHeight==outH
                 && cachedFsr==fsr && cachedStrength==strength && cachedPresentation==presentation) return cachedTexture;
         presentationStrength=0;
@@ -192,8 +200,31 @@ public final class EnhancementPipeline {
         return true;
     }
 
+    private int renderRetro(int width,int height) {
+        presentationStrength=0; motionPending=false; animating=false; history=false;
+        if(cachedTexture!=0 && cachedWidth==width && cachedHeight==height) return cachedTexture;
+        int texture=inputs[current];
+        if(tw!=sw || th!=sh) {
+            if(resolve==null) resolve=new Program("motion-resolve.fsh");
+            interpolated.size(sw,sh);
+            begin(resolve,interpolated,texture,sw,sh,tw,th);
+            second(resolve,"previous",texture,1); second(resolve,"motion",texture,2);
+            glUniform1f(resolve.uniform("phase"),1f); draw(); texture=interpolated.texture;
+        }
+        RetroShaderProgram program;
+        if(retroShader==1) { if(xbrz==null) xbrz=new RetroShaderProgram(1); program=xbrz; }
+        else { if(crt==null) crt=new RetroShaderProgram(2); program=crt; }
+        upscaled.size(width,height); glBindFramebuffer(GL_FRAMEBUFFER,upscaled.fbo); glViewport(0,0,width,height);
+        program.draw(texture,sw,sh,width,height,quad);
+        glBindFramebuffer(GL_FRAMEBUFFER,0); glActiveTexture(GL_TEXTURE0);
+        int error=glGetError(); if(error!=GL_NO_ERROR) throw new IllegalStateException("Retro shader GL error: "+error);
+        cachedTexture=upscaled.texture; cachedWidth=width; cachedHeight=height;
+        return cachedTexture;
+    }
+
     /** Present the processed texture in caller-owned geometry without another output-sized target. */
     public void presentTexture(int texture, FloatBuffer vertices, boolean filter) {
+        if (retroShader != 0) filter = false;
         if (presentSharpened(vertices)) return;
         if (copy == null) copy = new Program("simple.fsh");
         source(copy, texture, sw, sh, sw, sh);
@@ -245,6 +276,7 @@ public final class EnhancementPipeline {
     }
 
     public void close() {
+        if(xbrz!=null) xbrz.close(); if(crt!=null) crt.close();
         estimatedFlow.close(); flow.close(); sceneState.close(); interpolated.close(); upscaled.close(); sharpened.close();
         glDeleteTextures(2,inputs,0);
         for(Program p:new Program[]{easu,rcas,estimate,spread,resolve,scene,copy}) if(p!=null) glDeleteProgram(p.id);

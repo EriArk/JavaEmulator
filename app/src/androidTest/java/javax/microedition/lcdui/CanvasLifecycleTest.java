@@ -448,6 +448,66 @@ public class CanvasLifecycleTest {
         }
     }
 
+    @Test public void retroModesPresentNewGuestFramesAcrossRotationAndSurfaceRecreation() throws Exception {
+        int oldW=Displayable.getVirtualWidth(), oldH=Displayable.getVirtualHeight();
+        Field mode=Canvas.class.getDeclaredField("graphicsMode"); mode.setAccessible(true);
+        int oldMode=mode.getInt(null);
+        Field view=Canvas.class.getDeclaredField("innerView"); view.setAccessible(true);
+        Field renderer=Canvas.class.getDeclaredField("renderer"); renderer.setAccessible(true);
+        Screen[] canvas=new Screen[1];
+        try(androidx.test.core.app.ActivityScenario<ru.playsoftware.j2meloader.MainActivity> scenario=
+                    androidx.test.core.app.ActivityScenario.launch(ru.playsoftware.j2meloader.MainActivity.class)) {
+            scenario.onActivity(activity -> {
+                ContextHolder.setCurrentActivity(host); ContextHolder.setVk(null);
+                Canvas.setGraphicsMode(1,false); Canvas.setScale(2,1,100);
+                Displayable.setVirtualSize(128,160);
+                canvas[0]=new Screen(); activity.setContentView(canvas[0].getDisplayableView());
+                display.setCurrent(canvas[0]); Display.setForeground(true);
+            }); drain();
+            for(int retro:new int[]{1,2,0,2,1}) {
+                scenario.onActivity(activity -> {
+                    Canvas.setEnhancements(true,true,100,retro);
+                    Canvas.setScreenRotation(retro==2?90:0);
+                    Displayable.setVirtualSize(retro==2?176:240,retro==2?220:320);
+                    canvas[0].color=retro==2?0xFF0000:0x00FF00;
+                    canvas[0].updateSize(); canvas[0].repaint(); canvas[0].updateRenderingSettings();
+                }); drain();
+                android.view.SurfaceView surface=(android.view.SurfaceView)view.get(canvas[0]);
+                assertSurfaceDominantColor(surface,retro==2);
+                scenario.onActivity(a -> surface.setVisibility(android.view.View.GONE));
+                android.os.SystemClock.sleep(150);
+                scenario.onActivity(a -> surface.setVisibility(android.view.View.VISIBLE));
+                drain(); assertSurfaceDominantColor(surface,retro==2);
+                Object gl=renderer.get(canvas[0]);
+                Field failed=gl.getClass().getDeclaredField("enhancementFailed"); failed.setAccessible(true);
+                assertFalse("Not the fallback renderer",failed.getBoolean(gl));
+                Field pipeline=gl.getClass().getDeclaredField("enhancements"); pipeline.setAccessible(true);
+                assertNotNull(pipeline.get(gl));
+            }
+        } finally {
+            Canvas.setEnhancements(false,false,50); Displayable.setVirtualSize(oldW,oldH);
+            Canvas.setScreenRotation(0); Canvas.setGraphicsMode(oldMode,false);
+        }
+    }
+
+    private static void assertSurfaceDominantColor(android.view.SurfaceView view,boolean red) throws Exception {
+        for(int attempt=0;attempt<30;attempt++) {
+            if(view.getWidth()>0 && view.getHeight()>0 && view.getHolder().getSurface().isValid()) {
+                android.graphics.Bitmap frame=android.graphics.Bitmap.createBitmap(view.getWidth(),view.getHeight(),
+                        android.graphics.Bitmap.Config.ARGB_8888);
+                CountDownLatch ready=new CountDownLatch(1); int[] result={-1};
+                android.view.PixelCopy.request(view,frame,code->{result[0]=code;ready.countDown();},
+                        new android.os.Handler(android.os.Looper.getMainLooper()));
+                assertTrue(ready.await(5,TimeUnit.SECONDS));
+                int pixel=frame.getPixel(frame.getWidth()/2,frame.getHeight()/2); frame.recycle();
+                int r=android.graphics.Color.red(pixel),g=android.graphics.Color.green(pixel);
+                if(result[0]==android.view.PixelCopy.SUCCESS && (red?r>80 && g<5:g>80 && r<5)) return;
+            }
+            android.os.SystemClock.sleep(100);
+        }
+        fail("The retro shader must display the latest guest color");
+    }
+
     @Test public void enhancedPresentationDoesNotHoldGuestBufferOrCountANewerSubmission() throws Exception {
         org.junit.Assume.assumeTrue(ru.playsoftware.j2meloader.BuildConfig.DEBUG);
         int oldW=Displayable.getVirtualWidth(), oldH=Displayable.getVirtualHeight();
