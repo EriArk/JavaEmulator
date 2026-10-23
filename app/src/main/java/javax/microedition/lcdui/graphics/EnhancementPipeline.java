@@ -49,8 +49,8 @@ public final class EnhancementPipeline {
         return renderUploaded(outW,outH,fsr,strength,now);
     }
 
-    /** GL thread only. The caller protects the Bitmap until this returns, not during GPU passes. */
-    public void upload(Bitmap frame, long frameSerial, int width, int height, boolean motion, long now) {
+    /** GL thread only. Protect pixels through upload; readyNanos is captured when those pixels are completed. */
+    public void upload(Bitmap frame, long frameSerial, int width, int height, boolean motion, long readyNanos) {
         if (width<=0 || height<=0 || width>frame.getWidth() || height>frame.getHeight()
                 || (long)frame.getWidth()*frame.getHeight()>1_048_576L)
             throw new IllegalArgumentException("Enhancement texture budget exceeded");
@@ -65,7 +65,7 @@ public final class EnhancementPipeline {
         if (!uploaded || serial!=frameSerial) {
             current=1-current;
             configure(inputs[current]); GLUtils.texSubImage2D(GL_TEXTURE_2D,0,0,0,frame);
-            clock.frame(now); serial=frameSerial;
+            clock.frame(readyNanos); serial=frameSerial;
             uploaded=true; cachedTexture=0; motionPending=motion && history;
             presentationStrength=0;
         }

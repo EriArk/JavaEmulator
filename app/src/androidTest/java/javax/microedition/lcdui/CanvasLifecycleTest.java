@@ -282,6 +282,28 @@ public class CanvasLifecycleTest {
         } finally { fps.setInt(null, previous); }
     }
 
+    @Test public void allSubmissionPathsRecordPixelCompletionTime() throws Exception {
+        Field ready=Canvas.class.getDeclaredField("frameReadyNanos"); ready.setAccessible(true);
+        Field serial=Canvas.class.getDeclaredField("frameSerial"); serial.setAccessible(true);
+        Field lock=Canvas.class.getDeclaredField("bufferLock"); lock.setAccessible(true);
+        Screen canvas=screen(); display.setCurrent(canvas); Display.setForeground(true); drain();
+        Image pixels=Image.createImage(canvas.getWidth(),canvas.getHeight(),0xFF123456);
+        for(int path=0;path<3;path++) {
+            long before;
+            synchronized(lock.get(canvas)) { before=serial.getLong(canvas); }
+            long start=System.nanoTime();
+            if(path==0) { canvas.repaint(); canvas.serviceRepaints(); drain(); }
+            else if(path==1) canvas.flushBuffer(pixels,0,0,canvas.getWidth(),canvas.getHeight());
+            else canvas.flushBuffer(pixels,0,0);
+            long end=System.nanoTime();
+            synchronized(lock.get(canvas)) {
+                assertTrue("Submission path "+path,serial.getLong(canvas)>before);
+                assertTrue(ready.getLong(canvas)>=start);
+                assertTrue(ready.getLong(canvas)<=end);
+            }
+        }
+    }
+
     @Test public void gameCanvasCachedGraphicsCanDrawIntoAnExpandedScreen() throws Exception {
         Field w = Displayable.class.getDeclaredField("virtualWidth"), h = Displayable.class.getDeclaredField("virtualHeight");
         w.setAccessible(true); h.setAccessible(true);
@@ -411,7 +433,8 @@ public class CanvasLifecycleTest {
         CountDownLatch presenting=new CountDownLatch(1), release=new CountDownLatch(1), done=new CountDownLatch(1);
         java.util.concurrent.atomic.AtomicReference<Throwable> failure=new java.util.concurrent.atomic.AtomicReference<>();
         java.util.concurrent.atomic.AtomicBoolean lockHeld=new java.util.concurrent.atomic.AtomicBoolean();
-        long[] captured=new long[2];
+        Field ready=Canvas.class.getDeclaredField("frameReadyNanos"); ready.setAccessible(true);
+        long[] captured=new long[4];
         try (androidx.test.core.app.ActivityScenario<ru.playsoftware.j2meloader.MainActivity> scenario=
                      androidx.test.core.app.ActivityScenario.launch(ru.playsoftware.j2meloader.MainActivity.class)) {
             scenario.onActivity(activity -> {
@@ -435,13 +458,21 @@ public class CanvasLifecycleTest {
                     program.set(gl,new javax.microedition.lcdui.graphics.ShaderProgram(null) {
                         @Override public void loadVbo(java.nio.FloatBuffer vertices,float w,float h) {
                             lockHeld.set(Thread.holdsLock(bufferLock));
+                            try {
+                                Field pipeline=gl.getClass().getDeclaredField("enhancements"); pipeline.setAccessible(true);
+                                Object p=pipeline.get(gl);
+                                Field clock=p.getClass().getDeclaredField("clock"); clock.setAccessible(true);
+                                Object c=clock.get(p);
+                                Field last=c.getClass().getDeclaredField("last"); last.setAccessible(true);
+                                captured[3]=last.getLong(c);
+                            } catch(ReflectiveOperationException e) { throw new AssertionError(e); }
                             presenting.countDown();
                             try { if(!release.await(5,TimeUnit.SECONDS)) throw new AssertionError("Presentation hold timed out"); }
                             catch(InterruptedException e) { throw new AssertionError(e); }
                             super.loadVbo(vertices,w,h);
                         }
                     });
-                    synchronized(bufferLock) { captured[0]=serial.getLong(canvas[0]); }
+                    synchronized(bufferLock) { captured[0]=serial.getLong(canvas[0]); captured[2]=ready.getLong(canvas[0]); }
                     ((android.opengl.GLSurfaceView.Renderer)gl).onDrawFrame(null);
                     captured[1]=counted.getLong(gl);
                 } catch(Throwable e) { failure.set(e); }
@@ -464,6 +495,7 @@ public class CanvasLifecycleTest {
             } finally { release.countDown(); assertTrue(done.await(10,TimeUnit.SECONDS)); }
             if(failure.get()!=null) throw new AssertionError(failure.get());
             assertEquals("Only the uploaded submission is counted",captured[0],captured[1]);
+            assertEquals("Interpolation uses that submission's completion time",captured[2],captured[3]);
             assertSurfaceColor(surface,0xFF123456);
         } finally {
             release.countDown(); Canvas.setEnhancements(false,false,50);

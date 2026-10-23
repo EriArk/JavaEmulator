@@ -86,12 +86,24 @@ The conservative HUD/endpoint guards can leave thin objects on unchanged
 backgrounds and edge regions unsmoothed. Cuts with extensive shared imagery can
 escape the coarse guard; difficult motion falls back rather than inventing detail.
 
-Presentation waits behind the newest guest image by up to one measured source
-interval, capped at 33.3 ms. Only intervals from 20 to 200 ms are interpolated;
-startup, long pauses and already-fast streams fall back to real frames. This
-delay can be undesirable in action games. Slower streams finish interpolation
-early and hold the current frame: this does not produce evenly spaced 60 FPS.
-The cap is an algorithmic presentation window, not measured end-to-end latency.
+Presentation follows guest-frame completion timestamps, captured alongside the
+pixels and serial under the same buffer lock. Delayed texture upload does not
+start another full interpolation window. The window is one measured source
+interval, capped at 50 ms: about 33.3 ms at 30 FPS, 40 ms at 25 FPS and 50 ms at
+20 FPS. This replaces the previous fixed 33.3 ms cap, which accelerated a slow
+pair then held it. Slower streams skip the overdue part of the interval instead
+of compressing its whole motion into a faster animation. Draw timestamps cannot
+rewind an already presented point in the current timeline.
+
+Only source intervals from 20 to 200 ms are eligible; startup, long pauses and
+already-fast streams fall back to real frames. The delay can be undesirable in
+action games, and 20 FPS now trades up to 16.7 ms more presentation delay for
+steadier interpolation. Stable 20/25/30 FPS timestamps progress evenly in the
+tested model, but variable cadence, missed frames, integer pixel sampling and
+conservative motion rejection can still produce holds or jumps. There is no
+extrapolation or extra frame queue. The cap is an algorithmic presentation
+window, not measured end-to-end/input-to-photon latency; GPU/host stalls can add
+more. See [cadence and timestamp checks](checks/2026-10-23-interpolation-cadence.md).
 
 Intermediate redraws follow Android animation/vsync callbacks. They stop when
 the interpolation finishes or the surface pauses. The FPS counter counts new

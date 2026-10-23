@@ -163,6 +163,7 @@ public abstract class Canvas extends Displayable {
 	private Image offscreen;
 	private Image offscreenCopy;
 	private long frameSerial;
+	private long frameReadyNanos = System.nanoTime();
 	private static volatile boolean fsrEnabled, interpolationEnabled;
 	private static volatile int fsrSharpness = 50;
 	public static void setEnhancements(boolean fsr, boolean interpolation, int sharpness) {
@@ -776,6 +777,7 @@ public abstract class Canvas extends Displayable {
 		synchronized (bufferLock) {
 			offscreenCopy.getSingleGraphics().flush(image, x, y, width, height);
 			frameSerial++;
+			frameReadyNanos = System.nanoTime();
 		}
 		requestFlushToScreen();
 	}
@@ -786,6 +788,7 @@ public abstract class Canvas extends Displayable {
 		synchronized (bufferLock) {
 			image.copyTo(offscreenCopy, x, y);
 			frameSerial++;
+			frameReadyNanos = System.nanoTime();
 		}
 		requestFlushToScreen();
 	}
@@ -1016,7 +1019,7 @@ public abstract class Canvas extends Displayable {
 					float tw = (float) w / frame.getWidth(), th = (float) h / frame.getHeight();
 					for (int i = 0; i < 16; i += 4) enhancedVbo.put(vbo.get(i)).put(vbo.get(i+1))
 							.put(vbo.get(i+2)/tw).put(vbo.get(i+3)/th);
-					enhancements.upload(frame, serial, w, h, motion, System.nanoTime());
+					enhancements.upload(frame, serial, w, h, motion, frameReadyNanos);
 				}
 			}
 			int texture = enhancements.renderForPresentation(outW, outH, fsr, sharpness, System.nanoTime());
@@ -1167,6 +1170,7 @@ public abstract class Canvas extends Displayable {
 			synchronized (bufferLock) {
 				offscreen.copyTo(offscreenCopy);
 				frameSerial++;
+				frameReadyNanos = System.nanoTime();
 			}
 			if (surface == null || !surface.isValid()) {
 				return;

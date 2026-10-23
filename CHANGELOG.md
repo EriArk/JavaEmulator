@@ -10,6 +10,21 @@ stated otherwise. **Experimental** in older checkpoints means local/private
 combined builds; released experimental features are explicitly identified.
 **Released** means an actual GitHub release asset.
 
+## 2026-10-23 - Pace Intermediate Frames From Guest Submissions (Unreleased)
+
+- Timestamp completed pixels in Canvas repaint, GameCanvas flush and extended
+  image submission. Carry that timestamp with the same image/serial snapshot;
+  a delayed GPU upload no longer starts another full presentation delay.
+- Spread interpolation over the actual source interval at stable 20/25/30 FPS.
+  Raise the maximum window from 33.3 to 50 ms, trading up to 16.7 ms more
+  presentation delay at 20 FPS for steadier motion. Skip an overdue interval's
+  prefix rather than replaying its entire motion faster.
+- Keep presentation time monotonic; cover variable cadence, late draws, clock
+  discontinuities, multiple host refresh rates and actual GPU pixel positions.
+  Preserve input processing and the guest-buffer unlock boundary.
+- Effects remain Debug-only, opt-in and off by default. No guest clock, ordinary
+  rendering, public APK or release change. [Evidence and limits](docs/checks/2026-10-23-interpolation-cadence.md).
+
 ## 2026-10-23 - Guard Interpolation Against False Motion (Unreleased)
 
 - Preserve newly appeared/disappeared pixels when a neighboring block's motion

@@ -62,9 +62,9 @@ public class EnhancementPipelineTest {
         pipeline.upload(a,1,32,24,true,0); pipeline.renderUploaded(32,24,false,0,0);
         pipeline.upload(b,2,32,24,true,50_000_000);
         a.recycle(); b.recycle();
-        int output=pipeline.renderUploaded(32,24,false,0,66_666_666);
+        int output=pipeline.renderUploaded(32,24,false,0,75_000_000);
         assertEquals(0xFFFFFFFF,pixel(output,11,12)); assertTrue(pipeline.animating());
-        output=pipeline.renderUploaded(32,24,false,0,90_000_000);
+        output=pipeline.renderUploaded(32,24,false,0,100_000_000);
         assertEquals(0xFF000000,pixel(output,11,12)); assertFalse(pipeline.animating());
         pipeline.resetHistory();
         try { pipeline.renderUploaded(32,24,false,0,100_000_000); fail("Reset requires a fresh upload"); }
@@ -117,7 +117,7 @@ public class EnhancementPipelineTest {
         for(int y=0;y<24;y++) for(int x=10;x<14;x++) { a.setPixel(x,y,0xFFFFFFFF); b.setPixel(x+2,y,0xFFFFFFFF); }
         pipeline.render(a,1,32,24,32,24,false,true,50,0);
         pipeline.render(b,2,32,24,32,24,false,true,50,50_000_000);
-        int t=pipeline.render(b,2,32,24,32,24,false,true,50,66_666_666);
+        int t=pipeline.render(b,2,32,24,32,24,false,true,50,75_000_000);
         assertTrue(pipeline.animating());
         assertEquals(0xFFFFFFFF,pixel(t,11,12)); assertEquals(0xFF000000,pixel(t,15,12));
         t=pipeline.render(b,2,32,24,32,24,false,true,50,100_000_000);
@@ -175,7 +175,7 @@ public class EnhancementPipelineTest {
         pipeline.render(a,1,32,24,32,24,false,true,50,0);
         pipeline.render(b,2,32,24,32,24,false,true,50,50_000_000);
         replaceMotionField(-2,0);
-        int t=pipeline.render(b,2,32,24,32,24,false,true,50,66_666_666);
+        int t=pipeline.render(b,2,32,24,32,24,false,true,50,75_000_000);
         assertEquals(0xFFFF0000,pixel(t,13,8)); a.recycle(); b.recycle();
     }
 
@@ -190,7 +190,7 @@ public class EnhancementPipelineTest {
             pipeline.resetHistory();
             pipeline.render(a,1,32,24,32,24,false,true,50,0);
             pipeline.render(b,2,32,24,32,24,false,true,50,50_000_000);
-            int t=pipeline.render(b,2,32,24,32,24,false,true,50,66_666_666);
+            int t=pipeline.render(b,2,32,24,32,24,false,true,50,75_000_000);
             int white=shift>0?11:12, black=shift>0?15:8;
             String direction="vertical="+vertical+", shift="+shift;
             assertEquals(direction,0xFFFFFFFF,pixel(t,vertical?12:white,vertical?white:12));
@@ -206,7 +206,7 @@ public class EnhancementPipelineTest {
             pipeline.render(a,1,32,24,32,24,false,true,50,0);
             pipeline.render(b,2,32,24,32,24,false,true,50,50_000_000);
             replaceMotionField(v[0],v[1]);
-            int t=pipeline.render(b,2,32,24,32,24,false,true,50,66_666_666);
+            int t=pipeline.render(b,2,32,24,32,24,false,true,50,75_000_000);
             assertEquals("Do not erase a new object with a neighboring block's motion",0xFFFF0000,pixel(t,12,12));
             a.recycle(); b.recycle();
         }
@@ -218,7 +218,7 @@ public class EnhancementPipelineTest {
         pipeline.render(a,1,32,24,32,24,false,true,50,0);
         pipeline.render(b,2,32,24,32,24,false,true,50,50_000_000);
         replaceMotionField(-2,0);
-        int t=pipeline.render(b,2,32,24,32,24,false,true,50,66_666_666);
+        int t=pipeline.render(b,2,32,24,32,24,false,true,50,75_000_000);
         assertEquals("A disappearance must retain the revealed current pixel",0xFF000000,pixel(t,12,12));
         a.recycle(); b.recycle();
     }
@@ -251,7 +251,7 @@ public class EnhancementPipelineTest {
         }
         pipeline.render(a,1,32,24,32,24,false,true,50,0);
         pipeline.render(b,2,32,24,32,24,false,true,50,50_000_000);
-        int t=pipeline.render(b,2,32,24,32,24,false,true,50,66_666_666);
+        int t=pipeline.render(b,2,32,24,32,24,false,true,50,75_000_000);
         assertEquals("A local match must not survive a scene cut",0xFF000000,pixel(t,11,11));
         a.recycle(); b.recycle();
     }
@@ -291,9 +291,9 @@ public class EnhancementPipelineTest {
             pipeline.render(a,1,31,23,31,23,false,true,50,0);
             pipeline.render(b,2,31,23,31,23,false,true,50,50_000_000);
             assertEquals("Translation is not a scene cut",0,motionPixel("sceneState",0,0)&0xFF0000);
-            int t=pipeline.render(b,2,31,23,31,23,false,true,50,66_666_666);
+            int t=pipeline.render(b,2,31,23,31,23,false,true,50,75_000_000);
             assertRegion(t,a,d[0]/2,d[1]/2);
-            t=pipeline.render(b,2,31,23,31,23,false,true,50,90_000_000);
+            t=pipeline.render(b,2,31,23,31,23,false,true,50,100_000_000);
             assertRegion(t,a,d[0],d[1]); assertFalse(pipeline.animating());
             a.recycle(); b.recycle();
         }
@@ -304,10 +304,35 @@ public class EnhancementPipelineTest {
         for(int y=10;y<=12;y++) for(int x=10;x<=12;x++) b.setPixel(x,y,0xFFFF0000);
         pipeline.render(a,1,31,23,31,23,false,true,50,0);
         pipeline.render(b,2,31,23,31,23,false,true,50,50_000_000);
-        int t=pipeline.render(b,2,31,23,31,23,false,true,50,66_666_666);
+        int t=pipeline.render(b,2,31,23,31,23,false,true,50,75_000_000);
         assertEquals(0,motionPixel("sceneState",0,0)&0xFF0000);
         assertEquals("New object is current, not smeared",0xFFFF0000,pixel(t,11,11));
         assertEquals("Other blocks still interpolate",a.getPixel(20,12),pixel(t,21,12));
+        a.recycle(); b.recycle();
+    }
+
+    @Test public void sourceCadenceControlsActualGpuIntermediatePositions() {
+        for(long interval:new long[]{33_333_333,40_000_000,50_000_000}) {
+            Bitmap a=textureFixture(), b=shifted(a,4,0); pipeline.resetHistory();
+            pipeline.render(a,1,31,23,31,23,false,true,50,0);
+            pipeline.upload(b,2,31,23,true,interval);
+            for(int step=1;step<=4;step++) {
+                int t=pipeline.renderUploaded(31,23,false,0,interval+interval*step/4);
+                assertRegion(t,a,step,0);
+                assertEquals(step<4,pipeline.animating());
+            }
+            a.recycle(); b.recycle();
+        }
+    }
+
+    @Test public void delayedUploadDoesNotRestartInterpolationFromOldPixels() {
+        Bitmap a=textureFixture(), b=shifted(a,4,0);
+        pipeline.render(a,1,31,23,31,23,false,true,50,0);
+        // The second image was ready at 50 ms, even if GL gets to draw it only at 87.5 ms.
+        pipeline.upload(b,2,31,23,true,50_000_000);
+        assertRegion(pipeline.renderUploaded(31,23,false,0,87_500_000),a,3,0);
+        assertRegion(pipeline.renderUploaded(31,23,false,0,100_000_000),a,4,0);
+        assertFalse(pipeline.animating());
         a.recycle(); b.recycle();
     }
 
@@ -318,7 +343,7 @@ public class EnhancementPipelineTest {
         assertEquals(0xFF0000,motionPixel("sceneState",0,0)&0xFF0000);
         pipeline.render(c,3,31,23,31,23,false,true,50,100_000_000);
         assertEquals(0,motionPixel("sceneState",0,0)&0xFF0000);
-        int t=pipeline.render(c,3,31,23,31,23,false,true,50,116_666_666);
+        int t=pipeline.render(c,3,31,23,31,23,false,true,50,125_000_000);
         assertRegion(t,b,1,0);
         t=pipeline.render(b,4,16,12,16,12,false,true,50,150_000_000);
         assertFalse(pipeline.animating()); assertEquals(b.getPixel(8,6),pixel(t,8,6));

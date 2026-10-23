@@ -75,7 +75,7 @@ calibrated phone CPU frequency. Java/ART has no emulated phone CPU clock.
 All image effects default off. Release builds hide the page and ignore these
 experimental runtime values, including imported profiles. No new APK was
 published. No Symbian CPU change or Mophun/Symbian GPU path is included.
-Interpolation uses a presentation window capped at 33.3 ms and can introduce artifacts;
+Interpolation uses a source-paced presentation window capped at 50 ms and can introduce artifacts;
 it does not improve logic/input rate. No universal 60 FPS or automatic game
 enhancement profile is claimed. Retroid is available again. The existing public
 Beta 3 Revision 1 release page was rechecked on October 23; no release mutation.
@@ -86,7 +86,8 @@ Beta 3 Revision 1 release page was rechecked on October 23; no release mutation.
 [guest-buffer unlock and coherent submission checks](checks/2026-10-23-enhancement-upload.md),
 [fused final sharpening](checks/2026-10-23-enhancement-presentation.md),
 [EASU flat-region optimization and software-renderer fallback](checks/2026-10-23-easu-flat-regions.md),
-[interpolation artifact guards](checks/2026-10-23-motion-guards.md).
+[interpolation artifact guards](checks/2026-10-23-motion-guards.md),
+[source-paced interpolation and submission timestamps](checks/2026-10-23-interpolation-cadence.md).
 
 The enhanced Java path now releases the guest-buffer lock after texture upload;
 motion/FSR work and presentation no longer hold it. Submitted geometry and frame
@@ -114,6 +115,14 @@ broad transitions. New/disappearing pixels retain the current real image when
 the block motion cannot explain them. These are shared image-based rules, not
 game-specific fixes. Conservative fallbacks and the four-pixel search limit
 remain; this is still an opt-in Debug prototype, not artifact-free frame generation.
+
+Intermediate timing now follows the completed guest frame, not its later GPU
+upload. At stable 20/25/30 FPS, interpolation spans the source interval instead
+of accelerating then holding. The delay budget is now up to 50 ms rather than
+33.3 ms; this is an explicit smoothness/latency tradeoff, not faster input or
+game logic. Late rendering consumes the existing window, and variable cadence
+does not rewind the presentation timeline. Real GPU stalls, sparse motion and
+frame drops remain limits; no measured input-to-photon improvement is claimed.
 
 ## Unreleased: Twenty-game Java Sample
 
