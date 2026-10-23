@@ -84,7 +84,8 @@ Beta 3 Revision 1 release page was rechecked on October 23; no release mutation.
 [initial device evidence](checks/2026-10-23-enhancements.md),
 [latency, artifact and GPU refinement](checks/2026-10-23-enhancement-refinement.md),
 [guest-buffer unlock and coherent submission checks](checks/2026-10-23-enhancement-upload.md),
-[fused final sharpening](checks/2026-10-23-enhancement-presentation.md).
+[fused final sharpening](checks/2026-10-23-enhancement-presentation.md),
+[EASU flat-region optimization and software-renderer fallback](checks/2026-10-23-easu-flat-regions.md).
 
 The enhanced Java path now releases the guest-buffer lock after texture upload;
 motion/FSR work and presentation no longer hold it. Submitted geometry and frame
@@ -97,6 +98,13 @@ extra full-output texture and copy. The equations, guest resolution and effect
 defaults are unchanged; quality is checked against the retained texture-output
 path. This saves about 2.64 MiB of RGBA target storage at 720x960, not a promise
 of an equivalent FPS increase.
+
+EASU now avoids redundant sample-coordinate work and skips full filtering where
+the nearest four colors are exactly identical. The hardware shortcut preserves
+the original deringing result; software renderers use a branchless equivalent
+to avoid a measured SwiftShader slowdown. Gains depend on scene content, and
+detailed images can have a small overhead. This remains Debug-only development,
+not a claim of higher guest FPS or universal GPU performance improvement.
 
 ## Unreleased: Twenty-game Java Sample
 

@@ -10,6 +10,19 @@ stated otherwise. **Experimental** in older checkpoints means local/private
 combined builds; released experimental features are explicitly identified.
 **Released** means an actual GitHub release asset.
 
+## 2026-10-23 - Reduce EASU Work on Flat Regions (Unreleased)
+
+- Reuse EASU sample coordinates and avoid eight outer texture fetches plus
+  filter arithmetic when the four nearest RGB colors exactly agree. Preserve
+  guest resolution, full filtering at edges and the existing output clamp.
+- Keep branchless evaluation on software renderers after detecting a large
+  SwiftShader control-flow regression. Shader selection needs no user setting
+  and does not depend on game names.
+- Add a frozen pre-optimization shader in test assets, full-image comparisons
+  across synthetic scenes/phone resolutions and paired content-dependent cost
+  measurements. [Evidence and limits](docs/checks/2026-10-23-easu-flat-regions.md).
+- Effects remain Debug-only, opt-in and off by default; no public APK update.
+
 ## 2026-10-23 - Fused Sharpening and Presentation (Unreleased)
 
 - Apply experimental FSR sharpening directly during final Canvas presentation,

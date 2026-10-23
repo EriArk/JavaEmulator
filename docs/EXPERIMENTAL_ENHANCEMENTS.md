@@ -37,6 +37,17 @@ is not enabled. The UI maps sharpness 0-100% to a 0-1 RCAS strength multiplier;
 0% removes sharpening, not the EASU upscale. This is not a bit-exact validation
 against AMD's reference GPU implementation or an AMD-certified integration.
 
+EASU reuses four column and four row sample coordinates. On hardware renderers,
+it also skips the outer eight samples and filter arithmetic when all four
+nearest RGB values are exactly equal: the final deringing clamp already fixes
+the answer to that color. No tolerance, palette quantization or reduced resolution
+is used. Software renderers (SwiftShader, llvmpipe, softpipe and Software
+Rasterizer), or a missing renderer string, retain branchless evaluation with the
+same equations; per-fragment control flow regressed SwiftShader in local checks.
+The variant is selected once when compiling the shader, not by game title or a
+per-frame CPU image scan. Dense images may still pay a small branch cost on
+hardware. See [quality and cost evidence](checks/2026-10-23-easu-flat-regions.md).
+
 EASU runs before host rotation. RCAS uses guest-oriented coordinates in the final
 presentation draw, including rotation. The retained texture-output path remains
 the reference for GPU comparisons. The Canvas path avoids a separate full-output

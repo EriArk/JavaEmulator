@@ -187,6 +187,15 @@ public final class EnhancementPipeline {
         glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_WRAP_S,GL_CLAMP_TO_EDGE);
         glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_WRAP_T,GL_CLAMP_TO_EDGE);
     }
+
+    static String easuSource(String code, String renderer) {
+        // Software SIMD rasterizers can pay heavily for per-fragment control flow.
+        String name=renderer==null?"":renderer.toLowerCase(java.util.Locale.ROOT);
+        if (name.isEmpty() || name.contains("swiftshader") || name.contains("llvmpipe")
+                || name.contains("softpipe") || name.contains("software rasterizer")) return code;
+        return "#define EASU_FLAT_REGIONS\n"+code;
+    }
+
     public void close() {
         flow.close(); interpolated.close(); upscaled.close(); sharpened.close();
         glDeleteTextures(2,inputs,0);
@@ -217,7 +226,9 @@ public final class EnhancementPipeline {
             int v=0,f=0,p=0;
             try {
                 v=compile(GL_VERTEX_SHADER,VERTEX);
-                f=compile(GL_FRAGMENT_SHADER,ContextHolder.getAssetAsString("shaders/"+fragment));
+                String code=ContextHolder.getAssetAsString("shaders/"+fragment);
+                if ("fsr-easu.fsh".equals(fragment)) code=easuSource(code,glGetString(GL_RENDERER));
+                f=compile(GL_FRAGMENT_SHADER,code);
                 p=glCreateProgram(); glAttachShader(p,v); glAttachShader(p,f);
                 glBindAttribLocation(p,0,"a_position"); glBindAttribLocation(p,1,"a_texcoord0");
                 glLinkProgram(p); int[] status=new int[1]; glGetProgramiv(p,GL_LINK_STATUS,status,0);
