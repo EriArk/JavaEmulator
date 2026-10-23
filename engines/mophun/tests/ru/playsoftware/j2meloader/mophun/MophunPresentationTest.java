@@ -22,6 +22,20 @@ import wolphun.Screen;
 import static org.junit.Assert.*;
 
 public class MophunPresentationTest {
+    @Test public void integerVerticesUseWholePixelEdgesAcrossOddSizesAndRotations() {
+        Screen screen=new Screen(7,9,1);
+        java.nio.FloatBuffer vertices=java.nio.FloatBuffer.allocate(16);
+        for(int rotation:new int[]{0,90,180,270}) for(int factor:new int[]{1,3,4}) {
+            MophunGpuView.State state=new MophunGpuView.State(screen,new RectF(11,13,212,214),
+                    7*factor,9*factor,rotation,false,false,50,false,16666667,true);
+            state.vertices(vertices,240,240);
+            for(int i=0;i<4;i++) {
+                float x=(vertices.get(i*4)+1)*120,y=(1-vertices.get(i*4+1))*120;
+                assertEquals(Math.round(x),x,.0001); assertEquals(Math.round(y),y,.0001);
+                assertTrue(x>=11 && x<=212 && y>=13 && y<=214);
+            }
+        }
+    }
     private static Object field(Object value, String name) throws Exception {
         Field f=value.getClass().getDeclaredField(name); f.setAccessible(true); return f.get(value);
     }
@@ -118,6 +132,38 @@ public class MophunPresentationTest {
             assertEquals(0xFF101417,clipped.getPixel(19,100));
             assertEquals(0xFFFF0000,clipped.getPixel(21,100));
             assertEquals(0xFF101417,clipped.getPixel(221,100)); clipped.recycle();
+        }
+    }
+
+    @Test public void integerGpuMatchesNearestCanvasAtOddViewportOrigins() throws Exception {
+        try(Host host=new Host()) {
+            host.area.set(21,31,222,212);
+            host.profile.screenScaleType=3; host.profile.fsrUpscaling=false;
+            host.profile.frameInterpolation=true; host.profile.screenFilter=false;
+            Bitmap source=Bitmap.createBitmap(16,12,Bitmap.Config.ARGB_8888);
+            for(int y=0;y<12;y++) for(int x=0;x<16;x++) {
+                int color=(x+y)%2==0?0xFFFF0000:0xFF0000FF;
+                source.setPixel(x,y,color); host.screen.fb[y*16+x]=color;
+            }
+            host.screen.present();
+            try {
+                for(int rotation:new int[]{0,90,180,270}) {
+                    host.draw(64,48,rotation,true);
+                    Bitmap actual=host.capture(),expected=Bitmap.createBitmap(260,240,Bitmap.Config.ARGB_8888);
+                    expected.eraseColor(0xFF101417);
+                    android.graphics.Canvas canvas=new android.graphics.Canvas(expected); canvas.clipRect(host.area);
+                    boolean quarter=rotation%180!=0;
+                    canvas.translate(ru.playsoftware.j2meloader.ui.PictureScale.center(host.area.centerX(),quarter?48:64,true),
+                            ru.playsoftware.j2meloader.ui.PictureScale.center(host.area.centerY(),quarter?64:48,true));
+                    canvas.rotate(rotation);
+                    android.graphics.Paint paint=new android.graphics.Paint(); paint.setFilterBitmap(false);
+                    canvas.drawBitmap(source,null,new RectF(-32,-24,32,24),paint);
+                    int[] a=new int[260*240],b=new int[260*240];
+                    actual.getPixels(a,0,260,0,0,260,240); expected.getPixels(b,0,260,0,0,260,240);
+                    assertArrayEquals("Integer GPU/Canvas pixels at rotation "+rotation,b,a);
+                    actual.recycle(); expected.recycle();
+                }
+            } finally { source.recycle(); }
         }
     }
 

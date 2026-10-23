@@ -258,7 +258,7 @@ public class MicroLoader {
 	}
 
 	int cycleScreenScaleType() {
-		params.screenScaleType = (params.screenScaleType + 1) % 3;
+		params.screenScaleType = (params.screenScaleType + 1) % 4;
 		saveDisplayConfiguration();
 		return params.screenScaleType;
 	}

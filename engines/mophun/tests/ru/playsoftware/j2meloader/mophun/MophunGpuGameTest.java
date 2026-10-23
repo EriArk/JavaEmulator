@@ -131,6 +131,71 @@ public class MophunGpuGameTest {
             }
         }
     }
+
+    @Test public void integerPictureAndLcdUseTheSameBoundsWithTouchAndGpu() throws Exception {
+        String id=InstrumentationRegistry.getArguments().getString("mophunGame"); Assume.assumeNotNull(id);
+        Intent intent=new Intent(InstrumentationRegistry.getInstrumentation().getTargetContext(),MophunGameActivity.class);
+        intent.putExtra("id",id);
+        try(ActivityScenario<MophunGameActivity> scenario=ActivityScenario.launch(intent)) {
+            try {
+                Thread.sleep(1500);
+                scenario.onActivity(activity -> {
+                    ProfileModel p=(ProfileModel)field(activity,"profile"); ProfilesManager.beginPreview(p);
+                    p.screenFilter=false; p.fsrUpscaling=false; p.frameInterpolation=false;
+                    p.screenEffect=2; p.screenEffectIntensity=70;
+                    p.screenRotation=0; p.controlMode=1; p.touchVisibility=1; p.touchLayout=0; p.orientation=2;
+                    invoke(activity,"applyPreview");
+                });
+                // Let the orientation animation finish before capturing the settings sheet.
+                Thread.sleep(1200);
+                scenario.onActivity(activity -> {
+                    invoke(activity,"showMenu");
+                    ((ru.playsoftware.j2meloader.config.GameSettingsPages)invoke(activity,"settingsPages")).display();
+                    android.view.ViewGroup row=(android.view.ViewGroup)find(menuRoot(activity),"Picture size").getParent();
+                    ((android.widget.Spinner)row.getChildAt(1)).setSelection(3);
+                });
+                InstrumentationRegistry.getInstrumentation().waitForIdleSync();
+                Thread.sleep(300);
+                capture("integer-picture-menu");
+                scenario.onActivity(activity -> {
+                    find(menuRoot(activity),"Try changes").performClick();
+                    ((ru.playsoftware.j2meloader.input.SettingsPreviewBar)field(activity,"previewBar")).stop();
+                    assertEquals(3,((ProfileModel)field(activity,"profile")).screenScaleType);
+                });
+                for(int variant=0;variant<3;variant++) {
+                    final int mode=variant;
+                    scenario.onActivity(activity -> {
+                        ProfileModel p=(ProfileModel)field(activity,"profile");
+                        p.orientation=mode==0?2:3; p.touchLayout=mode==0?0:1;
+                        p.screenRotation=mode==2?90:0; p.fsrUpscaling=mode==2;
+                        invoke(activity,"applyPreview");
+                    });
+                    Thread.sleep(1200);
+                    scenario.onActivity(activity -> {
+                        Object frame=field(activity,"frameView");
+                        android.graphics.RectF bounds=(android.graphics.RectF)field(frame,"destination");
+                        wolphun.Screen screen=((MophunSession)field(activity,"session")).screen();
+                        assertNotNull(screen); assertNull(((MophunSession)field(activity,"session")).error());
+                        assertTrue(bounds.width()>0 && bounds.height()>0);
+                        assertEquals(0,((int)bounds.width())%screen.pw);
+                        assertEquals(0,((int)bounds.height())%screen.ph);
+                        assertEquals(bounds.width()/screen.pw,bounds.height()/screen.ph,0);
+                        if(mode==2) {
+                            MophunGpuView gpu=(MophunGpuView)field(activity,"gpuView");
+                            assertNotNull(field(gpu,"presented")); assertEquals(false,field(gpu,"failed"));
+                        }
+                    });
+                    capture(new String[]{"integer-phone-keypad","integer-landscape-gamepad","integer-gpu-rotated"}[variant]);
+                }
+            } finally {
+                scenario.onActivity(activity -> {
+                    if(field(activity,"menu")!=null) ((android.app.Dialog)field(activity,"menu")).dismiss();
+                    ProfileModel p=(ProfileModel)field(activity,"profile");
+                    if(p!=null && ProfilesManager.isPreview(p)) invoke(activity,"undoPreview");
+                });
+            }
+        }
+    }
     @Test public void installedGameKeepsTouchLcdAndPreviewAcrossGpuModes() throws Exception {
         String id=InstrumentationRegistry.getArguments().getString("mophunGame"); Assume.assumeNotNull(id);
         Intent intent=new Intent(InstrumentationRegistry.getInstrumentation().getTargetContext(),MophunGameActivity.class);

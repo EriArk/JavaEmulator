@@ -22,6 +22,34 @@ import static org.junit.Assert.*;
 
 /** Guest display lifecycle with a host that deliberately never creates an Android Surface. */
 public class CanvasLifecycleTest {
+    @Test public void integerScalePreservesGuestSizeAndPixelBoundsAcrossRotations() throws Exception {
+        int oldW=Displayable.getVirtualWidth(),oldH=Displayable.getVirtualHeight();
+        Field dw=Canvas.class.getDeclaredField("displayWidth"),dh=Canvas.class.getDeclaredField("displayHeight");
+        Field bounds=Canvas.class.getDeclaredField("virtualScreen");
+        dw.setAccessible(true); dh.setAccessible(true); bounds.setAccessible(true);
+        try {
+            Displayable.setVirtualSize(128,160);
+            Screen canvas=screen();
+            for(boolean fullscreen:new boolean[]{true,false}) {
+                canvas.setFullScreenMode(fullscreen);
+                for(int rotation:new int[]{0,90,180,270}) for(int[] area:new int[][]{{601,901},{901,601},{601,601},{64,80}}) {
+                    dw.setInt(canvas,area[0]); dh.setInt(canvas,area[1]);
+                    Canvas.setScreenRotation(rotation); Canvas.setScale(2,1,100); canvas.updateSize();
+                    int logicalW=canvas.getWidth(), logicalH=canvas.getHeight();
+                    Canvas.setScale(2,3,50); canvas.updateSize();
+                    assertEquals(logicalW,canvas.getWidth()); assertEquals(logicalH,canvas.getHeight());
+                    android.graphics.RectF b=(android.graphics.RectF)bounds.get(canvas);
+                    assertEquals(Math.floor(b.left),b.left,0); assertEquals(Math.floor(b.top),b.top,0);
+                    assertTrue(b.left>=0 && b.top>=0 && b.right<=area[0] && b.bottom<=area[1]);
+                    if(area[0]>128 && area[1]>160) {
+                        int sw=rotation%180==0?logicalW:logicalH,sh=rotation%180==0?logicalH:logicalW;
+                        assertEquals(0,((int)b.width())%sw); assertEquals(0,((int)b.height())%sh);
+                        assertEquals(b.width()/sw,b.height()/sh,0);
+                    }
+                }
+            }
+        } finally { Displayable.setVirtualSize(oldW,oldH); Canvas.setScale(2,1,100); Canvas.setScreenRotation(0); }
+    }
     private Display display, oldDisplay;
     private MicroActivity oldActivity;
     private javax.microedition.lcdui.keyboard.VirtualKeyboard oldKeyboard;

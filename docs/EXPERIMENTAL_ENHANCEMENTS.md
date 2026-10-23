@@ -34,6 +34,24 @@ high-frequency pixel art, while Pixel sharp preserves the source palette. Static
 frame interpolation did not add blur in the tested fixture. Existing user
 settings and release defaults are not changed automatically.
 
+## Integer Picture Size
+
+**Display > Picture size > Integer** is a separate geometry option for Java and
+Mophun, not an image preset or an experimental shader. Choose Pixel sharp (or
+disable Smoothing/FSR) separately for unfiltered source pixels. Integer selects
+the largest whole-pixel magnification that fits the touch/game area after
+rotation and Java soft-key reservation. If 1x cannot fit, it uses Fit downscaling.
+It may leave wider borders than Fit; it does not enlarge the guest resolution.
+
+Fractional percentage scaling is ignored in this mode, and the corresponding
+Java advanced input is disabled without deleting its saved value. Mophun Canvas
+and GLES output use the same aligned picture origin, including odd dimensions.
+The existing LCD mask follows the resulting source-cell boundaries; its optical
+style and low-scale fade remain unchanged. Symbian's native scaling is not
+extended by this change. Unlike FSR/interpolation, this geometry option is not
+Debug-gated, but has not been published in a release APK yet.
+[Retroid checks](checks/2026-10-23-integer-scaling.md).
+
 ## Platform Scope
 
 | Setting | Current implementation | Not a promise of |

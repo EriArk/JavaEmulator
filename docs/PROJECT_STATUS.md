@@ -64,6 +64,22 @@ older 0.3 builds, not the current 0.4 release series.
 | Private historical snapshot | `0.1.0-beta.2-experimental.15`, 2026-10-11 | Old Java/Mophun test build, not the current beta |
 | Local-only material | Game fixtures, firmware, diagnostics, device data and signing keys | Not in Git or public release assets; describing testing does not authorize redistribution |
 
+## Unreleased: Pixel-Aligned Scaling
+
+Java and Mophun now offer **Display > Picture size > Integer**, also available
+in Java's advanced scale selector. It uses the largest whole source-pixel
+multiple that fits the available game area; if 1x does not fit, it falls back to
+Fit downscaling instead of cropping. Filters, FSR, LCD effects, guest resolution
+and emulation speed remain separate. Percentage scaling is inactive in Integer
+mode. Existing modes/defaults and Symbian's native scale selector are unchanged.
+
+Mophun's Canvas/GPU picture and LCD mask now share pixel-aligned geometry in
+Integer mode, including odd sizes and rotations. Retroid checks include exact
+GPU/Canvas pixel comparison, LCD boundaries, Java geometry/lifecycle, profile
+serialization and live Deep Abyss touch layouts. This is unreleased source and
+a locally installed Debug APK, not a public release update.
+[Evidence and limits](checks/2026-10-23-integer-scaling.md).
+
 ## Unreleased: Experimental Enhancements
 
 Debug builds now have a per-game **Display > Enhancements** page using Try /

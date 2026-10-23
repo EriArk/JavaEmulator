@@ -192,6 +192,14 @@ public class ConfigActivity extends BaseActivity implements View.OnClickListener
 		binding.updateKeyboardOutlineColor.setOnClickListener(this);
 		binding.updateEncoding.setOnClickListener(this::showCharsetPicker);
 		binding.tuneSelectedShader.setOnClickListener(this::showShaderSettings);
+		binding.scaleTypeSelector.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
+			@Override public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
+				boolean enabled = position != ru.playsoftware.j2meloader.ui.PictureScale.INTEGER;
+				binding.scaleRatio.setEnabled(enabled);
+				binding.scaleRatioHint.setEnabled(enabled);
+			}
+			@Override public void onNothingSelected(AdapterView<?> parent) { }
+		});
 		binding.scaleRatio.addTextChangedListener(new TextWatcher() {
 			@Override
 			public void beforeTextChanged(CharSequence s, int start, int count, int after) {

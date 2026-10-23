@@ -10,6 +10,35 @@ import ru.playsoftware.j2meloader.ui.LcdEffect;
 import static org.junit.Assert.*;
 
 public class LcdEffectTest {
+    @Test public void integerGridMatchesRotatedSourceCellsAtOddOffsets() {
+        Bitmap source=Bitmap.createBitmap(7,9,Bitmap.Config.ARGB_8888);
+        for(int y=0;y<9;y++) for(int x=0;x<7;x++) source.setPixel(x,y,(x+y)%2==0?Color.RED:Color.BLUE);
+        try {
+            for(int scale:new int[]{3,4,5}) for(int rotation:new int[]{0,90,180,270}) {
+                boolean quarter=rotation%180!=0;
+                int w=(quarter?9:7)*scale,h=(quarter?7:9)*scale;
+                RectF area=new RectF(13,17,13+w,17+h);
+                Bitmap base=Bitmap.createBitmap(80,80,Bitmap.Config.ARGB_8888);
+                Bitmap mask=Bitmap.createBitmap(80,80,Bitmap.Config.ARGB_8888);
+                base.eraseColor(Color.WHITE); mask.eraseColor(Color.WHITE);
+                Canvas canvas=new Canvas(base); canvas.translate(area.centerX(),area.centerY()); canvas.rotate(rotation);
+                Paint paint=new Paint(); paint.setFilterBitmap(false);
+                canvas.drawBitmap(source,null,new RectF(-7*scale/2f,-9*scale/2f,7*scale/2f,9*scale/2f),paint);
+                new LcdEffect().draw(new Canvas(mask),area,7,9,rotation,2,100);
+                int plain=mask.getPixel(14,18);
+                // Rotating a one-pixel gap can place it on either side of the shared texel edge.
+                for(int y=18;y<17+h-1;y++) for(int x=14;x<13+w-1;x++) {
+                    if(base.getPixel(x,y)!=base.getPixel(x-1,y))
+                        assertTrue(mask.getPixel(x,y)!=plain || mask.getPixel(x-1,y)!=plain);
+                    if(base.getPixel(x,y)!=base.getPixel(x,y-1))
+                        assertTrue(mask.getPixel(x,y)!=plain || mask.getPixel(x,y-1)!=plain);
+                }
+                assertEquals(Color.WHITE,mask.getPixel(12,18));
+                assertEquals(Color.WHITE,mask.getPixel(13+w,18));
+                mask.recycle(); base.recycle();
+            }
+        } finally { source.recycle(); }
+    }
     private Bitmap image(int mode, int strength, int width, int height, int rotation) {
         Bitmap image = Bitmap.createBitmap(160, 160, Bitmap.Config.ARGB_8888);
         image.eraseColor(Color.rgb(240, 160, 80));

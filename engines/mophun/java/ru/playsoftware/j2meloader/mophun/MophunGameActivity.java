@@ -649,8 +649,9 @@ public final class MophunGameActivity extends Activity {
     private final class FrameView extends View {
         private final ru.playsoftware.j2meloader.ui.LcdEffect lcdEffect = new ru.playsoftware.j2meloader.ui.LcdEffect();
         private final RectF lcdBounds = new RectF();
+        private final RectF gameBounds = new RectF();
         private final Paint paint = new Paint();
-        private final Rect destination = new Rect();
+        private final RectF destination = new RectF();
         private Bitmap bitmap;
         private int[] pixels;
         private final long[] stamp = new long[2];
@@ -678,12 +679,19 @@ public final class MophunGameActivity extends Activity {
             if (screen == null) canvas.drawColor(0xff101417);
             if (screen != null) {
                 if (screen.presentationSerial() != 0) {
-                    RectF area = touch == null ? new RectF(0, 0, getWidth(), getHeight()) : touch.gameArea();
+                    RectF area = gameBounds;
+                    if (touch == null) area.set(0, 0, getWidth(), getHeight());
+                    else area.set(touch.gameArea());
+                    boolean integer = profile.screenScaleType == ru.playsoftware.j2meloader.ui.PictureScale.INTEGER;
+                    if (integer) area.set((float)Math.ceil(area.left), (float)Math.ceil(area.top),
+                            (float)Math.floor(area.right), (float)Math.floor(area.bottom));
                     int rotation = Math.floorMod(profile.screenRotation, 360);
                     boolean quarter = rotation == 90 || rotation == 270;
                     float availableW = quarter ? area.height() : area.width();
                     float availableH = quarter ? area.width() : area.height();
                     float scale = profile.screenScaleType == 0 ? 1 : Math.min(availableW / screen.pw, availableH / screen.ph);
+                    if (integer) scale = ru.playsoftware.j2meloader.ui.PictureScale.integerFit(
+                            screen.pw, screen.ph, availableW, availableH);
                     int width = Math.round(profile.screenScaleType == 2 ? availableW : screen.pw * scale);
                     int height = Math.round(profile.screenScaleType == 2 ? availableH : screen.ph * scale);
                     boolean enhanced = MophunGpuView.enabled(profile) && gpuView != null
@@ -700,8 +708,10 @@ public final class MophunGameActivity extends Activity {
                             bitmap.setPixels(pixels, 0, screen.pw, 0, 0, screen.pw, screen.ph);
                     }
                     canvas.save(); canvas.clipRect(area);
-                    canvas.translate(area.centerX(), area.centerY()); canvas.rotate(rotation);
-                    destination.set(-width / 2, -height / 2, width - width / 2, height - height / 2);
+                    canvas.translate(ru.playsoftware.j2meloader.ui.PictureScale.center(area.centerX(), quarter ? height : width, integer),
+                            ru.playsoftware.j2meloader.ui.PictureScale.center(area.centerY(), quarter ? width : height, integer)); canvas.rotate(rotation);
+                    if (integer) destination.set(-width / 2f, -height / 2f, width / 2f, height / 2f);
+                    else destination.set(-width / 2, -height / 2, width - width / 2, height - height / 2);
                     paint.setFilterBitmap(profile.screenFilter);
                     if (!enhanced) canvas.drawBitmap(bitmap, null, destination, paint);
                     lcdBounds.set(destination);

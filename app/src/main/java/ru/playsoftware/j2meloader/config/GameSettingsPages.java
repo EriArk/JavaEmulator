@@ -46,7 +46,7 @@ public final class GameSettingsPages {
         menu.page("Display");
         frameRateChoice();
         if (speedAvailable()) speedChoice(menu, draft);
-        menu.choice("Picture size", new String[]{"Original", "Fit", "Stretch"}, clamp(draft.screenScaleType, 3),
+        menu.choice("Picture size", new String[]{"Original", "Fit", "Stretch", "Integer"}, clamp(draft.screenScaleType, 4),
                 i -> { draft.screenScaleType = i; draft.screenScaleRatio = 100; });
         menu.toggle("Smoothing", draft.screenFilter, value -> draft.screenFilter = value);
         screenEffectChoice(menu, draft);

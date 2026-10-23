@@ -10,6 +10,21 @@ stated otherwise. **Experimental** in older checkpoints means local/private
 combined builds; released experimental features are explicitly identified.
 **Released** means an actual GitHub release asset.
 
+## 2026-10-23 - Integer Scaling and LCD Alignment (Unreleased)
+
+- Add Integer picture size for Java and Mophun: use the largest whole-pixel
+  magnification that fits, with Fit downscaling when the original is too large.
+  Keep source resolution, speed and image filters independent.
+- Align Mophun Canvas/GPU output and the LCD mask to the same pixel boundaries,
+  including odd viewport/image sizes and all four rotations. Preserve the
+  existing Original/Fit/Stretch modes and LCD appearance.
+- Expose the mode through the in-game Try / Keep / Undo workflow and Java's
+  advanced scale selector; disable the inapplicable percentage input there.
+- Reuse Mophun drawing bounds instead of allocating a rectangle every frame.
+- Verify 75 JVM tests and 44 selected Retroid checks, including pixel comparisons
+  and real-game touch-layout captures. No public APK or Symbian scale change.
+  [Evidence and limits](docs/checks/2026-10-23-integer-scaling.md).
+
 ## 2026-10-23 - Image Presets and Sharpness Comparison (Unreleased)
 
 - Add Pixel sharp, Smooth and Enhanced (FSR) presets to the Debug Enhancements

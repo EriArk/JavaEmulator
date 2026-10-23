@@ -153,7 +153,8 @@ final class MophunGpuView extends GLSurfaceView implements GLSurfaceView.Rendere
         if (!active || failed) return false;
         State next = new State(screen, area, width, height, rotation, profile.fsrUpscaling,
                 profile.frameInterpolation && !paused, profile.fsrSharpness, profile.screenFilter,
-                InterpolationLoadGuard.refreshPeriod(getDisplay() == null ? 60 : getDisplay().getRefreshRate()));
+                InterpolationLoadGuard.refreshPeriod(getDisplay() == null ? 60 : getDisplay().getRefreshRate()),
+                profile.screenScaleType == ru.playsoftware.j2meloader.ui.PictureScale.INTEGER);
         State before = state;
         if (next.same(before)) next = before;
         state = next;
@@ -251,18 +252,20 @@ final class MophunGpuView extends GLSurfaceView implements GLSurfaceView.Rendere
         final Screen screen;
         final RectF area;
         final int width, height, rotation, sharpness;
-        final boolean fsr, motion, filter;
+        final boolean fsr, motion, filter, integer;
         final long budget;
         State(Screen screen, RectF area, int width, int height, int rotation,
-              boolean fsr, boolean motion, int sharpness, boolean filter, long budget) {
+              boolean fsr, boolean motion, int sharpness, boolean filter, long budget, boolean integer) {
             this.screen=screen; this.area=new RectF(area); this.width=width; this.height=height;
             this.rotation=rotation; this.fsr=fsr; this.motion=motion; this.sharpness=sharpness;
             this.filter=filter; this.budget=budget;
+            this.integer=integer;
         }
         boolean same(State other) {
             return other != null && screen==other.screen && area.equals(other.area) && width==other.width
                     && height==other.height && rotation==other.rotation && sharpness==other.sharpness
-                    && fsr==other.fsr && motion==other.motion && filter==other.filter && budget==other.budget;
+                    && fsr==other.fsr && motion==other.motion && filter==other.filter && budget==other.budget
+                    && integer==other.integer;
         }
         void vertices(FloatBuffer buffer, int viewWidth, int viewHeight) {
             double angle=Math.toRadians(rotation);
@@ -270,8 +273,11 @@ final class MophunGpuView extends GLSurfaceView implements GLSurfaceView.Rendere
             buffer.clear();
             for (int i=0;i<4;i++) {
                 int u=i/2, v=i%2;
-                float x=-width/2 + u*width, y=-height/2 + v*height;
-                float px=area.centerX()+x*cos-y*sin, py=area.centerY()+x*sin+y*cos;
+                float x=(integer ? -width/2f : -width/2) + u*width;
+                float y=(integer ? -height/2f : -height/2) + v*height;
+                boolean quarter=rotation%180!=0;
+                float px=ru.playsoftware.j2meloader.ui.PictureScale.center(area.centerX(),quarter?height:width,integer)+x*cos-y*sin;
+                float py=ru.playsoftware.j2meloader.ui.PictureScale.center(area.centerY(),quarter?width:height,integer)+x*sin+y*cos;
                 buffer.put(px*2/viewWidth-1).put(1-py*2/viewHeight).put(u).put(v);
             }
             buffer.rewind();

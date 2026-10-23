@@ -61,6 +61,23 @@ public class GamePresetsUiTest {
         });
     }
 
+    @Test public void integerPictureSizeRequiresTryAndPreservesIndependentSettings() {
+        scenario.onActivity(a -> {
+            pages.draft().screenFilter=true; pages.draft().fsrUpscaling=true;
+            pages.draft().screenEffect=2; pages.draft().screenScaleRatio=75;
+            pages.display();
+        }); idle(); choose("Picture size",3);
+        scenario.onActivity(a -> {
+            assertEquals(1,source.screenScaleType); assertNull(applied);
+            find(root(),TextView.class,"Try changes").performClick();
+            assertEquals(3,applied.screenScaleType); assertEquals(100,applied.screenScaleRatio);
+            assertTrue(applied.screenFilter); assertTrue(applied.fsrUpscaling);
+            assertEquals(2,applied.screenEffect);
+            ProfilesManager.beginPreview(source); ProfilesManager.copyInto(applied,source);
+            ProfilesManager.undoPreview(source); assertEquals(1,source.screenScaleType);
+        });
+    }
+
     @Test public void mophunBudgetIsSeparateAndRequiresTry() {
         scenario.onActivity(activity -> {
             pages = new GameSettingsPages(menu, source, true, false, new GameSettingsPages.Host() {

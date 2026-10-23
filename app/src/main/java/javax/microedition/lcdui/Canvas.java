@@ -491,13 +491,15 @@ public abstract class Canvas extends Displayable {
 		 * We turn the size of the canvas into the size of the image
 		 * that will be displayed on the screen of the device.
 		 */
-		int scaleRatio = Canvas.scaleRatio;
+		boolean integerScale = scaleType == ru.playsoftware.j2meloader.ui.PictureScale.INTEGER;
+		int scaleRatio = integerScale ? 100 : Canvas.scaleRatio;
 		switch (scaleType) {
 			case 0:
 				// without scaling
 				onWidth = width;
 				onHeight = height;
 				break;
+			case 3: // Resolve integer presentation after reserving the native soft-key bar.
 			case 1:
 				// try to fit in width
 				onWidth = scaledDisplayWidth;
@@ -568,9 +570,16 @@ public abstract class Canvas extends Displayable {
 		}
 
 		// Rotate presentation only, after determining the MIDlet's unchanged logical size.
-		if (ScreenRotation.swapsAxes(drawRotation)) {
+		if (ScreenRotation.swapsAxes(drawRotation) || integerScale) {
 			int availableHeight = Math.max(1, scaledDisplayHeight - (int) softBarHeight);
-			if (scaleType == 0) {
+			if (integerScale) {
+				boolean quarter = ScreenRotation.swapsAxes(drawRotation);
+				int sourceW = quarter ? height : width, sourceH = quarter ? width : height;
+				float factor = ru.playsoftware.j2meloader.ui.PictureScale.integerFit(
+						sourceW, sourceH, scaledDisplayWidth, availableHeight);
+				onWidth = Math.max(1, (int)(sourceW * factor));
+				onHeight = Math.max(1, (int)(sourceH * factor));
+			} else if (scaleType == 0) {
 				onWidth = height;
 				onHeight = width;
 			} else if (scaleType == 2) {

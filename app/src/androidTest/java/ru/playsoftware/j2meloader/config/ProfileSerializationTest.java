@@ -17,6 +17,12 @@ import static org.junit.Assert.*;
 
 /** Run against R8 builds too: debug alone cannot catch renamed/removed fields. */
 public class ProfileSerializationTest {
+    @Test public void integerPictureSizeUsesExistingProfileKeyAndUndo() throws Exception {
+        ProfileModel profile=roundTrip("{\"Version\":4,\"ScreenScaleType\":3,\"ScreenScaleRatio\":75}");
+        assertEquals(3,profile.screenScaleType); assertEquals(75,profile.screenScaleRatio);
+        ProfilesManager.beginPreview(profile); profile.screenScaleType=1;
+        ProfilesManager.undoPreview(profile); assertEquals(3,profile.screenScaleType);
+    }
     @Test public void enhancementsDefaultOffAndSurviveSaveAndUndo() throws Exception {
         ProfileModel old = roundTrip("{}");
         assertFalse(old.fsrUpscaling); assertFalse(old.frameInterpolation);
