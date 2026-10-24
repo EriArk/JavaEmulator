@@ -60,11 +60,24 @@ older 0.3 builds, not the current 0.4 release series.
 | Channel | Current identifier | Availability |
 | --- | --- | --- |
 | Public download | `0.5.0-beta.1`, code 310, separate 0.5 release page | One signed adaptive APK, matching app source and dependency/native source bundles |
-| Development source | 0.5 runtime plus unreleased Fluxer account/chats/friends, directory, rooms and temporary contacts | Create/invite/admit/approve/leave/close, room links, publication client, Keep and manual-friend interlocks implemented; shared service v2/results remain an undeployed PR. Live single-account sign-in, restore and community access passed; two-account acceptance, registered online game adapters and playable multiplayer remain open. Released effects/defaults are unchanged |
+| Development source | 0.5 runtime plus unreleased Fluxer account/chats/friends, directory, rooms and temporary contacts | Live two-account chat, friendship and private-room admission/leave passed on Retroid plus an emulator; bounded clock-skew repair included. Shared service v2/results remain undeployed; non-friend temporary-contact acceptance, online game adapters and playable multiplayer remain open. Released effects/defaults are unchanged |
 | Private historical snapshot | `0.1.0-beta.2-experimental.15`, 2026-10-11 | Old Java/Mophun test build, not the current beta |
 | Local-only material | Game fixtures, firmware, diagnostics, device data and signing keys | Not in Git or public release assets; describing testing does not authorize redistribution |
 
 ## Multiplayer Foundation (Unreleased)
+
+**Live pair checkpoint, 2026-10-24:** two authorized accounts exchanged messages
+and established a friendship through the normal UI. Retroid and an Android
+emulator then hosted/joined private rooms in both directions, retained membership
+across activity recreation, exchanged heartbeats and completed leave/close.
+The first run exposed a clock-skew defect: a roughly 22-second difference caused
+valid invitations to be discarded. A shared bounded future-time tolerance fixes
+room, directory, publication and contact deadline checks without accepting already
+expired packets. Friends now displays its own contact status. **287 JVM tests,
+12 Retroid chat/friend UI checks, one assisted sign-in and four live room role runs
+passed.** No public APK/service update or playable-game claim.
+[Evidence and remaining limits](FLUXER_LIVE_PAIR.md),
+[real-account screenshots](../screenshots/development/2026-10-24-fluxer-live-pair/README.md).
 
 **Live account checkpoint, 2026-10-24:** browser-approved sign-in succeeded on
 Retroid with an email-verified test account. Two opt-in Android checks passed:
@@ -84,8 +97,9 @@ messages and directory replies have priority over unrelated recent conversations
 The final checkpoint passes **279 JVM tests and 34 Retroid Android checks**, plus
 combined Debug builds/lint. [Implementation, two captures and limits](LOBBY_CONTACTS.md).
 An initial disposable-mail registration failed. A later ordinary-mail test
-account completed verification and the live checkpoint above; real two-account
-acceptance remains unverified. No release, server deployment, credentials or
+account completed verification and the later pair checkpoint above covers real
+friends/private rooms; automatic non-friend contact cleanup remains unverified.
+No release, server deployment, credentials or
 private account material published.
 
 **My room** now follows the directory: create an invite-only/open/approval room,

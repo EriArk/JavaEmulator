@@ -49,6 +49,10 @@ The app was not reinstalled in this checkpoint; only the instrumentation APK was
 
 ## Remaining Boundaries
 
+Follow-up: [the live pair checkpoint](FLUXER_LIVE_PAIR.md) subsequently verified
+two-way chat, friendship and private-room admission/leave with two real accounts,
+and repaired a clock-skew defect. The following describes this earlier checkpoint.
+
 Live logout, two-account chat and friendships, room creation/publication/admission,
 temporary-contact cleanup, physical gamepad navigation and real online gameplay
 remain unverified. Earlier fixture suites were not rerun as part of this two-test

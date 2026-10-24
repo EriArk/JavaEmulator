@@ -28,7 +28,7 @@ public class FluxerChatsDeviceTest {
     private static final String TOKEN="fixture-chat-session-one",OTHER="fixture-chat-session-two";
     private static final class Fixture implements AutoCloseable,FluxerAuth.Store,FluxerAuth.Transport,Application.ActivityLifecycleCallbacks {
         final Application app=(Application)InstrumentationRegistry.getInstrumentation().getTargetContext().getApplicationContext();
-        volatile String token=TOKEN,lastContent="",lastNonce="";volatile boolean failSend;volatile int posts;
+        volatile String token=TOKEN,lastContent="",lastNonce="";volatile boolean failSend,emptyChannels;volatile int posts;
         final boolean friendsData;volatile int mutations;volatile boolean lostMutation;
         JsonArray relations;
         final JsonArray sent=new JsonArray();long messageId=1000;
@@ -52,7 +52,7 @@ public class FluxerChatsDeviceTest {
                 if(lostMutation){done.accept(new FluxerAuth.Reply(0,null,0));return;}
             }
             else if(path.endsWith("/relationships"))reply=OTHER.equals(session)?new JsonArray():relations.deepCopy();
-            else if(path.equals("/v1/users/@me/channels"))reply=JsonParser.parseString(OTHER.equals(session)?"[]":"[{\"id\":\"101\",\"type\":1,\"last_message_id\":\"1000\",\"recipients\":[{\"id\":\"22\",\"global_name\":\"Alex - UI fixture\"}]},{\"id\":\"102\",\"type\":3,\"name\":\"Co-op night - UI fixture\",\"last_message_id\":\"900\"},{\"id\":\"103\",\"type\":1,\"recipients\":[{\"id\":\"44\",\"username\":\"Sam - UI fixture\"}]}]");
+            else if(path.equals("/v1/users/@me/channels"))reply=JsonParser.parseString(OTHER.equals(session)||emptyChannels?"[]":"[{\"id\":\"101\",\"type\":1,\"last_message_id\":\"1000\",\"recipients\":[{\"id\":\"22\",\"global_name\":\"Alex - UI fixture\"}]},{\"id\":\"102\",\"type\":3,\"name\":\"Co-op night - UI fixture\",\"last_message_id\":\"900\"},{\"id\":\"103\",\"type\":1,\"recipients\":[{\"id\":\"44\",\"username\":\"Sam - UI fixture\"}]}]");
             else if(method.equals("POST")){
                 posts++;lastContent=body.get("content").getAsString();lastNonce=body.get("nonce").getAsString();
                 if(failSend){done.accept(new FluxerAuth.Reply(0,null,0));return;}
@@ -79,6 +79,18 @@ public class FluxerChatsDeviceTest {
             await(screen,s->!s.verified&&!s.loading);
             screen.onActivity(a->{assertTrue(a.findViewById(R.id.fluxer_chat_sign_in).isShown());assertFalse(a.findViewById(R.id.fluxer_chat_channels).isShown());});assertEquals(0,f.posts);
         }}
+    }
+    @Test public void friendsTabUsesContactStatusWithoutConversations() throws Exception {
+        try(Fixture f=new Fixture()) {f.emptyChannels=true;
+            try(ActivityScenario<FluxerChatsActivity> screen=ActivityScenario.launch(FluxerChatsActivity.class)) {
+                await(screen,s->s.friendsReady);friends(screen);
+                screen.onActivity(a->assertEquals("Contacts up to date.",((android.widget.TextView)a.findViewById(R.id.fluxer_chat_status)).getText().toString()));
+                screen.recreate();await(screen,s->s.friendsReady);
+                screen.onActivity(a->{assertTrue(a.findViewById(R.id.fluxer_friends_panel).isShown());assertEquals("Contacts up to date.",((android.widget.TextView)a.findViewById(R.id.fluxer_chat_status)).getText().toString());a.findViewById(R.id.fluxer_tab_chats).performClick();});
+                screen.onActivity(a->assertEquals("No conversations yet.",((android.widget.TextView)a.findViewById(R.id.fluxer_chat_status)).getText().toString()));
+                assertEquals(0,f.posts);assertEquals(0,f.mutations);
+            }
+        }
     }
     @Test public void conversationsFitPortraitAndLandscapeWithKeyboard() throws Exception {
         try(Fixture f=new Fixture();ActivityScenario<FluxerChatsActivity> screen=ActivityScenario.launch(FluxerChatsActivity.class)){

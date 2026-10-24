@@ -179,7 +179,7 @@ public final class LobbyDirectory implements AutoCloseable {
             String room=text(v,"lobby");if(!UUID.fromString(room).toString().equals(room)||room.equals("00000000-0000-0000-0000-000000000000")
                     ||!id(text(v,"owner"))||!label(v,"name",100))return null;
             long revision=integer(v,"revision"),expires=integer(v,"expires"),seats=integer(v,"seats"),available=integer(v,"available");
-            if(revision<1||revision>9007199254740991L||expires<=0||expires>now+300||seats<0||seats>16||available<0||available>seats)return null;
+            if(revision<1||revision>9007199254740991L||!LobbyExpiry.plausible(expires,now,300)||seats<0||seats>16||available<0||available>seats)return null;
             if(!Arrays.asList("public","approval").contains(text(v,"access"))||integer(v,"streams")!=0)return null;
             String status=text(v,"status");if(status.equals("choosing")){if(seats!=0||available!=0||v.has("game"))return null;}
             else {

@@ -30,6 +30,20 @@ public class FluxerChatsTest {
     @Test public void signedOutNeverFetchesOrSends(){Fixture f=new Fixture();f.chats.session(null);f.chats.active(true);f.chats.tick();f.chats.send("101",0);assertTrue(f.requests.isEmpty());assertFalse(f.chats.state().verified);}
     @Test public void listIsVerifiedPrivateSortedAndNamed(){Fixture f=new Fixture();f.connect();assertTrue(f.chats.state().verified);assertEquals("102",f.chats.state().channels.get(0).id);assertEquals("Player",f.chats.state().channels.get(1).name);}
     @Test public void verificationFailureCannotReadConversations(){Fixture f=new Fixture();f.chats.session(TOKEN);f.take("/v1/users/@me").reply(401,null);assertFalse(f.chats.state().verified);assertTrue(f.requests.isEmpty());}
+    @Test public void friendsStatusDoesNotDescribeAnEmptyChatList(){
+        Fixture f=new Fixture();f.chats.session(TOKEN);
+        f.take("/v1/users/@me").reply(200,"{\"id\":\"11\"}");
+        assertEquals("Refreshing contacts...",f.chats.state().friendsStatus());
+        f.take("/v1/users/@me/relationships").reply(200,"[]");
+        f.take("/v1/users/@me/channels").reply(200,"[]");
+        assertEquals("No conversations yet.",f.chats.state().status);
+        assertEquals("Contacts up to date.",f.chats.state().friendsStatus());
+        f.chats.refresh();f.take("/v1/users/@me/relationships").reply(500,null);
+        assertEquals(f.chats.state().status,f.chats.state().friendsStatus());
+        assertTrue(f.chats.state().friendsStatus().contains("Could not check contacts"));
+        f.chats.session(null);
+        assertEquals(f.chats.state().status,f.chats.state().friendsStatus());
+    }
     @Test public void blockedAccountsAndGuildChannelsAreExcluded(){
         Fixture f=new Fixture();f.chats.session(TOKEN);f.take("/v1/users/@me").reply(200,"{\"id\":\"11\"}");
         f.take("/v1/users/@me/relationships").reply(200,"[{\"id\":\"22\",\"type\":2}]");

@@ -10,6 +10,22 @@ stated otherwise. **Experimental** in older checkpoints means local/private
 combined builds; released experimental features are explicitly identified.
 **Released** means an actual GitHub release asset.
 
+## 2026-10-24 - Live Two-Account Chat and Private Rooms (Unreleased)
+
+- Verify normal friend request/acceptance and two-way web/Retroid messages with
+  authorized test accounts. Complete browser-approved sign-in on a second Android
+  instance, without bypassing its pending email-verification restrictions.
+- Repair discarded room invitations caused by independent device clocks. Share a
+  bounded future-deadline tolerance across room, directory, publication and contact
+  messages; retain strict expiry, replay, authenticated sender and offer ownership.
+- Give Friends its own contact status instead of the empty chat-list message.
+- Pass 287 JVM tests, 12 Retroid chat/friend UI checks, one assisted live sign-in
+  and four live private-room role runs. Retroid and the emulator exchange host/guest
+  roles, recreate screens, maintain heartbeats, leave and close. Save labelled
+  live-account screenshots. [Evidence and limits](docs/FLUXER_LIVE_PAIR.md).
+- Public APK and shared service unchanged. Non-friend contact cleanup, public
+  publication and game adapters still need their own live acceptance.
+
 ## 2026-10-24 - Live Fluxer Sign-in and Community Access (Unreleased)
 
 - Complete browser-approved sign-in with an email-verified test account on

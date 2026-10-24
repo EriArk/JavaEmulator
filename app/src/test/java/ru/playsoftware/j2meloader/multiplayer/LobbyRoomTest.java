@@ -11,11 +11,30 @@ public class LobbyRoomTest {
     static final class Mail {String from,to;JsonObject packet;Mail(String f,String t,JsonObject p){from=f;to=t;packet=p;}}
     static final class World {
         long now=1000;Map<String,LobbyRoom> clients=new HashMap<>();ArrayDeque<Mail> mail=new ArrayDeque<>();
-        LobbyRoom add(String id){LobbyRoom r=new LobbyRoom(id,()->now,Collections.singleton("j2me/link/1"),(peer,p)->mail.add(new Mail(id,peer,p)),()->{});clients.put(id,r);return r;}
+        LobbyRoom add(String id){return add(id,0);}
+        LobbyRoom add(String id,long skew){LobbyRoom r=new LobbyRoom(id,()->now+skew,Collections.singleton("j2me/link/1"),(peer,p)->mail.add(new Mail(id,peer,p)),()->{});clients.put(id,r);return r;}
         void deliver(){int bound=0;while(!mail.isEmpty()){assertTrue("Message loop",++bound<200);Mail m=mail.remove();LobbyRoom r=clients.get(m.to);if(r!=null)r.receive(m.from,m.packet);}}
         void join(LobbyRoom guest,LobbyRoom host){guest.join(host.host(),host.room(),"");deliver();}
     }
     static LobbySession.Game game(){return new LobbySession.Game("j2me",String.join("",Collections.nCopies(64,"a")),"link","1",4);}
+    @Test public void independentDeviceClocksCanInviteJoinHeartbeatAndLeave(){
+        for(long skew:new long[]{-45,-22,22,45}){
+            World w=new World();LobbyRoom h=w.add("11",skew),g=w.add("22");
+            h.create("private");h.invite("22");w.now+=2;w.deliver();
+            assertEquals(1,g.invitations().size());g.answer(text(g.invitations().get(0),"key"),true);w.deliver();
+            assertTrue(g.available());assertEquals(2,h.snapshot().getAsJsonArray("members").size());
+            for(int i=0;i<4;i++){w.now+=20;h.tick();g.tick();w.deliver();assertTrue(g.available());assertTrue(bool(member(h.snapshot(),"22"),"connected"));}
+            g.leave();w.deliver();assertEquals(1,h.snapshot().getAsJsonArray("members").size());
+        }
+    }
+    @Test public void excessiveFutureEnvelopeAndOfferRemainRejected(){
+        for(String field:new String[]{"expires","until"}){
+            World w=new World();LobbyRoom h=w.add("11"),g=w.add("22");h.create("private");h.invite("22");Mail m=w.mail.remove();
+            if(field.equals("expires"))m.packet.addProperty(field,w.now+151);
+            else m.packet.getAsJsonObject("data").addProperty(field,w.now+361);
+            g.receive("11",m.packet);assertTrue(g.invitations().isEmpty());
+        }
+    }
     @Test public void publicJoinNeedsAuthenticatedHostSnapshot(){World w=new World();LobbyRoom h=w.add("11"),g=w.add("22");h.create("public");g.join("11",h.room(),"");assertFalse(g.joined());w.deliver();assertTrue(g.joined());assertEquals(2,g.snapshot().getAsJsonArray("members").size());}
     @Test public void privateRoomRequiresRecipientBoundOffer(){World w=new World();LobbyRoom h=w.add("11"),g=w.add("22"),other=w.add("33");h.create("private");h.invite("22");w.deliver();assertEquals(1,g.invitations().size());String offer=text(g.invitations().get(0),"offer");other.join("11",h.room(),offer);w.deliver();assertFalse(other.joined());g.answer(text(g.invitations().get(0),"key"),true);w.deliver();assertTrue(g.joined());}
     @Test public void approvalDoesNotAdmitBeforeHostAccepts(){World w=new World();LobbyRoom h=w.add("11"),g=w.add("22");h.create("approval");w.join(g,h);assertFalse(g.joined());assertTrue(h.requests().containsKey("22"));h.approve("22",true);w.deliver();assertTrue(g.joined());}

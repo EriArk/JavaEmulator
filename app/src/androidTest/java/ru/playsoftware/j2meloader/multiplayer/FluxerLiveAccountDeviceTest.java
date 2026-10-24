@@ -2,6 +2,7 @@
 package ru.playsoftware.j2meloader.multiplayer;
 
 import android.graphics.Bitmap;
+import android.os.Bundle;
 import androidx.lifecycle.ViewModelProvider;
 import androidx.test.core.app.ActivityScenario;
 import androidx.test.platform.app.InstrumentationRegistry;
@@ -10,6 +11,7 @@ import org.junit.Test;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.util.concurrent.atomic.AtomicReference;
+import ru.playsoftware.j2meloader.R;
 import static org.junit.Assert.*;
 
 /** Opt-in real-account checks; directory access may join the shared lobby community. */
@@ -20,6 +22,20 @@ public class FluxerLiveAccountDeviceTest {
     }
     private File privateFile(String name) {
         return new File(InstrumentationRegistry.getInstrumentation().getTargetContext().getNoBackupFilesDir(), name);
+    }
+    @Test public void assistedBrowserApprovalSavesNewSession() throws Exception {
+        Assume.assumeTrue("Requires an operator to approve the displayed code in Fluxer",
+                "true".equals(InstrumentationRegistry.getArguments().getString("fluxerApproveSignIn")));
+        Assume.assumeFalse("Never replace an existing account", privateFile("fluxer-session.bin").exists());
+        try (ActivityScenario<FluxerAccountActivity> s = ActivityScenario.launch(FluxerAccountActivity.class)) {
+            awaitAccount(s, FluxerAuth.Phase.SIGNED_OUT, 15000);
+            s.onActivity(a -> a.findViewById(R.id.fluxer_primary).performClick());
+            FluxerAuth.State pending = awaitAccount(s, FluxerAuth.Phase.WAITING, 30000);
+            // Same short-lived user code that the UI permits copying; never report poll secrets/tokens.
+            Bundle report = new Bundle();report.putString("approval_code", pending.code);
+            InstrumentationRegistry.getInstrumentation().sendStatus(2, report);
+            assertTrue(awaitAccount(s, FluxerAuth.Phase.CONNECTED, 240000).remembered);
+        }
     }
     @Test public void savedAccountRestoresInNewProcess() throws Exception {
         optIn();

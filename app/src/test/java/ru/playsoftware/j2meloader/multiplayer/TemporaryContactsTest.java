@@ -36,18 +36,19 @@ public class TemporaryContactsTest {
         TemporaryContacts host, guest;
         TemporaryContacts.Journal hj = new MemoryJournal(), gj = new MemoryJournal();
         JsonObject hr = new JsonObject(), gr = new JsonObject();
-        long now = 1792800000;
+        long now = 1792800000, guestSkew;
         String room = UUID.randomUUID().toString();
         int posts, accepts, deletes, postStatus = 200, deleteStatus = 204;
         boolean dropCreate, dropGone, dropKeep, delayRead;
         Consumer<TemporaryContacts.Reply> delayed;
-        Pair() { reload(); enter(); }
+        Pair() { this(0); }
+        Pair(long skew) { guestSkew=skew; reload(); enter(); }
         void reload() {
             if (host != null) { host.close(); guest.close(); }
             host = new TemporaryContacts("1", hj, (m,p,b,c) -> request(true,m,p,b,c),
                     (peer,packet) -> { assertEquals("2", peer); if (!dropGone || !op(packet).equals("gone")) guest.receive("1",packet); }, now);
             guest = new TemporaryContacts("2", gj, (m,p,b,c) -> request(false,m,p,b,c),
-                    (peer,packet) -> { assertEquals("1", peer); if (!dropKeep || !op(packet).equals("keep")) host.receive("2",packet); }, now);
+                    (peer,packet) -> { assertEquals("1", peer); if (!dropKeep || !op(packet).equals("keep")) host.receive("2",packet); }, now+guestSkew);
         }
         void enter() { context(host, true, false); context(guest, true, false); }
         void context(TemporaryContacts c, boolean online, boolean recovering) {
@@ -57,7 +58,7 @@ public class TemporaryContactsTest {
             host.context("","",Collections.emptySet(),true,false);
             guest.context("","",Collections.emptySet(),true,false);
         }
-        void run(int seconds) { for (int i=0; i<seconds; i++) { now++; host.tick(now); guest.tick(now); } }
+        void run(int seconds) { for (int i=0; i<seconds; i++) { now++; host.tick(now); guest.tick(now+guestSkew); } }
         String phase(boolean owner) {
             JsonObject state = (owner ? host : guest).state().getAsJsonObject("peers");
             String id = owner ? "2" : "1";
@@ -92,6 +93,14 @@ public class TemporaryContactsTest {
     private static TemporaryContacts.Reply reply(int code, JsonElement body) { return new TemporaryContacts.Reply(code,body,30); }
     private static JsonObject relation(String id,int type,long time) {
         JsonObject r=TemporaryContacts.object("id",id); r.addProperty("type",type); r.addProperty("since",Instant.ofEpochSecond(time).toString()); return r;
+    }
+
+    @Test public void independentClocksCanNegotiateTemporaryContact() {
+        for(long skew:new long[]{-45,45}){
+            Pair p=new Pair(skew);p.run(80);
+            assertEquals(1,p.posts);assertEquals(1,p.accepts);
+            assertEquals("friend",p.phase(true));assertEquals("friend",p.phase(false));
+        }
     }
 
     @Test public void admittedRoundTripAndCleanup() {

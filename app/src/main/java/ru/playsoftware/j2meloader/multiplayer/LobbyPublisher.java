@@ -49,7 +49,7 @@ final class LobbyPublisher {
             JsonObject result=JsonParser.parseString(content.substring(RESULT_PREFIX.length(),content.length()-4)).getAsJsonObject();
             if(number(result,"v")!=2||!text(result,"product").equals("abyssme")||number(result,"protocol")!=1||!text(result,"owner").equals(self)
                     ||!text(result,"request").equals(text(pending,"request"))||!text(result,"lobby").equals(text(pending,"lobby"))||number(result,"revision")!=number(pending,"revision")
-                    ||!text(result,"op").equals(text(pending,"op"))||number(result,"expires")<=clock.getAsLong()||number(result,"expires")>clock.getAsLong()+90)return;
+                    ||!text(result,"op").equals(text(pending,"op"))||!LobbyExpiry.live(number(result,"expires"),clock.getAsLong(),90))return;
             String code=text(result,"result"),op=text(pending,"op");pending=null;next=Long.MAX_VALUE;
             if(code.equals("accepted")&&op.equals("upsert")){acknowledged=op;next=clock.getAsLong()+60;status="Public listing accepted by the directory";}
             else if(code.equals("withdrawn")&&op.equals("withdraw")){acknowledged=op;status="Listing withdrawal accepted";}

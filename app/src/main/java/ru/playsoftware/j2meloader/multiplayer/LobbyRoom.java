@@ -116,13 +116,13 @@ public final class LobbyRoom {
         long now=clock.getAsLong(),seq=number(p,"serial"),expiry=number(p,"expires");
         String id=text(p,"lobby"),incarnation=text(p,"boot"),kind=text(p,"kind");
         if(!active||!LobbyDirectory.id(peer)||peer.equals(self)||!text(p,"ns").equals("org.abyssme.lobby")||number(p,"v")!=1
-                ||!uuid(id)||!uuid(incarnation)||seq<1||expiry<=now||expiry>now+90||p.toString().length()>1900)return;
+                ||!uuid(id)||!uuid(incarnation)||seq<1||!LobbyExpiry.live(expiry,now,90)||p.toString().length()>1900)return;
         String key=peer+"/"+incarnation;
         if(seq<=replay.getOrDefault(key,0L))return;
         if(!replay.containsKey(key)&&replay.size()>=512)return;
         JsonObject data=object(p,"data");
         if(kind.equals("invite")){
-            if(!uuid(text(data,"offer"))||number(data,"until")<=now||number(data,"until")>now+300||invitations.size()>=32)return;
+            if(!uuid(text(data,"offer"))||!LobbyExpiry.live(number(data,"until"),now,300)||invitations.size()>=32)return;
             replay.put(key,seq);JsonObject invitation=data.deepCopy();invitation.addProperty("host",peer);invitation.addProperty("lobby",id);invitation.addProperty("key",peer+"/"+id);invitation.addProperty("boot",incarnation);
             invitations.put(peer+"/"+id,invitation);emit();return;
         }

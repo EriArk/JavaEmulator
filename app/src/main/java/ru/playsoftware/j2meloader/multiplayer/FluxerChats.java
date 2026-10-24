@@ -65,6 +65,11 @@ public final class FluxerChats implements AutoCloseable {
         public final boolean friendsBusy, friendsReady;
         public final String friendsNotice;
         public final long openedConversation;
+        public String friendsStatus() {
+            if (!friendsNotice.isEmpty()) return friendsNotice;
+            if (friendsReady) return "Contacts up to date.";
+            return verified && friendsBusy ? "Refreshing contacts..." : status;
+        }
         State(FluxerChats a) {
             account=a.self; status=a.status; channel=a.selected; verified=a.verified; loading=a.loading;
             channels=Collections.unmodifiableList(new ArrayList<>(a.channels.values()));

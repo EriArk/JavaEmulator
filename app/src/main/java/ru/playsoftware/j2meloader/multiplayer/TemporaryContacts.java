@@ -182,7 +182,7 @@ public final class TemporaryContacts implements AutoCloseable {
         if (closed || !online || !error.isEmpty() || !validId(peer) || peer.equals(self) || packet == null
                 || packet.toString().length() > 4096 || !string(packet, "ns").equals("org.traineros.lobby")
                 || number(packet, "v") != 1 || !string(packet, "kind").equals("contact")
-                || number(packet, "expires") <= now || number(packet, "expires") > now + 90
+                || !LobbyExpiry.live(number(packet, "expires"), now, 90)
                 || !packet.has("data") || !packet.get("data").isJsonObject()) return;
         JsonObject data = packet.getAsJsonObject("data");
         String lease = string(data, "lease"), room = string(packet, "lobby"), op = string(data, "op");

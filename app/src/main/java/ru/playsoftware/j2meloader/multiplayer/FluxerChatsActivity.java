@@ -131,7 +131,7 @@ public final class FluxerChatsActivity extends CompactSettingsActivity {
             screenTitle(showFriends?"Friends":(!wide||ime)&&!shown.isEmpty()?state.title:"Chats");
             workspace.setVisibility(state.verified&&!showFriends?View.VISIBLE:View.GONE);
             friendsView.setVisibility(state.verified&&showFriends?View.VISIBLE:View.GONE);
-            String notice=showFriends&&!state.friendsNotice.isEmpty()?state.friendsNotice:state.status;
+            String notice=showFriends?state.friendsStatus():state.status;
             if(!android.text.TextUtils.equals(status.getText(),notice))status.setText(notice);
         }
         if(ime!=lastIme){
