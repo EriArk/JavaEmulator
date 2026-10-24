@@ -51,10 +51,10 @@ over an admitted participant; that participant must reconnect through a new room
 `LobbyMailbox` reuses existing fixed-origin Fluxer account/channel/message routes.
 It checks relationship blocks, verifies a direct channel's exact recipient, and
 accepts control messages only from that recipient with no webhook/guild identity.
-No automatic friendship mutation or group membership is introduced. Provider DM
-privacy/permissions still apply; directory/community membership does not override
-them. The existing temporary-contact actor is deliberately not enabled until
-its provider ownership coordinates with manual friend actions.
+The follow-up [contact integration](LOBBY_CONTACTS.md) binds automatic temporary
+friendship to admitted pairs and coordinates it with manual friend actions.
+No group membership is introduced. Provider DM privacy/permissions still apply;
+directory/community membership does not override them.
 
 Reads and writes are bounded, rate-limited on 429, and fenced across account changes
 and application backgrounding. Recent DMs plus active peers are polled while the
@@ -114,7 +114,7 @@ Public release assets remain unchanged.
 ## Remaining Work
 
 Live authorized two-account acceptance, controlled shared-service rollout,
-temporary-contact/group binding, process recovery beyond closing old publications,
+group chat, process recovery beyond closing old publications and contact journals,
 local game preparation, virtual JSR-82 and encrypted peer transport remain open.
 The Ready protocol is not the runtime adapter. Symbian/Mophun online capability
 must be proved independently. Continue through issues #34-37 without marking

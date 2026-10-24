@@ -44,7 +44,7 @@ public final class LobbyRoomActivity extends CompactSettingsActivity {
         if(state!=null&&!state.account.equals(s.account)&&dialog!=null)dialog.dismiss();state=s;
         notice.setText(s.status);
         share.setVisibility(s.hosting?View.VISIBLE:View.GONE);
-        String next=s.account+s.verified+s.room+s.snapshot+s.invitations+s.requests+s.friends+s.names+s.publication+s.available+(proposed==null?"":proposed.room);
+        String next=s.account+s.verified+s.room+s.snapshot+s.invitations+s.requests+s.friends+s.names+s.publication+s.available+s.contacts+(proposed==null?"":proposed.room);
         if(next.equals(signature))return;signature=next;
         Object focused=getCurrentFocus()==null?null:getCurrentFocus().getTag();rows.removeAllViews();
         if(!s.verified){button(rows,"Open Fluxer account","account",()->startActivity(new Intent(this,FluxerAccountActivity.class)));return;}
@@ -73,7 +73,33 @@ public final class LobbyRoomActivity extends CompactSettingsActivity {
                 Button ready=button(rows,bool(mine,"ready")?"Not ready":"Ready","ready",()->model.action(s.account,r->r.ready(!bool(mine,"ready"))));ready.setEnabled(s.available&&bool(mine,"prepared"));ready.setAlpha(ready.isEnabled()?1f:0.45f);}
             button(rows,s.hosting?"Close room":"Leave room","leave",()->confirm(s.hosting?"Close room?":"Leave room?",s.hosting?"All participants will be disconnected from this room.":"You can request to join again later.",()->model.action(s.account,LobbyRoom::leave)));
         }
+        JsonObject contacts=object(s.contacts,"peers");
+        String contactError=text(s.contacts,"error");
+        if(contacts.size()>0||!contactError.isEmpty()){
+            heading("Temporary contacts");
+            if(!contactError.isEmpty())rows.addView(label(contactError,14));
+            for(Map.Entry<String,JsonElement> entry:contacts.entrySet()){
+                String peer=entry.getKey();JsonObject contact=entry.getValue().getAsJsonObject();
+                TextView summary=label(s.names.getOrDefault(peer,peer)+"\n"+contactStatus(contact),16);
+                summary.setPadding(0,dp(8),0,dp(6));rows.addView(summary);
+                if(bool(contact,"canKeep")||bool(contact,"pendingKeep")){
+                    Button keep=button(rows,bool(contact,"pendingKeep")?"Keeping friendship...":"Keep as friend","keep:"+peer,()->model.keep(s.account,peer));
+                    keep.setEnabled(bool(contact,"canKeep"));
+                }
+            }
+            button(rows,"Open Friends","contact-friends",()->startActivity(new Intent(this,FluxerChatsActivity.class).putExtra("friends",true)));
+        }
         if(focused!=null){View restore=rows.findViewWithTag(focused);if(restore!=null&&restore.isEnabled())restore.requestFocus();}
+    }
+    private String contactStatus(JsonObject contact){
+        if(!text(contact,"error").isEmpty())return text(contact,"error");
+        switch(text(contact,"phase")){
+            case "friend":case "accepted":return "Connected for this room";
+            case "keep":return "Waiting for confirmation";
+            case "release":case "released":case "cleanup":case "deleting":return "Finishing temporary connection";
+            case "uncertain":case "error":case "blocked":return "Needs attention in Friends";
+            default:return "Connecting";
+        }
     }
     private void chooseAccess(boolean create){
         if(state==null)return;String account=state.account;

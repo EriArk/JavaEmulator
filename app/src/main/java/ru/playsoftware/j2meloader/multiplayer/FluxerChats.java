@@ -10,6 +10,9 @@ import java.util.function.LongSupplier;
 
 /** Foreground-only private text chats. Owner-thread; snapshots never contain credentials. */
 public final class FluxerChats implements AutoCloseable {
+    public interface FriendGate {
+        void enter(String account, String peer, java.util.function.BiConsumer<Runnable,String> result);
+    }
     public static final int TEXT_LIMIT = 2000;
     public enum FriendAction { ACCEPT, DECLINE, CANCEL, REMOVE, BLOCK, UNBLOCK, MESSAGE }
     public static final class Friend {
@@ -116,9 +119,14 @@ public final class FluxerChats implements AutoCloseable {
     private String token, self="", selected="", status="Sign in to Fluxer to open your chats.";
     private boolean verified, loading, active, closed;
     private long epoch, nextChannels, nextMessages, retryAt;
+    private final FriendGate friendGate;
 
     public FluxerChats(FluxerAuth.Transport transport, LongSupplier clock, Consumer<State> observer) {
+        this(transport,clock,observer,(account,peer,done)->done.accept(()->{},""));
+    }
+    public FluxerChats(FluxerAuth.Transport transport, LongSupplier clock, Consumer<State> observer, FriendGate gate) {
         this.transport=transport; this.clock=clock; this.observer=observer;
+        friendGate=gate;
     }
     public State state() { return new State(this); }
     private void emit() { observer.accept(state()); }
@@ -206,18 +214,30 @@ public final class FluxerChats implements AutoCloseable {
     public void friendAction(String account,Friend expected,FriendAction action) {
         if(!canChangeFriends(account)||expected==null||!expected.same(friends.get(expected.id))||!permitted(expected.type,action))return;
         friendBusy=true;friendsNotice="Checking contact...";emit();long generation=epoch;
+        java.util.function.Consumer<Runnable> read=release->{
         request("GET","/v1/users/@me/relationships",null,r->{
-            if(!current(generation))return;
-            if(!r.ok()||!relationships(r.data)){friendBusy=false;friendsReady=false;friendFailure(r,"Could not verify the contact. Nothing was changed.");return;}
-            if(!expected.same(friends.get(expected.id))){friendBusy=false;friendsNotice="Contact changed in Fluxer. Review it before trying again.";emit();return;}
-            if(action==FriendAction.MESSAGE){openFriend(expected,generation);return;}
+            if(!current(generation)){release.run();return;}
+            if(!r.ok()||!relationships(r.data)){release.run();friendBusy=false;friendsReady=false;friendFailure(r,"Could not verify the contact. Nothing was changed.");return;}
+            if(!expected.same(friends.get(expected.id))){release.run();friendBusy=false;friendsNotice="Contact changed in Fluxer. Review it before trying again.";emit();return;}
+            if(action==FriendAction.MESSAGE){release.run();openFriend(expected,generation);return;}
             JsonObject body=null;String method="DELETE";
             if(action==FriendAction.ACCEPT||action==FriendAction.BLOCK){method="PUT";body=new JsonObject();body.addProperty("type",action==FriendAction.BLOCK?2:1);}
             friendsNotice="Updating contact...";emit();
             request(method,"/v1/users/@me/relationships/"+expected.id,body,result->{
+                release.run();
                 if(!current(generation))return;
                 friendResult(result);
             });
+        });
+        };
+        if(action==FriendAction.MESSAGE)read.accept(()->{});
+        else guard(account,expected.id,generation,read);
+    }
+    private void guard(String account,String peer,long generation,Consumer<Runnable> action){
+        friendGate.enter(account,peer,(release,error)->{
+            if(!current(generation)){if(release!=null)release.run();return;}
+            if(release==null){friendBusy=false;friendsNotice=error;emit();return;}
+            action.accept(release);
         });
     }
     private static boolean permitted(int type,FriendAction action) {
@@ -235,15 +255,17 @@ public final class FluxerChats implements AutoCloseable {
         String tag=text==null?"":text.trim();
         if(!tag.matches("[A-Za-z0-9_]{1,32}#[0-9]{4}")){friendsNotice="Enter a full Fluxer tag, such as player#1234.";emit();return;}
         friendBusy=true;friendsNotice="Checking contacts...";emit();long generation=epoch;
+        guard(account,"",generation,release->{
         request("GET","/v1/users/@me/relationships",null,r->{
-            if(!current(generation))return;
-            if(!r.ok()||!relationships(r.data)){friendBusy=false;friendsReady=false;friendFailure(r,"Could not check contacts. No request was sent.");return;}
+            if(!current(generation)){release.run();return;}
+            if(!r.ok()||!relationships(r.data)){release.run();friendBusy=false;friendsReady=false;friendFailure(r,"Could not check contacts. No request was sent.");return;}
             for(Friend f:friends.values())if(f.tag.equalsIgnoreCase(tag)){
-                friendBusy=false;friendsNotice=f.type==3?"An incoming request already exists. Open Requests to accept it.":"This person is already in your contacts. Review their current status.";emit();return;
+                release.run();friendBusy=false;friendsNotice=f.type==3?"An incoming request already exists. Open Requests to accept it.":"This person is already in your contacts. Review their current status.";emit();return;
             }
             JsonObject body=new JsonObject();int split=tag.lastIndexOf('#');body.addProperty("username",tag.substring(0,split));body.addProperty("discriminator",tag.substring(split+1));
             friendsNotice="Sending request...";emit();
-            request("POST","/v1/users/@me/relationships",body,result->{if(current(generation))friendResult(result);});
+            request("POST","/v1/users/@me/relationships",body,result->{release.run();if(current(generation))friendResult(result);});
+        });
         });
     }
     private void friendResult(FluxerAuth.Reply r) {
@@ -388,5 +410,5 @@ public final class FluxerChats implements AutoCloseable {
     private static JsonObject object(JsonObject o,String k){return o.has(k)&&o.get(k).isJsonObject()?o.getAsJsonObject(k):new JsonObject();}
     private static int number(JsonObject o,String k){try{return o.get(k).getAsInt();}catch(RuntimeException e){return -1;}}
     private static String bounded(String text,int max){if(text.length()<=max)return text;int end=Character.isHighSurrogate(text.charAt(max-1))?max-1:max;return text.substring(0,end);}
-    private static boolean control(String text){return text.endsWith("\n```")&&(text.startsWith("TrainerOS lobby\n```json\n")||text.startsWith("TrainerOS lobby directory\n```json\n")||text.startsWith(LobbyRoom.PREFIX)||text.startsWith(LobbyPublisher.RESULT_PREFIX));}
+    private static boolean control(String text){return text.endsWith("\n```")&&(text.startsWith("TrainerOS lobby\n```json\n")||text.startsWith("TrainerOS lobby directory\n```json\n")||text.startsWith(LobbyMailbox.CONTACT_PREFIX)||text.startsWith(LobbyRoom.PREFIX)||text.startsWith(LobbyPublisher.RESULT_PREFIX));}
 }

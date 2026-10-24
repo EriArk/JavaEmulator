@@ -15,7 +15,9 @@ public class FluxerFriendsTest {
     }
     private static final class Fixture {
         long now=1000;List<Request> requests=new ArrayList<>();
-        FluxerChats chats=new FluxerChats((method,path,body,token,done)->{Request r=new Request();r.method=method;r.path=path;r.body=body;r.token=token;r.done=done;requests.add(r);},()->now,s->{});
+        int gates,releases;String gatedPeer;boolean deny,holdGate;
+        java.util.function.BiConsumer<Runnable,String> pendingGate;
+        FluxerChats chats=new FluxerChats((method,path,body,token,done)->{Request r=new Request();r.method=method;r.path=path;r.body=body;r.token=token;r.done=done;requests.add(r);},()->now,s->{},(account,peer,done)->{gates++;gatedPeer=peer;if(holdGate)pendingGate=done;else done.accept(deny?null:()->releases++,deny?"Wait for temporary contact":"");});
         Request take(String method,String path){assertFalse(requests.isEmpty());Request r=requests.remove(0);assertEquals(method,r.method);assertEquals(path,r.path);return r;}
         void connect(int type){chats.session(TOKEN);take("GET","/v1/users/@me").reply(200,"{\"id\":\"11\"}");list(type);}
         void list(int type){take("GET",ROOT).reply(200,type==0?"[]":"["+relation(type,"2026-10-24T00:00:00Z")+"]");take("GET",CHANNELS).reply(200,"[]");}
@@ -51,4 +53,9 @@ public class FluxerFriendsTest {
     @Test public void existingDirectChannelIsReusedAfterPreflight(){Fixture f=new Fixture();f.chats.session(TOKEN);f.take("GET","/v1/users/@me").reply(200,"{\"id\":\"11\"}");f.take("GET",ROOT).reply(200,"["+relation(1,friendSince())+"]");f.take("GET",CHANNELS).reply(200,"["+channel("22")+"]");f.action(FluxerChats.FriendAction.MESSAGE);f.take("GET","/v1/channels/101/messages?limit=50");assertTrue(f.requests.isEmpty());}
     @Test public void malformedOrDuplicateRelationshipsDisableActions(){Fixture f=new Fixture();f.connect(1);f.chats.refresh();f.take("GET",ROOT).reply(200,"["+relation(1,friendSince())+","+relation(2,friendSince())+"]");assertFalse(f.chats.state().friendsReady);assertTrue(f.requests.isEmpty());}
     @Test public void closeFencesPendingFriendWrite(){Fixture f=new Fixture();f.connect(1);f.action(FluxerChats.FriendAction.REMOVE);Request r=f.take("DELETE",ROOT+"/22");f.chats.close();r.reply(204,null);assertTrue(f.requests.isEmpty());}
+    @Test public void deniedContactGatePreventsEvenPreflight(){Fixture f=new Fixture();f.connect(1);f.deny=true;f.chats.friendAction("11",f.friend(),FluxerChats.FriendAction.REMOVE);assertEquals(1,f.gates);assertEquals("22",f.gatedPeer);assertTrue(f.requests.isEmpty());assertFalse(f.chats.state().friendsBusy);}
+    @Test public void contactLeaseCoversWriteAndReleasesAfterLogoutReply(){Fixture f=new Fixture();f.connect(1);f.action(FluxerChats.FriendAction.REMOVE);Request r=f.take("DELETE",ROOT+"/22");assertEquals(0,f.releases);f.chats.session(null);assertEquals(0,f.releases);r.reply(204,null);assertEquals(1,f.releases);assertTrue(f.requests.isEmpty());}
+    @Test public void lateGateAfterCloseIsReleasedWithoutRead(){Fixture f=new Fixture();f.connect(1);f.holdGate=true;f.chats.friendAction("11",f.friend(),FluxerChats.FriendAction.REMOVE);f.chats.close();f.pendingGate.accept(()->f.releases++,"");assertEquals(1,f.releases);assertTrue(f.requests.isEmpty());}
+    @Test public void failedPreflightReleasesContactLease(){Fixture f=new Fixture();f.connect(1);f.chats.friendAction("11",f.friend(),FluxerChats.FriendAction.BLOCK);f.take("GET",ROOT).reply(500,null);assertEquals(1,f.releases);}
+    @Test public void fullTagUsesGateAndMessageDoesNot(){Fixture f=new Fixture();f.connect(0);f.chats.addFriend("11","new#0042");assertEquals("",f.gatedPeer);f.take("GET",ROOT).reply(200,"[]");assertEquals(0,f.releases);f.take("POST",ROOT).reply(400,null);assertEquals(1,f.releases);Fixture m=new Fixture();m.connect(1);m.action(FluxerChats.FriendAction.MESSAGE);assertEquals(0,m.gates);}
 }

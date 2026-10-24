@@ -60,11 +60,23 @@ older 0.3 builds, not the current 0.4 release series.
 | Channel | Current identifier | Availability |
 | --- | --- | --- |
 | Public download | `0.5.0-beta.1`, code 310, separate 0.5 release page | One signed adaptive APK, matching app source and dependency/native source bundles |
-| Development source | 0.5 runtime plus unreleased Fluxer account/chats/friends, directory and room workflow | Create/invite/admit/approve/leave/close, room links and acknowledged-publication client implemented; shared service v2/results remain an undeployed PR. Real authenticated acceptance, registered online game adapters and playable multiplayer remain open. Released effects/defaults are unchanged |
+| Development source | 0.5 runtime plus unreleased Fluxer account/chats/friends, directory, rooms and temporary contacts | Create/invite/admit/approve/leave/close, room links, publication client, Keep and manual-friend interlocks implemented; shared service v2/results remain an undeployed PR. Real authenticated acceptance, registered online game adapters and playable multiplayer remain open. Released effects/defaults are unchanged |
 | Private historical snapshot | `0.1.0-beta.2-experimental.15`, 2026-10-11 | Old Java/Mophun test build, not the current beta |
 | Local-only material | Game fixtures, firmware, diagnostics, device data and signing keys | Not in Git or public release assets; describing testing does not authorize redistribution |
 
 ## Multiplayer Foundation (Unreleased)
+
+**Temporary room contacts** now connect the existing journal/negotiation actor to
+admitted members, verified accounts and private messages. My room offers Keep as
+friend and cleanup status. Manual Friends actions coordinate with automatic
+ownership before their fresh GET/write, including delayed callbacks and full-tag
+requests. A Keep acknowledgement cannot race a pending creation. Current-room
+messages and directory replies have priority over unrelated recent conversations.
+The final checkpoint passes **279 JVM tests and 34 Retroid Android checks**, plus
+combined Debug builds/lint. [Implementation, two captures and limits](LOBBY_CONTACTS.md).
+A disposable mailbox was created locally, but Fluxer rejected registration with
+an email-format error; real two-account acceptance remains unverified. No release,
+server deployment, credentials or private account material published.
 
 **My room** now follows the directory: create an invite-only/open/approval room,
 invite friends, accept/decline, approve requests, remove participants, leave/close
@@ -73,7 +85,7 @@ screen is bound to the room authority and provider DM transport. Readiness is
 exact-game/generation gated; production online adapters remain empty, so Ready
 is disabled rather than pretending a game is prepared. Public publication waits
 for a correlated bot result and respects the shared account quota. The server
-result extension remains in PR #260, not deployed. This checkpoint passes 265 JVM,
+result extension remains in PR #260, not deployed. The earlier room checkpoint passed 265 JVM,
 32 Retroid Android and 19 shared-service checks, plus combined Debug builds/lint.
 Room/provider data are fixtures; real two-account and physical-controller acceptance
 remain open. [Implementation and limits](LOBBY_ROOMS.md),
@@ -120,8 +132,9 @@ friend and cautious bilateral cleanup. The host session model fences stale Ready
 and preparation callbacks and produces a single launch attempt. A separate
 L2CAP packet channel preserves message boundaries over a supplied ordered stream.
 
-The room metadata workflow is bound to account/UI/DM delivery; temporary-contact
-ownership, virtual Bluetooth discovery and real games remain unwired.
+The room metadata and temporary-contact workflow are bound to account/UI/DM
+delivery with Keep and manual-friend interlocks. See [contact evidence and limits](LOBBY_CONTACTS.md).
+Virtual Bluetooth discovery and real online games remain unwired.
 **Online multiplayer is not available.**
 Existing physical Bluetooth and single-player launch paths are unchanged.
 187 JVM tests and twenty-one Android instrumentation checks passed in the friends

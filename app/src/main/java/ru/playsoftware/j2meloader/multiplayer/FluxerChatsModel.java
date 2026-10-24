@@ -24,7 +24,11 @@ public final class FluxerChatsModel extends AndroidViewModel {
         super(application);this.store=store;
         owner.setExecuteExistingDelayedTasksAfterShutdownPolicy(false);
         http=supplied==null?new FluxerHttpTransport(owner):null;
-        chats=new FluxerChats(supplied==null?http:supplied,SystemClock::elapsedRealtime,state::postValue);
+        LobbyRoomModel rooms=supplied==null?LobbyRoomModel.get(application):null;
+        chats=new FluxerChats(supplied==null?http:supplied,SystemClock::elapsedRealtime,state::postValue,
+                (account,peer,done)->{if(rooms==null)done.accept(()->{},"");else rooms.manual(account,peer,(release,error)->{
+                    try{owner.execute(()->done.accept(release,error));}catch(java.util.concurrent.RejectedExecutionException stopped){if(release!=null)release.run();}
+                });});
         state.postValue(chats.state());
         timer=owner.scheduleWithFixedDelay(chats::tick,1,1,TimeUnit.SECONDS);
     }

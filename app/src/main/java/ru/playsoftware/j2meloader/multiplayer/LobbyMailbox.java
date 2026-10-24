@@ -10,6 +10,7 @@ import static ru.playsoftware.j2meloader.multiplayer.LobbyRoom.*;
  * Never adds friends, joins groups, retries ambiguous writes or reads guild conversations.
  */
 final class LobbyMailbox {
+    static final String CONTACT_PREFIX="AbyssME contacts\n```json\n";
     interface Listener {void message(String peer,String content);void changed();void failed(String peer,String reason);void expired();}
     private static final class Delivery {String peer,content,replaceKey;long expires;Delivery(String p,String c,long e,String k){peer=p;content=c;expires=e;replaceKey=k;}}
     private final FluxerAuth.Transport http;
@@ -17,7 +18,7 @@ final class LobbyMailbox {
     private final Listener listener;
     private final ArrayDeque<Delivery> queue=new ArrayDeque<>();
     private final Map<String,String> channels=new LinkedHashMap<>(),names=new HashMap<>();
-    private final Set<String> blocked=new HashSet<>(),friends=new LinkedHashSet<>(),wanted=new HashSet<>();
+    private final Set<String> blocked=new HashSet<>(),friends=new LinkedHashSet<>(),wanted=new LinkedHashSet<>();
     private final LinkedHashMap<String,Boolean> consumed=new LinkedHashMap<>();
     private String token,self="",status="";
     private long epoch,nextPoll,nextSend,retryAt;
@@ -28,7 +29,7 @@ final class LobbyMailbox {
     String status(){return status;}
     String name(String peer){return names.getOrDefault(peer,peer);}
     List<String> friends(){return new ArrayList<>(friends);}
-    void watch(Collection<String> peers){wanted.clear();wanted.addAll(peers);}
+    void watch(Collection<String> peers){wanted.clear();for(String peer:peers)if(wanted.size()<64&&LobbyDirectory.id(peer)&&!peer.equals(self))wanted.add(peer);}
     void refresh(){nextPoll=0;tick();}
     void send(String peer,String content){
         send(peer,content,"");
@@ -64,8 +65,10 @@ final class LobbyMailbox {
                 List<JsonObject> list=new ArrayList<>();for(JsonElement e:c.data.getAsJsonArray())if(e.isJsonObject()&&!peer(e.getAsJsonObject()).isEmpty())list.add(e.getAsJsonObject());
                 list.sort((a,b)->compare(text(b,"last_message_id"),text(a,"last_message_id")));
                 channels.clear();List<String> selected=new ArrayList<>();
-                for(JsonObject channel:list){String p=peer(channel);if(blocked.contains(p))continue;if(channels.size()>=500)break;channels.put(p,text(channel,"id"));label(p,channel.getAsJsonArray("recipients").get(0).getAsJsonObject());if(selected.size()<8||wanted.contains(p)||p.equals(LobbyDirectory.BOT))selected.add(p);}
-                if(selected.size()>32){end("Too many active lobby conversations. Close unused rooms.");return;}
+                for(JsonObject channel:list){String p=peer(channel);if(blocked.contains(p)||channels.containsKey(p))continue;if(channels.size()>=500&&!wanted.contains(p)&&!p.equals(LobbyDirectory.BOT))continue;channels.put(p,text(channel,"id"));label(p,channel.getAsJsonArray("recipients").get(0).getAsJsonObject());}
+                if(channels.containsKey(LobbyDirectory.BOT))selected.add(LobbyDirectory.BOT);
+                for(String p:wanted)if(channels.containsKey(p)&&!selected.contains(p)&&selected.size()<32)selected.add(p);
+                int recent=0;for(String p:channels.keySet())if(!selected.contains(p)&&selected.size()<32&&recent++<8)selected.add(p);
                 read(selected,0);
             });
         });
@@ -84,7 +87,7 @@ final class LobbyMailbox {
             messages.sort((a,b)->compare(text(a,"id"),text(b,"id")));
             for(JsonObject m:messages){String id=text(m,"id"),author=text(object(m,"author"),"id"),content=text(m,"content");
                 if(!LobbyDirectory.id(id)||!channel.equals(text(m,"channel_id"))||!author.equals(peer)||!text(m,"webhook_id").isEmpty()||!text(m,"guild_id").isEmpty()||blocked.contains(author)||content.length()>2000)continue;
-                if(!(content.startsWith(PREFIX)||content.startsWith(LobbyPublisher.RESULT_PREFIX)))continue;
+                if(!(content.startsWith(PREFIX)||content.startsWith(CONTACT_PREFIX)||content.startsWith(LobbyPublisher.RESULT_PREFIX)))continue;
                 if(consumed.put(channel+"/"+id,true)==null)listener.message(author,content);
                 while(consumed.size()>4096)consumed.remove(consumed.keySet().iterator().next());
             }

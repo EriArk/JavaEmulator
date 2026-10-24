@@ -30,6 +30,10 @@ and permit that action. Duplicate, malformed or inconsistent identities disable
 actions. Writes are serialized with relationship refresh. Late callbacks from a
 different account or closed actor are discarded.
 
+The [room contact integration](LOBBY_CONTACTS.md) now gates manual mutations
+against automatic temporary-contact ownership before this GET/write sequence.
+The lease is released on the actual reply even after account change or view close.
+
 Results are reconciled against the provider instead of optimistic list edits.
 Unknown replies are not automatically replayed. A timeout can mean the action
 was applied; the UI keeps that uncertainty visible while a GET refresh checks

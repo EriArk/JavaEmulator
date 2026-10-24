@@ -199,4 +199,42 @@ public class TemporaryContactsTest {
         assertEquals(1,p.posts); assertEquals(0,p.deletes);
         p.leave(); p.run(80); assertEquals(1,p.deletes);
     }
+    @Test public void manualHostActionPermanentlyRelinquishesCleanup() {
+        Pair p=new Pair();p.run(80);assertTrue(p.host.manual("2"));
+        p.leave();p.run(80);assertEquals(0,p.deletes);
+        p.reload();p.leave();p.run(80);assertEquals(0,p.deletes);
+    }
+    @Test public void manualGuestWaitsForHostAcknowledgement() {
+        Pair p=new Pair();p.run(80);p.dropKeep=true;
+        assertFalse(p.guest.manual("1"));assertEquals("keep",p.phase(false));
+        p.leave();p.run(40);assertEquals(0,p.deletes);
+        p.dropKeep=false;p.run(40);assertTrue(p.guest.manual("1"));assertEquals(0,p.deletes);
+    }
+    @Test public void manualActionCannotRaceReadOrCleanup() {
+        Pair p=new Pair();p.delayRead=true;p.run(1);assertNotNull(p.delayed);
+        assertFalse(p.host.manual("2"));assertFalse(p.host.manual(""));
+        p.delayed.accept(null);p.run(80);p.leave();p.delayRead=true;p.run(18);
+        assertFalse(p.host.manual("2"));assertFalse(p.host.manual(""));
+    }
+    @Test public void failedKeepPersistenceCannotAuthorizeManualMutation() {
+        Pair p=new Pair();p.run(80);((MemoryJournal)p.hj).fail=true;
+        assertFalse(p.host.manual("2"));assertFalse(p.host.manual(""));
+        assertFalse(p.host.state().get("error").getAsString().isEmpty());
+    }
+    @Test public void recoveryLeasePausesAutomaticMutations() {
+        Pair p=new Pair();p.context(p.host,true,true);p.run(80);assertEquals(0,p.posts);
+        p.enter();p.run(80);assertEquals(1,p.posts);
+        assertTrue(p.host.trackedPeers().contains("2"));
+        p.host.trackedPeers().clear();assertTrue(p.host.trackedPeers().contains("2"));
+    }
+    @Test public void manualRecoveryOfExistingRequestIsNotStrandedByBlockedPhase() {
+        Pair p=new Pair();p.hr=relation("2",4,p.now);p.gr=relation("1",3,p.now);p.run(40);
+        assertTrue(p.host.manual("2"));p.run(20);p.leave();p.run(40);assertEquals(0,p.deletes);
+    }
+    @Test public void keepCannotAcknowledgeWhileProviderCreationIsStillInFlight() {
+        Pair p=new Pair();p.dropCreate=true;p.run(10);assertEquals("creating",p.phase(true));
+        JsonObject packet=TemporaryContacts.object("ns","org.traineros.lobby");packet.addProperty("v",1);packet.addProperty("kind","contact");packet.addProperty("lobby",p.room);packet.addProperty("expires",p.now+60);
+        JsonObject data=TemporaryContacts.object("op","keep");data.addProperty("lease",((MemoryJournal)p.hj).data.getAsJsonObject("contacts").getAsJsonObject("2").get("lease").getAsString());packet.add("data",data);
+        p.host.receive("2",packet);assertEquals("creating",p.phase(true));assertFalse(p.guest.manual("1"));assertFalse(p.host.manual("2"));
+    }
 }

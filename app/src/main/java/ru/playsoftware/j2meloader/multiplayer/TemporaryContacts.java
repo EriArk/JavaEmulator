@@ -157,6 +157,25 @@ public final class TemporaryContacts implements AutoCloseable {
         return true;
     }
 
+    public Set<String> trackedPeers() { checkThread(); return new HashSet<>(records.keySet()); }
+
+    /** A manual change relinquishes automation first; never race an in-flight provider write. */
+    public boolean manual(String peer) {
+        checkThread();
+        if (closed || !error.isEmpty() || !busy.isEmpty()) return false;
+        if (peer.isEmpty()) return true; // A by-tag request has no resolved peer yet.
+        JsonObject r = record(peer); String phase = string(r, "phase");
+        if (r.size() == 0 || oneOf(phase, "exempt", "kept", "gone", "done")) return true;
+        if (oneOf(phase, "baseline", "offer", "agree", "create", "creating", "wait", "accept", "accepting", "confirm",
+                "release", "released", "cleanup", "deleting")) return false;
+        boolean host = flag(r, "host");
+        r.addProperty("phase", host ? "kept" : "keep"); r.remove("error");
+        if (!put(peer, r)) return false;
+        send(peer, host ? "kept" : "keep");
+        // A guest waits until the host acknowledges that cleanup is disabled.
+        return host;
+    }
+
     public void receive(String authenticatedPeer, JsonObject packet) {
         checkThread();
         String peer = authenticatedPeer;
@@ -180,7 +199,8 @@ public final class TemporaryContacts implements AutoCloseable {
         if (r.size() == 0 || !lease.equals(string(r, "lease")) || !room.equals(string(r, "room"))) return;
         boolean host = flag(r, "host");
         if (op.equals("keep") && host) {
-            if (!oneOf(phase, "deleting", "gone", "done", "exempt", "uncertain", "blocked", "error") && r.has("type")) {
+            if (busy.equals(peer) && oneOf(phase, "creating", "accepting", "deleting")) return;
+            if (!oneOf(phase, "deleting", "gone", "done")) {
                 r.addProperty("phase", "kept"); r.remove("error");
                 if (put(peer, r)) send(peer, "kept");
             }

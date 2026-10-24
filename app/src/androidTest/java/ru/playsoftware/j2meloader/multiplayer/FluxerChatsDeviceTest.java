@@ -148,6 +148,8 @@ public class FluxerChatsDeviceTest {
         assertFalse(FluxerHttpTransport.allowed("DELETE","/v1/channels/101",TOKEN));
         assertFalse(FluxerHttpTransport.allowed("GET","/v1/channels/../messages?limit=50",TOKEN));
         assertTrue(FluxerHttpTransport.allowed("PUT","/v1/users/@me/relationships/22",TOKEN));
+        assertTrue(FluxerHttpTransport.allowed("POST","/v1/users/@me/relationships/22",TOKEN));
+        assertFalse(FluxerHttpTransport.allowed("POST","/v1/users/@me/relationships/22?redirect=elsewhere",TOKEN));
         assertTrue(FluxerHttpTransport.allowed("DELETE","/v1/users/@me/relationships/22",TOKEN));
         assertFalse(FluxerHttpTransport.allowed("DELETE","/v1/users/@me/relationships/22",null));
         assertFalse(FluxerHttpTransport.allowed("POST","/v1/users/@me/relationships/bulk-ignore",TOKEN));

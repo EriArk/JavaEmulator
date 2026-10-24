@@ -10,6 +10,24 @@ stated otherwise. **Experimental** in older checkpoints means local/private
 combined builds; released experimental features are explicitly identified.
 **Released** means an actual GitHub release asset.
 
+## 2026-10-24 - Temporary Room Contacts and Keep (Unreleased)
+
+- Connect admitted room members to the account-private temporary-contact journal
+  and authenticated private-message transport. Invitations and directory browsing
+  never create friendships; existing relationships remain outside automatic ownership.
+- Add Keep as friend, connection/cleanup status and Open Friends to My room.
+  Resume unfinished cleanup from the journal without restoring stale room readiness.
+- Coordinate manual friend mutations with automatic ownership through a shared
+  lease. Keep persistence/host acknowledgement precedes manual changes; late
+  callbacks release the lease without mutating another account. Prevent premature
+  Keep acknowledgement while a provider creation is still pending.
+- Prioritize current participants and directory replies, rotate historical contacts,
+  and retain eligibility of active DMs beyond the recent-conversation cache.
+- Pass 279 JVM tests, 34 Retroid Android checks, combined Debug app/test builds
+  and lint. Save two native fixture-labelled captures. [Evidence](docs/LOBBY_CONTACTS.md).
+  Ordinary registration with a new disposable mailbox was rejected by Fluxer;
+  live authenticated two-account acceptance remains open. Public APK/server unchanged.
+
 ## 2026-10-24 - Rooms, Invitations and Confirmed Publication (Unreleased)
 
 - Add My room: create invite-only/open/approval rooms, invite a friend, accept or

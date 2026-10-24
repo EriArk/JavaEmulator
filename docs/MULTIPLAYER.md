@@ -58,10 +58,10 @@ Important inherited limits remain:
   of an offline participant's contact is promised.
 - Android-to-TrainerOS interoperability has **not** been exercised live. Matching
   envelope fields alone are not acceptance of complete provider/signaling behavior.
-- The temporary-contact actor's production provider/authentication binding,
-  automatic group-chat retry and Recently together / Keep UI are not wired yet.
-  Manual friend actions now exist in the shared chat actor. Before enabling
-  temporary contacts, their ownership/cleanup must coordinate with those actions.
+- [Room contacts](LOBBY_CONTACTS.md) now bind the actor to production account/HTTP/
+  DM paths, My room Keep UI and manual-friend interlocks. Live authenticated
+  acceptance and automatic group-chat retry remain open. The outer wire prefix
+  is AbyssME-only; no TrainerOS cross-play is advertised.
 
 ## Host Session and Packet Channel
 
@@ -147,11 +147,12 @@ screenshots are represented by this internal checkpoint.
 1. Complete live account approval/restore/logout and two-account chat/friend acceptance
    for the implemented screens. Friends now follow Chats in the agreed user journey.
    No password collection, second identity system or single-player login gate.
-   Bind authenticated signaling, provider-confirmed group-chat access and manual
-   friendship changes to temporary-contact ownership before enabling lobby cleanup.
+   Authenticated signaling and manual-friend ownership interlocks are implemented;
+   complete live acceptance and provider-confirmed group-chat access next.
 2. The [directory reader and automatic community access](LOBBY_DIRECTORY.md) and
    [room/invitation workflow](LOBBY_ROOMS.md) are implemented; shared v2/results are
-   an undeployed PR. Complete live acceptance, deployment and Keep/contact binding.
+   an undeployed PR. Keep/contact binding is implemented; complete live acceptance
+   and deployment before advertising the public directory as ready.
    Show **only AbyssME-compatible** product/runtime/mode/protocol advertisements;
    never mix unrelated TrainerOS rooms. A compatible room whose game is not yet
    installed stays visible with preparation required. Invite-only rooms remain private.

@@ -33,4 +33,16 @@ public class LobbyMailboxTest {
     @Test public void rateLimitDefersAllRequests(){Fixture f=new Fixture();f.readStatus=429;f.start();int reads=f.reads;f.m.refresh();f.m.send("22",LobbyRoom.PREFIX+"{}\n```");assertEquals(reads,f.reads);assertEquals(0,f.posts);}
     @Test public void expiredSessionIsReportedWithoutFurtherRequests(){Fixture f=new Fixture();f.readStatus=401;f.start();assertEquals(1,f.expired);f.m.tick();assertEquals(1,f.reads);}
     @Test public void queuedSnapshotsCoalesceWithoutDroppingAdmissionOrClose(){Fixture f=new Fixture();f.m.configure("fixture-token","11");f.m.send("22","admission");for(int i=0;i<200;i++)f.m.send("22","state-"+i,"room-incarnation");f.m.send("22","close");assertEquals(0,f.failures);f.m.active(true);f.m.refresh();for(int i=0;i<4;i++){f.now+=1100;f.m.tick();}assertEquals(Arrays.asList("admission","state-199","close"),f.sent);}
+    @Test public void contactsRequireAbyssmeEnvelopeAndAuthenticatedAuthor(){Fixture f=new Fixture();JsonObject good=f.incoming("901","22");good.addProperty("content",LobbyMailbox.CONTACT_PREFIX+"{}\n```");f.incoming.add(good);JsonObject forged=good.deepCopy();forged.addProperty("id","902");forged.add("author",JsonParser.parseString("{\"id\":\"33\"}"));f.incoming.add(forged);JsonObject foreign=f.incoming("903","22");foreign.addProperty("content","TrainerOS contacts\n```json\n{}\n```");f.incoming.add(foreign);f.start();assertEquals(1,f.messages.size());assertTrue(f.messages.get(0).startsWith("22"+LobbyMailbox.CONTACT_PREFIX));}
+    @Test public void oldRoomDmAndDirectoryRemainReadableBeyondRecentChannelCap(){
+        List<String> paths=new ArrayList<>();
+        Fixture f=new Fixture(){@Override void http(String method,String path,JsonObject body,String token,Consumer<FluxerAuth.Reply> done){
+            if(path.equals("/v1/users/@me/channels")){
+                JsonArray all=new JsonArray();for(int i=1;i<=550;i++){JsonObject c=channel();c.addProperty("id",Integer.toString(1000+i));c.addProperty("last_message_id",Integer.toString(2000-i));c.getAsJsonArray("recipients").get(0).getAsJsonObject().addProperty("id",i==550?LobbyDirectory.BOT:Integer.toString(10000+i));all.add(c);}done.accept(new FluxerAuth.Reply(200,all,0));
+            }else if(path.startsWith("/v1/channels/")){paths.add(path);done.accept(new FluxerAuth.Reply(200,new JsonArray(),0));}
+            else super.http(method,path,body,token,done);
+        }};
+        f.m.configure("fixture-token","11");List<String> wanted=new ArrayList<>();for(int i=549;i>=510;i--)wanted.add(Integer.toString(10000+i));f.m.watch(wanted);f.m.active(true);f.m.refresh();
+        assertEquals(32,paths.size());assertTrue(paths.get(0).contains("/1550/"));assertTrue(paths.get(1).contains("/1549/"));assertEquals(0,f.failures);
+    }
 }

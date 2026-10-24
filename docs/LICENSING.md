@@ -65,6 +65,10 @@ It uses an isolated AbyssME message namespace, not TrainerOS cross-play. See
 [room provenance, modifications and verification](LOBBY_ROOMS.md). The companion
 service result extension stays in the separate TrainerOS PR until deployment.
 
+The subsequent [room-contact integration](LOBBY_CONTACTS.md) also adapts the
+TrainerOS manual-friend ownership boundary, with an Android asynchronous lease.
+It has the same GPL-3.0-only scope and introduces no binary dependency.
+
 `tools/release-inventory.gradle` inventories the actual resolved release graph,
 records artifact hashes and POM declarations, and collects available source JARs.
 POM declarations alone are not a license audit: inherited/missing declarations,
