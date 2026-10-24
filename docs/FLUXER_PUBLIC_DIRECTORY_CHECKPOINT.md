@@ -26,9 +26,10 @@ was rechecked and not changed. No Nextcloud upload or release asset replacement.
   metadata. A failing-before/passing-after regression covers the correction.
   The reviewed deployed modules never contained this merged-source defect.
 
-[Service hashes, backup and rollback](https://github.com/EriArk/TrainerOS/blob/codex/abyssme-directory-rollout/services/lobby-directory/ROLLOUT_20261024.md).
-The source correction and rollout record are in a separate TrainerOS branch; no
-unrelated TrainerOS worktree or handheld application was modified.
+[Service hashes, backup and rollback](https://github.com/EriArk/TrainerOS/blob/c606771dd61f852be355b6f0ddd44520aeb852ef/services/lobby-directory/ROLLOUT_20261024.md).
+The isolated source correction and rollout record were merged through
+[TrainerOS PR #261](https://github.com/EriArk/TrainerOS/pull/261) at 14:12:49 UTC.
+No unrelated TrainerOS worktree or handheld application was modified.
 
 ## Live Pair Result
 
