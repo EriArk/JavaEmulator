@@ -10,6 +10,22 @@ stated otherwise. **Experimental** in older checkpoints means local/private
 combined builds; released experimental features are explicitly identified.
 **Released** means an actual GitHub release asset.
 
+## 2026-10-24 - Compatible Lobbies and Community Access (Unreleased)
+
+- Add Lobbies to the Library menu, with search, free-seat filtering, refresh,
+  expiry and direct access to Chats/Account. Hide unrelated TrainerOS and unknown
+  runtime advertisements rather than offering a false Join action.
+- Automatically attempt to join the verified shared community when first needed.
+  Persist the attempt per account, reconcile uncertain replies without replaying
+  the join, and offer explicit retry after an error. Ordinary offline play is unchanged.
+- Prepare a versioned extension in [TrainerOS PR #260](https://github.com/EriArk/TrainerOS/pull/260),
+  keeping one public room per account across both products and preserving old readers.
+  The shared service is not deployed; the original dirty TrainerOS checkout is untouched.
+- Pass 222 JVM tests, 28 Retroid Android checks, combined Debug app/test builds and
+  lint; the shared service passes 15 Python tests. Save five fixture-labelled device
+  screenshots. [Evidence, device checks and limits](docs/LOBBY_DIRECTORY.md).
+  No public APK update, actual room joining or playable online multiplayer.
+
 ## 2026-10-24 - Fluxer Friends and Requests (Unreleased)
 
 - Add Friends beside Chats and to the Library menu. Search friends, incoming/

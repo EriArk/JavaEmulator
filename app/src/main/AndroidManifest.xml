@@ -140,6 +140,7 @@
             android:configChanges="orientation|screenSize|keyboardHidden|screenLayout|smallestScreenSize|uiMode"
             android:process=":midlet" />
         <activity android:name=".catalog.LibraryImportActivity" android:exported="false" />
+        <activity android:name=".multiplayer.LobbyDirectoryActivity" android:exported="false" />
         <activity android:name=".multiplayer.FluxerAccountActivity" android:exported="false"
             android:launchMode="singleTask" android:screenOrientation="unspecified" />
         <activity android:name=".multiplayer.FluxerChatsActivity" android:exported="false"

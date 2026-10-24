@@ -60,11 +60,23 @@ older 0.3 builds, not the current 0.4 release series.
 | Channel | Current identifier | Availability |
 | --- | --- | --- |
 | Public download | `0.5.0-beta.1`, code 310, separate 0.5 release page | One signed adaptive APK, matching app source and dependency/native source bundles |
-| Development source | 0.5 runtime plus unreleased Fluxer account/chats/friends UI and multiplayer foundation | Browser handoff, encrypted sessions, private text chats, memory-only drafts and friend/request/block actions implemented; real authenticated two-account acceptance remains open. No playable online multiplayer. Released effects/defaults are unchanged |
+| Development source | 0.5 runtime plus unreleased Fluxer account/chats/friends, compatible lobby reader and multiplayer foundation | Browser handoff, encrypted sessions, chats/friends and automatic lobby-community admission implemented; shared service v2 is a separate undeployed PR. Real authenticated acceptance and playable online multiplayer remain open. Released effects/defaults are unchanged |
 | Private historical snapshot | `0.1.0-beta.2-experimental.15`, 2026-10-11 | Old Java/Mophun test build, not the current beta |
 | Local-only material | Game fixtures, firmware, diagnostics, device data and signing keys | Not in Git or public release assets; describing testing does not authorize redistribution |
 
 ## Multiplayer Foundation (Unreleased)
+
+**Lobbies** now has a native directory screen with search, free-seat filtering,
+expiry and account/error handling. First denied access automatically attempts to
+join the verified shared lobby community; retry is explicit after a failed or
+uncertain attempt. TrainerOS v1 and AbyssME v2 rooms are isolated while retaining
+one public room per account across both apps. The shared bot extension is
+[TrainerOS PR #260](https://github.com/EriArk/TrainerOS/pull/260), not deployed.
+Production game-adapter capabilities remain empty: game-free v2 rooms can appear,
+but no Join/Ready or playable-game claim is enabled. 222 JVM and 28 Retroid Android
+checks passed, plus 15 shared-service tests. Membership/rooms are fixtures, not
+live authenticated acceptance. [Evidence and limits](LOBBY_DIRECTORY.md),
+[five device captures](../screenshots/development/2026-10-24-lobby-directory/README.md).
 
 **Fluxer account** is now reachable from the Library menu and Settings in development
 builds. It uses the official browser approval-code flow, remembers a verified

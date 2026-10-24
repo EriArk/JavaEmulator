@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <item name="lobby_status" type="id" />
+    <item name="lobby_refresh" type="id" />
+    <item name="lobby_account" type="id" />
+    <item name="lobby_community" type="id" />
+    <item name="lobby_search" type="id" />
+    <item name="lobby_free" type="id" />
+    <item name="lobby_list" type="id" />
+</resources>

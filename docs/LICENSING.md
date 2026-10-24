@@ -53,6 +53,12 @@ Android. The adaptation retains a GPL-3.0-only source header and its protocol/
 modification provenance in [MULTIPLAYER](MULTIPLAYER.md). It introduces no new
 binary dependency, credentials, bundled service or license change.
 
+The unreleased directory reader also adapts TrainerOS's directory/community flow
+reviewed at `e7b24ba6`, with automatic admission, strict v2 product/capability
+filtering and bounded Android lifecycle handling. It reuses public service IDs,
+not bot credentials. [Directory provenance and limits](LOBBY_DIRECTORY.md) records
+the separate GPLv3 shared-service extension. No Qt code is linked into Android.
+
 `tools/release-inventory.gradle` inventories the actual resolved release graph,
 records artifact hashes and POM declarations, and collects available source JARs.
 POM declarations alone are not a license audit: inherited/missing declarations,

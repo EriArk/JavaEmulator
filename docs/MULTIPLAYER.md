@@ -148,8 +148,9 @@ screenshots are represented by this internal checkpoint.
    No password collection, second identity system or single-player login gate.
    Bind authenticated signaling, provider-confirmed group-chat access and manual
    friendship changes to temporary-contact ownership before enabling lobby cleanup.
-2. Add the live public directory, own room/invitations and compact room/Ready/Keep
-   UI. Show **only AbyssME-compatible** product/runtime/mode/protocol advertisements;
+2. The [directory reader and automatic community access](LOBBY_DIRECTORY.md) are
+   implemented; the shared v2 service is an undeployed PR. Complete own room/
+   invitations and compact room/Ready/Keep UI. Show **only AbyssME-compatible** product/runtime/mode/protocol advertisements;
    never mix unrelated TrainerOS rooms. A compatible room whose game is not yet
    installed stays visible with preparation required. Invite-only rooms remain private.
    Reuse the existing directory/bot, validate ownership/TTL/revision, and coordinate

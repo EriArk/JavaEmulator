@@ -71,6 +71,7 @@ final class FluxerHttpTransport implements FluxerAuth.Transport {
     static boolean allowed(String method, String path, String token) {
         if (token != null && !FluxerAuth.validToken(token)) return false;
         if (token != null) return ("GET".equals(method) && "/v1/users/@me".equals(path))
+                || (("GET".equals(method)||"POST".equals(method)) && LobbyDirectory.INVITE_PATH.equals(path))
                 || ("POST".equals(method) && "/v1/auth/logout".equals(path))
                 || ("GET".equals(method) && ("/v1/users/@me/channels".equals(path) || "/v1/users/@me/relationships".equals(path)))
                 || ("POST".equals(method) && ("/v1/users/@me/channels".equals(path) || "/v1/users/@me/relationships".equals(path)))

@@ -477,6 +477,10 @@ public class AppsListFragment extends Fragment implements AppsListAdapter.Listen
 			dialog.dismiss(); startActivity(new Intent(requireContext(),
 					ru.playsoftware.j2meloader.multiplayer.FluxerChatsActivity.class).putExtra("friends", true));
 		});
+		dialog.action("Lobbies", android.R.drawable.ic_menu_share, () -> {
+			dialog.dismiss(); startActivity(new Intent(requireContext(),
+					ru.playsoftware.j2meloader.multiplayer.LobbyDirectoryActivity.class));
+		});
 		dialog.action("Settings", R.drawable.ic_baseline_tune_24, () -> {
 			dialog.dismiss(); startActivity(new Intent(requireActivity(), SettingsActivity.class));
 		});
