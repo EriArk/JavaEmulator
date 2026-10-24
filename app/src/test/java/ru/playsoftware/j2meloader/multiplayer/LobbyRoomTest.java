@@ -77,6 +77,25 @@ public class LobbyRoomTest {
     }
     @Test public void timeoutAndPauseInvalidateLiveState(){World w=new World();LobbyRoom h=w.add("11"),g=w.add("22");h.create("public");w.join(g,h);h.active(false);assertFalse(h.available());w.now+=46;g.tick();assertFalse(g.available());h.active(true);w.deliver();h.tick();w.deliver();assertTrue(g.available());}
     @Test public void joinTimeoutAllowsFreshAttempt(){World w=new World();LobbyRoom g=w.add("22");g.join("11",uuid(),"");w.now+=91;g.tick();assertEquals("",g.room());assertTrue(g.create("private"));}
+    @Test public void staleDirectoryJoinGetsCorrelatedUnavailableWithoutLeakingCurrentRoom(){
+        for(boolean replacement:new boolean[]{false,true}){
+            World w=new World();LobbyRoom h=w.add("11"),g=w.add("22");h.create("public");String old=h.room();h.leave();w.deliver();
+            if(replacement)h.create("private");String current=h.room();g.join("11",old,"");Mail join=w.mail.remove();
+            h.receive(join.from,join.packet);Mail reply=w.mail.remove();assertEquals("unavailable",text(reply.packet,"kind"));
+            assertEquals(old,text(reply.packet,"lobby"));assertEquals(0,object(reply.packet,"data").size());
+            h.receive(join.from,join.packet);assertTrue("Do not amplify replays",w.mail.isEmpty());
+            g.receive("11",reply.packet);assertEquals("",g.room());assertEquals("This room is no longer available. Refresh Lobbies.",g.notice());assertEquals(current,h.room());
+            if(replacement){h.access("public");w.join(g,h);assertTrue(g.joined());}
+        }
+    }
+    @Test public void unavailableCannotCancelAnotherProbeOrAdmittedMembership(){
+        World w=new World();LobbyRoom h=w.add("11"),g=w.add("22");String old=uuid();g.join("11",old,"");
+        Mail join=w.mail.remove();h.receive("22",join.packet);Mail unavailable=w.mail.remove();
+        g.receive("33",unavailable.packet);assertEquals(old,g.room());
+        g.leave();w.deliver();g.join("11",old,"");g.receive("11",unavailable.packet);assertEquals(old,g.room());assertFalse(g.joined());
+        g.leave();w.deliver();h.create("public");w.join(g,h);assertTrue(g.joined());
+        JsonObject forged=unavailable.packet.deepCopy();forged.addProperty("lobby",h.room());forged.addProperty("serial",999);g.receive("11",forged);assertTrue(g.joined());
+    }
     @Test public void repeatedDeliveryFailureDoesNotMakeAnUnboundedFeedbackLoop(){World w=new World();LobbyRoom h=w.add("11"),g=w.add("22");h.create("public");w.join(g,h);h.deliveryFailed("22");int count=w.mail.size();h.deliveryFailed("22");assertEquals(count,w.mail.size());}
     @Test public void ordinaryHeartbeatsDoNotDuplicatePeriodicHostSnapshots(){World w=new World();LobbyRoom h=w.add("11"),g=w.add("22");h.create("public");w.join(g,h);g.tick();Mail ping=w.mail.remove();h.receive("22",ping.packet);assertTrue(w.mail.isEmpty());w.now+=20;h.tick();assertFalse(w.mail.isEmpty());w.deliver();assertTrue(g.available());}
     @Test public void admissionClearsPendingNoticeAndHeartbeatPublishesRecovery(){World w=new World();LobbyRoom h=w.add("11"),g=w.add("22");h.create("private");h.invite("22");w.deliver();g.answer(text(g.invitations().get(0),"key"),true);w.deliver();assertEquals("Player joined the room.",h.notice());h.deliveryFailed("22");w.deliver();long revision=number(h.snapshot(),"revision");g.tick();w.deliver();assertTrue(bool(member(h.snapshot(),"22"),"connected"));assertTrue(number(h.snapshot(),"revision")>revision);assertTrue(bool(member(g.snapshot(),"22"),"connected"));}

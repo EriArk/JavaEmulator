@@ -10,6 +10,21 @@ stated otherwise. **Experimental** in older checkpoints means local/private
 combined builds; released experimental features are explicitly identified.
 **Released** means an actual GitHub release asset.
 
+## 2026-10-24 - Public Rooms and Shared Directory Rollout (Unreleased App)
+
+- Deploy the existing shared directory with independent limits: 32 TrainerOS
+  listings and one AbyssME public room per account. Preserve original data and
+  keep a matching source/database backup; no new bot or community.
+- Verify public discovery and admission on Retroid plus an emulator, then guest
+  departure, invite-only withdrawal, republishing and close. Concurrent TrainerOS
+  entries remain separate; quota/product conflicts are rejected.
+- Repair stale-room joins with a correlated unavailable response, without leaking
+  another room or canceling a current membership. Fix a merged service-source
+  regression that let legacy meeting fields alias an AbyssME room.
+- Pass 294 JVM, four Retroid core and 26 service checks; both final live pair roles
+  pass. Save labelled development captures. Public APK/Nextcloud unchanged.
+  [Evidence, failed attempts and limits](docs/FLUXER_PUBLIC_DIRECTORY_CHECKPOINT.md).
+
 ## 2026-10-24 - Non-Friend Rooms and Directory Coexistence (Unreleased)
 
 - Preserve TrainerOS's deployed meeting features and 32-listing allowance in the

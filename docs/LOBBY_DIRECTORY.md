@@ -1,5 +1,11 @@
 # Compatible Lobby Directory (Unreleased)
 
+**Later 24 October update:** shared-service v2 is deployed and real public
+discovery/admission/withdrawal passed on Retroid plus an emulator.
+[Current evidence](FLUXER_PUBLIC_DIRECTORY_CHECKPOINT.md) supersedes the original
+checkpoint's not-deployed/no-live-pair limitations below. No public APK or online
+gameplay release follows from this verification.
+
 The later [room workflow checkpoint](LOBBY_ROOMS.md) adds room admission, links and
 the publisher/result contract. Counts and capture evidence below describe the
 original directory-only checkpoint, not the newer room APK.
@@ -51,8 +57,8 @@ commit `442bee5`, source only, not merged or deployed at this checkpoint.
   of 32 active listings per account, independently of **one active AbyssME room**.
   A second AbyssME UUID returns `already-listed`; it cannot replace the existing
   room. UUID ownership also binds the product, including close/withdraw tombstones.
-  The prepared service patch preserves TrainerOS scheduled meetings and metadata;
-  this decision does not itself mean the service patch has been deployed.
+  The deployed service preserves TrainerOS scheduled meetings and metadata;
+  [rollout and rollback](FLUXER_PUBLIC_DIRECTORY_CHECKPOINT.md) are recorded separately.
 - Selected-game listings require exact platform/mode/adapter capability, not
   a similar title or locally installed game. Content identity is SHA-256. Public
   projection never includes ROM paths, credentials, arbitrary join URLs or libraries.
@@ -112,12 +118,11 @@ device tests use fixture memberships/rooms, not real people.
 now passed with a real test account on Retroid. Membership was independently
 visible in the web client; there were no compatible room advertisements to test.
 See [live evidence](FLUXER_LIVE_ACCOUNT.md). The no-live-join statement above is
-historical. Publication, two-account admission and service rollout remain open.
+historical. The subsequent [public directory checkpoint](FLUXER_PUBLIC_DIRECTORY_CHECKPOINT.md)
+also verifies publication, two-account admission and the service rollout.
 
-Bind own-room publication and explicit host admission/invitations to the existing
-contact/session foundation, including service result acknowledgements and the
-cross-product quota message. Complete live account/community acceptance and a
-controlled shared-service rollout with backup/rollback before claiming a working
-public directory ecosystem. Room readiness and an actual game/network adapter
-remain separate from seeing an advertisement. Issues #34-37 and TrainerOS #257
-remain open.
+Own-room publication, host admission, service acknowledgements and independent
+product quotas are now connected and verified in the later checkpoint. Room
+readiness and an actual game/network adapter remain separate from seeing an
+advertisement. Keep physical-input, broader recovery and online-game acceptance
+separate from this directory result.

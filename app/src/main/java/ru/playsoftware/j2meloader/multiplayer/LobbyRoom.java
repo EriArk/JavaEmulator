@@ -124,6 +124,11 @@ public final class LobbyRoom {
         if(seq<=replay.getOrDefault(key,0L))return;
         if(!replay.containsKey(key)&&replay.size()>=512)return;
         JsonObject data=object(p,"data");
+        // The directory can briefly retain a room after its host restarted or
+        // closed it. Answer the exact join attempt without exposing another room.
+        if(kind.equals("join")&&(!hosting()||!id.equals(room))&&uuid(text(data,"probe"))){
+            replay.put(key,seq);send(peer,"unavailable",new JsonObject(),id,text(data,"probe"));return;
+        }
         // A fresh process rereads DM history. A later host admission/terminal
         // packet consumes its earlier offer without restoring old membership.
         if(!id.equals(room)&&(kind.equals("closed")||kind.equals("removed")
@@ -169,6 +174,9 @@ public final class LobbyRoom {
         if(!peer.equals(host)||!hostBoot.isEmpty()&&!hostBoot.equals(incarnation))return;
         boolean correlated=!probe.isEmpty()&&text(p,"reply").equals(probe);
         if(hostBoot.isEmpty()&&!correlated)return;
+        if(kind.equals("unavailable")&&!joined()&&correlated){
+            replay.put(key,seq);clear();info("This room is no longer available. Refresh Lobbies.");return;
+        }
         if(kind.equals("pending")){replay.put(key,seq);info("Waiting for host approval...");return;}
         if(Arrays.asList("closed","removed","rejected").contains(kind)){replay.put(key,seq);clear();info("The room is closed or your request was declined.");return;}
         if(!kind.equals("state")||!validState(data,host,id,self)||number(data,"revision")<number(remote,"revision"))return;

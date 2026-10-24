@@ -1,8 +1,9 @@
 # Rooms, Invitations and Publication (Unreleased)
 
-2026-10-24. Development source after the initial directory checkpoint. No public
-APK or shared service deployment is included. This implements the room workflow,
-not a playable online game or an assertion of two-account internet acceptance.
+2026-10-24. Unreleased Android source, now with a deployed shared directory and
+[live public/private two-account evidence](FLUXER_PUBLIC_DIRECTORY_CHECKPOINT.md).
+The original counts below are historical; no public APK update or playable
+online game is implied by room admission.
 
 ## User Flow
 
@@ -87,12 +88,11 @@ closing or recovering a prior process sends a product-bound close.
 command result messages with account, request UUID, room, revision, operation,
 result and expiry. The client accepts only the known bot and the exact pending
 request. `accepted` means durable server acceptance, **not** a visible advertisement
-or host admission. Conflicts explicitly name the existing room in TrainerOS or
-AbyssME; absent replies offer retry rather than claiming success. Higher revisions
+or host admission. Quota conflicts identify another active AbyssME room, not a
+TrainerOS meeting; absent replies offer retry rather than claiming success. Higher revisions
 and the saved close record handle uncertain writes conservatively.
 
-This PR is not deployed. Against the current old service a v2 publication can time
-out waiting for confirmation; a signed release must not present it as live-ready.
+The shared extension is deployed; see [rollout evidence](FLUXER_PUBLIC_DIRECTORY_CHECKPOINT.md).
 This checkpoint advertises game-free rooms only, matching the empty production
 online capability registry.
 
@@ -114,8 +114,9 @@ Public release assets remain unchanged.
 
 ## Remaining Work
 
-Live authorized two-account acceptance, controlled shared-service rollout,
-group chat, process recovery beyond closing old publications and contact journals,
+Public/private two-account admission and the controlled shared-service rollout
+have passed in the later checkpoints. Group chat, broader network recovery,
+process recovery beyond closing old publications and contact journals,
 local game preparation, virtual JSR-82 and encrypted peer transport remain open.
 The Ready protocol is not the runtime adapter. Symbian/Mophun online capability
 must be proved independently. Continue through issues #34-37 without marking

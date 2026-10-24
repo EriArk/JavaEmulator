@@ -60,11 +60,20 @@ older 0.3 builds, not the current 0.4 release series.
 | Channel | Current identifier | Availability |
 | --- | --- | --- |
 | Public download | `0.5.0-beta.1`, code 310, separate 0.5 release page | One signed adaptive APK, matching app source and dependency/native source bundles |
-| Development source | 0.5 runtime plus unreleased Fluxer account/chats/friends, directory, rooms and temporary contacts | Live chat, private rooms, non-friend admission, temporary-contact cleanup and Keep passed on Retroid plus an emulator. Clock-skew, slow polling and replayed-invitation repairs included. Shared service v2/results remain undeployed; online game adapters and playable multiplayer remain open. Released effects/defaults are unchanged |
+| Development source | 0.5 runtime plus unreleased Fluxer account/chats/friends, directory, rooms and temporary contacts | Public/private admission, temporary-contact cleanup and Keep passed on Retroid plus an emulator. Shared directory v2/results are deployed with independent product quotas. Stale-room joins now receive a correlated unavailable response. Online game adapters and playable multiplayer remain open. Released effects/defaults are unchanged |
 | Private historical snapshot | `0.1.0-beta.2-experimental.15`, 2026-10-11 | Old Java/Mophun test build, not the current beta |
 | Local-only material | Game fixtures, firmware, diagnostics, device data and signing keys | Not in Git or public release assets; describing testing does not authorize redistribution |
 
 ## Multiplayer Foundation (Unreleased)
+
+**Public directory deployment, later 2026-10-24:** the existing service now runs
+v2 with a matching source/SQLite rollback snapshot; all 12 original records remain
+unchanged. Public discovery/admission, guest departure, withdrawal, republishing
+and close passed on Retroid plus an emulator, alongside two separate TrainerOS
+test meetings. Fix stale-room joins and a merged service-source v1/v2 field leak.
+294 JVM, four Retroid core and 26 service tests pass. Public release unchanged.
+[Current evidence and captures](FLUXER_PUBLIC_DIRECTORY_CHECKPOINT.md).
+The earlier checkpoint statements below about an undeployed service are historical.
 
 **Directory coexistence and non-friend checkpoint, 2026-10-24:** the owner now
 retains 32 TrainerOS listings and one independent AbyssME public room per account.
