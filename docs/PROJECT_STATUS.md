@@ -60,11 +60,20 @@ older 0.3 builds, not the current 0.4 release series.
 | Channel | Current identifier | Availability |
 | --- | --- | --- |
 | Public download | `0.5.0-beta.1`, code 310, separate 0.5 release page | One signed adaptive APK, matching app source and dependency/native source bundles |
-| Development source | 0.5 runtime plus unreleased Fluxer account/chats/friends, directory, rooms and temporary contacts | Create/invite/admit/approve/leave/close, room links, publication client, Keep and manual-friend interlocks implemented; shared service v2/results remain an undeployed PR. Real authenticated acceptance, registered online game adapters and playable multiplayer remain open. Released effects/defaults are unchanged |
+| Development source | 0.5 runtime plus unreleased Fluxer account/chats/friends, directory, rooms and temporary contacts | Create/invite/admit/approve/leave/close, room links, publication client, Keep and manual-friend interlocks implemented; shared service v2/results remain an undeployed PR. Live single-account sign-in, restore and community access passed; two-account acceptance, registered online game adapters and playable multiplayer remain open. Released effects/defaults are unchanged |
 | Private historical snapshot | `0.1.0-beta.2-experimental.15`, 2026-10-11 | Old Java/Mophun test build, not the current beta |
 | Local-only material | Game fixtures, firmware, diagnostics, device data and signing keys | Not in Git or public release assets; describing testing does not authorize redistribution |
 
 ## Multiplayer Foundation (Unreleased)
+
+**Live account checkpoint, 2026-10-24:** browser-approved sign-in succeeded on
+Retroid with an email-verified test account. Two opt-in Android checks passed:
+encrypted session restore in a new process/across activity recreation, and real
+directory access. Opening Lobbies automatically joined the shared community;
+membership was also visible in Fluxer's web client. The directory contained no
+compatible rooms. This does not verify room publication, chat exchange, friends,
+logout, physical gamepad input or online gameplay. The public APK and shared
+service were not updated. [Evidence and reproduction](FLUXER_LIVE_ACCOUNT.md).
 
 **Temporary room contacts** now connect the existing journal/negotiation actor to
 admitted members, verified accounts and private messages. My room offers Keep as
@@ -74,9 +83,10 @@ requests. A Keep acknowledgement cannot race a pending creation. Current-room
 messages and directory replies have priority over unrelated recent conversations.
 The final checkpoint passes **279 JVM tests and 34 Retroid Android checks**, plus
 combined Debug builds/lint. [Implementation, two captures and limits](LOBBY_CONTACTS.md).
-A disposable mailbox was created locally, but Fluxer rejected registration with
-an email-format error; real two-account acceptance remains unverified. No release,
-server deployment, credentials or private account material published.
+An initial disposable-mail registration failed. A later ordinary-mail test
+account completed verification and the live checkpoint above; real two-account
+acceptance remains unverified. No release, server deployment, credentials or
+private account material published.
 
 **My room** now follows the directory: create an invite-only/open/approval room,
 invite friends, accept/decline, approve requests, remove participants, leave/close
@@ -100,8 +110,9 @@ one public room per account across both apps. The shared bot extension is
 Production game-adapter capabilities remain empty: game-free v2 rooms can appear,
 with admission now handled by My room; no playable-game claim is enabled. The
 initial directory checkpoint passed 222 JVM and 28 Retroid Android checks plus
-15 shared-service tests. Membership/rooms are fixtures, not
-live authenticated acceptance. [Evidence and limits](LOBBY_DIRECTORY.md),
+15 shared-service tests. That suite used fixture memberships/rooms; the separate
+live checkpoint above covers actual admission and an empty directory only.
+[Evidence and limits](LOBBY_DIRECTORY.md),
 [five device captures](../screenshots/development/2026-10-24-lobby-directory/README.md).
 
 **Fluxer account** is now reachable from the Library menu and Settings in development
@@ -140,9 +151,10 @@ Existing physical Bluetooth and single-player launch paths are unchanged.
 187 JVM tests and twenty-one Android instrumentation checks passed in the friends
 checkpoint on Retroid, including a live anonymous Fluxer handoff/poll/cancel path.
 Chat/friend device tests use an in-memory provider, not real contacts or message recipients.
-Actual account approval, authenticated session restore/logout, chat exchange, friends and
-two-account gameplay have **not** been verified live. Their account state-machine
-checks use fixtures; the packet tests use loopback. A local Debug APK was installed separately; no public APK, bot,
+Actual account approval and authenticated session restore now have the separate
+live evidence above. Logout, chat exchange, friends and two-account gameplay have
+**not** been verified live. Earlier account state-machine checks use fixtures;
+the packet tests use loopback. A local Debug APK was installed separately; no public APK, bot,
 server or Nextcloud deployment was changed. [Implementation, evidence and next
 steps](MULTIPLAYER.md). Issues #34-37 remain open.
 

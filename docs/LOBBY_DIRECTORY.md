@@ -105,6 +105,12 @@ device tests use fixture memberships/rooms, not real people.
 
 ## Next Boundary
 
+**Follow-up, 2026-10-24:** automatic admission and authenticated directory reads
+now passed with a real test account on Retroid. Membership was independently
+visible in the web client; there were no compatible room advertisements to test.
+See [live evidence](FLUXER_LIVE_ACCOUNT.md). The no-live-join statement above is
+historical. Publication, two-account admission and service rollout remain open.
+
 Bind own-room publication and explicit host admission/invitations to the existing
 contact/session foundation, including service result acknowledgements and the
 cross-product quota message. Complete live account/community acceptance and a

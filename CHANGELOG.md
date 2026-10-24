@@ -10,6 +10,18 @@ stated otherwise. **Experimental** in older checkpoints means local/private
 combined builds; released experimental features are explicitly identified.
 **Released** means an actual GitHub release asset.
 
+## 2026-10-24 - Live Fluxer Sign-in and Community Access (Unreleased)
+
+- Complete browser-approved sign-in with an email-verified test account on
+  Retroid. Verify session restore in a new process and after activity recreation.
+- Verify automatic membership in the shared lobby community and authenticated
+  directory loading; independently observe membership in the Fluxer web client.
+  No compatible rooms were available during this check.
+- Add two explicitly opted-in Android live checks; both passed. No production
+  runtime changes, public APK update or server deployment in this checkpoint.
+  Chat exchange, friends, room publication and playable multiplayer still need
+  their own acceptance. [Evidence and limits](docs/FLUXER_LIVE_ACCOUNT.md).
+
 ## 2026-10-24 - Temporary Room Contacts and Keep (Unreleased)
 
 - Connect admitted room members to the account-private temporary-contact journal

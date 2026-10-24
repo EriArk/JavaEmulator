@@ -94,6 +94,11 @@ It is **not** the public release APK.
 
 ## Not Yet Accepted
 
+**Follow-up, 2026-10-24:** browser approval and authenticated session restore in
+a fresh process/across recreation now passed on Retroid with a real test account.
+See [live evidence](FLUXER_LIVE_ACCOUNT.md). The remaining paragraph describes
+the initial checkpoint, not the current status of those two checks.
+
 Owner approval in the external browser, authenticated restore/logout on a real
 Fluxer identity, physical gamepad presses and process-death recovery of a live
 account have not been checked end to end. Authenticated responses use deterministic
