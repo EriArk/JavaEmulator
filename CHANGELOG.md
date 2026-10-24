@@ -10,6 +10,20 @@ stated otherwise. **Experimental** in older checkpoints means local/private
 combined builds; released experimental features are explicitly identified.
 **Released** means an actual GitHub release asset.
 
+## 2026-10-24 - Virtual Java Bluetooth Adapter (Unreleased)
+
+- Add a transport-independent JSR-82 backend for device/service discovery,
+  custom service metadata, RFCOMM streams and L2CAP packets through the APIs
+  Java games already call. Leave the physical Bluetooth backend selected normally.
+- Fence cancelled searches and old sessions, bound/copy service attributes, check
+  negotiated MTUs and preserve packet boundaries. Honor existing stream lifetime
+  after connection close while allowing session shutdown to interrupt blocked IO.
+- Pass 312 JVM tests and 23 API/core checks on each of Retroid and an Android
+  emulator. Install only the separate Debug package. No new public APK or upload.
+- Keep production multiplayer capabilities disabled: encrypted P2P, room/game
+  launch integration and a real two-device game are still unimplemented.
+  [Evidence, build hash and limitations](docs/VIRTUAL_BLUETOOTH.md).
+
 ## 2026-10-24 - Public Rooms and Shared Directory Rollout (Unreleased App)
 
 - Deploy the existing shared directory with independent limits: 32 TrainerOS

@@ -38,6 +38,8 @@ public class Connection implements ConnectionImplementation, L2CAPConnectionNoti
 	private boolean skipAfterWrite = false;
 
 	public javax.microedition.io.Connection openConnection(String name, int mode, boolean timeouts) throws IOException {
+		javax.bluetooth.VirtualBluetooth session = javax.bluetooth.VirtualBluetooth.current();
+		if (session != null) return session.open(name, mode);
 		if (name == null)
 			throw new IllegalArgumentException("URL is null");
 		System.out.println("***** Connection URL: " + name);

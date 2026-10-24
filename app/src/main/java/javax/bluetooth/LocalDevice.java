@@ -30,7 +30,9 @@ import javax.microedition.util.ContextHolder;
 
 public class LocalDevice implements ActivityResultListener {
 	private static LocalDevice dev;
+	private static LocalDevice virtualDev;
 	private DiscoveryAgent agent;
+	private final VirtualBluetooth virtual;
 	private static Hashtable<String, String> properties;
 	private volatile boolean lock = false;
 	private boolean cancelled = false;
@@ -51,6 +53,7 @@ public class LocalDevice implements ActivityResultListener {
 	}
 
 	private LocalDevice() throws BluetoothStateException {
+		virtual = null;
 		agent = new DiscoveryAgent();
 		ContextHolder.addActivityResultListener(this);
 		boolean permissionsGranted;
@@ -83,7 +86,19 @@ public class LocalDevice implements ActivityResultListener {
 		}
 	}
 
-	public static LocalDevice getLocalDevice() throws BluetoothStateException {
+	private LocalDevice(VirtualBluetooth session) {
+		virtual = session;
+		agent = new DiscoveryAgent(session);
+	}
+
+	public static synchronized LocalDevice getLocalDevice() throws BluetoothStateException {
+		VirtualBluetooth session = VirtualBluetooth.current();
+		if (session != null) {
+			if (!session.powered()) throw new BluetoothStateException("Bluetooth session closed");
+			if (virtualDev == null || virtualDev.virtual != session) virtualDev = new LocalDevice(session);
+			return virtualDev;
+		}
+		virtualDev = null;
 		if (dev == null)
 			dev = new LocalDevice();
 		return dev;
@@ -94,6 +109,7 @@ public class LocalDevice implements ActivityResultListener {
 	}
 
 	public String getFriendlyName() {
+		if (virtual != null) return virtual.localName();
 		return DiscoveryAgent.adapter.getName();
 	}
 
@@ -106,6 +122,7 @@ public class LocalDevice implements ActivityResultListener {
 				&& (mode < 0x9E8B00 || mode > 0x9E8B3F)) {
 			throw new IllegalArgumentException("Invalid discoverable mode");
 		}
+		if (virtual != null) return virtual.discoverable(mode);
 
 		if (lock || mode == DiscoveryAgent.NOT_DISCOVERABLE)
 			return true;
@@ -133,10 +150,14 @@ public class LocalDevice implements ActivityResultListener {
 	}
 
 	public static boolean isPowerOn() {
-		return BluetoothAdapter.getDefaultAdapter().isEnabled();
+		VirtualBluetooth session = VirtualBluetooth.current();
+		if (session != null) return session.powered();
+		BluetoothAdapter adapter = BluetoothAdapter.getDefaultAdapter();
+		return adapter != null && adapter.isEnabled();
 	}
 
 	public int getDiscoverable() {
+		if (virtual != null) return virtual.discoverable();
 		int scanMode = DiscoveryAgent.adapter.getScanMode();
 		switch (scanMode) {
 			case BluetoothAdapter.SCAN_MODE_CONNECTABLE:
@@ -158,6 +179,7 @@ public class LocalDevice implements ActivityResultListener {
 	}
 
 	public String getBluetoothAddress() {
+		if (virtual != null) return virtual.localAddress();
 		// Android 10+ does not expose the local MAC address to ordinary apps.
 		return "000000000000";
 	}
@@ -166,6 +188,7 @@ public class LocalDevice implements ActivityResultListener {
 		if (notifier == null) {
 			throw new NullPointerException("notifier is null");
 		}
+		if (virtual != null) return virtual.record(notifier);
 		if (!(notifier instanceof org.microemu.cldc.btspp.Connection || notifier instanceof org.microemu.cldc.btl2cap.Connection))
 			throw new java.lang.IllegalArgumentException("not a RFCOMM connection");
 
@@ -191,5 +214,6 @@ public class LocalDevice implements ActivityResultListener {
 		if (srvRecord == null) {
 			throw new NullPointerException("Service Record is null");
 		}
+		if (virtual != null) virtual.update(srvRecord);
 	}
 }

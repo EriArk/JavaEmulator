@@ -1,12 +1,15 @@
 # Multiplayer: Lobby Lite Implementation
 
-Status: **unreleased account/chats/friends, directory and room workflow**, 2026-10-24. Parent [#33](https://github.com/EriArk/JavaEmulator/issues/33).
+Status: **unreleased account/chats/friends, directory, rooms and virtual Java Bluetooth adapter**, 2026-10-24. Parent [#33](https://github.com/EriArk/JavaEmulator/issues/33).
 The public 0.5.0 Beta 1 APK has not changed. The new [Fluxer account screen](FLUXER_ACCOUNT.md)
 and [private text chats](FLUXER_CHATS.md) / [friends and requests](FLUXER_FRIENDS.md) are reachable in development builds;
-real authenticated exchange still needs acceptance. [Room metadata and admission](LOBBY_ROOMS.md)
+real authenticated exchange is recorded in the [live pair checkpoint](FLUXER_LIVE_PAIR.md). [Room metadata and admission](LOBBY_ROOMS.md)
 now connect to account/UI/DM delivery; game transport and running MIDlets do not.
 Do not advertise online multiplayer, virtual
-Bluetooth discovery or cross-play as available. No new server or bot was deployed.
+Bluetooth gameplay or cross-play as available. The existing shared directory was
+[updated in place](FLUXER_PUBLIC_DIRECTORY_CHECKPOINT.md); no second bot/server
+was added. The [virtual adapter checkpoint](VIRTUAL_BLUETOOTH.md) records isolated
+API/IO checks, not a production peer transport or a real game match.
 
 ## Reuse TrainerOS Behavior
 
@@ -94,10 +97,12 @@ read or write failure closes the channel.
 This is framing, **not** ICE, STUN, TLS, identity verification, session admission
 or transport negotiation. Only a future authorized encrypted P2P channel may
 supply production streams. Tests use loopback sockets, not internet transport.
-The existing Android Bluetooth backend and `Connector.open` are untouched:
-adding this framing to a physical Bluetooth connection would break compatibility.
-Virtual discovery/service registration, stream-oriented RFCOMM and MIDlet lifecycle
-binding remain necessary before a real Java game can use it.
+The existing physical Android Bluetooth route does not use this framing:
+adding it to a physical Bluetooth connection would break compatibility.
+The later [virtual adapter](VIRTUAL_BLUETOOTH.md) implements discovery, service
+registration and RFCOMM behind the existing JSR-82 classes, activated only by an
+explicit session installation. Production has no caller of that installation:
+secure transport and MIDlet lifecycle/launch binding remain necessary.
 
 ## Foundation Verification (Before Account UI)
 
@@ -144,24 +149,15 @@ screenshots are represented by this internal checkpoint.
 
 ## Next Implementation Order
 
-1. Complete live account approval/restore/logout and two-account chat/friend acceptance
-   for the implemented screens. Friends now follow Chats in the agreed user journey.
-   No password collection, second identity system or single-player login gate.
-   Authenticated signaling and manual-friend ownership interlocks are implemented;
-   complete live acceptance and provider-confirmed group-chat access next.
-2. The [directory reader and automatic community access](LOBBY_DIRECTORY.md) and
-   [room/invitation workflow](LOBBY_ROOMS.md) are implemented; shared v2/results are
-   an undeployed PR. Keep/contact binding is implemented; complete live acceptance
-   and deployment before advertising the public directory as ready.
-   Show **only AbyssME-compatible** product/runtime/mode/protocol advertisements;
-   never mix unrelated TrainerOS rooms. A compatible room whose game is not yet
-   installed stays visible with preparation required. Invite-only rooms remain private.
-   Reuse the existing directory/bot, validate ownership/TTL/revision, and coordinate
-   cross-product publication rules with TrainerOS #257 rather than deploying a second bot.
-3. Connect local game preparation, explicit Ready, launch and return to the same
-   room. Complete the virtual JSR-82 discovery/service/connection adapter and bind its
-   lifetime to an admitted launch attempt, without changing physical Bluetooth.
-4. Attach encrypted P2P transport, demonstrate a real two-device Java match and
-   then check a separate network. Symbian/Mophun require separate capability proof.
+1. Attach an Android-compatible encrypted P2P backend to the implemented virtual
+   adapter. Bind signaling and channels to admitted identities, room generation,
+   seats and a fresh launch attempt. Never carry gameplay packets in Fluxer DMs.
+   The existing account/friend/private-room and public-directory live checkpoints
+   are prerequisites already recorded above, not proof of this missing channel.
+2. Connect exact local game preparation, explicit Ready, synchronized launch and
+   return to the same room. Keep capabilities disabled until the actual runtime
+   and transport implement the advertised mode, not only its tests.
+3. Demonstrate discovery and a real two-device Java match, then disconnect/return
+   and a separate-network check. Symbian/Mophun require separate capability proof.
 
 Issues #34-37 remain open; this checkpoint does not satisfy their end-to-end criteria.

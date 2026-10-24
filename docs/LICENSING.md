@@ -69,6 +69,10 @@ The subsequent [room-contact integration](LOBBY_CONTACTS.md) also adapts the
 TrainerOS manual-friend ownership boundary, with an Android asynchronous lease.
 It has the same GPL-3.0-only scope and introduces no binary dependency.
 
+The [virtual Java Bluetooth adapter](VIRTUAL_BLUETOOTH.md) is original
+GPL-3.0-only code. It delegates from inherited Apache-2.0 JSR-82 wrappers without
+removing their headers and introduces no third-party transport library yet.
+
 `tools/release-inventory.gradle` inventories the actual resolved release graph,
 records artifact hashes and POM declarations, and collects available source JARs.
 POM declarations alone are not a license audit: inherited/missing declarations,

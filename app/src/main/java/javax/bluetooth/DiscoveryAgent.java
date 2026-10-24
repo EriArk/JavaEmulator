@@ -47,6 +47,9 @@ public class DiscoveryAgent {
 	private static int maxID = 1;
 
 	static BluetoothAdapter adapter;
+	private VirtualBluetooth virtual;
+
+	DiscoveryAgent(VirtualBluetooth session) { virtual = session; }
 
 	private class Transaction extends BroadcastReceiver {
 		public final int transID;
@@ -173,6 +176,7 @@ public class DiscoveryAgent {
 	}
 
 	public RemoteDevice[] retrieveDevices(int option) {
+		if (virtual != null) return virtual.cached(option);
 		Set<BluetoothDevice> set;
 		if (option == CACHED) {
 			set = discoveredList;
@@ -194,6 +198,7 @@ public class DiscoveryAgent {
 		if ((accessCode != LIAC) && (accessCode != GIAC) && ((accessCode < 0x9E8B00) || (accessCode > 0x9E8B3F))) {
 			throw new IllegalArgumentException("Invalid accessCode " + accessCode);
 		}
+		if (virtual != null) return virtual.inquire(listener);
 
 		if (adapter.isDiscovering())
 			return false;
@@ -250,6 +255,7 @@ public class DiscoveryAgent {
 	}
 
 	public boolean cancelInquiry(DiscoveryListener listener) {
+		if (virtual != null) return virtual.cancel(listener);
 		if (listener == null) {
 			throw new NullPointerException("DiscoveryListener is null");
 		}
@@ -285,6 +291,7 @@ public class DiscoveryAgent {
 				throw new IllegalArgumentException("attrSet[" + i + "] not in range");
 			}
 		}
+		if (virtual != null) return virtual.search(uuidSet, btDev, listener);
 
 		final Transaction curTrans = new Transaction(maxID, attrSet, uuidSet, btDev, listener);
 		transList.add(curTrans);
@@ -304,6 +311,7 @@ public class DiscoveryAgent {
 	}
 
 	public boolean cancelServiceSearch(int transID) {
+		if (virtual != null) return virtual.cancel(transID);
 		synchronized (transList) {
 			ListIterator<Transaction> iter = transList.listIterator();
 			while (iter.hasNext()) {
@@ -319,6 +327,7 @@ public class DiscoveryAgent {
 
 	// TODO
 	public String selectService(UUID uuid, int security, boolean master) throws BluetoothStateException {
+		if (virtual != null) return virtual.select(uuid, security, master);
 		return null;
 	}
 

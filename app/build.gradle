@@ -185,6 +185,8 @@ android {
     }
 
     sourceSets {
+        test.java.srcDir 'src/sharedTest/java'
+        androidTest.java.srcDir 'src/sharedTest/java'
         androidTest.assets.srcDir rootProject.file('test-games/sudoku-j2me')
     }
 }

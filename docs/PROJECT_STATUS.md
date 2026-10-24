@@ -60,11 +60,19 @@ older 0.3 builds, not the current 0.4 release series.
 | Channel | Current identifier | Availability |
 | --- | --- | --- |
 | Public download | `0.5.0-beta.1`, code 310, separate 0.5 release page | One signed adaptive APK, matching app source and dependency/native source bundles |
-| Development source | 0.5 runtime plus unreleased Fluxer account/chats/friends, directory, rooms and temporary contacts | Public/private admission, temporary-contact cleanup and Keep passed on Retroid plus an emulator. Shared directory v2/results are deployed with independent product quotas. Stale-room joins now receive a correlated unavailable response. Online game adapters and playable multiplayer remain open. Released effects/defaults are unchanged |
+| Development source | 0.5 runtime plus unreleased Fluxer account/chats/friends, directory, rooms, temporary contacts and a transport-independent virtual Java Bluetooth adapter | Public/private admission, temporary-contact cleanup and Keep passed on Retroid plus an emulator. Shared directory v2/results are deployed with independent product quotas. Virtual discovery/services and RFCOMM/L2CAP pass isolated API checks on both Android targets; encrypted peer transport, game launch integration and playable multiplayer remain open. Released effects/defaults are unchanged |
 | Private historical snapshot | `0.1.0-beta.2-experimental.15`, 2026-10-11 | Old Java/Mophun test build, not the current beta |
 | Local-only material | Game fixtures, firmware, diagnostics, device data and signing keys | Not in Git or public release assets; describing testing does not authorize redistribution |
 
 ## Multiplayer Foundation (Unreleased)
+
+**Virtual Bluetooth adapter, later 2026-10-24:** implement Java-side discovery,
+service metadata, RFCOMM streams and L2CAP packets behind the existing game APIs.
+Add cancellation/lifetime fencing, bounded SDP copies and correct stream ownership.
+312 JVM tests and 23 API/core checks on each of Retroid and an emulator pass.
+The production capability set remains empty: secure P2P transport and room-to-game
+launch integration are still missing. This is not playable Internet multiplayer.
+[Implementation, exact verification and remaining work](VIRTUAL_BLUETOOTH.md).
 
 **Public directory deployment, later 2026-10-24:** the existing service now runs
 v2 with a matching source/SQLite rollback snapshot; all 12 original records remain
