@@ -2,6 +2,7 @@
 package ru.playsoftware.j2meloader.multiplayer;
 
 import com.google.gson.JsonObject;
+import com.google.gson.JsonElement;
 import com.google.gson.JsonParser;
 import java.io.ByteArrayOutputStream;
 import java.io.InputStream;
@@ -53,24 +54,27 @@ final class FluxerHttpTransport implements FluxerAuth.Transport {
             int status = connection.getResponseCode();
             long retry = retryMillis(connection.getHeaderField("Retry-After"));
             if (status < 200 || status >= 300) return new FluxerAuth.Reply(status, null, retry);
-            JsonObject result = new JsonObject();
+            JsonElement result = new JsonObject();
             if (status != 204) try (InputStream input = connection.getInputStream(); ByteArrayOutputStream out = new ByteArrayOutputStream()) {
                 byte[] chunk = new byte[4096]; int n;
                 long deadline = System.nanoTime() + 15000000000L;
                 while ((n = input.read(chunk)) != -1) {
-                    if (out.size() + n > 262144 || System.nanoTime() > deadline) throw new java.io.IOException("Reply too large or slow");
+                    if (out.size() + n > 2097152 || System.nanoTime() > deadline) throw new java.io.IOException("Reply too large or slow");
                     out.write(chunk, 0, n);
                 }
-                if (out.size() > 0) result = JsonParser.parseString(out.toString("UTF-8")).getAsJsonObject();
+                if (out.size() > 0) result = JsonParser.parseString(out.toString("UTF-8"));
             }
             return new FluxerAuth.Reply(status, result, retry);
         } catch (Exception ignored) { return new FluxerAuth.Reply(0, null, 0); }
         finally { if (connection != null) connection.disconnect(); }
     }
-    private static boolean allowed(String method, String path, String token) {
+    static boolean allowed(String method, String path, String token) {
         if (token != null && !FluxerAuth.validToken(token)) return false;
         if (token != null) return ("GET".equals(method) && "/v1/users/@me".equals(path))
-                || ("POST".equals(method) && "/v1/auth/logout".equals(path));
+                || ("POST".equals(method) && "/v1/auth/logout".equals(path))
+                || ("GET".equals(method) && ("/v1/users/@me/channels".equals(path) || "/v1/users/@me/relationships".equals(path)))
+                || ("GET".equals(method) && path.matches("/v1/channels/[1-9][0-9]{0,19}/messages\\?limit=50(?:&before=[1-9][0-9]{0,19})?"))
+                || ("POST".equals(method) && path.matches("/v1/channels/[1-9][0-9]{0,19}/messages"));
         return ("GET".equals(method) && "/.well-known/fluxer".equals(path))
                 || ("POST".equals(method) && "/v1/auth/handoff/initiate".equals(path))
                 || ("POST".equals(method) && path.matches("/v1/auth/handoff/[A-Z2-9]{6}-?[A-Z2-9]{6}/status"))

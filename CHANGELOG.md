@@ -10,6 +10,27 @@ stated otherwise. **Experimental** in older checkpoints means local/private
 combined builds; released experimental features are explicitly identified.
 **Released** means an actual GitHub release asset.
 
+## 2026-10-24 - Private Fluxer Chats (Unreleased)
+
+- Add Chats to the Library menu and Open chats to a securely signed-in account.
+  Browse/search existing direct and group conversations, read earlier messages,
+  keep separate drafts in memory and send text from a native Android screen.
+- Use two panes on wide landscape screens and a list/conversation flow on narrow
+  screens. Keep the composer and latest messages visible with the keyboard, and
+  preserve drafts across rotation. Light/dark themes and controller focus follow
+  the existing UI; account changes clear private conversation state.
+- Handle blocked accounts, expired sessions, inaccessible conversations and rate
+  limits. Unknown delivery is not silently resent; an explicit retry reuses its
+  nonce within a bounded window. Late responses cannot restore the wrong account
+  or erase a successful send. Recheck Account when returning from chats.
+- Pass 161 JVM tests and 16 Retroid Android checks, including fixture chat UI,
+  keyboard, Unicode draft rotation, actual Retry popup and the live anonymous
+  account handoff. Real authenticated chat/restore/logout still need acceptance.
+  [Evidence and limits](docs/FLUXER_CHATS.md),
+  [fixture-labelled screenshots](screenshots/development/2026-10-24-fluxer-chats/README.md).
+- Install only a separate local Debug APK. No public APK, bot or server update.
+  Friends, compatible live lobbies and playable online games remain later stages.
+
 ## 2026-10-24 - Fluxer Account Screen (Unreleased)
 
 - Add Fluxer account to the Library menu and Settings. Sign-in uses an approval

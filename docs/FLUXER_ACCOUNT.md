@@ -5,6 +5,11 @@ the public 0.5.0 Beta 1 download. Part of [issue #34](https://github.com/EriArk/
 
 ## Available in Development
 
+This page records the initial account checkpoint. The subsequent
+[chat checkpoint](FLUXER_CHATS.md) adds Open chats, private text conversations
+and revalidation when returning to Account. Historical counts and APK hash below
+refer to the account-only checkpoint, not that newer local Debug binary.
+
 - Library menu / Settings > Fluxer account.
 - Continue with Fluxer creates a short-lived approval code. Copy code & open
   Fluxer opens the official website in the external browser. Password/MFA stays

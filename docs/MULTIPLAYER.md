@@ -1,8 +1,9 @@
 # Multiplayer: Lobby Lite Implementation
 
-Status: **unreleased account UI and foundation**, 2026-10-24. Parent [#33](https://github.com/EriArk/JavaEmulator/issues/33).
+Status: **unreleased account/chats UI and foundation**, 2026-10-24. Parent [#33](https://github.com/EriArk/JavaEmulator/issues/33).
 The public 0.5.0 Beta 1 APK has not changed. The new [Fluxer account screen](FLUXER_ACCOUNT.md)
-is reachable in development builds; the lobby/transport components are not yet
+and [private text chats](FLUXER_CHATS.md) are reachable in development builds;
+real authenticated exchange still needs acceptance. The lobby/transport components are not yet
 connected to it or a running MIDlet. Do not advertise online multiplayer, virtual
 Bluetooth discovery or cross-play as available. No new server or bot was deployed.
 
@@ -140,8 +141,8 @@ screenshots are represented by this internal checkpoint.
 
 ## Next Implementation Order
 
-1. Complete live account approval/restore/logout acceptance for the implemented
-   account screen, then expose chats, then friends in the agreed user-journey order.
+1. Complete live account approval/restore/logout and two-account chat acceptance
+   for the implemented screens, then expose friends in the agreed user-journey order.
    No password collection, second identity system or single-player login gate.
    Bind authenticated signaling and provider-confirmed group-chat access.
 2. Add the live public directory, own room/invitations and compact room/Ready/Keep

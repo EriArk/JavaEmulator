@@ -107,7 +107,7 @@ public final class FluxerAccountActivity extends CompactSettingsActivity {
         } else if (next.phase == FluxerAuth.Phase.SIGNED_OUT) mainAction = "Continue with Fluxer";
         else if (next.phase == FluxerAuth.Phase.STARTING) alternateAction = "Cancel sign-in";
         else if (next.phase == FluxerAuth.Phase.CONNECTED) {
-            if (!next.remembered) mainAction = "Retry saving session";
+            mainAction = next.remembered ? "Open chats" : "Retry saving session";
             alternateAction = "Sign out";
         } else if (next.phase == FluxerAuth.Phase.OFFLINE) {
             mainAction = "Retry connection"; alternateAction = "Sign out"; canRemove = true;
@@ -139,6 +139,8 @@ public final class FluxerAccountActivity extends CompactSettingsActivity {
             catch (android.content.ActivityNotFoundException e) {
                 Toast.makeText(this, "No browser found. Open web.fluxer.app/login?handoff=1 in a browser and enter the code.", Toast.LENGTH_LONG).show();
             }
+        } else if (state.phase == FluxerAuth.Phase.CONNECTED && state.remembered) {
+            startActivity(new Intent(this, FluxerChatsActivity.class));
         } else model.retry();
     }
     private void secondary() {
@@ -146,6 +148,6 @@ public final class FluxerAccountActivity extends CompactSettingsActivity {
         if (state.phase == FluxerAuth.Phase.WAITING || state.phase == FluxerAuth.Phase.STARTING) model.cancel();
         else model.signOut();
     }
-    @Override protected void onStart() { super.onStart(); handler.post(clock); }
+    @Override protected void onStart() { super.onStart(); model.revalidate(); handler.post(clock); }
     @Override protected void onStop() { handler.removeCallbacks(clock); super.onStop(); }
 }

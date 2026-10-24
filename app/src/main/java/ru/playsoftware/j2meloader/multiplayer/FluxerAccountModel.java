@@ -24,6 +24,7 @@ public final class FluxerAccountModel extends AndroidViewModel {
     void begin() { owner.execute(auth::begin); }
     void cancel() { owner.execute(auth::cancel); }
     void retry() { owner.execute(auth::retry); }
+    void revalidate() { owner.execute(auth::revalidate); }
     void signOut() { owner.execute(auth::signOut); }
     void forget() { owner.execute(auth::forget); }
     @Override protected void onCleared() {

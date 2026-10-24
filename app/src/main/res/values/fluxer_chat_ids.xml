@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <item name="fluxer_chat_status" type="id" />
+    <item name="fluxer_chat_sign_in" type="id" />
+    <item name="fluxer_chat_search" type="id" />
+    <item name="fluxer_chat_channels" type="id" />
+    <item name="fluxer_chat_messages" type="id" />
+    <item name="fluxer_chat_input" type="id" />
+    <item name="fluxer_chat_send" type="id" />
+    <item name="fluxer_chat_older" type="id" />
+    <item name="fluxer_chat_latest" type="id" />
+</resources>

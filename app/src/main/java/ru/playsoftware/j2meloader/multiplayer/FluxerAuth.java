@@ -2,6 +2,7 @@
 package ru.playsoftware.j2meloader.multiplayer;
 
 import com.google.gson.JsonObject;
+import com.google.gson.JsonElement;
 import java.time.Instant;
 import java.util.function.Consumer;
 import java.util.function.LongSupplier;
@@ -22,9 +23,11 @@ public final class FluxerAuth implements AutoCloseable {
     public static final class Reply {
         public final int status;
         public final JsonObject body;
+        public final JsonElement data;
         public final long retryMillis;
-        public Reply(int status, JsonObject body, long retryMillis) {
-            this.status = status; this.body = body == null ? new JsonObject() : body;
+        public Reply(int status, JsonElement data, long retryMillis) {
+            this.status = status; this.data = data == null ? new JsonObject() : data;
+            this.body = this.data.isJsonObject() ? this.data.getAsJsonObject() : new JsonObject();
             this.retryMillis = retryMillis;
         }
         boolean ok() { return status >= 200 && status < 300; }
@@ -159,7 +162,8 @@ public final class FluxerAuth implements AutoCloseable {
             username = user;
             String display = string(reply.body, "global_name");
             name = display.isEmpty() || display.length() > 100 ? user : display;
-            remember();
+            if (remembered) show(Phase.CONNECTED, "Signed in. Your session is saved securely on this device.");
+            else remember();
         });
     }
 
@@ -171,6 +175,9 @@ public final class FluxerAuth implements AutoCloseable {
         if (closed || clock.getAsLong() < retryAt) return;
         if (phase == Phase.CONNECTED && !remembered) remember();
         else if (phase == Phase.OFFLINE && token != null) verify(++epoch);
+    }
+    public void revalidate() {
+        if (!closed && phase == Phase.CONNECTED && remembered) verify(++epoch);
     }
 
     public void cancel() {

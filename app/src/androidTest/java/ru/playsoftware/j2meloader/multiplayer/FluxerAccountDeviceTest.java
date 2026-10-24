@@ -57,7 +57,7 @@ public class FluxerAccountDeviceTest {
     @Test public void authTransportRejectsForeignPathsAndHeaderInjection() {
         assertEquals(0,FluxerHttpTransport.exchange("GET","//evil.invalid",null,null).status);
         assertEquals(0,FluxerHttpTransport.exchange("GET","/v1/users/@me",null,"bad\r\nheader").status);
-        assertEquals(0,FluxerHttpTransport.exchange("POST","/v1/channels/123/messages",null,"not-an-actual-token").status);
+        assertEquals(0,FluxerHttpTransport.exchange("DELETE","/v1/channels/123/messages",null,"not-an-actual-token").status);
     }
     @Test public void signedOutScreenRecreatesAndFitsBothOrientations() throws Exception {
         Assume.assumeFalse("Never replace an existing account", new File(context().getNoBackupFilesDir(),"fluxer-session.bin").exists());

@@ -138,4 +138,9 @@ public class FluxerAuthTest {
     @Test public void injectionLikeTokenIsRejected() {
         assertFalse(FluxerAuth.validToken("this-is-a-token\r\nCookie: no")); assertFalse(FluxerAuth.validToken("short")); assertTrue(FluxerAuth.validToken(TOKEN));
     }
+    @Test public void returningFromChatsRevalidatesWithoutRewritingSavedToken() {
+        Fixture f=new Fixture();f.connected();f.vault.failSave=true;f.actor.revalidate();f.account();
+        assertEquals(CONNECTED,f.actor.state().phase);assertTrue(f.actor.state().remembered);
+        f.actor.revalidate();f.take("/v1/users/@me").reply(401,null);assertEquals(SIGNED_OUT,f.actor.state().phase);assertNull(f.vault.token);
+    }
 }

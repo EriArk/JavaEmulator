@@ -60,7 +60,7 @@ older 0.3 builds, not the current 0.4 release series.
 | Channel | Current identifier | Availability |
 | --- | --- | --- |
 | Public download | `0.5.0-beta.1`, code 310, separate 0.5 release page | One signed adaptive APK, matching app source and dependency/native source bundles |
-| Development source | 0.5 runtime plus unreleased Fluxer account UI and multiplayer foundation | Browser handoff, encrypted session storage and account lifecycle implemented; no playable online multiplayer. Released effects/defaults are unchanged |
+| Development source | 0.5 runtime plus unreleased Fluxer account/chats UI and multiplayer foundation | Browser handoff, encrypted sessions, private text chats and memory-only drafts implemented; real authenticated chat acceptance remains open. No playable online multiplayer. Released effects/defaults are unchanged |
 | Private historical snapshot | `0.1.0-beta.2-experimental.15`, 2026-10-11 | Old Java/Mophun test build, not the current beta |
 | Local-only material | Game fixtures, firmware, diagnostics, device data and signing keys | Not in Git or public release assets; describing testing does not authorize redistribution |
 
@@ -73,6 +73,13 @@ sign-out and explicit device-only removal. No app password form, embedded web
 login or account requirement for single-player. Light/dark layouts and rotation
 were checked on Retroid. [Account implementation and verification](FLUXER_ACCOUNT.md).
 
+**Private text chats** are implemented in development: existing DM/group lists,
+search, history paging, per-conversation memory-only drafts and explicit sending/
+retry. Narrow screens use list-to-conversation navigation; wide landscape uses
+two panes. Blocks, expired sessions, lost send responses and keyboard resize are
+handled. [Chat implementation, evidence and limits](FLUXER_CHATS.md),
+[fixture-labelled device screenshots](../screenshots/development/2026-10-24-fluxer-chats/README.md).
+
 The first Android Lobby Lite foundation reuses TrainerOS's temporary-friendship
 protocol: admitted host/member pairs, account-private recovery journal, Keep as
 friend and cautious bilateral cleanup. The host session model fences stale Ready
@@ -82,9 +89,10 @@ L2CAP packet channel preserves message boundaries over a supplied ordered stream
 The lobby/contact components are not yet bound to the new account screen, room UI,
 virtual Bluetooth discovery or real games. **Online multiplayer is not available.**
 Existing physical Bluetooth and single-player launch paths are unchanged.
-133 JVM tests and ten Android instrumentation checks passed on Retroid in the
-account checkpoint, including a live anonymous Fluxer handoff/poll/cancel path.
-Actual account approval, authenticated session restore/logout, chats, friends and
+161 JVM tests and sixteen Android instrumentation checks passed in the chat
+checkpoint on Retroid, including a live anonymous Fluxer handoff/poll/cancel path.
+Chat/device tests use an in-memory provider, not real message recipients.
+Actual account approval, authenticated session restore/logout, chat exchange, friends and
 two-account gameplay have **not** been verified live. Their account state-machine
 checks use fixtures; the packet tests use loopback. A local Debug APK was installed separately; no public APK, bot,
 server or Nextcloud deployment was changed. [Implementation, evidence and next
