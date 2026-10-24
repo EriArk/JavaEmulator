@@ -38,6 +38,13 @@ public class SettingsFragment extends PreferenceFragmentCompat {
 	public void onCreatePreferences(Bundle bundle, String rootKey) {
 		setPreferencesFromResource(R.xml.preferences, rootKey);
 		styleRows(getPreferenceScreen());
+		if (rootKey == null) {
+			Preference account = new Preference(requireContext()); account.setKey("pref_fluxer_account");
+			account.setTitle("Fluxer account"); account.setIcon(android.R.drawable.ic_menu_myplaces);
+			account.setLayoutResource(R.layout.preference_compact); account.setOrder(1);
+			account.setIntent(new Intent(requireContext(), ru.playsoftware.j2meloader.multiplayer.FluxerAccountActivity.class));
+			getPreferenceScreen().addPreference(account);
+		}
 		Preference palette = findPreference(ru.playsoftware.j2meloader.ui.AppPalette.PREFERENCE);
 		if (palette != null) {
 			String selected = ru.playsoftware.j2meloader.ui.AppPalette.selected(requireContext());

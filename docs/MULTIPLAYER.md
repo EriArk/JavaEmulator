@@ -1,10 +1,10 @@
 # Multiplayer: Lobby Lite Implementation
 
-Status: **unreleased foundation**, 2026-10-24. Parent [#33](https://github.com/EriArk/JavaEmulator/issues/33).
-The public 0.5.0 Beta 1 APK has not changed. None of the new components is yet
-reachable from normal app UI or connected to a running MIDlet. Do not advertise
-online multiplayer, Fluxer sign-in, virtual Bluetooth discovery or cross-play
-as available. No new server or bot was deployed.
+Status: **unreleased account UI and foundation**, 2026-10-24. Parent [#33](https://github.com/EriArk/JavaEmulator/issues/33).
+The public 0.5.0 Beta 1 APK has not changed. The new [Fluxer account screen](FLUXER_ACCOUNT.md)
+is reachable in development builds; the lobby/transport components are not yet
+connected to it or a running MIDlet. Do not advertise online multiplayer, virtual
+Bluetooth discovery or cross-play as available. No new server or bot was deployed.
 
 ## Reuse TrainerOS Behavior
 
@@ -95,7 +95,7 @@ adding this framing to a physical Bluetooth connection would break compatibility
 Virtual discovery/service registration, stream-oriented RFCOMM and MIDlet lifecycle
 binding remain necessary before a real Java game can use it.
 
-## Verification
+## Foundation Verification (Before Account UI)
 
 Local Windows/JDK 21, combined Debug build:
 
@@ -140,13 +140,18 @@ screenshots are represented by this internal checkpoint.
 
 ## Next Implementation Order
 
-1. Bind the supported Fluxer sign-in/session and private signaling to this actor;
-   use app-private token storage and the existing directory contract. Connect
-   group chat only after provider-confirmed access. Preserve ordinary offline use.
-2. Build the compact Lobby Lite room/Ready/Keep UI around these states, including
-   actionable DM-permission failures. Coordinate directory changes with TrainerOS
-   #257 rather than deploying a second bot.
-3. Complete the virtual JSR-82 discovery/service/connection adapter and bind its
+1. Complete live account approval/restore/logout acceptance for the implemented
+   account screen, then expose chats, then friends in the agreed user-journey order.
+   No password collection, second identity system or single-player login gate.
+   Bind authenticated signaling and provider-confirmed group-chat access.
+2. Add the live public directory, own room/invitations and compact room/Ready/Keep
+   UI. Show **only AbyssME-compatible** product/runtime/mode/protocol advertisements;
+   never mix unrelated TrainerOS rooms. A compatible room whose game is not yet
+   installed stays visible with preparation required. Invite-only rooms remain private.
+   Reuse the existing directory/bot, validate ownership/TTL/revision, and coordinate
+   cross-product publication rules with TrainerOS #257 rather than deploying a second bot.
+3. Connect local game preparation, explicit Ready, launch and return to the same
+   room. Complete the virtual JSR-82 discovery/service/connection adapter and bind its
    lifetime to an admitted launch attempt, without changing physical Bluetooth.
 4. Attach encrypted P2P transport, demonstrate a real two-device Java match and
    then check a separate network. Symbian/Mophun require separate capability proof.

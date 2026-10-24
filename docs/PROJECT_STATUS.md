@@ -60,11 +60,18 @@ older 0.3 builds, not the current 0.4 release series.
 | Channel | Current identifier | Availability |
 | --- | --- | --- |
 | Public download | `0.5.0-beta.1`, code 310, separate 0.5 release page | One signed adaptive APK, matching app source and dependency/native source bundles |
-| Development source | 0.5 runtime plus unreleased multiplayer foundation | Temporary-contact/session models and L2CAP framing are not yet wired to app UI or real games. Released effects/defaults are unchanged |
+| Development source | 0.5 runtime plus unreleased Fluxer account UI and multiplayer foundation | Browser handoff, encrypted session storage and account lifecycle implemented; no playable online multiplayer. Released effects/defaults are unchanged |
 | Private historical snapshot | `0.1.0-beta.2-experimental.15`, 2026-10-11 | Old Java/Mophun test build, not the current beta |
 | Local-only material | Game fixtures, firmware, diagnostics, device data and signing keys | Not in Git or public release assets; describing testing does not authorize redistribution |
 
 ## Multiplayer Foundation (Unreleased)
+
+**Fluxer account** is now reachable from the Library menu and Settings in development
+builds. It uses the official browser approval-code flow, remembers a verified
+session in Android Keystore-encrypted, no-backup storage, and provides retry,
+sign-out and explicit device-only removal. No app password form, embedded web
+login or account requirement for single-player. Light/dark layouts and rotation
+were checked on Retroid. [Account implementation and verification](FLUXER_ACCOUNT.md).
 
 The first Android Lobby Lite foundation reuses TrainerOS's temporary-friendship
 protocol: admitted host/member pairs, account-private recovery journal, Keep as
@@ -72,12 +79,14 @@ friend and cautious bilateral cleanup. The host session model fences stale Ready
 and preparation callbacks and produces a single launch attempt. A separate
 L2CAP packet channel preserves message boundaries over a supplied ordered stream.
 
-These components are not yet connected to Fluxer authentication, the app UI,
+The lobby/contact components are not yet bound to the new account screen, room UI,
 virtual Bluetooth discovery or real games. **Online multiplayer is not available.**
 Existing physical Bluetooth and single-player launch paths are unchanged.
-111 JVM tests (36 new) and four Android instrumentation checks passed on Retroid;
-provider tests are simulated and network checks are loopback, not two-device
-gameplay. A local Debug APK was installed separately; no public APK, bot,
+133 JVM tests and ten Android instrumentation checks passed on Retroid in the
+account checkpoint, including a live anonymous Fluxer handoff/poll/cancel path.
+Actual account approval, authenticated session restore/logout, chats, friends and
+two-account gameplay have **not** been verified live. Their account state-machine
+checks use fixtures; the packet tests use loopback. A local Debug APK was installed separately; no public APK, bot,
 server or Nextcloud deployment was changed. [Implementation, evidence and next
 steps](MULTIPLAYER.md). Issues #34-37 remain open.
 

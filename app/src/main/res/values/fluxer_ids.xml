@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <item name="fluxer_heading" type="id" />
+    <item name="fluxer_status" type="id" />
+    <item name="fluxer_code" type="id" />
+    <item name="fluxer_detail" type="id" />
+    <item name="fluxer_primary" type="id" />
+    <item name="fluxer_secondary" type="id" />
+    <item name="fluxer_remove" type="id" />
+</resources>

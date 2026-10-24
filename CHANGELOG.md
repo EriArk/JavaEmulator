@@ -10,6 +10,23 @@ stated otherwise. **Experimental** in older checkpoints means local/private
 combined builds; released experimental features are explicitly identified.
 **Released** means an actual GitHub release asset.
 
+## 2026-10-24 - Fluxer Account Screen (Unreleased)
+
+- Add Fluxer account to the Library menu and Settings. Sign-in uses an approval
+  code on the official Fluxer website, with no password form inside AbyssME.
+- Add verified-session restoration, encrypted Android Keystore storage excluded
+  from backups, sign-out and explicit local removal when the service is offline.
+  Expiry, rate limits, cancelled/late responses and failed saving are handled
+  without silently claiming success. Rotation preserves an active sign-in.
+- Keep ordinary offline play unchanged. Chats, friends and compatible public
+  lobbies remain subsequent stages, not completed features.
+- Pass 133 JVM checks and ten Retroid Android checks, including live anonymous
+  handoff creation/pending polling/cancellation and light/dark account layouts.
+  Account approval and authenticated requests still need live acceptance.
+  [Evidence and limits](docs/FLUXER_ACCOUNT.md),
+  [development screenshots](screenshots/development/2026-10-24-fluxer/README.md).
+- Install only a separate local Debug APK. No new release asset or server change.
+
 ## 2026-10-24 - Lobby Lite Foundation (Unreleased)
 
 - Adapt TrainerOS's temporary lobby-contact lifecycle to Android Java, including
