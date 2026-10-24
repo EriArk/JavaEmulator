@@ -38,6 +38,11 @@ public final class FluxerChatsActivity extends CompactSettingsActivity {
     private String shown="";
     private String headerTitle="";
     private long editRevision;
+    private RadioGroup tabs;
+    private RadioButton chatsTab,friendsTab;
+    private FluxerFriendsView friendsView;
+    private boolean showFriends,returnToFriends;
+    private long handledOpen;
 
     @Override protected void onCreate(Bundle saved) {
         super.onCreate(saved);screenTitle("Chats");
@@ -46,6 +51,9 @@ public final class FluxerChatsActivity extends CompactSettingsActivity {
         headerButton("Refresh",android.R.drawable.ic_popup_sync,()->model.refresh());
         headerButton("Account",android.R.drawable.ic_menu_myplaces,()->startActivity(new Intent(this,FluxerAccountActivity.class)));
         LinearLayout root=column();screenContent.addView(root,new ViewGroup.LayoutParams(-1,-1));
+        tabs=new RadioGroup(this);tabs.setOrientation(LinearLayout.HORIZONTAL);
+        chatsTab=tab("Chats",R.id.fluxer_tab_chats);friendsTab=tab("Friends",R.id.fluxer_tab_friends);
+        tabs.addView(chatsTab,new RadioGroup.LayoutParams(0,dp(44),1));tabs.addView(friendsTab,new RadioGroup.LayoutParams(0,dp(44),1));root.addView(tabs);
         status=text(13,R.color.text_secondary);status.setId(R.id.fluxer_chat_status);status.setPadding(dp(12),dp(6),dp(12),dp(6));
         status.setMaxLines(2);status.setEllipsize(android.text.TextUtils.TruncateAt.END);root.addView(status);
         signIn=new Button(this);signIn.setText("Open Fluxer account");signIn.setAllCaps(false);signIn.setId(R.id.fluxer_chat_sign_in);
@@ -82,6 +90,15 @@ public final class FluxerChatsActivity extends CompactSettingsActivity {
         send.setOnClickListener(v->send());composer.addView(send,new LinearLayout.LayoutParams(dp(48),dp(48)));chatPane.addView(composer);
         counter=text(11,R.color.text_secondary);counter.setGravity(Gravity.END);counter.setPadding(0,0,dp(12),dp(2));chatPane.addView(counter);
         model=new ViewModelProvider(this).get(FluxerChatsModel.class);
+        friendsView=new FluxerFriendsView(this,model);root.addView(friendsView,new LinearLayout.LayoutParams(-1,0,1));
+        showFriends=saved==null?getIntent().getBooleanExtra("friends",false):saved.getBoolean("friends");
+        handledOpen=saved==null?0:saved.getLong("opened");returnToFriends=saved!=null&&saved.getBoolean("returnFriends");
+        tabs.setOnCheckedChangeListener((group,id)->{
+            showFriends=id==R.id.fluxer_tab_friends;chatsTab.setSelected(!showFriends);friendsTab.setSelected(showFriends);
+            ((android.view.inputmethod.InputMethodManager)getSystemService(INPUT_METHOD_SERVICE)).hideSoftInputFromWindow(input.getWindowToken(),0);
+            if(state!=null){friendsView.render(state);arrange(screenContent.getWidth(),screenContent.getHeight());}
+            focusContentWhenReady();
+        });tabs.check(showFriends?R.id.fluxer_tab_friends:R.id.fluxer_tab_chats);
         input.setOnFocusChangeListener((v,focused)->{
             LinearLayoutManager manager=(LinearLayoutManager)messages.getLayoutManager();
             keepTailOnResize=focused&&manager.findLastVisibleItemPosition()>=messageAdapter.getItemCount()-1;
@@ -105,11 +122,18 @@ public final class FluxerChatsActivity extends CompactSettingsActivity {
         listPane.setVisibility(wide||shown.isEmpty()?View.VISIBLE:View.GONE);
         chatPane.setVisibility(wide||!shown.isEmpty()?View.VISIBLE:View.GONE);
         boolean ime=keyboardVisible();
+        tabs.setVisibility(ime?View.GONE:View.VISIBLE);
         title.setVisibility(ime||!wide?View.GONE:View.VISIBLE);
         historyActions.setVisibility(ime||shown.isEmpty()?View.GONE:View.VISIBLE);
         counter.setVisibility(ime||shown.isEmpty()?View.GONE:View.VISIBLE);
         if(status.getMaxLines()!=(ime?1:2))status.setMaxLines(ime?1:2);
-        if(state!=null)screenTitle((!wide||ime)&&!shown.isEmpty()?state.title:"Chats");
+        if(state!=null){
+            screenTitle(showFriends?"Friends":(!wide||ime)&&!shown.isEmpty()?state.title:"Chats");
+            workspace.setVisibility(state.verified&&!showFriends?View.VISIBLE:View.GONE);
+            friendsView.setVisibility(state.verified&&showFriends?View.VISIBLE:View.GONE);
+            String notice=showFriends&&!state.friendsNotice.isEmpty()?state.friendsNotice:state.status;
+            if(!android.text.TextUtils.equals(status.getText(),notice))status.setText(notice);
+        }
         if(ime!=lastIme){
             lastIme=ime;
             if(ime&&keepTailOnResize&&state!=null&&!state.past)messages.post(()->{
@@ -121,6 +145,9 @@ public final class FluxerChatsActivity extends CompactSettingsActivity {
         boolean switched=!shown.equals(next.channel),accountChanged=state!=null&&!state.account.equals(next.account);
         boolean returnedToLatest=state!=null&&state.past&&!next.past;
         state=next;
+        if(accountChanged){handledOpen=0;returnToFriends=false;}
+        if(next.openedConversation>handledOpen){handledOpen=next.openedConversation;returnToFriends=true;tabs.check(R.id.fluxer_tab_chats);}
+        friendsView.render(next);
         if(accountChanged){binding=true;input.setText("");binding=false;search.setText("");messageAdapter.submitList(Collections.emptyList());}
         status.setText(next.status);signIn.setVisibility(!next.verified&&!next.loading?View.VISIBLE:View.GONE);
         workspace.setVisibility(next.verified?View.VISIBLE:View.GONE);
@@ -158,8 +185,13 @@ public final class FluxerChatsActivity extends CompactSettingsActivity {
     private void updateSend() {boolean ok=state!=null&&state.canSend&&!input.getText().toString().trim().isEmpty();send.setEnabled(ok);send.setAlpha(ok?1f:0.4f);counter.setText(input.length()+" / "+FluxerChats.TEXT_LIMIT);}
     private void send(){if(send.isEnabled()&&!shown.isEmpty())model.send(shown,editRevision);}
     @Override protected void onStart(){super.onStart();model.resume();}
-    @Override protected void onStop(){model.pause();super.onStop();}
-    @Override public void onBackPressed(){if(!wide&&!shown.isEmpty()){model.list();}else super.onBackPressed();}
+    @Override protected void onStop(){friendsView.dismissActions();model.pause();super.onStop();}
+    @Override protected void onSaveInstanceState(Bundle out){out.putBoolean("friends",showFriends);out.putLong("opened",handledOpen);out.putBoolean("returnFriends",returnToFriends);super.onSaveInstanceState(out);}
+    @Override protected void onNewIntent(Intent intent){super.onNewIntent(intent);setIntent(intent);if(intent.getBooleanExtra("friends",false))tabs.check(R.id.fluxer_tab_friends);}
+    @Override public void onBackPressed(){
+        if(!showFriends&&returnToFriends){returnToFriends=false;tabs.check(R.id.fluxer_tab_friends);}
+        else if(!showFriends&&!wide&&!shown.isEmpty()){model.list();}else super.onBackPressed();
+    }
     private boolean keyboardVisible(){androidx.core.view.WindowInsetsCompat insets=androidx.core.view.ViewCompat.getRootWindowInsets(screenContent);return insets!=null&&insets.isVisible(androidx.core.view.WindowInsetsCompat.Type.ime());}
     @Override public boolean dispatchKeyEvent(android.view.KeyEvent event){
         if(event.getKeyCode()==android.view.KeyEvent.KEYCODE_BUTTON_B&&keyboardVisible()){
@@ -169,6 +201,7 @@ public final class FluxerChatsActivity extends CompactSettingsActivity {
         return super.dispatchKeyEvent(event);
     }
     private int color(int id){return AppPalette.color(this,id);}
+    private RadioButton tab(String label,int id){RadioButton b=new RadioButton(this);b.setId(id);b.setText(label);b.setTextSize(15);b.setTextColor(color(R.color.accent));b.setGravity(Gravity.CENTER);b.setButtonDrawable(null);b.setBackgroundResource(R.drawable.bg_library_tab);return b;}
     @Override protected void screenTitle(CharSequence title){
         if(!title.toString().equals(headerTitle)){headerTitle=title.toString();super.screenTitle(title);}
     }
@@ -193,7 +226,7 @@ public final class FluxerChatsActivity extends CompactSettingsActivity {
         });}
         public Row onCreateViewHolder(ViewGroup parent,int type){return new Row(true);}
         public void onBindViewHolder(Row r,int position){FluxerChats.Channel c=getItem(position);r.top.setText(c.group?"GROUP":"DIRECT MESSAGE");r.body.setText(c.name);r.foot.setVisibility(View.GONE);
-            r.root.setSelected(c.id.equals(shown));r.root.setOnClickListener(v->model.select(c.id));
+            r.root.setSelected(c.id.equals(shown));r.root.setOnClickListener(v->{returnToFriends=false;model.select(c.id);});
         }
     }
     private final class MessageAdapter extends ListAdapter<FluxerChats.Message,Row> {

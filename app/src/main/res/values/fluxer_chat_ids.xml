@@ -9,4 +9,12 @@
     <item name="fluxer_chat_send" type="id" />
     <item name="fluxer_chat_older" type="id" />
     <item name="fluxer_chat_latest" type="id" />
+    <item name="fluxer_tab_chats" type="id" />
+    <item name="fluxer_tab_friends" type="id" />
+    <item name="fluxer_friends_panel" type="id" />
+    <item name="fluxer_friends_filter" type="id" />
+    <item name="fluxer_friends_search" type="id" />
+    <item name="fluxer_friends_list" type="id" />
+    <item name="fluxer_friends_add" type="id" />
+    <item name="fluxer_friend_tag" type="id" />
 </resources>

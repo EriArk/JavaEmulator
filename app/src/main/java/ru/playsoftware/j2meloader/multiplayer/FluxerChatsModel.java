@@ -40,5 +40,7 @@ public final class FluxerChatsModel extends AndroidViewModel {
     void send(String id,long revision){owner.execute(()->chats.send(id,revision));}
     void retry(String channel,String id){owner.execute(()->chats.retry(channel,id));}
     void discard(String channel,String id){owner.execute(()->chats.discard(channel,id));}
+    void friendAction(String account,FluxerChats.Friend friend,FluxerChats.FriendAction action){owner.execute(()->chats.friendAction(account,friend,action));}
+    void addFriend(String account,String tag){owner.execute(()->chats.addFriend(account,tag));}
     @Override protected void onCleared(){owner.execute(()->{timer.cancel(false);chats.close();if(http!=null)http.closeWhenIdle(owner::shutdown);else owner.shutdown();});}
 }

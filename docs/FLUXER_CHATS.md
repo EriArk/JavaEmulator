@@ -5,6 +5,10 @@ The public 0.5.0 Beta 1 download is unchanged. Part of
 [#34](https://github.com/EriArk/JavaEmulator/issues/34), following the owner's
 account -> chats -> friends -> compatible live rooms sequence.
 
+This is the historical chat checkpoint. The subsequent [Friends checkpoint](FLUXER_FRIENDS.md)
+adds relationship actions and direct-conversation creation for friends, with
+updated checks and screenshots. The build hash/counts below describe this earlier build.
+
 ## Available in Development
 
 - Library menu > Chats, or Fluxer account > Open chats after secure sign-in.

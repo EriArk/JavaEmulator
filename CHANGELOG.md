@@ -10,6 +10,26 @@ stated otherwise. **Experimental** in older checkpoints means local/private
 combined builds; released experimental features are explicitly identified.
 **Released** means an actual GitHub release asset.
 
+## 2026-10-24 - Fluxer Friends and Requests (Unreleased)
+
+- Add Friends beside Chats and to the Library menu. Search friends, incoming/
+  outgoing requests and blocked accounts; add someone by full Fluxer tag.
+- Accept, decline or cancel requests; remove friends and block/unblock with
+  confirmation. Recheck the relationship before acting, reject stale actions
+  and reconcile uncertain replies without automatically repeating a write.
+- Open a friend's direct conversation while keeping its draft; Back returns to
+  Friends. Opening a conversation does not send a message. Account changes
+  dismiss pending actions and clear private state.
+- Pass 187 JVM tests and 21 Retroid Android checks, plus combined Debug app/test
+  builds and lint. Fix numeric tag suffix normalization and reject mismatched
+  relationship/user identities. Check portrait, landscape, light/dark themes,
+  request acceptance, confirmation, tag validation and lost-reply reconciliation.
+- [Evidence and limits](docs/FLUXER_FRIENDS.md),
+  [six fixture-labelled screenshots](screenshots/development/2026-10-24-fluxer-friends/README.md).
+  Tests use simulated contacts; real two-account friend/chat acceptance remains
+  open. Only a separate local Debug APK was installed. No public APK, server,
+  bot or Nextcloud update. Compatible rooms and online gameplay remain later stages.
+
 ## 2026-10-24 - Private Fluxer Chats (Unreleased)
 
 - Add Chats to the Library menu and Open chats to a securely signed-in account.

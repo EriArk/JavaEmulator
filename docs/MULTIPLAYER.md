@@ -1,8 +1,8 @@
 # Multiplayer: Lobby Lite Implementation
 
-Status: **unreleased account/chats UI and foundation**, 2026-10-24. Parent [#33](https://github.com/EriArk/JavaEmulator/issues/33).
+Status: **unreleased account/chats/friends UI and foundation**, 2026-10-24. Parent [#33](https://github.com/EriArk/JavaEmulator/issues/33).
 The public 0.5.0 Beta 1 APK has not changed. The new [Fluxer account screen](FLUXER_ACCOUNT.md)
-and [private text chats](FLUXER_CHATS.md) are reachable in development builds;
+and [private text chats](FLUXER_CHATS.md) / [friends and requests](FLUXER_FRIENDS.md) are reachable in development builds;
 real authenticated exchange still needs acceptance. The lobby/transport components are not yet
 connected to it or a running MIDlet. Do not advertise online multiplayer, virtual
 Bluetooth discovery or cross-play as available. No new server or bot was deployed.
@@ -57,8 +57,10 @@ Important inherited limits remain:
   of an offline participant's contact is promised.
 - Android-to-TrainerOS interoperability has **not** been exercised live. Matching
   envelope fields alone are not acceptance of complete provider/signaling behavior.
-- The production provider/authentication binding, automatic group-chat retry,
-  manual profile actions and Recently together / Keep UI are not wired yet.
+- The temporary-contact actor's production provider/authentication binding,
+  automatic group-chat retry and Recently together / Keep UI are not wired yet.
+  Manual friend actions now exist in the shared chat actor. Before enabling
+  temporary contacts, their ownership/cleanup must coordinate with those actions.
 
 ## Host Session and Packet Channel
 
@@ -141,10 +143,11 @@ screenshots are represented by this internal checkpoint.
 
 ## Next Implementation Order
 
-1. Complete live account approval/restore/logout and two-account chat acceptance
-   for the implemented screens, then expose friends in the agreed user-journey order.
+1. Complete live account approval/restore/logout and two-account chat/friend acceptance
+   for the implemented screens. Friends now follow Chats in the agreed user journey.
    No password collection, second identity system or single-player login gate.
-   Bind authenticated signaling and provider-confirmed group-chat access.
+   Bind authenticated signaling, provider-confirmed group-chat access and manual
+   friendship changes to temporary-contact ownership before enabling lobby cleanup.
 2. Add the live public directory, own room/invitations and compact room/Ready/Keep
    UI. Show **only AbyssME-compatible** product/runtime/mode/protocol advertisements;
    never mix unrelated TrainerOS rooms. A compatible room whose game is not yet

@@ -60,7 +60,7 @@ older 0.3 builds, not the current 0.4 release series.
 | Channel | Current identifier | Availability |
 | --- | --- | --- |
 | Public download | `0.5.0-beta.1`, code 310, separate 0.5 release page | One signed adaptive APK, matching app source and dependency/native source bundles |
-| Development source | 0.5 runtime plus unreleased Fluxer account/chats UI and multiplayer foundation | Browser handoff, encrypted sessions, private text chats and memory-only drafts implemented; real authenticated chat acceptance remains open. No playable online multiplayer. Released effects/defaults are unchanged |
+| Development source | 0.5 runtime plus unreleased Fluxer account/chats/friends UI and multiplayer foundation | Browser handoff, encrypted sessions, private text chats, memory-only drafts and friend/request/block actions implemented; real authenticated two-account acceptance remains open. No playable online multiplayer. Released effects/defaults are unchanged |
 | Private historical snapshot | `0.1.0-beta.2-experimental.15`, 2026-10-11 | Old Java/Mophun test build, not the current beta |
 | Local-only material | Game fixtures, firmware, diagnostics, device data and signing keys | Not in Git or public release assets; describing testing does not authorize redistribution |
 
@@ -80,6 +80,14 @@ two panes. Blocks, expired sessions, lost send responses and keyboard resize are
 handled. [Chat implementation, evidence and limits](FLUXER_CHATS.md),
 [fixture-labelled device screenshots](../screenshots/development/2026-10-24-fluxer-chats/README.md).
 
+**Friends** now share the same account and chat screen: searchable Friends,
+Requests and Blocked lists; add by full tag; accept/decline/cancel requests;
+remove, block/unblock and open a direct conversation without sending a message.
+Destructive actions require confirmation and a fresh relationship check. Lost
+mutation replies trigger reconciliation, never automatic replay. Chat drafts
+survive switching to Friends and back. [Implementation and limits](FLUXER_FRIENDS.md),
+[fixture-labelled screenshots](../screenshots/development/2026-10-24-fluxer-friends/README.md).
+
 The first Android Lobby Lite foundation reuses TrainerOS's temporary-friendship
 protocol: admitted host/member pairs, account-private recovery journal, Keep as
 friend and cautious bilateral cleanup. The host session model fences stale Ready
@@ -89,9 +97,9 @@ L2CAP packet channel preserves message boundaries over a supplied ordered stream
 The lobby/contact components are not yet bound to the new account screen, room UI,
 virtual Bluetooth discovery or real games. **Online multiplayer is not available.**
 Existing physical Bluetooth and single-player launch paths are unchanged.
-161 JVM tests and sixteen Android instrumentation checks passed in the chat
+187 JVM tests and twenty-one Android instrumentation checks passed in the friends
 checkpoint on Retroid, including a live anonymous Fluxer handoff/poll/cancel path.
-Chat/device tests use an in-memory provider, not real message recipients.
+Chat/friend device tests use an in-memory provider, not real contacts or message recipients.
 Actual account approval, authenticated session restore/logout, chat exchange, friends and
 two-account gameplay have **not** been verified live. Their account state-machine
 checks use fixtures; the packet tests use loopback. A local Debug APK was installed separately; no public APK, bot,

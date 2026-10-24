@@ -11,6 +11,23 @@ import java.util.function.LongSupplier;
 /** Foreground-only private text chats. Owner-thread; snapshots never contain credentials. */
 public final class FluxerChats implements AutoCloseable {
     public static final int TEXT_LIMIT = 2000;
+    public enum FriendAction { ACCEPT, DECLINE, CANCEL, REMOVE, BLOCK, UNBLOCK, MESSAGE }
+    public static final class Friend {
+        public final String id, name, tag, since;
+        public final int type;
+        Friend(JsonObject relation) {
+            id=str(relation,"id");type=number(relation,"type");since=str(relation,"since");
+            JsonObject user=object(relation,"user");String nickname=str(relation,"nickname");
+            name=bounded(nickname.isEmpty()?label(user):nickname,120);
+            String username=str(user,"username"),discriminator="";
+            JsonElement tagNumber=user.get("discriminator");
+            if(tagNumber!=null&&tagNumber.isJsonPrimitive())discriminator=tagNumber.getAsString();
+            discriminator=discriminator.matches("[0-9]{1,4}")?String.format(Locale.ROOT,"%04d",Integer.parseInt(discriminator)):"";
+            tag=username.isEmpty()?id:bounded(username,32)+(discriminator.isEmpty()?"":"#"+discriminator);
+        }
+        boolean same(Friend other){return other!=null&&id.equals(other.id)&&type==other.type&&since.equals(other.since);}
+        public String kind(){return type==1?"Friend":type==2?"Blocked":type==3?"Incoming request":"Request sent";}
+    }
     private static final Comparator<String> IDS = (a,b) -> a.length() == b.length() ? a.compareTo(b) : Integer.compare(a.length(),b.length());
     public static final class Channel {
         public final String id, name, last;
@@ -41,6 +58,10 @@ public final class FluxerChats implements AutoCloseable {
         public final long draftRevision, retryAt;
         public final List<Channel> channels;
         public final List<Message> messages;
+        public final List<Friend> friends;
+        public final boolean friendsBusy, friendsReady;
+        public final String friendsNotice;
+        public final long openedConversation;
         State(FluxerChats a) {
             account=a.self; status=a.status; channel=a.selected; verified=a.verified; loading=a.loading;
             channels=Collections.unmodifiableList(new ArrayList<>(a.channels.values()));
@@ -49,6 +70,11 @@ public final class FluxerChats implements AutoCloseable {
             draft=w==null?"":w.draft; draftRevision=w==null?0:w.draftRevision;
             historyBusy=w!=null&&w.busy; more=w!=null&&w.more; past=w!=null&&w.past;
             retryAt=a.retryAt;
+            List<Friend> people=new ArrayList<>(a.friends.values());
+            people.sort(Comparator.comparing((Friend f)->f.name,String.CASE_INSENSITIVE_ORDER).thenComparing(f->f.id));
+            friends=Collections.unmodifiableList(people);friendsBusy=a.friendBusy||a.loading;
+            friendsReady=a.verified&&a.friendsReady&&!friendsBusy&&a.clock.getAsLong()>=retryAt;
+            friendsNotice=a.friendsNotice;openedConversation=a.openedConversation;
             canSend=a.verified&&w!=null&&w.loaded&&w.access&&!w.sending()&&a.clock.getAsLong()>=retryAt;
             List<Message> rows=new ArrayList<>();
             if(w!=null) {
@@ -83,6 +109,10 @@ public final class FluxerChats implements AutoCloseable {
     private final LinkedHashMap<String,Channel> channels=new LinkedHashMap<>();
     private final LinkedHashMap<String,Window> windows=new LinkedHashMap<>(16,0.75f,true);
     private final Set<String> blocked=new HashSet<>();
+    private final Map<String,Friend> friends=new LinkedHashMap<>();
+    private boolean friendBusy,friendsReady;
+    private String friendsNotice="";
+    private long openedConversation;
     private String token, self="", selected="", status="Sign in to Fluxer to open your chats.";
     private boolean verified, loading, active, closed;
     private long epoch, nextChannels, nextMessages, retryAt;
@@ -111,6 +141,7 @@ public final class FluxerChats implements AutoCloseable {
     public void storageError() { reset();token=null;status="Saved sign-in could not be unlocked. Open Account to recover it.";emit(); }
     private void reset() {
         ++epoch; verified=false; loading=false; self=selected="";channels.clear();windows.clear();blocked.clear();
+        friends.clear();friendBusy=friendsReady=false;friendsNotice="";openedConversation=0;
         nextChannels=nextMessages=retryAt=0;status="Sign in to Fluxer to open your chats.";
     }
     private boolean current(long generation) {return !closed&&generation==epoch;}
@@ -122,16 +153,11 @@ public final class FluxerChats implements AutoCloseable {
         if(w!=null&&!w.past&&!w.busy&&clock.getAsLong()>=nextMessages)history(false);
     }
     public void refresh() {
-        if(closed||!verified||loading||clock.getAsLong()<retryAt)return;
+        if(closed||!verified||loading||friendBusy||clock.getAsLong()<retryAt)return;
         loading=true;nextChannels=clock.getAsLong()+30000;long generation=epoch;
         request("GET","/v1/users/@me/relationships",null,relations -> {
             if(!current(generation))return;
-            if(!relations.ok()||!relations.data.isJsonArray()) {loading=false;error(relations,"Could not check blocked accounts. Retry to load chats.");return;}
-            blocked.clear();for(JsonElement e:relations.data.getAsJsonArray())if(e.isJsonObject()&&number(e.getAsJsonObject(),"type")==2)blocked.add(str(e.getAsJsonObject(),"id"));
-            // Apply new blocks even if the subsequent conversation refresh fails.
-            channels.values().removeIf(c->!c.group&&!Collections.disjoint(c.recipients,blocked));
-            windows.keySet().retainAll(channels.keySet());
-            if(!channels.containsKey(selected))selected="";
+            if(!relations.ok()||!relationships(relations.data)) {loading=false;friendsReady=false;error(relations,"Could not check contacts. Refresh to try again.");return;}
             emit();
             request("GET","/v1/users/@me/channels",null,r -> {
                 if(!current(generation))return;loading=false;
@@ -148,8 +174,104 @@ public final class FluxerChats implements AutoCloseable {
                 for(Channel c:list) {if(channels.size()==500)break;channels.put(c.id,c);}
                 windows.keySet().retainAll(channels.keySet());
                 if(!channels.containsKey(selected))selected="";
-                status=list.size()>500?"Showing 500 most recent conversations":channels.isEmpty()?"No conversations yet.":"Up to date";emit();
+                status=list.size()>500?"Showing 500 most recent conversations":channels.isEmpty()?"No conversations yet.":"Up to date";
+                if(friendsNotice.equals("Change accepted by Fluxer. Refreshing contacts..."))friendsNotice="Contacts refreshed.";
+                emit();
             });
+        });
+    }
+    private boolean relationships(JsonElement data) {
+        if(!data.isJsonArray()||data.getAsJsonArray().size()>2000)return false;
+        Map<String,Friend> fresh=new LinkedHashMap<>();
+        for(JsonElement e:data.getAsJsonArray()) {
+            if(!e.isJsonObject())return false;
+            Friend f=new Friend(e.getAsJsonObject());
+            String userId=str(object(e.getAsJsonObject(),"user"),"id");
+            if(!userId.isEmpty()&&!userId.equals(f.id))return false;
+            if(!id(f.id)||f.type<1||f.type>4||fresh.containsKey(f.id))return false;
+            if(!self.equals(f.id))fresh.put(f.id,f);
+        }
+        friends.clear();friends.putAll(fresh);friendsReady=true;
+        blocked.clear();for(Friend f:fresh.values())if(f.type==2)blocked.add(f.id);
+        // Apply new blocks even if the subsequent conversation refresh fails.
+        channels.values().removeIf(c->!c.group&&!Collections.disjoint(c.recipients,blocked));
+        windows.keySet().retainAll(channels.keySet());
+        if(!channels.containsKey(selected))selected="";
+        return true;
+    }
+    private boolean canChangeFriends(String account) {
+        return !closed&&self.equals(account)&&state().friendsReady;
+    }
+    /** UI supplies the exact snapshot it confirmed, including its owning account. */
+    public void friendAction(String account,Friend expected,FriendAction action) {
+        if(!canChangeFriends(account)||expected==null||!expected.same(friends.get(expected.id))||!permitted(expected.type,action))return;
+        friendBusy=true;friendsNotice="Checking contact...";emit();long generation=epoch;
+        request("GET","/v1/users/@me/relationships",null,r->{
+            if(!current(generation))return;
+            if(!r.ok()||!relationships(r.data)){friendBusy=false;friendsReady=false;friendFailure(r,"Could not verify the contact. Nothing was changed.");return;}
+            if(!expected.same(friends.get(expected.id))){friendBusy=false;friendsNotice="Contact changed in Fluxer. Review it before trying again.";emit();return;}
+            if(action==FriendAction.MESSAGE){openFriend(expected,generation);return;}
+            JsonObject body=null;String method="DELETE";
+            if(action==FriendAction.ACCEPT||action==FriendAction.BLOCK){method="PUT";body=new JsonObject();body.addProperty("type",action==FriendAction.BLOCK?2:1);}
+            friendsNotice="Updating contact...";emit();
+            request(method,"/v1/users/@me/relationships/"+expected.id,body,result->{
+                if(!current(generation))return;
+                friendResult(result);
+            });
+        });
+    }
+    private static boolean permitted(int type,FriendAction action) {
+        switch(action){
+            case ACCEPT:case DECLINE:return type==3;
+            case CANCEL:return type==4;
+            case REMOVE:case MESSAGE:return type==1;
+            case UNBLOCK:return type==2;
+            case BLOCK:return type==1||type==3||type==4;
+            default:return false;
+        }
+    }
+    public void addFriend(String account,String text) {
+        if(!canChangeFriends(account))return;
+        String tag=text==null?"":text.trim();
+        if(!tag.matches("[A-Za-z0-9_]{1,32}#[0-9]{4}")){friendsNotice="Enter a full Fluxer tag, such as player#1234.";emit();return;}
+        friendBusy=true;friendsNotice="Checking contacts...";emit();long generation=epoch;
+        request("GET","/v1/users/@me/relationships",null,r->{
+            if(!current(generation))return;
+            if(!r.ok()||!relationships(r.data)){friendBusy=false;friendsReady=false;friendFailure(r,"Could not check contacts. No request was sent.");return;}
+            for(Friend f:friends.values())if(f.tag.equalsIgnoreCase(tag)){
+                friendBusy=false;friendsNotice=f.type==3?"An incoming request already exists. Open Requests to accept it.":"This person is already in your contacts. Review their current status.";emit();return;
+            }
+            JsonObject body=new JsonObject();int split=tag.lastIndexOf('#');body.addProperty("username",tag.substring(0,split));body.addProperty("discriminator",tag.substring(split+1));
+            friendsNotice="Sending request...";emit();
+            request("POST","/v1/users/@me/relationships",body,result->{if(current(generation))friendResult(result);});
+        });
+    }
+    private void friendResult(FluxerAuth.Reply r) {
+        friendBusy=false;friendsReady=false;
+        if(r.ok())friendsNotice="Change accepted by Fluxer. Refreshing contacts...";
+        else if(r.status==0||r.status>=500)friendsNotice="Result unknown. Refresh contacts before trying again; no automatic retry.";
+        else {friendFailure(r,"Fluxer rejected the change. Check the tag, account verification and privacy settings.");return;}
+        emit();refresh();
+    }
+    private void friendFailure(FluxerAuth.Reply r,String text) {
+        friendsNotice=text;error(r,text);
+        if(r.status==429)friendsNotice="Fluxer is busy. Wait, then refresh contacts before trying again.";
+        emit();
+    }
+    private void openFriend(Friend f,long generation) {
+        for(Channel c:channels.values())if(!c.group&&c.recipients.contains(f.id)){
+            friendBusy=false;friendsNotice="";select(c.id);++openedConversation;emit();return;
+        }
+        JsonObject body=new JsonObject();body.addProperty("recipient_id",f.id);
+        request("POST","/v1/users/@me/channels",body,r->{
+            if(!current(generation))return;friendBusy=false;
+            JsonObject c=r.body;
+            Set<String> recipients=new HashSet<>();for(JsonElement e:array(c,"recipients"))if(e.isJsonObject())recipients.add(str(e.getAsJsonObject(),"id"));
+            if(!r.ok()||!id(str(c,"id"))||number(c,"type")!=1||!str(c,"guild_id").isEmpty()||!recipients.contains(f.id)
+                    ||recipients.stream().anyMatch(peer->!peer.equals(f.id)&&!peer.equals(self))){
+                friendFailure(r,"Could not open this conversation. Refresh before trying again.");return;
+            }
+            channels.put(str(c,"id"),new Channel(c,self));friendsNotice="";select(str(c,"id"));++openedConversation;emit();
         });
     }
     public void select(String channel) {

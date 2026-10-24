@@ -73,6 +73,8 @@ final class FluxerHttpTransport implements FluxerAuth.Transport {
         if (token != null) return ("GET".equals(method) && "/v1/users/@me".equals(path))
                 || ("POST".equals(method) && "/v1/auth/logout".equals(path))
                 || ("GET".equals(method) && ("/v1/users/@me/channels".equals(path) || "/v1/users/@me/relationships".equals(path)))
+                || ("POST".equals(method) && ("/v1/users/@me/channels".equals(path) || "/v1/users/@me/relationships".equals(path)))
+                || (("PUT".equals(method)||"DELETE".equals(method)) && path.matches("/v1/users/@me/relationships/[1-9][0-9]{0,19}"))
                 || ("GET".equals(method) && path.matches("/v1/channels/[1-9][0-9]{0,19}/messages\\?limit=50(?:&before=[1-9][0-9]{0,19})?"))
                 || ("POST".equals(method) && path.matches("/v1/channels/[1-9][0-9]{0,19}/messages"));
         return ("GET".equals(method) && "/.well-known/fluxer".equals(path))
