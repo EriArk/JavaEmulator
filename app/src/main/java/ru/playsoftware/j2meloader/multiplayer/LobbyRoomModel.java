@@ -69,7 +69,7 @@ public final class LobbyRoomModel extends AndroidViewModel {
                 if(contacts!=null&&content.startsWith(LobbyMailbox.CONTACT_PREFIX)&&content.endsWith("\n```"))try{contactContext();contacts.receive(peer,JsonParser.parseString(content.substring(LobbyMailbox.CONTACT_PREFIX.length(),content.length()-4)).getAsJsonObject());publish();}catch(RuntimeException ignored){}
             }
             public void changed(){publish();}
-            public void failed(String peer,String reason){if(room!=null&&!peer.equals(LobbyDirectory.BOT))room.deliveryFailed(peer);publish();}
+            public void failed(String peer,String reason){if(room!=null&&!peer.equals(LobbyDirectory.BOT))room.deliveryFailed(peer,reason);publish();}
             public void expired(){reset(null);authNotice="Sign-in expired. Open Account to reconnect.";publish();}
         });
         owner.setExecuteExistingDelayedTasksAfterShutdownPolicy(false);

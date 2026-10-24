@@ -55,7 +55,7 @@ final class LobbyPublisher {
             else if(code.equals("withdrawn")&&op.equals("withdraw")){acknowledged=op;status="Listing withdrawal accepted";}
             else if(code.equals("closed")&&op.equals("close")){
                 store.write(new JsonObject());saved=new JsonObject();recovery=false;acknowledged="";next=0;status="Previous listing closed";
-            }else status=code.equals("already-listed")?"Another public room is active. Close it in TrainerOS or AbyssME first.":"Directory rejected this update: "+(code.matches("[a-z-]{1,24}")?code:"invalid response");
+            }else status=code.equals("already-listed")?"Another AbyssME public room is active. Close it first.":"Directory rejected this update: "+(code.matches("[a-z-]{1,24}")?code:"invalid response");
             if(!recovery&&(!text(saved,"lobby").equals(desired)||code.equals("accepted")&&!access.equals(text(saved,"access"))||code.equals("withdrawn")&&!access.equals("private")))next=0;
             changed.run();
         }catch(Exception e){broken=true;status="Directory reply or saved publication state could not be confirmed.";changed.run();}

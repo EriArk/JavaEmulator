@@ -91,9 +91,12 @@ public final class LobbyRoom {
     }
     private void clear(){session=null;room=host=hostBoot=probe="";remote=new JsonObject();offers.clear();requests.clear();seen.clear();peerBoots.clear();joiningAt=0;}
     public void deliveryFailed(String peer){
+        deliveryFailed(peer,"Could not reach this player. Check Fluxer access and refresh.");
+    }
+    void deliveryFailed(String peer,String reason){
         if(hosting()&&session.isConnected(peer)){session.connection(peer,false);broadcast();}
         if(peer.equals(host)&&!hosting())lastHost=clock.getAsLong()-46;
-        info("Could not reach this player. Check Fluxer access and refresh.");
+        info(reason);
     }
     public boolean select(LobbySession.Game game){
         if(!hosting()||!active||game!=null&&(!capabilities.contains(capability(game))||!wireGame(game)))return false;
@@ -121,6 +124,15 @@ public final class LobbyRoom {
         if(seq<=replay.getOrDefault(key,0L))return;
         if(!replay.containsKey(key)&&replay.size()>=512)return;
         JsonObject data=object(p,"data");
+        // A fresh process rereads DM history. A later host admission/terminal
+        // packet consumes its earlier offer without restoring old membership.
+        if(!id.equals(room)&&(kind.equals("closed")||kind.equals("removed")
+                ||kind.equals("state")&&validState(data,peer,id,self))){
+            replay.put(key,seq);
+            JsonObject old=invitations.get(peer+"/"+id);
+            if(old!=null&&text(old,"boot").equals(incarnation)){invitations.remove(peer+"/"+id);emit();}
+            return;
+        }
         if(kind.equals("invite")){
             if(!uuid(text(data,"offer"))||!LobbyExpiry.live(number(data,"until"),now,300)||invitations.size()>=32)return;
             replay.put(key,seq);JsonObject invitation=data.deepCopy();invitation.addProperty("host",peer);invitation.addProperty("lobby",id);invitation.addProperty("key",peer+"/"+id);invitation.addProperty("boot",incarnation);

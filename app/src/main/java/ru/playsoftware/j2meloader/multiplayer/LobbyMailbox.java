@@ -94,14 +94,17 @@ final class LobbyMailbox {
             read(peers,index+1);
         });
     }
-    private void end(String notice){polling=false;status=notice;listener.changed();tick();}
+    private void end(String notice){
+        // Space polls from completion: a slow inbox must leave time for queued controls.
+        polling=false;nextPoll=clock.getAsLong()+10000;status=notice;listener.changed();tick();
+    }
     private void pump(){
         Delivery d=queue.remove();if(blocked.contains(d.peer)||clock.getAsLong()>=d.expires){listener.failed(d.peer,"Player blocked or lobby message expired.");nextSend=clock.getAsLong()+1000;return;}
         sending=true;nextSend=clock.getAsLong()+1000;String channel=channels.get(d.peer);
         if(channel!=null){post(d,channel);return;}
         JsonObject body=new JsonObject();body.addProperty("recipient_id",d.peer);
         request("POST","/v1/users/@me/channels",body,r->{
-            if(!r.ok()||!d.peer.equals(peer(r.body))){sending=false;listener.failed(d.peer,"Could not open a private conversation. Check Fluxer permissions.");return;}
+            if(!r.ok()||!d.peer.equals(peer(r.body))){sending=false;listener.failed(d.peer,deliveryNotice(r));return;}
             String id=text(r.body,"id");channels.put(d.peer,id);post(d,id);
         });
     }
@@ -111,10 +114,20 @@ final class LobbyMailbox {
         request("POST","/v1/channels/"+channel+"/messages",body,r->{
             sending=false;
             if(!r.ok()||!channel.equals(text(r.body,"channel_id"))||!self.equals(text(object(r.body,"author"),"id"))||!d.content.equals(text(r.body,"content"))){
-                listener.failed(d.peer,"Message delivery was not confirmed. Refresh before trying again.");
+                listener.failed(d.peer,deliveryNotice(r));
             }
             nextPoll=Math.min(nextPoll,clock.getAsLong()+1500);listener.changed();
         });
+    }
+    static String deliveryNotice(FluxerAuth.Reply reply){
+        String code=text(reply.body,"code");
+        if(code.equals("DIRECT_MESSAGE_EMAIL_VERIFICATION_REQUIRED")||code.equals("EMAIL_VERIFICATION_REQUIRED"))
+            return "Verify your email in Fluxer before messaging new players.";
+        if(code.equals("CANNOT_SEND_MESSAGES_TO_USER")||code.equals("NOT_FRIENDS_WITH_USER"))
+            return "Fluxer does not allow messages to this player. Check Friends or message privacy in Fluxer.";
+        if(reply.status==403)return "Fluxer denied this message. Check account permissions and message privacy.";
+        if(reply.status==429)return "Fluxer is limiting requests. Wait before trying again.";
+        return "Message delivery was not confirmed. Refresh before trying again.";
     }
     static int compare(String a,String b){return a.length()==b.length()?a.compareTo(b):Integer.compare(a.length(),b.length());}
 }

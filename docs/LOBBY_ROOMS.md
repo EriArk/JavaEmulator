@@ -77,8 +77,9 @@ remain visible until the directory TTL expires. Public updates stop in backgroun
 
 ## Publication Is Not Admission
 
-`LobbyPublisher` writes intent before sending each scoped bot command. It uses
-the existing one-active-public-room-per-account rule across TrainerOS/AbyssME.
+`LobbyPublisher` writes intent before sending each scoped bot command. The updated
+2026-10-24 owner decision allows one AbyssME room independently of TrainerOS's
+32-listing allowance; see [service coexistence](FLUXER_NONFRIEND_CHECKPOINT.md).
 Private rooms are never advertised. Changing visibility withdraws the listing;
 closing or recovering a prior process sends a product-bound close.
 

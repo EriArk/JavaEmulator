@@ -60,11 +60,23 @@ older 0.3 builds, not the current 0.4 release series.
 | Channel | Current identifier | Availability |
 | --- | --- | --- |
 | Public download | `0.5.0-beta.1`, code 310, separate 0.5 release page | One signed adaptive APK, matching app source and dependency/native source bundles |
-| Development source | 0.5 runtime plus unreleased Fluxer account/chats/friends, directory, rooms and temporary contacts | Live two-account chat, friendship and private-room admission/leave passed on Retroid plus an emulator; bounded clock-skew repair included. Shared service v2/results remain undeployed; non-friend temporary-contact acceptance, online game adapters and playable multiplayer remain open. Released effects/defaults are unchanged |
+| Development source | 0.5 runtime plus unreleased Fluxer account/chats/friends, directory, rooms and temporary contacts | Live chat, private rooms, non-friend admission, temporary-contact cleanup and Keep passed on Retroid plus an emulator. Clock-skew, slow polling and replayed-invitation repairs included. Shared service v2/results remain undeployed; online game adapters and playable multiplayer remain open. Released effects/defaults are unchanged |
 | Private historical snapshot | `0.1.0-beta.2-experimental.15`, 2026-10-11 | Old Java/Mophun test build, not the current beta |
 | Local-only material | Game fixtures, firmware, diagnostics, device data and signing keys | Not in Git or public release assets; describing testing does not authorize redistribution |
 
 ## Multiplayer Foundation (Unreleased)
+
+**Directory coexistence and non-friend checkpoint, 2026-10-24:** the owner now
+retains 32 TrainerOS listings and one independent AbyssME public room per account.
+The isolated service patch preserves the actual deployed v1 meeting metadata and
+passes 22 Python tests; it is not yet deployed. AbyssME also repairs slow inbox
+polling starving queued controls and retains only safe provider error codes for
+actionable delivery notices. After both accounts accessed the shared community,
+the real non-friend pair passed admission, automatic friendship, cleanup and Keep
+on Retroid plus an emulator (four successful role runs). Replayed admission/terminal history also consumes old
+invitations without restoring membership. 292 JVM tests and four native core
+checks passed.
+[Current evidence and remaining gates](FLUXER_NONFRIEND_CHECKPOINT.md).
 
 **Live pair checkpoint, 2026-10-24:** two authorized accounts exchanged messages
 and established a friendship through the normal UI. Retroid and an Android
@@ -98,7 +110,7 @@ The final checkpoint passes **279 JVM tests and 34 Retroid Android checks**, plu
 combined Debug builds/lint. [Implementation, two captures and limits](LOBBY_CONTACTS.md).
 An initial disposable-mail registration failed. A later ordinary-mail test
 account completed verification and the later pair checkpoint above covers real
-friends/private rooms; automatic non-friend contact cleanup remains unverified.
+friends/private rooms; the later non-friend checkpoint above verifies cleanup and Keep.
 No release, server deployment, credentials or
 private account material published.
 
@@ -108,7 +120,7 @@ and share a credential-free locator with explicit join confirmation. The native
 screen is bound to the room authority and provider DM transport. Readiness is
 exact-game/generation gated; production online adapters remain empty, so Ready
 is disabled rather than pretending a game is prepared. Public publication waits
-for a correlated bot result and respects the shared account quota. The server
+for a correlated bot result and respects the AbyssME account quota. The server
 result extension remains in PR #260, not deployed. The earlier room checkpoint passed 265 JVM,
 32 Retroid Android and 19 shared-service checks, plus combined Debug builds/lint.
 Room/provider data are fixtures; real two-account and physical-controller acceptance
@@ -118,8 +130,9 @@ remain open. [Implementation and limits](LOBBY_ROOMS.md),
 **Lobbies** now has a native directory screen with search, free-seat filtering,
 expiry and account/error handling. First denied access automatically attempts to
 join the verified shared lobby community; retry is explicit after a failed or
-uncertain attempt. TrainerOS v1 and AbyssME v2 rooms are isolated while retaining
-one public room per account across both apps. The shared bot extension is
+uncertain attempt. TrainerOS v1 and AbyssME v2 rooms are isolated. The updated
+owner decision preserves 32 TrainerOS listings and one independent AbyssME room
+per account, superseding the original shared single-room quota. The shared bot extension is
 [TrainerOS PR #260](https://github.com/EriArk/TrainerOS/pull/260), not deployed.
 Production game-adapter capabilities remain empty: game-free v2 rooms can appear,
 with admission now handled by My room; no playable-game claim is enabled. The

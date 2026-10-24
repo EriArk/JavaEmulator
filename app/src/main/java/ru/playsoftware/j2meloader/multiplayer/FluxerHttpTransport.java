@@ -53,20 +53,39 @@ final class FluxerHttpTransport implements FluxerAuth.Transport {
             }
             int status = connection.getResponseCode();
             long retry = retryMillis(connection.getHeaderField("Retry-After"));
-            if (status < 200 || status >= 300) return new FluxerAuth.Reply(status, null, retry);
+            boolean success = status >= 200 && status < 300;
             JsonElement result = new JsonObject();
-            if (status != 204) try (InputStream input = connection.getInputStream(); ByteArrayOutputStream out = new ByteArrayOutputStream()) {
+            if (status != 204) try (InputStream input = success ? connection.getInputStream() : connection.getErrorStream(); ByteArrayOutputStream out = new ByteArrayOutputStream()) {
+                if (input == null) return new FluxerAuth.Reply(status, null, retry);
                 byte[] chunk = new byte[4096]; int n;
                 long deadline = System.nanoTime() + 15000000000L;
                 while ((n = input.read(chunk)) != -1) {
-                    if (out.size() + n > 2097152 || System.nanoTime() > deadline) throw new java.io.IOException("Reply too large or slow");
+                    if (out.size() + n > (success ? 2097152 : 8192) || System.nanoTime() > deadline) {
+                        if (!success) return new FluxerAuth.Reply(status, null, retry);
+                        throw new java.io.IOException("Reply too large or slow");
+                    }
                     out.write(chunk, 0, n);
                 }
-                if (out.size() > 0) result = JsonParser.parseString(out.toString("UTF-8"));
+                if (out.size() > 0) try { result = JsonParser.parseString(out.toString("UTF-8")); }
+                catch (RuntimeException malformed) { if (success) throw malformed; }
+            } catch (java.io.IOException failure) {
+                if (success) throw failure;
             }
-            return new FluxerAuth.Reply(status, result, retry);
+            return new FluxerAuth.Reply(status, success ? result : errorCode(result), retry);
         } catch (Exception ignored) { return new FluxerAuth.Reply(0, null, 0); }
         finally { if (connection != null) connection.disconnect(); }
+    }
+    static JsonObject errorCode(JsonElement result) {
+        // Preserve only a bounded machine code, never provider text or request details.
+        JsonObject safe = new JsonObject();
+        if (result != null && result.isJsonObject()) {
+            JsonElement code = result.getAsJsonObject().get("code");
+            if (code != null && code.isJsonPrimitive()) {
+                String value = code.getAsString();
+                if (value.matches("[A-Z][A-Z0-9_]{0,79}|[0-9]{1,10}")) safe.addProperty("code", value);
+            }
+        }
+        return safe;
     }
     static boolean allowed(String method, String path, String token) {
         if (token != null && !FluxerAuth.validToken(token)) return false;

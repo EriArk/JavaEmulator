@@ -10,6 +10,21 @@ stated otherwise. **Experimental** in older checkpoints means local/private
 combined builds; released experimental features are explicitly identified.
 **Released** means an actual GitHub release asset.
 
+## 2026-10-24 - Non-Friend Rooms and Directory Coexistence (Unreleased)
+
+- Preserve TrainerOS's deployed meeting features and 32-listing allowance in the
+  separate shared-service PR. Keep one independent AbyssME public room per account
+  and prevent cross-product overwrite. Pass 22 service tests; no server deployment.
+- Repair slow inbox polling starving queued invitations/close messages. Keep
+  provider errors bounded and show useful verification/privacy/rate-limit notices.
+- Stop replayed host admission or terminal messages from leaving an already-used
+  invitation visible after reopening the app; they never restore old membership.
+  Cover authenticated sender, incarnation and replay boundaries with regressions.
+- Verify automatic temporary friendship, cleanup and Keep using real accounts on
+  Retroid and an Android emulator (four successful role runs). Combined Debug
+  builds and 292 JVM tests pass. Public
+  release files are unchanged. [Evidence and limits](docs/FLUXER_NONFRIEND_CHECKPOINT.md).
+
 ## 2026-10-24 - Live Two-Account Chat and Private Rooms (Unreleased)
 
 - Verify normal friend request/acceptance and two-way web/Retroid messages with

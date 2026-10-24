@@ -44,6 +44,23 @@ public class LobbyRoomTest {
     @Test public void duplicateLeaveCannotRemoveNewIncarnation(){World w=new World();LobbyRoom h=w.add("11"),g=w.add("22");h.create("public");w.join(g,h);g.leave();Mail leave=w.mail.remove();h.receive("22",leave.packet);w.deliver();w.join(g,h);assertTrue(g.joined());h.receive("22",leave.packet);assertEquals(2,h.snapshot().getAsJsonArray("members").size());}
     @Test public void expiryAndForeignScopeAreRejected(){World w=new World();LobbyRoom h=w.add("11"),g=w.add("22");h.create("private");h.invite("22");Mail m=w.mail.remove();m.packet.addProperty("ns","org.traineros.lobby");g.receive("11",m.packet);assertTrue(g.invitations().isEmpty());m.packet.addProperty("ns","org.abyssme.lobby");w.now+=100;g.receive("11",m.packet);assertTrue(g.invitations().isEmpty());}
     @Test public void inviteExpiresAndCloseRevokesIt(){World w=new World();LobbyRoom h=w.add("11"),g=w.add("22");h.create("private");h.invite("22");w.deliver();h.leave();w.deliver();assertTrue(g.invitations().isEmpty());h.create("private");h.invite("22");w.deliver();w.now+=301;g.tick();assertTrue(g.invitations().isEmpty());}
+    @Test public void replayedAdmissionConsumesOldOfferWithoutRestoringMembership(){
+        World w=new World();LobbyRoom h=w.add("11"),g=w.add("22");h.create("private");h.invite("22");
+        Mail invitation=w.mail.peek();w.deliver();g.answer(text(g.invitations().get(0),"key"),true);
+        Mail join=w.mail.remove();h.receive("22",join.packet);Mail admission=w.mail.remove();
+        LobbyRoom fresh=w.add("22");fresh.receive("11",invitation.packet);assertEquals(1,fresh.invitations().size());
+        fresh.receive("33",admission.packet);assertEquals(1,fresh.invitations().size());
+        fresh.receive("11",admission.packet);assertTrue(fresh.invitations().isEmpty());assertFalse(fresh.joined());assertEquals("",fresh.room());
+        fresh.receive("11",invitation.packet);assertTrue(fresh.invitations().isEmpty());
+    }
+    @Test public void terminalHistoryFencesOlderInvitesButNotNewHostOffers(){
+        for(String kind:Arrays.asList("closed","removed")){
+            World w=new World();LobbyRoom h=w.add("11"),g=w.add("22");h.create("private");h.invite("22");Mail invite=w.mail.remove();
+            JsonObject terminal=invite.packet.deepCopy();terminal.addProperty("kind",kind);terminal.addProperty("serial",number(invite.packet,"serial")+1);
+            g.receive("11",terminal);g.receive("11",invite.packet);assertTrue(g.invitations().isEmpty());
+            LobbyRoom replacement=w.add("11");replacement.create("private");replacement.invite("22");w.deliver();assertEquals(1,g.invitations().size());
+        }
+    }
     @Test public void roomCloseReleasesMembersButNotApplicationAccount(){World w=new World();LobbyRoom h=w.add("11"),g=w.add("22");h.create("public");w.join(g,h);h.leave();w.deliver();assertEquals("",g.room());assertTrue(g.create("private"));}
     @Test public void removeIsHostOnlyAndGuestCanLeave(){World w=new World();LobbyRoom h=w.add("11"),g=w.add("22");h.create("public");w.join(g,h);g.remove("11");assertTrue(g.joined());h.remove("22");w.deliver();assertFalse(g.joined());}
     @Test public void readinessRequiresPreparedExactGameAndGeneration(){World w=new World();LobbyRoom h=w.add("11"),g=w.add("22");h.create("public");w.join(g,h);h.ready(true);assertFalse(bool(member(h.snapshot(),"11"),"ready"));assertTrue(h.select(game()));w.deliver();long generation=number(h.snapshot(),"generation");assertFalse(h.prepared(generation-1,game(),true));assertTrue(h.prepared(generation,game(),true));assertTrue(g.prepared(generation,game(),true));w.deliver();g.ready(true);h.ready(true);w.deliver();assertTrue(bool(member(h.snapshot(),"22"),"ready"));assertTrue(bool(member(g.snapshot(),"11"),"ready"));}

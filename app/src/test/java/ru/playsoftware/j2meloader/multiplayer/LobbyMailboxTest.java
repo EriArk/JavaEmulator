@@ -26,12 +26,33 @@ public class LobbyMailboxTest {
     }
     @Test public void deliversOnlyAuthenticatedPrivatePeerNotWebhookOrOtherAuthor(){Fixture f=new Fixture();f.incoming.add(f.incoming("901","22"));f.incoming.add(f.incoming("902","33"));JsonObject hook=f.incoming("903","22");hook.addProperty("webhook_id","44");f.incoming.add(hook);f.start();assertEquals(1,f.messages.size());}
     @Test public void repeatedPollingDoesNotReplayControlMessage(){Fixture f=new Fixture();f.incoming.add(f.incoming("901","22"));f.start();f.now+=11000;f.m.tick();assertEquals(1,f.messages.size());}
+    @Test public void slowPollLeavesRoomForQueuedInvitationAndClose(){
+        Fixture f=new Fixture(){@Override void http(String method,String path,JsonObject body,String token,Consumer<FluxerAuth.Reply> done){
+            if(method.equals("GET")&&path.startsWith("/v1/channels/")){assertTrue("Polling starved queued controls",reads<3);now+=15000;}
+            super.http(method,path,body,token,done);
+        }};
+        f.m.configure("fixture-token","11");f.m.send("22","invitation");f.m.send("22","close");f.m.active(true);f.m.refresh();
+        assertEquals(Collections.singletonList("invitation"),f.sent);
+        int reads=f.reads;f.now+=1100;f.m.tick();
+        assertEquals(Arrays.asList("invitation","close"),f.sent);assertEquals(reads,f.reads);
+        f.now+=10000;f.m.tick();assertTrue(f.reads>reads);
+    }
     @Test public void blockedPlayerIsNeitherReadNorSentTo(){Fixture f=new Fixture();f.blocked=true;f.start();f.m.send("22",LobbyRoom.PREFIX+"{}\n```");assertEquals(0,f.posts);assertEquals(0,f.reads);assertEquals(1,f.failures);}
     @Test public void ambiguousPostIsNotAutomaticallyRepeated(){Fixture f=new Fixture();f.postStatus=0;f.start();f.m.send("22",LobbyRoom.PREFIX+"{}\n```");assertEquals(1,f.posts);assertEquals(1,f.failures);f.now+=11000;f.m.tick();assertEquals(1,f.posts);}
     @Test public void mismatchedDmRecipientCannotReceivePacket(){Fixture f=new Fixture();f.wrongRecipient=true;f.start();f.m.send("22",LobbyRoom.PREFIX+"{}\n```");assertEquals(1,f.opens);assertEquals(0,f.posts);assertEquals(1,f.failures);}
     @Test public void pauseAndAccountChangeFenceLateResponses(){Fixture f=new Fixture();f.hold=true;f.start();Consumer<FluxerAuth.Reply> old=f.held;f.m.active(false);old.accept(new FluxerAuth.Reply(200,new JsonArray(),0));assertEquals(0,f.reads);f.m.configure("different-token","33");old.accept(new FluxerAuth.Reply(401,null,0));assertEquals(0,f.expired);}
     @Test public void rateLimitDefersAllRequests(){Fixture f=new Fixture();f.readStatus=429;f.start();int reads=f.reads;f.m.refresh();f.m.send("22",LobbyRoom.PREFIX+"{}\n```");assertEquals(reads,f.reads);assertEquals(0,f.posts);}
     @Test public void expiredSessionIsReportedWithoutFurtherRequests(){Fixture f=new Fixture();f.readStatus=401;f.start();assertEquals(1,f.expired);f.m.tick();assertEquals(1,f.reads);}
+    @Test public void deliveryErrorsExplainProviderLimitsWithoutReflectingText(){
+        JsonObject error=new JsonObject();error.addProperty("code","DIRECT_MESSAGE_EMAIL_VERIFICATION_REQUIRED");error.addProperty("message","private server text");
+        assertTrue(LobbyMailbox.deliveryNotice(new FluxerAuth.Reply(403,error,0)).contains("Verify your email"));
+        error.addProperty("code","CANNOT_SEND_MESSAGES_TO_USER");
+        assertTrue(LobbyMailbox.deliveryNotice(new FluxerAuth.Reply(403,error,0)).contains("message privacy"));
+        error.addProperty("code","UNKNOWN_CODE");
+        assertFalse(LobbyMailbox.deliveryNotice(new FluxerAuth.Reply(403,error,0)).contains("private server text"));
+        assertTrue(LobbyMailbox.deliveryNotice(new FluxerAuth.Reply(429,error,0)).contains("Wait"));
+        assertTrue(LobbyMailbox.deliveryNotice(new FluxerAuth.Reply(0,error,0)).contains("not confirmed"));
+    }
     @Test public void queuedSnapshotsCoalesceWithoutDroppingAdmissionOrClose(){Fixture f=new Fixture();f.m.configure("fixture-token","11");f.m.send("22","admission");for(int i=0;i<200;i++)f.m.send("22","state-"+i,"room-incarnation");f.m.send("22","close");assertEquals(0,f.failures);f.m.active(true);f.m.refresh();for(int i=0;i<4;i++){f.now+=1100;f.m.tick();}assertEquals(Arrays.asList("admission","state-199","close"),f.sent);}
     @Test public void contactsRequireAbyssmeEnvelopeAndAuthenticatedAuthor(){Fixture f=new Fixture();JsonObject good=f.incoming("901","22");good.addProperty("content",LobbyMailbox.CONTACT_PREFIX+"{}\n```");f.incoming.add(good);JsonObject forged=good.deepCopy();forged.addProperty("id","902");forged.add("author",JsonParser.parseString("{\"id\":\"33\"}"));f.incoming.add(forged);JsonObject foreign=f.incoming("903","22");foreign.addProperty("content","TrainerOS contacts\n```json\n{}\n```");f.incoming.add(foreign);f.start();assertEquals(1,f.messages.size());assertTrue(f.messages.get(0).startsWith("22"+LobbyMailbox.CONTACT_PREFIX));}
     @Test public void oldRoomDmAndDirectoryRemainReadableBeyondRecentChannelCap(){

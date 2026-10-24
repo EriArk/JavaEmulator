@@ -47,9 +47,12 @@ commit `442bee5`, source only, not merged or deployed at this checkpoint.
 - AbyssME requires `v: 2`, `product: abyssme`, `protocol: 1`. Legacy TrainerOS
   readers ignore v2, and AbyssME rejects v1/unknown products/protocols. Adding a
   product field to v1 would not provide safe isolation.
-- The service retains **one active public room per account across both products**.
-  A second UUID returns `already-listed`; it cannot replace the existing room.
-  UUID ownership also binds the product, including close/withdraw tombstones.
+- **Updated owner decision, 2026-10-24:** retain TrainerOS's deployed allowance
+  of 32 active listings per account, independently of **one active AbyssME room**.
+  A second AbyssME UUID returns `already-listed`; it cannot replace the existing
+  room. UUID ownership also binds the product, including close/withdraw tombstones.
+  The prepared service patch preserves TrainerOS scheduled meetings and metadata;
+  this decision does not itself mean the service patch has been deployed.
 - Selected-game listings require exact platform/mode/adapter capability, not
   a similar title or locally installed game. Content identity is SHA-256. Public
   projection never includes ROM paths, credentials, arbitrary join URLs or libraries.
