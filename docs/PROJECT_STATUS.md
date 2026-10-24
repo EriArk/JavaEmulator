@@ -60,11 +60,24 @@ older 0.3 builds, not the current 0.4 release series.
 | Channel | Current identifier | Availability |
 | --- | --- | --- |
 | Public download | `0.5.0-beta.1`, code 310, separate 0.5 release page | One signed adaptive APK, matching app source and dependency/native source bundles |
-| Development source | 0.5 runtime plus unreleased Fluxer account/chats/friends, compatible lobby reader and multiplayer foundation | Browser handoff, encrypted sessions, chats/friends and automatic lobby-community admission implemented; shared service v2 is a separate undeployed PR. Real authenticated acceptance and playable online multiplayer remain open. Released effects/defaults are unchanged |
+| Development source | 0.5 runtime plus unreleased Fluxer account/chats/friends, directory and room workflow | Create/invite/admit/approve/leave/close, room links and acknowledged-publication client implemented; shared service v2/results remain an undeployed PR. Real authenticated acceptance, registered online game adapters and playable multiplayer remain open. Released effects/defaults are unchanged |
 | Private historical snapshot | `0.1.0-beta.2-experimental.15`, 2026-10-11 | Old Java/Mophun test build, not the current beta |
 | Local-only material | Game fixtures, firmware, diagnostics, device data and signing keys | Not in Git or public release assets; describing testing does not authorize redistribution |
 
 ## Multiplayer Foundation (Unreleased)
+
+**My room** now follows the directory: create an invite-only/open/approval room,
+invite friends, accept/decline, approve requests, remove participants, leave/close
+and share a credential-free locator with explicit join confirmation. The native
+screen is bound to the room authority and provider DM transport. Readiness is
+exact-game/generation gated; production online adapters remain empty, so Ready
+is disabled rather than pretending a game is prepared. Public publication waits
+for a correlated bot result and respects the shared account quota. The server
+result extension remains in PR #260, not deployed. This checkpoint passes 265 JVM,
+32 Retroid Android and 19 shared-service checks, plus combined Debug builds/lint.
+Room/provider data are fixtures; real two-account and physical-controller acceptance
+remain open. [Implementation and limits](LOBBY_ROOMS.md),
+[five labelled captures and exact artifacts](../screenshots/development/2026-10-24-lobby-rooms/README.md).
 
 **Lobbies** now has a native directory screen with search, free-seat filtering,
 expiry and account/error handling. First denied access automatically attempts to
@@ -73,8 +86,9 @@ uncertain attempt. TrainerOS v1 and AbyssME v2 rooms are isolated while retainin
 one public room per account across both apps. The shared bot extension is
 [TrainerOS PR #260](https://github.com/EriArk/TrainerOS/pull/260), not deployed.
 Production game-adapter capabilities remain empty: game-free v2 rooms can appear,
-but no Join/Ready or playable-game claim is enabled. 222 JVM and 28 Retroid Android
-checks passed, plus 15 shared-service tests. Membership/rooms are fixtures, not
+with admission now handled by My room; no playable-game claim is enabled. The
+initial directory checkpoint passed 222 JVM and 28 Retroid Android checks plus
+15 shared-service tests. Membership/rooms are fixtures, not
 live authenticated acceptance. [Evidence and limits](LOBBY_DIRECTORY.md),
 [five device captures](../screenshots/development/2026-10-24-lobby-directory/README.md).
 
@@ -106,8 +120,9 @@ friend and cautious bilateral cleanup. The host session model fences stale Ready
 and preparation callbacks and produces a single launch attempt. A separate
 L2CAP packet channel preserves message boundaries over a supplied ordered stream.
 
-The lobby/contact components are not yet bound to the new account screen, room UI,
-virtual Bluetooth discovery or real games. **Online multiplayer is not available.**
+The room metadata workflow is bound to account/UI/DM delivery; temporary-contact
+ownership, virtual Bluetooth discovery and real games remain unwired.
+**Online multiplayer is not available.**
 Existing physical Bluetooth and single-player launch paths are unchanged.
 187 JVM tests and twenty-one Android instrumentation checks passed in the friends
 checkpoint on Retroid, including a live anonymous Fluxer handoff/poll/cancel path.

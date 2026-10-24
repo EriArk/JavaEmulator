@@ -59,6 +59,12 @@ filtering and bounded Android lifecycle handling. It reuses public service IDs,
 not bot credentials. [Directory provenance and limits](LOBBY_DIRECTORY.md) records
 the separate GPLv3 shared-service extension. No Qt code is linked into Android.
 
+The unreleased room workflow continues that GPL-3.0-only Java adaptation: host
+admission, expiring invitations, incarnation fencing and generation-bound Ready.
+It uses an isolated AbyssME message namespace, not TrainerOS cross-play. See
+[room provenance, modifications and verification](LOBBY_ROOMS.md). The companion
+service result extension stays in the separate TrainerOS PR until deployment.
+
 `tools/release-inventory.gradle` inventories the actual resolved release graph,
 records artifact hashes and POM declarations, and collects available source JARs.
 POM declarations alone are not a license audit: inherited/missing declarations,

@@ -10,6 +10,27 @@ stated otherwise. **Experimental** in older checkpoints means local/private
 combined builds; released experimental features are explicitly identified.
 **Released** means an actual GitHub release asset.
 
+## 2026-10-24 - Rooms, Invitations and Confirmed Publication (Unreleased)
+
+- Add My room: create invite-only/open/approval rooms, invite a friend, accept or
+  decline invitations, approve requests, remove players and leave/close with confirmation.
+  Bind the native screen to authenticated private-message delivery and host authority.
+- Add shareable room locators and directory-to-room navigation with explicit
+  confirmation. A link is not a secret invitation and cannot bypass host policy.
+- Preserve room ownership across rotation and navigation in the app process;
+  fence old account callbacks, expire stale joins and invalidate readiness when
+  membership or connections change. Ready remains disabled without a real adapter.
+- Persist publication intent/revision before writes; add private correlated bot
+  results in TrainerOS PR #260 and explain the cross-product one-room conflict.
+  Do not treat a sent message as successful publication or lost replies as success.
+- Use the existing styled game-menu dialogs for room actions, compact the screen,
+  and distinguish disabled Ready. Repair stale admission/reconnection status,
+  coalesce obsolete queued snapshots and bound the full-room wire payload.
+- Pass 265 JVM tests, 32 Retroid Android checks, combined Debug builds/lint and
+  19 shared-service tests; save five labelled screenshots. [Evidence and limits](docs/LOBBY_ROOMS.md).
+  The shared bot is not deployed, live authenticated acceptance remains open,
+  and no public APK or playable-online-game claim is added.
+
 ## 2026-10-24 - Compatible Lobbies and Community Access (Unreleased)
 
 - Add Lobbies to the Library menu, with search, free-seat filtering, refresh,

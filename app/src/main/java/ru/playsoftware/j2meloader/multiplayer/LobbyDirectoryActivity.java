@@ -40,6 +40,7 @@ public final class LobbyDirectoryActivity extends CompactSettingsActivity {
         getWindow().setSoftInputMode(android.view.WindowManager.LayoutParams.SOFT_INPUT_ADJUST_RESIZE
                 |android.view.WindowManager.LayoutParams.SOFT_INPUT_STATE_ALWAYS_HIDDEN);
         refresh=headerButton("Refresh",android.R.drawable.ic_popup_sync,()->model.refresh());refresh.setId(R.id.lobby_refresh);
+        headerButton("My room",android.R.drawable.ic_menu_share,()->startActivity(new Intent(this,LobbyRoomActivity.class)));
         headerButton("Chats",android.R.drawable.ic_dialog_email,()->startActivity(new Intent(this,FluxerChatsActivity.class)));
         headerButton("Account",android.R.drawable.ic_menu_myplaces,()->startActivity(new Intent(this,FluxerAccountActivity.class)));
         LinearLayout root=new LinearLayout(this);root.setOrientation(LinearLayout.VERTICAL);screenContent.addView(root,new ViewGroup.LayoutParams(-1,-1));
@@ -83,9 +84,11 @@ public final class LobbyDirectoryActivity extends CompactSettingsActivity {
     private void open(LobbyDirectory.Room expected){
         if(state==null)return;LobbyDirectory.Room room=null;for(LobbyDirectory.Room candidate:state.rooms)if(candidate.id.equals(expected.id)&&candidate.revision==expected.revision)room=candidate;
         if(room==null)return;selected=room.id;selectedRevision=room.revision;
+        LobbyDirectory.Room target=room;
         detail=new AlertDialog.Builder(this).setTitle(room.title).setMessage("Host: "+room.name+"\n"+(room.access.equals("approval")?"Host approval required":"Open room")
-                +(room.seats>0?"\n"+room.available+" / "+room.seats+" seats available":"")+"\n\nRoom joining is not available in this development build.")
-                .setPositiveButton("Close",null).show();
+                +(room.seats>0?"\n"+room.available+" / "+room.seats+" seats available":""))
+                .setPositiveButton("Open room",(d,w)->startActivity(new Intent(this,LobbyRoomActivity.class).setData(android.net.Uri.parse(LobbyLink.create(target.owner,target.id)))))
+                .setNegativeButton("Close",null).show();
         detail.setOnDismissListener(d->{selected="";detail=null;});
     }
     private void dismissDetail(){if(detail!=null)detail.dismiss();selected="";}

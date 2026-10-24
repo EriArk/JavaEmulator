@@ -70,6 +70,10 @@ public final class LobbySession {
     }
     public UUID room() { checkThread(); return room; }
     public long generation() { checkThread(); return generation; }
+    public Game game() { checkThread(); return game; }
+    public boolean isPrepared(String peer) { checkThread(); Member m=members.get(peer);return m!=null&&m.prepared; }
+    public boolean isReady(String peer) { checkThread(); Member m=members.get(peer);return m!=null&&m.ready; }
+    public boolean isConnected(String peer) { checkThread(); Member m=members.get(peer);return m!=null&&m.connected; }
     public List<String> members() { checkThread(); return Collections.unmodifiableList(new ArrayList<>(members.keySet())); }
 
     /** The admission/invitation layer has already verified the request and host approval. */

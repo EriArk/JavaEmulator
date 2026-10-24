@@ -1,10 +1,11 @@
 # Multiplayer: Lobby Lite Implementation
 
-Status: **unreleased account/chats/friends UI and foundation**, 2026-10-24. Parent [#33](https://github.com/EriArk/JavaEmulator/issues/33).
+Status: **unreleased account/chats/friends, directory and room workflow**, 2026-10-24. Parent [#33](https://github.com/EriArk/JavaEmulator/issues/33).
 The public 0.5.0 Beta 1 APK has not changed. The new [Fluxer account screen](FLUXER_ACCOUNT.md)
 and [private text chats](FLUXER_CHATS.md) / [friends and requests](FLUXER_FRIENDS.md) are reachable in development builds;
-real authenticated exchange still needs acceptance. The lobby/transport components are not yet
-connected to it or a running MIDlet. Do not advertise online multiplayer, virtual
+real authenticated exchange still needs acceptance. [Room metadata and admission](LOBBY_ROOMS.md)
+now connect to account/UI/DM delivery; game transport and running MIDlets do not.
+Do not advertise online multiplayer, virtual
 Bluetooth discovery or cross-play as available. No new server or bot was deployed.
 
 ## Reuse TrainerOS Behavior
@@ -148,9 +149,10 @@ screenshots are represented by this internal checkpoint.
    No password collection, second identity system or single-player login gate.
    Bind authenticated signaling, provider-confirmed group-chat access and manual
    friendship changes to temporary-contact ownership before enabling lobby cleanup.
-2. The [directory reader and automatic community access](LOBBY_DIRECTORY.md) are
-   implemented; the shared v2 service is an undeployed PR. Complete own room/
-   invitations and compact room/Ready/Keep UI. Show **only AbyssME-compatible** product/runtime/mode/protocol advertisements;
+2. The [directory reader and automatic community access](LOBBY_DIRECTORY.md) and
+   [room/invitation workflow](LOBBY_ROOMS.md) are implemented; shared v2/results are
+   an undeployed PR. Complete live acceptance, deployment and Keep/contact binding.
+   Show **only AbyssME-compatible** product/runtime/mode/protocol advertisements;
    never mix unrelated TrainerOS rooms. A compatible room whose game is not yet
    installed stays visible with preparation required. Invite-only rooms remain private.
    Reuse the existing directory/bot, validate ownership/TTL/revision, and coordinate

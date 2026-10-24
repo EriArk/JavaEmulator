@@ -1,5 +1,9 @@
 # Compatible Lobby Directory (Unreleased)
 
+The later [room workflow checkpoint](LOBBY_ROOMS.md) adds room admission, links and
+the publisher/result contract. Counts and capture evidence below describe the
+original directory-only checkpoint, not the newer room APK.
+
 2026-10-24. Native Android browsing and automatic community admission are source
 implementation, not a public APK update or playable online multiplayer.
 
