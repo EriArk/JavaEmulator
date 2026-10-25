@@ -10,6 +10,26 @@ stated otherwise. **Experimental** in older checkpoints means local/private
 combined builds; released experimental features are explicitly identified.
 **Released** means an actual GitHub release asset.
 
+## 2026-10-25 - Bluetooth Peer Bridge and Room Preparation (Unreleased)
+
+- Connect virtual Java Bluetooth to the encrypted peer transport: device/service
+  discovery, custom attributes, independent RFCOMM streams and L2CAP packets.
+  Add bounded receive credits so a slow game reader does not cause unbounded buffering.
+- Close blocked operations on disconnect, reject stale stream identities and
+  invalid metadata, and distinguish normal stream EOF from a failed peer session.
+- Bind network preparation to the host's current admitted room/game/attempt and
+  explicitly verified local content. Only a successful peer handshake can mark
+  Prepared; Ready stays manual. Fence old callbacks and revoke stale readiness.
+- Verify actual Java Bluetooth APIs between Retroid and an emulator through real
+  Fluxer signaling, in both host roles: 256 KiB stream echo, custom service data,
+  L2CAP negotiation, truncation and empty packets. Fix orderly-close/flush behavior
+  and initial service-attribute preservation during this implementation.
+- Pass 353 JVM tests and 50 focused Android checks on each target. Keep production
+  capabilities disabled: the separate `:midlet` process still needs an IPC bridge,
+  verified game selection, coordinated launch and return handling before real matches.
+  Debug installs only; no public release or upload.
+  [Exact evidence, artifacts and limits](docs/BLUETOOTH_PEER_BRIDGE.md).
+
 ## 2026-10-25 - Android Secure Peer Transport (Unreleased)
 
 - Add an Android-native encrypted peer channel using pinned libdatachannel and

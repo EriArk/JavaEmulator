@@ -2,6 +2,7 @@
 package ru.playsoftware.j2meloader.multiplayer;
 
 import com.google.gson.*;
+import io.github.eriark.abyssme.peer.PeerBinding;
 import java.util.*;
 import java.util.function.LongSupplier;
 
@@ -21,6 +22,8 @@ public final class LobbyRoom {
     private String host="",room="",access="private",probe="",hostBoot="",notice="Create a room or accept an invitation.";
     private JsonObject remote=new JsonObject();
     private long serial,revision=1,lastHost,nextBeat,joiningAt;
+    private long peerGeneration;
+    private String peerAttempt="";
     private boolean active=true;
     private final Map<String,Long> replay=new LinkedHashMap<>(),seen=new HashMap<>();
     private final Map<String,String> peerBoots=new HashMap<>(),requests=new LinkedHashMap<>();
@@ -39,6 +42,20 @@ public final class LobbyRoom {
     public Map<String,String> requests(){return Collections.unmodifiableMap(new LinkedHashMap<>(requests));}
     public List<JsonObject> invitations(){List<JsonObject> out=new ArrayList<>();for(JsonObject i:invitations.values())out.add(i.deepCopy());return out;}
     public JsonObject snapshot(){return hosting()?hostState():remote.deepCopy();}
+    /** Authenticated admitted room state only. Never construct authority from an ICE offer. */
+    public PeerBinding peerBinding(){
+        if(!available()||!joined())return null;
+        JsonObject state=snapshot();LobbySession.Game game=game(object(state,"game"));
+        if(!peerGame(game)||!capabilities.contains(capability(game))||!uuid(text(state,"peerAttempt")))return null;
+        List<String> seats=new ArrayList<>();
+        JsonArray members=state.getAsJsonArray("members");
+        if(members==null||members.size()!=2)return null;
+        for(JsonElement element:members){JsonObject m=element.getAsJsonObject();if(!bool(m,"connected"))return null;seats.add(text(m,"id"));}
+        if(!seats.get(0).equals(host)||!seats.contains(self))return null;
+        try{return new PeerBinding(UUID.fromString(room),number(state,"generation"),UUID.fromString(text(state,"peerAttempt")),game.engine,game.contentHash,game.mode,game.adapterVersion,seats);}
+        catch(IllegalArgumentException invalid){return null;}
+    }
+    private static boolean peerGame(LobbySession.Game game){return game!=null&&game.players==2&&game.engine.equals("java")&&game.mode.equals("bluetooth")&&game.adapterVersion.equals("1");}
     public boolean available(){return active&&(hosting()||joined()&&clock.getAsLong()-lastHost<45);}
     private void emit(){changed.run();}
     private void info(String text){notice=text;emit();}
@@ -89,7 +106,7 @@ public final class LobbyRoom {
         }else if(!room.isEmpty())send(host,"leave",new JsonObject(),room,"");
         clear();info("You left the room.");
     }
-    private void clear(){session=null;room=host=hostBoot=probe="";remote=new JsonObject();offers.clear();requests.clear();seen.clear();peerBoots.clear();joiningAt=0;}
+    private void clear(){session=null;room=host=hostBoot=probe=peerAttempt="";peerGeneration=0;remote=new JsonObject();offers.clear();requests.clear();seen.clear();peerBoots.clear();joiningAt=0;}
     public void deliveryFailed(String peer){
         deliveryFailed(peer,"Could not reach this player. Check Fluxer access and refresh.");
     }
@@ -200,7 +217,12 @@ public final class LobbyRoom {
     private JsonObject hostState(){
         JsonObject s=new JsonObject();s.addProperty("id",room);s.addProperty("host",self);s.addProperty("access",access);s.addProperty("revision",revision);s.addProperty("generation",session.generation());
         JsonArray members=new JsonArray();for(String peer:session.members()){JsonObject m=new JsonObject();m.addProperty("id",peer);m.addProperty("prepared",session.isPrepared(peer));m.addProperty("ready",session.isReady(peer));m.addProperty("connected",session.isConnected(peer));members.add(m);}s.add("members",members);
-        if(session.game()!=null)s.add("game",game(session.game()));return s;
+        if(session.game()!=null)s.add("game",game(session.game()));
+        if(peerGame(session.game())&&session.members().size()==2){
+            if(peerGeneration!=session.generation()){peerGeneration=session.generation();peerAttempt=uuid();}
+            s.addProperty("peerAttempt",peerAttempt);
+        }
+        return s;
     }
     private void send(String peer,String kind,JsonObject data,String id,String reply){
         JsonObject p=new JsonObject();p.addProperty("ns","org.abyssme.lobby");p.addProperty("v",1);p.addProperty("lobby",id);p.addProperty("boot",boot);p.addProperty("serial",++serial);p.addProperty("expires",clock.getAsLong()+90);p.addProperty("kind",kind);p.addProperty("reply",reply);p.add("data",data.deepCopy());sender.send(peer,p);
@@ -213,7 +235,8 @@ public final class LobbyRoom {
             for(String f:new String[]{"prepared","ready","connected"})if(!m.has(f)||!m.get(f).isJsonPrimitive()||!m.getAsJsonPrimitive(f).isBoolean())return false;
             if(bool(m,"ready")&&(!bool(m,"prepared")||!bool(m,"connected")))return false;
         }
-        return ids.contains(host)&&ids.contains(self)&&(!s.has("game")||wireGame(game(object(s,"game"))));
+        return ids.contains(host)&&ids.contains(self)&&(!s.has("game")||wireGame(game(object(s,"game"))))
+                &&(!s.has("peerAttempt")||uuid(text(s,"peerAttempt"))&&ids.size()==2&&peerGame(game(object(s,"game"))));
     }
     // Keep a full 16-player snapshot within one provider message, including its envelope.
     private static boolean wireGame(LobbySession.Game g){return g!=null&&g.players<=16&&g.engine.length()<=32&&g.mode.length()<=32&&g.adapterVersion.length()<=32;}

@@ -35,12 +35,14 @@ public final class LobbyRoomModel extends AndroidViewModel {
     private Object manualLease;
     private long contactRetryAt;
     private LobbyRoom room;
+    private LobbyPeerCoordinator gameNetwork;
     private LobbyPublisher publisher;
     private String token,self="",authNotice="Sign in to Fluxer to use rooms.";
     private boolean verifying,verified,closed;
     private int viewers;
     private long epoch,nextCredentials;
     private final ScheduledFuture<?> timer;
+    private ScheduledFuture<?> networkTimer;
     private final Application.ActivityLifecycleCallbacks activityObserver=new Application.ActivityLifecycleCallbacks(){
         private final Set<android.app.Activity> tracked=Collections.newSetFromMap(new IdentityHashMap<>());
         public void onActivityStarted(android.app.Activity a){if(!(a instanceof LobbyRoomActivity)&&tracked.add(a))resume();}
@@ -67,6 +69,7 @@ public final class LobbyRoomModel extends AndroidViewModel {
                 if(publisher!=null)publisher.receive(peer,content);
                 if(room!=null&&content.startsWith(PREFIX)&&content.endsWith("\n```"))try{room.receive(peer,JsonParser.parseString(content.substring(PREFIX.length(),content.length()-4)).getAsJsonObject());}catch(RuntimeException ignored){}
                 if(contacts!=null&&content.startsWith(LobbyMailbox.CONTACT_PREFIX)&&content.endsWith("\n```"))try{contactContext();contacts.receive(peer,JsonParser.parseString(content.substring(LobbyMailbox.CONTACT_PREFIX.length(),content.length()-4)).getAsJsonObject());publish();}catch(RuntimeException ignored){}
+                if(gameNetwork!=null&&content.startsWith(io.github.eriark.abyssme.peer.PeerSignals.PREFIX))gameNetwork.receive(peer,content);
             }
             public void changed(){publish();}
             public void failed(String peer,String reason){if(room!=null&&!peer.equals(LobbyDirectory.BOT))room.deliveryFailed(peer,reason);publish();}
@@ -95,6 +98,11 @@ public final class LobbyRoomModel extends AndroidViewModel {
             room=new LobbyRoom(self,()->System.currentTimeMillis()/1000,capabilities,(peer,p)->mailbox.send(peer,PREFIX+p+"\n```",
                     text(p,"kind").equals("state")&&text(p,"reply").isEmpty()?text(p,"boot")+"/"+text(p,"lobby"):""),this::roomChanged);
             room.active(viewers>0);
+            gameNetwork=new LobbyPeerCoordinator(self,room,LobbyPeerCoordinator.NATIVE,new LobbyPeerCoordinator.Events(){
+                public boolean signal(String peer,List<String> fragments){return mailbox.sendPeerSignals(peer,fragments);}
+                public void prepared(javax.bluetooth.VirtualBluetooth adapter){publish();}
+                public void closed(String reason){authNotice=reason;publish();}
+            });
             publisher=new LobbyPublisher(self,publicationStore.apply(self),()->System.currentTimeMillis()/1000,c->mailbox.send(LobbyDirectory.BOT,c),this::publish);
             contacts=new TemporaryContacts(self,journals.apply(self),(method,path,body,done)->{
                 if(SystemClock.elapsedRealtime()<contactRetryAt){done.accept(new TemporaryContacts.Reply(429,null,(int)((contactRetryAt-SystemClock.elapsedRealtime())/1000+1)));return;}
@@ -111,9 +119,10 @@ public final class LobbyRoomModel extends AndroidViewModel {
             publish();mailbox.refresh();
         });
     }
-    private void reset(String token){++epoch;if(contacts!=null)contacts.close();contacts=null;manualLease=null;contactRetryAt=0;this.token=token;self="";verified=verifying=false;room=null;publisher=null;mailbox.configure(null,"");authNotice="Sign in to Fluxer to use rooms.";}
+    private void reset(String token){++epoch;if(networkTimer!=null)networkTimer.cancel(false);networkTimer=null;if(gameNetwork!=null)gameNetwork.close();gameNetwork=null;if(contacts!=null)contacts.close();contacts=null;manualLease=null;contactRetryAt=0;this.token=token;self="";verified=verifying=false;room=null;publisher=null;mailbox.configure(null,"");authNotice="Sign in to Fluxer to use rooms.";}
     private void roomChanged(){
         if(room==null)return;
+        if(gameNetwork!=null)gameNetwork.refresh();
         contactContext();watch();
         if(publisher!=null)publisher.desired(room.hosting()?room.room():"",room.hosting()?room.access():"private");publish();
     }
@@ -145,6 +154,16 @@ public final class LobbyRoomModel extends AndroidViewModel {
         s.publication=publisher==null?"":publisher.status();state.postValue(s);
     }
     void action(String account,Consumer<LobbyRoom> action){owner.execute(()->{if(!closed&&verified&&self.equals(account)&&room!=null){authNotice="";action.accept(room);}});}
+    /** Internal runtime hook: the caller has verified the local content hash and installed adapter.
+     * No UI/directory action calls this yet; production capabilities intentionally remain empty. */
+    void prepareGameNetwork(String account,LobbySession.Game verifiedLocalGame){owner.execute(()->{
+        if(!closed&&verified&&self.equals(account)&&gameNetwork!=null){
+            if(verifiedLocalGame!=null&&!capabilities.contains(capability(verifiedLocalGame)))return;
+            gameNetwork.localContent(verifiedLocalGame);
+            if(networkTimer!=null)networkTimer.cancel(false);networkTimer=null;
+            if(verifiedLocalGame!=null)networkTimer=owner.scheduleWithFixedDelay(()->{if(!closed&&gameNetwork!=null)gameNetwork.tick();},20,20,TimeUnit.MILLISECONDS);
+        }
+    });}
     void keep(String account,String peer){owner.execute(()->{if(!closed&&verified&&self.equals(account)&&contacts!=null){contacts.keep(peer);publish();}});}
     void manual(String account,String peer,java.util.function.BiConsumer<Runnable,String> done){owner.execute(()->{
         if(closed||!verified||!self.equals(account)||contacts==null){done.accept(null,"Checking lobby contacts. Refresh and try again.");return;}

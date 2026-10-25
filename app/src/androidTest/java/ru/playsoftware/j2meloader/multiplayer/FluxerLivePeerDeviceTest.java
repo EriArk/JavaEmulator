@@ -21,6 +21,12 @@ import static ru.playsoftware.j2meloader.multiplayer.LobbyRoom.*;
  * or a Java game. Does not change friendships, publish rooms or export credentials. */
 public class FluxerLivePeerDeviceTest {
     @Test public void authenticatedSignalsThenDirectEncryptedPackets() throws Exception {
+        run(false);
+    }
+    @Test public void authenticatedSignalsThenBluetoothGameApis() throws Exception {
+        run(true);
+    }
+    private void run(boolean bluetooth) throws Exception {
         Bundle args=InstrumentationRegistry.getArguments();
         String role=args.getString("peerRole",""), remote=args.getString("peerAccount","");
         String room=args.getString("peerRoom",""), attempt=args.getString("peerAttempt","");
@@ -44,6 +50,7 @@ public class FluxerLivePeerDeviceTest {
         PeerBinding binding=new PeerBinding(UUID.fromString(room),1,UUID.fromString(attempt),"java",
                 "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa","bt-fixture","1",
                 host?Arrays.asList(self,remote):Arrays.asList(remote,self));
+        if(bluetooth){LiveBluetoothScenario.run(binding,self,remote,credential,host);return;}
         ScheduledThreadPoolExecutor owner=new ScheduledThreadPoolExecutor(1);
         owner.setExecuteExistingDelayedTasksAfterShutdownPolicy(false);
         FluxerHttpTransport http=new FluxerHttpTransport(owner);

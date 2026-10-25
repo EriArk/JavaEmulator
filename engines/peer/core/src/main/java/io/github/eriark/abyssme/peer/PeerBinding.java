@@ -43,6 +43,7 @@ public final class PeerBinding {
         return seats.get(self.equals(seats.get(0)) ? 1 : 0);
     }
     public boolean host(String self) { other(self); return seats.get(0).equals(self); }
+    public boolean sameSession(PeerBinding other) { return other != null && MessageDigest.isEqual(digest, other.digest); }
     byte[] digest() { return digest.clone(); }
     boolean matches(byte[] value) { return MessageDigest.isEqual(digest, value); }
     private static boolean token(String s) { return s != null && s.matches("[A-Za-z0-9._-]{1,64}"); }

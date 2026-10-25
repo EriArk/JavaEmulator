@@ -13,7 +13,10 @@ API/IO checks, not a production peer transport or a real game match.
 The subsequent [secure peer checkpoint](SECURE_PEER_TRANSPORT.md) adds Android
 ICE/DTLS/SCTP, authenticated fragmented signaling and a real Retroid-to-emulator
 packet exchange. It does not yet bind the room UI or game Bluetooth backend to
-that transport. Production game capabilities remain disabled.
+that transport at that checkpoint. The later [Bluetooth peer bridge](BLUETOOTH_PEER_BRIDGE.md)
+connects discovery, RFCOMM/L2CAP and room preparation to that core, with live game-API
+exchange in both host roles. Production game capabilities remain disabled until
+the separate MIDlet process and actual launch/return flow are connected.
 
 ## Reuse TrainerOS Behavior
 
@@ -153,15 +156,15 @@ screenshots are represented by this internal checkpoint.
 
 ## Next Implementation Order
 
-1. Attach the implemented secure peer core to the virtual Bluetooth adapter:
-   service discovery/metadata, logical stream multiplexing, bounded flow control
-   and deterministic shutdown. Carry the admitted room/account/game/attempt binding
-   through the production coordinator, not only a test fixture. Never carry
-   gameplay packets in Fluxer DMs. The secure channel now has its separate live
-   evidence; this adapter/coordinator bridge is still missing.
-2. Connect exact local game preparation, explicit Ready, synchronized launch and
-   return to the same room. Keep capabilities disabled until the actual runtime
-   and transport implement the advertised mode, not only its tests.
+1. Implement the non-exported, attempt-bound IPC bridge from the main-process room
+   owner to `MicroActivity` in `:midlet`. The secure Bluetooth backend and the
+   preparation coordinator now exist; a static adapter in the social process
+   cannot serve the separate game process. Handle cancellation/process death
+   before allowing the old MIDlet to fall back to another backend.
+2. Connect verified local game selection, explicit Ready, synchronized launch and
+   return to the same room. The internal local-content hook has no UI/runtime
+   caller yet. Keep capabilities disabled until the actual runtime and transport
+   implement the advertised mode, not only their API fixtures.
 3. Demonstrate discovery and a real two-device Java match, then disconnect/return
    and a separate-network check. Symbian/Mophun require separate capability proof.
 

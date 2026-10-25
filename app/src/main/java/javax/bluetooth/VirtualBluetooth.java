@@ -38,6 +38,7 @@ public final class VirtualBluetooth implements Closeable {
      */
     public interface Backend extends Closeable {
         List<Peer> peers() throws IOException;
+        default List<Peer> inquiryPeers() throws IOException { return peers(); }
         List<Service> services(String address) throws IOException;
         void discoverable(int mode) throws IOException;
         Listener listen(Service service) throws IOException;
@@ -79,6 +80,11 @@ public final class VirtualBluetooth implements Closeable {
             this.name = name; this.packets = packets; this.port = port;
             this.receiveMtu = receiveMtu; this.minimumTransmitMtu = minimumTransmitMtu;
             attributes = record == null ? new LinkedHashMap<>() : VirtualServiceAttributes.snapshot(record);
+        }
+        Map<Integer, DataElement> attributeSnapshot() {
+            Map<Integer, DataElement> copy = new LinkedHashMap<>();
+            for (Map.Entry<Integer, DataElement> e : attributes.entrySet()) copy.put(e.getKey(), VirtualServiceAttributes.copy(e.getValue()));
+            return copy;
         }
     }
 
@@ -152,7 +158,10 @@ public final class VirtualBluetooth implements Closeable {
         throw new IOException("Peer is not in this Bluetooth session");
     }
     private List<Peer> peers() throws IOException {
-        check(); List<Peer> peers = backend.peers(); check();
+        return peers(false);
+    }
+    private List<Peer> peers(boolean inquiry) throws IOException {
+        check(); List<Peer> peers = inquiry ? backend.inquiryPeers() : backend.peers(); check();
         if (peers == null || peers.size() > 31) throw new IOException("Invalid peer list");
         Set<String> seen = new HashSet<>();
         for (Peer p : peers) if (p == null || p.address.equals(local.address) || !seen.add(p.address))
@@ -173,7 +182,7 @@ public final class VirtualBluetooth implements Closeable {
         worker.execute(() -> {
             int result = DiscoveryListener.INQUIRY_COMPLETED;
             try {
-                for (Peer peer : peers()) {
+                for (Peer peer : peers(true)) {
                     synchronized (operation) {
                         if (closed || operation.done) return;
                         RemoteDevice device = remote(peer.address);

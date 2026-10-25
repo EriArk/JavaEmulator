@@ -3,6 +3,10 @@
 Unreleased work, 2026-10-25. This page describes transport, not a playable online
 game or a public APK. The existing public release has not been changed here.
 
+Historical checkpoint: the later [Bluetooth bridge](BLUETOOTH_PEER_BRIDGE.md)
+adds the backend multiplexer and room preparation. This page retains its own
+artifact hashes and test evidence; it is not the latest local build record.
+
 ## Implemented
 
 - Native Android libdatachannel + Mbed TLS backend, data-only ICE/DTLS/SCTP.
