@@ -10,6 +10,22 @@ stated otherwise. **Experimental** in older checkpoints means local/private
 combined builds; released experimental features are explicitly identified.
 **Released** means an actual GitHub release asset.
 
+## 2026-10-25 - Bluetooth Game Return and Repeat Sessions (Unreleased, Debug)
+
+- Fix transport overflow from many small Bluetooth writes. Coalesce adjacent
+  stream data without requiring flush, preserve ordering and wait for queue
+  capacity while keeping space for control messages.
+- Fix normal game exit creating a replacement connection during cleanup.
+  Require fresh preparation and Ready for another session in the same room.
+  Correct a late callback that incorrectly told returning players to rejoin.
+- Connect the unmodified BT Biplanes twice between Retroid and an emulator,
+  returning normally after host exit and then guest exit. No room recreation or
+  app restart between sessions. This does not establish complete gameplay,
+  audio/save compatibility or correct rendering; graphical artifacts remain.
+- Pass 381 JVM checks and 65 Android checks per target on the final Debug
+  source/artifact. Installed hashes match. Keep Release capabilities disabled;
+  no new public APK, release or upload. [Evidence](docs/BLUETOOTH_GAME_CHECK.md).
+
 ## 2026-10-25 - Room-to-Game Workflow (Unreleased, Debug)
 
 - Connect installed Java game selection to the room. Verify actual files and

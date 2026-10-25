@@ -161,9 +161,10 @@ The [Debug room-to-game workflow](ROOM_GAME_LAUNCH.md) now connects verified
 installed-game selection, the attempt-bound IPC port, explicit Ready, host
 launch, process acknowledgements and return. Release capabilities remain empty.
 
-1. Exercise the complete path with a real Bluetooth multiplayer Java game,
-   including discovery, gameplay, normal exit and another match in the same room.
-   Startup/return with a single-player MIDlet is not match compatibility proof.
+1. Extend the [BT Biplanes connection/return check](BLUETOOTH_GAME_CHECK.md) to
+   sustained synchronized gameplay and another Bluetooth game. Two sessions in
+   one room, discovery and normal host/guest exit now pass on Retroid/emulator;
+   graphical artifacts and complete-match acceptance remain open.
 2. Improve same-edition lookup and first-run setup from the room; support a
    specifically agreed MIDlet entry for multi-application archives.
 3. Check separate networks/NAT and decide on relay provisioning before enabling

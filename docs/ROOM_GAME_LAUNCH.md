@@ -3,6 +3,11 @@
 Unreleased checkpoint, 2026-10-25. Builds on the
 [isolated process bridge](MIDLET_NETWORK_BRIDGE.md).
 
+The later [Bluetooth game checkpoint](BLUETOOTH_GAME_CHECK.md) adds small-write
+backpressure and normal-exit/repeat-session repairs, with two real-game
+connection cycles on Retroid/emulator. The startup-only results below remain
+the evidence for this earlier implementation stage, not its current test limit.
+
 ## Implemented
 
 - Debug rooms can select an installed Java game. Selection reads the actual

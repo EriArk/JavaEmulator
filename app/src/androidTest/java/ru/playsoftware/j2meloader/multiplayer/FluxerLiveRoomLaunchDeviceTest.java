@@ -20,6 +20,9 @@ public class FluxerLiveRoomLaunchDeviceTest {
         Bundle args=InstrumentationRegistry.getArguments();String role=args.getString("peerRole",""),peer=args.getString("peerAccount",""),title=args.getString("launchGame","");
         Assume.assumeTrue("Explicit paired-device run required",(role.equals("host")||role.equals("guest"))&&LobbyDirectory.id(peer)&&!title.isEmpty());
         boolean host=role.equals("host");
+        boolean normalExit="true".equals(args.getString("normalExit"));
+        int rounds=Integer.parseInt(args.getString("launchRounds","1"));
+        assertTrue(rounds>=1&&rounds<=3);
         Application app=(Application)InstrumentationRegistry.getInstrumentation().getTargetContext().getApplicationContext();
         String token=new FluxerCredentialStore(app).read();assertNotNull(token);
         FluxerAuth.Reply me=FluxerHttpTransport.exchange("GET","/v1/users/@me",null,token);
@@ -42,19 +45,29 @@ public class FluxerLiveRoomLaunchDeviceTest {
             }
             await(model,s->s.joined&&s.snapshot.getAsJsonArray("members").size()==2,90000);
             String room=model.state.getValue().room;report(role+": admitted");
-            if(!host)await(model,s->s.snapshot.has("game"),90000);
+            for(int round=1;round<=rounds;round++){
+            long previousGeneration=number(model.state.getValue().snapshot,"generation");
+            boolean repeat=round>1;
+            if(!host)await(model,s->s.snapshot.has("game")&&(!repeat||number(s.snapshot,"generation")>previousGeneration),90000);
             model.chooseGame(self,selected);
             await(model,s->bool(member(s.snapshot,self),"prepared"),120000);report(role+": verified local game and encrypted peer prepared");
             model.action(self,r->r.ready(true));
             if(host){await(model,s->bool(member(s.snapshot,self),"ready")&&bool(member(s.snapshot,peer),"ready"),90000);capture(app,role+"-ready.png");model.action(self,LobbyRoom::start);}
             await(model,s->bool(object(s.snapshot,"launch"),"running"),45000);
-            awaitProcess(app,15000);Thread.sleep(4000);capture(app,role+"-midlet.png");report(role+": both processes attached; MIDlet visible");
-            if(host){Thread.sleep(6000);killGame(app);}
-            await(model,s->s.room.equals(room)&&!s.snapshot.has("launch"),45000);
-            if(!host)killGame(app);
+            awaitProcess(app,15000);Thread.sleep(4000);capture(app,role+"-midlet-"+round+".png");report(role+": round "+round+" both processes attached; MIDlet visible");
+            if(!normalExit&&host){Thread.sleep(6000);killGame(app);}
+            // Optional manual gameplay window: external input drives the unmodified game.
+            // Returning to the room is lifecycle evidence, not an automatic match assertion.
+            await(model,s->s.room.equals(room)&&!s.snapshot.has("launch"),normalExit?300000:45000);
+            if(!normalExit&&!host)killGame(app);
+            long exitDeadline=SystemClock.elapsedRealtime()+15000;
+            while(process(app)!=0&&SystemClock.elapsedRealtime()<exitDeadline)Thread.sleep(100);
+            assertEquals("Game process must exit",0,process(app));
             await(model,s->!bool(member(s.snapshot,self),"ready")&&!bool(member(s.snapshot,peer),"ready"),10000);
             assertFalse("Returning players must not be told to rejoin an intact room",model.state.getValue().status.contains("Rejoin"));
-            Thread.sleep(1500);capture(app,role+"-returned.png");report(role+": process death returned both seats with fresh readiness");
+            Thread.sleep(1500);capture(app,role+"-returned-"+round+".png");report(role+": round "+round+" returned both seats with fresh readiness");
+            if(round<rounds)Thread.sleep(host?12000:1000);
+            }
             if(host)await(model,s->s.snapshot.has("members")&&s.snapshot.getAsJsonArray("members").size()==1,45000);
             model.action(self,LobbyRoom::leave);await(model,s->s.room.isEmpty(),5000);Thread.sleep(3000);owned=false;
         }finally{

@@ -18,10 +18,23 @@ public final class PeerBluetoothBackend implements VirtualBluetooth.Backend {
     private final Map<Integer, Server> servers = new LinkedHashMap<>();
     private final Map<Integer, VirtualBluetooth.Service> services = new LinkedHashMap<>();
     private final Map<Integer, Pipe> pipes = new HashMap<>();
-    private final ArrayDeque<byte[]> outbound = new ArrayDeque<>();
+    private final ArrayDeque<Frame> outbound = new ArrayDeque<>();
     private int queued, nextId, lastRemote, opens, query, barrier, visible;
     private boolean closed;
     private IOException failure;
+
+    private static final class Frame {
+        byte[] bytes;
+        int length;
+        final int kind, id;
+        Frame(byte[] bytes,int kind,int id) { this.bytes=bytes;length=bytes.length;this.kind=kind;this.id=id; }
+        boolean accepts(int id,int payload) { return kind==DATA&&this.id==id&&length+payload<=CHUNK+7; }
+        void append(byte[] next) {
+            int payload=next.length-7;
+            if(bytes.length<length+payload)bytes=Arrays.copyOf(bytes,Math.min(CHUNK+7,Math.max(length+payload,bytes.length*2)));
+            System.arraycopy(next,7,bytes,length,payload);length+=payload;
+        }
+    }
 
     public PeerBluetoothBackend(VirtualBluetooth.Peer remote, boolean host) {
         this.remote = Objects.requireNonNull(remote); parity = host ? 1 : 0; nextId = host ? 1 : 2;
@@ -60,7 +73,9 @@ public final class PeerBluetoothBackend implements VirtualBluetooth.Backend {
     }
     /** Only the secure transport owner calls this, after its encrypted identity handshake. */
     public synchronized byte[] pollOutbound() throws IOException {
-        check(); byte[] frame = outbound.poll(); if (frame != null) queued -= frame.length; return frame;
+        check(); Frame frame = outbound.poll(); if(frame==null)return null;
+        queued-=frame.length;notifyAll();
+        return frame.bytes.length==frame.length?frame.bytes:Arrays.copyOf(frame.bytes,frame.length);
     }
     public synchronized void receive(byte[] frame) throws IOException {
         check();
@@ -157,10 +172,21 @@ public final class PeerBluetoothBackend implements VirtualBluetooth.Backend {
         out.writeShort(0xAB01); out.writeByte(kind); out.writeInt(id); if (encoder != null) encoder.write(out);
         byte[] frame = bytes.toByteArray();
         if (frame.length > MAX_WIRE) throw new IOException("Bluetooth service metadata is too large");
+        Frame tail=outbound.peekLast();
+        // Merge only adjacent writes on the same ordered stream. Polling still sends
+        // bytes immediately, even when a game never calls flush().
+        if(kind==DATA&&tail!=null&&tail.accepts(id,frame.length-7)){
+            tail.append(frame);queued+=frame.length-7;return;
+        }
         if (outbound.size() >= 256 || queued + frame.length > MAX_QUEUE) {
             IOException e = new IOException("Bluetooth transport queue is full"); abort(e); throw e;
         }
-        outbound.add(frame); queued += frame.length;
+        outbound.add(new Frame(frame,kind,id)); queued += frame.length;
+    }
+    private boolean dataCapacity(int id,int payload) {
+        Frame tail=outbound.peekLast();
+        return queued+payload+7<=MAX_QUEUE-65536
+                &&(outbound.size()<192||tail!=null&&tail.accepts(id,payload));
     }
     private void peer(String address) throws IOException { check(); if (!remote.address.equalsIgnoreCase(address)) throw new IOException("Peer not admitted"); }
     private static int key(int port, boolean packets) { return port | (packets ? 65536 : 0); }
@@ -244,8 +270,15 @@ public final class PeerBluetoothBackend implements VirtualBluetooth.Backend {
                         try {
                             writable(); long until = deadline();
                             while (len > 0) {
-                                while (credit == 0) { writable(); await(until); }
-                                writable(); int n = Math.min(len, Math.min(CHUNK, credit)), start = off;
+                                // A local burst is backpressure, not a broken peer. Reserve
+                                // space for discovery, close and receive-credit controls.
+                                int count;
+                                for(;;){
+                                    writable();count=Math.min(len,Math.min(CHUNK,credit));
+                                    if(count>0&&dataCapacity(id,count))break;
+                                    await(until);
+                                }
+                                int n=count,start=off;
                                 emit(DATA, id, out -> out.write(b, start, n)); credit -= n; off += n; len -= n; until = deadline();
                             }
                         } catch (IOException e) {

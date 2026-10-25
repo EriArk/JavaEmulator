@@ -74,6 +74,41 @@ public class PeerBluetoothBackendTest {
         byte[] result=new byte[bytes.length];new DataInputStream(in).readFully(result);writing.get(5,TimeUnit.SECONDS);
         assertArrayEquals(bytes,result);assertNull(wireError.get());
     }
+    @Test public void byteWritesShareFramesWithoutWaitingForFlush()throws Exception {
+        StreamConnection[] pair=streams();
+        wire.shutdownNow();assertTrue(wire.awaitTermination(5,TimeUnit.SECONDS));
+        transfer(a,b);transfer(b,a);
+        OutputStream out=pair[1].openOutputStream();
+        for(int i=0;i<4096;i++)out.write(i);
+        byte[] frame=b.pollOutbound();assertNotNull(frame);
+        assertEquals(4096+7,frame.length);assertNull(b.pollOutbound());
+        a.receive(frame);
+        InputStream in=pair[0].openInputStream();
+        for(int i=0;i<4096;i++)assertEquals(i&255,in.read());
+    }
+    @Test public void sustainedByteWritesRespectCreditWithoutDisconnecting()throws Exception {
+        StreamConnection[] pair=streams();OutputStream out=pair[1].openOutputStream();
+        Future<?> writing=io.submit(()->{for(int i=0;i<WINDOW_PLUS;i++)out.write(i);return null;});
+        InputStream in=pair[0].openInputStream();
+        for(int i=0;i<WINDOW_PLUS;i++)assertEquals(i&255,in.read());
+        writing.get(10,TimeUnit.SECONDS);assertNull(wireError.get());
+    }
+    @Test public void alternatingStreamsWaitForQueueSpaceAndPreserveOrder()throws Exception {
+        VirtualBluetooth.Listener server=a.listen(service(false,672,48));
+        VirtualBluetooth.Channel first=b.connect(HOST,server.port(),false,672,48),inFirst=server.accept();
+        VirtualBluetooth.Channel second=b.connect(HOST,server.port(),false,672,48),inSecond=server.accept();
+        OutputStream one=first.output,two=second.output;
+        CountDownLatch paused=new CountDownLatch(1),resume=new CountDownLatch(1);
+        wire.submit(()->{paused.countDown();try{resume.await();}catch(InterruptedException e){Thread.currentThread().interrupt();}});
+        assertTrue(paused.await(5,TimeUnit.SECONDS));
+        Future<?> writing=io.submit(()->{for(int i=0;i<1024;i++){one.write(i);two.write(255-i);}return null;});
+        try{Thread.sleep(100);assertFalse("A full local queue must wait, not fail",writing.isDone());}
+        finally{resume.countDown();}
+        writing.get(10,TimeUnit.SECONDS);
+        InputStream inOne=inFirst.input,inTwo=inSecond.input;
+        for(int i=0;i<1024;i++){assertEquals(i&255,inOne.read());assertEquals((255-i)&255,inTwo.read());}
+        assertNull(wireError.get());
+    }
     @Test public void simultaneousOppositeDirectionStreamsStaySeparate()throws Exception {
         VirtualBluetooth.Listener one=a.listen(service(false,672,48)),two=b.listen(service(false,672,48));
         Future<VirtualBluetooth.Channel> first=io.submit(()->a.connect(GUEST,two.port(),false,672,48));

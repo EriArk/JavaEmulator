@@ -123,7 +123,7 @@ public final class LobbyRoomModel extends AndroidViewModel {
             gameNetwork=new LobbyPeerCoordinator(self,room,this::processLink,new LobbyPeerCoordinator.Events(){
                 public boolean signal(String peer,List<String> fragments){return mailbox.sendPeerSignals(peer,fragments);}
                 public void prepared(javax.bluetooth.VirtualBluetooth adapter){authNotice="";publish();}
-                public void closed(String reason){authNotice=runtimeAttempt.isEmpty()?reason:"Game connection ended. Prepare and press Ready again.";if(room!=null&&!runtimeAttempt.isEmpty())room.finish(runtimeAttempt);runtime();publish();}
+                public void closed(String reason){networkClosed(reason);}
             });
             publisher=new LobbyPublisher(self,publicationStore.apply(self),()->System.currentTimeMillis()/1000,c->mailbox.send(LobbyDirectory.BOT,c),this::publish);
             contacts=new TemporaryContacts(self,journals.apply(self),(method,path,body,done)->{
@@ -193,7 +193,7 @@ public final class LobbyRoomModel extends AndroidViewModel {
     void chooseGame(String account,NetworkGameCatalog.Entry entry){owner.execute(()->{
         if(closed||checkingGame||!verified||!self.equals(account)||room==null||!room.joined()||!room.launchAttempt().isEmpty()||!capabilities.contains("java/bluetooth/1"))return;
         long selection=++selectionEpoch;String selectedRoom=room.room();long generation=number(room.snapshot(),"generation");
-        checkingGame=true;authNotice="Checking installed game...";gameNetwork.localContent(null);publish();
+        checkingGame=true;returningUntil=0;authNotice="Checking installed game...";gameNetwork.localContent(null);publish();
         files.execute(()->{
             InstalledNetworkGame result=null;String error="";
             try{
@@ -233,25 +233,35 @@ public final class LobbyRoomModel extends AndroidViewModel {
         if(networkTimer!=null)networkTimer.cancel(false);
         networkTimer=owner.scheduleWithFixedDelay(()->{if(!closed&&gameNetwork!=null){gameNetwork.tick();runtime();}},20,20,TimeUnit.MILLISECONDS);
     }
+    private void networkClosed(String reason){
+        // Coordinator teardown can synchronously finish the room before this callback.
+        boolean returning=!runtimeAttempt.isEmpty()||returningUntil>SystemClock.elapsedRealtime();
+        runtime();
+        authNotice=returning?"Game connection ended. Prepare and press Ready again.":reason;
+        publish();
+    }
     private void clearRuntime(){
         // The remote process exits asynchronously. Keep terminal controls alive until the room resumes.
         if(launchTaken)returningUntil=SystemClock.elapsedRealtime()+15000;
         if(gameLease!=null)gameLease.close();gameLease=null;runtimeAttempt="";launchIntent=null;launchTaken=attachmentSent=false;
+        // A finished process consumed its verification/transport attempt. Revoke it
+        // before finish() broadcasts a new generation and re-enters roomChanged().
+        if(gameNetwork!=null)gameNetwork.localContent(null);
     }
     private void runtime(){
         if(runtimeUpdating)return;runtimeUpdating=true;
         try{
             String attempt=room==null?"":room.launchAttempt();
-            if(!runtimeAttempt.isEmpty()&&!runtimeAttempt.equals(attempt)){if(room!=null)room.finish(runtimeAttempt);clearRuntime();visibility();publish();}
+            if(!runtimeAttempt.isEmpty()&&!runtimeAttempt.equals(attempt)){String ended=runtimeAttempt;clearRuntime();if(room!=null)room.finish(ended);visibility();publish();}
             if(attempt.isEmpty())return;
-            if(gameLease==null||!gameLease.retain(self,room.peerBinding(),installed)){room.finish(attempt);clearRuntime();visibility();publish();return;}
+            if(gameLease==null||!gameLease.retain(self,room.peerBinding(),installed)){clearRuntime();room.finish(attempt);visibility();publish();return;}
             if(runtimeAttempt.isEmpty()){
                 try{launchIntent=GameNetworkService.offer(getApplication(),gameTitle,gameLease);runtimeAttempt=attempt;visibility();publish();}
-                catch(IOException e){room.finish(attempt);clearRuntime();authNotice="Could not start this game. Prepare it again.";visibility();publish();return;}
+                catch(IOException e){clearRuntime();room.finish(attempt);authNotice="Could not start this game. Prepare it again.";visibility();publish();return;}
             }
             if(gameLease.adapterReady()&&!attachmentSent){attachmentSent=true;room.attached(attempt);}
             if(room.running()&&gameLease.adapterReady())gameLease.release();
-        }catch(IOException e){if(room!=null)room.finish(runtimeAttempt);clearRuntime();visibility();publish();}
+        }catch(IOException e){String ended=runtimeAttempt;clearRuntime();if(room!=null)room.finish(ended);visibility();publish();}
         finally{runtimeUpdating=false;}
     }
     void launch(String account,String attempt,Consumer<Intent> start){owner.execute(()->{

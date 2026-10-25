@@ -60,11 +60,22 @@ older 0.3 builds, not the current 0.4 release series.
 | Channel | Current identifier | Availability |
 | --- | --- | --- |
 | Public download | `0.5.0-beta.1`, code 310, separate 0.5 release page | One signed adaptive APK, matching app source and dependency/native source bundles |
-| Development source | 0.5 runtime plus unreleased Fluxer social/room features and encrypted virtual Java Bluetooth | Debug rooms now select and verify installed Java games, require Ready, coordinate separate-process startup and return with fresh readiness. A live Retroid/emulator pair has launched a real MIDlet and returned after game-process death. This is not a multiplayer match; Release capabilities remain disabled. Shared directory quotas and released effects/defaults are unchanged. [Evidence](ROOM_GAME_LAUNCH.md) |
+| Development source | 0.5 runtime plus unreleased Fluxer social/room features and encrypted virtual Java Bluetooth | Debug rooms verify installed games, require Ready and coordinate process startup/return. BT Biplanes connected twice in the same private room on Retroid/emulator, with normal host and guest exit. Fix small-write queue overflow and reentrant return/re-preparation. Graphics and sustained gameplay acceptance remain open; Release capabilities stay disabled. Shared directory quotas and released effects/defaults are unchanged. [Evidence](BLUETOOTH_GAME_CHECK.md) |
 | Private historical snapshot | `0.1.0-beta.2-experimental.15`, 2026-10-11 | Old Java/Mophun test build, not the current beta |
 | Local-only material | Game fixtures, firmware, diagnostics, device data and signing keys | Not in Git or public release assets; describing testing does not authorize redistribution |
 
 ## Multiplayer Foundation (Unreleased)
+
+**Real Bluetooth game connection and repeat session, later 2026-10-25:** use
+the unmodified, locally supplied BT Biplanes on Retroid and an emulator. Fix
+shared small-write backpressure, consumed preparation surviving reentrant room
+callbacks, and a late misleading Rejoin notice. The final pair connects through
+the game's own Bluetooth menu twice in one room; normal exit by host, then guest,
+returns both seats and requires fresh Ready. Pass 381 JVM tests and 65 Android
+checks per target; installed APK hashes match. This is connection/return proof,
+not complete-game or sustained movement synchronization acceptance. This edition
+still has graphical artifacts. Release capabilities remain disabled; no public
+APK/upload. [Fixture, exact checks and limits](BLUETOOTH_GAME_CHECK.md).
 
 **Room-to-game workflow, later 2026-10-25:** Debug now connects installed-game
 selection, exact-edition checks, Prepared/Ready, host launch, process attachment
