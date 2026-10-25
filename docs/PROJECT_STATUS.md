@@ -60,11 +60,22 @@ older 0.3 builds, not the current 0.4 release series.
 | Channel | Current identifier | Availability |
 | --- | --- | --- |
 | Public download | `0.5.0-beta.1`, code 310, separate 0.5 release page | One signed adaptive APK, matching app source and dependency/native source bundles |
-| Development source | 0.5 runtime plus unreleased Fluxer social/room features and encrypted virtual Java Bluetooth | Public/private admission, temporary-contact cleanup and Keep passed on Retroid plus an emulator. Shared directory retains independent product quotas. Actual Java Bluetooth discovery, RFCOMM and L2CAP now exchange test data over encrypted P2P in both host roles. Room preparation is authority-bound; cross-process MIDlet attachment, production game launch and playable multiplayer remain open. Released effects/defaults are unchanged |
+| Development source | 0.5 runtime plus unreleased Fluxer social/room features and encrypted virtual Java Bluetooth | Public/private admission, temporary-contact cleanup and Keep passed on Retroid plus an emulator. Shared directory retains independent product quotas. Java Bluetooth APIs exchange encrypted test data; a one-use IPC bridge now serves a separate game-process fixture. Installed-file verification, startup attachment and disconnect cleanup are implemented. Production room selection/launch/return and playable multiplayer remain open. Released effects/defaults are unchanged |
 | Private historical snapshot | `0.1.0-beta.2-experimental.15`, 2026-10-11 | Old Java/Mophun test build, not the current beta |
 | Local-only material | Game fixtures, firmware, diagnostics, device data and signing keys | Not in Git or public release assets; describing testing does not authorize redistribution |
 
 ## Multiplayer Foundation (Unreleased)
+
+**Isolated game-process bridge, later 2026-10-25:** add a private, one-use launch
+lease and bounded packet pipe into the separate game process. Verify installed
+game bytes before attachment; wait before constructing the MIDlet; revoke the
+connection on process death and keep a failed virtual adapter from falling back
+to physical Bluetooth. Pass 361 JVM tests and 59 Android checks on each target,
+including encrypted RFCOMM exchange with a separate-process fixture. Ordinary
+Sudoku launch, restart and exit also work on Retroid through ADB input. This is
+not a real multiplayer match: the room's game picker, coordinated launch and
+return are still missing, and production capabilities remain disabled. Debug
+installs only; no public release/upload. [Evidence and limits](MIDLET_NETWORK_BRIDGE.md).
 
 **Bluetooth peer bridge, later 2026-10-25:** connect the Java Bluetooth backend
 to encrypted peer transport, including service metadata, multiple streams,
@@ -74,8 +85,9 @@ host roles, with a 256 KiB stream echo and packet/metadata checks. Room preparat
 now requires an admitted current binding, exact local-content verification and
 a successful transport handshake; Ready remains explicit. 353 JVM tests and
 50 Android checks on each target pass. This is still not a real game match:
-the main-process room owner needs an IPC bridge into `:midlet`, plus game selection,
-launch and return handling. Production capabilities stay disabled. No release,
+at that checkpoint the main-process room owner still needed the IPC bridge
+recorded above, plus game selection, launch and return handling. Production
+capabilities stay disabled. No release,
 new screenshot or upload. [Implementation and device evidence](BLUETOOTH_PEER_BRIDGE.md).
 
 **Secure peer core, 2026-10-25:** add a pinned Android ICE/DTLS/SCTP transport,

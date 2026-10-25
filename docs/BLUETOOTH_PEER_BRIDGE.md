@@ -3,6 +3,9 @@
 Unreleased source checkpoint, 2026-10-25. This extends the
 [secure transport](SECURE_PEER_TRANSPORT.md) and [JSR-82 adapter](VIRTUAL_BLUETOOTH.md).
 It is not a released online-play feature or evidence of a commercial game match.
+The later [isolated process bridge checkpoint](MIDLET_NETWORK_BRIDGE.md) adds
+the private runtime attachment and installed-file verification described as
+missing below. Production room launch and actual matches remain unimplemented.
 
 ## Implemented
 

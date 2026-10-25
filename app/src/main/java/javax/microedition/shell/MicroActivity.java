@@ -233,6 +233,10 @@ public class MicroActivity extends AppCompatActivity {
 		MidletSystem.setProperty("com.nokia.mid.cmdline.instance", "1");
 		microLoader = new MicroLoader(this, appPath);
 		if (!microLoader.init()) {
+			if (intent.hasExtra(ru.playsoftware.j2meloader.multiplayer.GameNetworkService.EXTRA_TICKET)) {
+				showErrorDialog("Prepare this game's settings before joining a network game.");
+				return;
+			}
 			Config.startApp(this, appName, appPath, true, arguments);
 			finish();
 			return;
@@ -269,8 +273,24 @@ public class MicroActivity extends AppCompatActivity {
 		updateControllerMode();
 		inputMethodManager = (InputMethodManager) getSystemService(INPUT_METHOD_SERVICE);
 
+		if (intent.hasExtra(ru.playsoftware.j2meloader.multiplayer.GameNetworkService.EXTRA_TICKET)) {
+			networkClient = new ru.playsoftware.j2meloader.multiplayer.MidletNetworkClient(this, intent, appPath,
+					this::startLoadedMidlet, reason -> {
+						if (!isFinishing() && !isDestroyed()) { MidletThread.pauseApp(); showErrorDialog(reason); }
+					});
+			networkClient.start();
+		} else startLoadedMidlet();
+	}
+
+	private ru.playsoftware.j2meloader.multiplayer.MidletNetworkClient networkClient;
+	private void startLoadedMidlet() {
+		if (isFinishing() || isDestroyed()) return;
 		try {
 			loadMIDlet();
+			if (visible && hasWindowFocus() && !isQuickMapVisible()
+					&& (gameMenu == null || !gameMenu.isShowing())
+					&& (settingsMapper == null || !settingsMapper.isShowing())
+					&& (devices == null || !devices.resumeRequired())) MidletThread.resumeApp();
 			LaunchDiagnostics.record(this, "midlet_loaded", appName, null);
 		} catch (Exception e) {
 			e.printStackTrace();
@@ -919,6 +939,10 @@ public class MicroActivity extends AppCompatActivity {
 
 	private void restartGame(ProfileModel draft) {
 		if (restarting || isFinishing()) return;
+		if (networkClient != null) {
+			Toast.makeText(this, "Return to the room to restart a network game.", Toast.LENGTH_LONG).show();
+			return;
+		}
 		try {
 			if (draft != null) ru.playsoftware.j2meloader.config.SettingsTrial.stage(draft);
 			ru.playsoftware.j2meloader.config.GameRestartActivity.prepare(this, appName, appPath,
@@ -1247,6 +1271,7 @@ public class MicroActivity extends AppCompatActivity {
 
 	@Override
 	protected void onDestroy() {
+		if (networkClient != null) networkClient.close();
 		if (fastForward != null) fastForward.cancel();
 		if (settingsPreview != null) settingsPreview.stop();
 		if (settingsMapper != null) { settingsMapper.setOnDismissListener(null); settingsMapper.dismiss(); }

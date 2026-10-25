@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="utf-8"?>
+<manifest xmlns:android="http://schemas.android.com/apk/res/android">
+    <application>
+        <service android:name="ru.playsoftware.j2meloader.multiplayer.GameNetworkProbeService"
+            android:process=":networkProbe" android:exported="false" />
+    </application>
+</manifest>

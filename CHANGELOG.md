@@ -10,6 +10,26 @@ stated otherwise. **Experimental** in older checkpoints means local/private
 combined builds; released experimental features are explicitly identified.
 **Released** means an actual GitHub release asset.
 
+## 2026-10-25 - Isolated Game-Process Network Bridge (Unreleased)
+
+- Add a private, one-use connection from the room process into a separate game
+  process. Bind it to the admitted account, attempt and verified installation;
+  reject repeated tickets, changed files and mismatched paths.
+- Wait for network attachment before constructing a network-launched MIDlet.
+  Keep ordinary single-player startup/restart unchanged. A network restart must
+  return to the room instead of silently becoming a disconnected game.
+- Bound both IPC queues, interrupt blocked IO on shutdown, and revoke the exact
+  connection when Android kills the game process. Keep a failed virtual adapter
+  closed rather than falling back to the phone's Bluetooth radio.
+- Keep slow installed-file verification outside the packet lock so it cannot
+  stall the room or delay cancellation of an obsolete launch.
+- Pass 361 JVM tests and 59 Android checks each on Retroid and an emulator,
+  including a separate-process encrypted 256 KiB RFCOMM fixture and process-death
+  cleanup. Verify ordinary Sudoku launch/restart/exit on Retroid via ADB.
+- Keep production multiplayer disabled until verified game selection, coordinated
+  Ready/launch/return and a real match are connected and checked. Debug installs
+  only; no public release/upload. [Evidence and limits](docs/MIDLET_NETWORK_BRIDGE.md).
+
 ## 2026-10-25 - Bluetooth Peer Bridge and Room Preparation (Unreleased)
 
 - Connect virtual Java Bluetooth to the encrypted peer transport: device/service

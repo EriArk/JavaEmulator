@@ -108,8 +108,9 @@ The existing physical Android Bluetooth route does not use this framing:
 adding it to a physical Bluetooth connection would break compatibility.
 The later [virtual adapter](VIRTUAL_BLUETOOTH.md) implements discovery, service
 registration and RFCOMM behind the existing JSR-82 classes, activated only by an
-explicit session installation. Production has no caller of that installation:
-secure transport and MIDlet lifecycle/launch binding remain necessary.
+explicit session installation. The later [process bridge](MIDLET_NETWORK_BRIDGE.md)
+attaches it before MIDlet startup for an explicit one-use lease. Production room
+selection/launch/return is not connected yet; capabilities remain disabled.
 
 ## Foundation Verification (Before Account UI)
 
@@ -156,15 +157,15 @@ screenshots are represented by this internal checkpoint.
 
 ## Next Implementation Order
 
-1. Implement the non-exported, attempt-bound IPC bridge from the main-process room
-   owner to `MicroActivity` in `:midlet`. The secure Bluetooth backend and the
-   preparation coordinator now exist; a static adapter in the social process
-   cannot serve the separate game process. Handle cancellation/process death
-   before allowing the old MIDlet to fall back to another backend.
-2. Connect verified local game selection, explicit Ready, synchronized launch and
-   return to the same room. The internal local-content hook has no UI/runtime
-   caller yet. Keep capabilities disabled until the actual runtime and transport
-   implement the advertised mode, not only their API fixtures.
+1. Connect the verified installed-game picker to the room and use the new
+   [attempt-bound IPC port](MIDLET_NETWORK_BRIDGE.md) instead of its local adapter.
+   The separate-process packet path and startup hook now exist; the room still
+   has no production caller that selects a game and issues its launch lease.
+2. Add explicit Ready, authenticated launch/attachment acknowledgement, and return
+   to the same room. Keep the room active while its UI is covered by the separate
+   game activity; revoke on account/admission changes and require fresh readiness.
+   Keep capabilities disabled until the actual runtime and transport implement
+   the advertised mode, not only their API fixtures.
 3. Demonstrate discovery and a real two-device Java match, then disconnect/return
    and a separate-network check. Symbian/Mophun require separate capability proof.
 
