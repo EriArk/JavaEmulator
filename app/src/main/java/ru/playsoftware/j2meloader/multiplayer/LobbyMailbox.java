@@ -44,10 +44,17 @@ final class LobbyMailbox {
         tick();return true;
     }
     void send(String peer,String content,String replaceKey){
-        // Only unsolicited room snapshots may replace an unsent older snapshot.
-        // Invitations, correlated admissions and terminal controls must retain their order.
-        if(!replaceKey.isEmpty())queue.removeIf(d->d.peer.equals(peer)&&d.replaceKey.equals(replaceKey));
-        if(!LobbyDirectory.id(peer)||peer.equals(self)||content.length()>2000||queue.size()>=128){listener.failed(peer,"Lobby message could not be queued.");return;}
+        if(!LobbyDirectory.id(peer)||peer.equals(self)||content.length()>2000){listener.failed(peer,"Lobby message could not be queued.");return;}
+        // Coalesce only the latest pending delivery to this peer. Crossing a signal
+        // would put the game-selection authority after the offer that needs it.
+        if(!replaceKey.isEmpty())for(Iterator<Delivery> i=queue.descendingIterator();i.hasNext();){
+            Delivery pending=i.next();if(!pending.peer.equals(peer))continue;
+            if(pending.replaceKey.equals(replaceKey)){
+                pending.content=content;pending.expires=clock.getAsLong()+85000;tick();return;
+            }
+            break;
+        }
+        if(queue.size()>=128){listener.failed(peer,"Lobby message could not be queued.");return;}
         queue.add(new Delivery(peer,content,clock.getAsLong()+85000,replaceKey));tick();
     }
     void tick(){

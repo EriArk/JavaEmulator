@@ -23,6 +23,8 @@ public class FluxerLiveRoomLaunchDeviceTest {
         boolean normalExit="true".equals(args.getString("normalExit"));
         int rounds=Integer.parseInt(args.getString("launchRounds","1"));
         assertTrue(rounds>=1&&rounds<=3);
+        int gameplaySeconds=Integer.parseInt(args.getString("gameplaySeconds","300"));
+        assertTrue(gameplaySeconds>=30&&gameplaySeconds<=900);
         Application app=(Application)InstrumentationRegistry.getInstrumentation().getTargetContext().getApplicationContext();
         String token=new FluxerCredentialStore(app).read();assertNotNull(token);
         FluxerAuth.Reply me=FluxerHttpTransport.exchange("GET","/v1/users/@me",null,token);
@@ -58,7 +60,7 @@ public class FluxerLiveRoomLaunchDeviceTest {
             if(!normalExit&&host){Thread.sleep(6000);killGame(app);}
             // Optional manual gameplay window: external input drives the unmodified game.
             // Returning to the room is lifecycle evidence, not an automatic match assertion.
-            await(model,s->s.room.equals(room)&&!s.snapshot.has("launch"),normalExit?300000:45000);
+            await(model,s->s.room.equals(room)&&!s.snapshot.has("launch"),normalExit?gameplaySeconds*1000L:45000);
             if(!normalExit&&!host)killGame(app);
             long exitDeadline=SystemClock.elapsedRealtime()+15000;
             while(process(app)!=0&&SystemClock.elapsedRealtime()<exitDeadline)Thread.sleep(100);
@@ -75,9 +77,39 @@ public class FluxerLiveRoomLaunchDeviceTest {
         }
     }
     private static void await(LobbyRoomModel model,Predicate<LobbyRoomModel.State> predicate,long timeout)throws Exception{
-        long end=SystemClock.elapsedRealtime()+timeout;
-        while(SystemClock.elapsedRealtime()<end){LobbyRoomModel.State s=model.state.getValue();if(s!=null&&predicate.test(s))return;Thread.sleep(100);}
+        long end=SystemClock.elapsedRealtime()+timeout,nextDiagnostic=SystemClock.elapsedRealtime()+15000;
+        while(SystemClock.elapsedRealtime()<end){
+            LobbyRoomModel.State s=model.state.getValue();if(s!=null&&predicate.test(s))return;
+            if(SystemClock.elapsedRealtime()>=nextDiagnostic){reportDiagnostic(model);nextDiagnostic=SystemClock.elapsedRealtime()+15000;}
+            Thread.sleep(100);
+        }
         LobbyRoomModel.State s=model.state.getValue();fail("Room timeout: "+(s==null?"no state":s.status+" / "+s.snapshot));
+    }
+    private static Object field(Object object,String name)throws Exception{
+        java.lang.reflect.Field f=object.getClass().getDeclaredField(name);f.setAccessible(true);return f.get(object);
+    }
+    private static void reportDiagnostic(LobbyRoomModel model)throws Exception{
+        java.util.concurrent.ScheduledThreadPoolExecutor owner=(java.util.concurrent.ScheduledThreadPoolExecutor)field(model,"owner");
+        String diagnostic=owner.submit(()->{
+            java.util.concurrent.ScheduledFuture<?> timer=(java.util.concurrent.ScheduledFuture<?>)field(model,"networkTimer");
+            if(timer!=null&&timer.isDone()&&!timer.isCancelled())timer.get();
+            Object coordinator=field(model,"gameNetwork");
+            Object link=coordinator==null?null:field(coordinator,"link");
+            String transport="";
+            if(link!=null)for(java.lang.reflect.Field f:link.getClass().getDeclaredFields()){
+                if(f.getType()!=BluetoothPeerSession.class)continue;
+                f.setAccessible(true);Object peer=field(f.get(link),"peer");
+                transport=", description="+field(peer,"remoteDescription")+", hello="+field(peer,"helloSent")+", peerClosed="+field(peer,"closed");
+            }
+            Object mailbox=field(model,"mailbox");
+            return "waiting: networkTimer="+(timer==null?"none":timer.isCancelled()?"cancelled":"active")
+                    +", local="+(coordinator!=null&&field(coordinator,"local")!=null)
+                    +", link="+(coordinator!=null&&field(coordinator,"link")!=null)
+                    +", failed="+(coordinator!=null&&field(coordinator,"failed")!=null)
+                    +", queued="+((java.util.Collection<?>)field(mailbox,"queue")).size()
+                    +", mailbox="+field(mailbox,"active")+"/"+field(mailbox,"polling")+"/"+field(mailbox,"sending")+transport;
+        }).get(5,java.util.concurrent.TimeUnit.SECONDS);
+        report(diagnostic);
     }
     private static int process(Application app){
         for(ActivityManager.RunningAppProcessInfo p:app.getSystemService(ActivityManager.class).getRunningAppProcesses())if(p.uid==android.os.Process.myUid()&&p.processName.equals(app.getPackageName()+":midlet"))return p.pid;

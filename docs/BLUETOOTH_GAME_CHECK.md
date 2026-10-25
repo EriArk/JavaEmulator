@@ -96,6 +96,10 @@ include all production repairs.
 
 ## Remaining Acceptance
 
+Follow-up: [three additional game checks and signaling-order repair](BLUETOOTH_GAME_SELECTION.md)
+record the later 2026-10-26 checkpoint. The counts and APK digest above describe
+this earlier BT Biplanes checkpoint, not the later installed Debug artifact.
+
 The game displays retained menu fragments and cloud trails. Do not describe
 this edition as fully compatible or visually correct. Audio, saves, a completed
 match, sustained input synchronization and physical controls are not accepted

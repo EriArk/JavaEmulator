@@ -8,6 +8,20 @@ import java.util.function.Consumer;
 import static org.junit.Assert.*;
 
 public class LobbyMailboxTest {
+    @Test public void snapshotsCannotMoveBehindPeerNegotiationOrTerminalControls(){
+        Fixture f=new Fixture();f.m.configure("fixture-token","11");
+        String signal=io.github.eriark.abyssme.peer.PeerSignals.PREFIX+"offer";
+        f.m.send("22","selected-game","room");
+        assertTrue(f.m.sendPeerSignals("22",Collections.singletonList(signal)));
+        f.m.send("22","heartbeat-1","room");
+        f.m.send("22","heartbeat-2","room");
+        f.m.send("22","close");
+        f.m.send("22","later-state","room");
+        f.m.active(true);f.m.refresh();
+        for(int i=0;i<8;i++){f.now+=1100;f.m.tick();}
+        assertEquals(Arrays.asList("selected-game",signal,"heartbeat-2","close","later-state"),f.sent);
+        assertEquals(0,f.failures);
+    }
     @Test public void peerFragmentsAreAuthenticatedAndNeverCoalesced(){
         Fixture f=new Fixture();String prefix=io.github.eriark.abyssme.peer.PeerSignals.PREFIX;
         JsonObject good=f.incoming("901","22");good.addProperty("content",prefix+"fragment");f.incoming.add(good);

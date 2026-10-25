@@ -1,6 +1,6 @@
 # AbyssME - Current Product and Development Status
 
-**Last updated: 2026-10-25.** Verification dates are recorded per section.
+**Last updated: 2026-10-26.** Verification dates are recorded per section.
 This is the starting point for website copy,
 announcements, progress posts and project handoffs. It includes work that exists
 only in local experiments or private test builds. Describing that work here
@@ -60,11 +60,24 @@ older 0.3 builds, not the current 0.4 release series.
 | Channel | Current identifier | Availability |
 | --- | --- | --- |
 | Public download | `0.5.0-beta.1`, code 310, separate 0.5 release page | One signed adaptive APK, matching app source and dependency/native source bundles |
-| Development source | 0.5 runtime plus unreleased Fluxer social/room features and encrypted virtual Java Bluetooth | Debug rooms verify installed games, require Ready and coordinate process startup/return. BT Biplanes connected twice in the same private room on Retroid/emulator, with normal host and guest exit. Fix small-write queue overflow and reentrant return/re-preparation. Graphics and sustained gameplay acceptance remain open; Release capabilities stay disabled. Shared directory quotas and released effects/defaults are unchanged. [Evidence](BLUETOOTH_GAME_CHECK.md) |
+| Development source | 0.5 runtime plus unreleased Fluxer social/room features and encrypted virtual Java Bluetooth | Debug rooms verify installed games, require Ready and coordinate process startup/return. BT Biplanes connects twice in one room; additional Dogfight, Constructo and Absorbed reach paired gameplay on Retroid/emulator. Fix small-write backpressure, reentrant return and snapshot/offer ordering. Graphics, sustained gameplay and remote-network acceptance remain open; Release capabilities stay disabled. Shared directory quotas and released effects/defaults are unchanged. [Latest checks](BLUETOOTH_GAME_SELECTION.md) |
 | Private historical snapshot | `0.1.0-beta.2-experimental.15`, 2026-10-11 | Old Java/Mophun test build, not the current beta |
 | Local-only material | Game fixtures, firmware, diagnostics, device data and signing keys | Not in Git or public release assets; describing testing does not authorize redistribution |
 
 ## Multiplayer Foundation (Unreleased)
+
+**Additional Bluetooth games and signaling order, 2026-10-26:** test locally
+supplied 1916 Dogfight, 3D Constructo Combat and Absorbed on Retroid/emulator.
+Dogfight and Constructo reach paired L2CAP gameplay; Constructo also returns
+normally to the room. Absorbed exposes a shared signaling-order defect: snapshot
+coalescing could move game authority after the peer offer. Fix that queue order
+with a failing-before/passing-after regression test; three subsequent Absorbed room
+preparations launch both games. Opening its server before guest discovery reaches
+paired RFCOMM gameplay. Graphics/vendor-key compatibility remains open. This is local
+Debug testing, not different-network or full-game acceptance. Pass 370 app JVM
+tests and 65 Android network/bridge/lifecycle checks per target; installed Debug
+hashes match. No new release.
+[Exact fixture results and evidence](BLUETOOTH_GAME_SELECTION.md).
 
 **Real Bluetooth game connection and repeat session, later 2026-10-25:** use
 the unmodified, locally supplied BT Biplanes on Retroid and an emulator. Fix
