@@ -415,5 +415,5 @@ public final class FluxerChats implements AutoCloseable {
     private static JsonObject object(JsonObject o,String k){return o.has(k)&&o.get(k).isJsonObject()?o.getAsJsonObject(k):new JsonObject();}
     private static int number(JsonObject o,String k){try{return o.get(k).getAsInt();}catch(RuntimeException e){return -1;}}
     private static String bounded(String text,int max){if(text.length()<=max)return text;int end=Character.isHighSurrogate(text.charAt(max-1))?max-1:max;return text.substring(0,end);}
-    private static boolean control(String text){return text.endsWith("\n```")&&(text.startsWith("TrainerOS lobby\n```json\n")||text.startsWith("TrainerOS lobby directory\n```json\n")||text.startsWith(LobbyMailbox.CONTACT_PREFIX)||text.startsWith(LobbyRoom.PREFIX)||text.startsWith(LobbyPublisher.RESULT_PREFIX));}
+    private static boolean control(String text){return text.startsWith(io.github.eriark.abyssme.peer.PeerSignals.PREFIX)||text.endsWith("\n```")&&(text.startsWith("TrainerOS lobby\n```json\n")||text.startsWith("TrainerOS lobby directory\n```json\n")||text.startsWith(LobbyMailbox.CONTACT_PREFIX)||text.startsWith(LobbyRoom.PREFIX)||text.startsWith(LobbyPublisher.RESULT_PREFIX));}
 }

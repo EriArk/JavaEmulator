@@ -266,6 +266,7 @@ dependencies {
     def autoServiceVersion = "1.0"
 
     implementation project(':dexlib')
+    implementation project(':peer-core')
 
     // Android Jetpack
     implementation "androidx.room:room-runtime:$roomVersion"

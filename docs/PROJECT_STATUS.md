@@ -1,6 +1,6 @@
 # AbyssME - Current Product and Development Status
 
-**Last updated: 2026-10-24.** Verification dates are recorded per section.
+**Last updated: 2026-10-25.** Verification dates are recorded per section.
 This is the starting point for website copy,
 announcements, progress posts and project handoffs. It includes work that exists
 only in local experiments or private test builds. Describing that work here
@@ -60,18 +60,31 @@ older 0.3 builds, not the current 0.4 release series.
 | Channel | Current identifier | Availability |
 | --- | --- | --- |
 | Public download | `0.5.0-beta.1`, code 310, separate 0.5 release page | One signed adaptive APK, matching app source and dependency/native source bundles |
-| Development source | 0.5 runtime plus unreleased Fluxer account/chats/friends, directory, rooms, temporary contacts and a transport-independent virtual Java Bluetooth adapter | Public/private admission, temporary-contact cleanup and Keep passed on Retroid plus an emulator. Shared directory v2/results are deployed with independent product quotas. Virtual discovery/services and RFCOMM/L2CAP pass isolated API checks on both Android targets; encrypted peer transport, game launch integration and playable multiplayer remain open. Released effects/defaults are unchanged |
+| Development source | 0.5 runtime plus unreleased Fluxer social/room features, virtual Java Bluetooth adapter and Android secure peer core | Public/private admission, temporary-contact cleanup and Keep passed on Retroid plus an emulator. Shared directory retains independent product quotas. Authenticated Fluxer signaling and direct encrypted test packets now connect Retroid to an emulator. The Bluetooth backend multiplexer, production room/game launch and playable multiplayer remain open. Released effects/defaults are unchanged |
 | Private historical snapshot | `0.1.0-beta.2-experimental.15`, 2026-10-11 | Old Java/Mophun test build, not the current beta |
 | Local-only material | Game fixtures, firmware, diagnostics, device data and signing keys | Not in Git or public release assets; describing testing does not authorize redistribution |
 
 ## Multiplayer Foundation (Unreleased)
 
+**Secure peer core, 2026-10-25:** add a pinned Android ICE/DTLS/SCTP transport,
+room/game/account/attempt binding, bounded fragmented signaling and explicit
+disconnect/timeout handling. Retroid and an Android emulator exchange 100 ordered
+binary packets each way using real dedicated Fluxer accounts for signaling only.
+No gameplay packets pass through chat. Fix a real connection failure caused by
+21-second device clock skew: use local monotonic attempt deadlines, not matching
+wall clocks. 327 JVM tests and 33 Android checks on each target pass; native checks
+also reject forged certificate fingerprints. Source preparation includes the dependency bundle and
+APK license notices. This is a transport fixture, not a Java match: the production
+room-to-game coordinator and virtual Bluetooth backend are not connected yet.
+Production capabilities remain empty; no public release or Nextcloud upload.
+[Exact build, tests and remaining limits](SECURE_PEER_TRANSPORT.md).
+
 **Virtual Bluetooth adapter, later 2026-10-24:** implement Java-side discovery,
 service metadata, RFCOMM streams and L2CAP packets behind the existing game APIs.
 Add cancellation/lifetime fencing, bounded SDP copies and correct stream ownership.
 312 JVM tests and 23 API/core checks on each of Retroid and an emulator pass.
-The production capability set remains empty: secure P2P transport and room-to-game
-launch integration are still missing. This is not playable Internet multiplayer.
+At that checkpoint secure P2P and room-to-game launch were still missing. The
+following transport work is recorded above; playable Internet multiplayer is still unavailable.
 [Implementation, exact verification and remaining work](VIRTUAL_BLUETOOTH.md).
 
 **Public directory deployment, later 2026-10-24:** the existing service now runs

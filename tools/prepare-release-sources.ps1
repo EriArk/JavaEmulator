@@ -3,7 +3,7 @@ $ErrorActionPreference = 'Stop'
 $root = (Resolve-Path (Join-Path $PSScriptRoot '..')).Path
 Push-Location $root
 try {
-    $args = @(':app:releaseDependencyInventory', '--console=plain')
+    $args = @(':app:releaseDependencyInventory', ':peer-core:peerSourceBundle', '--console=plain')
     if ($Symbian) { $args += '-PsymbianRelease=true' }
     if ($Offline) { $args += '--offline' }
     & ./gradlew.bat @args

@@ -8,6 +8,14 @@ import java.util.function.Consumer;
 import static org.junit.Assert.*;
 
 public class FluxerChatsTest {
+    @Test public void peerSignalingPayloadIsHiddenButOrdinaryChatRemains(){
+        Fixture f=new Fixture();f.connect();f.chats.select("101");
+        String signal=io.github.eriark.abyssme.peer.PeerSignals.PREFIX+"opaque-fragment";
+        f.history("101").reply(200,"["+message("801","101","22",signal,"")+","+message("802","101","22","Ready to play?","")+"]");
+        assertEquals(2,f.chats.state().messages.size());
+        assertEquals("Game session message",f.chats.state().messages.get(0).text);
+        assertEquals("Ready to play?",f.chats.state().messages.get(1).text);
+    }
     private static final String TOKEN="fixture-account-session-one",OTHER="fixture-account-session-two";
     private static final class Request {
         String method,path,token;JsonObject body;Consumer<FluxerAuth.Reply> done;

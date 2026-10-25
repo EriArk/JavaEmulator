@@ -23,7 +23,8 @@ remaining limitations. Do not rewrite published history just to expand messages.
 - JDK 21 (used by the current local verification environment).
 - Android SDK Platform 34 and Build Tools 34.0.0.
 - Android NDK 22.1.7171670 and platform-tools for device/emulator checks.
-- Git is useful for development; source ZIPs also build without Git history.
+- Git for pinned peer dependencies; the app source ZIP needs no own Git history.
+- CMake 3.22.1 and NDK 28.2.13676358 for the [peer core](engines/peer/README.md).
 - Use the included Gradle 8.7 wrapper; do not install a separate Gradle version.
 
 Clone the repository and open it in Android Studio, or set `ANDROID_HOME` to

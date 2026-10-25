@@ -1,0 +1,67 @@
+plugins { id 'com.android.library' }
+
+android {
+    namespace 'io.github.eriark.abyssme.peer'
+    compileSdk 34
+    ndkVersion '28.2.13676358'
+    defaultConfig {
+        minSdk 29
+        testInstrumentationRunner 'androidx.test.runner.AndroidJUnitRunner'
+        externalNativeBuild {
+            cmake {
+                arguments '-DANDROID_STL=c++_static', "-DPEER_OFFLINE=${gradle.startParameter.offline ? 'ON' : 'OFF'}",
+                        "-DPEER_SOURCE_ROOT=${rootProject.file('build/peer-sources').absolutePath.replace('\\', '/')}"
+                targets 'abyss-peer'
+            }
+        }
+        consumerProguardFiles 'consumer-rules.pro'
+    }
+    externalNativeBuild { cmake { path 'CMakeLists.txt'; version '3.22.1' } }
+    sourceSets.main.assets.srcDir layout.buildDirectory.dir('peer-assets')
+    compileOptions {
+        sourceCompatibility JavaVersion.VERSION_1_8
+        targetCompatibility JavaVersion.VERSION_1_8
+    }
+}
+
+dependencies {
+    testImplementation 'junit:junit:4.13.2'
+    androidTestImplementation 'androidx.test:runner:1.5.2'
+    androidTestImplementation 'androidx.test.ext:junit:1.1.5'
+}
+
+// CMake verifies every source revision before compiling. Preserve upstream notices
+// in the APK as well as the corresponding-source bundle.
+def noticeFiles = [
+        'libdatachannel/LICENSE': 'libdatachannel-MPL-2.0.txt',
+        'libdatachannel/deps/libjuice/LICENSE': 'libjuice-MPL-2.0.txt',
+        'libdatachannel/deps/plog/LICENSE': 'plog-MIT.txt',
+        'libdatachannel/deps/usrsctp/LICENSE.md': 'usrsctp-BSD.txt',
+        'mbedtls/LICENSE': 'mbedtls-LICENSE.txt']
+['Debug', 'Release'].each { variant ->
+    def notices = tasks.register("peer${variant}Notices") {
+        dependsOn "externalNativeBuild${variant}"
+        doLast {
+            noticeFiles.each { source, name ->
+                def origin = rootProject.file("build/peer-sources/${source}")
+                if (!origin.isFile()) throw new GradleException("Missing peer notice: ${source}")
+                copy { from origin; into layout.buildDirectory.dir('peer-assets/licenses/peer'); rename { name } }
+            }
+        }
+    }
+    tasks.configureEach {
+        if (name == "merge${variant}Assets" || name == "package${variant}Assets") dependsOn notices
+    }
+}
+
+tasks.register('peerSourceBundle', Zip) {
+    dependsOn 'externalNativeBuildRelease'
+    archiveFileName = 'abyssme-peer-corresponding-source.zip'
+    destinationDirectory = rootProject.layout.buildDirectory.dir('release-sources')
+    from(rootProject.file('build/peer-sources')) {
+        include 'libdatachannel/**', 'mbedtls/**'
+        exclude '**/.git/**', '**/.git', '**/.github/**'
+        into 'upstream'
+    }
+    from(projectDir) { exclude 'build/**', '.cxx/**'; into 'abyssme-wrapper' }
+}

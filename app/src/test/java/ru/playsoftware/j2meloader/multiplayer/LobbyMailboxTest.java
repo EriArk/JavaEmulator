@@ -8,6 +8,23 @@ import java.util.function.Consumer;
 import static org.junit.Assert.*;
 
 public class LobbyMailboxTest {
+    @Test public void peerFragmentsAreAuthenticatedAndNeverCoalesced(){
+        Fixture f=new Fixture();String prefix=io.github.eriark.abyssme.peer.PeerSignals.PREFIX;
+        JsonObject good=f.incoming("901","22");good.addProperty("content",prefix+"fragment");f.incoming.add(good);
+        JsonObject forged=good.deepCopy();forged.addProperty("id","902");forged.getAsJsonObject("author").addProperty("id","33");f.incoming.add(forged);
+        f.start();assertEquals(1,f.messages.size());
+        assertTrue(f.m.sendPeerSignals("22",Arrays.asList(prefix+"one",prefix+"two")));
+        f.now+=1100;f.m.tick();assertEquals(Arrays.asList(prefix+"one",prefix+"two"),f.sent);
+    }
+    @Test public void peerBatchQueueFailureIsAtomic(){
+        Fixture f=new Fixture();f.m.configure("fixture-token","11");
+        for(int i=0;i<127;i++)f.m.send("22","queued");
+        String prefix=io.github.eriark.abyssme.peer.PeerSignals.PREFIX;
+        assertFalse(f.m.sendPeerSignals("22",Arrays.asList(prefix+"one",prefix+"two")));
+        assertTrue(f.m.sendPeerSignals("22",Collections.singletonList(prefix+"final")));
+        assertFalse(f.m.sendPeerSignals("22",Collections.singletonList(prefix+"overflow")));
+        assertEquals(0,f.failures);
+    }
     static class Fixture implements LobbyMailbox.Listener {
         long now=100000;int posts,opens,failures,expired,reads;boolean blocked,wrongRecipient;int postStatus=200,readStatus=200;
         List<String> messages=new ArrayList<>(),sent=new ArrayList<>();JsonArray incoming=new JsonArray();Consumer<FluxerAuth.Reply> held;boolean hold;

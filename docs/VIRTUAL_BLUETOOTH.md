@@ -66,7 +66,10 @@ No individual commercial game has been verified with this adapter yet.
 Reviewed TrainerOS reference (read-only):
 `tools/remote-play-stream/transport/README.md` and its pinned libdatachannel
 ICE/DTLS/SCTP design. Its Qt/Linux helper is **not** an Android dependency.
-Next work is an Android-compatible secure peer backend with authenticated
+The subsequent [2026-10-25 secure peer core](SECURE_PEER_TRANSPORT.md) now supplies
+an Android encrypted channel and live signaling/packet evidence. It is not yet
+connected to this adapter's backend or the production game launch workflow.
+At this adapter checkpoint, next work was an Android-compatible peer backend with authenticated
 room/generation/seat/launch-attempt binding, followed by game preparation,
 synchronized launch, an actual two-device Java game and separate-network checks.
 Do not enable an engine capability merely because the adapter tests pass.

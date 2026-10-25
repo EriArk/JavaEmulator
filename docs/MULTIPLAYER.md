@@ -1,6 +1,6 @@
 # Multiplayer: Lobby Lite Implementation
 
-Status: **unreleased account/chats/friends, directory, rooms and virtual Java Bluetooth adapter**, 2026-10-24. Parent [#33](https://github.com/EriArk/JavaEmulator/issues/33).
+Status: **unreleased social/room features, virtual Java Bluetooth adapter and secure peer core**, 2026-10-25. Parent [#33](https://github.com/EriArk/JavaEmulator/issues/33).
 The public 0.5.0 Beta 1 APK has not changed. The new [Fluxer account screen](FLUXER_ACCOUNT.md)
 and [private text chats](FLUXER_CHATS.md) / [friends and requests](FLUXER_FRIENDS.md) are reachable in development builds;
 real authenticated exchange is recorded in the [live pair checkpoint](FLUXER_LIVE_PAIR.md). [Room metadata and admission](LOBBY_ROOMS.md)
@@ -10,6 +10,10 @@ Bluetooth gameplay or cross-play as available. The existing shared directory was
 [updated in place](FLUXER_PUBLIC_DIRECTORY_CHECKPOINT.md); no second bot/server
 was added. The [virtual adapter checkpoint](VIRTUAL_BLUETOOTH.md) records isolated
 API/IO checks, not a production peer transport or a real game match.
+The subsequent [secure peer checkpoint](SECURE_PEER_TRANSPORT.md) adds Android
+ICE/DTLS/SCTP, authenticated fragmented signaling and a real Retroid-to-emulator
+packet exchange. It does not yet bind the room UI or game Bluetooth backend to
+that transport. Production game capabilities remain disabled.
 
 ## Reuse TrainerOS Behavior
 
@@ -149,11 +153,12 @@ screenshots are represented by this internal checkpoint.
 
 ## Next Implementation Order
 
-1. Attach an Android-compatible encrypted P2P backend to the implemented virtual
-   adapter. Bind signaling and channels to admitted identities, room generation,
-   seats and a fresh launch attempt. Never carry gameplay packets in Fluxer DMs.
-   The existing account/friend/private-room and public-directory live checkpoints
-   are prerequisites already recorded above, not proof of this missing channel.
+1. Attach the implemented secure peer core to the virtual Bluetooth adapter:
+   service discovery/metadata, logical stream multiplexing, bounded flow control
+   and deterministic shutdown. Carry the admitted room/account/game/attempt binding
+   through the production coordinator, not only a test fixture. Never carry
+   gameplay packets in Fluxer DMs. The secure channel now has its separate live
+   evidence; this adapter/coordinator bridge is still missing.
 2. Connect exact local game preparation, explicit Ready, synchronized launch and
    return to the same room. Keep capabilities disabled until the actual runtime
    and transport implement the advertised mode, not only its tests.

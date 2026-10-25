@@ -2,6 +2,7 @@
 package ru.playsoftware.j2meloader.multiplayer;
 
 import com.google.gson.*;
+import io.github.eriark.abyssme.peer.PeerSignals;
 import java.util.*;
 import java.util.function.LongSupplier;
 import static ru.playsoftware.j2meloader.multiplayer.LobbyRoom.*;
@@ -33,6 +34,14 @@ final class LobbyMailbox {
     void refresh(){nextPoll=0;tick();}
     void send(String peer,String content){
         send(peer,content,"");
+    }
+    boolean sendPeerSignals(String peer,List<String> fragments){
+        if(!LobbyDirectory.id(peer)||peer.equals(self)||fragments==null||fragments.isEmpty()
+                ||fragments.size()>26||queue.size()+fragments.size()>128)return false;
+        for(String content:fragments)if(content==null||!content.startsWith(PeerSignals.PREFIX)||content.length()>2000)return false;
+        long expires=clock.getAsLong()+85000;
+        for(String content:fragments)queue.add(new Delivery(peer,content,expires,""));
+        tick();return true;
     }
     void send(String peer,String content,String replaceKey){
         // Only unsolicited room snapshots may replace an unsent older snapshot.
@@ -87,7 +96,7 @@ final class LobbyMailbox {
             messages.sort((a,b)->compare(text(a,"id"),text(b,"id")));
             for(JsonObject m:messages){String id=text(m,"id"),author=text(object(m,"author"),"id"),content=text(m,"content");
                 if(!LobbyDirectory.id(id)||!channel.equals(text(m,"channel_id"))||!author.equals(peer)||!text(m,"webhook_id").isEmpty()||!text(m,"guild_id").isEmpty()||blocked.contains(author)||content.length()>2000)continue;
-                if(!(content.startsWith(PREFIX)||content.startsWith(CONTACT_PREFIX)||content.startsWith(LobbyPublisher.RESULT_PREFIX)))continue;
+                if(!(content.startsWith(PREFIX)||content.startsWith(CONTACT_PREFIX)||content.startsWith(LobbyPublisher.RESULT_PREFIX)||content.startsWith(PeerSignals.PREFIX)))continue;
                 if(consumed.put(channel+"/"+id,true)==null)listener.message(author,content);
                 while(consumed.size()>4096)consumed.remove(consumed.keySet().iterator().next());
             }

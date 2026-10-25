@@ -1,0 +1,2 @@
+-keep class io.github.eriark.abyssme.peer.NativePeer { *; }
+-keep class io.github.eriark.abyssme.peer.NativePeer$Event { *; }

@@ -71,7 +71,15 @@ It has the same GPL-3.0-only scope and introduces no binary dependency.
 
 The [virtual Java Bluetooth adapter](VIRTUAL_BLUETOOTH.md) is original
 GPL-3.0-only code. It delegates from inherited Apache-2.0 JSR-82 wrappers without
-removing their headers and introduces no third-party transport library yet.
+removing their headers. Its first checkpoint introduced no transport dependency.
+
+The subsequent unreleased [secure peer core](SECURE_PEER_TRANSPORT.md) adds
+libdatachannel/libjuice (MPL-2.0), usrsctp (BSD-3-Clause), plog (MIT) and Mbed TLS
+(Apache-2.0 selected from its dual license). Upstream source files are unmodified;
+the original JNI/Java wrapper is GPL-3.0-only. Exact revisions, retained notices,
+build configuration and the corresponding-source task are documented in
+[engines/peer](../engines/peer/README.md). APK component license assets and the
+additional source archive are required for any later release containing this core.
 
 `tools/release-inventory.gradle` inventories the actual resolved release graph,
 records artifact hashes and POM declarations, and collects available source JARs.

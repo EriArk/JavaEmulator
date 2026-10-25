@@ -1,7 +1,7 @@
 # AbyssME Changelog
 
 User-facing development history, reconstructed from commits, release notes and
-local/private build records through **2026-10-24**. This is not a claim that all
+local/private build records through **2026-10-25**. This is not a claim that all
 listed work is in a public APK. See [current status](docs/PROJECT_STATUS.md) for
 availability, verification, known limits and screenshot guidance.
 
@@ -9,6 +9,28 @@ Labels: **Public source** means implemented on `main` but unreleased unless
 stated otherwise. **Experimental** in older checkpoints means local/private
 combined builds; released experimental features are explicitly identified.
 **Released** means an actual GitHub release asset.
+
+## 2026-10-25 - Android Secure Peer Transport (Unreleased)
+
+- Add an Android-native encrypted peer channel using pinned libdatachannel and
+  Mbed TLS, without Qt or sending game data through chat. Bind a connection to
+  the admitted players, room generation, exact game and fresh attempt.
+- Fit connection signaling into the normal private-message limit; handle reordered
+  fragments and reject wrong senders, stale bindings, conflicting repeats and
+  certificate changes. Bound native queues and close explicitly on overload.
+- Fix connection rejection when device clocks differ: use a local monotonic
+  attempt lifetime and fresh room-bound nonce, with regression tests.
+- Connect Retroid and an Android emulator through real dedicated Fluxer accounts
+  for signaling; exchange 100 ordered binary test packets in each direction.
+  Keep ordinary chats readable by masking the signaling payloads.
+- Include dependency notices in the APK and add a corresponding-source archive
+  to release preparation. Enable crypto-library locking for native worker threads.
+- Pass 327 JVM tests and 33 Android checks on each target, plus the live two-account
+  exchange. Keep emulator/native-device and actual-game acceptance distinct.
+- Leave production game capabilities disabled. This is a tested transport core,
+  not a playable Java match: Bluetooth service/stream multiplexing and room/game
+  launch integration remain. Debug installs only; no public APK or cloud upload.
+  [Detailed checks, artifacts and limits](docs/SECURE_PEER_TRANSPORT.md).
 
 ## 2026-10-24 - Virtual Java Bluetooth Adapter (Unreleased)
 

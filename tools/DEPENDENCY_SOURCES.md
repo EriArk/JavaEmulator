@@ -35,6 +35,13 @@ included. Dependencies may still need downloading from Maven repositories.
 
 ## Native Dependency Provenance
 
+The unreleased secure peer module adds
+`abyssme-peer-corresponding-source.zip` to preparation output. It contains pinned
+libdatachannel, libjuice, usrsctp, plog, Mbed TLS and build-tool source trees plus
+the JNI/Java wrapper/build scripts and component notices. See the matching app's
+`engines/peer/README.md` for revisions, CMake/NDK prerequisites and validation.
+These native sources are separate from the Maven runtime graph below.
+
 `source-lock.json` pins archive URLs and SHA-256 values. Preparation is available
 as `tools/prepare-release-sources.ps1` in the application source.
 
