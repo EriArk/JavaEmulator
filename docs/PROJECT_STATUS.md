@@ -60,21 +60,33 @@ older 0.3 builds, not the current 0.4 release series.
 | Channel | Current identifier | Availability |
 | --- | --- | --- |
 | Public download | `0.5.0-beta.1`, code 310, separate 0.5 release page | One signed adaptive APK, matching app source and dependency/native source bundles |
-| Development source | 0.5 runtime plus unreleased Fluxer social/room features and encrypted virtual Java Bluetooth | Public/private admission, temporary-contact cleanup and Keep passed on Retroid plus an emulator. Shared directory retains independent product quotas. Java Bluetooth APIs exchange encrypted test data; a one-use IPC bridge now serves a separate game-process fixture. Installed-file verification, startup attachment and disconnect cleanup are implemented. Production room selection/launch/return and playable multiplayer remain open. Released effects/defaults are unchanged |
+| Development source | 0.5 runtime plus unreleased Fluxer social/room features and encrypted virtual Java Bluetooth | Debug rooms now select and verify installed Java games, require Ready, coordinate separate-process startup and return with fresh readiness. A live Retroid/emulator pair has launched a real MIDlet and returned after game-process death. This is not a multiplayer match; Release capabilities remain disabled. Shared directory quotas and released effects/defaults are unchanged. [Evidence](ROOM_GAME_LAUNCH.md) |
 | Private historical snapshot | `0.1.0-beta.2-experimental.15`, 2026-10-11 | Old Java/Mophun test build, not the current beta |
 | Local-only material | Game fixtures, firmware, diagnostics, device data and signing keys | Not in Git or public release assets; describing testing does not authorize redistribution |
 
 ## Multiplayer Foundation (Unreleased)
 
-**Isolated game-process bridge, later 2026-10-25:** add a private, one-use launch
+**Room-to-game workflow, later 2026-10-25:** Debug now connects installed-game
+selection, exact-edition checks, Prepared/Ready, host launch, process attachment
+and return. The room remains active while the game runs in another process.
+Fix a live guest-return failure in the shared lifecycle rather than in a game.
+378 JVM checks and 60 Android checks on each target pass. Paired dedicated-account
+runs open Bounce Tales on Retroid and an emulator, in both host roles, and return
+to the same room after process death. The final Debug artifact repeats the
+Retroid-host scenario and both Android suites; installed hashes match.
+This is startup/return proof, not a Bluetooth game match. Release capabilities
+remain disabled; no public APK/upload. [Scope, artifacts and checks](ROOM_GAME_LAUNCH.md).
+
+**Isolated game-process bridge, earlier 2026-10-25:** add a private, one-use launch
 lease and bounded packet pipe into the separate game process. Verify installed
 game bytes before attachment; wait before constructing the MIDlet; revoke the
 connection on process death and keep a failed virtual adapter from falling back
 to physical Bluetooth. Pass 361 JVM tests and 59 Android checks on each target,
 including encrypted RFCOMM exchange with a separate-process fixture. Ordinary
 Sudoku launch, restart and exit also work on Retroid through ADB input. This is
-not a real multiplayer match: the room's game picker, coordinated launch and
-return are still missing, and production capabilities remain disabled. Debug
+not a real multiplayer match: at this checkpoint the room's game picker,
+coordinated launch and return were still missing. The later Debug workflow above
+connects them; Release capabilities remain disabled. Debug
 installs only; no public release/upload. [Evidence and limits](MIDLET_NETWORK_BRIDGE.md).
 
 **Bluetooth peer bridge, later 2026-10-25:** connect the Java Bluetooth backend

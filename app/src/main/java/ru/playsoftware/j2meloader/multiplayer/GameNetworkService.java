@@ -15,6 +15,7 @@ public final class GameNetworkService extends Service {
     static final String DESCRIPTOR = "io.github.eriark.abyssme.GameNetwork.v1";
     public static final String EXTRA_TICKET = "abyssme.networkLaunch";
     static final int CLAIM = IBinder.FIRST_CALL_TRANSACTION;
+    static final int READY = CLAIM + 1;
     private static final AtomicReference<GameNetworkLease> active = new AtomicReference<>();
     private volatile GameNetworkLease owned;
 
@@ -28,9 +29,20 @@ public final class GameNetworkService extends Service {
     static void remove(GameNetworkLease lease) { active.compareAndSet(lease, null); }
     private final Binder binder = new Binder() {
         @Override protected boolean onTransact(int code, Parcel data, Parcel reply, int flags) throws RemoteException {
-            if (code != CLAIM) return super.onTransact(code, data, reply, flags);
+            if (code != CLAIM && code != READY) return super.onTransact(code, data, reply, flags);
             if (Binder.getCallingUid() != android.os.Process.myUid()) throw new SecurityException("Private game connection");
             data.enforceInterface(DESCRIPTOR);
+            if (code == READY) {
+                String ticket = data.readString(); IBinder lifetime = data.readStrongBinder();
+                if (data.dataAvail() != 0 || ticket == null || ticket.length() != 36) throw new IllegalArgumentException("Invalid game launch");
+                try {
+                    GameNetworkLease lease = owned;
+                    if (lease == null) throw new IOException("No attached game");
+                    boolean released = lease.ready(ticket, lifetime);
+                    reply.writeNoException(); reply.writeInt(released ? 1 : 0);
+                } catch (IOException e) { reply.writeException(new IllegalStateException(e.getMessage())); }
+                return true;
+            }
             String ticket = data.readString(), path = data.readString(); IBinder lifetime = data.readStrongBinder();
             if (data.dataAvail() != 0 || ticket == null || ticket.length() != 36 || path == null || path.length() > 4096)
                 throw new IllegalArgumentException("Invalid game launch");

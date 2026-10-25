@@ -234,7 +234,9 @@ public class MicroActivity extends AppCompatActivity {
 		microLoader = new MicroLoader(this, appPath);
 		if (!microLoader.init()) {
 			if (intent.hasExtra(ru.playsoftware.j2meloader.multiplayer.GameNetworkService.EXTRA_TICKET)) {
-				showErrorDialog("Prepare this game's settings before joining a network game.");
+				Toast.makeText(this, "Prepare this game's settings before joining a network game.", Toast.LENGTH_LONG).show();
+				finish();
+				MidletThread.notifyDestroyed();
 				return;
 			}
 			Config.startApp(this, appName, appPath, true, arguments);
@@ -275,14 +277,20 @@ public class MicroActivity extends AppCompatActivity {
 
 		if (intent.hasExtra(ru.playsoftware.j2meloader.multiplayer.GameNetworkService.EXTRA_TICKET)) {
 			networkClient = new ru.playsoftware.j2meloader.multiplayer.MidletNetworkClient(this, intent, appPath,
-					this::startLoadedMidlet, reason -> {
-						if (!isFinishing() && !isDestroyed()) { MidletThread.pauseApp(); showErrorDialog(reason); }
-					});
+					this::startLoadedMidlet, this::returnToNetworkRoom);
 			networkClient.start();
 		} else startLoadedMidlet();
 	}
 
 	private ru.playsoftware.j2meloader.multiplayer.MidletNetworkClient networkClient;
+	private void returnToNetworkRoom(String reason) {
+		if (isFinishing() || isDestroyed()) return;
+		MidletThread.pauseApp();
+		if (networkClient != null) networkClient.close();
+		Toast.makeText(this, reason, Toast.LENGTH_LONG).show();
+		finish();
+		MidletThread.destroyApp();
+	}
 	private void startLoadedMidlet() {
 		if (isFinishing() || isDestroyed()) return;
 		try {
@@ -294,7 +302,8 @@ public class MicroActivity extends AppCompatActivity {
 			LaunchDiagnostics.record(this, "midlet_loaded", appName, null);
 		} catch (Exception e) {
 			e.printStackTrace();
-			showErrorDialog(e.toString());
+			if (networkClient != null) returnToNetworkRoom("Could not load the network game. Prepare it again in the room.");
+			else showErrorDialog(e.toString());
 		}
 	}
 

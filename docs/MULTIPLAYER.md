@@ -157,16 +157,16 @@ screenshots are represented by this internal checkpoint.
 
 ## Next Implementation Order
 
-1. Connect the verified installed-game picker to the room and use the new
-   [attempt-bound IPC port](MIDLET_NETWORK_BRIDGE.md) instead of its local adapter.
-   The separate-process packet path and startup hook now exist; the room still
-   has no production caller that selects a game and issues its launch lease.
-2. Add explicit Ready, authenticated launch/attachment acknowledgement, and return
-   to the same room. Keep the room active while its UI is covered by the separate
-   game activity; revoke on account/admission changes and require fresh readiness.
-   Keep capabilities disabled until the actual runtime and transport implement
-   the advertised mode, not only their API fixtures.
-3. Demonstrate discovery and a real two-device Java match, then disconnect/return
-   and a separate-network check. Symbian/Mophun require separate capability proof.
+The [Debug room-to-game workflow](ROOM_GAME_LAUNCH.md) now connects verified
+installed-game selection, the attempt-bound IPC port, explicit Ready, host
+launch, process acknowledgements and return. Release capabilities remain empty.
+
+1. Exercise the complete path with a real Bluetooth multiplayer Java game,
+   including discovery, gameplay, normal exit and another match in the same room.
+   Startup/return with a single-player MIDlet is not match compatibility proof.
+2. Improve same-edition lookup and first-run setup from the room; support a
+   specifically agreed MIDlet entry for multi-application archives.
+3. Check separate networks/NAT and decide on relay provisioning before enabling
+   Release capabilities. Symbian/Mophun require separate capability proof.
 
 Issues #34-37 remain open; this checkpoint does not satisfy their end-to-end criteria.

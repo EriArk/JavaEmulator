@@ -58,9 +58,15 @@ public final class MidletNetworkClient implements Closeable {
                     adapter = new VirtualBluetooth(new VirtualBluetooth.Peer(host ? "020000000001" : "020000000002", host ? "Player 1" : "Player 2"), backend);
                     VirtualBluetooth.install(adapter);
                 }
-                main.post(() -> { synchronized (this) { if (closed) return; main.removeCallbacks(timeout); ready.run(); } });
+                boolean released = false;
+                long nextCheck = 0;
                 while (!Thread.currentThread().isInterrupted()) {
                     synchronized (this) { if (closed) return; }
+                    if (!released && SystemClock.elapsedRealtime() >= nextCheck) {
+                        nextCheck = SystemClock.elapsedRealtime() + 100;
+                        released = acknowledge(service);
+                        if (released) main.post(() -> { synchronized (this) { if (closed) return; main.removeCallbacks(timeout); ready.run(); } });
+                    }
                     for (int i = 0; i < 16; i++) { byte[] packet = pipe.pollOutbound(); if (packet == null) break; backend.receive(packet); }
                     for (int i = 0; i < 16; i++) { byte[] packet = backend.pollOutbound(); if (packet == null) break; pipe.receive(packet); }
                     Thread.sleep(10);
@@ -70,6 +76,14 @@ public final class MidletNetworkClient implements Closeable {
             } finally { reply.recycle(); data.recycle(); }
         });
         }
+    }
+    private boolean acknowledge(IBinder service) throws IOException, RemoteException {
+        Parcel data = Parcel.obtain(), reply = Parcel.obtain();
+        try {
+            data.writeInterfaceToken(GameNetworkService.DESCRIPTOR); data.writeString(ticket); data.writeStrongBinder(lifetime);
+            if (!service.transact(GameNetworkService.READY, data, reply, 0)) throw new IOException("Unsupported launch barrier");
+            reply.readException(); return reply.readInt() != 0;
+        } finally { data.recycle(); reply.recycle(); }
     }
     private void fail(String reason) {
         synchronized (this) { if (closed) return; close(); }

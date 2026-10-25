@@ -10,6 +10,23 @@ stated otherwise. **Experimental** in older checkpoints means local/private
 combined builds; released experimental features are explicitly identified.
 **Released** means an actual GitHub release asset.
 
+## 2026-10-25 - Room-to-Game Workflow (Unreleased, Debug)
+
+- Connect installed Java game selection to the room. Verify actual files and
+  the single MIDlet entry, reject another edition, and prepare code off the UI
+  thread. Games need their own Bluetooth multiplayer mode; selection does not
+  turn a single-player game into multiplayer.
+- Add host Start after both players press Ready. Wait for both game processes
+  to attach before starting their MIDlets, with bounded cancellation and stale
+  attempt protection.
+- Keep the room alive during gameplay and return with fresh readiness after
+  exit/disconnect. Fix the guest-return lifecycle failure found in live testing.
+- Pass 378 JVM checks, 60 Android checks on each target and live two-account
+  Retroid/emulator startup/return scenarios in both host roles with a real MIDlet.
+  Keep Release capabilities disabled pending actual
+  multiplayer-game and different-network checks. No new public APK or upload.
+  [Evidence and limits](docs/ROOM_GAME_LAUNCH.md).
+
 ## 2026-10-25 - Isolated Game-Process Network Bridge (Unreleased)
 
 - Add a private, one-use connection from the room process into a separate game

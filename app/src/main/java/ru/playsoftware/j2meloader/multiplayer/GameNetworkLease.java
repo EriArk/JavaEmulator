@@ -20,10 +20,14 @@ public final class GameNetworkLease implements PeerPacketPort {
     private IBinder lifetime;
     private final IBinder.DeathRecipient death = this::close;
     private boolean offered, claiming, claimed, closed;
+    private boolean coordinated, adapterReady, released;
     private long deadline = SystemClock.elapsedRealtime() + 120000;
 
     public GameNetworkLease(PeerBinding binding, String account, InstalledNetworkGame installed) throws IOException {
         this(binding, account, installed, installed::recheck);
+    }
+    public GameNetworkLease(PeerBinding binding, String account, InstalledNetworkGame installed, boolean coordinated) throws IOException {
+        this(binding, account, installed); this.coordinated = coordinated;
     }
     GameNetworkLease(PeerBinding binding, String account, InstalledNetworkGame installed, Verification verification) throws IOException {
         this.binding = Objects.requireNonNull(binding); this.account = account; this.installed = installed;
@@ -64,6 +68,15 @@ public final class GameNetworkLease implements PeerPacketPort {
         return !closed;
     }
     public synchronized boolean attached() { return claimed && !closed; }
+    public synchronized boolean adapterReady() { return adapterReady && !closed; }
+    /** The private client acknowledges installation, then waits for the host's all-player barrier. */
+    synchronized boolean ready(String ticket, IBinder lifetime) throws IOException {
+        check();
+        if (!claimed || !this.ticket.equals(ticket) || !Objects.equals(this.lifetime, lifetime))
+            throw new IOException("Wrong game process");
+        adapterReady = true; return !coordinated || released;
+    }
+    synchronized void release() throws IOException { check(); if (!adapterReady) throw new IOException("Game adapter is not ready"); released = true; }
     @Override public synchronized void receive(byte[] packet) throws IOException { check(); pipe.receive(packet); }
     @Override public synchronized byte[] pollOutbound() throws IOException { check(); return pipe.pollOutbound(); }
     private void check() throws IOException {

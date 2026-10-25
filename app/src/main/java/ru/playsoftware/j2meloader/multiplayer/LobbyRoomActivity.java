@@ -43,8 +43,9 @@ public final class LobbyRoomActivity extends CompactSettingsActivity {
     private void render(LobbyRoomModel.State s){
         if(state!=null&&!state.account.equals(s.account)&&dialog!=null)dialog.dismiss();state=s;
         notice.setText(s.status);
+        launchIfOffered();
         share.setVisibility(s.hosting?View.VISIBLE:View.GONE);
-        String next=s.account+s.verified+s.room+s.snapshot+s.invitations+s.requests+s.friends+s.names+s.publication+s.available+s.contacts+(proposed==null?"":proposed.room);
+        String next=s.account+s.verified+s.room+s.snapshot+s.invitations+s.requests+s.friends+s.names+s.publication+s.available+s.contacts+s.gameTitle+s.checkingGame+s.attempt+(proposed==null?"":proposed.room);
         if(next.equals(signature))return;signature=next;
         Object focused=getCurrentFocus()==null?null:getCurrentFocus().getTag();rows.removeAllViews();
         if(!s.verified){button(rows,"Open Fluxer account","account",()->startActivity(new Intent(this,FluxerAccountActivity.class)));return;}
@@ -69,8 +70,16 @@ public final class LobbyRoomActivity extends CompactSettingsActivity {
                 }
             }
             for(Map.Entry<String,String> request:s.requests.entrySet()){heading(request.getValue()+" wants to join");LinearLayout actions=line();button(actions,"Approve","approve:"+request.getKey(),()->model.action(s.account,r->r.approve(request.getKey(),true)));button(actions,"Decline","reject:"+request.getKey(),()->model.action(s.account,r->r.approve(request.getKey(),false)));}
-            if(s.joined){heading(s.snapshot.has("game")?"Game selected":"No online game selected");JsonObject mine=member(s.snapshot,s.account);
-                Button ready=button(rows,bool(mine,"ready")?"Not ready":"Ready","ready",()->model.action(s.account,r->r.ready(!bool(mine,"ready"))));ready.setEnabled(s.available&&bool(mine,"prepared"));ready.setAlpha(ready.isEnabled()?1f:0.45f);}
+            if(s.joined){heading(s.snapshot.has("game")?(s.gameTitle.isEmpty()?"Java Bluetooth game":s.gameTitle):"No online game selected");JsonObject mine=member(s.snapshot,s.account);
+                boolean launching=s.snapshot.has("launch");
+                if(s.gameSelection){Button select=button(rows,s.checkingGame?"Checking game...":s.hosting?"Select game":"Select matching game","select-game",this::chooseGame);select.setEnabled(s.available&&!launching&&!s.checkingGame&&(s.hosting||s.snapshot.has("game")));select.setAlpha(select.isEnabled()?1f:0.45f);}
+                Button ready=button(rows,bool(mine,"ready")?"Not ready":"Ready","ready",()->model.action(s.account,r->r.ready(!bool(mine,"ready"))));ready.setEnabled(s.available&&!launching&&!s.checkingGame&&bool(mine,"prepared"));ready.setAlpha(ready.isEnabled()?1f:0.45f);
+                if(s.hosting&&s.gameSelection){boolean allReady=s.snapshot.has("game")&&members!=null&&members.isJsonArray()&&members.getAsJsonArray().size()==2;
+                    if(allReady)for(JsonElement e:members.getAsJsonArray()){JsonObject m=e.getAsJsonObject();allReady&=bool(m,"ready")&&bool(m,"prepared")&&bool(m,"connected");}
+                    Button start=button(rows,launching?"Starting game...":"Start game","start-game",()->model.action(s.account,LobbyRoom::start));start.setEnabled(allReady&&!launching&&s.available);start.setAlpha(start.isEnabled()?1f:0.45f);
+                }
+                if(launching){String attempt=text(object(s.snapshot,"launch"),"attempt");button(rows,"Cancel game launch","cancel-launch",()->model.action(s.account,r->r.finish(attempt)));}
+            }
             button(rows,s.hosting?"Close room":"Leave room","leave",()->confirm(s.hosting?"Close room?":"Leave room?",s.hosting?"All participants will be disconnected from this room.":"You can request to join again later.",()->model.action(s.account,LobbyRoom::leave)));
         }
         JsonObject contacts=object(s.contacts,"peers");
@@ -90,6 +99,26 @@ public final class LobbyRoomActivity extends CompactSettingsActivity {
             button(rows,"Open Friends","contact-friends",()->startActivity(new Intent(this,FluxerChatsActivity.class).putExtra("friends",true)));
         }
         if(focused!=null){View restore=rows.findViewWithTag(focused);if(restore!=null&&restore.isEnabled())restore.requestFocus();}
+    }
+    private void chooseGame(){
+        if(state==null)return;String account=state.account;GameMenuDialog menu=menu("Select Java game");menu.message("Loading installed games...");
+        model.games(entries->{
+            if(isFinishing()||isDestroyed()||dialog!=menu||!menu.isShowing()||state==null||!account.equals(state.account))return;
+            menu.page("Select Java game");
+            menu.message("Experimental Bluetooth mode. Both players need the same game edition and its built-in multiplayer mode.");
+            if(entries.isEmpty())menu.message("No single-entry Java games found. Install and open a game from Library first.");
+            for(NetworkGameCatalog.Entry entry:entries)menu.action(entry.title,android.R.drawable.ic_media_play,()->{menu.dismiss();model.chooseGame(account,entry);});
+        },reason->{if(dialog==menu&&menu.isShowing()){menu.page("Select Java game");menu.message(reason);}});
+    }
+    private void launchIfOffered(){
+        if(state==null||!state.launchOffered||!getLifecycle().getCurrentState().isAtLeast(androidx.lifecycle.Lifecycle.State.RESUMED))return;
+        String account=state.account,attempt=state.attempt;
+        model.launch(account,attempt,intent->{
+            if(isFinishing()||isDestroyed()||!getLifecycle().getCurrentState().isAtLeast(androidx.lifecycle.Lifecycle.State.RESUMED)||state==null||!account.equals(state.account)||!attempt.equals(state.attempt)){
+                model.action(account,r->r.finish(attempt));return;
+            }
+            try{startActivity(intent);}catch(RuntimeException failure){model.action(account,r->r.finish(attempt));}
+        });
     }
     private String contactStatus(JsonObject contact){
         if(!text(contact,"error").isEmpty())return text(contact,"error");
@@ -124,5 +153,6 @@ public final class LobbyRoomActivity extends CompactSettingsActivity {
     private LinearLayout line(){LinearLayout line=new LinearLayout(this);line.setOrientation(LinearLayout.HORIZONTAL);rows.addView(line,new LinearLayout.LayoutParams(-1,-2));return line;}
     private Button button(LinearLayout parent,String text,String tag,Runnable action){Button b=new Button(this);b.setText(text);b.setTag(tag);b.setAllCaps(false);b.setMinHeight(dp(48));b.setTextColor(AppPalette.color(this,R.color.text_primary));b.setBackgroundResource(R.drawable.bg_fluxer_action);b.setPadding(dp(10),dp(6),dp(10),dp(6));LinearLayout.LayoutParams lp=new LinearLayout.LayoutParams(parent==rows?-1:0,-2,parent==rows?0:1);lp.bottomMargin=dp(6);lp.rightMargin=dp(4);parent.addView(b,lp);b.setOnClickListener(v->action.run());return b;}
     @Override protected void onStart(){super.onStart();model.resume();}
+    @Override protected void onResume(){super.onResume();launchIfOffered();}
     @Override protected void onStop(){if(dialog!=null)dialog.dismiss();model.pause();super.onStop();}
 }

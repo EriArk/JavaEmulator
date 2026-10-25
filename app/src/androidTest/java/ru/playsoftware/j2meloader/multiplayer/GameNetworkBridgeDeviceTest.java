@@ -105,6 +105,18 @@ public class GameNetworkBridgeDeviceTest {
             probe.kill();Thread.sleep(250);
         }finally{probe.close();}
     }
+    @Test public void processWaitsForCoordinatedReleaseBeforeRunningGame() throws Exception {
+        Probe probe=new Probe();
+        try(GameNetworkLease lease=new GameNetworkLease(binding,B,installed,true)){
+            probe.bind(GameNetworkService.offer(context,"Fixture",lease).putExtra("hold",true));
+            long until=SystemClock.elapsedRealtime()+5000;
+            while(!lease.adapterReady()&&SystemClock.elapsedRealtime()<until)Thread.sleep(10);
+            assertTrue(lease.adapterReady());
+            probe.await("waiting",1000);
+            assertThrows(IOException.class,()->lease.ready(UUID.randomUUID().toString(),new Binder()));
+            lease.release();probe.await("attached",5000);probe.kill();Thread.sleep(250);
+        }finally{probe.close();}
+    }
     @Test public void obsoleteLeaseCannotClearNewLaunch() throws Exception {
         GameNetworkLease old=new GameNetworkLease(binding,B,installed);GameNetworkService.offer(context,"Old",old);old.close();
         try(GameNetworkLease current=new GameNetworkLease(binding,B,installed)){

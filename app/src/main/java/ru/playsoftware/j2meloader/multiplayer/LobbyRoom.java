@@ -25,13 +25,21 @@ public final class LobbyRoom {
     private long peerGeneration;
     private String peerAttempt="";
     private boolean active=true;
+    private final LongSupplier monotonic;
+    private LobbySession.Launch launch;
+    private final Set<String> attached=new LinkedHashSet<>();
+    private String cancelledAttempt="",observedAttempt="";
+    private long launchDeadline;
     private final Map<String,Long> replay=new LinkedHashMap<>(),seen=new HashMap<>();
     private final Map<String,String> peerBoots=new HashMap<>(),requests=new LinkedHashMap<>();
     private final Map<String,JsonObject> offers=new LinkedHashMap<>(),invitations=new LinkedHashMap<>();
 
     public LobbyRoom(String self,LongSupplier seconds,Set<String> capabilities,Sender sender,Runnable changed){
+        this(self,seconds,()->System.nanoTime()/1000000000L,capabilities,sender,changed);
+    }
+    LobbyRoom(String self,LongSupplier seconds,LongSupplier monotonic,Set<String> capabilities,Sender sender,Runnable changed){
         if(!LobbyDirectory.id(self))throw new IllegalArgumentException("Account required");
-        this.self=self;clock=seconds;this.capabilities=new HashSet<>(capabilities);this.sender=sender;this.changed=changed;
+        this.self=self;clock=seconds;this.monotonic=monotonic;this.capabilities=new HashSet<>(capabilities);this.sender=sender;this.changed=changed;
     }
     public boolean hosting(){return session!=null;}
     public boolean joined(){return hosting()||!remote.entrySet().isEmpty();}
@@ -46,6 +54,7 @@ public final class LobbyRoom {
     public PeerBinding peerBinding(){
         if(!available()||!joined())return null;
         JsonObject state=snapshot();LobbySession.Game game=game(object(state,"game"));
+        if(text(state,"peerAttempt").equals(cancelledAttempt))return null;
         if(!peerGame(game)||!capabilities.contains(capability(game))||!uuid(text(state,"peerAttempt")))return null;
         List<String> seats=new ArrayList<>();
         JsonArray members=state.getAsJsonArray("members");
@@ -57,9 +66,11 @@ public final class LobbyRoom {
     }
     private static boolean peerGame(LobbySession.Game game){return game!=null&&game.players==2&&game.engine.equals("java")&&game.mode.equals("bluetooth")&&game.adapterVersion.equals("1");}
     public boolean available(){return active&&(hosting()||joined()&&clock.getAsLong()-lastHost<45);}
+    boolean isActive(){return active;}
     private void emit(){changed.run();}
     private void info(String text){notice=text;emit();}
     public void active(boolean value){
+        if(!value){String attempt=launchAttempt();if(!attempt.isEmpty())finish(attempt);}
         active=value;
         if(!value&&hosting())for(String peer:session.members())session.connection(peer,false);
         if(value&&hosting())session.connection(self,true);
@@ -106,7 +117,7 @@ public final class LobbyRoom {
         }else if(!room.isEmpty())send(host,"leave",new JsonObject(),room,"");
         clear();info("You left the room.");
     }
-    private void clear(){session=null;room=host=hostBoot=probe=peerAttempt="";peerGeneration=0;remote=new JsonObject();offers.clear();requests.clear();seen.clear();peerBoots.clear();joiningAt=0;}
+    private void clear(){session=null;launch=null;attached.clear();cancelledAttempt=observedAttempt="";room=host=hostBoot=probe=peerAttempt="";peerGeneration=0;remote=new JsonObject();offers.clear();requests.clear();seen.clear();peerBoots.clear();joiningAt=0;}
     public void deliveryFailed(String peer){
         deliveryFailed(peer,"Could not reach this player. Check Fluxer access and refresh.");
     }
@@ -131,6 +142,38 @@ public final class LobbyRoom {
         if(hosting()){session.ready(self,session.generation(),ready);broadcast();return;}
         JsonObject mine=member(remote,self);if(ready&&!bool(mine,"prepared"))return;
         JsonObject data=new JsonObject();data.addProperty("generation",number(remote,"generation"));data.addProperty("ready",ready);send(host,"ready",data,room,"");
+    }
+    /** Host explicitly starts after every admitted player has prepared and pressed Ready. */
+    public boolean start(){
+        if(!hosting()||!available()||launch!=null)return false;
+        PeerBinding binding=peerBinding();if(binding==null)return false;
+        launch=session.takeLaunch(binding.attempt);if(launch==null)return false;
+        attached.clear();launchDeadline=monotonic.getAsLong()+30;
+        notice="Connecting game processes...";broadcast();return true;
+    }
+    public String launchAttempt(){
+        if(!available())return "";
+        String attempt=currentAttempt();
+        return attempt.equals(cancelledAttempt)?"":attempt;
+    }
+    private String currentAttempt(){return hosting()?(launch==null?"":launch.attempt.toString()):text(object(remote,"launch"),"attempt");}
+    public boolean running(){
+        return !launchAttempt().isEmpty()&&(hosting()?attached.containsAll(launch.seats):bool(object(remote,"launch"),"running"));
+    }
+    /** Called only after the local process has installed its virtual adapter. */
+    public void attached(String attempt){
+        if(attempt.isEmpty()||!attempt.equals(launchAttempt()))return;
+        if(hosting()){if(attached.add(self))broadcast();}
+        else {JsonObject data=new JsonObject();data.addProperty("attempt",attempt);send(host,"attached",data,room,"");}
+    }
+    public void finish(String attempt){
+        if(attempt.isEmpty()||attempt.equals(cancelledAttempt)||!attempt.equals(currentAttempt()))return;
+        if(hosting()){
+            session.finish(launch.attempt);launch=null;attached.clear();notice="Game ended. Prepare and press Ready to play again.";broadcast();
+        }else{
+            cancelledAttempt=attempt;JsonObject data=new JsonObject();data.addProperty("attempt",attempt);send(host,"finish",data,room,"");
+            info("Returning to room. Waiting for the host...");
+        }
     }
     public void receive(String peer,JsonObject p){
         long now=clock.getAsLong(),seq=number(p,"serial"),expiry=number(p,"expires");
@@ -182,6 +225,12 @@ public final class LobbyRoom {
             }
             if(!session.members().contains(peer)||!incarnation.equals(peerBoots.get(peer)))return;
             replay.put(key,seq);seen.put(peer,now);
+            if(kind.equals("attached")||kind.equals("finish")){
+                if(launch==null||!text(data,"attempt").equals(launch.attempt.toString()))return;
+                if(kind.equals("finish"))finish(text(data,"attempt"));
+                else if(attached.add(peer))broadcast();
+                return;
+            }
             if(kind.equals("leave")){session.remove(self,peer);seen.remove(peer);broadcast();return;}
             if(kind.equals("ping")){boolean reconnected=!session.isConnected(peer);session.connection(peer,true);if(reconnected)broadcast();return;}
             if(kind.equals("prepared")&&data.has("prepared")&&data.get("prepared").isJsonPrimitive()&&data.get("prepared").getAsJsonPrimitive().isBoolean())session.prepared(peer,number(data,"generation"),session.game(),bool(data,"prepared"));
@@ -197,11 +246,16 @@ public final class LobbyRoom {
         if(kind.equals("pending")){replay.put(key,seq);info("Waiting for host approval...");return;}
         if(Arrays.asList("closed","removed","rejected").contains(kind)){replay.put(key,seq);clear();info("The room is closed or your request was declined.");return;}
         if(!kind.equals("state")||!validState(data,host,id,self)||number(data,"revision")<number(remote,"revision"))return;
-        replay.put(key,seq);hostBoot=incarnation;remote=data.deepCopy();lastHost=now;joiningAt=0;probe="";notice="Connected to room";emit();
+        replay.put(key,seq);hostBoot=incarnation;remote=data.deepCopy();lastHost=now;joiningAt=0;probe="";
+        String attempt=text(object(remote,"launch"),"attempt");
+        if(!attempt.equals(observedAttempt)){observedAttempt=attempt;launchDeadline=monotonic.getAsLong()+30;}
+        notice=attempt.isEmpty()?"Connected to room":bool(object(remote,"launch"),"running")?"Game in progress":"Connecting game processes...";emit();
     }
     public void tick(){
         long now=clock.getAsLong();boolean expired=invitations.values().removeIf(i->number(i,"until")<=now);offers.values().removeIf(i->number(i,"until")<=now);
         if(expired)emit();if(!active)return;
+        String attempt=launchAttempt();
+        if(!attempt.isEmpty()&&!running()&&monotonic.getAsLong()>=launchDeadline){finish(attempt);info("Game launch timed out. Prepare and press Ready again.");}
         if(joiningAt>0&&now-joiningAt>90){clear();info("The host did not answer. Try joining again.");}
         if(now<nextBeat)return;nextBeat=now+20;
         if(hosting()){
@@ -213,7 +267,10 @@ public final class LobbyRoom {
             if(now-lastHost>45)info("Host unavailable. Waiting to reconnect...");
         }
     }
-    private void broadcast(){revision++;JsonObject state=hostState();for(String peer:session.members())if(!peer.equals(self))send(peer,"state",state,room,"");emit();}
+    private void broadcast(){
+        if(launch!=null&&launch.generation!=session.generation()){session.finish(launch.attempt);launch=null;attached.clear();}
+        revision++;JsonObject state=hostState();for(String peer:session.members())if(!peer.equals(self))send(peer,"state",state,room,"");emit();
+    }
     private JsonObject hostState(){
         JsonObject s=new JsonObject();s.addProperty("id",room);s.addProperty("host",self);s.addProperty("access",access);s.addProperty("revision",revision);s.addProperty("generation",session.generation());
         JsonArray members=new JsonArray();for(String peer:session.members()){JsonObject m=new JsonObject();m.addProperty("id",peer);m.addProperty("prepared",session.isPrepared(peer));m.addProperty("ready",session.isReady(peer));m.addProperty("connected",session.isConnected(peer));members.add(m);}s.add("members",members);
@@ -222,6 +279,7 @@ public final class LobbyRoom {
             if(peerGeneration!=session.generation()){peerGeneration=session.generation();peerAttempt=uuid();}
             s.addProperty("peerAttempt",peerAttempt);
         }
+        if(launch!=null){JsonObject l=new JsonObject();l.addProperty("attempt",launch.attempt.toString());l.addProperty("running",attached.containsAll(launch.seats));JsonArray a=new JsonArray();for(String peer:attached)a.add(peer);l.add("attached",a);s.add("launch",l);}
         return s;
     }
     private void send(String peer,String kind,JsonObject data,String id,String reply){
@@ -235,7 +293,16 @@ public final class LobbyRoom {
             for(String f:new String[]{"prepared","ready","connected"})if(!m.has(f)||!m.get(f).isJsonPrimitive()||!m.getAsJsonPrimitive(f).isBoolean())return false;
             if(bool(m,"ready")&&(!bool(m,"prepared")||!bool(m,"connected")))return false;
         }
-        return ids.contains(host)&&ids.contains(self)&&(!s.has("game")||wireGame(game(object(s,"game"))))
+        if(s.has("launch")){
+            JsonObject l=object(s,"launch");JsonElement a=l.get("attached"),r=l.get("running");
+            if(!uuid(text(l,"attempt"))||!text(l,"attempt").equals(text(s,"peerAttempt"))||ids.size()!=2
+                    ||a==null||!a.isJsonArray()||a.getAsJsonArray().size()>2||r==null||!r.isJsonPrimitive()||!r.getAsJsonPrimitive().isBoolean())return false;
+            Set<String> acknowledgements=new HashSet<>();
+            for(JsonElement e:a.getAsJsonArray())if(!e.isJsonPrimitive()||!e.getAsJsonPrimitive().isString()||!ids.contains(e.getAsString())||!acknowledgements.add(e.getAsString()))return false;
+            if(bool(l,"running")!=acknowledgements.equals(ids))return false;
+            for(JsonElement e:members.getAsJsonArray()){JsonObject m=e.getAsJsonObject();if(!bool(m,"connected")||!bool(m,"prepared")||!bool(m,"ready"))return false;}
+        }
+        return ids.contains(host)&&ids.contains(self)&&text(members.getAsJsonArray().get(0).getAsJsonObject(),"id").equals(host)&&(!s.has("game")||wireGame(game(object(s,"game"))))
                 &&(!s.has("peerAttempt")||uuid(text(s,"peerAttempt"))&&ids.size()==2&&peerGame(game(object(s,"game"))));
     }
     // Keep a full 16-player snapshot within one provider message, including its envelope.

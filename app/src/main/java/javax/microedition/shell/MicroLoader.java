@@ -97,6 +97,11 @@ public class MicroLoader {
 		appDirName = appDir.getName();
 	}
 
+	/** Prepare cached executable code without constructing a MIDlet or changing its saves. */
+	public static void prepareNetworkCode(File app, File cache) throws IOException {
+		GuestDex.prepare(app, cache, new File(app, Config.MIDLET_DEX_FILE));
+	}
+
 	public boolean init() {
 		File config = new File(workDir + Config.MIDLET_CONFIGS_DIR + appDirName);
 		this.params = ProfilesManager.loadConfig(config);

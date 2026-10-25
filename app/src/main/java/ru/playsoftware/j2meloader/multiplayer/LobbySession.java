@@ -43,10 +43,10 @@ public final class LobbySession {
         public final Game game;
         /** Order assigns P1 to the host, P2 onwards to admitted players. */
         public final List<String> seats;
-        private Launch(UUID room, long generation, Game game, List<String> seats) {
+        private Launch(UUID room, long generation, Game game, List<String> seats, UUID attempt) {
             this.room = room; this.generation = generation; this.game = game;
             this.seats = Collections.unmodifiableList(new ArrayList<>(seats));
-            attempt = UUID.randomUUID();
+            this.attempt = attempt;
         }
     }
 
@@ -112,10 +112,15 @@ public final class LobbySession {
     }
     /** Invoke after each state change. The returned launch is consumed once, not a UI flag. */
     public Launch takeLaunch() {
+        return takeLaunch(UUID.randomUUID());
+    }
+    /** Reuse the authenticated transport attempt, not an unrelated launch nonce. */
+    public Launch takeLaunch(UUID attempt) {
         checkThread();
+        if (attempt == null || attempt.equals(new UUID(0, 0))) return null;
         if (closed || running != null || game == null || members.size() < 2) return null;
         for (Member member : members.values()) if (!member.connected || !member.prepared || !member.ready) return null;
-        running = new Launch(room, generation, game, new ArrayList<>(members.keySet()));
+        running = new Launch(room, generation, game, new ArrayList<>(members.keySet()), attempt);
         return running;
     }
     public boolean connection(String authenticatedPeer, boolean connected) {

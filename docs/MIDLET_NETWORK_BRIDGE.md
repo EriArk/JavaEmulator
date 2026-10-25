@@ -85,6 +85,10 @@ clear was performed. Games/firmware/private credentials are not added to Git.
 
 ## Remaining Work
 
+Historical boundary below. The subsequent [Debug room workflow](ROOM_GAME_LAUNCH.md)
+connects selection, coordinated process launch and return; Release game
+capabilities remain disabled until actual-match/network acceptance.
+
 1. Connect the verified installed-game picker and exact-match lookup to the room.
    Replace the coordinator's local adapter with the process port for real launches.
    Complete normal preparation before taking the file snapshot and agree on the
