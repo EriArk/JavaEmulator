@@ -10,6 +10,26 @@ stated otherwise. **Experimental** in older checkpoints means local/private
 combined builds; released experimental features are explicitly identified.
 **Released** means an actual GitHub release asset.
 
+## 2026-10-26 - Live Picture Presets and Phone Keypad Presentation (#40, Unreleased)
+
+- Preview supported image presets immediately from visual tiles over the paused
+  game. Keep/Undo stay visible below the scroll area; Back or interruption rolls
+  back the trial. Save only picture fields, not another page's pending controls
+  or performance settings. Retain legacy advanced Try/Keep/Undo controls.
+- Support Java/Mophun live size/rotation and capability-gated effects. Native
+  Symbian offers LCD previews; size/rotation stay apply-on-resume in Advanced.
+  Fix LCD preview unnecessarily reconfiguring the paused native surface/timing.
+- Add per-game Separate/Overlay presentation for Phone Keypad, with independent
+  placement by mode/orientation, a full game viewport and adjustable transparency
+  in Overlay. Preserve default Separate, Gamepad/Legacy and physical mapping.
+- Refine molded keycap highlights/press appearance and fix moved-group membership
+  during layout. Add transaction, failure, focus, fixed-footer, native-host and
+  overlay geometry/multitouch regression coverage. Debug only, not a public APK.
+  Pass 374 JVM and 89 Android checks on each target (six optional skips each).
+  Verify paused-frame effects on Retroid and phone keypad trial/save in emulator;
+  restore the fixture profile and add labeled development screenshots.
+  [Verification and limits](docs/RETRO_LIBRARY_REFRESH.md).
+
 ## 2026-10-26 - Contextual Actions and Shared Game Panels (#40, Unreleased)
 
 - Give game actions a small artwork header and primary Play, Display, Controls,

@@ -166,6 +166,8 @@ public class ProfileModel {
 
 	@SerializedName("touchLayout")
 	public Integer touchLayout;
+	@SerializedName("touchKeypadOverlay")
+	public boolean touchKeypadOverlay;
 	@SerializedName("touchSize")
 	public int touchSize;
 	@SerializedName("touchTheme")

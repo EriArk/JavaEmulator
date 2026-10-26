@@ -20,6 +20,7 @@ import ru.playsoftware.j2meloader.R;
 /** A single controller- and touch-accessible entry point for in-game options. */
 public final class GameMenuDialog extends Dialog {
     private LinearLayout content;
+    private LinearLayout decisions;
     private TextView heading;
     private TextView subtitle;
     private ImageButton navigation;
@@ -36,6 +37,19 @@ public final class GameMenuDialog extends Dialog {
     private final java.util.Map<String, Integer> pageScroll = new java.util.HashMap<>();
     private String restoreAction;
     private int restoreScroll;
+    private Runnable pageCleanup;
+    private boolean picturePreview;
+    public void setPageCleanup(Runnable cleanup) {
+        pageCleanup = cleanup; picturePreview = cleanup != null;
+        if (isShowing()) { updateWindowLayout(); getWindow().getDecorView().requestLayout(); }
+    }
+    public void cancelPreviewPage() { if (pageCleanup != null) dismiss(); }
+    public void finishPagePreview() {
+        Runnable cleanup = pageCleanup; pageCleanup = null;
+        if (cleanup != null) cleanup.run();
+        picturePreview = false;
+        if (isShowing()) updateWindowLayout();
+    }
     /** Opt in screen by screen; does not change emulator pause/input ownership. */
     public void useEdgePanel() { edgePanel = true; if (isShowing()) updateWindowLayout(); }
     public void editTouchLayout(ru.playsoftware.j2meloader.config.ProfileModel draft, Runnable done) {
@@ -50,6 +64,7 @@ public final class GameMenuDialog extends Dialog {
         editTouchLayout(draft, done); editor.onRestoreInstanceState(state);
     }
     @Override public void dismiss() {
+        finishPagePreview();
         if (editor != null) { editor.dismiss(); editor = null; }
         super.dismiss();
     }
@@ -101,6 +116,9 @@ public final class GameMenuDialog extends Dialog {
             }
             @Override protected void onMeasure(int widthSpec,int heightSpec) {
                 int max = getContext().getResources().getDisplayMetrics().heightPixels-dp(24);
+                if (picturePreview && !DeviceControls.connected(getContext())
+                        && getResources().getDisplayMetrics().heightPixels > getResources().getDisplayMetrics().widthPixels)
+                    max = Math.min(max, Math.round(getResources().getDisplayMetrics().heightPixels * .62f));
                 if (View.MeasureSpec.getMode(heightSpec) != View.MeasureSpec.UNSPECIFIED) {
                     max = Math.min(max, View.MeasureSpec.getSize(heightSpec));
                 }
@@ -154,6 +172,9 @@ public final class GameMenuDialog extends Dialog {
         content.setOrientation(LinearLayout.VERTICAL);
         scroll.addView(content);
         panel.addView(scroll,new LinearLayout.LayoutParams(-1,-2,1));
+        decisions = new LinearLayout(getContext()); decisions.setPadding(dp(12), dp(4), dp(12), dp(8));
+        decisions.setVisibility(View.GONE);
+        panel.addView(decisions, new LinearLayout.LayoutParams(-1, -2));
         setContentView(panel);
         Window window = getWindow();
         window.setBackgroundDrawable(new ColorDrawable(Color.TRANSPARENT));
@@ -186,7 +207,8 @@ public final class GameMenuDialog extends Dialog {
             int height = getContext().getResources().getDisplayMetrics().heightPixels;
             boolean side = DeviceControls.connected(getContext()) || width > height;
             attributes.gravity = side ? Gravity.END | Gravity.CENTER_VERTICAL : Gravity.BOTTOM | Gravity.CENTER_HORIZONTAL;
-            attributes.width = side ? Math.min(dp(380), width - dp(24)) : Math.min(dp(600), width);
+            attributes.width = side ? Math.min(dp(picturePreview ? 300 : 380), width - dp(24)) : Math.min(dp(600), width);
+            attributes.dimAmount = picturePreview ? 0 : .4f;
             attributes.height = WindowManager.LayoutParams.WRAP_CONTENT;
             attributes.y = 0;
             window.setAttributes(attributes);
@@ -204,6 +226,7 @@ public final class GameMenuDialog extends Dialog {
         window.setAttributes(attributes);
     }
     public void page(String title) {
+        finishPagePreview();
         if (pageTitle != null) {
             View focus = getCurrentFocus();
             if (focus instanceof Button) pageFocus.put(pageTitle, ((Button) focus).getText().toString());
@@ -213,6 +236,7 @@ public final class GameMenuDialog extends Dialog {
         restoreAction = pageFocus.get(title);
         restoreScroll = pageScroll.getOrDefault(title, 0);
         content.removeAllViews();
+        decisions.removeAllViews(); decisions.setVisibility(View.GONE);
         defaultAction = null;
         pendingDefaultFocus = null;
         setBackAction(null);
@@ -245,6 +269,58 @@ public final class GameMenuDialog extends Dialog {
                 : androidx.appcompat.R.drawable.abc_ic_ab_back_material);
         navigation.setContentDescription(action == null ? "Close" : "Back");
         navigation.setTooltipText(navigation.getContentDescription());
+    }
+    public void presetTiles(String[] names, int selected, java.util.function.IntConsumer change) {
+        LinearLayout row = null;
+        java.util.ArrayList<Button> buttons = new java.util.ArrayList<>();
+        for (int i = 0; i < names.length; i++) {
+            if (i % 2 == 0) {
+                row = new LinearLayout(getContext());
+                content.addView(row, new LinearLayout.LayoutParams(-1, -2));
+            }
+            final int index = i;
+            Button tile = new Button(getContext());
+            tile.setText(names[i]); tile.setAllCaps(false); tile.setTextSize(14);
+            tile.setTextColor(ru.playsoftware.j2meloader.ui.AppPalette.color(getContext(), R.color.text_primary));
+            tile.setMinHeight(dp(88)); tile.setMinimumWidth(0); tile.setMinWidth(0);
+            tile.setPadding(dp(6), dp(8), dp(6), dp(8));
+            tile.setBackground(new ru.playsoftware.j2meloader.ui.ConsoleSurface(getContext(),
+                    ru.playsoftware.j2meloader.ui.ConsoleSurface.Kind.KEY));
+            tile.setSelected(i == selected); tile.setFocusable(true);
+            tile.setDefaultFocusHighlightEnabled(false); tile.setStateListAnimator(null);
+            tile.setCompoundDrawablesWithIntrinsicBounds(null,
+                    new PresetSwatch(getContext(), names[i]), null, null);
+            tile.setContentDescription(names[i] + " picture preset");
+            tile.setOnClickListener(v -> {
+                tile.requestFocusFromTouch();
+                change.accept(index);
+                for (int n = 0; n < buttons.size(); n++) buttons.get(n).setSelected(n == index);
+            });
+            LinearLayout.LayoutParams lp = new LinearLayout.LayoutParams(0, -2, 1);
+            lp.setMargins(dp(3), dp(3), dp(3), dp(3)); row.addView(tile, lp);
+            buttons.add(tile); focusDefault(tile);
+            if (names[i].equals(restoreAction)) {
+                defaultAction = tile; pendingDefaultFocus = tile;
+                tile.post(this::focusPendingAction);
+            }
+        }
+        if (names.length % 2 != 0) row.addView(new View(getContext()), new LinearLayout.LayoutParams(0, 1, 1));
+    }
+    public void previewDecisions(Runnable keep, Runnable undo) {
+        decisions.removeAllViews(); decisions.setVisibility(View.VISIBLE);
+        String[] names = {"Keep", "Undo"}; Runnable[] actions = {keep, undo};
+        for (int i = 0; i < names.length; i++) {
+            Button button = new Button(getContext()); button.setText(names[i]);
+            button.setAllCaps(false); button.setTextSize(15); button.setMinHeight(dp(48));
+            button.setMinWidth(0); button.setMinimumWidth(0); button.setPadding(dp(8), dp(6), dp(8), dp(6));
+            button.setTextColor(ru.playsoftware.j2meloader.ui.AppPalette.color(getContext(), R.color.text_primary));
+            button.setBackground(new ru.playsoftware.j2meloader.ui.ConsoleSurface(getContext(),
+                    ru.playsoftware.j2meloader.ui.ConsoleSurface.Kind.KEY));
+            button.setDefaultFocusHighlightEnabled(false); button.setStateListAnimator(null);
+            final Runnable action = actions[i]; button.setOnClickListener(v -> action.run());
+            LinearLayout.LayoutParams lp = new LinearLayout.LayoutParams(0, -2, 1);
+            lp.setMargins(dp(3), 0, dp(3), 0); decisions.addView(button, lp);
+        }
     }
     private void navigateBack() { if (backAction != null) backAction.run(); else dismiss(); }
     public android.widget.EditText textInput(String label, String value) {

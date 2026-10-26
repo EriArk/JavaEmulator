@@ -149,6 +149,7 @@ final class SymbianSessionUi {
     void visible(boolean value) {
         if (!value) fastForward.cancel();
         visible = value;
+        if (!value && menu != null) menu.cancelPreviewPage();
         if (value && devices.resumeRequired()) showMenu();
         if (value) updateShortcuts(); pause();
     }
@@ -240,6 +241,16 @@ final class SymbianSessionUi {
                         this::updateShortcuts, this::morePage));
     }
     private void displayPage() {
+        new ru.playsoftware.j2meloader.config.DisplayPanel(menu, profile, false, true,
+                this::previewPicture, this::home, this::advancedDisplayPage).show();
+    }
+    void previewPicture() {
+        // LCD is a host overlay: keep the paused native surface and guest timing untouched.
+        lcdGeometry = host.displayGeometry();
+        nextLcdGeometry = 0;
+        deckView.invalidate();
+    }
+    private void advancedDisplayPage() {
         ProfileModel draft = ProfilesManager.copy(profile); menu.page("Display");
         GameSettingsPages.frameRateChoice(menu, draft, false);
         GameSettingsPages.speedChoice(menu, draft);

@@ -23,7 +23,7 @@ public final class SymbianSessionUiTest {
         MainActivity activity = (MainActivity) instrumentation.startActivitySync(new Intent(context, MainActivity.class)
                 .addFlags(Intent.FLAG_ACTIVITY_NEW_TASK));
         String seed = UUID.randomUUID().toString().replace("-", ""), system = seed + seed;
-        SymbianSessionUi[] current = {null}; int[] speed = {0}, frames = {0}; List<Boolean> keys = new ArrayList<>();
+        SymbianSessionUi[] current = {null}; int[] speed = {0}, frames = {0}, nativeCalls = {0}; List<Boolean> keys = new ArrayList<>();
         try {
             instrumentation.runOnMainSync(() -> {
                 try {
@@ -32,9 +32,9 @@ public final class SymbianSessionUiTest {
                         public void touch(int x,int y,int pressure,int action,int pointer) { }
                         public void key(int scan,boolean down) { keys.add(down); }
                         public void pause(boolean value) { }
-                        public void display(int scale) { }
-                        public void speed(int value) { speed[0] = value; }
-                        public void frameRate(int value) { frames[0] = value; }
+                        public void display(int scale) { nativeCalls[0]++; }
+                        public void speed(int value) { nativeCalls[0]++; speed[0] = value; }
+                        public void frameRate(int value) { nativeCalls[0]++; frames[0] = value; }
                         public void leave() { } public void restart() { } public Bitmap capture() { return null; }
                     });
                     activity.setContentView(current[0].root);
@@ -53,6 +53,14 @@ public final class SymbianSessionUiTest {
                     assertEquals(400,speed[0]); current[0].focused(false);
                     assertEquals(75,speed[0]); assertEquals(30,frames[0]);
                     assertEquals(75,current[0].profile.emulationSpeed);
+                    int calls = nativeCalls[0];
+                    ViewGroup.LayoutParams surfaceLayout = current[0].root.getChildAt(0).getLayoutParams();
+                    current[0].profile.screenEffect = 2;
+                    current[0].previewPicture();
+                    current[0].profile.screenEffect = 0;
+                    current[0].previewPicture();
+                    assertEquals(calls, nativeCalls[0]);
+                    assertSame(surfaceLayout, current[0].root.getChildAt(0).getLayoutParams());
                 } catch (Exception error) { throw new AssertionError(error); }
             });
         } finally {

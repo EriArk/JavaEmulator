@@ -47,12 +47,81 @@ entirely; it does not merely hide it at selected widths.
 
 - Compatible Play Together and active-room shortcuts; pre-game native settings integration.
 - Paired multiplayer acceptance of local menus and Social/background transitions.
-- Instant reversible Display tiles, paused-frame refresh and capability guards.
-- Phone touch-control visuals and per-game Separate/Overlay keypad geometry.
+- Wider live-game/renderer matrix for Display previews; native size/rotation remain apply-on-resume.
+- Final phone-control comfort/accessibility acceptance across orientations and larger fonts.
 - Lobby seat presentation and live active-room entry.
 - Wider accessibility, animation, upgrade and physical-button acceptance matrix.
 
 Do not mark #40 complete or describe these remaining items as implemented.
+
+## Live Picture and Phone Controls (2026-10-26, Unreleased)
+
+- Display now offers immediate visual trials with Original / Pixel sharp / Smooth /
+  FSR / xBRZ / CRT tiles where the renderer supports them. Picture size and image
+  rotation are live for Java/Mophun. Keep and Undo remain outside the scrolling
+  content. Preserve focus when rebuilding the selected preset page.
+- A visual-only transaction keeps the current profile object, restores on Back,
+  dismissal or interruption, and persists only picture fields on Keep. Pending
+  controls/speed trials are not accidentally confirmed. Failed saves stay retryable;
+  synchronous rendering failure restores the entry picture and autosave guard.
+  Existing advanced settings keep their detached Try/Keep/Undo workflow.
+- Preview panels do not dim the picture. Handheld panels narrow to 300dp; phone
+  portrait previews use at most 62% of the screen height. Tile swatches are
+  illustrative motifs, not rendered game thumbnails. The game behind the panel
+  is the actual live host-filter preview, including while solo gameplay is paused.
+- Native Symbian exposes only its LCD effects. The initial device trial caught
+  a black paused frame when LCD reused the general apply path. Use an overlay-only
+  refresh instead, retaining native timing and surface layout. Native size/rotation
+  remain in Advanced and apply on resume; do not promise unsupported instant
+  native scaling, FSR or xBRZ.
+- Phone Keypad supports saved Separate (existing/default behavior) and Overlay.
+  Overlay uses the full game viewport, draws no opaque reserved-area background,
+  and allows 20-100% opacity. Existing Separate, Gamepad and Legacy geometry stays
+  unchanged. Keep independent placement IDs per orientation and presentation;
+  portrait moves the keypad together, landscape retains its two control blocks.
+- Add restrained keycap highlights/contact depth to Phone/Gamepad controls while
+  retaining High contrast, mappings, hit boxes, multitouch and existing feedback.
+  Fix group membership being recomputed after a group's coordinates moved.
+
+Verification:
+
+- Combined arm64 Debug build, development label `0.5.0-beta.1` / 310, SHA-256
+  `8fdc16b10bc64bf8c73e35f115c78cd442c9fc1a18a834c684cc1241e2b6c061`.
+  Build app/unit/Android-test targets with the same flags listed below, reusing
+  unchanged native outputs. Installed on Retroid Pocket Classic and Android 35
+  emulator; this is not the signed public beta APK.
+- Installed base APK hashes match on both targets.
+- 374 JVM tests, zero failures/errors/skips. Final Android selection contains 95
+  tests on each target: 89 pass and six optional caller-supplied-game/capture
+  scenarios skip, no failures. Retroid 58.360 s; emulator 158.743 s. Include
+  DisplayPreviewTest, DisplayPanelTest, TouchDeckTest, existing settings/menu/
+  palette suites and the native host no-reconfiguration regression.
+- Repeat all five DisplayPanelTest cases at 480x320dp (960x640 pixels, density
+  320): pass in 13.786 s, including fully visible fixed decision buttons. Reset
+  both emulator size and density overrides after this run. Log:
+  `.local/ux40/display-small-tests.txt`.
+- Retroid Deep Abyss: xBRZ re-presents the paused frame; Back restores its sharp
+  picture. Snakes: LCD Classic overlays the paused splash without losing the
+  native frame after the repair. Exit via the common confirmation. These are
+  solo menu/render checks, not new gameplay, audio or multiplayer acceptance.
+- Phone emulator 2048: portrait Separate with dark controls under a light app
+  theme, Overlay selected through Controls at 60% opacity, Try/Keep and persisted
+  profile value, trial timeout rollback, and CRT applied to the stopped Java frame.
+  Back restores the prior picture. Seed only the fixture's portrait/dark setup;
+  restore its original config byte-for-byte afterward (matching SHA-256).
+- Logs: `.local/ux40/display-build.txt`, `display-retroid-final-tests.txt` and
+  `display-emulator-final-tests.txt`. An earlier run used the wrong package for
+  CompactSettingsTest; correct it and rerun, rather than counting that as a pass.
+- [Actual development screenshots](../screenshots/development/2026-10-26-display-controls/README.md).
+  The phone emulator needed a non-wiping restart after ADB/system commands stalled
+  during subsequent screenshot work; its completed test run is recorded separately.
+- Remaining limits: manual controller/touch comfort, larger-font accessibility,
+  all GPU-driver failure paths, native instantaneous size/rotation and paired
+  network menu acceptance. Existing pending trials retain their own baseline;
+  visual Keep must not confirm their controls or speed.
+
+No public release, signed APK update, firmware/game upload or enabled Release
+multiplayer accompanies this work. #40 remains open.
 
 ## Contextual Actions and Shared Game Panels (2026-10-26, Unreleased)
 

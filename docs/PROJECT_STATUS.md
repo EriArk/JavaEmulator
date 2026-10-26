@@ -79,7 +79,7 @@ navigation. Add a recessed content well, muted glossy platform keys, shallow
 contact edges and matching temporary library panels. Light and dark variants
 retain readable focus; High contrast stays flat. Short landscape screens combine
 tools into the header without dropping view controls. Artwork is not filtered or
-replaced. Phone-control visuals have not migrated yet.
+replaced. Phone-control follow-up is described below.
 
 **Contextual actions and shared game panels, same date:** extend the treatment
 to Java, Mophun and Symbian game menus. Group primary commands separately from
@@ -95,9 +95,21 @@ skipped (capture and physical-controller-only focus). Installed hashes match.
 Retroid solo navigation covers Bounce Tales, Deep Abyss and Snakes, including
 Social return and Resume/Exit. These are instrumented checks, not manual button
 comfort or full-game acceptance. Java's local/network pause policy has regression
-coverage, but paired network menu/Social acceptance remains open. Display previews,
-Phone keypad presentation, Play Together/active-room shortcuts and lobby seats
-also remain open. No public APK or release update.
+coverage, but paired network menu/Social acceptance remains open.
+
+**Live picture and phone controls, same date:** add instantaneous supported preset
+trials over the paused game, sticky Keep/Undo, visual-only saving and interruption
+rollback. Add Phone Keypad Separate/Overlay with independent positions and refined
+keycaps. Preserve physical mapping, Gamepad/Legacy and default Separate geometry.
+Fix native LCD preview reconfiguring the paused surface; Symbian instant previews
+are LCD-only, with size/rotation kept in Advanced for apply-on-resume. Java/Mophun
+support live size/rotation. Tile motifs are illustrative, not game thumbnails.
+Play Together/active-room shortcuts, lobby seats and wider acceptance remain open.
+This follow-up passes 374 JVM tests and 89 Android tests per target, with six
+optional fixture/capture scenarios skipped on each. Installed Debug hashes match.
+Retroid verifies paused Mophun xBRZ and native LCD; the phone emulator verifies
+Java CRT, keypad Separate/Overlay and persisted selection through the game menu.
+No public APK or release update.
 [Scope, screenshots, evidence and remaining work](RETRO_LIBRARY_REFRESH.md).
 
 ## Multiplayer Foundation (Unreleased)

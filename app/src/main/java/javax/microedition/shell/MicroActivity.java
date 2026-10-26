@@ -346,6 +346,7 @@ public class MicroActivity extends AppCompatActivity {
 		VirtualKeyboard vk = ContextHolder.getVk();
 		if (vk != null) vk.cancel();
 		visible = false;
+		if (gameMenu != null) gameMenu.cancelPreviewPage();
 		hideSoftInput();
 		cancelQuickMapTrigger();
 		hideQuickSettingsOverlay();
@@ -923,7 +924,18 @@ public class MicroActivity extends AppCompatActivity {
 	}
 
 	private void showDisplayPage() {
-		settingsPages().display();
+		ProfileModel profile = microLoader.getTouchSettings();
+		new ru.playsoftware.j2meloader.config.DisplayPanel(gameMenu, profile,
+				profile.graphicsMode == 1 && profile.shader == null, false, () -> {
+			microLoader.applyPreviewSettings();
+			if (current instanceof Canvas) {
+				((Canvas) current).updateSize();
+				((Canvas) current).updateRenderingSettings();
+			}
+		}, this::showGameMenuPage, () -> settingsPages().display()).show();
+	}
+	public void picturePreviewFailed() {
+		if (gameMenu != null) gameMenu.cancelPreviewPage();
 	}
 
 	private GameSettingsPages settingsPages() {

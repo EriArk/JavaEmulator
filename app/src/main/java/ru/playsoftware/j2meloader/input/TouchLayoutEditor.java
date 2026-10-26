@@ -84,6 +84,7 @@ public final class TouchLayoutEditor extends Dialog {
     public static void copyLayout(ProfileModel from, ProfileModel to) {
         ProfileModel copy = ProfilesManager.copy(from);
         to.touchLayout = copy.touchLayout; to.touchSize = copy.touchSize;
+        to.touchKeypadOverlay = copy.touchKeypadOverlay;
         to.touchTheme = copy.touchTheme; to.touchOpacity = copy.touchOpacity;
         to.touchPortraitReach = copy.touchPortraitReach; to.touchLandscapeReach = copy.touchLandscapeReach;
         to.touchPlacements = copy.touchPlacements;
@@ -140,6 +141,9 @@ public final class TouchLayoutEditor extends Dialog {
         choice("Layout", new String[]{"Phone", "Gamepad"}, draft.touchLayout == null ? 0 : Math.min(1,draft.touchLayout), i -> {
             draft.touchLayout=i; selected=0; preview.rebuild(); buildControls();
         });
+        if (draft.touchLayout == null || draft.touchLayout == TouchDeck.PHONE)
+            choice("Keypad placement", new String[]{"Separate", "Overlay"}, draft.touchKeypadOverlay ? 1 : 0,
+                    i -> { draft.touchKeypadOverlay = i == 1; preview.rebuild(); buildControls(); });
         choice("Preview", new String[]{"Portrait", "Landscape"}, landscape ? 1 : 0, i -> {
             landscape=i==1; selected=0; preview.rebuild(); buildControls();
         });
@@ -165,7 +169,8 @@ public final class TouchLayoutEditor extends Dialog {
         } else {
         choice("Button theme",new String[]{"Follow app","Dark","Light"},Math.max(0,Math.min(2,draft.touchTheme)), i->{draft.touchTheme=i; preview.rebuild();});
         TextView opacity=label("Opacity: " + draft.touchOpacity + "%",14); controls.addView(opacity);
-        slider("Opacity",20,Math.max(0,Math.min(20,draft.touchOpacity-80)),v->{draft.touchOpacity=v+80; opacity.setText("Opacity: "+(v+80)+"%"); preview.invalidate();});
+        int minimum = draft.touchKeypadOverlay && (draft.touchLayout == null || draft.touchLayout == TouchDeck.PHONE) ? 20 : 80;
+        slider("Opacity",100-minimum,Math.max(0,Math.min(100-minimum,draft.touchOpacity-minimum)),v->{draft.touchOpacity=v+minimum; opacity.setText("Opacity: "+(v+minimum)+"%"); preview.invalidate();});
         }
     }
     private void move(float x,float y) { preview.deck.moveGroup(selected,x,y); preview.invalidate(); }

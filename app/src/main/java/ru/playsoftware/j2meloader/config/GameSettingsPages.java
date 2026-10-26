@@ -79,6 +79,8 @@ public final class GameSettingsPages {
                 draft.touchLayout = i; controls();
             });
             menu.toggle("Tactile feedback", draft.vkFeedback, value -> draft.vkFeedback = value);
+            if (layout == 0) menu.choice("Keypad placement", new String[]{"Separate", "Overlay"},
+                    draft.touchKeypadOverlay ? 1 : 0, i -> { draft.touchKeypadOverlay = i == 1; controls(); });
             if (layout == 2) {
                 if (!live || legacyActive) menu.action("Legacy layout editor", R.drawable.ic_action_keyboard, host::legacyControls);
                 controlsFooter(); return;
@@ -87,7 +89,9 @@ public final class GameSettingsPages {
                     menu.editTouchLayout(draft, this::controls));
             menu.choice("Button theme", new String[]{"Follow app", "Dark", "Light"}, clamp(draft.touchTheme, 3), i -> draft.touchTheme = i);
             menu.choice("Button size", new String[]{"Standard", "Large", "Extra large"}, clamp(draft.touchSize, 3), i -> draft.touchSize = i);
-            menu.opacity(Math.max(80, Math.min(100, draft.touchOpacity)), v -> draft.touchOpacity = v);
+            menu.percentage("Opacity", Math.max(draft.touchKeypadOverlay && layout == 0 ? 20 : 80,
+                    Math.min(100, draft.touchOpacity)), draft.touchKeypadOverlay && layout == 0 ? 20 : 80,
+                    v -> draft.touchOpacity = v);
             menu.choice("Portrait position", new String[]{"Bottom", "Raised"}, draft.touchPortraitReach > 0 ? 1 : 0,
                     i -> draft.touchPortraitReach = i);
             menu.choice("Landscape position", new String[]{"Bottom", "Raised"}, draft.touchLandscapeReach > 0 ? 1 : 0,

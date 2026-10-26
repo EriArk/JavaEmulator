@@ -18,6 +18,42 @@ import static org.junit.Assert.*;
 
 @RunWith(AndroidJUnit4.class)
 public class TouchDeckTest {
+    @Test public void overlayKeepsFullGameAreaAndIndependentPlacementInBothOrientations() {
+        InstrumentationRegistry.getInstrumentation().runOnMainSync(() -> {
+            for (int[] size : new int[][]{{360,640},{640,360},{480,320},{540,620}}) {
+                ProfileModel p = new ProfileModel(); p.touchLayout = TouchDeck.PHONE;
+                ArrayList<String> events = new ArrayList<>(); TouchDeck deck = create(p,events);
+                deck.layout(size[0],size[1]); String separate = deck.placementId(0);
+                deck.placement(0).x = .25f;
+                p.touchKeypadOverlay = true; deck.layout(size[0],size[1]);
+                assertEquals(new RectF(0,0,size[0],size[1]),deck.gameArea(size[0],size[1]));
+                assertNotEquals(separate,deck.placementId(0));
+                deck.moveGroup(0,0,-40);
+                for (TouchDeck.Key key : deck.getKeys()) {
+                    assertTrue(key.bounds.left >= 0 && key.bounds.top >= 0);
+                    assertTrue(key.bounds.right <= size[0]+.01f && key.bounds.bottom <= size[1]+.01f);
+                }
+                TouchDeck.Key five = key(deck,"5"), left = key(deck,"\u2190");
+                assertTrue(deck.down(1,five.bounds.centerX(),five.bounds.centerY()));
+                assertTrue(deck.down(2,left.bounds.centerX(),left.bounds.centerY()));
+                deck.cancel(); assertTrue(events.contains("+53")); assertTrue(events.contains("-53"));
+                assertTrue(events.contains("+-3")); assertTrue(events.contains("--3"));
+                Bitmap b = Bitmap.createBitmap(size[0],size[1],Bitmap.Config.ARGB_8888);
+                deck.draw(new Canvas(b)); assertEquals(0,b.getPixel(size[0]/2,20)); b.recycle();
+                p.touchKeypadOverlay = false; deck.layout(size[0],size[1]);
+                assertEquals(separate,deck.placementId(0)); assertEquals(.25f,deck.placement(0).x,0);
+            }
+        });
+    }
+    @Test public void overlaySettingRoundTripsWithoutChangingGamepadOrLegacyDefaults() {
+        Gson gson = new Gson(); assertFalse(gson.fromJson("{}",ProfileModel.class).touchKeypadOverlay);
+        ProfileModel p = new ProfileModel(); p.touchKeypadOverlay = true;
+        assertTrue(gson.fromJson(gson.toJson(p),ProfileModel.class).touchKeypadOverlay);
+        InstrumentationRegistry.getInstrumentation().runOnMainSync(() -> {
+            p.touchLayout = TouchDeck.GAMEPAD; TouchDeck deck = create(p,new ArrayList<>());
+            deck.layout(360,640); assertTrue(deck.gameArea(360,640).bottom < 640);
+        });
+    }
     @Test public void shortcutsSharePaletteWithoutChangingHostOrActions() {
         InstrumentationRegistry.getInstrumentation().runOnMainSync(() -> {
             Context original = InstrumentationRegistry.getInstrumentation().getTargetContext();

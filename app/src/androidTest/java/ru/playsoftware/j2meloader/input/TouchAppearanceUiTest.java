@@ -311,6 +311,9 @@ public class TouchAppearanceUiTest {
             finally { down.recycle(); up.recycle(); }
         }
         SystemClock.sleep(200);
+        // These legacy-editor scenarios deliberately exercise Try/Keep fields, not live tiles.
+        if ("Display".equals(text) && find(ui.getRootInActiveWindow(), "Performance & advanced") != null)
+            click("Performance & advanced");
     }
     private AccessibilityNodeInfo description(AccessibilityNodeInfo node, String text) {
         if (node == null) return null;

@@ -270,6 +270,7 @@ public final class MophunGameActivity extends Activity {
         if (enabled && gpuView == null) {
             gpuView = new MophunGpuView(this, () -> frameView.invalidate(), () -> {
                 if (isDestroyed()) return;
+                if (menu != null) menu.cancelPreviewPage();
                 frameView.invalidate();
                 Toast.makeText(this, "Enhancements unavailable. Original picture restored.", Toast.LENGTH_LONG).show();
             });
@@ -362,7 +363,11 @@ public final class MophunGameActivity extends Activity {
     private ru.playsoftware.j2meloader.input.GameMenuPages menuPages() {
         return new ru.playsoftware.j2meloader.input.GameMenuPages(menu,
                 new ru.playsoftware.j2meloader.input.GameMenuPages.Host() {
-            public void display() { settingsPages().display(); }
+            public void display() {
+                new ru.playsoftware.j2meloader.config.DisplayPanel(menu, profile, true, false,
+                        MophunGameActivity.this::applyPreview, MophunGameActivity.this::showMenuPage,
+                        () -> settingsPages().display()).show();
+            }
             public void controls() { settingsPages().controls(); }
             public void more() { populateMorePage(); }
             public boolean hasSocial() { return true; }
@@ -572,6 +577,7 @@ public final class MophunGameActivity extends Activity {
     @Override protected void onPause() {
         if (fastForward != null) fastForward.cancel();
         visible = false;
+        if (menu != null) menu.cancelPreviewPage();
         cancelSelect();
         if (input != null) input.clear();
         // Queue the last displayed image before pauseState releases the GL context.

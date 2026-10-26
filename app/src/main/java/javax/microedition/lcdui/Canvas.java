@@ -989,8 +989,12 @@ public abstract class Canvas extends Displayable {
 				} catch (RuntimeException e) {
 					android.util.Log.w(TAG, "Enhancements unavailable; using original presentation", e);
 					enhancementFailed = true;
-					ViewHandler.postEvent(() -> android.widget.Toast.makeText(ContextHolder.getAppContext(),
-							"Enhancements unavailable. Original picture restored.", android.widget.Toast.LENGTH_LONG).show());
+					ViewHandler.postEvent(() -> {
+						MicroActivity activity = ContextHolder.getActivity();
+						if (activity != null) activity.picturePreviewFailed();
+						android.widget.Toast.makeText(ContextHolder.getAppContext(),
+								"Enhancements unavailable. Original picture restored.", android.widget.Toast.LENGTH_LONG).show();
+					});
 				}
 			}
 			resetInterpolationLoad();
