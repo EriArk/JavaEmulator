@@ -37,14 +37,16 @@ public final class LobbyDirectory implements AutoCloseable {
             return status.equals("choosing") || !selectedHash.isEmpty() && selectedHash.equals(hash)
                     && capability().equals(JAVA_BLUETOOTH);
         }
+        public boolean hasSpace(){return !status.equals("playing")&&(status.equals("choosing")||available>0);}
+        public String phase(){return status.equals("playing")?"Game in progress":status.equals("choosing")?"Choosing together":available==0?"Room full":"Waiting for players";}
         public boolean live(long wall,long elapsed){return expires>wall&&deadline>elapsed;}
     }
     public static final class State {
-        public final boolean verified,busy,needsCommunity;
+        public final boolean verified,busy,needsCommunity,error;
         public final String account,status;
         public final List<Room> rooms;
         public final long retryAt;
-        State(LobbyDirectory d){verified=d.verified;busy=d.busy;needsCommunity=d.needsCommunity;account=d.self;
+        State(LobbyDirectory d){verified=d.verified;busy=d.busy;needsCommunity=d.needsCommunity;error=d.error;account=d.self;
             status=d.status;rooms=Collections.unmodifiableList(new ArrayList<>(d.rows.values()));retryAt=d.retryAt;}
     }
     private final FluxerAuth.Transport http;
@@ -55,7 +57,7 @@ public final class LobbyDirectory implements AutoCloseable {
     private final Map<String,Room> rows=new LinkedHashMap<>(),pending=new LinkedHashMap<>(),seen=new HashMap<>();
     private final Set<String> conflicts=new HashSet<>();
     private String token,self="",status="Sign in to Fluxer to browse lobbies.";
-    private boolean verified,busy,needsCommunity,active,closed;
+    private boolean verified,busy,needsCommunity,active,closed,error;
     private long epoch,nextRefresh,retryAt;
     private int pages;
 
@@ -78,7 +80,7 @@ public final class LobbyDirectory implements AutoCloseable {
         if(closed)return;
         if(Objects.equals(token,value)&&elapsed.getAsLong()<retryAt)return;
         if(Objects.equals(token,value)&&verified){refresh();return;}
-        ++epoch;token=value;self="";verified=busy=needsCommunity=false;rows.clear();pending.clear();seen.clear();conflicts.clear();retryAt=nextRefresh=0;
+        ++epoch;token=value;self="";verified=busy=needsCommunity=error=false;rows.clear();pending.clear();seen.clear();conflicts.clear();retryAt=nextRefresh=0;
         status="Sign in to Fluxer to browse lobbies.";
         if(value==null){emit();return;}
         busy=true;status="Checking Fluxer account...";emit();long generation=epoch;
@@ -88,10 +90,10 @@ public final class LobbyDirectory implements AutoCloseable {
             self=text(r.body,"id");verified=true;refresh();
         });
     }
-    public void storageError(){session(null);status="Saved sign-in could not be unlocked. Open Account to recover it.";emit();}
+    public void storageError(){session(null);error=true;status="Saved sign-in could not be unlocked. Open Account to recover it.";emit();}
     public void refresh(){
         if(closed||!verified||busy||elapsed.getAsLong()<retryAt)return;
-        busy=true;needsCommunity=false;pending.clear();pages=0;nextRefresh=elapsed.getAsLong()+30000;
+        busy=true;needsCommunity=error=false;pending.clear();pages=0;nextRefresh=elapsed.getAsLong()+30000;
         status="Refreshing lobbies...";emit();load(0,"",epoch);
     }
     private void load(int channel,String before,long generation){
@@ -137,7 +139,7 @@ public final class LobbyDirectory implements AutoCloseable {
         });
     }
     private void failure(FluxerAuth.Reply r,String message){
-        busy=false;pending.clear();rows.clear();needsCommunity=r.status==403||r.status==404;
+        busy=false;error=true;pending.clear();rows.clear();needsCommunity=r.status==403||r.status==404;
         if(r.status==401){++epoch;verified=false;self="";token=null;seen.clear();conflicts.clear();message="Sign-in expired. Open Account to sign in again.";}
         else if(needsCommunity)message="Join the TrainerOS community to browse public lobbies.";
         else if(r.status==429){retryAt=elapsed.getAsLong()+Math.max(1000,Math.min(300000,r.retryMillis>0?r.retryMillis:30000));message="Fluxer is busy. Please wait before refreshing.";}
@@ -149,7 +151,7 @@ public final class LobbyDirectory implements AutoCloseable {
         joinCommunity(epoch);
     }
     private void joinCommunity(long generation){
-        busy=true;needsCommunity=false;status="Connecting to the lobby community...";emit();
+        busy=true;needsCommunity=error=false;status="Connecting to the lobby community...";emit();
         http.request("GET",INVITE_PATH,null,token,r->{
             if(!current(generation))return;
             if(!r.ok()||!communityInvite(r.body)){joinFailure(r,"Could not verify the lobby community invite. Nothing was joined.");return;}

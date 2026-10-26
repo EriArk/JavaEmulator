@@ -25,9 +25,10 @@ public class LobbyDirectoryDeviceTest {
         final Application app=(Application)InstrumentationRegistry.getInstrumentation().getTargetContext().getApplicationContext();
         final long expires=System.currentTimeMillis()/1000+180;
         volatile String token="fixture-directory-session";volatile int code=200,requests,posts,joinCode=200;
+        volatile boolean playing;
         final Set<String> attempts=new HashSet<>();
         public boolean claim(String account){return attempts.add(account);}
-        Fixture(){app.registerActivityLifecycleCallbacks(this);}
+        Fixture(){InstrumentationRegistry.getInstrumentation().getUiAutomation();app.registerActivityLifecycleCallbacks(this);}
         public String read(){return token;}public void save(String t){throw new AssertionError("No credential writes");}public void clear(){throw new AssertionError("No credential removal");}
         public void request(String method,String path,JsonObject body,String token,java.util.function.Consumer<FluxerAuth.Reply> done){
             requests++;
@@ -45,6 +46,7 @@ public class LobbyDirectoryDeviceTest {
         }
         JsonObject entry(int n,boolean game,int available){JsonObject v=new JsonObject();v.addProperty("v",2);v.addProperty("product","abyssme");v.addProperty("protocol",1);v.addProperty("lobby",String.format(Locale.ROOT,"00000000-0000-4000-8000-%012d",n));v.addProperty("owner",Integer.toString(20+n));v.addProperty("name",n==4?"Alex - UI fixture":n==3?"Sam - UI fixture":"Jamie - UI fixture");v.addProperty("revision",1);v.addProperty("status",game?"gathering":"choosing");v.addProperty("access",n==2?"approval":"public");v.addProperty("seats",game?2:0);v.addProperty("available",available);v.addProperty("streams",0);v.addProperty("expires",expires);
             if(game){JsonObject g=new JsonObject();g.addProperty("id",String.join("",Collections.nCopies(64,"a")));g.addProperty("title",n==3?"Full room - UI fixture":"Java link - UI fixture");g.addProperty("platform","j2me");g.addProperty("mode","jsr82-l2cap");g.addProperty("adapter","1");v.add("game",g);}
+            if(game&&playing)v.addProperty("status","playing");
             JsonObject m=new JsonObject();m.addProperty("id",Integer.toString(100+n));m.addProperty("channel_id",LobbyDirectory.CHANNELS.get(0));m.addProperty("content",LobbyDirectory.PREFIX+v+"\n```");JsonObject author=new JsonObject();author.addProperty("id",LobbyDirectory.BOT);m.add("author",author);return m;
         }
         public void onActivityPreCreated(Activity a,Bundle saved){if(a instanceof LobbyDirectoryActivity)new ViewModelProvider((LobbyDirectoryActivity)a,new ViewModelProvider.Factory(){public <T extends ViewModel>T create(Class<T> type){return type.cast(new LobbyDirectoryModel(app,Fixture.this,Fixture.this,Collections.singleton("j2me/jsr82-l2cap/1"),Fixture.this));}}).get(LobbyDirectoryModel.class);}
@@ -69,8 +71,35 @@ public class LobbyDirectoryDeviceTest {
     }
     @Test public void providerFailureRemovesOldListingsAndLogoutClearsAccount() throws Exception {
         try(Fixture f=new Fixture();ActivityScenario<LobbyDirectoryActivity> s=ActivityScenario.launch(LobbyDirectoryActivity.class)){
-            await(s,x->!x.busy&&x.rooms.size()==3);f.code=500;s.onActivity(a->a.findViewById(R.id.lobby_refresh).performClick());await(s,x->!x.busy&&x.rooms.isEmpty());count(s,0);capture("lobbies-offline-fixture.png");
+            await(s,x->!x.busy&&x.rooms.size()==3);f.code=500;s.onActivity(a->a.findViewById(R.id.lobby_refresh).performClick());await(s,x->!x.busy&&x.rooms.isEmpty());count(s,0);
+            s.onActivity(a->{assertTrue(a.getWindow().getDecorView().findViewWithTag("retry-lobbies").isShown());assertEquals("Unable to load rooms",((TextView)a.getWindow().getDecorView().findViewWithTag("directory-empty")).getText().toString());});capture("lobbies-offline-fixture.png");
+            f.code=200;s.onActivity(a->a.getWindow().getDecorView().findViewWithTag("retry-lobbies").performClick());await(s,x->!x.busy&&x.rooms.size()==3);count(s,3);
             f.token=null;s.onActivity(a->a.findViewById(R.id.lobby_refresh).performClick());await(s,x->!x.verified);count(s,0);
+        }
+    }
+    @Test public void fullOrPlayingRoomDetailsDoNotOfferJoin() throws Exception {
+        try(Fixture f=new Fixture();ActivityScenario<LobbyDirectoryActivity> s=ActivityScenario.launch(LobbyDirectoryActivity.class)){
+            await(s,x->!x.busy&&x.rooms.size()==3);
+            s.onActivity(a->{androidx.recyclerview.widget.RecyclerView list=a.findViewById(R.id.lobby_list);list.findViewHolderForAdapterPosition(1).itemView.performClick();});
+            Thread.sleep(400);assertFalse(screenHasText("Open room"));assertTrue(screenHasText("Room full"));capture("lobbies-full-detail-fixture.png");
+            InstrumentationRegistry.getInstrumentation().getUiAutomation().performGlobalAction(android.accessibilityservice.AccessibilityService.GLOBAL_ACTION_BACK);
+        }
+        try(Fixture f=new Fixture()){f.playing=true;try(ActivityScenario<LobbyDirectoryActivity> s=ActivityScenario.launch(LobbyDirectoryActivity.class)){
+            await(s,x->!x.busy&&x.rooms.size()==3);s.onActivity(a->((CheckBox)a.findViewById(R.id.lobby_free)).setChecked(true));Thread.sleep(200);count(s,1);
+        }}
+    }
+    private boolean screenHasText(String text)throws Exception{
+        InstrumentationRegistry.getInstrumentation().waitForIdleSync();
+        android.view.accessibility.AccessibilityNodeInfo root=null;long until=android.os.SystemClock.elapsedRealtime()+5000;
+        do{root=InstrumentationRegistry.getInstrumentation().getUiAutomation().getRootInActiveWindow();if(root!=null)break;Thread.sleep(100);}while(android.os.SystemClock.elapsedRealtime()<until);
+        assertNotNull(root);return !root.findAccessibilityNodeInfosByText(text).isEmpty();
+    }
+    @Test public void compactSocialOptionsRetainRoomChatsAndAccount() throws Exception {
+        try(Fixture f=new Fixture();ActivityScenario<LobbyDirectoryActivity> s=ActivityScenario.launch(LobbyDirectoryActivity.class)){
+            await(s,x->!x.busy&&x.rooms.size()==3);
+            s.onActivity(a->{ArrayList<View> found=new ArrayList<>();a.getWindow().getDecorView().findViewsWithText(found,"Social options",View.FIND_VIEWS_WITH_CONTENT_DESCRIPTION);assertEquals(1,found.size());assertTrue(found.get(0).isShown());found.get(0).performClick();});
+            Thread.sleep(300);assertTrue(screenHasText("My room"));assertTrue(screenHasText("Chats"));assertTrue(screenHasText("Account"));capture("lobbies-social-options-fixture.png");
+            InstrumentationRegistry.getInstrumentation().getUiAutomation().performGlobalAction(android.accessibilityservice.AccessibilityService.GLOBAL_ACTION_BACK);
         }
     }
     @Test public void failedAutomaticJoinShowsRetryAndRetryRecovers() throws Exception {
@@ -97,7 +126,12 @@ public class LobbyDirectoryDeviceTest {
         assertFalse(FluxerHttpTransport.allowed("POST",LobbyDirectory.INVITE_PATH+"?redirect=evil",token));assertFalse(FluxerHttpTransport.allowed("DELETE",LobbyDirectory.INVITE_PATH,token));
     }
     private static void count(ActivityScenario<LobbyDirectoryActivity> s,int expected){s.onActivity(a->{androidx.recyclerview.widget.RecyclerView list=a.findViewById(R.id.lobby_list);assertEquals(expected,list.getAdapter().getItemCount());assertTrue(list.getBottom()<=((View)list.getParent()).getHeight());});}
-    private static void keyboard(ActivityScenario<LobbyDirectoryActivity> s,boolean visible){s.onActivity(a->{androidx.core.view.WindowInsetsCompat insets=androidx.core.view.ViewCompat.getRootWindowInsets(a.findViewById(R.id.lobby_search));assertNotNull(insets);assertEquals(visible,insets.isVisible(androidx.core.view.WindowInsetsCompat.Type.ime()));});}
+    private static void keyboard(ActivityScenario<LobbyDirectoryActivity> s,boolean visible)throws Exception{
+        // IME startup and recreation animations are asynchronous, especially on the emulator.
+        long until=android.os.SystemClock.elapsedRealtime()+5000;boolean[] actual={false};
+        do{s.onActivity(a->{androidx.core.view.WindowInsetsCompat insets=androidx.core.view.ViewCompat.getRootWindowInsets(a.findViewById(R.id.lobby_search));assertNotNull(insets);actual[0]=insets.isVisible(androidx.core.view.WindowInsetsCompat.Type.ime());});if(actual[0]==visible)return;Thread.sleep(100);}while(android.os.SystemClock.elapsedRealtime()<until);
+        assertEquals(visible,actual[0]);
+    }
     private static void await(ActivityScenario<LobbyDirectoryActivity> s,Predicate<LobbyDirectory.State> ready) throws Exception {for(int i=0;i<100;i++){AtomicReference<LobbyDirectory.State> state=new AtomicReference<>();s.onActivity(a->state.set(new ViewModelProvider(a).get(LobbyDirectoryModel.class).state.getValue()));if(state.get()!=null&&ready.test(state.get())){Thread.sleep(150);return;}Thread.sleep(50);}fail("Directory state timeout");}
     private static void capture(String name) throws Exception {Thread.sleep(500);InstrumentationRegistry.getInstrumentation().waitForIdleSync();Bitmap image=InstrumentationRegistry.getInstrumentation().getUiAutomation().takeScreenshot();assertNotNull(image);File dir=new File(InstrumentationRegistry.getInstrumentation().getTargetContext().getExternalFilesDir(null),"lobby-directory-checks");assertTrue(dir.isDirectory()||dir.mkdirs());try(FileOutputStream out=new FileOutputStream(new File(dir,name))){assertTrue(image.compress(Bitmap.CompressFormat.PNG,100,out));}image.recycle();}
 }

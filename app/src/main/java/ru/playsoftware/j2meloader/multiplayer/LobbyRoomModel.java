@@ -153,7 +153,7 @@ public final class LobbyRoomModel extends AndroidViewModel {
         if(gameNetwork!=null)gameNetwork.refresh();
         runtime();
         contactContext();watch();
-        if(publisher!=null)publisher.desired(room.hosting()?room.room():"",room.hosting()?room.access():"private");publish();
+        if(publisher!=null)publisher.desired(room.hosting()?room.room():"",room.hosting()?room.access():"private",room.snapshot(),gameTitle);publish();
     }
     private Set<String> admitted(){
         Set<String> peers=new HashSet<>();if(room==null||!room.joined())return peers;
@@ -200,6 +200,7 @@ public final class LobbyRoomModel extends AndroidViewModel {
     void chooseGame(String account,NetworkGameCatalog.Entry entry){owner.execute(()->prepareGame(account,entry));}
     private void prepareGame(String account,NetworkGameCatalog.Entry entry){
         if(closed||checkingGame||!verified||!self.equals(account)||room==null||!room.joined()||!room.launchAttempt().isEmpty()||!capabilities.contains("java/bluetooth/1"))return;
+        if(room.hosting()&&room.snapshot().getAsJsonArray("members").size()>2){authNotice="This game needs two players. Remove extra players before selecting it.";publish();return;}
         long selection=++selectionEpoch;String selectedRoom=room.room();long generation=number(room.snapshot(),"generation");
         checkingGame=true;returningUntil=0;authNotice="Checking installed game...";gameNetwork.localContent(null);publish();
         files.execute(()->{
@@ -217,6 +218,7 @@ public final class LobbyRoomModel extends AndroidViewModel {
                 if(!self.equals(account)||room==null||!room.room().equals(selectedRoom)||number(room.snapshot(),"generation")!=generation){authNotice="Room changed. Select the game again.";publish();return;}
                 if(!problem.isEmpty()){authNotice=problem;publish();return;}
                 if(!room.hosting()&&!checked.game.equals(game(object(room.snapshot(),"game")))){authNotice="This is a different game edition. Select the same JAR as the host.";publish();return;}
+                if(room.hosting()&&room.snapshot().getAsJsonArray("members").size()>checked.game.players){authNotice="This game needs two players. Remove extra players before selecting it.";publish();return;}
                 installed=checked;gameTitle=entry.title;authNotice="";
                 if(room.hosting()){room.select(null);room.select(checked.game);}
                 gameNetwork.localContent(checked.game);startNetworkTimer();publish();

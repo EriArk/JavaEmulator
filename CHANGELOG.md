@@ -10,6 +10,30 @@ stated otherwise. **Experimental** in older checkpoints means local/private
 combined builds; released experimental features are explicitly identified.
 **Released** means an actual GitHub release asset.
 
+## 2026-10-26 - Game-Aware Lobby Directory (#40, Unreleased)
+
+- Publish the selected verified Java game's title and exact edition/adapter in
+  public Debug rooms. Update free seats and gathering/playing state from the
+  room owner; no local paths, member identities or connection secrets are projected.
+- Coalesce selection changes while a directory command awaits confirmation.
+  A reply for an older game cannot confirm the newest choice. Preserve private
+  rooms, explicit retry, recovery closure and independent product quotas.
+- Give the directory Soft Console light/dark surfaces and contextual room
+  details. Separate loading, provider failure, filter misses and empty catalogs;
+  offer Retry for recoverable errors and hide joining for full/playing rooms.
+- Reduce narrow-header clutter with Social options. Retain My room, Chats and
+  Account; show progress while checking/connecting and Cancel request during admission.
+- Reject selecting a two-player game in an oversized room before invalidating
+  its current preparation. Keep host admission, exact JAR checks and Ready explicit.
+- Preserve requested privacy/close removal after a lost or rejected publication
+  reply, without retrying an uncertain publication or looping rejected removals.
+- Verify 391 JVM cases, 14 Android cases on each target and two short-screen /
+  large-text cases. Real dedicated accounts on Retroid and an Android emulator
+  pass selected-game discovery, admission, seat updates, privacy and cleanup
+  while preserving separate TrainerOS advertisements. This is not new match or
+  different-network acceptance. No public APK/release or server change.
+- [Evidence and labeled screenshots](docs/RETRO_LIBRARY_REFRESH.md#game-aware-directory-2026-10-26-unreleased).
+
 ## 2026-10-26 - Native Library Settings and Console Selectors (#40, Unreleased)
 
 - Add Display and Controls to Symbian/N-Gage game actions without opening system

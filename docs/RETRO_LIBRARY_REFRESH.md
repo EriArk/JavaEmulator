@@ -50,10 +50,75 @@ entirely; it does not merely hide it at selected widths.
   paired BT Biplanes room/process check recorded below.
 - Wider live-game/renderer matrix for Display previews; native size/rotation remain apply-on-resume.
 - Final phone-control comfort/accessibility acceptance across orientations and larger fonts.
-- Public selected-game advertisements (the existing publisher still lists unassigned rooms).
 - Wider accessibility, animation, upgrade and physical-button acceptance matrix.
 
 Do not mark #40 complete or describe these remaining items as implemented.
+
+## Game-Aware Directory (2026-10-26, Unreleased)
+
+- Project only the room's selected Java Bluetooth identity into v2 directory
+  fields: SHA-256, bounded title, `j2me/bluetooth/1`, two seats and availability.
+  Reserved/disconnected seats are not advertised as free. Pending launches
+  advertise zero free seats; only attached/running launches say playing.
+  No room members, file paths, peer attempts or tokens enter the advertisement.
+- Durable intent and correlated bot acknowledgement remain separate from actual
+  directory visibility and host admission. Coalesce changes during pending
+  requests, then send the latest selection/seat state. Old acknowledgements do
+  not confirm a newer choice. Clearing a selection removes its game projection.
+  Private metadata changes do not repeatedly withdraw; closing/recovery keep
+  their existing revision/ownership rules. A lost/rejected upsert reply does not
+  swallow a requested privacy/close removal. Never replay the uncertain upsert;
+  missing/rejected removal replies still require explicit Retry, without a loop.
+- Retain Debug-only runtime registration and exact JAR preparation. Release has
+  no selected-game capability. Reject oversized rooms before starting two-player
+  preparation, with a second guard after asynchronous file verification.
+- Reuse the existing Soft Console surfaces and edge panels for catalog/details.
+  Distinguish loading, failures, filter misses and empty results; expose Retry
+  without bypassing provider backoff. Full/playing rooms remain inspectable but
+  do not offer a new join. The host can return to My room. Every open action
+  rechecks the current revision and expiry; advertisements never grant admission.
+- Compact Social options retain My room, Chats and Account without crowding the
+  title. Room screens show checking/connection progress and Cancel request before
+  admission. Existing membership, Ready, temporary contacts and transport remain
+  authoritative; single-player requires no account.
+
+Verification:
+
+- Combined Debug app/test builds pass, reusing unchanged native engine artifacts.
+  391 JVM tests pass without failures/errors/skips. New tests cover public-field
+  allowlisting, exact-reader compatibility, selection coalescing, stale replies,
+  privacy after missing/rejected replies, launch/return, title bounds, unsupported
+  adapters and load-error state.
+- Final native UI/lifecycle suites pass 14 on Retroid (21.387 s) and 14 on the
+  Android 35 emulator (48.366 s). Two additional 480x320dp / 150% text cases pass
+  (7.562 s); restore the emulator's original size/density/font afterwards.
+- Early test runs exposed harness timing: IME startup and an accessibility client
+  first attached after a dialog was already open. Use bounded IME-state waits
+  and attach accessibility before launching the fixture. Retain failed logs;
+  they are not counted as passes. App/game state is not reset to fix the tests.
+- Dedicated live accounts pass `FluxerLiveDirectoryDeviceTest` with
+  `fluxerDirectoryGame="BT Biplanes"`, role host/guest and the exact reported room
+  UUID. Final APK: Retroid host 207.919 s; emulator guest 86.773 s. The same owner retained
+  two v1 TrainerOS meetings and one v2 AbyssME room; the guest saw only AbyssME's
+  selected game. Verified free seats 1 -> 0 -> 1, privacy withdrawal, republishing,
+  final close, rejection of another AbyssME room and cross-product withdrawal.
+  Test advertisements were removed. No service deployment or user-account changes.
+- The final live pair includes the compact headers, early oversized-room guard
+  and privacy/close reply handling. Playing/return publication transitions have
+  actor tests, not a new live game match. No claim about separate
+  Internet connections, manual physical-button comfort or complete-game acceptance.
+- Final installed development APK SHA-256:
+  `f8307d08975af94e1cfbbdd24e6293ad75dcdde5c4e975faa0a3e1c5e005374f`.
+  Debug label remains `0.5.0-beta.1` / 310, not a public beta replacement.
+- Ignored evidence: `.local/ux40/directory-retroid-delivery.txt`,
+  `directory-emulator-delivery.txt`, `directory-small.txt`, `directory-live-host-delivery.txt`
+  and `directory-live-guest-delivery.txt`; JUnit XML in the combined build's test-results.
+  [Seven labeled captures](../screenshots/development/2026-10-26-game-directory/README.md).
+
+No release, Nextcloud upload, new dependency or licensing change. Reviewed the
+existing TrainerOS `LobbyDirectory.h` and `services/lobby-directory/ABYSSME_V2.md`;
+the v1/v2 split and 32 TrainerOS / one AbyssME quota are unchanged. The public
+release page was not rechecked during this source-only checkpoint.
 
 ## Native Library Settings (2026-10-26, Unreleased)
 
@@ -104,8 +169,9 @@ change accompanies this work. The current public beta was not reverified here.
 - Browse unassigned rooms or selected-game advertisements with the exact JAR
   identity and adapter. Keep the selected game when entering a room or returning
   through My room. Directory protocol uses `j2me`, while the local runtime uses
-  `java`; the Debug capability mapping is explicit. The unchanged publisher still
-  sends unassigned advertisements, so this is not selected-game publishing.
+  `java`; the Debug capability mapping is explicit. At this checkpoint the publisher
+  still sent unassigned advertisements; the later game-aware directory section
+  above adds selected-game publishing.
 - Shared Social offers Return to active room from a read-only, non-exported
   main-process projection. Reading from `:midlet` cannot instantiate a second
   room actor. The shortcut reflects state at page opening; the destination

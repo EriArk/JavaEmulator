@@ -24,6 +24,7 @@ public final class LobbyRoomActivity extends CompactSettingsActivity {
     private ImageButton share;
     private ScrollView scroll;
     private LinearLayout footer;
+    private ProgressBar progress;
     private NetworkGameCatalog.Entry selectedGame;
     private String selectionStatus = "";
     @Override protected void onCreate(Bundle saved){
@@ -33,13 +34,18 @@ public final class LobbyRoomActivity extends CompactSettingsActivity {
         share=headerButton("Share room link",android.R.drawable.ic_menu_share,()->{if(state!=null&&state.hosting){Intent intent=new Intent(Intent.ACTION_SEND).setType("text/plain").putExtra(Intent.EXTRA_TEXT,LobbyLink.create(state.host,state.room));startActivity(Intent.createChooser(intent,"Share room"));}});
         share.setVisibility(View.GONE);
         headerButton("Refresh",android.R.drawable.ic_popup_sync,()->model.refresh());
-        headerButton("Chats",android.R.drawable.ic_dialog_email,()->startActivity(new Intent(this,FluxerChatsActivity.class)));
-        headerButton("Account",android.R.drawable.ic_menu_myplaces,()->startActivity(new Intent(this,FluxerAccountActivity.class)));
+        headerButton("Social options",R.drawable.ic_library_ellipsis_vertical,()->{
+            GameMenuDialog menu=menu("Social");
+            menu.action("Browse lobbies",android.R.drawable.ic_menu_search,()->{menu.dismiss();startActivity(new Intent(this,LobbyDirectoryActivity.class).putExtra(PlayTogether.EXTRA_GAME,selectedGame==null?null:selectedGame.directory.getPath()));});
+            menu.action("Chats",R.drawable.ic_library_messages_square,()->{menu.dismiss();startActivity(new Intent(this,FluxerChatsActivity.class));});
+            menu.action("Account",android.R.drawable.ic_menu_myplaces,()->{menu.dismiss();startActivity(new Intent(this,FluxerAccountActivity.class));});
+        });
         LinearLayout root=new LinearLayout(this);root.setOrientation(LinearLayout.VERTICAL);screenContent.addView(root,new ViewGroup.LayoutParams(-1,-1));
         notice=label("",14);notice.setPadding(dp(12),dp(8),dp(12),dp(8));root.addView(notice);
         root.setBackground(new ru.playsoftware.j2meloader.ui.ConsoleSurface(this,ru.playsoftware.j2meloader.ui.ConsoleSurface.Kind.CHASSIS));
         screenHeader.setBackground(new ru.playsoftware.j2meloader.ui.ConsoleSurface(this,ru.playsoftware.j2meloader.ui.ConsoleSurface.Kind.CHASSIS));
         notice.setAccessibilityLiveRegion(View.ACCESSIBILITY_LIVE_REGION_POLITE);
+        progress=new ProgressBar(this,null,android.R.attr.progressBarStyleHorizontal);progress.setIndeterminate(true);root.addView(progress,new LinearLayout.LayoutParams(-1,dp(3)));
         scroll=new ScrollView(this);root.addView(scroll,new LinearLayout.LayoutParams(-1,0,1));
         scroll.setBackground(new ru.playsoftware.j2meloader.ui.ConsoleSurface(this,ru.playsoftware.j2meloader.ui.ConsoleSurface.Kind.SCREEN));
         rows=new LinearLayout(this);rows.setOrientation(LinearLayout.VERTICAL);rows.setPadding(dp(12),0,dp(12),dp(12));scroll.addView(rows);
@@ -61,6 +67,7 @@ public final class LobbyRoomActivity extends CompactSettingsActivity {
     private void render(LobbyRoomModel.State s){
         if(state!=null&&!state.account.equals(s.account)&&dialog!=null)dialog.dismiss();state=s;
         notice.setText(s.status);
+        progress.setVisibility(s.checkingGame||!s.room.isEmpty()&&!s.joined||s.snapshot.has("launch")&&!bool(object(s.snapshot,"launch"),"running")?View.VISIBLE:View.INVISIBLE);
         launchIfOffered();
         share.setVisibility(s.hosting?View.VISIBLE:View.GONE);
         String next=s.account+s.verified+s.room+s.snapshot+s.invitations+s.requests+s.friends+s.names+s.publication+s.available+s.contacts+s.gameTitle+s.selectedGamePath+s.checkingGame+s.attempt+s.gameSelection+s.joined+s.hosting+s.access+(proposed==null?"":proposed.room);
@@ -124,7 +131,8 @@ public final class LobbyRoomActivity extends CompactSettingsActivity {
             LinearLayout gameSection=new LinearLayout(this);gameSection.setOrientation(LinearLayout.VERTICAL);
             while(rows.getChildCount()>gameStart){View child=rows.getChildAt(gameStart);rows.removeViewAt(gameStart);gameSection.addView(child);}
             rows.addView(gameSection,gamePosition);
-            button(rows,s.hosting?"Close room":"Leave room","leave",()->confirm(s.hosting?"Close room?":"Leave room?",s.hosting?"All participants will be disconnected from this room.":"You can request to join again later.",()->model.action(s.account,LobbyRoom::leave)));
+            if(!s.joined)button(rows,"Cancel request","leave",()->model.action(s.account,LobbyRoom::leave));
+            else button(rows,s.hosting?"Close room":"Leave room","leave",()->confirm(s.hosting?"Close room?":"Leave room?",s.hosting?"All participants will be disconnected from this room.":"You can request to join again later.",()->model.action(s.account,LobbyRoom::leave)));
         }
         JsonObject contacts=object(s.contacts,"peers");
         String contactError=text(s.contacts,"error");

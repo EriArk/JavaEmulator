@@ -8,6 +8,20 @@ import java.util.function.Consumer;
 import static org.junit.Assert.*;
 
 public class LobbyDirectoryTest {
+    @Test public void failedLoadIsNotAnEmptySuccessfulCatalogAndRetryClearsError(){
+        Fixture f=new Fixture();f.connect();f.first(value());assertFalse(f.d.state().error);
+        f.d.refresh();f.take().reply(500,null);assertTrue(f.d.state().error);assertTrue(f.d.state().rooms.isEmpty());
+        f.d.refresh();assertTrue(f.d.state().busy);assertFalse(f.d.state().error);f.finish();assertFalse(f.d.state().error);
+        assertEquals("No compatible lobbies right now.",f.d.state().status);
+    }
+    @Test public void playingAndFullRoomsDoNotOfferFreeSeats(){
+        JsonObject v=game(value(),"bluetooth");v.addProperty("status","playing");
+        LobbyDirectory.Room playing=LobbyDirectory.parse(message(v,0,"900"),LobbyDirectory.CHANNELS.get(0),1000,100);
+        assertNotNull(playing);assertFalse(playing.hasSpace());assertEquals("Game in progress",playing.phase());
+        v.addProperty("status","gathering");v.addProperty("available",0);
+        LobbyDirectory.Room full=LobbyDirectory.parse(message(v,0,"900"),LobbyDirectory.CHANNELS.get(0),1000,100);
+        assertFalse(full.hasSpace());assertEquals("Room full",full.phase());
+    }
     @Test public void gameEntryAcceptsUnassignedOrExactEditionAndAdapter(){
         LobbyDirectory.Room choosing=LobbyDirectory.parse(message(value(),0,"900"),LobbyDirectory.CHANNELS.get(0),1000,100);
         assertNotNull(choosing);assertTrue(choosing.acceptsJavaGame("a".repeat(64)));

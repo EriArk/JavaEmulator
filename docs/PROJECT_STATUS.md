@@ -66,6 +66,20 @@ older 0.3 builds, not the current 0.4 release series.
 
 ## Library Refresh (#40, Unreleased)
 
+**Game-aware public lobbies, 2026-10-26:** public Debug rooms now advertise the
+verified Java game's title, exact edition/adapter, free seats and match state.
+Privacy, closure and newer selections supersede pending updates; directory
+confirmation still does not grant membership or press Ready. Room browsing now
+uses Soft Console surfaces and contextual details, distinguishes loading/errors
+from an empty result, and does not offer joining a full or playing room. Social
+options keep narrow headers usable. Release online capabilities stay disabled.
+391 JVM checks pass, plus 14 Android checks on each target and two focused
+480x320dp / 150% text checks. A live Retroid/emulator pair verified BT Biplanes
+publication, admission, seat changes, privacy/republishing and close, alongside
+unchanged independent TrainerOS listings. No new gameplay/NAT acceptance, server
+deployment, public APK or release update.
+[Checks and captures](RETRO_LIBRARY_REFRESH.md#game-aware-directory-2026-10-26-unreleased).
+
 **Native game settings, 2026-10-26:** Symbian/N-Gage cards now offer Display and
 Controls in the same contextual panel as Java/Mophun. The engine-owned profile
 remains isolated by phone identity and game UID. Try in game starts a reversible
@@ -87,7 +101,7 @@ initials and backed state; keep Ready/Start outside scrolling content. Light
 Soft Console now uses near-white shell/cards, cleaner recess edges and softer
 colored platform keys. No new public APK, online Release capability or change
 to the physical mapper. Selected-game browsing accepts exact editions or rooms
-still choosing; the unchanged publisher does not yet advertise selected games.
+still choosing; publishing was added in the later game-aware directory batch above.
 Retroid and phone-emulator paired testing covers two BT Biplanes launches in one
 private room, Social return without ending the session, canceled End confirmation
 and recovery after game-process death. Preserve the original room screen beneath

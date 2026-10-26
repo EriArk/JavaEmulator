@@ -1,5 +1,12 @@
 # Compatible Lobby Directory (Unreleased)
 
+**26 October update:** selected verified Java games now reach public Debug
+advertisements with free seats and gathering/playing state. Directory surfaces,
+error states and contextual details use the shared console UI. A dedicated live
+Retroid/emulator pair verified discovery/admission, seat changes and privacy
+without mixing TrainerOS listings. Release capabilities remain disabled.
+[Implementation and bounded evidence](RETRO_LIBRARY_REFRESH.md#game-aware-directory-2026-10-26-unreleased).
+
 **Later 24 October update:** shared-service v2 is deployed and real public
 discovery/admission/withdrawal passed on Retroid plus an emulator.
 [Current evidence](FLUXER_PUBLIC_DIRECTORY_CHECKPOINT.md) supersedes the original
