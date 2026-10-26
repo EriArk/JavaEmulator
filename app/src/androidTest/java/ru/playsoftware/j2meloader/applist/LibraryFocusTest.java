@@ -41,7 +41,7 @@ public class LibraryFocusTest {
         try (LibraryPreferencesSnapshot snapshot = new LibraryPreferencesSnapshot(context)) {
             init.invoke(null, root.getPath());
             for (int mode = 0; mode < 3; mode++) {
-                preferences.edit().putInt("pref_library_view_mode", mode).commit();
+                preferences.edit().putInt("pref_library_view_mode", mode).putInt("libraryTab.1.view", mode).commit();
                 MainActivity activity = (MainActivity) instrumentation.startActivitySync(
                         new Intent(context, MainActivity.class).addFlags(Intent.FLAG_ACTIVITY_NEW_TASK));
                 try {
@@ -58,7 +58,6 @@ public class LibraryFocusTest {
                     instrumentation.runOnMainSync(() -> {
                         RecyclerView list = activity.findViewById(R.id.apps_recycler);
                         View header = activity.findViewById(R.id.library_menu);
-                        if (header.getVisibility() != View.VISIBLE) header = activity.findViewById(R.id.rail_settings);
                         header.setFocusableInTouchMode(true); assertTrue(header.requestFocus());
                         ((AppsListAdapter) list.getAdapter()).setAvailableHeight(140);
                         list.requestLayout();

@@ -29,6 +29,7 @@ historical artifacts, not part of the new combined distribution.
 | Experimental FSR 1.0 shaders | AMD FidelityFX-FSR `a21ffb8f6c13233ba336352bdff293894c706575`, MIT; GLES2 EASU/RCAS adaptation, [provenance and modifications](EXPERIMENTAL_ENHANCEMENTS.md), [retained notice](../app/src/main/assets/licenses/FSR-MIT.txt) |
 | xBRZ / CRT EasyMode shaders | Libretro GLSL `cba01a48b0974a1232bea68d999a7c21bc4c233e`; xBRZ has retained Hyllian MIT and Zenju GPLv3 notices, with an AbyssME two-pass adaptation preserving the single-pass reference and defaults. EasyMode is unchanged and declares GPL without a version, with GPLv3 selected under [section 14](https://www.gnu.org/licenses/gpl-3.0.en.html#section14). Original notices and [modification provenance](../app/src/main/assets/licenses/RETRO-SHADERS.txt) included; opt-in GLES2 integration for Java and Mophun |
 | MicroEmulator portions | Existing Apache-2.0 alternative selected where the headers offer Apache/LGPL alternatives |
+| Library UI icons | Seven Lucide icons at `7faf87628a1ad6175975bc595344337ce14a7db4`, ISC with retained Feather MIT notices for inherited icons; SVG converted to Android VectorDrawable with host palette tint. [Bundled notices](../app/src/main/assets/licenses/LUCIDE.txt) |
 
 The root GPL scope does not remove Apache notices. The
 [ASF compatibility explanation](https://www.apache.org/licenses/GPL-compatibility.html)

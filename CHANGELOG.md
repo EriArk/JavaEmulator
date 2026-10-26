@@ -10,6 +10,23 @@ stated otherwise. **Experimental** in older checkpoints means local/private
 combined builds; released experimental features are explicitly identified.
 **Released** means an actual GitHub release asset.
 
+## 2026-10-26 - Platform Library Refresh (#40, Unreleased)
+
+- Give Java ME, Mophun, Symbian and N-Gage their own tabs. Keep all three library
+  views and cover formats, remove the permanent game-details sidebar, and retain
+  existing import and card actions. Show the N-Gage generation filter only when
+  both Classic and 2.0 are present.
+- Remember each platform's view, collection, query, position and selection, with
+  one-time migration of previous preferences. Fix stale focus resetting the
+  scroll position after reopening and reject launch from an outdated filter.
+- Add circular L2/R2 navigation with key/axis deduplication and guarded horizontal
+  swipes. Put Search, Add, Social and Menu directly in the header, with a compact
+  view switcher and temporary side/bottom library menus.
+- Verify the combined Debug build with 372 JVM tests and Android UI suites on
+  Retroid and a phone emulator. This is the first library slice, not completion
+  of #40; game menus, Display previews and Phone-control redesign come later.
+  No public APK/release update. [Evidence and limits](docs/RETRO_LIBRARY_REFRESH.md).
+
 ## 2026-10-26 - Bluetooth Game Selection and Signaling Order (Unreleased, Debug)
 
 - Test three more unmodified, locally supplied Bluetooth games on Retroid and

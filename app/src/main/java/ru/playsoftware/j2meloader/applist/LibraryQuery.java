@@ -20,12 +20,29 @@ public final class LibraryQuery {
         return AdditionalGames.isManaged(new File(item.getPathExt())) ? 2 : 1;
     }
     public static List<AppItem> select(List<AppItem> items, int category, int platform, String query) {
+        return select(items, category, platform, 0, query);
+    }
+    public static int generation(AppItem item) {
+        if (platform(item) != 4) return 0;
+        return item.getAuthor().contains("2.0") ? 2 : 1;
+    }
+    public static boolean hasBothNgageGenerations(List<AppItem> items) {
+        boolean classic = false, modern = false;
+        for (AppItem item : items) {
+            int generation = generation(item);
+            classic |= generation == 1;
+            modern |= generation == 2;
+        }
+        return classic && modern;
+    }
+    public static List<AppItem> select(List<AppItem> items, int category, int platform, int generation, String query) {
         String needle = query.trim().toLowerCase(Locale.ROOT);
         List<AppItem> result = new ArrayList<>();
         for (AppItem item : items) {
             if (category == AppsListAdapter.CATEGORY_RECENT && item.getLastPlayedAt() <= 0) continue;
             if (category == AppsListAdapter.CATEGORY_FAVORITES && !item.isFavorite()) continue;
             if (platform != 0 && platform(item) != platform) continue;
+            if (platform == 4 && generation != 0 && generation(item) != generation) continue;
             String title = item.getTitle() == null ? "" : item.getTitle();
             String author = item.getAuthor() == null ? "" : item.getAuthor();
             if (!needle.isEmpty() && !title.toLowerCase(Locale.ROOT).contains(needle)

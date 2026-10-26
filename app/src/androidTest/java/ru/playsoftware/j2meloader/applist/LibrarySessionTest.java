@@ -120,12 +120,11 @@ public class LibrarySessionTest {
         assertSame(nativeItem,selection.get());
     }
     @Test public void filtersPositionAndCardActionsSurviveColdOpen() throws Exception {
-        assumeFalse(BuildConfig.SYMBIAN_EXPERIMENT);
         File root=Files.createTempDirectory(context.getCacheDir().toPath(),"library-session-").toFile();
         try(AppDatabase db=AppDatabase.open(context,root.getPath())) {
             for(int i=0;i<40;i++) {
                 AppItem item=game(String.format(Locale.ROOT,"game-%02d",i),
-                        String.format(Locale.ROOT,"Game %02d",i),i+1,i%2==0);
+                        String.format(Locale.ROOT,"Game %02d",i),Long.MAX_VALUE-40+i,i%2==0);
                 item.setPreparationState("indexed"); db.appItemDao().insertImported(item);
             }
         }
@@ -133,7 +132,7 @@ public class LibrarySessionTest {
         Method init=Config.class.getDeclaredMethod("initDirs",String.class); init.setAccessible(true);
         SharedPreferences preferences=PreferenceManager.getDefaultSharedPreferences(context);
         Map<String,?> before=new HashMap<>(preferences.getAll());
-        try {
+        try (LibraryPreferencesSnapshot snapshot = new LibraryPreferencesSnapshot(context)) {
             init.invoke(null,root.getPath());
             preferences.edit().putInt("libraryCategory",0).putInt("libraryPlatform",0)
                     .putInt("pref_library_view_mode",1).remove("librarySelection").commit();
@@ -153,9 +152,10 @@ public class LibrarySessionTest {
                     assertNotNull(launch.get()); assertTrue(launch.get().getData().toString().endsWith("game-39"));
                 } finally { instrumentation.removeMonitor(monitor); }
                 scenario.onActivity(a -> a.findViewById(R.id.library_menu).performClick());
-                click("Collection"); click("Platform: All platforms"); click("Java ME");
+                click("Collection"); click("All games");
                 awaitCount(scenario,40);
-                scenario.onActivity(a -> a.findViewById(R.id.rail_favorites).performClick());
+                scenario.onActivity(a -> a.findViewById(R.id.library_category).performClick());
+                click("Favorites");
                 awaitCount(scenario,20);
                 scenario.onActivity(a -> {
                     RecyclerView list=a.findViewById(R.id.apps_recycler);
@@ -163,11 +163,11 @@ public class LibrarySessionTest {
                 });
                 instrumentation.waitForIdleSync(); SystemClock.sleep(500);
             }
-            assertEquals("game-20",preferences.getString("libraryLocation.2.1",null));
+            assertEquals("game-20",preferences.getString("libraryLocation.2.1.0.1.",null));
             try(ActivityScenario<MainActivity> scenario=ActivityScenario.launch(MainActivity.class)) {
                 awaitCount(scenario,20); SystemClock.sleep(500);
                 scenario.onActivity(a -> {
-                    assertEquals("Favorites / Java ME",((TextView)a.findViewById(R.id.library_category)).getText().toString());
+                    assertEquals("Favorites",((TextView)a.findViewById(R.id.library_category)).getText().toString());
                     RecyclerView list=a.findViewById(R.id.apps_recycler);
                     assertEquals(10,((LinearLayoutManager)list.getLayoutManager()).findFirstVisibleItemPosition());
                     RecyclerView.ViewHolder row=list.findViewHolderForAdapterPosition(10);
@@ -185,15 +185,6 @@ public class LibrarySessionTest {
             }
         } finally {
             init.invoke(null,original);
-            SharedPreferences.Editor edit=preferences.edit();
-            for(String key:preferences.getAll().keySet()) if(key.startsWith("library")||key.equals("pref_library_view_mode")) edit.remove(key);
-            for(Map.Entry<String,?> entry:before.entrySet()) {
-                String key=entry.getKey(); Object value=entry.getValue();
-                if(!key.startsWith("library")&&!key.equals("pref_library_view_mode"))continue;
-                if(value instanceof Integer)edit.putInt(key,(Integer)value);
-                else if(value instanceof String)edit.putString(key,(String)value);
-            }
-            edit.commit();
         }
     }
     private void awaitCount(ActivityScenario<MainActivity> scenario,int count) {
@@ -237,7 +228,7 @@ public class LibrarySessionTest {
             capture("gallery.png");
             scenario.onActivity(a -> a.findViewById(R.id.library_menu).performClick());
             capture("library-menu.png"); click("Collection"); capture("collection.png");
-            click("Platform: All platforms"); capture("platforms.png"); click("All platforms");
+            click("All games"); capture("platforms.png");
             scenario.onActivity(a -> a.findViewById(R.id.view_mode_grid).performClick());
             capture("grid.png");
             scenario.onActivity(a -> a.findViewById(R.id.view_mode_list).performClick());

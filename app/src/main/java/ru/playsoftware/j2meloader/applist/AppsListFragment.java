@@ -114,7 +114,6 @@ import ru.woesss.j2me.installer.InstallerDialog;
 
 public class AppsListFragment extends Fragment implements AppsListAdapter.Listener {
 	private static final String TAG = AppsListFragment.class.getSimpleName();
-	private static final String PREF_LIBRARY_VIEW_MODE = "pref_library_view_mode";
 
 	private Uri appUri;
 	private SharedPreferences preferences;
@@ -126,6 +125,10 @@ public class AppsListFragment extends Fragment implements AppsListAdapter.Listen
 	private boolean pickingIcon;
 	private int category = AppsListAdapter.CATEGORY_LIBRARY;
 	private int platform;
+	private int generation;
+	private LibraryNavigation navigation;
+	private boolean changingPlatform;
+	private boolean bothNgageGenerations;
 	private boolean databaseLoaded;
 	private boolean externalLoaded = !BuildConfig.SYMBIAN_EXPERIMENT;
 	private boolean restoreLocation = true;
@@ -169,9 +172,13 @@ public class AppsListFragment extends Fragment implements AppsListAdapter.Listen
 		appUri = args.getParcelable(KEY_APP_URI);
 		args.remove(KEY_APP_URI);
 		preferences = PreferenceManager.getDefaultSharedPreferences(requireActivity());
-		category = Math.max(0, Math.min(2, preferences.getInt("libraryCategory", 0)));
-		platform = Math.max(0, Math.min(4, preferences.getInt("libraryPlatform", 0)));
-		restoredSelection = preferences.getString("librarySelection", null);
+		navigation = new LibraryNavigation(preferences);
+		platform = navigation.active();
+		category = navigation.category(platform);
+		generation = navigation.generation(platform);
+		restoredSearch = navigation.query(platform);
+		searchExpanded = !restoredSearch.isEmpty();
+		restoredSelection = navigation.selection(platform);
 		if (savedInstanceState != null) {
             pendingLauncherLink = savedInstanceState.getString("launcherLink");
 			artworkTargetId = savedInstanceState.getInt("artworkTargetId", -1);
@@ -182,8 +189,8 @@ public class AppsListFragment extends Fragment implements AppsListAdapter.Listen
 		}
 		adapter = new AppsListAdapter(this);
 		adapter.restoreSelection(restoredSelection);
-		adapter.setPlatform(platform);
-		adapter.setDisplayMode(preferences.getInt(PREF_LIBRARY_VIEW_MODE, AppsListAdapter.MODE_GALLERY));
+		adapter.setQuery(category, platform, generation, restoredSearch);
+		adapter.setDisplayMode(navigation.view(platform));
 		AppListModel appListModel = new ViewModelProvider(requireActivity()).get(AppListModel.class);
 		appRepository = appListModel.getAppRepository();
 		appRepository.observeErrors(this, this::alertDbError);
@@ -237,14 +244,13 @@ public class AppsListFragment extends Fragment implements AppsListAdapter.Listen
 		binding.viewModeGallery.setOnClickListener(v -> setDisplayMode(AppsListAdapter.MODE_GALLERY));
 		binding.viewModeList.setOnClickListener(v -> setDisplayMode(AppsListAdapter.MODE_LIST));
 		binding.viewModeGrid.setOnClickListener(v -> setDisplayMode(AppsListAdapter.MODE_GRID));
-		for (View tab : new View[]{binding.railLibrary, binding.railRecent, binding.railFavorites,
-				binding.viewModeGallery, binding.viewModeList, binding.viewModeGrid}) {
-			tab.setBackgroundResource(R.drawable.bg_library_tab);
+		for (int i = 0; i < binding.libraryPlatformTabs.getChildCount(); i++) {
+			final int target = i + 1;
+			binding.libraryPlatformTabs.getChildAt(i).setOnClickListener(v -> setPlatform(target));
 		}
-		binding.railLibrary.setSelected(true);
-		binding.railLibrary.setOnClickListener(v -> setCategory(AppsListAdapter.CATEGORY_LIBRARY));
-		binding.railRecent.setOnClickListener(v -> setCategory(AppsListAdapter.CATEGORY_RECENT));
-		binding.railFavorites.setOnClickListener(v -> setCategory(AppsListAdapter.CATEGORY_FAVORITES));
+		binding.librarySocial.setOnClickListener(v -> showSocial());
+		binding.libraryGeneration.setOnClickListener(v -> showGenerationMenu());
+		installPlatformSwipe();
 		binding.librarySearch.addTextChangedListener(new TextWatcher() {
 			@Override
 			public void beforeTextChanged(CharSequence s, int start, int count, int after) {
@@ -252,9 +258,11 @@ public class AppsListFragment extends Fragment implements AppsListAdapter.Listen
 
 			@Override
 			public void onTextChanged(CharSequence s, int start, int before, int count) {
+				if (changingPlatform || s.toString().equals(restoredSearch)) return;
 				saveLibraryLocation();
 				restoredSearch = s.toString();
-				if (restoredSearch.isEmpty()) restoreLocation = true;
+				restoreLocation = true;
+				saveNavigation();
 				adapter.setSearchQuery(s);
 			}
 
@@ -262,7 +270,6 @@ public class AppsListFragment extends Fragment implements AppsListAdapter.Listen
 			public void afterTextChanged(Editable s) {
 			}
 		});
-		binding.librarySort.setOnClickListener(v -> showSortDialog());
 		binding.libraryCategory.setOnClickListener(v -> showCategoryMenu());
 		binding.libraryMenu.setOnClickListener(v -> showLibraryMenu());
 		binding.librarySearchToggle.setOnClickListener(v -> {
@@ -285,22 +292,7 @@ public class AppsListFragment extends Fragment implements AppsListAdapter.Listen
 		};
 		requireActivity().getOnBackPressedDispatcher().addCallback(getViewLifecycleOwner(), searchBack);
 		binding.railAddGame.setOnClickListener(v -> openLastDirectory());
-		binding.railFolders.setOnClickListener(v -> openFolderLauncher.launch(null));
-		binding.railSettings.setOnClickListener(v ->
-				startActivity(new Intent(requireActivity(), SettingsActivity.class)));
-		binding.detailPlay.setOnClickListener(v -> {
-			if (selectedItem != null) {
-				startApp(selectedItem, false);
-			}
-		});
-		binding.detailSettings.setOnClickListener(v -> {
-			if (selectedItem != null) {
-				startApp(selectedItem, true);
-			}
-		});
-		binding.detailFavorite.setOnClickListener(v -> toggleSelectedFavorite());
-		binding.floatingActionButton.setOnClickListener(v -> openLastDirectory());
-		updateClock();
+		binding.emptyAddGame.setOnClickListener(v -> openLastDirectory());
 		setCategory(category);
 		binding.librarySearch.setText(restoredSearch);
 		applyDisplayMode();
@@ -353,11 +345,15 @@ public class AppsListFragment extends Fragment implements AppsListAdapter.Listen
 	}
 
 	private void setDisplayMode(int mode) {
+		if (adapter.getDisplayMode() == mode) return;
 		saveLibraryLocation();
+		String anchor = preferences.getString(locationKey(), null);
 		boolean restoreFocus = binding.appsRecycler.hasFocus();
 		String selectedPath = selectedItem == null ? null : selectedItem.getPath();
 		adapter.setDisplayMode(mode);
-		preferences.edit().putInt(PREF_LIBRARY_VIEW_MODE, mode).apply();
+		if (anchor != null) preferences.edit().putString(locationKey(), anchor)
+				.putInt(locationKey() + ".offset", 0).apply();
+		saveNavigation();
 		applyDisplayMode();
 		restoreLibraryLocation();
 		if (restoreFocus) focusGame(selectedPath);
@@ -376,9 +372,75 @@ public class AppsListFragment extends Fragment implements AppsListAdapter.Listen
 	private GameMenuDialog libraryDialog(String title) {
 		GameMenuDialog dialog = new GameMenuDialog(requireContext(),
 				getResources().getQuantityString(R.plurals.library_games, adapter.getItemCount(), adapter.getItemCount()));
+		dialog.useEdgePanel();
 		dialog.show();
 		dialog.page(title);
 		return dialog;
+	}
+
+	private void showGenerationMenu() {
+		GameMenuDialog dialog = libraryDialog("N-Gage generation");
+		String[] labels = {"All", "Classic", "2.0"};
+		for (int i = 0; i < labels.length; i++) {
+			int target = i;
+			dialog.action(labels[i], i == generation ? android.R.drawable.checkbox_on_background : 0, () -> {
+				saveLibraryLocation(); generation = target; restoreLocation = true;
+				adapter.setQuery(category, platform, generation, restoredSearch);
+				saveNavigation(); updateCollectionLabel(); dialog.dismiss();
+			});
+		}
+	}
+
+	private void showSocial() {
+		GameMenuDialog dialog = libraryDialog("Social");
+		dialog.action("Lobbies", android.R.drawable.ic_menu_share, () -> {
+			dialog.dismiss(); startActivity(new Intent(requireContext(),
+					ru.playsoftware.j2meloader.multiplayer.LobbyDirectoryActivity.class));
+		});
+		dialog.action("Friends", android.R.drawable.ic_menu_myplaces, () -> {
+			dialog.dismiss(); startActivity(new Intent(requireContext(),
+					ru.playsoftware.j2meloader.multiplayer.FluxerChatsActivity.class).putExtra("friends", true));
+		});
+		dialog.action("Chats", android.R.drawable.ic_dialog_email, () -> {
+			dialog.dismiss(); startActivity(new Intent(requireContext(),
+					ru.playsoftware.j2meloader.multiplayer.FluxerChatsActivity.class));
+		});
+		dialog.action("Fluxer account", android.R.drawable.ic_menu_myplaces, () -> {
+			dialog.dismiss(); startActivity(new Intent(requireContext(),
+					ru.playsoftware.j2meloader.multiplayer.FluxerAccountActivity.class));
+		});
+	}
+
+	private void installPlatformSwipe() {
+		binding.appsRecycler.addOnItemTouchListener(new RecyclerView.SimpleOnItemTouchListener() {
+			float x, y;
+			long down;
+			boolean rejected, swiping;
+			int direction;
+			@Override public boolean onInterceptTouchEvent(@NonNull RecyclerView view, @NonNull android.view.MotionEvent e) {
+				if (e.getActionMasked() == android.view.MotionEvent.ACTION_DOWN) {
+					x = e.getX(); y = e.getY(); down = e.getEventTime(); rejected = false; swiping = false;
+				} else if (e.getActionMasked() == android.view.MotionEvent.ACTION_POINTER_DOWN) rejected = true;
+				else if (e.getActionMasked() == android.view.MotionEvent.ACTION_MOVE && !rejected) {
+					float dx = e.getX() - x, dy = e.getY() - y;
+					if (e.getEventTime() - down >= android.view.ViewConfiguration.getLongPressTimeout()
+							|| Math.abs(dy) > android.view.ViewConfiguration.get(requireContext()).getScaledTouchSlop()) {
+						rejected = true; return false;
+					}
+					if (Math.abs(dx) > dp(64) && Math.abs(dx) > 3 * Math.abs(dy)) {
+						direction = dx < 0 ? 1 : -1; swiping = true; return true;
+					}
+				}
+				return false;
+			}
+			@Override public void onTouchEvent(@NonNull RecyclerView view, @NonNull android.view.MotionEvent e) {
+				if (e.getActionMasked() == android.view.MotionEvent.ACTION_POINTER_DOWN) rejected = true;
+				if (e.getActionMasked() == android.view.MotionEvent.ACTION_UP) {
+					if (swiping && !rejected) stepPlatform(direction);
+					swiping = false;
+				} else if (e.getActionMasked() == android.view.MotionEvent.ACTION_CANCEL) swiping = false;
+			}
+		});
 	}
 
 	private void showCategoryMenu() {
@@ -394,15 +456,6 @@ public class AppsListFragment extends Fragment implements AppsListAdapter.Listen
 			dialog.action(names[i], i == category ? android.R.drawable.checkbox_on_background : 0,
 					() -> { setCategory(target); dialog.dismiss(); });
 		}
-		dialog.action("Platform: " + LibraryQuery.PLATFORMS[platform], android.R.drawable.ic_menu_sort_by_size, () -> {
-			dialog.page("Platform");
-			dialog.setBackAction(() -> populateCollectionMenu(dialog));
-			for (int i = 0; i < LibraryQuery.PLATFORMS.length; i++) {
-				int target = i;
-				dialog.action(LibraryQuery.PLATFORMS[i], i == platform ? android.R.drawable.checkbox_on_background : 0,
-						() -> { setPlatform(target); dialog.dismiss(); });
-			}
-		});
 	}
 
 	private void showLibraryMenu() {
@@ -489,43 +542,64 @@ public class AppsListFragment extends Fragment implements AppsListAdapter.Listen
 	private void setCategory(int category) {
 		if (this.category != category) { saveLibraryLocation(); restoreLocation = true; }
 		this.category = category;
-		preferences.edit().putInt("libraryCategory", category).apply();
+		saveNavigation();
 		adapter.setCategory(category);
-		binding.railLibrary.setSelected(category == AppsListAdapter.CATEGORY_LIBRARY);
-		binding.railRecent.setSelected(category == AppsListAdapter.CATEGORY_RECENT);
-		binding.railFavorites.setSelected(category == AppsListAdapter.CATEGORY_FAVORITES);
-		int title = category == AppsListAdapter.CATEGORY_RECENT
-				? R.string.launcher_recent
-				: category == AppsListAdapter.CATEGORY_FAVORITES
-				? R.string.launcher_favorites : R.string.library_title;
-		binding.libraryTitle.setText(title);
 		updateCollectionLabel();
 	}
 
 	private void setPlatform(int platform) {
+		if (this.platform == platform || binding == null) return;
 		saveLibraryLocation();
+		if (!restoreLocation) rememberVisibleSelection();
+		saveNavigation();
 		this.platform = platform;
 		restoreLocation = true;
-		preferences.edit().putInt("libraryPlatform", platform).apply();
-		adapter.setPlatform(platform);
+		binding.appsRecycler.clearFocus();
+		pendingGameFocus = -1;
+		initialGameFocus = true;
+		selectedItem = null;
+		category = navigation.category(platform);
+		generation = bothNgageGenerations ? navigation.generation(platform) : 0;
+		restoredSearch = navigation.query(platform);
+		restoredSelection = navigation.selection(platform);
+		searchExpanded = !restoredSearch.isEmpty();
+		changingPlatform = true;
+		binding.librarySearch.setText(restoredSearch);
+		changingPlatform = false;
+		adapter.restoreSelection(restoredSelection);
+		adapter.setDisplayMode(navigation.view(platform));
+		adapter.setQuery(category, platform, generation, restoredSearch);
+		saveNavigation();
+		applyDisplayMode();
 		updateCollectionLabel();
+	}
+	public void stepPlatform(int direction) { setPlatform(LibraryNavigation.next(platform, direction)); }
+	private void saveNavigation() {
+		if (navigation != null && adapter != null)
+			navigation.save(platform, adapter.getDisplayMode(), category, generation, restoredSearch, restoredSelection);
 	}
 
 	private void updateCollectionLabel() {
 		String label = category == 0 ? "All games" : category == 1 ? "Recent" : "Favorites";
-		if (platform != 0) label = category == 0 ? LibraryQuery.PLATFORMS[platform]
-				: label + " / " + LibraryQuery.PLATFORMS[platform];
-		binding.libraryCategory.setSingleLine(false);
-		binding.libraryCategory.setMaxLines(2);
 		binding.libraryCategory.setText(label);
 		binding.libraryCategory.setContentDescription("Collection: " + label);
 		binding.libraryCategory.setTooltipText(label);
-		binding.railLibrary.setText(platform == 0 ? "All games" : LibraryQuery.PLATFORMS[platform]);
+		for (int i = 0; i < binding.libraryPlatformTabs.getChildCount(); i++) {
+			View tab = binding.libraryPlatformTabs.getChildAt(i);
+			tab.setSelected(i + 1 == platform);
+			if (i + 1 == platform) tab.post(() -> {
+				if (binding != null) tab.requestRectangleOnScreen(new Rect(0, 0, tab.getWidth(), tab.getHeight()), true);
+			});
+		}
+		binding.libraryGeneration.setVisibility(platform == 4 && bothNgageGenerations ? View.VISIBLE : View.GONE);
+		binding.libraryGeneration.setText(new String[]{"All", "Classic", "2.0"}[generation]);
+		binding.libraryGeneration.setContentDescription("N-Gage generation: " + binding.libraryGeneration.getText());
 	}
 
-	private String locationKey() { return "libraryLocation." + category + "." + platform; }
+	private String locationKey() { return "libraryLocation." + category + "." + platform
+			+ "." + generation + "." + adapter.getDisplayMode() + "." + restoredSearch; }
 	private void saveLibraryLocation() {
-		if (binding == null || restoreLocation || !restoredSearch.isEmpty()
+		if (binding == null || restoreLocation
 				|| binding.appsRecycler.hasPendingAdapterUpdates()) return;
 		RecyclerView.LayoutManager manager = binding.appsRecycler.getLayoutManager();
 		if (!(manager instanceof LinearLayoutManager)) return;
@@ -538,8 +612,11 @@ public class AppsListFragment extends Fragment implements AppsListAdapter.Listen
 						- binding.appsRecycler.getPaddingTop()).apply();
 	}
 	private void restoreLibraryLocation() {
-		if (binding == null || !restoredSearch.isEmpty()) return;
-		String path = preferences.getString(locationKey(), null);
+		if (binding == null) return;
+		String key = locationKey();
+		if (!preferences.contains(key) && restoredSearch.isEmpty() && generation == 0)
+			key = "libraryLocation." + category + "." + platform;
+		String path = preferences.getString(key, null);
 		int position = 0;
 		for (int i = 0; i < adapter.getItemCount(); i++)
 			if (adapter.getItem(i).getPath().equals(path)) { position = i; break; }
@@ -547,11 +624,11 @@ public class AppsListFragment extends Fragment implements AppsListAdapter.Listen
 		if (manager instanceof LinearLayoutManager)
 			((LinearLayoutManager) manager).scrollToPositionWithOffset(position,
 					position == 0 && !java.util.Objects.equals(path, adapter.getFirstItem() == null
-							? null : adapter.getFirstItem().getPath()) ? 0 : preferences.getInt(locationKey() + ".offset", 0));
+							? null : adapter.getFirstItem().getPath()) ? 0 : preferences.getInt(key + ".offset", 0));
 	}
 
 	private void applyDisplayMode() {
-		boolean restoreFocus = binding.appsRecycler.hasFocus();
+		boolean restoreFocus = !restoreLocation && binding.appsRecycler.hasFocus();
 		String focusedPath = selectedItem == null ? null : selectedItem.getPath();
 		updateResponsiveToolbar();
 		int mode = adapter.getDisplayMode();
@@ -563,7 +640,6 @@ public class AppsListFragment extends Fragment implements AppsListAdapter.Listen
 		binding.viewModeGallery.setSelected(mode == AppsListAdapter.MODE_GALLERY);
 		binding.viewModeList.setSelected(mode == AppsListAdapter.MODE_LIST);
 		binding.viewModeGrid.setSelected(mode == AppsListAdapter.MODE_GRID);
-		updateDetail(selectedItem == null ? adapter.getFirstItem() : selectedItem);
 		if (restoreFocus) binding.appsRecycler.post(() -> focusGame(focusedPath));
 	}
 
@@ -581,7 +657,7 @@ public class AppsListFragment extends Fragment implements AppsListAdapter.Listen
 				: getResources().getConfiguration().screenHeightDp - 80, getResources().getConfiguration().fontScale);
 	}
 	private void updateLibraryLayout() {
-		boolean restore = binding.appsRecycler.hasFocus();
+		boolean restore = !restoreLocation && binding.appsRecycler.hasFocus();
 		String path = selectedItem == null ? null : selectedItem.getPath();
 		LibraryLayout layout = libraryLayout(adapter.getDisplayMode());
 		if (binding.appsRecycler.getLayoutManager() instanceof GridLayoutManager)
@@ -590,63 +666,30 @@ public class AppsListFragment extends Fragment implements AppsListAdapter.Listen
 		if (restore && !binding.appsRecycler.hasFocus()) focusGame(path);
 	}
 
+
 	private void updateResponsiveToolbar() {
 		float density = getResources().getDisplayMetrics().density;
 		float width = binding.getRoot().getWidth() > 0 ? binding.getRoot().getWidth() / density : getResources().getConfiguration().screenWidthDp;
 		float height = binding.getRoot().getHeight() > 0 ? binding.getRoot().getHeight() / density : getResources().getConfiguration().screenHeightDp;
-		boolean wide = width >= 560;
-		boolean shortLandscape = height < 480 && width > height;
-		boolean compact = LibraryLayout.compact(width, height, getResources().getConfiguration().fontScale);
-		compactLibrary = compact;
-		adapter.setCompact(compact && height < 600);
-		binding.libraryCategoryRow.setVisibility(compact ? View.GONE : View.VISIBLE);
-		binding.libraryCount.setVisibility(compact ? View.GONE : View.VISIBLE);
-		boolean categoryInline = LibraryLayout.inlineCategory(width, getResources().getConfiguration().fontScale);
-		binding.libraryCategory.setVisibility(compact && categoryInline ? View.VISIBLE : View.GONE);
-		ViewGroup.LayoutParams categoryParams = binding.libraryCategory.getLayoutParams();
-		categoryParams.width = dp(Math.round(112 * Math.max(1, getResources().getConfiguration().fontScale)));
-		binding.libraryCategory.setLayoutParams(categoryParams);
-		binding.librarySearchToggle.setVisibility(compact ? View.VISIBLE : View.GONE);
-		binding.libraryMenu.setVisibility(View.VISIBLE);
-		binding.railAddGame.setVisibility(compact ? View.GONE : View.VISIBLE);
-		binding.railFolders.setVisibility(compact ? View.GONE : View.VISIBLE);
-		binding.railSettings.setVisibility(compact ? View.GONE : View.VISIBLE);
-		binding.libraryModeRow.setVisibility(compact ? View.GONE : View.VISIBLE);
-		binding.librarySort.setVisibility(compact ? View.GONE : View.VISIBLE);
-		binding.librarySearchClose.setVisibility(compact ? View.VISIBLE : View.GONE);
-		if (searchBack != null) searchBack.setEnabled(compact && (searchExpanded || binding.librarySearch.length() > 0));
-		binding.librarySearchToggle.setSelected(searchExpanded || binding.librarySearch.length() > 0);
-		binding.librarySearchRow.setVisibility(!compact || searchExpanded
-				|| binding.librarySearch.length() > 0 ? View.VISIBLE : View.GONE);
-		ViewGroup parent = (ViewGroup) binding.libraryModeRow.getParent();
-		boolean inline = wide && !compact;
-		ViewGroup desired = inline ? binding.librarySearchRow : binding.libraryRoot;
-		if (parent != desired) {
-			parent.removeView(binding.libraryModeRow);
-			LinearLayout.LayoutParams lp = new LinearLayout.LayoutParams(inline ? dp(276) : -1, dp(48));
-			lp.setMargins(dp(12),0,dp(inline ? 0 : 12),0);
-			if (inline) desired.addView(binding.libraryModeRow,lp);
-			else desired.addView(binding.libraryModeRow,3,lp);
+		float fontScale = getResources().getConfiguration().fontScale;
+		compactLibrary = LibraryLayout.compact(width, height, fontScale);
+		adapter.setCompact(compactLibrary && height < 600);
+		binding.libraryCount.setVisibility(width >= 560 && fontScale <= 1.3f ? View.VISIBLE : View.GONE);
+		// Secondary commands remain in the menu when a narrow viewport cannot fit them.
+		binding.railAddGame.setVisibility(width >= 340 && fontScale <= 1.5f ? View.VISIBLE : View.GONE);
+		binding.librarySearchRow.setVisibility(searchExpanded || !restoredSearch.isEmpty() ? View.VISIBLE : View.GONE);
+		if (searchBack != null) searchBack.setEnabled(searchExpanded || !restoredSearch.isEmpty());
+		binding.librarySearchToggle.setSelected(searchExpanded || !restoredSearch.isEmpty());
+		int tabWidth = dp(Math.max(80, Math.round(80 * fontScale)));
+		for (int i = 0; i < binding.libraryPlatformTabs.getChildCount(); i++) {
+			TextView tab = (TextView) binding.libraryPlatformTabs.getChildAt(i);
+			LinearLayout.LayoutParams lp = (LinearLayout.LayoutParams) tab.getLayoutParams();
+			int desired = Math.max(tabWidth, dp(Math.round((width - 16) / 4)));
+			if (lp.width != desired) { lp.width = desired; lp.weight = 0; tab.setLayoutParams(lp); }
 		}
-		ViewGroup.LayoutParams bar = binding.launcherSoftbar.getLayoutParams();
-		bar.height = dp(compact ? 24 : 32);
-		binding.launcherSoftbar.setLayoutParams(bar);
-		binding.launcherSoftbar.setVisibility(ru.playsoftware.j2meloader.input.DeviceControls.connected(requireContext())
-				&& width >= 400 && getResources().getConfiguration().fontScale <= 1.3f ? View.VISIBLE : View.GONE);
-		binding.launcherSoftbar.setText(compact ? "A  Play     X  Options     L/R  View     Start  Menu"
-				: "A  Play     X  Options     Y  Favorite     L/R  View");
-		binding.launcherTitle.setGravity(android.view.Gravity.CENTER_VERTICAL);
 		binding.launcherTitle.setTypeface("retro".equals(ru.playsoftware.j2meloader.ui.AppPalette.selected(requireContext()))
 				? android.graphics.Typeface.MONOSPACE : android.graphics.Typeface.DEFAULT, android.graphics.Typeface.BOLD);
-		binding.launcherTitle.setTextSize(18);
-		TextViewCompat.setAutoSizeTextTypeUniformWithConfiguration(binding.launcherTitle, 14, 18, 1,
-				android.util.TypedValue.COMPLEX_UNIT_SP);
-		binding.launcherTitle.setText("AbyssME");
-		binding.launcherTitle.setSingleLine(true);
-		binding.launcherTitle.setHorizontallyScrolling(false);
 		binding.launcherTitle.setEllipsize(android.text.TextUtils.TruncateAt.END);
-		binding.railRecent.setText("Recent");
-		binding.railFavorites.setText("Favorites");
 	}
 
 	@Override
@@ -821,6 +864,8 @@ public class AppsListFragment extends Fragment implements AppsListAdapter.Listen
 
 	@Override public void onSaveInstanceState(@NonNull Bundle state) {
 		saveLibraryLocation();
+		if (!restoreLocation) rememberVisibleSelection();
+		saveNavigation();
 		super.onSaveInstanceState(state);
         state.putString("launcherLink", pendingLauncherLink);
 		state.putInt("artworkTargetId", artworkTargetId);
@@ -921,10 +966,24 @@ public class AppsListFragment extends Fragment implements AppsListAdapter.Listen
 		if (item == null) return;
 		restoredSelection = item.getPath();
 		adapter.restoreSelection(restoredSelection);
-		preferences.edit().putString("librarySelection", restoredSelection).apply();
+		saveNavigation();
+	}
+	private void rememberVisibleSelection() {
+		AppItem item = selectedItem;
+		if (binding != null && binding.appsRecycler.getLayoutManager() instanceof LinearLayoutManager) {
+			LinearLayoutManager manager = (LinearLayoutManager) binding.appsRecycler.getLayoutManager();
+			int first = manager.findFirstVisibleItemPosition(), last = manager.findLastVisibleItemPosition();
+			boolean visible = false;
+			for (int i = Math.max(0, first); i <= last && i < adapter.getItemCount(); i++)
+				visible |= item != null && item.getPath().equals(adapter.getItem(i).getPath());
+			if (!visible && first >= 0 && first < adapter.getItemCount()) item = adapter.getItem(first);
+		}
+		rememberSelection(item);
 	}
 
 	public boolean handleControllerKey(int keyCode) {
+		if (binding == null) return false;
+		if (restoreLocation && keyCode == KeyEvent.KEYCODE_BUTTON_A) return true;
 		if (binding.getRoot().findFocus() == null) {
 			if (keyCode == KeyEvent.KEYCODE_BUTTON_A && selectedItem != null) {
 				startApp(selectedItem, false);
@@ -939,17 +998,17 @@ public class AppsListFragment extends Fragment implements AppsListAdapter.Listen
 			showLibraryMenu();
 			return true;
 		}
-		if (keyCode == KeyEvent.KEYCODE_BUTTON_B && compactLibrary && binding.librarySearchRow.getVisibility() == View.VISIBLE) {
+		if (keyCode == KeyEvent.KEYCODE_BUTTON_B && binding.librarySearchRow.getVisibility() == View.VISIBLE) {
 			closeSearch();
 			return true;
 		}
-		if (keyCode == KeyEvent.KEYCODE_BUTTON_X && selectedItem != null) {
+		if (keyCode == KeyEvent.KEYCODE_BUTTON_X && selectedItem != null && !restoreLocation) {
 			View focus = binding.appsRecycler.findFocus();
 			showActions(focus != null ? focus : binding.appsRecycler, selectedItem);
 			return true;
 		}
 		if (keyCode == KeyEvent.KEYCODE_BUTTON_Y) {
-			toggleSelectedFavorite();
+			if (!restoreLocation) toggleSelectedFavorite();
 			return true;
 		}
 		if (keyCode == KeyEvent.KEYCODE_BUTTON_L1 || keyCode == KeyEvent.KEYCODE_BUTTON_R1) {
@@ -969,6 +1028,7 @@ public class AppsListFragment extends Fragment implements AppsListAdapter.Listen
         if (appItem instanceof ExternalLibrary.Item) {
             ExternalLibrary.Item item = (ExternalLibrary.Item) appItem;
             GameMenuDialog dialog = new GameMenuDialog(requireContext(), item.getTitle());
+            dialog.useEdgePanel();
             dialog.show(); dialog.page(item.getTitle());
             dialog.action("Game information", android.R.drawable.ic_menu_info_details, () -> {
                 dialog.dismiss(); showGameInformation(item);
@@ -1029,6 +1089,7 @@ public class AppsListFragment extends Fragment implements AppsListAdapter.Listen
 		};
 		{
 			GameMenuDialog dialog = new GameMenuDialog(requireContext(), "Game options");
+			dialog.useEdgePanel();
 			dialog.show();
 			dialog.page(appItem.getTitle());
 			dialog.action("Play", android.R.drawable.ic_media_play, () -> {
@@ -1188,7 +1249,8 @@ public class AppsListFragment extends Fragment implements AppsListAdapter.Listen
 	}
 	@Override public void onPause() {
 		saveLibraryLocation();
-		if (databaseLoaded && externalLoaded && !restoreLocation) rememberSelection(selectedItem);
+		if (databaseLoaded && externalLoaded && !restoreLocation) rememberVisibleSelection();
+		saveNavigation();
 		super.onPause();
 	}
 
@@ -1223,6 +1285,12 @@ public class AppsListFragment extends Fragment implements AppsListAdapter.Listen
 		restoreLocation = true;
 		List<AppItem> items = new java.util.ArrayList<>(databaseItems);
 		items.addAll(externalItems);
+		bothNgageGenerations = LibraryQuery.hasBothNgageGenerations(externalItems);
+		if (externalLoaded && !bothNgageGenerations && generation != 0) {
+			generation = 0;
+			adapter.setQuery(category, platform, generation, restoredSearch);
+		}
+		if (binding != null) updateCollectionLabel();
 		if (!externalItems.isEmpty()) {
 			java.text.Collator collator = java.text.Collator.getInstance();
 			int sort = appRepository.getSort();
@@ -1259,7 +1327,8 @@ public class AppsListFragment extends Fragment implements AppsListAdapter.Listen
 				: category == 1 ? "No recently played games in this collection"
 				: platform != 0 ? "No " + LibraryQuery.PLATFORMS[platform] + " games"
 				: "No games yet");
-		binding.empty.setVisibility(empty ? View.VISIBLE : View.GONE);
+		binding.libraryEmpty.setVisibility(empty ? View.VISIBLE : View.GONE);
+		binding.emptyAddGame.setVisibility(category == 0 && restoredSearch.isEmpty() ? View.VISIBLE : View.GONE);
 		binding.appsRecycler.setVisibility(empty ? View.GONE : View.VISIBLE);
 		binding.libraryCount.setText(getResources().getQuantityString(R.plurals.library_games,
 				adapter.getItemCount(), adapter.getItemCount()));
@@ -1283,48 +1352,16 @@ public class AppsListFragment extends Fragment implements AppsListAdapter.Listen
         dialog.show(); dialog.page("Game information");
         dialog.message(ru.playsoftware.j2meloader.catalog.GameInformation.describe(item));
     }
+
 	private void updateDetail(AppItem item) {
-		if (binding == null) {
-			return;
-		}
 		selectedItem = item;
-		binding.detailPanel.setVisibility(item != null && !compactLibrary && !isCompactPhoneLayout()
-				? View.VISIBLE : View.GONE);
-		if (item == null) {
-			return;
-		}
-		Drawable cover = Drawable.createFromPath(item.getCoverPathExt());
-		if (cover != null) {
-			cover.setFilterBitmap(false);
-			binding.detailCover.setScaleType(IconArtUtils.coverScale(cover.getIntrinsicWidth(), cover.getIntrinsicHeight()));
-			binding.detailCover.setImageDrawable(cover);
-		} else {
-			Bitmap icon = IconArtUtils.loadLargeIcon(item.getImagePathExt(), dp(210));
-			binding.detailCover.setScaleType(ImageView.ScaleType.CENTER_CROP);
-			binding.detailCover.setImageBitmap(IconArtUtils.createFallback(item.getTitle(),
-					dp(420), dp(260), icon));
-		}
-		binding.detailTitle.setText(item.getTitle());
-        binding.detailSettings.setText(item instanceof ExternalLibrary.Item ? "System files" : "Settings");
-		binding.detailFavorite.setText(item.isFavorite()
-				? R.string.remove_favorite : R.string.add_favorite);
-		String author = item.getAuthor() == null ? "" : item.getAuthor();
-		String version = item.getVersion() == null ? "" : item.getVersion();
-		binding.detailMeta.setText(author + "  " + version);
 	}
 
 	private int dp(int value) {
 		return Math.round(value * getResources().getDisplayMetrics().density);
 	}
 
-	private boolean isCompactPhoneLayout() {
-		return getResources().getConfiguration().screenWidthDp < 900
-				|| getResources().getConfiguration().screenHeightDp < 480;
-	}
 
-	private void updateClock() {
-		binding.launcherClock.setText(new SimpleDateFormat("HH:mm", Locale.US).format(new Date()));
-	}
 
 	private static class SortAdapter extends ArrayAdapter<String> {
 		private int variant;
@@ -1373,10 +1410,11 @@ public class AppsListFragment extends Fragment implements AppsListAdapter.Listen
 	}
 
 	private ru.playsoftware.j2meloader.input.DeviceControls libraryDevices;
+
 	private void updateLibraryControls() {
 		if (binding == null) return;
+		updateResponsiveToolbar();
 		boolean connected = ru.playsoftware.j2meloader.input.DeviceControls.connected(requireContext());
-		binding.launcherSoftbar.setVisibility(connected ? View.VISIBLE : View.GONE);
 		if (connected && !searchExpanded && !initialGameFocus && !binding.getRoot().hasFocus())
 			focusGame(selectedItem == null ? restoredSelection : selectedItem.getPath());
 	}

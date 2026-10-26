@@ -59,7 +59,17 @@ public class AppsListAdapter extends RecyclerView.Adapter<AppsListAdapter.ViewHo
 	private int displayMode = MODE_GALLERY;
 	private int category = CATEGORY_LIBRARY;
 	private int platform;
+	private int generation;
+	public synchronized void setQuery(int category, int platform, int generation, String query) {
+		this.category = category;
+		this.platform = platform;
+		this.generation = generation;
+		filterConstraint = query == null ? "" : query;
+		filterGeneration++;
+		appFilter.filter(filterConstraint);
+	}
 	private long filterGeneration;
+	private long publishedGeneration = -1;
 	public void restoreSelection(String path) { focusedPath = path; }
 	private int availableHeight = Integer.MAX_VALUE;
 	private LibraryLayout layout;
@@ -87,12 +97,15 @@ public class AppsListAdapter extends RecyclerView.Adapter<AppsListAdapter.ViewHo
 	public AppsListAdapter(Listener listener) {
 		filteredListener = listener;
 		this.listener = new Listener() {
-			public void onAppClicked(AppItem item) { listener.onAppClicked(item); }
+			public void onAppClicked(AppItem item) { if (publishedGeneration == filterGeneration) listener.onAppClicked(item); }
 			public void onAppFocused(AppItem item) {
+				if (publishedGeneration != filterGeneration) return;
 				focusedPath = item == null ? null : item.getPath();
 				listener.onAppFocused(item);
 			}
-			public void onAppActionsRequested(View anchor, AppItem item) { listener.onAppActionsRequested(anchor, item); }
+			public void onAppActionsRequested(View anchor, AppItem item) {
+				if (publishedGeneration == filterGeneration) listener.onAppActionsRequested(anchor, item);
+			}
 			public void onItemsFiltered() { listener.onItemsFiltered(); }
 		};
 		setHasStableIds(true);
@@ -296,15 +309,16 @@ public class AppsListAdapter extends RecyclerView.Adapter<AppsListAdapter.ViewHo
 		protected FilterResults performFiltering(CharSequence constraint) {
 			FilterResults results = new FilterResults();
 			List<AppItem> source;
-			int requestedCategory, requestedPlatform;
+			int requestedCategory, requestedPlatform, requestedGeneration;
 			String query;
 			long generation;
 			synchronized (AppsListAdapter.this) {
 				source = new ArrayList<>(list);
 				requestedCategory = category; requestedPlatform = platform;
+				requestedGeneration = AppsListAdapter.this.generation;
 				query = filterConstraint; generation = filterGeneration;
 			}
-			List<AppItem> resultList = LibraryQuery.select(source, requestedCategory, requestedPlatform, query);
+			List<AppItem> resultList = LibraryQuery.select(source, requestedCategory, requestedPlatform, requestedGeneration, query);
 			results.count = resultList.size();
 			results.values = new Snapshot(generation, resultList);
 			return results;
@@ -315,6 +329,7 @@ public class AppsListAdapter extends RecyclerView.Adapter<AppsListAdapter.ViewHo
 			if (results.values instanceof Snapshot) {
 				Snapshot snapshot = (Snapshot) results.values;
 				if (snapshot.generation != filterGeneration) return;
+				publishedGeneration = snapshot.generation;
 				filteredList = snapshot.items;
 				AppItem selected = getFirstItem();
 				for (AppItem item : filteredList) {

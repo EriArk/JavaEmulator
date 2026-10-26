@@ -64,6 +64,24 @@ older 0.3 builds, not the current 0.4 release series.
 | Private historical snapshot | `0.1.0-beta.2-experimental.15`, 2026-10-11 | Old Java/Mophun test build, not the current beta |
 | Local-only material | Game fixtures, firmware, diagnostics, device data and signing keys | Not in Git or public release assets; describing testing does not authorize redistribution |
 
+## Library Refresh (#40, Unreleased)
+
+**First implementation slice, 2026-10-26:** replace the platform dropdown and
+permanent details sidebar with Java ME / Mophun / Symbian / N-Gage tabs. Retain
+Gallery/List/Grid and cover formats; remember view, collection, search, position
+and selection per platform. Add circular, deduplicated L2/R2 switching, horizontal
+swipes, direct Social access and temporary library action panels. Preserve
+existing game identities, imports, artwork and engine settings.
+
+The combined Debug build passes 372 JVM checks. Android UI suites report 21
+tests on each target: 20 pass/1 optional capture skipped on Retroid, 19 pass/2
+skipped on the phone emulator (capture and physical-controller-only focus).
+These are instrumented checks, not manual physical-button acceptance. Correct
+cold-return scroll restoration and block stale-card/controller launch while a
+filter is updating. The rest of #40, including in-game panels, Display previews,
+Phone keypad presentation and lobby seats, remains open. No public APK or
+release update. [Scope, evidence and remaining work](RETRO_LIBRARY_REFRESH.md).
+
 ## Multiplayer Foundation (Unreleased)
 
 **Additional Bluetooth games and signaling order, 2026-10-26:** test locally

@@ -1,5 +1,13 @@
 # Compact library and menus
 
+> Development update, 2026-10-26: the library description below is historical.
+> The [#40 library slice](RETRO_LIBRARY_REFRESH.md) replaces it with four platform
+> tabs and an always-accessible view switcher, removes the permanent details pane
+> at every width, and adds temporary edge panels for library actions. The adaptive
+> APK supports both portrait and landscape. In-game menus, settings and transfer
+> are not redesigned by that slice. Do not describe the historical library layout
+> below as current development behavior.
+
 The compact library uses one 48 dp header and a game-focused body, not a scaled
 version of the full toolbar. It uses the laid-out viewport in dp, including
 insets, rather than a device model or physical pixel resolution. It activates

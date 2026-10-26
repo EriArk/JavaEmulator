@@ -29,6 +29,9 @@ public final class GameMenuDialog extends Dialog {
     private Runnable backAction;
     private final String game;
     private Dialog editor;
+    private boolean edgePanel;
+    /** Opt in screen by screen; does not change emulator pause/input ownership. */
+    public void useEdgePanel() { edgePanel = true; if (isShowing()) updateWindowLayout(); }
     public void editTouchLayout(ru.playsoftware.j2meloader.config.ProfileModel draft, Runnable done) {
         if (editor != null) editor.dismiss();
         editor = new TouchLayoutEditor(getContext(), draft, done);
@@ -132,7 +135,7 @@ public final class GameMenuDialog extends Dialog {
         Window window = getWindow();
         window.setBackgroundDrawable(new ColorDrawable(Color.TRANSPARENT));
         window.addFlags(WindowManager.LayoutParams.FLAG_DIM_BEHIND);
-        window.setDimAmount(.75f);
+        window.setDimAmount(edgePanel ? .4f : .75f);
         updateWindowLayout();
         setOnKeyListener((d,key,event) -> {
             if (key == KeyEvent.KEYCODE_BUTTON_B || key == KeyEvent.KEYCODE_BACK) {
@@ -153,6 +156,19 @@ public final class GameMenuDialog extends Dialog {
         });
     }
     private void updateWindowLayout() {
+        if (edgePanel) {
+            Window window = getWindow();
+            WindowManager.LayoutParams attributes = window.getAttributes();
+            int width = getContext().getResources().getDisplayMetrics().widthPixels;
+            int height = getContext().getResources().getDisplayMetrics().heightPixels;
+            boolean side = DeviceControls.connected(getContext()) || width > height;
+            attributes.gravity = side ? Gravity.END | Gravity.CENTER_VERTICAL : Gravity.BOTTOM | Gravity.CENTER_HORIZONTAL;
+            attributes.width = side ? Math.min(dp(380), width - dp(24)) : Math.min(dp(600), width);
+            attributes.height = WindowManager.LayoutParams.WRAP_CONTENT;
+            attributes.y = 0;
+            window.setAttributes(attributes);
+            return;
+        }
         boolean bottom = !ru.playsoftware.j2meloader.BuildConfig.HANDHELD_MODE
                 && getContext().getResources().getConfiguration().orientation
                 == android.content.res.Configuration.ORIENTATION_PORTRAIT;

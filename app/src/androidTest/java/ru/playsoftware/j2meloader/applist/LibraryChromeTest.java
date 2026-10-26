@@ -39,8 +39,8 @@ public class LibraryChromeTest {
             try (ActivityScenario<MainActivity> scenario = ActivityScenario.launch(MainActivity.class)) {
                 awaitCount(scenario, 2);
                 scenario.onActivity(activity -> {
-                    assertEquals(View.GONE, activity.findViewById(R.id.library_category_row).getVisibility());
-                    assertEquals(View.GONE, activity.findViewById(R.id.library_mode_row).getVisibility());
+                    assertEquals(View.VISIBLE, activity.findViewById(R.id.library_platform_tabs).getVisibility());
+                    assertEquals(View.VISIBLE, activity.findViewById(R.id.library_mode_row).getVisibility());
                     assertEquals(View.GONE, activity.findViewById(R.id.library_search_row).getVisibility());
                     assertEquals(View.VISIBLE, activity.findViewById(R.id.library_menu).getVisibility());
                     float density = activity.getResources().getDisplayMetrics().density;
@@ -63,7 +63,11 @@ public class LibraryChromeTest {
                     activity.findViewById(R.id.library_search_toggle).performClick();
                     activity.getOnBackPressedDispatcher().onBackPressed();
                     assertEquals(View.GONE, activity.findViewById(R.id.library_search_row).getVisibility());
-                    activity.findViewById(R.id.rail_favorites).performClick();
+                    AppsListFragment fragment = (AppsListFragment) activity.getSupportFragmentManager().findFragmentById(R.id.container);
+                    try {
+                        Method category = AppsListFragment.class.getDeclaredMethod("setCategory", int.class);
+                        category.setAccessible(true); category.invoke(fragment, 2);
+                    } catch (Exception error) { throw new AssertionError(error); }
                 });
                 scenario.recreate();
                 scenario.onActivity(activity -> assertEquals("Favorites",

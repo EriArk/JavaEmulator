@@ -58,9 +58,11 @@ public final class SymbianLauncherTest {
         SystemFileCatalog catalog = new SystemFileCatalog(context);
         File previous = catalog.activeRoot(SymbianFiles.root(context));
         ui = instrumentation.getUiAutomation();
+        LibraryPreferencesSnapshot navigation = new LibraryPreferencesSnapshot(context);
         MainActivity activity = (MainActivity) instrumentation.startActivitySync(
                 new Intent(context, MainActivity.class).addFlags(Intent.FLAG_ACTIVITY_NEW_TASK));
         try {
+            instrumentation.runOnMainSync(() -> activity.findViewById(R.id.platform_ngage).performClick());
             waitLibrary(activity);
             int[] modes = {R.id.view_mode_gallery, R.id.view_mode_list, R.id.view_mode_grid};
             String[] names = {"gallery", "list", "grid"};
@@ -80,14 +82,14 @@ public final class SymbianLauncherTest {
             boolean original = presentation.getBoolean(entries.stream().filter(e -> e.title.equals("Snakes")).findFirst().get().key() + ".favorite", false);
             click(original ? "Remove favorite" : "Add favorite");
             search(activity, "");
-            instrumentation.runOnMainSync(() -> activity.findViewById(R.id.rail_favorites).performClick());
+            category(activity, "Favorites");
             instrumentation.waitForIdleSync();
             instrumentation.runOnMainSync(() -> {
                 boolean found = false;
                 for (int i = 0; i < adapter(activity).getItemCount(); i++) found |= adapter(activity).getItem(i).getTitle().equals("Snakes");
                 assertEquals(!original, found);
-                activity.findViewById(R.id.rail_library).performClick();
             });
+            category(activity, "All games");
             for (String title : new String[]{"Snakes", "Asphalt3"}) {
                 select(activity, title); key(KeyEvent.KEYCODE_BUTTON_A);
                 SystemClock.sleep(15000);
@@ -98,17 +100,18 @@ public final class SymbianLauncherTest {
                 capture("symbian-shared-direct-" + title.toLowerCase(Locale.ROOT) + ".png");
                 key(KeyEvent.KEYCODE_BACK); click("Exit game"); click("Leave without saving");
                 waitText("All games", 15000); waitLibrary(activity);
-                instrumentation.runOnMainSync(() -> activity.findViewById(R.id.rail_recent).performClick());
+                category(activity, "Recent");
                 instrumentation.waitForIdleSync();
                 instrumentation.runOnMainSync(() -> {
                     assertTrue(adapter(activity).getItemCount() > 0);
                     assertEquals(title, adapter(activity).getItem(0).getTitle());
-                    activity.findViewById(R.id.rail_library).performClick();
                 });
+                category(activity, "All games");
             }
             capture("symbian-shared-return.png");
         } finally {
             instrumentation.runOnMainSync(activity::finish);
+            navigation.close();
             prefs.edit().putInt("pref_library_view_mode", oldMode).commit();
             SharedPreferences.Editor restore = presentation.edit();
             for (SymbianLibraryIndex.Entry entry : entries) for (String suffix : new String[]{".favorite", ".lastPlayed", ".playCount"}) {
@@ -121,6 +124,10 @@ public final class SymbianLauncherTest {
             restore.commit();
             for (SystemFileCatalog.Entry entry : catalog.list()) if (catalog.runtime(entry).equals(previous)) catalog.activate(entry);
         }
+    }
+    private void category(MainActivity activity, String label) {
+        instrumentation.runOnMainSync(() -> activity.findViewById(R.id.library_category).performClick());
+        click(label);
     }
     private AppsListAdapter adapter(MainActivity activity) {
         return (AppsListAdapter) ((RecyclerView) activity.findViewById(R.id.apps_recycler)).getAdapter();

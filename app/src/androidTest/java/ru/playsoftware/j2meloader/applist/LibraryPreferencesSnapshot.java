@@ -7,10 +7,10 @@ import java.util.HashMap;
 import java.util.Map;
 
 /** Isolate remembered library navigation from fixture catalogs. */
-final class LibraryPreferencesSnapshot implements AutoCloseable {
+public final class LibraryPreferencesSnapshot implements AutoCloseable {
     private final SharedPreferences preferences;
     private final Map<String, ?> before;
-    LibraryPreferencesSnapshot(Context context) {
+    public LibraryPreferencesSnapshot(Context context) {
         preferences = PreferenceManager.getDefaultSharedPreferences(context);
         before = new HashMap<>(preferences.getAll());
         SharedPreferences.Editor edit = preferences.edit();

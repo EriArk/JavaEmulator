@@ -38,6 +38,8 @@ import static ru.playsoftware.j2meloader.util.Constants.PREF_TOOLBAR;
 
 public class MainActivity extends BaseActivity {
 	private SharedPreferences preferences;
+	private final ru.playsoftware.j2meloader.applist.LibraryTriggers libraryTriggers =
+			new ru.playsoftware.j2meloader.applist.LibraryTriggers();
 
 	@Override
 	public void onCreate(Bundle savedInstanceState) {
@@ -65,6 +67,7 @@ public class MainActivity extends BaseActivity {
 	@Override
 	public void onWindowFocusChanged(boolean hasFocus) {
 		super.onWindowFocusChanged(hasFocus);
+		if (!hasFocus) libraryTriggers.reset();
 		if (hasFocus && ru.playsoftware.j2meloader.input.DeviceControls.connected(this)) {
 			android.view.WindowManager.LayoutParams attributes = getWindow().getAttributes();
 			attributes.layoutInDisplayCutoutMode = android.view.WindowManager.LayoutParams.LAYOUT_IN_DISPLAY_CUTOUT_MODE_SHORT_EDGES;
@@ -78,6 +81,15 @@ public class MainActivity extends BaseActivity {
 
 	@Override
 	public boolean dispatchKeyEvent(KeyEvent event) {
+		int key = event.getKeyCode();
+		if (key == KeyEvent.KEYCODE_BUTTON_L2 || key == KeyEvent.KEYCODE_BUTTON_R2) {
+			int step = libraryTriggers.key(event.getDeviceId(), key == KeyEvent.KEYCODE_BUTTON_R2,
+					event.getAction() == KeyEvent.ACTION_DOWN);
+			stepLibraryPlatform(step);
+			return true;
+		}
+		if (event.getRepeatCount() > 0 && (key == KeyEvent.KEYCODE_BUTTON_L1 || key == KeyEvent.KEYCODE_BUTTON_R1
+				|| key == KeyEvent.KEYCODE_BUTTON_X || key == KeyEvent.KEYCODE_BUTTON_Y || key == KeyEvent.KEYCODE_BUTTON_START)) return true;
 		if (event.getAction() == KeyEvent.ACTION_DOWN) {
 			androidx.fragment.app.Fragment fragment = getSupportFragmentManager()
 					.findFragmentById(R.id.container);
@@ -87,6 +99,22 @@ public class MainActivity extends BaseActivity {
 			}
 		}
 		return super.dispatchKeyEvent(event);
+	}
+
+	private void stepLibraryPlatform(int step) {
+		androidx.fragment.app.Fragment fragment = getSupportFragmentManager().findFragmentById(R.id.container);
+		if (step != 0 && fragment instanceof AppsListFragment && fragment.getView() != null)
+			((AppsListFragment) fragment).stepPlatform(step);
+	}
+	@Override public boolean dispatchGenericMotionEvent(android.view.MotionEvent event) {
+		if ((event.getSource() & android.view.InputDevice.SOURCE_JOYSTICK) == android.view.InputDevice.SOURCE_JOYSTICK
+				&& event.getActionMasked() == android.view.MotionEvent.ACTION_MOVE) {
+			float left = Math.max(event.getAxisValue(android.view.MotionEvent.AXIS_LTRIGGER), event.getAxisValue(android.view.MotionEvent.AXIS_BRAKE));
+			float right = Math.max(event.getAxisValue(android.view.MotionEvent.AXIS_RTRIGGER), event.getAxisValue(android.view.MotionEvent.AXIS_GAS));
+			stepLibraryPlatform(libraryTriggers.axis(event.getDeviceId(), false, left));
+			stepLibraryPlatform(libraryTriggers.axis(event.getDeviceId(), true, right));
+		}
+		return super.dispatchGenericMotionEvent(event);
 	}
 
 	@Override
