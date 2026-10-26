@@ -8,6 +8,8 @@ import java.util.function.LongSupplier;
 
 /** Directory reader with bounded community admission. Advertisements never grant game admission. */
 public final class LobbyDirectory implements AutoCloseable {
+    // Directory protocol uses "j2me"; the local runtime calls this engine "java".
+    public static final String JAVA_BLUETOOTH = "j2me/bluetooth/1";
     // Public service identities from TrainerOS LobbyDirectory.h, not credentials.
     public static final String BOT="1559529748697190400", GUILD="1559529715193098242";
     public static final String INVITE_PATH="/v1/invites/kOYY3hzY";
@@ -31,6 +33,10 @@ public final class LobbyDirectory implements AutoCloseable {
             canonical=value.deepCopy();
         }
         public String capability(){return platform+"/"+mode+"/"+adapter;}
+        public boolean acceptsJavaGame(String selectedHash){
+            return status.equals("choosing") || !selectedHash.isEmpty() && selectedHash.equals(hash)
+                    && capability().equals(JAVA_BLUETOOTH);
+        }
         public boolean live(long wall,long elapsed){return expires>wall&&deadline>elapsed;}
     }
     public static final class State {

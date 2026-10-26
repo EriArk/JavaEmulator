@@ -45,14 +45,99 @@ entirely; it does not merely hide it at selected widths.
 
 ## Remaining Epic Work
 
-- Compatible Play Together and active-room shortcuts; pre-game native settings integration.
-- Paired multiplayer acceptance of local menus and Social/background transitions.
+- Pre-game native settings integration and broader game-specific multiplayer acceptance.
+- Wider paired multiplayer acceptance of menus/background transitions beyond the
+  paired BT Biplanes room/process check recorded below.
 - Wider live-game/renderer matrix for Display previews; native size/rotation remain apply-on-resume.
 - Final phone-control comfort/accessibility acceptance across orientations and larger fonts.
-- Lobby seat presentation and live active-room entry.
+- Public selected-game advertisements (the existing publisher still lists unassigned rooms).
 - Wider accessibility, animation, upgrade and physical-button acceptance matrix.
 
 Do not mark #40 complete or describe these remaining items as implemented.
+
+## Social Entry, Player Seats and Light Materials (2026-10-26, Unreleased)
+
+- Library actions offer **Play Together** only in Debug for an installed,
+  single-entry Java game whose bounded class-file probe finds Bluetooth API
+  references. Hash/descriptor/library-boundary checks run off the UI thread;
+  stale callbacks cannot insert an action into a dismissed or replaced page.
+  API detection is a candidate filter, not a promise that every multiplayer game
+  works. Other engines and Release do not gain an online adapter.
+- Open the existing room screen with the selected local game. Explicit Create
+  prepares it through the existing verified-game path, without Ready or launch
+  automation. A second create request cannot replace a room. Existing/joined rooms
+  offer Use selected game explicitly; a mismatched JAR still fails verification.
+- Browse unassigned rooms or selected-game advertisements with the exact JAR
+  identity and adapter. Keep the selected game when entering a room or returning
+  through My room. Directory protocol uses `j2me`, while the local runtime uses
+  `java`; the Debug capability mapping is explicit. The unchanged publisher still
+  sends unassigned advertisements, so this is not selected-game publishing.
+- Shared Social offers Return to active room from a read-only, non-exported
+  main-process projection. Reading from `:midlet` cannot instantiate a second
+  room actor. The shortcut reflects state at page opening; the destination
+  always resolves current room state. No persisted membership claim is used.
+- Preserve the original room Activity beneath the MIDlet. Social opens a new
+  presentation of the same main-process owner instead of reordering the original
+  Activity above the game: Back then closes only that presentation. A paired
+  process-death test caught the earlier reordered Activity being destroyed and
+  leaving no room screen to resume; do not extend background polling to mask it.
+- The existing room screen now uses Soft Console surfaces and responsive player
+  seats with real initials, P1/P2 labels, host/preparation/connection state and
+  relevant player actions. Empty seats invoke the existing invite flow. No fake
+  avatars, presence, unread counters or new chat permissions. Keep admission,
+  temporary-contact consent/cleanup, explicit Ready and host-only launch.
+- Keep game selection above seats and Ready/Start outside the scroll area.
+  Restore focus/scroll during state refresh; wrap long names and use one column
+  at larger text sizes. Room submenus use the shared edge-panel treatment.
+- During a running game, replace unavailable Ready/Start with Game in progress.
+  End game session requires confirmation; canceling that confirmation preserves
+  the running session. Pending starts retain Cancel game launch.
+- Refine light Soft Console materials: near-white shell and cards, a cool recessed
+  work area, restrained colored platform keys, lighter contact edges and reduced
+  gray gradients. Preserve dark/High contrast, source artwork and controller
+  mappings. Fix opaque-color blending rounding down alpha at certain ratios.
+
+Verification of this batch:
+
+- Combined arm64 Debug build, development label `0.5.0-beta.1` / 310. SHA-256:
+  `367fc86ee0d9e63425aecdba225a84c5bfebe1bb270f68b5e1d654e2f9ab226b`.
+  Installed hashes match on Retroid Pocket Classic and Android 35 phone emulator.
+  Reuse unchanged native Symbian artifacts; this is not a native-engine rebuild.
+- 379 JVM tests pass, zero failures/errors/skips. New coverage includes bounded
+  Bluetooth API probing and exact edition/adapter directory filtering.
+- Final Android suites: 22 pass on Retroid (73.319 s), 22 on the emulator
+  (124.360 s), zero skips. The revised visible-create case also passes separately
+  on Retroid (2.350 s). Cover material states, seat sizes/fonts, existing
+  actions, room admission/authority, cross-process status and shared panel return.
+  Seat checks span 320/393/480/540/720dp widths and font scales 1.0/1.5.
+- Fix two failures found during implementation: opaque color blends rounding
+  down alpha, and equal-height seats clipping in an unbounded ScrollView.
+  Measure wrapped content first, then equalize seat heights; retain regression tests.
+- Make the duplicate-create device regression use the visible Create/Invite only
+  path, avoiding a model-only command during an Activity orientation transition.
+  Keep the overwrite assertion. Live diagnostics report a busy owner without
+  replacing the enclosing prepare/launch deadline with a shorter diagnostic timeout.
+- Interrupted attempts are not passes: the phone AVD later failed to attach its
+  test process and displayed a System UI ANR after reboot. Restart that AVD without
+  wiping data and dismiss the system dialog before the clean verification run.
+- Local logs: `.local/ux40/MC94516AQF040305380-social-return-fixed.txt`,
+  `.local/ux40/retroid-social-create-ui.txt` and
+  `.local/ux40/emulator-social-clean.txt`. Capture tests restore appearance
+  and navigation settings; encrypted test sign-in files restored byte-for-byte.
+- Clean paired live run: Retroid host passes (154.885 s), phone emulator guest
+  passes (161.427 s), with two BT Biplanes launches in the same private room.
+  Dedicated existing test friends verify the installed edition, prepare, Ready,
+  launch real MIDlet processes, visit Social -> Return to active room, cancel
+  End game session, return and Resume. Force-ending the host game process returns
+  both players to fresh readiness; the second launch and room cleanup also pass.
+  Logs: `.local/ux40/social-live-host-clean.txt` and `social-live-guest-clean.txt`.
+  This verifies room/process/menu lifecycle on the same network, not a full
+  multiplayer match, remote NAT traversal or manual physical-button comfort.
+- [Labeled screenshots and provenance](../screenshots/development/2026-10-26-social-console/README.md)
+  include actual light/dark libraries, action panels and a clearly labeled room
+  fixture. Games, firmware and credentials are not included.
+
+No release APK or Release multiplayer enablement accompanies this batch.
 
 ## Live Picture and Phone Controls (2026-10-26, Unreleased)
 

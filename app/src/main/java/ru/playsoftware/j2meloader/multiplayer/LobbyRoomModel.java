@@ -25,7 +25,7 @@ public final class LobbyRoomModel extends AndroidViewModel {
         public String account="",status="Sign in to Fluxer to use rooms.",publication="",room="",host="",access="private";
         public boolean verified,hosting,joined,available;
         public boolean gameSelection,checkingGame,launchOffered;
-        public String gameTitle="",attempt="";
+        public String gameTitle="",attempt="",selectedGamePath="";
         public JsonObject snapshot=new JsonObject();
         public JsonObject contacts=new JsonObject();
         public List<JsonObject> invitations=new ArrayList<>();
@@ -174,6 +174,7 @@ public final class LobbyRoomModel extends AndroidViewModel {
         State s=new State();s.account=self;s.verified=verified;
         s.gameSelection=capabilities.contains("java/bluetooth/1");s.checkingGame=checkingGame;s.gameTitle=gameTitle;
         if(room==null||installed==null||!installed.game.equals(game(object(room.snapshot(),"game"))))s.gameTitle="";
+        else s.selectedGamePath=installed.directory.getPath();
         s.attempt=runtimeAttempt;s.launchOffered=launchIntent!=null&&!launchTaken;
         s.status=!verified?authNotice:!authNotice.isEmpty()?authNotice:!mailbox.status().isEmpty()?mailbox.status():room==null?"":room.notice();
         if(room!=null){s.room=room.room();s.host=room.host();s.hosting=room.hosting();s.joined=room.joined();s.available=room.available();s.access=room.access();s.snapshot=room.snapshot();s.invitations=room.invitations();
@@ -183,14 +184,21 @@ public final class LobbyRoomModel extends AndroidViewModel {
         for(String friend:mailbox.friends())s.friends.put(friend,mailbox.name(friend));
         for(JsonObject invite:s.invitations){String id=text(invite,"host");s.names.put(id,mailbox.name(id));}
         if(contacts!=null){s.contacts=contacts.state();for(String id:object(s.contacts,"peers").keySet())s.names.put(id,mailbox.name(id));}
-        s.publication=publisher==null?"":publisher.status();state.postValue(s);
+        s.publication=publisher==null?"":publisher.status();
+        RoomStatusProvider.update(!closed&&s.verified&&!s.room.isEmpty());state.postValue(s);
     }
     void action(String account,Consumer<LobbyRoom> action){owner.execute(()->{if(!closed&&verified&&self.equals(account)&&room!=null){authNotice="";action.accept(room);}});}
     void games(Consumer<List<NetworkGameCatalog.Entry>> success,Consumer<String> failure){files.execute(()->{
         try{List<NetworkGameCatalog.Entry> entries=NetworkGameCatalog.list(new File(Config.getAppDir()));main.post(()->success.accept(entries));}
         catch(IOException e){main.post(()->failure.accept(e.getMessage()));}
     });}
-    void chooseGame(String account,NetworkGameCatalog.Entry entry){owner.execute(()->{
+    void createForGame(String account,String access,NetworkGameCatalog.Entry entry){owner.execute(()->{
+        if(closed||!verified||!self.equals(account)||room==null||!room.room().isEmpty())return;
+        room.create(access);
+        if(entry!=null)prepareGame(account,entry);
+    });}
+    void chooseGame(String account,NetworkGameCatalog.Entry entry){owner.execute(()->prepareGame(account,entry));}
+    private void prepareGame(String account,NetworkGameCatalog.Entry entry){
         if(closed||checkingGame||!verified||!self.equals(account)||room==null||!room.joined()||!room.launchAttempt().isEmpty()||!capabilities.contains("java/bluetooth/1"))return;
         long selection=++selectionEpoch;String selectedRoom=room.room();long generation=number(room.snapshot(),"generation");
         checkingGame=true;returningUntil=0;authNotice="Checking installed game...";gameNetwork.localContent(null);publish();
@@ -214,7 +222,7 @@ public final class LobbyRoomModel extends AndroidViewModel {
                 gameNetwork.localContent(checked.game);startNetworkTimer();publish();
             });
         });
-    });}
+    }
     private LobbyPeerCoordinator.Link processLink(io.github.eriark.abyssme.peer.PeerBinding binding,String account,LobbyPeerCoordinator.Events events)throws IOException{
         if(installed==null)throw new IOException("Select an installed game first");
         GameNetworkLease lease=new GameNetworkLease(binding,account,installed,true);gameLease=lease;
@@ -277,5 +285,5 @@ public final class LobbyRoomModel extends AndroidViewModel {
         Object lease=new Object();manualLease=lease;contactContext();publish();
         done.accept(()->{try{owner.execute(()->{if(manualLease==lease){manualLease=null;contactContext();publish();}});}catch(RejectedExecutionException stopped){}},"");
     });}
-    @Override protected void onCleared(){getApplication().unregisterActivityLifecycleCallbacks(activityObserver);files.shutdownNow();owner.execute(()->{closed=true;timer.cancel(false);reset(null);if(nativeHttp!=null)nativeHttp.closeWhenIdle(owner::shutdown);else owner.shutdown();});}
+    @Override protected void onCleared(){RoomStatusProvider.update(false);getApplication().unregisterActivityLifecycleCallbacks(activityObserver);files.shutdownNow();owner.execute(()->{closed=true;RoomStatusProvider.update(false);timer.cancel(false);reset(null);if(nativeHttp!=null)nativeHttp.closeWhenIdle(owner::shutdown);else owner.shutdown();});}
 }

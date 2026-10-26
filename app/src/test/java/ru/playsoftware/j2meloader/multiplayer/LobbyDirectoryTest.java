@@ -8,6 +8,15 @@ import java.util.function.Consumer;
 import static org.junit.Assert.*;
 
 public class LobbyDirectoryTest {
+    @Test public void gameEntryAcceptsUnassignedOrExactEditionAndAdapter(){
+        LobbyDirectory.Room choosing=LobbyDirectory.parse(message(value(),0,"900"),LobbyDirectory.CHANNELS.get(0),1000,100);
+        assertNotNull(choosing);assertTrue(choosing.acceptsJavaGame("a".repeat(64)));
+        JsonObject selected=game(value(),"bluetooth");
+        LobbyDirectory.Room match=LobbyDirectory.parse(message(selected,0,"901"),LobbyDirectory.CHANNELS.get(0),1000,100);
+        assertNotNull(match);assertTrue(match.acceptsJavaGame("a".repeat(64)));assertFalse(match.acceptsJavaGame("b".repeat(64)));assertFalse(match.acceptsJavaGame(""));
+        selected.getAsJsonObject("game").addProperty("adapter","2");
+        assertFalse(LobbyDirectory.parse(message(selected,0,"902"),LobbyDirectory.CHANNELS.get(0),1000,100).acceptsJavaGame("a".repeat(64)));
+    }
     private static final String ID="00000000-0000-4000-8000-000000000001", TOKEN="fixture-directory-token";
     static JsonObject value(){return JsonParser.parseString("{\"v\":2,\"product\":\"abyssme\",\"protocol\":1,\"lobby\":\""+ID+"\",\"owner\":\"22\",\"name\":\"Test host\",\"revision\":1,\"status\":\"choosing\",\"access\":\"public\",\"seats\":0,\"available\":0,\"streams\":0,\"expires\":1180}").getAsJsonObject();}
     static JsonObject message(JsonObject v,int channel,String id){JsonObject m=new JsonObject();m.addProperty("id",id);m.addProperty("channel_id",LobbyDirectory.CHANNELS.get(channel));JsonObject author=new JsonObject();author.addProperty("id",LobbyDirectory.BOT);m.add("author",author);m.addProperty("content",LobbyDirectory.PREFIX+v+"\n```");return m;}

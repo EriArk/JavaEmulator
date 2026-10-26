@@ -19,7 +19,7 @@ import ru.playsoftware.j2meloader.R;
 import ru.playsoftware.j2meloader.settings.CompactSettingsActivity;
 import ru.playsoftware.j2meloader.ui.AppPalette;
 
-/** Advertisement browsing; host admission/Ready is a separate forthcoming flow. */
+/** Advertisement browsing only; opening a row still requires host admission and explicit Ready. */
 public final class LobbyDirectoryActivity extends CompactSettingsActivity {
     private LobbyDirectoryModel model;
     private LobbyDirectory.State state;
@@ -34,13 +34,15 @@ public final class LobbyDirectoryActivity extends CompactSettingsActivity {
     private AlertDialog detail;
     private String selected="";
     private long selectedRevision;
+    private String gamePath, gameHash = "";
+    private boolean checkingGame;
 
     @Override protected void onCreate(Bundle saved){
         super.onCreate(saved);screenTitle("Lobbies");
         getWindow().setSoftInputMode(android.view.WindowManager.LayoutParams.SOFT_INPUT_ADJUST_RESIZE
                 |android.view.WindowManager.LayoutParams.SOFT_INPUT_STATE_ALWAYS_HIDDEN);
         refresh=headerButton("Refresh",android.R.drawable.ic_popup_sync,()->model.refresh());refresh.setId(R.id.lobby_refresh);
-        headerButton("My room",android.R.drawable.ic_menu_share,()->startActivity(new Intent(this,LobbyRoomActivity.class)));
+        headerButton("My room",android.R.drawable.ic_menu_share,()->startActivity(new Intent(this,LobbyRoomActivity.class).putExtra(PlayTogether.EXTRA_GAME,gamePath)));
         headerButton("Chats",android.R.drawable.ic_dialog_email,()->startActivity(new Intent(this,FluxerChatsActivity.class)));
         headerButton("Account",android.R.drawable.ic_menu_myplaces,()->startActivity(new Intent(this,FluxerAccountActivity.class)));
         LinearLayout root=new LinearLayout(this);root.setOrientation(LinearLayout.VERTICAL);screenContent.addView(root,new ViewGroup.LayoutParams(-1,-1));
@@ -62,6 +64,15 @@ public final class LobbyDirectoryActivity extends CompactSettingsActivity {
         free.setOnCheckedChangeListener((b,on)->filter());search.addTextChangedListener(new TextWatcher(){
             public void beforeTextChanged(CharSequence s,int start,int count,int after){}public void onTextChanged(CharSequence s,int start,int before,int count){}public void afterTextChanged(Editable e){filter();}
         });
+        gamePath=getIntent().getStringExtra(PlayTogether.EXTRA_GAME);
+        if(gamePath!=null){
+            checkingGame=true;screenTitle("Matching lobbies");
+            PlayTogether.inspect(gamePath,entry->{
+                if(isFinishing()||isDestroyed())return;
+                if(entry==null){checkingGame=false;filter();return;}
+                PlayTogether.identity(entry,hash->{if(isFinishing()||isDestroyed())return;gameHash=hash;checkingGame=false;filter();});
+            });
+        }
         model=new ViewModelProvider(this).get(LobbyDirectoryModel.class);model.state.observe(this,this::render);
     }
     private void render(LobbyDirectory.State next){
@@ -76,10 +87,13 @@ public final class LobbyDirectoryActivity extends CompactSettingsActivity {
     }
     private void filter(){
         if(state==null)return;String query=search.getText().toString().trim().toLowerCase(Locale.ROOT);List<LobbyDirectory.Room> filtered=new ArrayList<>();
-        for(LobbyDirectory.Room r:state.rooms)if((!free.isChecked()||r.status.equals("choosing")||r.available>0)
+        for(LobbyDirectory.Room r:state.rooms)if((gamePath==null||!checkingGame&&!gameHash.isEmpty()&&r.acceptsJavaGame(gameHash))
+                &&(!free.isChecked()||r.status.equals("choosing")||r.available>0)
                 &&(r.title+" "+r.name+" "+r.platform).toLowerCase(Locale.ROOT).contains(query))filtered.add(r);
         adapter.submitList(filtered);empty.setVisibility(filtered.isEmpty()?View.VISIBLE:View.GONE);
         empty.setText(!state.verified?"":state.busy?"Loading lobbies...":state.needsCommunity?"":!state.rooms.isEmpty()?"No matching lobbies":state.status.equals("No compatible lobbies right now.")?"No compatible lobbies right now.":"");
+        if(gamePath!=null&&state.verified&&!state.needsCommunity&&filtered.isEmpty())
+            empty.setText(checkingGame?"Checking selected game...":gameHash.isEmpty()?"Selected game is unavailable. Return to Library.":"No matching or unassigned rooms. Return to My room to create one.");
     }
     private void open(LobbyDirectory.Room expected){
         if(state==null)return;LobbyDirectory.Room room=null;for(LobbyDirectory.Room candidate:state.rooms)if(candidate.id.equals(expected.id)&&candidate.revision==expected.revision)room=candidate;
@@ -87,7 +101,7 @@ public final class LobbyDirectoryActivity extends CompactSettingsActivity {
         LobbyDirectory.Room target=room;
         detail=new AlertDialog.Builder(this).setTitle(room.title).setMessage("Host: "+room.name+"\n"+(room.access.equals("approval")?"Host approval required":"Open room")
                 +(room.seats>0?"\n"+room.available+" / "+room.seats+" seats available":""))
-                .setPositiveButton("Open room",(d,w)->startActivity(new Intent(this,LobbyRoomActivity.class).setData(android.net.Uri.parse(LobbyLink.create(target.owner,target.id)))))
+                .setPositiveButton("Open room",(d,w)->startActivity(new Intent(this,LobbyRoomActivity.class).setData(android.net.Uri.parse(LobbyLink.create(target.owner,target.id))).putExtra(PlayTogether.EXTRA_GAME,gamePath)))
                 .setNegativeButton("Close",null).show();
         detail.setOnDismissListener(d->{selected="";detail=null;});
     }

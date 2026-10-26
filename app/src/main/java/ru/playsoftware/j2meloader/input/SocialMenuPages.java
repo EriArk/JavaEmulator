@@ -12,6 +12,11 @@ public final class SocialMenuPages {
     private SocialMenuPages() { }
     public static void show(GameMenuDialog menu, Context context, Runnable back, Consumer<Intent> launch) {
         menu.page("Social");
+        // Keep the launcher's room below the MIDlet. Reordering it above the game
+        // lets Back destroy the return destination after a game crash.
+        if (RoomStatusProvider.active(context))
+            menu.action("Return to active room", android.R.drawable.ic_media_play,
+                    () -> launch.accept(new Intent(context, LobbyRoomActivity.class)));
         menu.action("Lobbies", android.R.drawable.ic_menu_share,
                 () -> launch.accept(new Intent(context, LobbyDirectoryActivity.class)));
         menu.action("Friends", android.R.drawable.ic_menu_myplaces,

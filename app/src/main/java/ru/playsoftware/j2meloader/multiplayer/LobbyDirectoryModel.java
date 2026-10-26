@@ -20,8 +20,9 @@ public final class LobbyDirectoryModel extends AndroidViewModel {
     private final ScheduledFuture<?> timer;
 
     public LobbyDirectoryModel(Application app){
-        // No game adapter has an accepted online binding yet. Game-free rooms remain visible.
-        this(app,new FluxerCredentialStore(app),null,Collections.emptySet());
+        // Match the room owner's experimental adapter; production stays disabled.
+        this(app,new FluxerCredentialStore(app),null,ru.playsoftware.j2meloader.BuildConfig.DEBUG
+                ?Collections.singleton(LobbyDirectory.JAVA_BLUETOOTH):Collections.emptySet());
     }
     LobbyDirectoryModel(Application app,FluxerAuth.Store store,FluxerAuth.Transport supplied,Set<String> capabilities){
         this(app,store,supplied,capabilities,new LobbyMembershipStore(app));

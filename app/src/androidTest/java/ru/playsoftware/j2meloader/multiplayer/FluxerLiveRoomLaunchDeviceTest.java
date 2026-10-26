@@ -18,7 +18,9 @@ import static ru.playsoftware.j2meloader.multiplayer.LobbyRoom.*;
 public class FluxerLiveRoomLaunchDeviceTest {
     @Test public void privateRoomLaunchAndProcessDeathReturn() throws Exception {
         Bundle args=InstrumentationRegistry.getArguments();String role=args.getString("peerRole",""),peer=args.getString("peerAccount",""),title=args.getString("launchGame","");
-        Assume.assumeTrue("Explicit paired-device run required",(role.equals("host")||role.equals("guest"))&&LobbyDirectory.id(peer)&&!title.isEmpty());
+        Assume.assumeTrue("Explicit paired-device run required",(role.equals("host")||role.equals("guest"))&&(LobbyDirectory.id(peer)||peer.equals("test-friend"))&&!title.isEmpty());
+        boolean libraryEntry="true".equals(args.getString("libraryEntry"));
+        boolean socialRoundTrip="true".equals(args.getString("socialRoundTrip"));
         boolean host=role.equals("host");
         boolean normalExit="true".equals(args.getString("normalExit"));
         int rounds=Integer.parseInt(args.getString("launchRounds","1"));
@@ -30,6 +32,12 @@ public class FluxerLiveRoomLaunchDeviceTest {
         FluxerAuth.Reply me=FluxerHttpTransport.exchange("GET","/v1/users/@me",null,token);
         assertTrue(me.ok());assertTrue(text(me.body,"username").startsWith("abyssmetest"));String self=text(me.body,"id");
         FluxerAuth.Reply relationships=FluxerHttpTransport.exchange("GET","/v1/users/@me/relationships",null,token);assertTrue(relationships.ok());
+        if(peer.equals("test-friend")){
+            String candidate=null;
+            for(JsonElement e:relationships.data.getAsJsonArray()){JsonObject r=e.getAsJsonObject();if(number(r,"type")==1&&text(object(r,"user"),"username").startsWith("abyssmetest")){assertNull("Ambiguous dedicated test friend",candidate);candidate=text(r,"id");}}
+            assertNotNull("Existing dedicated test friend required",candidate);peer=candidate;
+        }
+        final String partner=peer;
         boolean friend=false;for(JsonElement e:relationships.data.getAsJsonArray()){JsonObject r=e.getAsJsonObject();if(text(r,"id").equals(peer))friend=number(r,"type")==1&&text(object(r,"user"),"username").startsWith("abyssmetest");}
         assertTrue("Existing dedicated test friend required",friend);
         NetworkGameCatalog.Entry selected=null;
@@ -37,12 +45,21 @@ public class FluxerLiveRoomLaunchDeviceTest {
         assertNotNull("Install the nominated local fixture first",selected);
         LobbyRoomModel[] holder={null};InstrumentationRegistry.getInstrumentation().runOnMainSync(()->holder[0]=LobbyRoomModel.get(app));LobbyRoomModel model=holder[0];
         boolean owned=false;
-        try(ActivityScenario<LobbyRoomActivity> activity=ActivityScenario.launch(LobbyRoomActivity.class)){
+        final NetworkGameCatalog.Entry gameEntry=selected;
+        android.content.Intent roomIntent=new android.content.Intent(app,LobbyRoomActivity.class);
+        if(libraryEntry){
+            java.util.concurrent.CountDownLatch probed=new java.util.concurrent.CountDownLatch(1);boolean[] eligible={false};
+            PlayTogether.inspect(selected.directory.getPath(),entry->{eligible[0]=entry!=null;probed.countDown();});
+            assertTrue(probed.await(15,java.util.concurrent.TimeUnit.SECONDS));assertTrue("Bluetooth game must expose Play Together",eligible[0]);
+            roomIntent.putExtra(PlayTogether.EXTRA_GAME,selected.directory.getPath());
+        }
+        try(ActivityScenario<LobbyRoomActivity> activity=ActivityScenario.launch(roomIntent)){
             await(model,s->s.verified&&s.account.equals(self),30000);assertTrue("Do not replace an existing room",model.state.getValue().room.isEmpty());
-            if(host){model.action(self,r->{r.create("private");r.invite(peer);});owned=true;}
+            if(host){if(libraryEntry){model.createForGame(self,"private",gameEntry);model.action(self,r->r.invite(partner));}
+                else model.action(self,r->{r.create("private");r.invite(partner);});owned=true;}
             else{
-                await(model,s->s.invitations.stream().anyMatch(i->text(i,"host").equals(peer)),90000);
-                String key=model.state.getValue().invitations.stream().filter(i->text(i,"host").equals(peer)).map(i->text(i,"key")).findFirst().get();
+                await(model,s->s.invitations.stream().anyMatch(i->text(i,"host").equals(partner)),90000);
+                String key=model.state.getValue().invitations.stream().filter(i->text(i,"host").equals(partner)).map(i->text(i,"key")).findFirst().get();
                 model.action(self,r->r.answer(key,true));owned=true;
             }
             await(model,s->s.joined&&s.snapshot.getAsJsonArray("members").size()==2,90000);
@@ -51,13 +68,22 @@ public class FluxerLiveRoomLaunchDeviceTest {
             long previousGeneration=number(model.state.getValue().snapshot,"generation");
             boolean repeat=round>1;
             if(!host)await(model,s->s.snapshot.has("game")&&(!repeat||number(s.snapshot,"generation")>previousGeneration),90000);
-            model.chooseGame(self,selected);
+            if(!host||!libraryEntry||round>1)model.chooseGame(self,selected);
             await(model,s->bool(member(s.snapshot,self),"prepared"),120000);report(role+": verified local game and encrypted peer prepared");
             model.action(self,r->r.ready(true));
-            if(host){await(model,s->bool(member(s.snapshot,self),"ready")&&bool(member(s.snapshot,peer),"ready"),90000);capture(app,role+"-ready.png");model.action(self,LobbyRoom::start);}
+            if(host){await(model,s->bool(member(s.snapshot,self),"ready")&&bool(member(s.snapshot,partner),"ready"),90000);capture(app,role+"-ready.png");model.action(self,LobbyRoom::start);}
             await(model,s->bool(object(s.snapshot,"launch"),"running"),45000);
             awaitProcess(app,15000);Thread.sleep(4000);capture(app,role+"-midlet-"+round+".png");report(role+": round "+round+" both processes attached; MIDlet visible");
-            if(!normalExit&&host){Thread.sleep(6000);killGame(app);}
+            if(socialRoundTrip){
+                key(android.view.KeyEvent.KEYCODE_MENU);clickText("Social");clickText("Return to active room");
+                Thread.sleep(1500);assertTrue(RoomStatusProvider.active(app));assertTrue(bool(object(model.state.getValue().snapshot,"launch"),"running"));
+                capture(app,role+"-active-room.png");clickText("End game session");clickText("Cancel");
+                assertTrue(bool(object(model.state.getValue().snapshot,"launch"),"running"));
+                key(android.view.KeyEvent.KEYCODE_BACK);Thread.sleep(1500);
+                key(android.view.KeyEvent.KEYCODE_BACK);clickText("Resume");
+                assertTrue(bool(object(model.state.getValue().snapshot,"launch"),"running"));report(role+": Social room round-trip retained the running launch");
+            }
+            if(!normalExit&&host){Thread.sleep(socialRoundTrip?15000:6000);killGame(app);}
             // Optional manual gameplay window: external input drives the unmodified game.
             // Returning to the room is lifecycle evidence, not an automatic match assertion.
             await(model,s->s.room.equals(room)&&!s.snapshot.has("launch"),normalExit?gameplaySeconds*1000L:45000);
@@ -65,7 +91,8 @@ public class FluxerLiveRoomLaunchDeviceTest {
             long exitDeadline=SystemClock.elapsedRealtime()+15000;
             while(process(app)!=0&&SystemClock.elapsedRealtime()<exitDeadline)Thread.sleep(100);
             assertEquals("Game process must exit",0,process(app));
-            await(model,s->!bool(member(s.snapshot,self),"ready")&&!bool(member(s.snapshot,peer),"ready"),10000);
+            if(socialRoundTrip)await(model,s->s.available,15000);
+            await(model,s->!bool(member(s.snapshot,self),"ready")&&!bool(member(s.snapshot,partner),"ready"),10000);
             assertFalse("Returning players must not be told to rejoin an intact room",model.state.getValue().status.contains("Rejoin"));
             Thread.sleep(1500);capture(app,role+"-returned-"+round+".png");report(role+": round "+round+" returned both seats with fresh readiness");
             if(round<rounds)Thread.sleep(host?12000:1000);
@@ -75,6 +102,24 @@ public class FluxerLiveRoomLaunchDeviceTest {
         }finally{
             if(owned){killGame(app);model.action(self,LobbyRoom::leave);Thread.sleep(2000);}
         }
+    }
+    private static void key(int code)throws Exception{
+        try(android.os.ParcelFileDescriptor fd=InstrumentationRegistry.getInstrumentation().getUiAutomation().executeShellCommand("input keyevent "+code);
+            FileInputStream in=new FileInputStream(fd.getFileDescriptor())){while(in.read()!=-1){}}
+        Thread.sleep(500);
+    }
+    private static void clickText(String text)throws Exception{
+        long until=SystemClock.elapsedRealtime()+12000;
+        while(SystemClock.elapsedRealtime()<until){
+            android.view.accessibility.AccessibilityNodeInfo root=InstrumentationRegistry.getInstrumentation().getUiAutomation().getRootInActiveWindow();
+            if(root!=null)for(android.view.accessibility.AccessibilityNodeInfo n:root.findAccessibilityNodeInfosByText(text)){
+                if(!text.contentEquals(n.getText()==null?"":n.getText()))continue;
+                while(n!=null&&!n.isClickable())n=n.getParent();
+                if(n!=null&&n.performAction(android.view.accessibility.AccessibilityNodeInfo.ACTION_CLICK)){Thread.sleep(500);return;}
+            }
+            Thread.sleep(150);
+        }
+        fail("Missing action: "+text);
     }
     private static void await(LobbyRoomModel model,Predicate<LobbyRoomModel.State> predicate,long timeout)throws Exception{
         long end=SystemClock.elapsedRealtime()+timeout,nextDiagnostic=SystemClock.elapsedRealtime()+15000;
@@ -90,7 +135,7 @@ public class FluxerLiveRoomLaunchDeviceTest {
     }
     private static void reportDiagnostic(LobbyRoomModel model)throws Exception{
         java.util.concurrent.ScheduledThreadPoolExecutor owner=(java.util.concurrent.ScheduledThreadPoolExecutor)field(model,"owner");
-        String diagnostic=owner.submit(()->{
+        java.util.concurrent.Future<String> pending=owner.submit(()->{
             java.util.concurrent.ScheduledFuture<?> timer=(java.util.concurrent.ScheduledFuture<?>)field(model,"networkTimer");
             if(timer!=null&&timer.isDone()&&!timer.isCancelled())timer.get();
             Object coordinator=field(model,"gameNetwork");
@@ -108,8 +153,13 @@ public class FluxerLiveRoomLaunchDeviceTest {
                     +", failed="+(coordinator!=null&&field(coordinator,"failed")!=null)
                     +", queued="+((java.util.Collection<?>)field(mailbox,"queue")).size()
                     +", mailbox="+field(mailbox,"active")+"/"+field(mailbox,"polling")+"/"+field(mailbox,"sending")+transport;
-        }).get(5,java.util.concurrent.TimeUnit.SECONDS);
-        report(diagnostic);
+        });
+        try { report(pending.get(5,java.util.concurrent.TimeUnit.SECONDS)); }
+        catch(java.util.concurrent.TimeoutException busy) {
+            pending.cancel(false);
+            // Diagnostics must not replace the enclosing operation's acceptance deadline.
+            report("waiting: room owner busy; operation deadline unchanged");
+        }
     }
     private static int process(Application app){
         for(ActivityManager.RunningAppProcessInfo p:app.getSystemService(ActivityManager.class).getRunningAppProcesses())if(p.uid==android.os.Process.myUid()&&p.processName.equals(app.getPackageName()+":midlet"))return p.pid;

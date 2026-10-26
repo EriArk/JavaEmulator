@@ -66,6 +66,23 @@ older 0.3 builds, not the current 0.4 release series.
 
 ## Library Refresh (#40, Unreleased)
 
+**Social entry and light materials, 2026-10-26:** add Debug-only Play Together
+from eligible Java cards into the existing room owner, and a cross-process-safe
+Return to active room shortcut. Prepare the selected game after explicit Create;
+keep Ready and launch explicit. Replace flat player rows with responsive seats,
+initials and backed state; keep Ready/Start outside scrolling content. Light
+Soft Console now uses near-white shell/cards, cleaner recess edges and softer
+colored platform keys. No new public APK, online Release capability or change
+to the physical mapper. Selected-game browsing accepts exact editions or rooms
+still choosing; the unchanged publisher does not yet advertise selected games.
+Retroid and phone-emulator paired testing covers two BT Biplanes launches in one
+private room, Social return without ending the session, canceled End confirmation
+and recovery after game-process death. Preserve the original room screen beneath
+the game; this does not establish full-match or different-network acceptance.
+Final Debug verification: 379 JVM passes and 22 Android UI passes on each target,
+plus the paired lifecycle run. [Nine labeled development captures](../screenshots/development/2026-10-26-social-console/README.md).
+[Implementation, verification and limits](RETRO_LIBRARY_REFRESH.md#social-entry-player-seats-and-light-materials-2026-10-26-unreleased).
+
 **First implementation slice, 2026-10-26:** replace the platform dropdown and
 permanent details sidebar with Java ME / Mophun / Symbian / N-Gage tabs. Retain
 Gallery/List/Grid and cover formats; remember view, collection, search, position
@@ -104,7 +121,8 @@ keycaps. Preserve physical mapping, Gamepad/Legacy and default Separate geometry
 Fix native LCD preview reconfiguring the paused surface; Symbian instant previews
 are LCD-only, with size/rotation kept in Advanced for apply-on-resume. Java/Mophun
 support live size/rotation. Tile motifs are illustrative, not game thumbnails.
-Play Together/active-room shortcuts, lobby seats and wider acceptance remain open.
+Play Together/active-room shortcuts and lobby seats are covered by the later
+social-entry batch above; wider acceptance remains open.
 This follow-up passes 374 JVM tests and 89 Android tests per target, with six
 optional fixture/capture scenarios skipped on each. Installed Debug hashes match.
 Retroid verifies paused Mophun xBRZ and native LCD; the phone emulator verifies

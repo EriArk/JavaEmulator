@@ -1064,6 +1064,8 @@ public class AppsListFragment extends Fragment implements AppsListAdapter.Listen
     private void populateGameActions(GameMenuDialog dialog, AppItem item) {
         dialog.page("Game actions");
         dialog.action("Play", android.R.drawable.ic_media_play, () -> { dialog.dismiss(); startApp(item, false); });
+        if (!(item instanceof ExternalLibrary.Item))
+            ru.playsoftware.j2meloader.multiplayer.PlayTogether.action(dialog, item.getPathExt(), this::startActivity);
         if (!(item instanceof ExternalLibrary.Item)) {
             dialog.action("Display", R.drawable.ic_quick_size, () -> showCardSettings(dialog, item, false));
             dialog.action("Controls", R.drawable.ic_action_keyboard, () -> showCardSettings(dialog, item, true));

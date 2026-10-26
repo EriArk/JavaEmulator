@@ -36,13 +36,16 @@ public final class ConsoleSurface extends Drawable {
         dark = ColorUtils.calculateLuminance(background) < .25;
         contrast = "contrast".equals(AppPalette.selected(context));
         boolean classic = "classic".equals(AppPalette.selected(context));
-        surface = classic ? (dark ? 0xff25282b : 0xffd4d9dc)
+        surface = classic ? (dark ? 0xff25282b : 0xfff7f9fa)
                 : AppPalette.color(context, R.color.phone_panel_alt);
         accent = AppPalette.color(context, R.color.accent);
         int[] hues = {0xffb78a37, 0xff5b926b, 0xff548ca6, 0xffad667a};
         tint = platform >= 0 && platform < hues.length ? hues[platform] : surface;
     }
-    private int blend(int a, int b, float amount) { return ColorUtils.blendARGB(a, b, amount); }
+    private int blend(int a, int b, float amount) {
+        return ColorUtils.setAlphaComponent(ColorUtils.blendARGB(a, b, amount),
+                Math.round(Color.alpha(a) * (1 - amount) + Color.alpha(b) * amount));
+    }
     private boolean key() { return kind == Kind.KEY || kind == Kind.TAB; }
     @Override public boolean isStateful() { return key() || kind == Kind.CARD || kind == Kind.ROW; }
     @Override protected boolean onStateChange(int[] states) {
@@ -64,15 +67,15 @@ public final class ConsoleSurface extends Drawable {
         face.set(b.left + inset, b.top + inset, b.right - inset, b.bottom - inset);
         if (key()) { face.bottom -= 2 * dp; if (pressed || selected) face.top += dp; }
         int base = surface;
-        if (kind == Kind.SCREEN) base = dark ? 0xff0e1113 : 0xfff2f5f6;
-        if (kind == Kind.CARD || kind == Kind.ROW) base = dark ? 0xff171b1e : 0xffe8edef;
-        if (kind == Kind.TAB) base = blend(surface, tint, selected ? .50f : .22f);
+        if (kind == Kind.SCREEN) base = dark ? 0xff0e1113 : 0xffe8eff2;
+        if (kind == Kind.CARD || kind == Kind.ROW) base = dark ? 0xff171b1e : Color.WHITE;
+        if (kind == Kind.TAB) base = blend(surface, tint, selected ? (dark ? .50f : .30f) : (dark ? .22f : .10f));
         if (kind == Kind.KEY && selected) base = blend(base, accent, .18f);
         if ((kind == Kind.CARD || kind == Kind.ROW) && (focused || pressed)) base = blend(base, accent, .13f);
         if (pressed) base = blend(base, Color.BLACK, .15f);
         if (contrast) base = dark ? Color.BLACK : Color.WHITE;
         int top = contrast ? base : blend(base, Color.WHITE, key() ? .08f : .025f);
-        int bottom = contrast ? base : blend(base, Color.BLACK, key() ? .14f : .06f);
+        int bottom = contrast ? base : blend(base, Color.BLACK, dark ? (key() ? .14f : .06f) : (key() ? .035f : .008f));
         fill = new LinearGradient(0, face.top, 0, Math.max(face.top + 1, face.bottom),
                 top, bottom, Shader.TileMode.CLAMP);
     }
@@ -84,7 +87,7 @@ public final class ConsoleSurface extends Drawable {
         if (face.isEmpty()) return;
         float radius = (kind == Kind.CHASSIS || kind == Kind.SCREEN || kind == Kind.PANEL ? 12 : 8) * dp;
         if (key() && !contrast) {
-            solid(dark ? 0xff090b0d : 0xff8e989e, Paint.Style.FILL, 0);
+            solid(dark ? 0xff090b0d : 0xffbecbd0, Paint.Style.FILL, 0);
             canvas.save(); canvas.translate(0, 2 * dp);
             canvas.drawRoundRect(face, radius, radius, paint); canvas.restore();
         }
@@ -95,18 +98,18 @@ public final class ConsoleSurface extends Drawable {
         if (kind == Kind.SCREEN && !contrast) {
             // Concentric contact edges imply a recessed well without an offscreen shadow.
             for (int i = 0; i < 3; i++) {
-                solid(dark ? 0xff050708 : 0xffaab4ba, Paint.Style.STROKE, dp);
-                paint.setAlpha(Math.round(opacity * (3 - i) / 4f));
+                solid(dark ? 0xff050708 : 0xffa7bac3, Paint.Style.STROKE, dp);
+                paint.setAlpha(Math.round(opacity * (3 - i) / (dark ? 4f : 8f)));
                 float d = (i + .5f) * dp;
                 canvas.drawRoundRect(face.left+d, face.top+d, face.right-d, face.bottom-d,
                         Math.max(dp, radius-d), Math.max(dp, radius-d), paint);
             }
         } else if (kind == Kind.ROW && !focused && !pressed) {
-            solid(dark ? 0xff30363a : 0xffc1c9cc, Paint.Style.STROKE, dp);
+            solid(dark ? 0xff30363a : 0xffe0e7ea, Paint.Style.STROKE, dp);
             canvas.drawLine(face.left + 10*dp, face.bottom-dp, face.right-10*dp, face.bottom-dp, paint);
         } else {
             int line = focused || pressed ? accent : contrast ? (dark ? Color.WHITE : Color.BLACK)
-                    : blend(surface, dark ? Color.WHITE : Color.BLACK, kind == Kind.CARD ? .08f : .20f);
+                    : blend(surface, dark ? Color.WHITE : Color.BLACK, dark ? (kind == Kind.CARD ? .08f : .20f) : .09f);
             solid(line, Paint.Style.STROKE, (focused || pressed || contrast ? 2 : .75f) * dp);
             float d = dp;
             canvas.drawRoundRect(face.left+d, face.top+d, face.right-d, face.bottom-d, radius, radius, paint);

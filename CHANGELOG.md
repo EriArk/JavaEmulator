@@ -10,6 +10,33 @@ stated otherwise. **Experimental** in older checkpoints means local/private
 combined builds; released experimental features are explicitly identified.
 **Released** means an actual GitHub release asset.
 
+## 2026-10-26 - Library-to-Room Flow and Lighter Console Materials (#40, Unreleased)
+
+- Add Debug-only Play Together for verified installed Java entries referencing
+  Bluetooth. Carry the selected game into the existing room workflow; explicit
+  Create prepares it, without automatically pressing Ready or replacing a room.
+- Add Return to active room to shared Social, using a read-only main-process
+  projection so Java's separate process cannot create another room owner.
+  Preserve the original room below the game when navigating back from Social,
+  so game process death still has a room screen to return to.
+- Show responsive player seats, initials, host and preparation state, with existing
+  invite/remove/friend actions. Keep game selection above players and Ready/Start
+  visible outside scrolling content. Preserve admission and launch authority.
+- Show Game in progress during a running match instead of unavailable Ready/Start.
+  Confirm End game session; canceling the confirmation keeps the session running.
+- Scope selected-game browsing to matching game editions/adapters plus unassigned
+  rooms. Keep Release online capabilities disabled and the existing unassigned-room
+  publisher unchanged; this is not selected-game publishing.
+- Brighten the light console shell/cards, soften recess edges and gray gradients,
+  and retain restrained colored keys. Dark/High contrast and game artwork remain
+  intact. [Implementation and checks](docs/RETRO_LIBRARY_REFRESH.md).
+- Verify two paired BT Biplanes launches in one private room on Retroid and phone
+  emulator, including Social return, canceled session ending and process-death
+  recovery. This is menu/session lifecycle evidence, not complete-match acceptance.
+- Final checks: 379 JVM passes, 22 Android UI passes on each target, with a
+  separate Retroid rerun of the visible-create regression. Add nine labeled
+  development screenshots; no public APK or release asset update.
+
 ## 2026-10-26 - Live Picture Presets and Phone Keypad Presentation (#40, Unreleased)
 
 - Preview supported image presets immediately from visual tiles over the paused

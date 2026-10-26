@@ -94,6 +94,27 @@ public class LobbyRoomDeviceTest {
     @Test public void signedOutRoomDoesNotReadOrSend()throws Exception{
         try(Fixture f=new Fixture()){f.token=null;try(ActivityScenario<LobbyRoomActivity> s=ActivityScenario.launch(LobbyRoomActivity.class)){Thread.sleep(500);assertFalse(f.model.state.getValue().verified);assertEquals(0,f.posts);s.onActivity(a->assertTrue(a.getWindow().getDecorView().findViewWithTag("account").isShown()));}}
     }
+    @Test public void activeRoomShortcutAndDuplicateCreatePreserveAuthority()throws Exception{
+        try(Fixture f=new Fixture();ActivityScenario<LobbyRoomActivity> s=ActivityScenario.launch(LobbyRoomActivity.class)){
+            await(f,x->x.verified);assertFalse(RoomStatusProvider.active(f.app));
+            click(s,"create");clickText("Invite only");await(f,x->x.hosting);
+            String room=f.model.state.getValue().room;assertTrue(RoomStatusProvider.active(f.app));
+            f.model.createForGame("11","public",null);Thread.sleep(300);
+            assertEquals(room,f.model.state.getValue().room);assertEquals("private",f.model.state.getValue().access);
+            s.onActivity(a->{
+                ru.playsoftware.j2meloader.input.GameMenuDialog menu=new ru.playsoftware.j2meloader.input.GameMenuDialog(a,"Social");
+                menu.useEdgePanel();menu.show();
+                ru.playsoftware.j2meloader.input.SocialMenuPages.show(menu,a,null,intent->{
+                    assertEquals(LobbyRoomActivity.class.getName(),intent.getComponent().getClassName());
+                    assertEquals("Preserve the original room beneath the game",0,intent.getFlags());
+                });
+                View action=findText(menu.getWindow().getDecorView(),"Return to active room");
+                assertNotNull(action);action.performClick();menu.dismiss();
+                View empty=a.getWindow().getDecorView().findViewWithTag("empty-seat");assertNotNull(empty);assertTrue(empty.isEnabled());
+            });
+            f.model.action("11",LobbyRoom::leave);await(f,x->x.room.isEmpty());assertFalse(RoomStatusProvider.active(f.app));
+        }
+    }
     @Test public void admittedContactKeepAndManualLeaseOnNativeOwner()throws Exception{
         try(Fixture f=new Fixture(true);ActivityScenario<LobbyRoomActivity> s=ActivityScenario.launch(LobbyRoomActivity.class)){
             await(f,x->x.verified);f.model.action("11",r->{r.create("private");r.invite("22");});
@@ -119,6 +140,11 @@ public class LobbyRoomDeviceTest {
             capture("room-contact-cleanup-fixture.png");
             await(f,x->f.contactDeletes==1,100000);assertEquals(0,f.relationshipType);
         }
+    }
+    private static View findText(View view,String text){
+        if(view instanceof android.widget.TextView&&text.contentEquals(((android.widget.TextView)view).getText()))return view;
+        if(view instanceof android.view.ViewGroup){android.view.ViewGroup group=(android.view.ViewGroup)view;for(int i=0;i<group.getChildCount();i++){View found=findText(group.getChildAt(i),text);if(found!=null)return found;}}
+        return null;
     }
     private static void click(ActivityScenario<LobbyRoomActivity> s,String tag){s.onActivity(a->{View v=a.getWindow().getDecorView().findViewWithTag(tag);assertNotNull(tag,v);assertTrue(tag,v.isEnabled());v.performClick();});}
     private static void clickText(String text)throws Exception{for(int i=0;i<40;i++){AccessibilityNodeInfo root=InstrumentationRegistry.getInstrumentation().getUiAutomation().getRootInActiveWindow();if(root!=null)for(AccessibilityNodeInfo node:root.findAccessibilityNodeInfosByText(text)){if(text.contentEquals(node.getText()==null?"":node.getText())){AccessibilityNodeInfo target=node;while(target!=null&&!target.isClickable())target=target.getParent();if(target!=null&&target.performAction(AccessibilityNodeInfo.ACTION_CLICK)){Thread.sleep(150);return;}}}Thread.sleep(100);}fail("Missing action: "+text);}
