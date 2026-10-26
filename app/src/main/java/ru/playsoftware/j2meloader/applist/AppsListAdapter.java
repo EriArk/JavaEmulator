@@ -184,6 +184,13 @@ public class AppsListAdapter extends RecyclerView.Adapter<AppsListAdapter.ViewHo
 			super(binding.getRoot());
 			this.binding = binding;
 			binding.rowRoot.setFocusableInTouchMode(true);
+			binding.rowRoot.setBackground(new ru.playsoftware.j2meloader.ui.ConsoleSurface(
+					binding.getRoot().getContext(), ru.playsoftware.j2meloader.ui.ConsoleSurface.Kind.CARD));
+			binding.rowRoot.setForeground(null);
+			binding.rowRoot.setDefaultFocusHighlightEnabled(false);
+			binding.artContainer.setBackgroundColor(android.graphics.Color.TRANSPARENT);
+			binding.icon.setBackgroundColor(android.graphics.Color.TRANSPARENT);
+			binding.author.setTypeface(android.graphics.Typeface.DEFAULT);
 		}
 
 		private void bind(AppItem item, int displayMode, int availableHeight, boolean compact, LibraryLayout layout, Listener listener) {

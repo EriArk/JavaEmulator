@@ -54,7 +54,51 @@ entirely; it does not merely hide it at selected widths.
 
 Do not mark #40 complete or describe these remaining items as implemented.
 
-## Verification (2026-10-26)
+## Soft Console Materials (2026-10-26, Unreleased)
+
+The owner approved softer, rounder molded materials while retaining #40's
+structure. TrainerOS dark chassis/keycap styling was inspected read-only as a
+material reference; its navigation and QML were not transplanted.
+
+- `ConsoleSurface` draws a matte chassis, recessed library well, colored platform
+  keys, quiet cards and temporary panels. Thin highlights and contact edges give
+  depth without a thick decorative bezel, blur, bitmap layers or animation loop.
+- Existing Classic / Retro LCD / High contrast and light/dark settings remain.
+  High contrast deliberately uses flat black/white surfaces with distinct edges.
+  Focus, selection and pressed states do not resize the card or key. Disable
+  Android's extra rectangular focus fill where custom focus already renders.
+- Gallery/List/Grid and source-art fitting are unchanged. Remove the extra frame
+  around artwork instead of tinting, cropping or regenerating the image.
+- At width >=440dp, height <400dp and font scale <=1.2, reparent view/filter tools
+  into the header. Hide the brand and Add shortcut there; import remains in Menu.
+  Taller/larger-text layouts restore the normal rows. Hit targets remain 48dp.
+- Only library/context panels opt into these materials. In-game menus, pause,
+  renderers, touch mapping and multiplayer authority are untouched in this slice.
+
+Verification of this follow-up:
+
+- Combined arm64 Debug build, development identifier `0.5.0-beta.1` / 310.
+  APK SHA-256 `274325711cf10a1377ef6869ec0b8af2418ee2e3eb0ae78c7ea270e8c39d39ff`.
+  Installed hashes match on both targets. Same build flags and intermediate APK
+  locations as below; no signed public APK.
+- 372 JVM tests pass, zero failures/errors/skips. Add `ConsoleSurfaceTest` to the
+  six existing UI suites: material rendering across three palettes and two
+  brightness modes, stable bounds, visible focus/press/selection and repeated
+  compact/tall reparenting. Test preferences are restored, including palette.
+- Final Android suites: Retroid 22 passed / 1 optional capture skipped (24.623 s);
+  emulator 21 passed / 2 skipped (capture and controller-only focus, 53.126 s).
+- The rotation suite initially exposed a test timing race: Activity resources
+  changed before the dialog's configuration traversal. Wait up to five seconds
+  for the exact expected window gravity; retain the assertions and timeout.
+- Local screenshots: `.local/ux40/soft-retroid-gallery.png`,
+  `soft-retroid-grid.png`, `soft-retroid-menu.png`, `soft-phone-light.png` and
+  `soft-small-light.png`. These are actual Debug UI captures, not concept art or
+  release evidence. Small viewport is 480x320dp; reset emulator overrides afterward.
+- Device automation is not manual physical-button comfort, full accessibility,
+  game compatibility or final owner visual acceptance. The short-screen
+  three-row limitation in the original slice below is addressed by this follow-up.
+
+## Original Library Slice Verification (2026-10-26)
 
 - Combined arm64 Debug APK, development identifier `0.5.0-beta.1` / 310;
   not a replacement for the signed public APK. SHA-256:

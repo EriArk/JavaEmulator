@@ -73,8 +73,16 @@ and selection per platform. Add circular, deduplicated L2/R2 switching, horizont
 swipes, direct Social access and temporary library action panels. Preserve
 existing game identities, imports, artwork and engine settings.
 
-The combined Debug build passes 372 JVM checks. Android UI suites report 21
-tests on each target: 20 pass/1 optional capture skipped on Retroid, 19 pass/2
+**Soft Console materials, same date:** implement the approved softer molded
+library treatment, inspired by TrainerOS dark materials without copying its
+navigation. Add a recessed content well, muted glossy platform keys, shallow
+contact edges and matching temporary library panels. Light and dark variants
+retain readable focus; High contrast stays flat. Short landscape screens combine
+tools into the header without dropping view controls. Artwork is not filtered or
+replaced. In-game menus and phone-control visuals have not migrated yet.
+
+The combined Debug build passes 372 JVM checks. Android UI suites report 23
+tests on each target: 22 pass/1 optional capture skipped on Retroid, 21 pass/2
 skipped on the phone emulator (capture and physical-controller-only focus).
 These are instrumented checks, not manual physical-button acceptance. Correct
 cold-return scroll restoration and block stale-card/controller launch while a

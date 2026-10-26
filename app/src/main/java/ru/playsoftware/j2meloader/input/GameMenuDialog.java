@@ -103,6 +103,11 @@ public final class GameMenuDialog extends Dialog {
         };
         panel.setOrientation(LinearLayout.VERTICAL);
         panel.setBackgroundColor(ru.playsoftware.j2meloader.ui.AppPalette.color(getContext(), ru.playsoftware.j2meloader.R.color.menu_surface));
+        if (edgePanel) {
+            panel.setBackground(new ru.playsoftware.j2meloader.ui.ConsoleSurface(getContext(),
+                    ru.playsoftware.j2meloader.ui.ConsoleSurface.Kind.PANEL));
+            panel.setPadding(dp(3), dp(4), dp(3), dp(4));
+        }
         LinearLayout header = new LinearLayout(getContext());
         header.setPadding(dp(16),dp(6),dp(8),dp(6));
         header.setGravity(Gravity.CENTER_VERTICAL);
@@ -120,6 +125,11 @@ public final class GameMenuDialog extends Dialog {
         navigation = new ImageButton(getContext());
         navigation.setBackgroundResource(R.drawable.bg_quick_setting_button);
         navigation.setBackgroundTintList(null);
+        if (edgePanel) {
+            navigation.setDefaultFocusHighlightEnabled(false);
+            navigation.setBackground(new ru.playsoftware.j2meloader.ui.ConsoleSurface(getContext(),
+                    ru.playsoftware.j2meloader.ui.ConsoleSurface.Kind.KEY));
+        }
         navigation.setImageTintList(android.content.res.ColorStateList.valueOf(ru.playsoftware.j2meloader.ui.AppPalette.color(getContext(), ru.playsoftware.j2meloader.R.color.accent)));
         navigation.setPadding(dp(12),dp(12),dp(12),dp(12));
         navigation.setOnClickListener(v -> navigateBack());
@@ -226,6 +236,14 @@ public final class GameMenuDialog extends Dialog {
         button.setTextColor(ru.playsoftware.j2meloader.ui.AppPalette.color(getContext(), ru.playsoftware.j2meloader.R.color.text_primary));
         button.setBackgroundResource(R.drawable.bg_quick_setting_button);
         button.setBackgroundTintList(null);
+        if (edgePanel) {
+            button.setStateListAnimator(null);
+            button.setDefaultFocusHighlightEnabled(false);
+            button.setElevation(0);
+            button.setBackground(new ru.playsoftware.j2meloader.ui.ConsoleSurface(getContext(),
+                    "Play".equals(label) ? ru.playsoftware.j2meloader.ui.ConsoleSurface.Kind.KEY
+                            : ru.playsoftware.j2meloader.ui.ConsoleSurface.Kind.ROW));
+        }
         button.setPadding(dp(14),dp(8),dp(14),dp(8));
         button.setMinHeight(dp(48));
         button.setMinimumHeight(dp(48));

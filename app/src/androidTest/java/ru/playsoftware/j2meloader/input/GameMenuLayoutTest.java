@@ -166,18 +166,32 @@ public class GameMenuLayoutTest {
                 });
                 rotate(instrumentation, activity, ActivityInfo.SCREEN_ORIENTATION_LANDSCAPE,
                         Configuration.ORIENTATION_LANDSCAPE);
+                awaitGravity(instrumentation, dialog[0], Gravity.CENTER);
                 instrumentation.runOnMainSync(() -> {
                     assertTrue(dialog[0].isShowing()); assertFalse(activity.isDestroyed());
                     assertEquals(Gravity.CENTER, dialog[0].getWindow().getAttributes().gravity);
                 });
                 rotate(instrumentation, activity, ActivityInfo.SCREEN_ORIENTATION_PORTRAIT,
                         Configuration.ORIENTATION_PORTRAIT);
+                awaitGravity(instrumentation, dialog[0], Gravity.BOTTOM | Gravity.CENTER_HORIZONTAL);
                 instrumentation.runOnMainSync(() -> {
                     assertTrue(dialog[0].isShowing());
                     assertEquals(Gravity.BOTTOM, dialog[0].getWindow().getAttributes().gravity & Gravity.VERTICAL_GRAVITY_MASK);
                 });
             } finally { instrumentation.runOnMainSync(() -> { if (dialog[0] != null) dialog[0].dismiss(); }); }
         });
+    }
+
+    private void awaitGravity(Instrumentation instrumentation, GameMenuDialog dialog, int expected) {
+        // Resources update before the dialog receives its configuration/layout traversal.
+        AtomicInteger actual = new AtomicInteger();
+        long deadline = android.os.SystemClock.uptimeMillis() + 5000;
+        do {
+            instrumentation.runOnMainSync(() -> actual.set(dialog.getWindow().getAttributes().gravity));
+            if (actual.get() == expected) return;
+            android.os.SystemClock.sleep(50);
+        } while (android.os.SystemClock.uptimeMillis() < deadline);
+        assertEquals(expected, actual.get());
     }
 
     private void rotate(Instrumentation instrumentation, MainActivity activity, int requested, int expected) {

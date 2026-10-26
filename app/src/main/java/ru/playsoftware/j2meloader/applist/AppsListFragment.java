@@ -111,6 +111,7 @@ import ru.playsoftware.j2meloader.util.FileUtils;
 import ru.playsoftware.j2meloader.util.LogUtils;
 import ru.playsoftware.j2meloader.catalog.GameFolderIndexer;
 import ru.woesss.j2me.installer.InstallerDialog;
+import ru.playsoftware.j2meloader.ui.ConsoleSurface;
 
 public class AppsListFragment extends Fragment implements AppsListAdapter.Listener {
 	private static final String TAG = AppsListFragment.class.getSimpleName();
@@ -249,6 +250,7 @@ public class AppsListFragment extends Fragment implements AppsListAdapter.Listen
 			binding.libraryPlatformTabs.getChildAt(i).setOnClickListener(v -> setPlatform(target));
 		}
 		binding.librarySocial.setOnClickListener(v -> showSocial());
+		applyConsoleSurfaces();
 		binding.libraryGeneration.setOnClickListener(v -> showGenerationMenu());
 		installPlatformSwipe();
 		binding.librarySearch.addTextChangedListener(new TextWatcher() {
@@ -667,16 +669,48 @@ public class AppsListFragment extends Fragment implements AppsListAdapter.Listen
 	}
 
 
+	private void applyConsoleSurfaces() {
+		binding.libraryRoot.setBackground(new ConsoleSurface(requireContext(), ConsoleSurface.Kind.CHASSIS));
+		binding.libraryScreen.setBackground(new ConsoleSurface(requireContext(), ConsoleSurface.Kind.SCREEN));
+		for (View control : new View[]{binding.librarySearchToggle, binding.railAddGame, binding.librarySocial,
+				binding.libraryMenu, binding.librarySearchClose, binding.viewModeGallery, binding.viewModeList,
+				binding.viewModeGrid, binding.emptyAddGame}) {
+			control.setBackgroundTintList(null);
+			control.setDefaultFocusHighlightEnabled(false);
+			control.setBackground(new ConsoleSurface(requireContext(), ConsoleSurface.Kind.KEY));
+		}
+		for (View control : new View[]{binding.libraryCategory, binding.libraryGeneration}) {
+			control.setDefaultFocusHighlightEnabled(false);
+			control.setBackground(new ConsoleSurface(requireContext(), ConsoleSurface.Kind.ROW));
+		}
+		for (int i = 0; i < binding.libraryPlatformTabs.getChildCount(); i++) {
+			TextView tab = (TextView) binding.libraryPlatformTabs.getChildAt(i);
+			tab.setDefaultFocusHighlightEnabled(false);
+			tab.setBackground(new ConsoleSurface(requireContext(), ConsoleSurface.Kind.TAB, i));
+			tab.setTypeface(android.graphics.Typeface.create("sans-serif-medium", android.graphics.Typeface.NORMAL));
+		}
+	}
+
 	private void updateResponsiveToolbar() {
 		float density = getResources().getDisplayMetrics().density;
 		float width = binding.getRoot().getWidth() > 0 ? binding.getRoot().getWidth() / density : getResources().getConfiguration().screenWidthDp;
 		float height = binding.getRoot().getHeight() > 0 ? binding.getRoot().getHeight() / density : getResources().getConfiguration().screenHeightDp;
 		float fontScale = getResources().getConfiguration().fontScale;
+		boolean shortScreen = width >= 440 && height < 400 && fontScale <= 1.2f;
+		ViewGroup toolsParent = (ViewGroup) binding.libraryTools.getParent();
+		ViewGroup wantedParent = shortScreen ? binding.libraryHeader : binding.libraryScreen;
+		if (toolsParent != wantedParent) {
+			toolsParent.removeView(binding.libraryTools);
+			LinearLayout.LayoutParams lp = new LinearLayout.LayoutParams(shortScreen ? 0 : -1, dp(48), shortScreen ? 1 : 0);
+			if (!shortScreen) lp.setMargins(dp(4), 0, dp(4), 0);
+			wantedParent.addView(binding.libraryTools, shortScreen ? 0 : 1, lp);
+		}
+		binding.launcherTitle.setVisibility(shortScreen ? View.GONE : View.VISIBLE);
 		compactLibrary = LibraryLayout.compact(width, height, fontScale);
 		adapter.setCompact(compactLibrary && height < 600);
-		binding.libraryCount.setVisibility(width >= 560 && fontScale <= 1.3f ? View.VISIBLE : View.GONE);
+		binding.libraryCount.setVisibility(!shortScreen && width >= 560 && fontScale <= 1.3f ? View.VISIBLE : View.GONE);
 		// Secondary commands remain in the menu when a narrow viewport cannot fit them.
-		binding.railAddGame.setVisibility(width >= 340 && fontScale <= 1.5f ? View.VISIBLE : View.GONE);
+		binding.railAddGame.setVisibility(!shortScreen && width >= 340 && fontScale <= 1.5f ? View.VISIBLE : View.GONE);
 		binding.librarySearchRow.setVisibility(searchExpanded || !restoredSearch.isEmpty() ? View.VISIBLE : View.GONE);
 		if (searchBack != null) searchBack.setEnabled(searchExpanded || !restoredSearch.isEmpty());
 		binding.librarySearchToggle.setSelected(searchExpanded || !restoredSearch.isEmpty());
@@ -684,7 +718,7 @@ public class AppsListFragment extends Fragment implements AppsListAdapter.Listen
 		for (int i = 0; i < binding.libraryPlatformTabs.getChildCount(); i++) {
 			TextView tab = (TextView) binding.libraryPlatformTabs.getChildAt(i);
 			LinearLayout.LayoutParams lp = (LinearLayout.LayoutParams) tab.getLayoutParams();
-			int desired = Math.max(tabWidth, dp(Math.round((width - 16) / 4)));
+			int desired = Math.max(tabWidth, dp(Math.round((width - 24) / 4)));
 			if (lp.width != desired) { lp.width = desired; lp.weight = 0; tab.setLayoutParams(lp); }
 		}
 		binding.launcherTitle.setTypeface("retro".equals(ru.playsoftware.j2meloader.ui.AppPalette.selected(requireContext()))

@@ -10,6 +10,24 @@ stated otherwise. **Experimental** in older checkpoints means local/private
 combined builds; released experimental features are explicitly identified.
 **Released** means an actual GitHub release asset.
 
+## 2026-10-26 - Soft Console Library Materials (#40, Unreleased)
+
+- Keep the approved four-platform structure and give the library a matte molded
+  shell, recessed content well and gently rounded, subtly glossy platform keys.
+  Use muted platform colors, shallow contact shadows and clear focus/press states.
+  Existing artwork, game identities and view preferences are unchanged.
+- Restyle temporary library panels with the same materials and quieter action
+  rows. Preserve Light/Dark/System and all three palettes; High contrast stays
+  flat with explicit edges. Remove Android's duplicate rectangular focus highlight.
+- Combine tools into one header on short landscape viewports, retaining all view
+  controls and leaving Add game in Menu. Restore the full header on taller screens.
+- Add material-state and compact-layout regression coverage. Fix the rotation
+  test's early assertion by waiting for the dialog configuration traversal, and
+  restore palette preferences after the rendering test.
+- Combined Debug only, installed on Retroid and the Android phone emulator. No
+  public APK/release change; game-menu restructuring, Display previews, phone
+  controls and lobby polish remain separate work. [Evidence](docs/RETRO_LIBRARY_REFRESH.md).
+
 ## 2026-10-26 - Platform Library Refresh (#40, Unreleased)
 
 - Give Java ME, Mophun, Symbian and N-Gage their own tabs. Keep all three library

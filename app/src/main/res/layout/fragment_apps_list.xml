@@ -2,10 +2,10 @@
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto" android:id="@+id/library_root"
     android:layout_width="match_parent" android:layout_height="match_parent"
-    android:orientation="vertical" android:background="?attr/abyss_background">
+    android:orientation="vertical" android:padding="4dp" android:background="?attr/abyss_background">
     <LinearLayout android:id="@+id/library_header"
         android:layout_width="match_parent" android:layout_height="48dp"
-        android:layout_marginHorizontal="12dp" android:gravity="center_vertical">
+        android:layout_marginHorizontal="8dp" android:gravity="center_vertical">
         <TextView android:id="@+id/launcher_title"
             android:layout_width="0dp" android:layout_height="match_parent" android:layout_weight="1"
             android:gravity="center_vertical" android:text="AbyssME" android:textSize="18sp"
@@ -62,9 +62,13 @@
                 android:textSize="14sp" android:textColor="?attr/abyss_text_primary" />
         </LinearLayout>
     </HorizontalScrollView>
+    <LinearLayout android:id="@+id/library_screen"
+        android:layout_width="match_parent" android:layout_height="0dp" android:layout_weight="1"
+        android:layout_marginHorizontal="4dp" android:layout_marginBottom="4dp"
+        android:padding="5dp" android:orientation="vertical">
     <LinearLayout android:id="@+id/library_search_row"
         android:layout_width="match_parent" android:layout_height="48dp"
-        android:layout_marginHorizontal="12dp" android:visibility="gone">
+        android:layout_marginHorizontal="4dp" android:visibility="gone">
         <EditText android:id="@+id/library_search"
             android:layout_width="0dp" android:layout_weight="1" android:layout_height="48dp"
             android:background="@drawable/bg_phone_input" android:hint="@string/search"
@@ -79,13 +83,13 @@
     </LinearLayout>
     <LinearLayout android:id="@+id/library_tools"
         android:layout_width="match_parent" android:layout_height="48dp"
-        android:layout_marginHorizontal="12dp" android:gravity="center_vertical">
+        android:layout_marginHorizontal="4dp" android:gravity="center_vertical">
         <TextView android:id="@+id/library_category"
             android:layout_width="0dp" android:layout_weight="1" android:layout_height="48dp"
             android:background="@drawable/bg_library_tab" android:clickable="true" android:focusable="true"
             android:gravity="center_vertical" android:paddingHorizontal="8dp"
             android:singleLine="true" android:ellipsize="end" android:text="All games"
-            android:drawableEnd="@android:drawable/arrow_down_float" android:drawableTint="?attr/abyss_text_secondary"
+            android:drawableEnd="@drawable/ic_arrow_down" android:drawableTint="?attr/abyss_text_secondary"
             android:textSize="13sp" android:textColor="?attr/abyss_text_secondary" />
         <TextView android:id="@+id/library_generation"
             android:layout_width="wrap_content" android:layout_height="48dp"
@@ -117,7 +121,7 @@
         </LinearLayout>
     </LinearLayout>
     <FrameLayout android:layout_width="match_parent" android:layout_height="0dp"
-        android:layout_weight="1" android:paddingHorizontal="8dp">
+        android:layout_weight="1">
         <androidx.recyclerview.widget.RecyclerView android:id="@+id/apps_recycler"
             android:layout_width="match_parent" android:layout_height="match_parent"
             android:clipToPadding="false" android:paddingBottom="8dp" />
@@ -137,4 +141,5 @@
                 android:background="@drawable/bg_library_tab" android:textColor="?attr/abyss_text_primary" />
         </LinearLayout>
     </FrameLayout>
+    </LinearLayout>
 </LinearLayout>
