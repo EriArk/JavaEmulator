@@ -26,7 +26,8 @@ Restore it with `tools/restore-symbian-sources.py`, follow
 `-PsymbianRelease=true` to Gradle. Without that property the build contains only
 Java/Mophun. The combined APKs target arm64-v8a.
 
-`gradlew :app:assembleFdroidDebug :app:assemblePhoneDebug` uses a debug key.
+`gradlew :app:assembleFdroidDebug` builds the adaptive APK using a debug key.
+There is no separate Phone build task in the unified app.
 For release builds, use your own key and the provided signing-config example.
 An independently signed build cannot overwrite the maintainer-signed package;
 use the app's library backup/restore menus to move your data. Android permits
