@@ -79,16 +79,26 @@ navigation. Add a recessed content well, muted glossy platform keys, shallow
 contact edges and matching temporary library panels. Light and dark variants
 retain readable focus; High contrast stays flat. Short landscape screens combine
 tools into the header without dropping view controls. Artwork is not filtered or
-replaced. In-game menus and phone-control visuals have not migrated yet.
+replaced. Phone-control visuals have not migrated yet.
 
-The combined Debug build passes 372 JVM checks. Android UI suites report 23
-tests on each target: 22 pass/1 optional capture skipped on Retroid, 21 pass/2
-skipped on the phone emulator (capture and physical-controller-only focus).
-These are instrumented checks, not manual physical-button acceptance. Correct
-cold-return scroll restoration and block stale-card/controller launch while a
-filter is updating. The rest of #40, including in-game panels, Display previews,
-Phone keypad presentation and lobby seats, remains open. No public APK or
-release update. [Scope, evidence and remaining work](RETRO_LIBRARY_REFRESH.md).
+**Contextual actions and shared game panels, same date:** extend the treatment
+to Java, Mophun and Symbian game menus. Group primary commands separately from
+More, add a small game-art header to library actions, restore page focus/scroll,
+and reuse existing Social destinations with return to the panel. Java/Mophun
+pre-game Display and Controls stay within the action panel; native system actions
+retain their existing route. Fix the first tap merely selecting a library card
+instead of launching it, while preserving hold and canceled-touch behavior.
+
+The final combined Debug build passes 374 JVM checks. Each Android target runs
+44 tests: Retroid 43 pass/1 optional capture skipped, phone emulator 42 pass/2
+skipped (capture and physical-controller-only focus). Installed hashes match.
+Retroid solo navigation covers Bounce Tales, Deep Abyss and Snakes, including
+Social return and Resume/Exit. These are instrumented checks, not manual button
+comfort or full-game acceptance. Java's local/network pause policy has regression
+coverage, but paired network menu/Social acceptance remains open. Display previews,
+Phone keypad presentation, Play Together/active-room shortcuts and lobby seats
+also remain open. No public APK or release update.
+[Scope, screenshots, evidence and remaining work](RETRO_LIBRARY_REFRESH.md).
 
 ## Multiplayer Foundation (Unreleased)
 

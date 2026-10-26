@@ -184,6 +184,11 @@ public class AppsListAdapter extends RecyclerView.Adapter<AppsListAdapter.ViewHo
 			super(binding.getRoot());
 			this.binding = binding;
 			binding.rowRoot.setFocusableInTouchMode(true);
+			binding.rowRoot.setOnTouchListener((view, event) -> {
+				// Otherwise View consumes the first tap to acquire controller-compatible focus.
+				if (event.getActionMasked() == android.view.MotionEvent.ACTION_DOWN) view.requestFocus();
+				return false;
+			});
 			binding.rowRoot.setBackground(new ru.playsoftware.j2meloader.ui.ConsoleSurface(
 					binding.getRoot().getContext(), ru.playsoftware.j2meloader.ui.ConsoleSurface.Kind.CARD));
 			binding.rowRoot.setForeground(null);

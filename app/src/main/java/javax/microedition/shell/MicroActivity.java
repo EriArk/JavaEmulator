@@ -148,7 +148,7 @@ public class MicroActivity extends AppCompatActivity {
 				microLoader.getTouchSettings(), devices != null && devices.connected()));
 	}
 	private void controllerDisconnected() {
-		MidletThread.pauseApp();
+		if (networkClient == null) MidletThread.pauseApp();
 		if (visible && !isFinishing()) openOptionsMenu();
 	}
 	private boolean selectQuickMapTracking;
@@ -283,6 +283,12 @@ public class MicroActivity extends AppCompatActivity {
 	}
 
 	private ru.playsoftware.j2meloader.multiplayer.MidletNetworkClient networkClient;
+	private boolean socialNavigation;
+	private boolean keepNetworkRunningInUi() {
+		return ru.playsoftware.j2meloader.input.GameUiPolicy.keepNetworkRunning(networkClient != null, visible,
+				gameMenu != null && gameMenu.isShowing() || isQuickMapVisible()
+						|| settingsMapper != null && settingsMapper.isShowing(), socialNavigation);
+	}
 	private void returnToNetworkRoom(String reason) {
 		if (isFinishing() || isDestroyed()) return;
 		MidletThread.pauseApp();
@@ -320,6 +326,8 @@ public class MicroActivity extends AppCompatActivity {
 	public void onResume() {
 		super.onResume();
 		visible = true;
+		socialNavigation = false;
+		if (keepNetworkRunningInUi()) MidletThread.resumeApp();
 		if (devices != null && devices.resumeRequired()) openOptionsMenu();
 		updateScreenshotButton();
 		if (!isQuickMapVisible() && (gameMenu == null || !gameMenu.isShowing())
@@ -341,7 +349,7 @@ public class MicroActivity extends AppCompatActivity {
 		hideSoftInput();
 		cancelQuickMapTrigger();
 		hideQuickSettingsOverlay();
-		MidletThread.pauseApp();
+		if (!keepNetworkRunningInUi()) MidletThread.pauseApp();
 		super.onPause();
 	}
 
@@ -359,7 +367,7 @@ public class MicroActivity extends AppCompatActivity {
 		if (!hasFocus) {
 			if (fastForward != null) fastForward.cancel();
 			cancelQuickMapTrigger();
-			MidletThread.pauseApp();
+			if (!keepNetworkRunningInUi()) MidletThread.pauseApp();
 			controllerInput.clear();
 			VirtualKeyboard vk = ContextHolder.getVk();
 			if (vk != null) vk.cancel();
@@ -500,6 +508,7 @@ public class MicroActivity extends AppCompatActivity {
 
 	@Override
 	public boolean dispatchKeyEvent(KeyEvent event) {
+		if (gameMenu != null && gameMenu.isShowing() || settingsMapper != null && settingsMapper.isShowing()) return true;
 		int key = event.getKeyCode();
 		if (!isQuickMapVisible() && overlayHeldKeys.contains(key)) {
 			if (event.getAction() == KeyEvent.ACTION_UP) overlayHeldKeys.remove(key);
@@ -545,6 +554,7 @@ public class MicroActivity extends AppCompatActivity {
 
 	@Override
 	public boolean dispatchGenericMotionEvent(MotionEvent event) {
+		if (gameMenu != null && gameMenu.isShowing() || settingsMapper != null && settingsMapper.isShowing()) return true;
 		if (isQuickMapVisible()) {
 			if (event.getAction() == MotionEvent.ACTION_MOVE) controllerMapper.captureAxes(event);
 			return true;
@@ -772,7 +782,7 @@ public class MicroActivity extends AppCompatActivity {
 		VirtualKeyboard vk = ContextHolder.getVk();
 		if (vk != null) vk.cancel();
 		hideQuickSettingsOverlay();
-		MidletThread.pauseApp();
+		if (networkClient == null) MidletThread.pauseApp();
 		controllerMapper = new ControllerMapperView(this, appName,
 				microLoader.getKeyMappingProfiles(), microLoader.getActiveKeyMappingProfile(),
 				new ControllerMapperView.Listener() {
@@ -859,8 +869,9 @@ public class MicroActivity extends AppCompatActivity {
 		VirtualKeyboard vk = ContextHolder.getVk();
 		if (vk != null) vk.cancel();
 		hideQuickSettingsOverlay();
-		MidletThread.pauseApp();
+		if (networkClient == null) MidletThread.pauseApp();
 		gameMenu = new ru.playsoftware.j2meloader.input.GameMenuDialog(this, appName);
+		gameMenu.useEdgePanel();
 		gameMenu.setOnDismissListener(d -> {
 			if (devices != null) devices.resume();
 			updateScreenshotButton();
@@ -884,7 +895,17 @@ public class MicroActivity extends AppCompatActivity {
 				new ru.playsoftware.j2meloader.input.GameMenuPages.Host() {
 			public void display() { showDisplayPage(); }
 			public void controls() { showTouchPage(); }
-			public void more() { showMorePage(); }
+			public void more() { populateMorePage(); }
+			public boolean hasSocial() { return true; }
+			public void social() {
+				ru.playsoftware.j2meloader.input.SocialMenuPages.show(gameMenu, MicroActivity.this,
+						MicroActivity.this::showGameMenuPage, intent -> {
+					// Keep the panel alive: returning from Social restores blocked game input.
+					socialNavigation = true;
+					try { startActivity(intent); }
+					catch (RuntimeException failure) { socialNavigation = false; gameMenu.message("Could not open Social."); }
+				});
+			}
 			public boolean hasPreview() { return ProfilesManager.isPreview(microLoader.getTouchSettings()); }
 			public void keep() { keepSettingsPreview(); }
 			public void undo() { undoSettingsPreview(); }
@@ -922,7 +943,10 @@ public class MicroActivity extends AppCompatActivity {
 	}
 
 	private void showMorePage() {
-		gameMenu.page("More");
+		menuPages().more();
+	}
+
+	private void populateMorePage() {
 		gameMenu.action("Fast-forward settings", android.R.drawable.ic_media_ff,
 				() -> settingsPages().fastForward(this::showMorePage));
 		gameMenu.setBackAction(this::showGameMenuPage);

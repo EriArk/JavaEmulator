@@ -198,13 +198,22 @@ final class SymbianSessionUi {
         if (closed || menu != null || mapper != null) return;
         fastForward.cancel();
         menu = new GameMenuDialog(activity, title);
+        menu.useEdgePanel();
         menu.setOnDismissListener(d -> { menu = null; devices.resume(); if (!closed) pause(); }); menu.show(); pause(); home();
     }
     private void home() {
-        new GameMenuPages(menu, new GameMenuPages.Host() {
+        menuPages().home();
+    }
+    private GameMenuPages menuPages() {
+        return new GameMenuPages(menu, new GameMenuPages.Host() {
             public void display() { displayPage(); }
             public void controls() { pages().controls(SymbianSessionUi.this::home); }
-            public void more() { morePage(); }
+            public void more() { populateMorePage(); }
+            public boolean hasSocial() { return true; }
+            public void social() {
+                ru.playsoftware.j2meloader.input.SocialMenuPages.show(menu, activity,
+                        SymbianSessionUi.this::home, activity::startActivity);
+            }
             public boolean hasPreview() { return ProfilesManager.isPreview(profile); }
             public void keep() { SymbianSessionUi.this.keep(); }
             public void undo() { SymbianSessionUi.this.undo(); }
@@ -213,10 +222,12 @@ final class SymbianSessionUi {
                 if (ProfilesManager.isPreview(profile)) undo();
                 host.restart();
             }
-        }, this::screenshot, fastForward).home();
+        }, this::screenshot, fastForward);
     }
     private void morePage() {
-        menu.page("More");
+        menuPages().more();
+    }
+    private void populateMorePage() {
         menu.action("Fast-forward settings", android.R.drawable.ic_media_ff,
                 () -> pages().fastForward(this::morePage));
         menu.action("Emulation speed: " + profile.getEmulationSpeed() + "%",

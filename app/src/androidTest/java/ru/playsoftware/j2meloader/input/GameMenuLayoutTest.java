@@ -21,6 +21,49 @@ import ru.playsoftware.j2meloader.R;
 import static org.junit.Assert.*;
 
 public class GameMenuLayoutTest {
+    @Test public void socialUsesExistingDestinationsAndBackKeepsThePanelAlive() {
+        withActivity((instrumentation, activity) -> instrumentation.runOnMainSync(() -> {
+            GameMenuDialog menu = new GameMenuDialog(activity, "Fixture"); menu.useEdgePanel(); menu.show();
+            java.util.List<Intent> launches = new java.util.ArrayList<>();
+            try {
+                SocialMenuPages.show(menu, activity, () -> menu.page("Game menu"), launches::add);
+                View root = menu.getWindow().getDecorView();
+                for (String label : new String[]{"Lobbies", "Friends", "Chats", "Fluxer account"}) findText(root,label).performClick();
+                assertEquals(4, launches.size()); assertTrue(menu.isShowing());
+                assertEquals("ru.playsoftware.j2meloader.multiplayer.LobbyDirectoryActivity", launches.get(0).getComponent().getClassName());
+                assertTrue(launches.get(1).getBooleanExtra("friends",false));
+                assertFalse(launches.get(2).getBooleanExtra("friends",false));
+                find(root,"Back").performClick(); assertNotNull(findText(root,"Game menu"));
+            } finally { menu.dismiss(); }
+        }));
+    }
+
+    @Test public void pageReturnRestoresFocusedActionInsteadOfFirstRow() {
+        withActivity((instrumentation, activity) -> {
+            GameMenuDialog[] menu = new GameMenuDialog[1];
+            Runnable[] home = new Runnable[1];
+            try {
+                instrumentation.runOnMainSync(() -> {
+                    menu[0] = new GameMenuDialog(activity,"Fixture"); menu[0].useEdgePanel(); menu[0].show();
+                    home[0] = () -> {
+                        menu[0].page("Parent"); menu[0].action("Play",0,()->{});
+                        menu[0].action("More",0,()->{ menu[0].page("Child"); menu[0].action("Item",0,()->{}); menu[0].setBackAction(home[0]); });
+                    };
+                    home[0].run();
+                });
+                instrumentation.waitForIdleSync(); android.os.SystemClock.sleep(100);
+                instrumentation.runOnMainSync(() -> {
+                    View more=findText(menu[0].getWindow().getDecorView(),"More");
+                    more.requestFocusFromTouch(); more.performClick();
+                });
+                instrumentation.waitForIdleSync();
+                instrumentation.runOnMainSync(() -> find(menu[0].getWindow().getDecorView(),"Back").performClick());
+                instrumentation.waitForIdleSync(); android.os.SystemClock.sleep(100);
+                instrumentation.runOnMainSync(() -> assertEquals("More",((Button)menu[0].getCurrentFocus()).getText().toString()));
+            } finally { instrumentation.runOnMainSync(() -> {if(menu[0]!=null)menu[0].dismiss();}); }
+        });
+    }
+
     @Test public void dialogPreservesFullscreenGameWindowOnBothVariants() {
         withActivity((instrumentation, activity) -> instrumentation.runOnMainSync(() -> {
             int before = activity.getWindow().getAttributes().flags;
@@ -47,7 +90,7 @@ public class GameMenuLayoutTest {
             GameMenuPages pages = new GameMenuPages(menu, new GameMenuPages.Host() {
                 public void display() { menu.page("Display"); }
                 public void controls() { menu.page("Controls"); }
-                public void more() { menu.page("More"); }
+                public void more() { menu.action("Engine setting", 0, () -> {}); }
                 public void exit() { exits.incrementAndGet(); }
                 public void restart() { restarts.incrementAndGet(); }
                 public boolean hasPreview() { return true; }
@@ -60,15 +103,17 @@ public class GameMenuLayoutTest {
                 View root = menu.getWindow().getDecorView();
                 java.util.List<String> actions = new java.util.ArrayList<>();
                 collectButtons(root, actions);
-                assertEquals(java.util.Arrays.asList("Resume", "Display", "Controls", "Screenshot",
-                        "Keep changes", "Undo changes", "More", "Restart game", "Exit game"), actions);
+                assertEquals(java.util.Arrays.asList("Resume", "Display", "Controls",
+                        "Keep changes", "Undo changes", "More", "Exit game"), actions);
+                findText(root, "More").performClick();
+                assertNotNull(findText(root, "Engine setting"));
                 findText(root, "Restart game").performClick();
                 assertTrue(menu.isShowing()); assertEquals(0, restarts.get());
                 findText(root, "Cancel").performClick();
-                assertNotNull(findText(root, "Display"));
+                assertNotNull(findText(root, "Restart game"));
                 pages.confirmRestart();
                 menu.dispatchKeyEvent(new KeyEvent(KeyEvent.ACTION_UP, KeyEvent.KEYCODE_BUTTON_B));
-                assertEquals(0, restarts.get()); assertNotNull(findText(root, "Display"));
+                assertEquals(0, restarts.get()); assertNotNull(findText(root, "Restart game"));
                 pages.confirmRestart(); findText(root, "Restart").performClick();
                 assertEquals(1, restarts.get()); assertTrue(menu.isShowing());
                 pages.home();
@@ -80,7 +125,7 @@ public class GameMenuLayoutTest {
                 findText(root, "Leave without saving").performClick();
                 assertEquals(1, exits.get());
                 assertTrue("Host owns teardown; confirmation must not resume first", menu.isShowing());
-                pages.home(); findText(root, "Screenshot").performClick();
+                pages.more(); findText(root, "Screenshot").performClick();
                 assertFalse(menu.isShowing()); assertEquals(1, screenshots.get());
             } finally { menu.dismiss(); }
         }));

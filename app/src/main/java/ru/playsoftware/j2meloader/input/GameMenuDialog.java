@@ -30,6 +30,12 @@ public final class GameMenuDialog extends Dialog {
     private final String game;
     private Dialog editor;
     private boolean edgePanel;
+    private android.widget.ImageView artwork;
+    private String pageTitle;
+    private final java.util.Map<String, String> pageFocus = new java.util.HashMap<>();
+    private final java.util.Map<String, Integer> pageScroll = new java.util.HashMap<>();
+    private String restoreAction;
+    private int restoreScroll;
     /** Opt in screen by screen; does not change emulator pause/input ownership. */
     public void useEdgePanel() { edgePanel = true; if (isShowing()) updateWindowLayout(); }
     public void editTouchLayout(ru.playsoftware.j2meloader.config.ProfileModel draft, Runnable done) {
@@ -111,6 +117,13 @@ public final class GameMenuDialog extends Dialog {
         LinearLayout header = new LinearLayout(getContext());
         header.setPadding(dp(16),dp(6),dp(8),dp(6));
         header.setGravity(Gravity.CENTER_VERTICAL);
+        artwork = new android.widget.ImageView(getContext());
+        artwork.setScaleType(android.widget.ImageView.ScaleType.FIT_CENTER);
+        artwork.setImportantForAccessibility(View.IMPORTANT_FOR_ACCESSIBILITY_NO);
+        artwork.setVisibility(View.GONE);
+        LinearLayout.LayoutParams artParams = new LinearLayout.LayoutParams(dp(44), dp(44));
+        artParams.rightMargin = dp(10);
+        header.addView(artwork, artParams);
         LinearLayout titles = new LinearLayout(getContext());
         titles.setOrientation(LinearLayout.VERTICAL);
         heading = new TextView(getContext());
@@ -191,6 +204,14 @@ public final class GameMenuDialog extends Dialog {
         window.setAttributes(attributes);
     }
     public void page(String title) {
+        if (pageTitle != null) {
+            View focus = getCurrentFocus();
+            if (focus instanceof Button) pageFocus.put(pageTitle, ((Button) focus).getText().toString());
+            pageScroll.put(pageTitle, scroll.getScrollY());
+        }
+        pageTitle = title;
+        restoreAction = pageFocus.get(title);
+        restoreScroll = pageScroll.getOrDefault(title, 0);
         content.removeAllViews();
         defaultAction = null;
         pendingDefaultFocus = null;
@@ -198,6 +219,25 @@ public final class GameMenuDialog extends Dialog {
         heading.setText(title);
         subtitle.setVisibility(game == null || game.isEmpty() || game.equals(title) ? View.GONE : View.VISIBLE);
         scroll.scrollTo(0,0);
+    }
+    public void artwork(String... paths) {
+        artwork.setImageDrawable(null);
+        artwork.setVisibility(View.GONE);
+        for (String path : paths) {
+            if (path == null || path.isEmpty()) continue;
+            android.graphics.BitmapFactory.Options options = new android.graphics.BitmapFactory.Options();
+            options.inJustDecodeBounds = true;
+            android.graphics.BitmapFactory.decodeFile(path, options);
+            if (options.outWidth <= 0 || options.outHeight <= 0) continue;
+            options.inSampleSize = 1;
+            while (Math.max(options.outWidth, options.outHeight) / options.inSampleSize > dp(88)) options.inSampleSize *= 2;
+            options.inJustDecodeBounds = false;
+            android.graphics.Bitmap bitmap = android.graphics.BitmapFactory.decodeFile(path, options);
+            if (bitmap == null) continue;
+            artwork.setImageBitmap(bitmap);
+            artwork.setVisibility(View.VISIBLE);
+            return;
+        }
     }
     public void setBackAction(Runnable action) {
         backAction = action;
@@ -256,6 +296,11 @@ public final class GameMenuDialog extends Dialog {
         LinearLayout.LayoutParams lp = new LinearLayout.LayoutParams(-1,-2);
         lp.topMargin=dp(4); content.addView(button,lp);
         focusDefault(button);
+        if (label.equals(restoreAction)) {
+            defaultAction = button;
+            pendingDefaultFocus = button;
+            button.post(this::focusPendingAction);
+        }
         return button;
     }
     private void focusDefault(View view) {
@@ -271,6 +316,8 @@ public final class GameMenuDialog extends Dialog {
         if (view != null && view.isLaidOut() && view.hasWindowFocus()) {
             pendingDefaultFocus = null;
             view.requestFocusFromTouch();
+            if (restoreScroll > 0) scroll.scrollTo(0, restoreScroll);
+            restoreScroll = 0;
         }
     }
     public void choice(String label, String[] options, int selected, java.util.function.IntConsumer change) {

@@ -173,7 +173,7 @@ public class LibrarySessionTest {
                     RecyclerView.ViewHolder row=list.findViewHolderForAdapterPosition(10);
                     assertNotNull(row); row.itemView.performLongClick();
                 });
-                click("Edit card"); click("Title");
+                click("More"); click("Edit card"); click("Title");
                 // Cancel must leave the game and its saved identity untouched.
                 click("Cancel");
                 scenario.onActivity(a -> {

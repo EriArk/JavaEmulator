@@ -37,6 +37,7 @@ public final class GameSettingsActivity extends AppCompatActivity {
             if (!ProfilesManager.saveConfig(profile)) { finish(); return; }
         }
         menu = new GameMenuDialog(this, title);
+        menu.useEdgePanel();
         menu.setOnCancelListener(d -> finish());
         menu.setOnDismissListener(d -> finish());
         menu.show();

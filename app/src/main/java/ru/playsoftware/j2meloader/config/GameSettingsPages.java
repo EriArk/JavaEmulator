@@ -21,6 +21,8 @@ public final class GameSettingsPages {
     private final boolean javaGame;
     private final boolean legacyActive;
     private Runnable controlsBack;
+    private Runnable homeAction;
+    public void setHomeAction(Runnable action) { homeAction = action; }
 
     public GameSettingsPages(GameMenuDialog menu, ProfileModel current, boolean live, Host host) {
         this(menu, current, live, true, host);
@@ -35,6 +37,8 @@ public final class GameSettingsPages {
     }
 
     public void home() {
+        if (homeAction != null) { homeAction.run(); return; }
+        if (live) { host.back(); return; }
         menu.page("Game settings");
         menu.action("Display", R.drawable.ic_quick_size, this::display);
         menu.action("Controls", R.drawable.ic_action_keyboard, this::controls);

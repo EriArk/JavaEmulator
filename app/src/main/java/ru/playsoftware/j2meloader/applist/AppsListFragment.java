@@ -395,22 +395,7 @@ public class AppsListFragment extends Fragment implements AppsListAdapter.Listen
 
 	private void showSocial() {
 		GameMenuDialog dialog = libraryDialog("Social");
-		dialog.action("Lobbies", android.R.drawable.ic_menu_share, () -> {
-			dialog.dismiss(); startActivity(new Intent(requireContext(),
-					ru.playsoftware.j2meloader.multiplayer.LobbyDirectoryActivity.class));
-		});
-		dialog.action("Friends", android.R.drawable.ic_menu_myplaces, () -> {
-			dialog.dismiss(); startActivity(new Intent(requireContext(),
-					ru.playsoftware.j2meloader.multiplayer.FluxerChatsActivity.class).putExtra("friends", true));
-		});
-		dialog.action("Chats", android.R.drawable.ic_dialog_email, () -> {
-			dialog.dismiss(); startActivity(new Intent(requireContext(),
-					ru.playsoftware.j2meloader.multiplayer.FluxerChatsActivity.class));
-		});
-		dialog.action("Fluxer account", android.R.drawable.ic_menu_myplaces, () -> {
-			dialog.dismiss(); startActivity(new Intent(requireContext(),
-					ru.playsoftware.j2meloader.multiplayer.FluxerAccountActivity.class));
-		});
+		ru.playsoftware.j2meloader.input.SocialMenuPages.show(dialog, requireContext(), null, this::startActivity);
 	}
 
 	private void installPlatformSwipe() {
@@ -1059,17 +1044,48 @@ public class AppsListFragment extends Fragment implements AppsListAdapter.Listen
 	private void showActions(View anchor, AppItem appItem) {
         updateDetail(appItem);
         rememberSelection(appItem);
+        saveLibraryLocation();
+        if (contextMenu != null) contextMenu.dismiss();
+        GameMenuDialog dialog = new GameMenuDialog(requireContext(), appItem.getTitle());
+        contextMenu = dialog;
+        dialog.useEdgePanel(); dialog.show();
+        dialog.artwork(appItem.getImagePathExt(), appItem.getCoverPathExt());
+        dialog.setOnDismissListener(d -> {
+            if (contextMenu == dialog) contextMenu = null;
+            if (binding != null && isAdded() && ru.playsoftware.j2meloader.input.DeviceControls.connected(requireContext()))
+                focusGame(appItem.getPath());
+        });
+        populateGameActions(dialog, appItem);
+    }
+
+    private GameMenuDialog contextMenu;
+    private ru.playsoftware.j2meloader.input.MapperDialog contextMapper;
+
+    private void populateGameActions(GameMenuDialog dialog, AppItem item) {
+        dialog.page("Game actions");
+        dialog.action("Play", android.R.drawable.ic_media_play, () -> { dialog.dismiss(); startApp(item, false); });
+        if (!(item instanceof ExternalLibrary.Item)) {
+            dialog.action("Display", R.drawable.ic_quick_size, () -> showCardSettings(dialog, item, false));
+            dialog.action("Controls", R.drawable.ic_action_keyboard, () -> showCardSettings(dialog, item, true));
+        }
+        dialog.action("Game information", android.R.drawable.ic_menu_info_details, () -> {
+            dialog.page("Game information");
+            dialog.message(ru.playsoftware.j2meloader.catalog.GameInformation.describe(item));
+            dialog.setBackAction(() -> populateGameActions(dialog, item));
+        });
+        dialog.action(item.isFavorite() ? "Remove favorite" : "Add favorite", android.R.drawable.btn_star, () -> {
+            toggleFavorite(item); dialog.dismiss();
+        });
+        dialog.action("More", R.drawable.ic_library_ellipsis_vertical, () -> populateGameMore(dialog, item));
+    }
+
+    private void populateGameMore(GameMenuDialog dialog, AppItem appItem) {
+        dialog.page("More");
+        dialog.setBackAction(() -> populateGameActions(dialog, appItem));
+        dialog.action("Edit card", android.R.drawable.ic_menu_edit, () -> populateEditCard(dialog, appItem,
+                () -> populateGameMore(dialog, appItem)));
         if (appItem instanceof ExternalLibrary.Item) {
             ExternalLibrary.Item item = (ExternalLibrary.Item) appItem;
-            GameMenuDialog dialog = new GameMenuDialog(requireContext(), item.getTitle());
-            dialog.useEdgePanel();
-            dialog.show(); dialog.page(item.getTitle());
-            dialog.action("Game information", android.R.drawable.ic_menu_info_details, () -> {
-                dialog.dismiss(); showGameInformation(item);
-            });
-            dialog.action("Play", android.R.drawable.ic_media_play, () -> { dialog.dismiss(); startApp(item, false); });
-            dialog.action("Edit card", android.R.drawable.ic_menu_edit,
-                    () -> { dialog.dismiss(); showEditCard(item); });
             dialog.action("Export launch file", android.R.drawable.ic_menu_save, () -> {
                 try {
                     pendingLauncherLink = ru.playsoftware.j2meloader.catalog.LauncherLink.encode(
@@ -1078,15 +1094,12 @@ public class AppsListFragment extends Fragment implements AppsListAdapter.Listen
                     launcherLinkExporter.launch(item.getTitle().replaceAll("[/\\\\:*?\"<>|]", "_") + ".abyssme");
                 } catch (IOException error) { dialog.message(error.getMessage()); }
             });
-            dialog.action(item.isFavorite() ? "Remove favorite" : "Add favorite", android.R.drawable.btn_star, () -> {
-                item.favorite(); dialog.dismiss(); publishLibrary(); updateDetail(item);
-            });
             dialog.action("System files", R.drawable.ic_baseline_tune_24, () -> { dialog.dismiss(); startApp(item, true); });
             if(item.supportsUninstallReview()) dialog.action("Uninstall from phone", android.R.drawable.ic_menu_delete,
                     () -> { dialog.dismiss(); item.uninstall(requireActivity()); });
             return;
         }
-		PopupMenu popup = new PopupMenu(requireContext(), anchor);
+        PopupMenu popup = new PopupMenu(requireContext(), binding.libraryMenu);
 		popup.inflate(R.menu.context_main);
 		Menu menu = popup.getMenu();
 		if (!ShortcutManagerCompat.isRequestPinShortcutSupported(requireContext())) {
@@ -1122,25 +1135,13 @@ public class AppsListFragment extends Fragment implements AppsListAdapter.Listen
 			return true;
 		};
 		{
-			GameMenuDialog dialog = new GameMenuDialog(requireContext(), "Game options");
-			dialog.useEdgePanel();
-			dialog.show();
-			dialog.page(appItem.getTitle());
-			dialog.action("Play", android.R.drawable.ic_media_play, () -> {
-				dialog.dismiss(); startApp(appItem, false);
-			});
-			dialog.action(appItem.isFavorite() ? "Remove favorite" : "Add favorite", android.R.drawable.btn_star, () -> {
-				dialog.dismiss(); toggleFavorite(appItem);
-			});
-			dialog.action("Edit card", android.R.drawable.ic_menu_edit, () -> {
-				dialog.dismiss(); showEditCard(appItem);
-			});
 			dialog.action("Settings", R.drawable.ic_baseline_tune_24, () -> {
 				dialog.dismiss(); startApp(appItem, true);
 			});
 			for (int i = 0; i < menu.size(); i++) {
 				MenuItem item = menu.getItem(i);
 				if (item.isVisible() && item.getItemId() != R.id.action_context_settings
+						&& item.getItemId() != R.id.action_context_information
 						&& item.getItemId() != R.id.action_context_rename
 						&& item.getItemId() != R.id.action_context_artwork) dialog.action(item.getTitle().toString(), 0, () -> {
 					dialog.dismiss(); action.onMenuItemClick(item);
@@ -1151,7 +1152,13 @@ public class AppsListFragment extends Fragment implements AppsListAdapter.Listen
 
 	private void showEditCard(AppItem item) {
 		GameMenuDialog dialog = new GameMenuDialog(requireContext(), item.getTitle());
-		dialog.show(); dialog.page("Edit card");
+		dialog.useEdgePanel(); dialog.show();
+		populateEditCard(dialog, item, null);
+	}
+
+	private void populateEditCard(GameMenuDialog dialog, AppItem item, Runnable back) {
+		dialog.page("Edit card");
+		dialog.setBackAction(back);
 		dialog.action("Title", android.R.drawable.ic_menu_edit, () -> { dialog.dismiss(); alertRename(item); });
 		boolean artworkAvailable = item instanceof ExternalLibrary.Item
 				? ((ExternalLibrary.Item) item).getArtworkDirectory() != null
@@ -1160,6 +1167,39 @@ public class AppsListFragment extends Fragment implements AppsListAdapter.Listen
 		if (artworkAvailable)
 			dialog.action("Artwork", android.R.drawable.ic_menu_gallery, () -> { dialog.dismiss(); showArtworkMenu(item); });
 	}
+
+    private void showCardSettings(GameMenuDialog dialog, AppItem item, boolean controls) {
+        File app = new File(item.getPathExt());
+        File dir = new File(app.getParentFile().getParentFile(), "configs/" + app.getName());
+        ru.playsoftware.j2meloader.config.ProfileModel profile = ru.playsoftware.j2meloader.config.ProfilesManager.loadConfig(dir);
+        if (profile == null) { dialog.dismiss(); startApp(item, true); return; }
+        ru.playsoftware.j2meloader.config.GameSettingsPages pages = new ru.playsoftware.j2meloader.config.GameSettingsPages(
+                dialog, profile, false, !ru.playsoftware.j2meloader.catalog.AdditionalGames.isManaged(app),
+                new ru.playsoftware.j2meloader.config.GameSettingsPages.Host() {
+                    public void preview(ru.playsoftware.j2meloader.config.ProfileModel draft) {
+                        try {
+                            ru.playsoftware.j2meloader.config.SettingsTrial.stage(draft);
+                            dialog.dismiss(); startApp(item, false);
+                        } catch (Exception error) { dialog.message("Could not prepare settings."); }
+                    }
+                    public void mapping(ru.playsoftware.j2meloader.config.ProfileModel draft, Runnable back) {
+                        dialog.hide();
+                        contextMapper = new ru.playsoftware.j2meloader.input.MapperDialog(requireContext(), item.getTitle(), draft, () -> {
+                            contextMapper = null;
+                            if (binding != null && contextMenu == dialog) { dialog.show(); back.run(); }
+                        });
+                        contextMapper.show();
+                    }
+                    public void advanced() {
+                        dialog.dismiss();
+                        startActivity(new Intent(Intent.ACTION_EDIT, Uri.parse(item.getPathExt()), requireContext(), ConfigActivity.class)
+                                .putExtra(KEY_MIDLET_NAME, item.getTitle()));
+                    }
+                    public void back() { populateGameActions(dialog, item); }
+                });
+        pages.setHomeAction(() -> populateGameActions(dialog, item));
+        if (controls) pages.controls(); else pages.display();
+    }
 
 	private void requestAddShortcut(AppItem appItem) {
 		FragmentActivity activity = requireActivity();
@@ -1435,6 +1475,8 @@ public class AppsListFragment extends Fragment implements AppsListAdapter.Listen
 
 	@Override
 	public void onDestroyView() {
+		if (contextMapper != null) { contextMapper.setOnDismissListener(null); contextMapper.dismiss(); contextMapper = null; }
+		if (contextMenu != null) { contextMenu.setOnDismissListener(null); contextMenu.dismiss(); contextMenu = null; }
 		if (libraryDevices != null) { libraryDevices.close(); libraryDevices = null; }
 		externalGeneration++;
 		adapter.unregisterAdapterDataObserver(libraryObserver);

@@ -10,6 +10,33 @@ stated otherwise. **Experimental** in older checkpoints means local/private
 combined builds; released experimental features are explicitly identified.
 **Released** means an actual GitHub release asset.
 
+## 2026-10-26 - Contextual Actions and Shared Game Panels (#40, Unreleased)
+
+- Give game actions a small artwork header and primary Play, Display, Controls,
+  information and favorite commands. Move card editing and relevant legacy
+  install/repair/export/remove commands into More without dropping engine guards.
+  Java and Mophun settings open inside the same panel; unprepared games retain
+  their existing preparation route. Symbian system actions remain engine-owned.
+- Extend Soft Console side/bottom panels to the Java, Mophun and Symbian game
+  menus. Keep Resume, Display, Controls, Social and Exit prominent; retain capture,
+  fast-forward, restart and engine settings in More. Canceling restart returns to
+  More, and returning between action pages restores controller focus and scroll.
+- Reuse the existing Lobbies, Friends, Chats and account destinations from the
+  library and all three game menus. Keep the panel underneath Social so Back
+  returns to the previous game menu. No new account or room actor is introduced.
+- Preserve solo pause ownership and clear gameplay input on menu transitions.
+  Java network launches distinguish a local panel/Social transition from normal
+  backgrounding instead of unconditionally pausing the guest on focus loss.
+- Fix first-tap game launch in Gallery/List/Grid without turning long holds or
+  canceled touches into launches. Verify 374 JVM tests and 44 Android checks per
+  target: 43 pass/1 skip on Retroid, 42 pass/2 skips on the phone emulator. Check
+  solo menu/Social return in all three engines and compact/portrait panels;
+  paired network menu acceptance remains open.
+- Keep detached settings drafts and existing Try/Keep/Undo behavior. Instant
+  visual previews, active-room shortcuts, compatible Play Together entry and
+  phone-control redesign remain later #40 work. No public release asset changes.
+  [Verification and limits](docs/RETRO_LIBRARY_REFRESH.md).
+
 ## 2026-10-26 - Soft Console Library Materials (#40, Unreleased)
 
 - Keep the approved four-platform structure and give the library a matte molded

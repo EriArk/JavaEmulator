@@ -349,6 +349,7 @@ public final class MophunGameActivity extends Activity {
         cancelSelect();
         input.clear();
         menu = new GameMenuDialog(this, title);
+        menu.useEdgePanel();
         menu.setOnDismissListener(d -> { menu = null; if (devices != null) devices.resume(); pauseState(); });
         pauseState();
         menu.show();
@@ -356,21 +357,31 @@ public final class MophunGameActivity extends Activity {
     }
 
     private void showMenuPage() {
-        new ru.playsoftware.j2meloader.input.GameMenuPages(menu,
+        menuPages().home();
+    }
+    private ru.playsoftware.j2meloader.input.GameMenuPages menuPages() {
+        return new ru.playsoftware.j2meloader.input.GameMenuPages(menu,
                 new ru.playsoftware.j2meloader.input.GameMenuPages.Host() {
             public void display() { settingsPages().display(); }
             public void controls() { settingsPages().controls(); }
-            public void more() { showMorePage(); }
+            public void more() { populateMorePage(); }
+            public boolean hasSocial() { return true; }
+            public void social() {
+                ru.playsoftware.j2meloader.input.SocialMenuPages.show(menu, MophunGameActivity.this,
+                        MophunGameActivity.this::showMenuPage, MophunGameActivity.this::startActivity);
+            }
             public boolean hasPreview() { return ProfilesManager.isPreview(profile); }
             public void keep() { keepPreview(); }
             public void undo() { undoPreview(); }
             public void restart() { restartGame(); }
             public void exit() { leaveGame(); }
-        }, this::takeScreenshot, fastForward).home();
+        }, this::takeScreenshot, fastForward);
     }
 
     private void showMorePage() {
-        menu.page("More");
+        menuPages().more();
+    }
+    private void populateMorePage() {
         menu.action("Fast-forward settings", android.R.drawable.ic_media_ff,
                 () -> settingsPages().fastForward(this::showMorePage));
         menu.action("Emulation speed: " + profile.getEmulationSpeed() + "%",

@@ -39,20 +39,80 @@ entirely; it does not merely hide it at selected widths.
 - Search, import, Social and Menu occupy the header; narrow layouts keep import
   available in the menu. All three view controls stay directly accessible.
 - Context/library menus opt into an edge panel: side on controller/landscape,
-  bottom on touch portrait. In-game dialog placement/lifecycle is not changed yet.
+  bottom on touch portrait. The later shared-panel slice below extends this to games.
 - Social is a direct library entry into the existing Lobbies, Friends, Chats and
   account flows. No fabricated unread counts or unsupported online capability.
 
 ## Remaining Epic Work
 
-- Full contextual primary/More organization and small game artwork in panel headers.
-- Shared in-game side/bottom navigation, multiplayer pause/input safety and Social.
+- Compatible Play Together and active-room shortcuts; pre-game native settings integration.
+- Paired multiplayer acceptance of local menus and Social/background transitions.
 - Instant reversible Display tiles, paused-frame refresh and capability guards.
 - Phone touch-control visuals and per-game Separate/Overlay keypad geometry.
 - Lobby seat presentation and live active-room entry.
 - Wider accessibility, animation, upgrade and physical-button acceptance matrix.
 
 Do not mark #40 complete or describe these remaining items as implemented.
+
+## Contextual Actions and Shared Game Panels (2026-10-26, Unreleased)
+
+- Library actions have a small original-art header and primary Play, Display,
+  Controls, information and favorite commands. More retains edit-card and the
+  existing engine-specific install, repair, export and remove guards. Java and
+  Mophun open their settings in the same panel; unprepared games use their
+  preparation flow. Symbian pre-game system actions remain engine-owned, without
+  pretending that the Java profile editor configures a native phone.
+- Java, Mophun and Symbian now use Soft Console side/bottom game panels. Resume,
+  Display, Controls, Social and Exit are primary; capture, fast-forward, restart
+  and engine extras are in More. Canceling restart returns to More. Returning
+  between pages restores the focused action and scroll position.
+- Share the existing Lobbies, Friends, Chats and account chooser between library
+  and game menus. Destination activities retain the underlying panel for Back.
+  This is navigation reuse, not a second account, room authority or inline chat.
+- Solo pause ownership and Try/Keep/Undo drafts are retained. Java blocks menu
+  input from reaching the game and distinguishes network local UI from ordinary
+  backgrounding. The explicit Social transition keeps a network guest running
+  until return; backgrounding from Social needs paired-session acceptance and is
+  not claimed to be a complete foreground/background service policy.
+- Fix first-touch activation across Gallery/List/Grid. A touch acquires focus
+  before normal click dispatch, rather than consuming the first tap solely for
+  selection. Long holds and canceled touches must not launch a game.
+
+Verification:
+
+- Combined arm64 Debug app, unchanged development label `0.5.0-beta.1` / 310.
+  SHA-256 `d6e3b5b28b372705606c24ccaca83c7cbc31dc80a98c01e64461beb4080a6a78`.
+  Installed base APK hashes match on Retroid Pocket Classic and Android 35
+  emulator. Full native build succeeded; the final UI-only rebuild reused those
+  unchanged native outputs. This is not the public signed beta binary.
+- 374 JVM tests, zero failures/errors/skips. Final ten-suite Android run: Retroid
+  43 passed / one optional capture skipped (58.323 s); emulator 42 passed / two
+  skipped (capture and physical-controller-only focus, 137.025 s). The initial
+  library rename test used the former action path; update it to More > Edit card
+  and retain identity/favorite/scroll assertions. New regression coverage checks
+  contextual engine guards, draft isolation, Social destinations, focus return,
+  first tap, long hold and canceled touch in every library view.
+- On Retroid, open Display/Controls/Social, visit Friends and return to the panel
+  in Bounce Tales (Java), Deep Abyss (Mophun) and Snakes (Symbian/N-Gage). Resume
+  progresses the game/splash; use the shared confirmation to leave. Java's MIDlet
+  process survives the Social round trip. These are solo navigation checks, not
+  new full-game, multiplayer, sound or physical-button comfort acceptance.
+- Local logs: `.local/ux40/panels-retroid-final-tests.txt` and
+  `.local/ux40/panels-emulator-final-tests.txt`. Retroid captures include
+  `panels-retroid-actions.png`, `panels-java-game.png`, `panels-mophun-game.png`,
+  `panels-mophun-more.png`, `panels-symbian-game.png` and the respective
+  `panels-*-social-return.png` files in the same folder. Those game captures
+  precede only the final library first-tap repair; game-panel code is unchanged.
+- Final-APK emulator captures: `panels-phone-library.png`,
+  `panels-phone-actions.png`, `panels-small-actions.png` and
+  `panels-small-actions-scrolled.png`. Inspect portrait bottom placement and
+  480x320dp side-panel scrolling; restore size/density overrides afterward.
+- An emulator install initially stalled with the virtual device unresponsive.
+  Restart the same AVD without wiping its data, reinstall successfully and run
+  the final suite. Do not count that install attempt as verification.
+
+No new release, public APK, Nextcloud upload, game/firmware redistribution or
+Release multiplayer enablement. The remaining epic work above stays open.
 
 ## Soft Console Materials (2026-10-26, Unreleased)
 
