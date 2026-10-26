@@ -66,6 +66,15 @@ older 0.3 builds, not the current 0.4 release series.
 
 ## Library Refresh (#40, Unreleased)
 
+**Friends and Chats, 2026-10-26:** both use the Soft Console light/dark surfaces,
+recessed lists, molded tabs/filters and contextual contact/delivery panels.
+Incoming requests have a count; Social options retain room/account navigation and
+chat history commands. Short-screen controls leave more space for contacts and
+messages, with large-text-aware split panes and bounded composer growth. Drafts,
+account fencing, explicit retry and destructive confirmations remain intact.
+This is unreleased source and a separate local Debug installation, not a new
+public APK. [Checks and captures](RETRO_LIBRARY_REFRESH.md#friends-and-chats-2026-10-26-unreleased).
+
 **Game-aware public lobbies, 2026-10-26:** public Debug rooms now advertise the
 verified Java game's title, exact edition/adapter, free seats and match state.
 Privacy, closure and newer selections supersede pending updates; directory

@@ -1,5 +1,9 @@
 # Fluxer Chats Checkpoint
 
+The [2026-10-26 Soft Console follow-up](RETRO_LIBRARY_REFRESH.md#friends-and-chats-2026-10-26-unreleased)
+updates these screens, small-screen history navigation and large-text split-pane
+behavior. The dated implementation and checks below remain historical.
+
 2026-10-24. **Unreleased development source and a local combined Debug APK.**
 The public 0.5.0 Beta 1 download is unchanged. Part of
 [#34](https://github.com/EriArk/JavaEmulator/issues/34), following the owner's

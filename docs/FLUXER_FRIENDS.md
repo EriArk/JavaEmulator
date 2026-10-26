@@ -1,5 +1,9 @@
 # Fluxer Friends Checkpoint
 
+The [2026-10-26 Soft Console follow-up](RETRO_LIBRARY_REFRESH.md#friends-and-chats-2026-10-26-unreleased)
+adds molded tabs/filters, shared action panels and compact contact controls while
+retaining the account and mutation boundaries below. Earlier checks are historical.
+
 2026-10-24. **Unreleased development source and a local combined Debug APK.**
 The public 0.5.0 Beta 1 APK is unchanged; its live release state was not rechecked
 in this checkpoint. Part of [#34](https://github.com/EriArk/JavaEmulator/issues/34).

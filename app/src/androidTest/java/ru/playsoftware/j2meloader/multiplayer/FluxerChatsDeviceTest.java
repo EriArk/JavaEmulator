@@ -34,6 +34,7 @@ public class FluxerChatsDeviceTest {
         final JsonArray sent=new JsonArray();long messageId=1000;
         Fixture(){this(false);}
         Fixture(boolean friendsData){this.friendsData=friendsData;
+            InstrumentationRegistry.getInstrumentation().getUiAutomation();
             relations=new JsonArray();if(friendsData){relations.add(person("22",1,"Alex"));relations.add(person("44",3,"Sam"));relations.add(person("55",4,"Jamie"));relations.add(person("66",2,"Morgan"));}
             app.registerActivityLifecycleCallbacks(this);
         }
@@ -100,8 +101,7 @@ public class FluxerChatsDeviceTest {
             assertVisibleComposer(screen);capture("chats-conversation-portrait-fixture.png");
             screen.onActivity(a->a.setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_LANDSCAPE));Thread.sleep(700);
             assertVisibleComposer(screen);capture("chats-landscape-fixture.png");
-            screen.onActivity(a->{EditText input=a.findViewById(R.id.fluxer_chat_input);input.requestFocus();((android.view.inputmethod.InputMethodManager)a.getSystemService(Activity.INPUT_METHOD_SERVICE)).showSoftInput(input,android.view.inputmethod.InputMethodManager.SHOW_IMPLICIT);});
-            Thread.sleep(900);assertVisibleComposer(screen);
+            awaitKeyboard(screen);capture("chats-keyboard-fixture.png");assertVisibleComposer(screen);
             screen.onActivity(a->{
                 androidx.core.view.WindowInsetsCompat insets=androidx.core.view.ViewCompat.getRootWindowInsets(a.findViewById(R.id.fluxer_chat_input));
                 assertNotNull(insets);assertTrue(insets.isVisible(androidx.core.view.WindowInsetsCompat.Type.ime()));
@@ -151,6 +151,49 @@ public class FluxerChatsDeviceTest {
             await(screen,s->s.verified&&s.account.equals("33"));screen.onActivity(a->assertEquals("",((EditText)a.findViewById(R.id.fluxer_chat_input)).getText().toString()));
             assertEquals(0,f.posts);
         }
+    }
+    @Test public void compactSocialMenuKeepsHistoryAndDraftReachable() throws Exception {
+        try(Fixture f=new Fixture(true);ActivityScenario<FluxerChatsActivity> screen=ActivityScenario.launch(FluxerChatsActivity.class)){
+            await(screen,s->s.channels.size()==3&&s.friendsReady);select(screen);await(screen,s->s.canSend);
+            screen.onActivity(a->{
+                assertEquals("Friends (1)",((android.widget.TextView)a.findViewById(R.id.fluxer_tab_friends)).getText().toString());
+                assertTrue(a.findViewById(R.id.fluxer_tab_chats).getBackground() instanceof ru.playsoftware.j2meloader.ui.ConsoleSurface);
+                ((EditText)a.findViewById(R.id.fluxer_chat_input)).setText("Keep draft through Social");
+            });await(screen,s->s.draft.equals("Keep draft through Social"));
+            assertVisibleComposer(screen);capture("console-chat-fixture.png");openSocial(screen);
+            assertScreenText("Earlier");assertScreenText("Latest");assertScreenText("My room");assertScreenText("Browse lobbies");assertScreenText("Account");
+            capture("console-social-options-fixture.png");clickText("Conversations");await(screen,s->s.channel.isEmpty());
+            select(screen);await(screen,s->s.canSend);screen.onActivity(a->assertEquals("Keep draft through Social",((EditText)a.findViewById(R.id.fluxer_chat_input)).getText().toString()));
+            friends(screen);screen.onActivity(a->a.getDelegate().setLocalNightMode(androidx.appcompat.app.AppCompatDelegate.MODE_NIGHT_NO));
+            Thread.sleep(600);screen.onActivity(a->assertTrue("Contacts squeezed out",a.findViewById(R.id.fluxer_friends_list).getHeight()>=100*a.getResources().getDisplayMetrics().density));
+            capture("console-friends-light-fixture.png");assertEquals(0,f.posts);assertEquals(0,f.mutations);
+        }
+    }
+    @Test public void dismissDeliveryNoticeRequiresConfirmationAndDoesNotResend() throws Exception {
+        try(Fixture f=new Fixture();ActivityScenario<FluxerChatsActivity> screen=ActivityScenario.launch(FluxerChatsActivity.class)){
+            await(screen,s->s.channels.size()==3);select(screen);await(screen,s->s.canSend);f.failSend=true;
+            screen.onActivity(a->((EditText)a.findViewById(R.id.fluxer_chat_input)).setText("Uncertain fixture"));await(screen,s->!s.draft.isEmpty());
+            screen.onActivity(a->a.findViewById(R.id.fluxer_chat_send).performClick());await(screen,s->s.messages.stream().anyMatch(m->m.delivery.equals("Delivery unknown")));
+            pendingRow(screen);clickText("Dismiss local notice");assertScreenText("This does not delete a message already delivered to Fluxer.");capture("console-delivery-confirmation-fixture.png");clickText("Cancel");
+            await(screen,s->s.messages.size()==5);pendingRow(screen);clickText("Dismiss local notice");clickText("Dismiss");await(screen,s->s.messages.size()==4);
+            assertEquals(1,f.posts);
+        }
+    }
+    private void pendingRow(ActivityScenario<FluxerChatsActivity> screen)throws Exception{
+        InstrumentationRegistry.getInstrumentation().waitForIdleSync();Thread.sleep(200);
+        screen.onActivity(a->{androidx.recyclerview.widget.RecyclerView rows=a.findViewById(R.id.fluxer_chat_messages);rows.scrollToPosition(rows.getAdapter().getItemCount()-1);});
+        InstrumentationRegistry.getInstrumentation().waitForIdleSync();Thread.sleep(200);
+        screen.onActivity(a->{androidx.recyclerview.widget.RecyclerView rows=a.findViewById(R.id.fluxer_chat_messages);androidx.recyclerview.widget.RecyclerView.ViewHolder row=rows.findViewHolderForAdapterPosition(rows.getAdapter().getItemCount()-1);assertNotNull(row);row.itemView.performClick();});
+    }
+    private void openSocial(ActivityScenario<FluxerChatsActivity> screen){screen.onActivity(a->{
+        java.util.ArrayList<View> views=new java.util.ArrayList<>();a.getWindow().getDecorView().findViewsWithText(views,"Social options",View.FIND_VIEWS_WITH_CONTENT_DESCRIPTION);
+        assertEquals(1,views.size());views.get(0).performClick();
+    });}
+    private void assertScreenText(String text)throws Exception{
+        long until=System.currentTimeMillis()+4000;
+        do{InstrumentationRegistry.getInstrumentation().waitForIdleSync();AccessibilityNodeInfo root=InstrumentationRegistry.getInstrumentation().getUiAutomation().getRootInActiveWindow();
+            if(root!=null&&!root.findAccessibilityNodeInfosByText(text).isEmpty())return;Thread.sleep(100);
+        }while(System.currentTimeMillis()<until);fail("Missing panel text: "+text);
     }
     @Test public void authenticatedTransportRoutesStayNarrow(){
         assertTrue(FluxerHttpTransport.allowed("GET","/v1/users/@me/channels",TOKEN));
@@ -242,15 +285,31 @@ public class FluxerChatsDeviceTest {
         fail("Missing action: "+text);
     }
     private void select(ActivityScenario<FluxerChatsActivity> screen){screen.onActivity(a->new ViewModelProvider(a).get(FluxerChatsModel.class).select("101"));}
+    private void awaitKeyboard(ActivityScenario<FluxerChatsActivity> screen)throws Exception{
+        long until=System.currentTimeMillis()+8000;java.util.concurrent.atomic.AtomicBoolean visible=new java.util.concurrent.atomic.AtomicBoolean();
+        do{screen.onActivity(a->{EditText input=a.findViewById(R.id.fluxer_chat_input);
+            androidx.core.view.WindowInsetsCompat insets=androidx.core.view.ViewCompat.getRootWindowInsets(input);
+            visible.set(insets!=null&&insets.isVisible(androidx.core.view.WindowInsetsCompat.Type.ime()));
+            if(!visible.get()&&input.hasWindowFocus()){input.requestFocus();((android.view.inputmethod.InputMethodManager)a.getSystemService(Activity.INPUT_METHOD_SERVICE)).showSoftInput(input,android.view.inputmethod.InputMethodManager.SHOW_IMPLICIT);}
+        });if(visible.get()){InstrumentationRegistry.getInstrumentation().waitForIdleSync();return;}Thread.sleep(100);}while(System.currentTimeMillis()<until);
+        fail("Keyboard did not become visible");
+    }
     private void await(ActivityScenario<FluxerChatsActivity> screen,Predicate<FluxerChats.State> condition)throws Exception{
         AtomicReference<FluxerChats.State> state=new AtomicReference<>();long until=System.currentTimeMillis()+8000;
         do{screen.onActivity(a->state.set(new ViewModelProvider(a).get(FluxerChatsModel.class).state.getValue()));if(state.get()!=null&&condition.test(state.get()))return;Thread.sleep(50);}while(System.currentTimeMillis()<until);
         fail("Chat fixture did not reach the expected state");
     }
-    private void assertVisibleComposer(ActivityScenario<FluxerChatsActivity> screen){screen.onActivity(a->{
-        View send=a.findViewById(R.id.fluxer_chat_send);assertTrue(send.isShown());assertTrue(send.hasWindowFocus());android.graphics.Rect rect=new android.graphics.Rect();assertTrue(send.getGlobalVisibleRect(rect));assertTrue(rect.height()>=send.getHeight()-1);
-        androidx.recyclerview.widget.RecyclerView messages=a.findViewById(R.id.fluxer_chat_messages);assertTrue("History squeezed out",messages.getHeight()>a.getResources().getDisplayMetrics().density*60);
-    });}
+    private void assertVisibleComposer(ActivityScenario<FluxerChatsActivity> screen)throws Exception{
+        long until=System.currentTimeMillis()+8000;AtomicReference<String> failure=new AtomicReference<>();
+        do{screen.onActivity(a->{
+            View send=a.findViewById(R.id.fluxer_chat_send);android.graphics.Rect rect=new android.graphics.Rect();
+            androidx.recyclerview.widget.RecyclerView messages=a.findViewById(R.id.fluxer_chat_messages);
+            failure.set(!send.isShown()?"Send hidden":!send.hasWindowFocus()?"Window has no focus":
+                    !send.getGlobalVisibleRect(rect)||rect.height()<send.getHeight()-1?"Send clipped":
+                    messages.getHeight()<=a.getResources().getDisplayMetrics().density*60?"History squeezed out":null);
+        });if(failure.get()==null)return;Thread.sleep(100);}while(System.currentTimeMillis()<until);
+        capture("composer-failure.png");fail(failure.get());
+    }
     private void capture(String name)throws Exception{
         InstrumentationRegistry.getInstrumentation().waitForIdleSync();Thread.sleep(250);
         Bitmap bitmap=InstrumentationRegistry.getInstrumentation().getUiAutomation().takeScreenshot();assertNotNull(bitmap);

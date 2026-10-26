@@ -54,6 +54,67 @@ entirely; it does not merely hide it at selected widths.
 
 Do not mark #40 complete or describe these remaining items as implemented.
 
+## Friends and Chats (2026-10-26, Unreleased)
+
+- Reuse the established Soft Console materials for chat/contact lists, tabs,
+  filter selector and composer. The selected conversation remains visibly marked
+  even when focus moves to its messages. Light/dark colors follow the host theme.
+- Use shared edge panels for contact actions, Add friend, destructive
+  confirmations and uncertain-message actions. These replace stock popup menus
+  and dialogs without a second contact graph, credential store or transport.
+- Incoming request count comes from the existing relationship snapshot, not
+  presence or fabricated unread-message counts. Social options retain Account,
+  My room and Browse lobbies. A conversation also exposes Conversations and
+  Earlier/Latest there, preserving its in-memory draft when returning to the list.
+- Below 400dp content height, move history navigation into Social options and
+  hide only known quiet successful-sync notices. Errors remain visible. At least
+  440dp width combines contact filter/search into one row. Bound the composer to
+  two lines, or one with the keyboard open; text remains scrollable, not truncated.
+  The two-pane threshold grows with font scale; compact devices use one pane.
+- React to IME inset changes as well as resize callbacks. When a large keyboard
+  leaves less than 240dp for the app, temporarily hide the screen header too;
+  restore it on keyboard dismissal instead of leaving a thin unreadable history.
+  Reapply the latest-message anchor after the message viewport finishes resizing;
+  do not force the tail when the reader was already browsing older messages.
+- Preserve account/relationship fencing, explicit send/retry and same-nonce
+  delivery handling. Local notice dismissal requires confirmation and never
+  deletes a remote message. Pending panels close on Activity stop/account change;
+  message actions also close when switching conversations.
+
+Verification and screenshot provenance are recorded with the
+[development captures](../screenshots/development/2026-10-26-friends-chats/README.md).
+
+- Combined arm64 Debug app `0.5.0-beta.1` / 310, SHA-256
+  `ea4a2b3619350e0ce715b0d11fe7cb87f58e8e1ad454aaa17676f1a23ac90f42`.
+  Installed on Retroid and Android 35 emulator with `adb install -r -d -t`.
+  Both installed APK hashes match the build above.
+  Reuse unchanged native engine outputs; this is not a clean native rebuild.
+- JVM rerun during this slice: 391 tests, zero failures/errors/skips
+  (`.local/ux40/social-delivery-unit-build.txt` and Gradle XML results).
+  Subsequent changes concern Android viewport handling and its instrumentation.
+- Final `FluxerChatsDeviceTest`: Retroid 14/14 (33.665 s), emulator 14/14
+  (72.337 s). Logs: `.local/ux40/social-retroid-scroll-final.txt` and
+  `social-emulator-scroll-final.txt`. Shared ConsoleSurface/GameMenu checks
+  passed earlier in this slice; their implementation did not change here.
+- Final compact checks: 2/2 (9.073 s), 480x320dp with 150% text. Log:
+  `.local/ux40/social-small-final.txt`. Restore emulator dimensions/density/font
+  afterward and confirm 1080x2340, 440dpi, 1.0 font scale.
+- The first keyboard checks exposed insufficient history height and a tail
+  anchor lost during rotation before opening the keyboard. Fix both; retain
+  strict send visibility, history-height and last-message assertions. Replace
+  fixed focus timing with a bounded wait, not weaker layout assertions.
+- Earlier emulator runs were also obstructed by System UI/Messages ANR dialogs.
+  Cold-start the same AVD without wiping data and dismiss those system dialogs.
+  Failed/interrupted attempts are not counted as passes. Final logs above are
+  the acceptance evidence for this slice; no app ANR is inferred from system ANRs.
+
+The deterministic Android provider fixtures never send real messages or mutate
+real contacts. This checkpoint does not extend live-network, game compatibility,
+manual physical-button comfort or full accessibility acceptance.
+
+No public APK/release, Nextcloud upload, new dependency, engine or server change.
+The public release page was not rechecked during this UI checkpoint.
+
 ## Game-Aware Directory (2026-10-26, Unreleased)
 
 - Project only the room's selected Java Bluetooth identity into v2 directory

@@ -10,6 +10,25 @@ stated otherwise. **Experimental** in older checkpoints means local/private
 combined builds; released experimental features are explicitly identified.
 **Released** means an actual GitHub release asset.
 
+## 2026-10-26 - Soft Console Friends and Chats (#40, Unreleased)
+
+- Bring Friends and Chats into the same light/dark Soft Console materials:
+  molded tabs and contact filters, recessed lists, a visible selected conversation,
+  and shared edge panels for contact actions and message-delivery decisions.
+- Show incoming request counts on Friends. Keep Account, My room and Browse
+  lobbies in compact Social options; retain Earlier/Latest and Conversations there.
+- On short screens, remove the permanent history row and quiet successful-sync
+  notice, combine contact filter/search where width permits, and limit composer
+  growth. Large text delays the two-pane layout instead of squeezing both panes.
+- React to keyboard inset changes; reclaim the header on extremely short typing
+  viewports and restore it when the keyboard closes. Keep the latest messages
+  anchored through rotation/keyboard resizing without interrupting older-history reading.
+- Preserve contact confirmations, account isolation, per-conversation drafts,
+  explicit delivery retry and its nonce. Dismissing a local notice requires
+  confirmation and does not delete or resend a remote message.
+- [Development evidence and captures](docs/RETRO_LIBRARY_REFRESH.md#friends-and-chats-2026-10-26-unreleased).
+  No public APK, release or server changes; no new live-network acceptance.
+
 ## 2026-10-26 - Game-Aware Lobby Directory (#40, Unreleased)
 
 - Publish the selected verified Java game's title and exact edition/adapter in
