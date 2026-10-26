@@ -545,6 +545,7 @@ public final class SymbianActivity extends Activity implements Emulator.Host, In
         refreshStopped("Review uninstall");
         afterTask=() -> {
             GameMenuDialog menu=dialog("Uninstall from phone?");
+            menu.confirmationPage("Uninstall from phone?");
             menu.message(plan.description(entry.label()+" ["+entry.id.substring(0,8)+"]"));
             menu.setBackAction(() -> { menu.dismiss(); finish(); });
             menu.action("Cancel",0,() -> { menu.dismiss(); finish(); });

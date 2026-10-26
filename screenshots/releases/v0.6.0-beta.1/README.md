@@ -1,5 +1,9 @@
 # AbyssME 0.6.0 Beta 1 Screenshots
 
+Original code-311 captures. For current menu placement and dark-only images
+across phone, near-square, 16:9 and 4:3 layouts, use the
+[Revision 1 gallery](../v0.6.0-beta.1-r1/README.md).
+
 Captured on 2026-10-26 from the signed `io.github.eriark.abyssme` release APK,
 version `0.6.0-beta.1`, code 311, on Retroid Pocket Classic / Android 14.
 APK SHA-256: `fc5f0c8bc7543ca5c9a3cf415f131b6b0643a2c8182e724b65f742b9a4dd9cbf`.

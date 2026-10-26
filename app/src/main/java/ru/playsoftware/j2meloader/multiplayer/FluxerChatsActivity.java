@@ -257,7 +257,7 @@ public final class FluxerChatsActivity extends CompactSettingsActivity {
         if(message.retryable)m.action("Retry sending",android.R.drawable.ic_popup_sync,()->{dismissActions();model.retry(channel,message.id);});
         m.action("Check delivery",android.R.drawable.ic_menu_search,()->{dismissActions();model.latest();});
         if(!message.delivery.equals("Sending..."))m.action("Dismiss local notice",android.R.drawable.ic_menu_close_clear_cancel,()->{
-            GameMenuDialog confirm=menu("Dismiss local notice?");confirm.message("This does not delete a message already delivered to Fluxer.");
+            GameMenuDialog confirm=menu("Dismiss local notice?");confirm.confirmationPage("Dismiss local notice?");confirm.message("This does not delete a message already delivered to Fluxer.");
             confirm.action("Cancel",android.R.drawable.ic_menu_close_clear_cancel,this::dismissActions);
             confirm.action("Dismiss",android.R.drawable.ic_menu_delete,()->{dismissActions();model.discard(channel,message.id);});
         });

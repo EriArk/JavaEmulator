@@ -10,6 +10,23 @@ stated otherwise. **Experimental** in older checkpoints means local/private
 combined builds; released experimental features are explicitly identified.
 **Released** means an actual GitHub release asset.
 
+## 2026-10-26 - Beta 1 Revision 1 (Prepared)
+
+- Center short confirmations across common menus. Center ordinary panels on
+  square/near-square handhelds; keep side panels for sufficiently wide screens
+  and bottom panels for tall touch phones. Preserve Back, focus and preview cleanup.
+- Build `0.6.0-beta.1-r1`, code 312, for an update to the existing Beta 1 page.
+  Signed Retroid upgrade preserves 329 readable external files. 395 JVM tests
+  pass; the 41-case Android suite has 34 passes and 7 optional skips on Retroid
+  and on the emulator retry. Release lint has no errors and 447 existing warnings.
+- Add a [dark-only screenshot collection](screenshots/releases/v0.6.0-beta.1-r1/README.md),
+  including all library views across phone, near-square, 16:9 and 4:3 layouts,
+  gameplay, touch controls, controller mapping, menus and settings. Clearly label
+  signed hardware captures, resized viewports and emulator Debug captures.
+- [Revision scope](docs/releases/v0.6.0-beta.1-r1.md) and
+  [verification/publication record](docs/releases/v0.6.0-beta.1-r1-checks.md).
+  Prepared locally at this checkpoint, not yet a public updated APK.
+
 ## 2026-10-26 - 0.6.0 Beta 1 (Released)
 
 - Publish [0.6.0-beta.1](https://github.com/EriArk/JavaEmulator/releases/tag/v0.6.0-beta.1),

@@ -70,7 +70,7 @@ public final class FluxerAccountActivity extends CompactSettingsActivity {
         remove = action(body, R.id.fluxer_remove, android.R.drawable.ic_menu_delete, () -> {
             if (confirmation != null) confirmation.dismiss();
             GameMenuDialog menu = new GameMenuDialog(this, "Remove saved sign-in?"); confirmation = menu;
-            menu.useEdgePanel(); menu.show(); menu.page("Remove saved sign-in?");
+            menu.useEdgePanel(); menu.show(); menu.confirmationPage("Remove saved sign-in?");
             menu.message("This removes the sign-in from this device only. It does not revoke the session on Fluxer. Games and saves will not be removed.");
             menu.action("Cancel", android.R.drawable.ic_menu_close_clear_cancel, menu::dismiss);
             menu.action("Remove", android.R.drawable.ic_menu_delete, () -> { menu.dismiss(); model.forget(); });

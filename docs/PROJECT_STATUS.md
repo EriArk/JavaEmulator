@@ -35,6 +35,13 @@ bundled. The app UI is English.
 
 ## Availability: Do Not Mix These Channels
 
+**Prepared local update:** `0.6.0-beta.1-r1`, code 312, centers confirmations
+and adapts ordinary panels to screen shape instead of forcing all handheld
+menus to the right. Signed Retroid and emulator UI checks are recorded in
+[revision verification](releases/v0.6.0-beta.1-r1-checks.md). Publication to the
+existing Beta 1 page is pending. New [dark screenshots](../screenshots/releases/v0.6.0-beta.1-r1/README.md)
+include library views across four viewport shapes and both touch layouts.
+
 **Current public beta: [0.6.0-beta.1](https://github.com/EriArk/JavaEmulator/releases/tag/v0.6.0-beta.1)**,
 code **311**, published **2026-10-26 at 17:19:24 UTC**. It combines the
 cumulative #40 redesign with early experimental multiplayer.

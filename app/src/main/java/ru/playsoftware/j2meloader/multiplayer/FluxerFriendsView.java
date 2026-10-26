@@ -127,7 +127,7 @@ final class FluxerFriendsView extends LinearLayout {
     }
     private void item(String name,String account,FluxerChats.Friend f,FluxerChats.FriendAction action,boolean confirm){
         dialog.action(name,action==FluxerChats.FriendAction.MESSAGE?R.drawable.ic_library_messages_square:android.R.drawable.ic_menu_edit,()->{
-            if(confirm){GameMenuDialog m=menu(name+"?");m.message(f.name+"\n"+f.tag);
+            if(confirm){GameMenuDialog m=menu(name+"?");m.confirmationPage(name+"?");m.message(f.name+"\n"+f.tag);
                 m.action("Cancel",android.R.drawable.ic_menu_close_clear_cancel,this::dismissActions);
                 m.action(name,android.R.drawable.ic_menu_delete,()->{dismissActions();model.friendAction(account,f,action);});}
             else {dismissActions();model.friendAction(account,f,action);}

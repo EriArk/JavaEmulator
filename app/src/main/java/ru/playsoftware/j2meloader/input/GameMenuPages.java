@@ -58,7 +58,7 @@ public final class GameMenuPages {
     }
 
     public void confirmRestart() {
-        menu.page("Restart game?");
+        menu.confirmationPage("Restart game?");
         menu.message("Unsaved progress may be lost. Saved settings will be used."
                 + (host.hasPreview() ? " Unconfirmed setting changes will be discarded." : ""));
         menu.action("Cancel", android.R.drawable.ic_media_previous, this::more);
@@ -68,7 +68,7 @@ public final class GameMenuPages {
 
     public void confirmExit() {
         // Keep the same dialog alive so the engine stays paused until the user decides.
-        menu.page("Exit game?");
+        menu.confirmationPage("Exit game?");
         menu.message("Unsaved progress may be lost.");
         menu.action("Resume", android.R.drawable.ic_media_play, menu::dismiss);
         menu.action("Leave without saving", android.R.drawable.ic_menu_close_clear_cancel, host::exit);

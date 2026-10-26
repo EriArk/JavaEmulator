@@ -1,5 +1,15 @@
 # Retro-Modern UI Refresh (#40)
 
+## Revision 1 Placement Follow-up
+
+2026-10-26: replace the broad "handheld = side panel" rule below with explicit
+centered confirmations and shape-aware ordinary panels. Square/near-square
+screens center menus even with a controller. Wide screens use side panels only
+when 240dp remains beside their nominal width; tall touch phones retain bottom
+panels. There is no new user preference. Page transitions, focus and reversible
+previews retain their existing behavior. See [revision checks and availability](releases/v0.6.0-beta.1-r1-checks.md)
+and the [dark-only multi-size gallery](../screenshots/releases/v0.6.0-beta.1-r1/README.md).
+
 ## 0.6 Release Checkpoint
 
 2026-10-26: the cumulative refresh is published in `0.6.0-beta.1`. Common

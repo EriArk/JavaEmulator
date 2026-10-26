@@ -841,7 +841,7 @@ public class AppsListFragment extends Fragment implements AppsListAdapter.Listen
 		}
 		if (!(item instanceof ExternalLibrary.Item) && new File(item.getPathExt(), Config.MIDLET_RES_FILE).isFile()) {
 			dialog.action("Refresh automatic art", android.R.drawable.ic_popup_sync, () -> {
-				dialog.page("Refresh automatic art?");
+				dialog.confirmationPage("Refresh automatic art?");
 				dialog.setBackAction(() -> populateArtworkMenu(dialog, item));
 				dialog.action("Replace legacy art, keep custom images", 0, () -> {
 					dialog.dismiss(); refreshArtwork(item, null);
@@ -925,7 +925,7 @@ public class AppsListFragment extends Fragment implements AppsListAdapter.Listen
 	private void alertDelete(AppItem item) {
 		ru.playsoftware.j2meloader.input.GameMenuDialog dialog =
 				new ru.playsoftware.j2meloader.input.GameMenuDialog(requireActivity(), item.getTitle());
-		dialog.show(); dialog.page("Delete game?");
+		dialog.show(); dialog.confirmationPage("Delete game?");
 		dialog.message("This removes the installed game, its settings and saves. Original source files are kept.");
 		dialog.action("Cancel", android.R.drawable.ic_menu_close_clear_cancel, dialog::dismiss);
 		dialog.action("Delete game", android.R.drawable.ic_menu_delete, () -> {

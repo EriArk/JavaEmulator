@@ -253,6 +253,7 @@ public class LibraryImportActivity extends CompactSettingsActivity {
         if (current.results != null) { homeRequested = true; render(current); return; }
         if (model.isSingleGame() && !adapter.entries.isEmpty() && !adapter.entries.get(0).hasSaves) {
             GameMenuDialog dialog = menu("No saves selected");
+            dialog.confirmationPage("No saves selected");
             dialog.message("The game will start without your previous progress.");
             dialog.action("Add saves", android.R.drawable.ic_menu_save, () -> { dialog.dismiss(); selectSinglePart(1); });
             dialog.action("Import without saves", android.R.drawable.ic_media_play, () -> { dialog.dismiss(); model.start(includeShared); });

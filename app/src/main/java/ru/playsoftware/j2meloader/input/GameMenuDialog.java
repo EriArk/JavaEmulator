@@ -39,6 +39,7 @@ public final class GameMenuDialog extends Dialog {
     private int restoreScroll;
     private Runnable pageCleanup;
     private boolean picturePreview;
+    private boolean confirmation;
     public void setPageCleanup(Runnable cleanup) {
         pageCleanup = cleanup; picturePreview = cleanup != null;
         if (isShowing()) { updateWindowLayout(); getWindow().getDecorView().requestLayout(); }
@@ -116,8 +117,10 @@ public final class GameMenuDialog extends Dialog {
             }
             @Override protected void onMeasure(int widthSpec,int heightSpec) {
                 int max = getContext().getResources().getDisplayMetrics().heightPixels-dp(24);
-                if (picturePreview && !DeviceControls.connected(getContext())
-                        && getResources().getDisplayMetrics().heightPixels > getResources().getDisplayMetrics().widthPixels)
+                android.util.DisplayMetrics metrics = getResources().getDisplayMetrics();
+                if (picturePreview && MenuPlacement.resolve(metrics.widthPixels / metrics.density,
+                        metrics.heightPixels / metrics.density, DeviceControls.connected(getContext()),
+                        confirmation, true) == MenuPlacement.Position.BOTTOM)
                     max = Math.min(max, Math.round(getResources().getDisplayMetrics().heightPixels * .62f));
                 if (View.MeasureSpec.getMode(heightSpec) != View.MeasureSpec.UNSPECIFIED) {
                     max = Math.min(max, View.MeasureSpec.getSize(heightSpec));
@@ -200,14 +203,20 @@ public final class GameMenuDialog extends Dialog {
         });
     }
     private void updateWindowLayout() {
-        if (edgePanel) {
+        if (edgePanel || confirmation) {
             Window window = getWindow();
             WindowManager.LayoutParams attributes = window.getAttributes();
             int width = getContext().getResources().getDisplayMetrics().widthPixels;
             int height = getContext().getResources().getDisplayMetrics().heightPixels;
-            boolean side = DeviceControls.connected(getContext()) || width > height;
-            attributes.gravity = side ? Gravity.END | Gravity.CENTER_VERTICAL : Gravity.BOTTOM | Gravity.CENTER_HORIZONTAL;
-            attributes.width = side ? Math.min(dp(picturePreview ? 300 : 380), width - dp(24)) : Math.min(dp(600), width);
+            float density = getContext().getResources().getDisplayMetrics().density;
+            MenuPlacement.Position position = MenuPlacement.resolve(width / density, height / density,
+                    DeviceControls.connected(getContext()), confirmation, picturePreview);
+            attributes.gravity = position == MenuPlacement.Position.SIDE ? Gravity.END | Gravity.CENTER_VERTICAL
+                    : position == MenuPlacement.Position.BOTTOM ? Gravity.BOTTOM | Gravity.CENTER_HORIZONTAL : Gravity.CENTER;
+            int limit = confirmation ? 380 : position == MenuPlacement.Position.SIDE ? (picturePreview ? 300 : 380)
+                    : picturePreview ? 380 : 440;
+            attributes.width = position == MenuPlacement.Position.BOTTOM ? Math.min(dp(600), width)
+                    : Math.min(dp(limit), width - dp(24));
             attributes.dimAmount = picturePreview ? 0 : .4f;
             attributes.height = WindowManager.LayoutParams.WRAP_CONTENT;
             attributes.y = 0;
@@ -227,6 +236,7 @@ public final class GameMenuDialog extends Dialog {
     }
     public void page(String title) {
         finishPagePreview();
+        confirmation = false;
         if (pageTitle != null) {
             View focus = getCurrentFocus();
             if (focus instanceof Button) pageFocus.put(pageTitle, ((Button) focus).getText().toString());
@@ -243,6 +253,12 @@ public final class GameMenuDialog extends Dialog {
         heading.setText(title);
         subtitle.setVisibility(game == null || game.isEmpty() || game.equals(title) ? View.GONE : View.VISIBLE);
         scroll.scrollTo(0,0);
+        if (isShowing()) updateWindowLayout();
+    }
+    public void confirmationPage(String title) {
+        page(title);
+        confirmation = true;
+        if (isShowing()) updateWindowLayout();
     }
     public void artwork(String... paths) {
         artwork.setImageDrawable(null);

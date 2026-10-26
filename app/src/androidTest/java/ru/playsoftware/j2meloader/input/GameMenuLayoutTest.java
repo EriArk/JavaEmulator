@@ -21,6 +21,66 @@ import ru.playsoftware.j2meloader.R;
 import static org.junit.Assert.*;
 
 public class GameMenuLayoutTest {
+    @Test public void confirmationCentersWithoutDismissingOrLeakingIntoNextPage() {
+        withActivity((instrumentation, activity) -> {
+            GameMenuDialog[] dialog = {null};
+            AtomicInteger cleanup = new AtomicInteger(), exits = new AtomicInteger();
+            try {
+                instrumentation.runOnMainSync(() -> {
+                    GameMenuDialog menu = new GameMenuDialog(activity, "Fixture"); dialog[0] = menu;
+                    menu.useEdgePanel(); menu.show(); menu.page("Display");
+                    menu.action("Original",0,()->{}); menu.setPageCleanup(cleanup::incrementAndGet);
+                    menu.confirmationPage("Exit game?");
+                    menu.message("Unsaved progress may be lost.");
+                    menu.action("Resume",0,menu::dismiss);
+                    menu.action("Leave without saving",0,exits::incrementAndGet);
+                    menu.setBackAction(()->{menu.page("Game menu");menu.action("Resume",0,menu::dismiss);});
+                    assertEquals(1,cleanup.get());
+                    assertEquals(Gravity.CENTER,menu.getWindow().getAttributes().gravity);
+                    assertTrue(menu.isShowing()); assertEquals(0,exits.get());
+                });
+                instrumentation.waitForIdleSync();
+                instrumentation.runOnMainSync(() -> {
+                    View root=dialog[0].getWindow().getDecorView();int[] location=new int[2];root.getLocationOnScreen(location);
+                    int width=activity.getResources().getDisplayMetrics().widthPixels;
+                    assertEquals("Confirmation must actually be horizontally centered",width/2f,location[0]+root.getWidth()/2f,3f);
+                    dialog[0].dispatchKeyEvent(new KeyEvent(KeyEvent.ACTION_UP,KeyEvent.KEYCODE_BUTTON_B));
+                    assertTrue(dialog[0].isShowing());assertEquals(0,exits.get());assertEquals(1,cleanup.get());
+                    assertAdaptivePlacement(activity,dialog[0]);
+                });
+            } finally {instrumentation.runOnMainSync(()->{if(dialog[0]!=null)dialog[0].dismiss();});}
+        });
+    }
+
+    @Test public void adaptivePanelReevaluatesShapeAfterRotation() {
+        withActivity((instrumentation, activity) -> {
+            GameMenuDialog[] dialog={null};
+            try {
+                for(int orientation:new int[]{ActivityInfo.SCREEN_ORIENTATION_PORTRAIT,ActivityInfo.SCREEN_ORIENTATION_LANDSCAPE}) {
+                    rotate(instrumentation,activity,orientation,orientation==ActivityInfo.SCREEN_ORIENTATION_PORTRAIT
+                            ? Configuration.ORIENTATION_PORTRAIT:Configuration.ORIENTATION_LANDSCAPE);
+                    instrumentation.runOnMainSync(()->{
+                        if(dialog[0]==null){dialog[0]=new GameMenuDialog(activity,"Fixture");dialog[0].useEdgePanel();dialog[0].show();}
+                        dialog[0].page("Controls");dialog[0].action("Back",0,()->{});
+                        assertAdaptivePlacement(activity,dialog[0]);
+                        dialog[0].confirmationPage("Restart game?");dialog[0].action("Cancel",0,()->{});
+                        assertEquals(Gravity.CENTER,dialog[0].getWindow().getAttributes().gravity);
+                    });
+                    instrumentation.waitForIdleSync();
+                }
+            } finally {instrumentation.runOnMainSync(()->{if(dialog[0]!=null)dialog[0].dismiss();});}
+        });
+    }
+
+    private static void assertAdaptivePlacement(MainActivity activity,GameMenuDialog menu) {
+        android.util.DisplayMetrics m=activity.getResources().getDisplayMetrics();
+        MenuPlacement.Position position=MenuPlacement.resolve(m.widthPixels/m.density,m.heightPixels/m.density,
+                DeviceControls.connected(activity),false,false);
+        int expected=position==MenuPlacement.Position.SIDE?Gravity.END|Gravity.CENTER_VERTICAL:
+                position==MenuPlacement.Position.BOTTOM?Gravity.BOTTOM|Gravity.CENTER_HORIZONTAL:Gravity.CENTER;
+        assertEquals(expected,menu.getWindow().getAttributes().gravity);
+    }
+
     @Test public void longSettingsKeepTrialActionVisibleOutsideScrollingContent() {
         withActivity((instrumentation, activity) -> {
             GameMenuDialog[] menu = {null}; AtomicInteger tries = new AtomicInteger();
@@ -133,6 +193,7 @@ public class GameMenuLayoutTest {
                 findText(root, "More").performClick();
                 assertNotNull(findText(root, "Engine setting"));
                 findText(root, "Restart game").performClick();
+                assertEquals(Gravity.CENTER,menu.getWindow().getAttributes().gravity);
                 assertTrue(menu.isShowing()); assertEquals(0, restarts.get());
                 findText(root, "Cancel").performClick();
                 assertNotNull(findText(root, "Restart game"));
@@ -143,6 +204,7 @@ public class GameMenuLayoutTest {
                 assertEquals(1, restarts.get()); assertTrue(menu.isShowing());
                 pages.home();
                 findText(root, "Exit game").performClick();
+                assertEquals(Gravity.CENTER,menu.getWindow().getAttributes().gravity);
                 assertTrue(menu.isShowing()); assertEquals(0, exits.get());
                 menu.dispatchKeyEvent(new KeyEvent(KeyEvent.ACTION_UP, KeyEvent.KEYCODE_BUTTON_B));
                 assertNotNull(findText(root, "Display")); assertTrue(menu.isShowing());
@@ -204,7 +266,16 @@ public class GameMenuLayoutTest {
                     dialog[0].action("Sort", 0, () -> fail("Wrong initial focus"));
                 });
                 instrumentation.waitForIdleSync();
-                android.os.SystemClock.sleep(150);
+                long deadline=android.os.SystemClock.uptimeMillis()+5000;
+                boolean[] ready={false};
+                do {
+                    instrumentation.runOnMainSync(()->{
+                        View root=dialog[0].getWindow().getDecorView();
+                        ready[0]=root.isLaidOut()&&root.hasWindowFocus();
+                    });
+                    if(!ready[0])android.os.SystemClock.sleep(50);
+                } while(!ready[0]&&android.os.SystemClock.uptimeMillis()<deadline);
+                assertTrue("Dialog must own window focus before testing controller focus",ready[0]);
                 instrumentation.runOnMainSync(() -> {
                     assertTrue("First action must receive focus", dialog[0].getCurrentFocus() instanceof Button);
                     assertEquals("View", ((Button) dialog[0].getCurrentFocus()).getText().toString());

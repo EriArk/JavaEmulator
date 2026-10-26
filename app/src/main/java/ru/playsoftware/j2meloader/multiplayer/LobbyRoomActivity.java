@@ -212,7 +212,7 @@ public final class LobbyRoomActivity extends CompactSettingsActivity {
         });
     }
     private GameMenuDialog menu(String title){if(dialog!=null)dialog.dismiss();dialog=new GameMenuDialog(this,title);dialog.useEdgePanel();dialog.show();dialog.page(title);return dialog;}
-    private void confirm(String title,String message,Runnable action){GameMenuDialog menu=menu(title);menu.message(message);menu.action("Confirm",android.R.drawable.ic_menu_send,()->{menu.dismiss();action.run();});menu.action("Cancel",android.R.drawable.ic_menu_close_clear_cancel,menu::dismiss);}
+    private void confirm(String title,String message,Runnable action){GameMenuDialog menu=menu(title);menu.confirmationPage(title);menu.message(message);menu.action("Confirm",android.R.drawable.ic_menu_send,()->{menu.dismiss();action.run();});menu.action("Cancel",android.R.drawable.ic_menu_close_clear_cancel,menu::dismiss);}
     private String accessLabel(String access){return access.equals("public")?"Open":access.equals("approval")?"Host approval":"Invite only";}
     private void heading(String title){TextView h=label(title,18);h.setPadding(0,dp(8),0,dp(6));rows.addView(h);}
     private TextView label(String text,int size){TextView v=new TextView(this);v.setText(text);v.setTextSize(size);v.setTextColor(AppPalette.color(this,R.color.text_primary));return v;}
