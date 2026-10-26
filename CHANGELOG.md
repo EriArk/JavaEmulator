@@ -10,7 +10,7 @@ stated otherwise. **Experimental** in older checkpoints means local/private
 combined builds; released experimental features are explicitly identified.
 **Released** means an actual GitHub release asset.
 
-## 2026-10-26 - Beta 1 Revision 1 (Prepared)
+## 2026-10-26 - Beta 1 Revision 1 (Released)
 
 - Center short confirmations across common menus. Center ordinary panels on
   square/near-square handhelds; keep side panels for sufficiently wide screens
@@ -25,7 +25,9 @@ combined builds; released experimental features are explicitly identified.
   signed hardware captures, resized viewports and emulator Debug captures.
 - [Revision scope](docs/releases/v0.6.0-beta.1-r1.md) and
   [verification/publication record](docs/releases/v0.6.0-beta.1-r1-checks.md).
-  Prepared locally at this checkpoint, not yet a public updated APK.
+  Published on the existing Beta 1 page at 18:01 UTC. Original assets/tag remain
+  unchanged; source tag `v0.6.0-beta.1-r1` identifies commit `98dc7095`.
+  Public APK/checksum downloads and all nine asset digests/sizes were verified.
 
 ## 2026-10-26 - 0.6.0 Beta 1 (Released)
 

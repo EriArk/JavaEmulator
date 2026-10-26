@@ -18,9 +18,9 @@ users of the former Phone app can use the menu-based
 > **Project status:** Beta. AbyssME is usable, but compatibility automation and
 > launcher integration still need testing across more games and devices.
 
-[Download 0.6.0 Beta 1](https://github.com/EriArk/JavaEmulator/releases/download/v0.6.0-beta.1/AbyssME-0.6.0-beta.1.apk)
+[Download 0.6.0 Beta 1 Revision 1](https://github.com/EriArk/JavaEmulator/releases/download/v0.6.0-beta.1/AbyssME-0.6.0-beta.1-r1.apk)
 
-Use the **0.6.0-beta.1** APK. It updates the official unified app in place;
+Use the **0.6.0-beta.1-r1** APK (code 312). It updates the official unified app in place;
 older releases remain available for reference.
 
 ## Current Beta
@@ -29,7 +29,7 @@ For website copy, progress posts and handoffs, start with the
 [current product/development status](docs/PROJECT_STATUS.md) and
 [dated changelog](CHANGELOG.md). They also describe local/private experiments,
 explicitly separated from public downloads. The
-[0.6.0 Beta 1 notes](docs/releases/v0.6.0-beta.1.md) include the combined-engine scope,
+[0.6.0 Beta 1 Revision 1 notes](docs/releases/v0.6.0-beta.1-r1.md) include the combined-engine scope,
 verification limits and source downloads.
 
 **A refreshed game library and menus:** four platform tabs, remembered browsing
@@ -58,8 +58,13 @@ Symbian/N-Gage does not use these new GPU effects.
 [Options and limits](docs/EXPERIMENTAL_ENHANCEMENTS.md),
 [0.5 effect comparisons](screenshots/releases/v0.5.0-beta.1/README.md).
 
-[Fresh 0.6 signed-app screenshots](screenshots/releases/v0.6.0-beta.1/README.md)
-show the updated library, settings, Social and game menus in light and dark themes.
+[29 new dark-theme screenshots](screenshots/releases/v0.6.0-beta.1-r1/README.md)
+show all three library views across phone, near-square, 16:9 and 4:3 layouts,
+gameplay, touch controls, mapping and menus. Captions distinguish signed Retroid
+captures, simulated viewport sizes and phone-emulator Debug captures.
+Revision 1 centers confirmations and makes ordinary menu placement adapt to the
+available screen space. [Original light/dark captures](screenshots/releases/v0.6.0-beta.1/README.md)
+remain available for comparison.
 
 This beta also improves Java frame pacing, short button taps and interrupted
 imports. Mophun screenshots can use the enhanced image or original pixels.

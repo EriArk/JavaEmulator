@@ -35,14 +35,23 @@ bundled. The app UI is English.
 
 ## Availability: Do Not Mix These Channels
 
-**Prepared local update:** `0.6.0-beta.1-r1`, code 312, centers confirmations
+**Current public beta: [0.6.0-beta.1-r1](https://github.com/EriArk/JavaEmulator/releases/tag/v0.6.0-beta.1)**,
+code **312**, uploaded **2026-10-26 at 18:01 UTC** to the existing Beta 1 page.
+It centers confirmations
 and adapts ordinary panels to screen shape instead of forcing all handheld
 menus to the right. Signed Retroid and emulator UI checks are recorded in
-[revision verification](releases/v0.6.0-beta.1-r1-checks.md). Publication to the
-existing Beta 1 page is pending. New [dark screenshots](../screenshots/releases/v0.6.0-beta.1-r1/README.md)
+[revision verification](releases/v0.6.0-beta.1-r1-checks.md).
+All nine release asset digests/sizes match, including preserved original assets;
+unauthenticated r1 APK/checksum downloads also match. The r1 source tag and
+app-source ZIP identify `98dc7095`; subsequent documentation commits do not
+change the APK. 395 JVM tests pass, with 34 focused Android passes and seven
+optional room skips on Retroid and the emulator retry. New
+[dark screenshots](../screenshots/releases/v0.6.0-beta.1-r1/README.md)
 include library views across four viewport shapes and both touch layouts.
+[Revision notes](releases/v0.6.0-beta.1-r1.md) and
+[checksums](releases/v0.6.0-beta.1-r1/SHA256SUMS-r1.txt).
 
-**Current public beta: [0.6.0-beta.1](https://github.com/EriArk/JavaEmulator/releases/tag/v0.6.0-beta.1)**,
+**Original Beta 1 base: [0.6.0-beta.1](https://github.com/EriArk/JavaEmulator/releases/tag/v0.6.0-beta.1)**,
 code **311**, published **2026-10-26 at 17:19:24 UTC**. It combines the
 cumulative #40 redesign with early experimental multiplayer.
 Common settings, account, transfers and native setup/archive pages now share
@@ -61,7 +70,7 @@ not a universal multiplayer solution: exact game versions are required, some
 networks cannot connect, and long sessions/different-network acceptance remain
 open. This is the wording boundary for website and announcement copy.
 
-All five 0.6 release asset digests and sizes matched. Unauthenticated public APK
+For the original code-311 base, all five asset digests and sizes matched. Unauthenticated public APK
 and checksum downloads also matched. Runtime tag `v0.6.0-beta.1` points to
 `664def5f`; the app-source ZIP uses `c63c4a0d`, whose sole subsequent change
 corrects a source-build documentation command. No runtime differs. Later
@@ -83,8 +92,8 @@ older 0.3 builds, not the current release series.
 
 | Channel | Current identifier | Availability |
 | --- | --- | --- |
-| Public download | `0.6.0-beta.1`, code 311 | One signed adaptive APK; corresponding app, dependency/peer and Symbian sources; refreshed UI and early experimental Java Bluetooth multiplayer |
-| Development source | Same 0.6 runtime plus documentation handoff | No additional unreleased runtime at this checkpoint. Bluetooth game evidence includes BT Biplanes, Dogfight, Constructo and Absorbed on Retroid/emulator. Sustained gameplay and different-network acceptance remain open. Shared directory quotas and effects/defaults are unchanged. [Game checks](BLUETOOTH_GAME_SELECTION.md) |
+| Public download | `0.6.0-beta.1-r1`, code 312 | One signed adaptive APK on the existing Beta 1 page; centered confirmations, shape-adaptive panels and 29 dark screenshots. Corresponding r1 app source reuses unchanged dependency/peer and Symbian bundles. Early experimental Java Bluetooth multiplayer retains its limits. |
+| Development source | Same r1 runtime plus documentation handoff | No additional unreleased runtime at this checkpoint. Bluetooth game evidence includes BT Biplanes, Dogfight, Constructo and Absorbed on Retroid/emulator. Sustained gameplay and different-network acceptance remain open. Shared directory quotas and effects/defaults are unchanged. [Game checks](BLUETOOTH_GAME_SELECTION.md) |
 | Private historical snapshot | `0.1.0-beta.2-experimental.15`, 2026-10-11 | Old Java/Mophun test build, not the current beta |
 | Local-only material | Game fixtures, firmware, diagnostics, device data and signing keys | Not in Git or public release assets; describing testing does not authorize redistribution |
 
