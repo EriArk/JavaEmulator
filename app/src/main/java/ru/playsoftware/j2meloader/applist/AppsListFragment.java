@@ -1066,7 +1066,7 @@ public class AppsListFragment extends Fragment implements AppsListAdapter.Listen
         dialog.action("Play", android.R.drawable.ic_media_play, () -> { dialog.dismiss(); startApp(item, false); });
         if (!(item instanceof ExternalLibrary.Item))
             ru.playsoftware.j2meloader.multiplayer.PlayTogether.action(dialog, item.getPathExt(), this::startActivity);
-        if (!(item instanceof ExternalLibrary.Item)) {
+        if (!(item instanceof ExternalLibrary.Item) || ((ExternalLibrary.Item) item).supportsGameSettings()) {
             dialog.action("Display", R.drawable.ic_quick_size, () -> showCardSettings(dialog, item, false));
             dialog.action("Controls", R.drawable.ic_action_keyboard, () -> showCardSettings(dialog, item, true));
         }
@@ -1172,11 +1172,18 @@ public class AppsListFragment extends Fragment implements AppsListAdapter.Listen
 
     private void showCardSettings(GameMenuDialog dialog, AppItem item, boolean controls) {
         File app = new File(item.getPathExt());
-        File dir = new File(app.getParentFile().getParentFile(), "configs/" + app.getName());
-        ru.playsoftware.j2meloader.config.ProfileModel profile = ru.playsoftware.j2meloader.config.ProfilesManager.loadConfig(dir);
+        ExternalLibrary.Item external = item instanceof ExternalLibrary.Item ? (ExternalLibrary.Item) item : null;
+        ru.playsoftware.j2meloader.config.ProfileModel profile;
+        try {
+            if (external != null) profile = external.loadGameSettings();
+            else {
+                File dir = new File(app.getParentFile().getParentFile(), "configs/" + app.getName());
+                profile = ru.playsoftware.j2meloader.config.ProfilesManager.loadConfig(dir);
+            }
+        } catch (IOException error) { dialog.message("Could not load game settings."); return; }
         if (profile == null) { dialog.dismiss(); startApp(item, true); return; }
         ru.playsoftware.j2meloader.config.GameSettingsPages pages = new ru.playsoftware.j2meloader.config.GameSettingsPages(
-                dialog, profile, false, !ru.playsoftware.j2meloader.catalog.AdditionalGames.isManaged(app),
+                dialog, profile, false, external == null && !ru.playsoftware.j2meloader.catalog.AdditionalGames.isManaged(app),
                 new ru.playsoftware.j2meloader.config.GameSettingsPages.Host() {
                     public void preview(ru.playsoftware.j2meloader.config.ProfileModel draft) {
                         try {
@@ -1200,7 +1207,7 @@ public class AppsListFragment extends Fragment implements AppsListAdapter.Listen
                     public void back() { populateGameActions(dialog, item); }
                 });
         pages.setHomeAction(() -> populateGameActions(dialog, item));
-        if (controls) pages.controls(); else pages.display();
+        if (controls) pages.controls(); else if (external != null) external.displaySettings(pages); else pages.display();
     }
 
 	private void requestAddShortcut(AppItem appItem) {

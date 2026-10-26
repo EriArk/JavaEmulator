@@ -66,6 +66,19 @@ older 0.3 builds, not the current 0.4 release series.
 
 ## Library Refresh (#40, Unreleased)
 
+**Native game settings, 2026-10-26:** Symbian/N-Gage cards now offer Display and
+Controls in the same contextual panel as Java/Mophun. The engine-owned profile
+remains isolated by phone identity and game UID. Try in game starts a reversible
+trial; Keep confirms it, while Undo or an unconfirmed exit preserves the saved
+configuration. Native display options match the runtime's actual capabilities,
+not Java/Mophun-only GPU effects. Shared settings selectors use molded console
+surfaces and tappable labels; Try stays pinned below scrolling edge-panel content.
+This is unreleased source/development APK work, not an update to the public beta.
+379 JVM checks pass; final Android suites pass 51 on Retroid and 49 on the phone
+emulator, plus two focused 480x320dp / 150% text checks. Actual Snakes startup,
+rotation trial, Undo and exit were checked on Retroid, not full-game acceptance.
+[Implementation, checks and limits](RETRO_LIBRARY_REFRESH.md#native-library-settings-2026-10-26-unreleased).
+
 **Social entry and light materials, 2026-10-26:** add Debug-only Play Together
 from eligible Java cards into the existing room owner, and a cross-process-safe
 Return to active room shortcut. Prepare the selected game after explicit Create;

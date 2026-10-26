@@ -10,6 +10,27 @@ stated otherwise. **Experimental** in older checkpoints means local/private
 combined builds; released experimental features are explicitly identified.
 **Released** means an actual GitHub release asset.
 
+## 2026-10-26 - Native Library Settings and Console Selectors (#40, Unreleased)
+
+- Add Display and Controls to Symbian/N-Gage game actions without opening system
+  tools or initializing the native engine just to edit a draft.
+- Share native phone/game profile loading between library and runtime, retaining
+  controller defaults, custom profiles and phone/UID isolation. Try in game uses
+  the existing one-launch draft with Keep/Undo; confirmed settings and saves stay
+  separate from unconfirmed changes.
+- Reuse the native display editor before and during play. Offer supported size,
+  rotation, orientation, FPS, speed and LCD effects, without unsupported Java
+  compatibility, Mophun CPU-budget or GPU-enhancement controls.
+- Restyle shared edge-panel selectors as molded keys in light/dark themes.
+  Labels open the selector by touch without adding a second controller focus
+  stop. Pin Try in game / Try changes below long settings lists.
+- Retain system tools, launch-file export, artwork and uninstall actions. No
+  emulator-core, game-save format, public APK or release changes.
+- Verification: 379 JVM tests; final Android suites pass 51 on Retroid and 49 on
+  the phone emulator, plus two focused 480x320dp / 150% text checks. Snakes starts
+  from its library trial and Undo restores the saved picture without config writes.
+- [Verification and development screenshots](docs/RETRO_LIBRARY_REFRESH.md#native-library-settings-2026-10-26-unreleased).
+
 ## 2026-10-26 - Library-to-Room Flow and Lighter Console Materials (#40, Unreleased)
 
 - Add Debug-only Play Together for verified installed Java entries referencing

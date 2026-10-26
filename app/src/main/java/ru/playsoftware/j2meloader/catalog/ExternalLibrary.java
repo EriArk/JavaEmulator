@@ -17,6 +17,10 @@ public final class ExternalLibrary {
         public abstract void rename(String title) throws java.io.IOException;
         public void uninstall(Activity activity) { }
         public boolean supportsUninstallReview() { return false; }
+        public boolean supportsGameSettings() { return false; }
+        /** Engine-owned identity and storage; never derive these from the launcher path. */
+        public ru.playsoftware.j2meloader.config.ProfileModel loadGameSettings() throws IOException { return null; }
+        public void displaySettings(ru.playsoftware.j2meloader.config.GameSettingsPages pages) { pages.display(); }
         /** Optional host-owned artwork overrides, separate from engine-generated images. */
         public java.io.File getArtworkDirectory() { return null; }
         @Override public String getPathExt() { return getPath(); }

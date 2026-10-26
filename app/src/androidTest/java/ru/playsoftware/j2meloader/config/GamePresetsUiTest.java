@@ -46,6 +46,40 @@ public class GamePresetsUiTest {
                 Spinner.class,null)).setSelection(index)); idle();
     }
 
+    @Test public void nativePhoneDisplayOffersOnlySupportedOptionsAndStagesADraft() {
+        scenario.onActivity(a -> {
+            menu.dismiss(); menu = new GameMenuDialog(a, "Native phone fixture"); menu.useEdgePanel(); menu.show();
+            pages = new GameSettingsPages(menu, source, false, false, new GameSettingsPages.Host() {
+                public void preview(ProfileModel draft) { applied = ProfilesManager.copy(draft); }
+                public void mapping(ProfileModel draft, Runnable back) { }
+                public void advanced() { fail("Native phone must not open Java compatibility"); }
+                public void back() { backs++; }
+            });
+            pages.nativePhoneDisplay();
+            for (String absent : new String[]{"Enhancements", "Smoothing", "Advanced", "Phone resolution", "CPU budget"})
+                assertNull(absent, find(root(), TextView.class, absent));
+            View label = find(root(), TextView.class, "Picture size");
+            assertTrue("Setting labels open their choices", label.isClickable());
+            assertFalse("Controller navigation uses the selector, not a duplicate label stop", label.isFocusable());
+            assertTrue(find((View)label.getParent(), Spinner.class, null).getBackground()
+                    instanceof ru.playsoftware.j2meloader.ui.ConsoleSurface);
+            assertEquals(3, ((Spinner)find((View)label.getParent(), Spinner.class, null)).getCount());
+        }); idle();
+        choose("Picture size", 2); choose("Image rotation", 2); choose("Frame rate limit", 4);
+        scenario.onActivity(a -> {
+            assertEquals(1, source.screenScaleType); assertEquals(0, source.screenRotation); assertNull(applied);
+            find(root(), TextView.class, "Try in game").performClick();
+            assertEquals(2, applied.screenScaleType); assertEquals(180, applied.screenRotation);
+            assertEquals(30, applied.getNativeFpsLimit()); assertEquals(source.fpsLimit, applied.fpsLimit);
+            assertEquals(source.systemProperties, applied.systemProperties);
+            pages.controls();
+            assertNotNull(find(root(), TextView.class, "Controller mapping"));
+            assertNull(find(root(), TextView.class, "Legacy layout editor"));
+            pages.nativePhoneDisplay();
+            assertEquals(180, pages.draft().screenRotation);
+        });
+    }
+
     @Test public void standaloneRetroPresetsHideConflictingControlsAndRequireTry() {
         scenario.onActivity(a -> {
             pages.draft().screenEffect=2; pages.draft().fsrUpscaling=true;

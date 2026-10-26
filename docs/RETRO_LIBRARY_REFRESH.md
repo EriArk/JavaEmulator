@@ -45,7 +45,7 @@ entirely; it does not merely hide it at selected widths.
 
 ## Remaining Epic Work
 
-- Pre-game native settings integration and broader game-specific multiplayer acceptance.
+- Broader game-specific multiplayer acceptance.
 - Wider paired multiplayer acceptance of menus/background transitions beyond the
   paired BT Biplanes room/process check recorded below.
 - Wider live-game/renderer matrix for Display previews; native size/rotation remain apply-on-resume.
@@ -54,6 +54,40 @@ entirely; it does not merely hide it at selected widths.
 - Wider accessibility, animation, upgrade and physical-button acceptance matrix.
 
 Do not mark #40 complete or describe these remaining items as implemented.
+
+## Native Library Settings (2026-10-26, Unreleased)
+
+- Symbian/N-Gage game actions expose Display and Controls through an optional
+  engine-owned settings adapter. The main process only reads the host profile;
+  it does not initialize EKA2L1 or interpret a `symbian:` identity as a Java path.
+- `SymbianGameSettings` is shared by the adapter and runtime. Keep the existing
+  phone-hash/unsigned-UID directory, Symbian controller defaults and Phone/Gamepad
+  selection. Merely opening/editing a panel does not save the configuration.
+- Try in game stages the existing atomic `SettingsTrial`. Runtime consumes it
+  once, applies the draft and exposes Keep/Undo with the existing preview timeout.
+  Keep saves; Undo, timeout or leaving without confirmation preserves the baseline.
+  A malformed trial falls back to saved settings with an error instead of aborting
+  game launch. No game data, original system files or save format is changed.
+- One native display page is reused by library and runtime advanced settings:
+  Original/Fit/Stretch, rotation, adaptive orientation, native FPS/speed and LCD
+  effects. Integer scaling, Java phone profiles and Mophun GPU/CPU features are
+  not offered for this renderer. Instant paused native previews remain LCD-only;
+  size/rotation still apply when returning to the game.
+- Shared edge-panel selectors use molded keys with light/dark palette, an arrow
+  and existing focus states. Tapping a label opens its selector; controller focus
+  visits only the selector. Try is pinned outside the scroll area, like Keep/Undo.
+- System files, launch-file export, artwork, favorite, rename and uninstall
+  remain reachable. The physical mapper itself is reused, not redesigned.
+
+Verification and availability are recorded with the
+[development captures](../screenshots/development/2026-10-26-native-settings/README.md).
+The new regression tests cover defaults, rejected identities, drafts, Keep/Undo,
+cross-phone/UID isolation, supported options and fixed-footer visibility. Opt-in
+installed-catalog checks exercise light/dark panels and Snakes launch/Undo on
+Retroid; these do not establish full-game, audio or manual-button acceptance.
+
+No release, public APK replacement, Nextcloud upload or multiplayer capability
+change accompanies this work. The current public beta was not reverified here.
 
 ## Social Entry, Player Seats and Light Materials (2026-10-26, Unreleased)
 

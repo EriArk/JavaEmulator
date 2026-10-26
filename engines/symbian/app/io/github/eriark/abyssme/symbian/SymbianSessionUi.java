@@ -8,7 +8,6 @@ import android.util.SparseIntArray;
 import android.view.*;
 import android.widget.*;
 import java.io.*;
-import java.nio.file.Files;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import ru.playsoftware.j2meloader.BuildConfig;
@@ -69,20 +68,12 @@ final class SymbianSessionUi {
 
     SymbianSessionUi(Activity activity, TextureView surface, String system, long uid, String title, Host host) throws IOException {
         this.activity = activity; this.surface = surface; this.title = title; this.host = host;
-        if (!system.matches("[0-9a-f]{64}|legacy") || uid <= 0 || uid > 0xffffffffL) throw new IOException("Invalid game identity");
-        File directory = new File(PhoneBackup.profiles(activity.getFilesDir(), system), Long.toString(uid));
-        Files.createDirectories(directory.toPath());
-        ProfileModel loaded = ProfilesManager.loadConfig(directory);
-        profile = loaded == null ? new ProfileModel(directory) : loaded;
-        if (loaded == null) {
-            SparseIntArray defaults = KeyMapper.getDefaultKeyMap();
-            defaults.put(KeyEvent.KEYCODE_BUTTON_X, '5'); defaults.put(KeyEvent.KEYCODE_BUTTON_Y, '0');
-            defaults.put(KeyEvent.KEYCODE_BUTTON_B, -7); defaults.put(KeyEvent.KEYCODE_BUTTON_START, -6);
-            profile.keyMappingProfiles.add(0, new ProfileModel.KeyMappingProfile("Symbian", defaults));
-            profile.activeKeyMappingProfile = 0;
+        profile = SymbianGameSettings.load(activity.getFilesDir(), system, uid);
+        try { SettingsTrial.claim(profile); }
+        catch (IOException error) {
+            android.util.Log.w("AbyssSymbian", "Could not apply settings draft", error);
+            Toast.makeText(activity, "Could not apply settings. Using saved settings.", Toast.LENGTH_LONG).show();
         }
-        profile.ensureKeyMappingProfiles();
-        if (profile.touchLayout == null || profile.touchLayout != TouchDeck.GAMEPAD) profile.touchLayout = TouchDeck.PHONE;
         mappings = KeyMapper.resolveMappings(profile.getActiveKeyMappings());
         keys = new SymbianInput(host); input = new ControllerInput(key -> mappings.get(key, 0), keys.source());
         root = new FrameLayout(activity) {
@@ -107,6 +98,7 @@ final class SymbianSessionUi {
             pause();
         });
         apply();
+        if (ProfilesManager.isPreview(profile)) preview.start();
     }
     private int dp(int n) { return Math.round(n * activity.getResources().getDisplayMetrics().density); }
     private ImageButton icon(String label, int resource, Runnable action) {
@@ -251,16 +243,7 @@ final class SymbianSessionUi {
         deckView.invalidate();
     }
     private void advancedDisplayPage() {
-        ProfileModel draft = ProfilesManager.copy(profile); menu.page("Display");
-        GameSettingsPages.frameRateChoice(menu, draft, false);
-        GameSettingsPages.speedChoice(menu, draft);
-        GameSettingsPages.screenEffectChoice(menu, draft);
-        menu.choice("Picture size", new String[]{"Original", "Fit", "Stretch"}, scale(), i -> draft.screenScaleType = i);
-        menu.choice("Image rotation", new String[]{"0\u00b0","90\u00b0","180\u00b0","270\u00b0"},
-                Math.floorMod(draft.screenRotation / 90, 4), i -> draft.screenRotation = i * 90);
-        if (!BuildConfig.HANDHELD_MODE) menu.choice("Orientation", new String[]{"Auto","Portrait","Landscape"},
-                Math.max(0,Math.min(2,draft.orientation - 1)), i -> draft.orientation = i + 1);
-        menu.action("Try changes", android.R.drawable.ic_media_play, () -> trySettings(draft)); menu.setBackAction(this::home);
+        pages().nativePhoneDisplay();
     }
     private GameSettingsPages pages() {
         return new GameSettingsPages(menu, profile, true, false, new GameSettingsPages.Host() {

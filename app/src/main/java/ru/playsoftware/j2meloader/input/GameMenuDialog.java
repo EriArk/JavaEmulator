@@ -307,8 +307,14 @@ public final class GameMenuDialog extends Dialog {
         if (names.length % 2 != 0) row.addView(new View(getContext()), new LinearLayout.LayoutParams(0, 1, 1));
     }
     public void previewDecisions(Runnable keep, Runnable undo) {
+        decisionButtons(new String[]{"Keep", "Undo"}, new Runnable[]{keep, undo});
+    }
+    public void trialDecision(String label, Runnable action) {
+        if (edgePanel) decisionButtons(new String[]{label}, new Runnable[]{action});
+        else action(label, android.R.drawable.ic_media_play, action);
+    }
+    private void decisionButtons(String[] names, Runnable[] actions) {
         decisions.removeAllViews(); decisions.setVisibility(View.VISIBLE);
-        String[] names = {"Keep", "Undo"}; Runnable[] actions = {keep, undo};
         for (int i = 0; i < names.length; i++) {
             Button button = new Button(getContext()); button.setText(names[i]);
             button.setAllCaps(false); button.setTextSize(15); button.setMinHeight(dp(48));
@@ -408,19 +414,38 @@ public final class GameMenuDialog extends Dialog {
         spinner.setForeground(getContext().getDrawable(R.drawable.bg_settings_focus));
         spinner.setBackgroundTintList(android.content.res.ColorStateList.valueOf(ru.playsoftware.j2meloader.ui.AppPalette.color(getContext(), ru.playsoftware.j2meloader.R.color.accent)));
         spinner.setContentDescription(label);
+        if (edgePanel) {
+            spinner.setBackgroundTintList(null);
+            spinner.setBackground(new ru.playsoftware.j2meloader.ui.ConsoleSurface(getContext(),
+                    ru.playsoftware.j2meloader.ui.ConsoleSurface.Kind.KEY));
+            spinner.setForeground(null);
+            spinner.setDefaultFocusHighlightEnabled(false);
+            spinner.setPadding(dp(4), dp(2), dp(4), dp(4));
+        }
         android.widget.ArrayAdapter<String> adapter = new android.widget.ArrayAdapter<String>(
                 getContext(),android.R.layout.simple_spinner_item,options) {
-            private View label(int position) {
+            private View label(int position, boolean dropdown) {
                 TextView text = new TextView(getContext());
                 text.setText(getItem(position)); text.setTextSize(15); text.setTextColor(ru.playsoftware.j2meloader.ui.AppPalette.color(getContext(), ru.playsoftware.j2meloader.R.color.accent));
-                text.setBackgroundColor(ru.playsoftware.j2meloader.ui.AppPalette.color(getContext(), ru.playsoftware.j2meloader.R.color.phone_panel_alt)); text.setGravity(Gravity.CENTER_VERTICAL);
+                if (!edgePanel || dropdown) text.setBackgroundColor(ru.playsoftware.j2meloader.ui.AppPalette.color(getContext(),
+                        edgePanel ? R.color.background : R.color.phone_panel_alt));
+                text.setGravity(Gravity.CENTER_VERTICAL);
                 text.setPadding(dp(12),dp(6),dp(12),dp(6)); text.setMinHeight(dp(48));
+                if (edgePanel && !dropdown) {
+                    android.graphics.drawable.Drawable arrow = getContext().getDrawable(R.drawable.ic_arrow_down).mutate();
+                    arrow.setTint(ru.playsoftware.j2meloader.ui.AppPalette.color(getContext(), R.color.accent));
+                    arrow.setBounds(0, 0, dp(20), dp(20));
+                    text.setCompoundDrawablesRelative(null, null, arrow, null);
+                    text.setCompoundDrawablePadding(dp(4));
+                }
                 return text;
             }
-            @Override public View getView(int p,View v,android.view.ViewGroup parent) { return label(p); }
-            @Override public View getDropDownView(int p,View v,android.view.ViewGroup parent) { return label(p); }
+            @Override public View getView(int p,View v,android.view.ViewGroup parent) { return label(p, false); }
+            @Override public View getDropDownView(int p,View v,android.view.ViewGroup parent) { return label(p, true); }
         };
         spinner.setAdapter(adapter); spinner.setSelection(selected);
+        name.setOnClickListener(v -> spinner.performClick());
+        name.setFocusable(false);
         int[] current = {selected};
         spinner.setOnItemSelectedListener(new android.widget.AdapterView.OnItemSelectedListener() {
             public void onNothingSelected(android.widget.AdapterView<?> parent) { }

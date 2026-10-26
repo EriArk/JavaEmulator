@@ -21,6 +21,31 @@ import ru.playsoftware.j2meloader.R;
 import static org.junit.Assert.*;
 
 public class GameMenuLayoutTest {
+    @Test public void longSettingsKeepTrialActionVisibleOutsideScrollingContent() {
+        withActivity((instrumentation, activity) -> {
+            GameMenuDialog[] menu = {null}; AtomicInteger tries = new AtomicInteger();
+            try {
+                instrumentation.runOnMainSync(() -> {
+                    menu[0] = new GameMenuDialog(activity, "Long settings"); menu[0].useEdgePanel(); menu[0].show();
+                    menu[0].page("Controls");
+                    for (int i = 0; i < 20; i++) menu[0].choice("Setting " + i, new String[]{"Auto", "Off"}, 0, value -> {});
+                    menu[0].trialDecision("Try in game", tries::incrementAndGet);
+                });
+                instrumentation.waitForIdleSync();
+                instrumentation.runOnMainSync(() -> {
+                    View root = menu[0].getWindow().getDecorView(), button = findText(root, "Try in game");
+                    android.graphics.Rect bounds = new android.graphics.Rect();
+                    assertTrue(button.getGlobalVisibleRect(bounds));
+                    assertTrue(bounds.height() >= Math.round(48 * activity.getResources().getDisplayMetrics().density));
+                    for (android.view.ViewParent parent = button.getParent(); parent != null; parent = parent.getParent())
+                        assertFalse("Trial must not scroll away", parent instanceof ScrollView);
+                    button.performClick(); assertEquals(1, tries.get());
+                    menu[0].page("Game actions");
+                    assertNull(findText(root, "Try in game"));
+                });
+            } finally { instrumentation.runOnMainSync(() -> { if (menu[0] != null) menu[0].dismiss(); }); }
+        });
+    }
     @Test public void socialUsesExistingDestinationsAndBackKeepsThePanelAlive() {
         withActivity((instrumentation, activity) -> instrumentation.runOnMainSync(() -> {
             GameMenuDialog menu = new GameMenuDialog(activity, "Fixture"); menu.useEdgePanel(); menu.show();

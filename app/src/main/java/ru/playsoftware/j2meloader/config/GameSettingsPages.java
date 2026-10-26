@@ -65,6 +65,21 @@ public final class GameSettingsPages {
         footer();
     }
 
+    /** Native phone renderer capabilities, shared by pre-game and in-game panels. */
+    public void nativePhoneDisplay() {
+        menu.page("Display");
+        frameRateChoice(menu, draft, false);
+        speedChoice(menu, draft);
+        menu.choice("Picture size", new String[]{"Original", "Fit", "Stretch"}, clamp(draft.screenScaleType, 3),
+                i -> draft.screenScaleType = i);
+        menu.choice("Image rotation", new String[]{"0\u00b0", "90\u00b0", "180\u00b0", "270\u00b0"},
+                Math.floorMod(draft.screenRotation / 90, 4), i -> draft.screenRotation = i * 90);
+        if (!BuildConfig.HANDHELD_MODE) menu.choice("Orientation", new String[]{"Auto", "Portrait", "Landscape"},
+                Math.max(0, clamp(draft.orientation, 4) - 1), i -> draft.orientation = i + 1);
+        screenEffectChoice(menu, draft);
+        footer();
+    }
+
     public void controls() {
         menu.page("Controls");
         menu.choice("Control mode", new String[]{"Auto", "Touch", "Controller"}, clamp(draft.controlMode, 3),
@@ -283,6 +298,6 @@ public final class GameSettingsPages {
         menu.setBackAction(this::home);
     }
     public ProfileModel draft() { return draft; }
-    private void trialAction() { menu.action(live ? "Try changes" : "Try in game", android.R.drawable.ic_media_play, () -> host.preview(draft)); }
+    private void trialAction() { menu.trialDecision(live ? "Try changes" : "Try in game", () -> host.preview(draft)); }
     private static int clamp(int value, int length) { return Math.max(0, Math.min(length - 1, value)); }
 }

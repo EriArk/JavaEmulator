@@ -57,6 +57,13 @@ public final class SymbianLauncherLibrary implements ExternalLibrary.Provider {
         }
         @Override public String getImagePathExt() { return artwork(true); }
         @Override public boolean supportsUninstallReview() { return true; }
+        @Override public boolean supportsGameSettings() { return true; }
+        @Override public ru.playsoftware.j2meloader.config.ProfileModel loadGameSettings() throws IOException {
+            return SymbianGameSettings.load(files, entry.system, entry.uid);
+        }
+        @Override public void displaySettings(ru.playsoftware.j2meloader.config.GameSettingsPages pages) {
+            pages.nativePhoneDisplay();
+        }
         @Override public void uninstall(Activity activity) {
             activity.startActivity(new Intent(activity,SymbianActivity.class)
                     .putExtra(SymbianLibraryIndex.SYSTEM_EXTRA,entry.system)
