@@ -1,6 +1,6 @@
 # Android Secure Peer Core
 
-Two-player ICE/DTLS/SCTP transport for AbyssME. The 0.6 candidate enables the
+Two-player ICE/DTLS/SCTP transport for AbyssME. The 0.6 prerelease enables the
 existing Java Bluetooth adapter as early experimental, low compatibility.
 This is not universal game support or guaranteed connectivity across networks.
 See [protocol and verification](../../docs/SECURE_PEER_TRANSPORT.md).

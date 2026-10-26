@@ -170,16 +170,16 @@ notices; see [licensing](docs/LICENSING.md). Historical release assets are uncha
 
 ## Screenshots
 
-![Retro LCD library with large game icons](screenshots/releases/v0.4.0-beta.2/retro-library.png)
+<img src="screenshots/releases/v0.6.0-beta.1/01-library-grid-dark.png" alt="Soft Console Java library in dark mode" width="360"> <img src="screenshots/releases/v0.6.0-beta.1/08-library-gallery-light.png" alt="Soft Console Gallery in light mode" width="360">
 
-<img src="screenshots/releases/v0.4.0-beta.2/touch-layout-editor.png" alt="Visual touch layout editor" width="360"> <img src="screenshots/releases/v0.4.0-beta.2/portrait-touch.png" alt="Age of Empires II Deluxe menu above a resized numeric keypad" width="270">
+<img src="screenshots/releases/v0.6.0-beta.1/12-java-game-menu.png" alt="Common in-game menu over Bounce Tales" width="420"> <img src="screenshots/releases/v0.6.0-beta.1/07-style-picker-light.png" alt="Visual style choices in the light theme" width="300">
 
-Unretouched captures from the signed 0.4.0 Beta 2 APK on a Retroid Pocket Classic
-(Android 14), including its portrait touch mode. These are app screenshots,
+Unretouched captures from the signed 0.6.0 Beta 1 APK on a Retroid Pocket Classic
+(Android 14). These are app screenshots,
 not photographs. Games were installed separately and are not bundled.
-See the [fresh screenshot pack and captions](screenshots/releases/v0.4.0-beta.2/README.md).
+See the [sixteen fresh screenshots and captions](screenshots/releases/v0.6.0-beta.1/README.md).
 
-Beta 3 additions: [LCD pictures and game-only exports](screenshots/development/2026-10-19-lcd-export/README.md),
+Earlier 0.4 Beta 3 evidence: [LCD pictures and game-only exports](screenshots/development/2026-10-19-lcd-export/README.md),
 [library menus](screenshots/development/2026-10-19-library-session/README.md) and
 [signed-candidate collection / debug restore preview](screenshots/development/2026-10-19-beta3-preparation/README.md).
 Each pack identifies its build and test environment.

@@ -1,8 +1,8 @@
 # Multiplayer: Lobby Lite Implementation
 
-## 0.6 Release Candidate
+## 0.6 Public Prerelease
 
-2026-10-26: the owner approved enabling the existing Fluxer social/room stack and
+2026-10-26: published the existing Fluxer social/room stack and
 two-player Java Bluetooth adapter in `0.6.0-beta.1`, explicitly **early
 experimental, low compatibility**. Same-edition checks, admission, Ready,
 encrypted peer binding and process isolation remain mandatory. Mophun/Symbian

@@ -10,7 +10,12 @@ stated otherwise. **Experimental** in older checkpoints means local/private
 combined builds; released experimental features are explicitly identified.
 **Released** means an actual GitHub release asset.
 
-## 2026-10-26 - 0.6.0 Beta 1 Preparation
+## 2026-10-26 - 0.6.0 Beta 1 (Released)
+
+- Publish [0.6.0-beta.1](https://github.com/EriArk/JavaEmulator/releases/tag/v0.6.0-beta.1),
+  code 311, with one signed adaptive APK and corresponding sources. Verify all
+  five asset hashes/sizes and unauthenticated APK/checksum downloads. Older
+  release assets remain unchanged; GitHub Actions remains disabled.
 
 - Bring the cumulative four-tab library, contextual game actions, in-game panels,
   reversible visual presets, keypad placement and social refresh into one beta.
@@ -30,6 +35,11 @@ combined builds; released experimental features are explicitly identified.
 - [Release scope](docs/releases/v0.6.0-beta.1.md),
   [verification and publication](docs/releases/v0.6.0-beta.1-checks.md).
   The following dated UI entries record their original development status.
+- Upgrade Retroid in place from 0.5; 329 readable external files retain their
+  hashes. Check the signed library and Java/Mophun/Snakes menu startup. Add
+  [sixteen current screenshots](screenshots/releases/v0.6.0-beta.1/README.md).
+  The final Debug live pair passes preparation, launch and process-death return;
+  full matches and different-network compatibility remain separate open work.
 - Next phase: usability, reliability and compatibility, not feature expansion.
 
 ## 2026-10-26 - Soft Console Friends and Chats (#40, Unreleased)

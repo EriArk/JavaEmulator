@@ -25,9 +25,9 @@ bundled. The app UI is English.
 - Automatic controller detection with per-game priority/visibility overrides.
 - Former Handheld installs update in place. The old Phone app remains separate;
   transfer its games and saves through the in-app backup/restore workflow.
-- Experimental Mophun support is integrated in the same app. Its source is now
-  included in public 0.2.0-beta.1; the historical 0.1.0 beta.2 has no Mophun.
-- Embedded Symbian / N-Gage is included in the published combined 0.3 beta. Snakes reaches
+- Experimental Mophun support is integrated in the same app, publicly since
+  0.2.0-beta.1; the historical 0.1.0 beta.2 has no Mophun.
+- Embedded Symbian / N-Gage has been included since the combined 0.3 beta. Snakes reaches
   gameplay on Retroid. Asphalt 3 now installs and has reached a moving race with
   upright graphics, but cold relaunch remains unreliable. The property-free
   developer build remains Java/Mophun-only. This does not establish audio/save or
@@ -35,12 +35,16 @@ bundled. The app UI is English.
 
 ## Availability: Do Not Mix These Channels
 
-**0.6.0-beta.1 candidate, code 311, 2026-10-26:** the owner approved a prerelease
-combining the cumulative #40 redesign with early experimental multiplayer.
+**Current public beta: [0.6.0-beta.1](https://github.com/EriArk/JavaEmulator/releases/tag/v0.6.0-beta.1)**,
+code **311**, published **2026-10-26 at 17:19:24 UTC**. It combines the
+cumulative #40 redesign with early experimental multiplayer.
 Common settings, account, transfers and native setup/archive pages now share
 Soft Console materials. The existing encrypted two-player Java Bluetooth path
 is enabled in Release and labeled low compatibility. No new networking service,
-engine or universal game adapter was introduced in this final slice.
+engine or universal game adapter was introduced in this final slice. One adaptive
+APK includes Java, Mophun and experimental Symbian / N-Gage, Android 10+,
+arm64-v8a. Games and firmware are not included. The former Phone app remains a
+separate migration source, not a second download.
 [Release notes](releases/v0.6.0-beta.1.md) and
 [verification/publication record](releases/v0.6.0-beta.1-checks.md).
 
@@ -50,36 +54,43 @@ not a universal multiplayer solution: exact game versions are required, some
 networks cannot connect, and long sessions/different-network acceptance remain
 open. This is the wording boundary for website and announcement copy.
 
-**Current public beta: [0.5.0-beta.1](https://github.com/EriArk/JavaEmulator/releases/tag/v0.5.0-beta.1)**,
-code **310**, published **2026-10-23 at 21:32:23 UTC** (2026-10-24 locally).
-The maintainer approved a new 0.5 release instead of another Beta 3 revision.
-Older 0.4 release pages, assets and source tags remain unchanged. One adaptive APK includes
-Java, Mophun and experimental Symbian / N-Gage. Android 10+, arm64-v8a.
-Games and firmware are not included. The old Phone app is a separate migration
-source, not a second 0.4 download.
+All five 0.6 release asset digests and sizes matched. Unauthenticated public APK
+and checksum downloads also matched. Runtime tag `v0.6.0-beta.1` points to
+`664def5f`; the app-source ZIP uses `c63c4a0d`, whose sole subsequent change
+corrects a source-build documentation command. No runtime differs. Later
+handoff commits do not change the APK. The signed upgrade retained all 329
+readable external files on Retroid; inaccessible/internal data was not hashed.
+391 JVM checks passed. Retroid UI/lifecycle checks and the emulator retry,
+paired launch/recovery and their limits are recorded in the release checks.
+GitHub Actions remains disabled. No website or Nextcloud deployment here.
+[Checksums](releases/v0.6.0-beta.1/SHA256SUMS.txt),
+[sixteen signed-app captures with provenance](../screenshots/releases/v0.6.0-beta.1/README.md).
 
-All five release asset digests and sizes matched. Unauthenticated public APK
-and checksum downloads also matched. Matching source tag
-`v0.5.0-beta.1` points to `9c01d685`; the older Beta 3 and r1 tags still point to
-`6245cad0` and `0b22cb63`. Later handoff documentation does not change the APK. GitHub Actions
-remains disabled. No website or Nextcloud deployment in this release checkpoint.
-[Release notes](releases/v0.5.0-beta.1.md),
-[verification and limits](releases/v0.5.0-beta.1-checks.md),
-[checksums](releases/v0.5.0-beta.1/SHA256SUMS.txt),
-[signed-app captures with provenance](../screenshots/releases/v0.5.0-beta.1/README.md).
+The previous [0.5.0-beta.1](releases/v0.5.0-beta.1-checks.md), code 310,
+was published 2026-10-23 at 21:32:23 UTC with runtime tag `9c01d685`.
+Its assets and all earlier tags remain unchanged.
 
 Historical **0.3.0-beta.2** was withheld before publication after final provisioning
 exposed a mixed SIS/N-Gage catalog defect; **0.3.0-beta.3** fixed it. These are
-older 0.3 builds, not the current 0.4 release series.
+older 0.3 builds, not the current release series.
 
 | Channel | Current identifier | Availability |
 | --- | --- | --- |
-| Public download | `0.5.0-beta.1`, code 310, separate 0.5 release page | One signed adaptive APK, matching app source and dependency/native source bundles |
-| Development source | 0.5 runtime plus unreleased Fluxer social/room features and encrypted virtual Java Bluetooth | Debug rooms verify installed games, require Ready and coordinate process startup/return. BT Biplanes connects twice in one room; additional Dogfight, Constructo and Absorbed reach paired gameplay on Retroid/emulator. Fix small-write backpressure, reentrant return and snapshot/offer ordering. Graphics, sustained gameplay and remote-network acceptance remain open; Release capabilities stay disabled. Shared directory quotas and released effects/defaults are unchanged. [Latest checks](BLUETOOTH_GAME_SELECTION.md) |
+| Public download | `0.6.0-beta.1`, code 311 | One signed adaptive APK; corresponding app, dependency/peer and Symbian sources; refreshed UI and early experimental Java Bluetooth multiplayer |
+| Development source | Same 0.6 runtime plus documentation handoff | No additional unreleased runtime at this checkpoint. Bluetooth game evidence includes BT Biplanes, Dogfight, Constructo and Absorbed on Retroid/emulator. Sustained gameplay and different-network acceptance remain open. Shared directory quotas and effects/defaults are unchanged. [Game checks](BLUETOOTH_GAME_SELECTION.md) |
 | Private historical snapshot | `0.1.0-beta.2-experimental.15`, 2026-10-11 | Old Java/Mophun test build, not the current beta |
 | Local-only material | Game fixtures, firmware, diagnostics, device data and signing keys | Not in Git or public release assets; describing testing does not authorize redistribution |
 
-## Library Refresh (#40, Unreleased)
+## Library Refresh (#40, Released Scope and History)
+
+The cumulative main library, game-menu, touch-deck and Social refresh below is
+included in 0.6.0-beta.1. Final common settings/account/transfer/native-setup
+polish and two lifecycle/layout fixes are documented in the release record.
+The dated entries retain their original development status: "unreleased" and
+"Release disabled" describe those earlier checkpoints, not current availability.
+The epic remains open for remaining usability/accessibility validation and
+inherited expert/engine dialog polish; this release does not claim every
+acceptance box or long multiplayer session has been completed.
 
 **Friends and Chats, 2026-10-26:** both use the Soft Console light/dark surfaces,
 recessed lists, molded tabs/filters and contextual contact/delivery panels.
@@ -2155,7 +2166,7 @@ See [racing evidence and screenshots](https://github.com/EriArk/JavaEmulator/blo
 
 ## Images and Writing Guidance
 
-- **Use for current posts:** [0.4.0 Beta 2 captures](../screenshots/releases/v0.4.0-beta.2/README.md), 2026-10-18: five signed-build Retroid screenshots covering Retro Grid, visual styles, touch editor, mapper and the Java main menu with a resized keypad. Captions identify the build and device. Older 0.3 and 0.4 Beta 1 packs remain historical evidence, not new Beta 2 screenshots.
+- **Use for current posts:** [0.6.0 Beta 1 captures](../screenshots/releases/v0.6.0-beta.1/README.md), 2026-10-26: sixteen signed-build Retroid screenshots covering light/dark library and settings, style picker, account, transfer, experimental Social and Java/Mophun/native game menus. Captions identify the exact build and device. Older 0.4/0.5 packs remain historical evidence, not current redesigned UI.
 - [0.2.0-beta.1 release captures](releases/v0.2.0-beta.1.md#captures), 2026-10-13: signed Handheld Asphalt/Deep Abyss on Retroid and signed Phone Deep Abyss in the emulator. Short ADB-driven checks, not whole-game/audio acceptance.
 - [Archived development screenshots, 2026-10-11](https://github.com/EriArk/JavaEmulator/blob/23da5d4b/screenshots/post-2026-10-11/README.md): 12 real emulator PNGs, ZIP, captions and hashes. Label as **development / experimental.15**.
 - [Archived beta.2 screenshots](https://github.com/EriArk/JavaEmulator/blob/23da5d4b/screenshots/website-beta2/manifest.json): older UI, not current captures.

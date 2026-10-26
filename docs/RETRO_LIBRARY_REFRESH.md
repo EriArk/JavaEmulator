@@ -2,7 +2,7 @@
 
 ## 0.6 Release Checkpoint
 
-2026-10-26: the cumulative refresh is prepared for `0.6.0-beta.1`. Common
+2026-10-26: the cumulative refresh is published in `0.6.0-beta.1`. Common
 settings, brightness/style choices, library transfer, Fluxer sign-in and native
 system-file/archive pages now share Soft Console materials. These changes keep
 the existing import, account, game identity and saved-profile logic intact.
