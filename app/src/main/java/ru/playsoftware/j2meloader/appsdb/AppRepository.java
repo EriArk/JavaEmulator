@@ -58,6 +58,9 @@ public class AppRepository implements SharedPreferences.OnSharedPreferenceChange
 	private final MutableLiveData<Throwable> errorsLiveData = new MutableLiveData<>();
 	private final CompositeDisposable compositeDisposable = new CompositeDisposable();
 	private final ErrorObserver errorObserver = new ErrorObserver(errorsLiveData);
+	private final java.util.concurrent.ExecutorService databaseExecutor = java.util.concurrent.Executors.newSingleThreadExecutor();
+	private final io.reactivex.Scheduler databaseScheduler = Schedulers.from(databaseExecutor);
+	private volatile boolean closed;
 
 	private AppDatabase db;
 	private AppItemDao appItemDao;
@@ -84,15 +87,17 @@ public class AppRepository implements SharedPreferences.OnSharedPreferenceChange
 		}
 	}
 
-	public void initDb(String path) {
-		db = AppDatabase.open(context, path);
+	public synchronized void initDb(String path) {
+		if (closed) return;
+		db = AppDatabase.open(context, path, databaseExecutor);
 		appItemDao = db.appItemDao();
 		ConnectableFlowable<List<AppItem>> listConnectableFlowable = getAll()
-				.subscribeOn(Schedulers.io())
+				.subscribeOn(databaseScheduler)
 				.publish();
 		compositeDisposable.add(listConnectableFlowable
 				.firstElement()
 				.subscribe(list -> {
+					if (closed) return;
 					synchronized (LibraryImporter.class) {
 						LibraryImporter.recover(new File(path), LibraryImporter.catalog(this));
 						AppUtils.updateDb(this, new ArrayList<>(list));
@@ -110,15 +115,19 @@ public class AppRepository implements SharedPreferences.OnSharedPreferenceChange
 		return appItemDao.getAll(new MutableSortSQLiteQuery(this, orderTerms));
 	}
 
-	public void insert(AppItem item) {
-		Completable.fromAction(() -> appItemDao.insert(item))
-				.subscribeOn(Schedulers.io())
+	public synchronized void insert(AppItem item) {
+		if (closed) return;
+		AppItemDao dao = appItemDao;
+		Completable.fromAction(() -> dao.insert(item))
+				.subscribeOn(databaseScheduler)
 				.subscribe(errorObserver);
 	}
 
-	public void insert(List<AppItem> items) {
-		Completable.fromAction(() -> appItemDao.insert(items))
-				.subscribeOn(Schedulers.io())
+	public synchronized void insert(List<AppItem> items) {
+		if (closed) return;
+		AppItemDao dao = appItemDao;
+		Completable.fromAction(() -> dao.insert(items))
+				.subscribeOn(databaseScheduler)
 				.subscribe(errorObserver);
 	}
 
@@ -144,27 +153,34 @@ public class AppRepository implements SharedPreferences.OnSharedPreferenceChange
 		}
 	}
 
-	public void update(AppItem item) {
-		Completable.fromAction(() -> appItemDao.update(item))
-				.subscribeOn(Schedulers.io())
+	public synchronized void update(AppItem item) {
+		if (closed) return;
+		AppItemDao dao = appItemDao;
+		Completable.fromAction(() -> dao.update(item))
+				.subscribeOn(databaseScheduler)
 				.subscribe(errorObserver);
 	}
 
-	public void delete(AppItem item) {
-		Completable.fromAction(() -> appItemDao.delete(item))
-				.subscribeOn(Schedulers.io())
+	public synchronized void delete(AppItem item) {
+		if (closed) return;
+		AppItemDao dao = appItemDao;
+		Completable.fromAction(() -> dao.delete(item))
+				.subscribeOn(databaseScheduler)
 				.subscribe(errorObserver);
 	}
 
-	public void delete(List<AppItem> items) {
-		Completable.fromAction(() -> appItemDao.delete(items))
-				.subscribeOn(Schedulers.io())
+	public synchronized void delete(List<AppItem> items) {
+		if (closed) return;
+		AppItemDao dao = appItemDao;
+		Completable.fromAction(() -> dao.delete(items))
+				.subscribeOn(databaseScheduler)
 				.subscribe(errorObserver);
 	}
 
-	public void deleteAll() {
+	public synchronized void deleteAll() {
+		if (closed) return;
 		Completable.fromAction(appItemDao::deleteAll)
-				.subscribeOn(Schedulers.io())
+				.subscribeOn(databaseScheduler)
 				.subscribe(errorObserver);
 	}
 
@@ -227,11 +243,17 @@ public class AppRepository implements SharedPreferences.OnSharedPreferenceChange
 		update(item);
 	}
 
-	public void close() {
-		if (db != null) {
-			db.close();
-		}
-		compositeDisposable.clear();
+	public synchronized void close() {
+		if (closed) return;
+		closed = true;
+		PreferenceManager.getDefaultSharedPreferences(context).unregisterOnSharedPreferenceChangeListener(this);
+		compositeDisposable.dispose();
+		AppDatabase previous = db;
+		// Finish accepted writes and in-flight Room reads before closing their connection.
+		databaseExecutor.execute(() -> {
+			try { if (previous != null) previous.close(); }
+			finally { databaseExecutor.shutdown(); }
+		});
 	}
 
 	public int getSort() {
@@ -239,18 +261,20 @@ public class AppRepository implements SharedPreferences.OnSharedPreferenceChange
 	}
 
 	private void setSort(int variant) {
+		if (closed || appItemDao == null) return;
 		if (this.sortVariant == variant) {
 			variant |= 0x80000000;
 		}
 		this.sortVariant = variant;
 		Disposable disposable = appItemDao.getAllSingle(new MutableSortSQLiteQuery(this, orderTerms))
-				.subscribeOn(Schedulers.io())
+				.subscribeOn(databaseScheduler)
 				.subscribe(listLiveData::postValue, errorsLiveData::postValue);
 		compositeDisposable.add(disposable);
 	}
 
 	@Override
-	public void onSharedPreferenceChanged(SharedPreferences sp, String key) {
+	public synchronized void onSharedPreferenceChanged(SharedPreferences sp, String key) {
+		if (closed) return;
 		if (PREF_APP_SORT.equals(key)) {
 			setSort(sp.getInt(PREF_APP_SORT, 0));
 		} else if (PREF_EMULATOR_DIR.equals(key)) {
@@ -265,8 +289,9 @@ public class AppRepository implements SharedPreferences.OnSharedPreferenceChange
 						}
 					}
 				}
-				db.close();
 				compositeDisposable.clear();
+				AppDatabase previous = db;
+				databaseExecutor.execute(previous::close);
 			}
 			initDb(newPath);
 		}

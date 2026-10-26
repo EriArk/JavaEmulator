@@ -25,6 +25,14 @@ tasks.register('verifyProductionApks') {
                  'assets/shaders/retro/crt-easymode.glsl'].each {
                     if (zip.getEntry(it) == null) throw new GradleException("Missing notice: $it")
                 }
+                ['lib/arm64-v8a/libabyss-peer.so',
+                 'assets/licenses/peer/libdatachannel-MPL-2.0.txt',
+                 'assets/licenses/peer/libjuice-MPL-2.0.txt',
+                 'assets/licenses/peer/plog-MIT.txt',
+                 'assets/licenses/peer/mbedtls-LICENSE.txt',
+                 'assets/licenses/peer/usrsctp-BSD.txt'].each {
+                    if (zip.getEntry(it) == null) throw new GradleException("Missing experimental multiplayer payload/notice: $it")
+                }
                 zip.entries().each { entry ->
                     if (entry.name.endsWith('/libjavam3g.so') || entry.name ==~ /(?i).+\.(mpn|jar|jad)$/) {
                         throw new GradleException("Unwanted runtime payload: ${entry.name}")

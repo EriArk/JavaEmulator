@@ -21,22 +21,22 @@ public final class PaletteDialog extends Dialog {
         super(activity); this.activity = activity; AppPalette.apply(getContext());
     }
     @Override protected void onCreate(Bundle state) {
+        requestWindowFeature(android.view.Window.FEATURE_NO_TITLE);
         super.onCreate(state);
         setTitle("Visual style");
         LinearLayout rows = new LinearLayout(getContext()); rows.setOrientation(LinearLayout.VERTICAL);
         rows.setPadding(dp(12), dp(8), dp(12), dp(12));
+        TextView heading = new TextView(getContext()); heading.setText("Visual style");
+        heading.setTextSize(18); heading.setTextColor(AppPalette.color(getContext(), R.color.text_primary));
+        heading.setPadding(dp(12),dp(12),dp(12),dp(8));rows.addView(heading);
         int night = getContext().getResources().getConfiguration().uiMode & Configuration.UI_MODE_NIGHT_MASK;
         for (int i = 0; i < AppPalette.VALUES.length; i++) {
             final String value = AppPalette.VALUES[i];
             Context palette = AppPalette.preview(getContext(), value, night);
             LinearLayout row = new LinearLayout(palette); row.setGravity(Gravity.CENTER_VERTICAL);
             row.setPadding(dp(12), dp(12), dp(12), dp(12));
-            GradientDrawable background = new GradientDrawable();
-            background.setColor(AppPalette.color(palette, R.color.phone_panel));
-            background.setCornerRadius(dp("retro".equals(value) ? 7 : 3));
-            background.setStroke(dp("contrast".equals(value) ? 2 : 1), AppPalette.color(palette, R.color.phone_line));
-            row.setBackground(background); row.setFocusable(true); row.setClickable(true);
-            row.setForeground(palette.getDrawable(R.drawable.bg_settings_focus));
+            ConsoleSurface.apply(row, ConsoleSurface.Kind.KEY); row.setFocusable(true); row.setClickable(true);
+            row.setSelected(value.equals(AppPalette.selected(activity)));
             row.setContentDescription(AppPalette.NAMES[i]);
             TextView title = new TextView(palette); title.setText(AppPalette.NAMES[i]);
             title.setTextColor(AppPalette.color(palette, R.color.text_primary)); title.setTextSize(17);
@@ -67,7 +67,9 @@ public final class PaletteDialog extends Dialog {
         ScrollView scroll = new ScrollView(getContext()); scroll.addView(rows); setContentView(scroll);
     }
     @Override public void show() {
-        super.show(); getWindow().setLayout(Math.min(dp(440), getContext().getResources().getDisplayMetrics().widthPixels - dp(24)), -2);
+        super.show();getWindow().setBackgroundDrawable(new ConsoleSurface(getContext(), ConsoleSurface.Kind.PANEL));
+        getWindow().setLayout(Math.min(dp(440), getContext().getResources().getDisplayMetrics().widthPixels - dp(24)),
+                Math.min(dp(380), getContext().getResources().getDisplayMetrics().heightPixels - dp(48)));
     }
     @Override public boolean dispatchKeyEvent(android.view.KeyEvent event) {
         if (event.getKeyCode()==android.view.KeyEvent.KEYCODE_BUTTON_B) {

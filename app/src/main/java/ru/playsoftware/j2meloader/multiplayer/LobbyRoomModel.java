@@ -69,7 +69,7 @@ public final class LobbyRoomModel extends AndroidViewModel {
         public void onActivityPaused(android.app.Activity a){}public void onActivitySaveInstanceState(android.app.Activity a,android.os.Bundle b){}public void onActivityDestroyed(android.app.Activity a){}
     };
     public LobbyRoomModel(Application app){this(app,new FluxerCredentialStore(app),null,
-            ru.playsoftware.j2meloader.BuildConfig.DEBUG?Collections.singleton("java/bluetooth/1"):Collections.emptySet(),account->{
+            ru.playsoftware.j2meloader.BuildConfig.EXPERIMENTAL_MULTIPLAYER?Collections.singleton("java/bluetooth/1"):Collections.emptySet(),account->{
         try{return new LobbyPublicationStore(app,account);}catch(Exception e){return new LobbyPublisher.Store(){public JsonObject read()throws Exception{throw e;}public void write(JsonObject s)throws Exception{throw e;}};}
     });}
     LobbyRoomModel(Application app,FluxerAuth.Store credentials,FluxerAuth.Transport supplied,Set<String> capabilities,java.util.function.Function<String,LobbyPublisher.Store> store){

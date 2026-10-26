@@ -29,6 +29,7 @@ import ru.playsoftware.j2meloader.info.AboutDialogFragment;
 import ru.playsoftware.j2meloader.util.LogUtils;
 
 public class SettingsFragment extends PreferenceFragmentCompat {
+    private ru.playsoftware.j2meloader.input.GameMenuDialog choiceDialog;
 	private final ExecutorService executor = Executors.newSingleThreadExecutor();
 	private Preference foldersPreference;
 	private final ActivityResultLauncher<Uri> folderLauncher = registerForActivityResult(
@@ -112,6 +113,45 @@ public class SettingsFragment extends PreferenceFragmentCompat {
 			if (preference instanceof androidx.preference.PreferenceGroup) styleRows((androidx.preference.PreferenceGroup) preference);
 		}
 	}
+
+    @Override public void onViewCreated(android.view.View view, Bundle state) {
+        super.onViewCreated(view, state);
+        androidx.recyclerview.widget.RecyclerView list = getListView();
+        list.addOnChildAttachStateChangeListener(new androidx.recyclerview.widget.RecyclerView.OnChildAttachStateChangeListener() {
+            @Override public void onChildViewAttachedToWindow(android.view.View child) { styleRow(child); }
+            @Override public void onChildViewDetachedFromWindow(android.view.View child) { }
+        });
+        for (int i = 0; i < list.getChildCount(); i++) styleRow(list.getChildAt(i));
+    }
+
+    private static void styleRow(android.view.View child) {
+        ru.playsoftware.j2meloader.ui.ConsoleSurface.apply(child,
+                ru.playsoftware.j2meloader.ui.ConsoleSurface.Kind.ROW);
+    }
+
+    @Override public void onDisplayPreferenceDialog(Preference preference) {
+        if (!(preference instanceof androidx.preference.ListPreference)) {
+            super.onDisplayPreferenceDialog(preference); return;
+        }
+        androidx.preference.ListPreference list = (androidx.preference.ListPreference) preference;
+        if (choiceDialog != null) choiceDialog.dismiss();
+        ru.playsoftware.j2meloader.input.GameMenuDialog menu = new ru.playsoftware.j2meloader.input.GameMenuDialog(requireContext(), list.getTitle().toString());
+        choiceDialog = menu; menu.useEdgePanel(); menu.show(); menu.page(list.getTitle().toString());
+        CharSequence[] entries = list.getEntries(), values = list.getEntryValues();
+        for (int i = 0; i < entries.length; i++) {
+            String value = values[i].toString();
+            android.widget.Button button = menu.action(entries[i].toString(),
+                    value.equals(list.getValue()) ? android.R.drawable.radiobutton_on_background : android.R.drawable.radiobutton_off_background,
+                    () -> { menu.dismiss(); if (list.callChangeListener(value)) list.setValue(value); });
+            button.setSelected(value.equals(list.getValue()));
+        }
+        menu.setOnDismissListener(d -> { if (choiceDialog == menu) choiceDialog = null; });
+    }
+
+    @Override public void onStop() {
+        if (choiceDialog != null) { choiceDialog.dismiss(); choiceDialog = null; }
+        super.onStop();
+    }
 
 	@Override public void onResume() {
 		super.onResume();

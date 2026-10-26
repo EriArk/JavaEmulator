@@ -68,16 +68,21 @@ public abstract class AppDatabase extends RoomDatabase implements AutoCloseable 
 	};
 
 	public static synchronized AppDatabase open(Context context, String dir) {
+		return open(context, dir, null);
+	}
+
+	public static synchronized AppDatabase open(Context context, String dir, java.util.concurrent.Executor queryExecutor) {
 		File current = new File(dir, "abyssme.db");
 		File legacy = new File(dir, "J2ME-apps.db");
 		// Keep the legacy file and its WAL together. Never overwrite or merge two catalogs.
 		File database = !current.exists() && legacy.isFile() ? legacy : current;
-		return Room.databaseBuilder(
+		RoomDatabase.Builder<AppDatabase> builder = Room.databaseBuilder(
 				context.getApplicationContext(),
 				AppDatabase.class,
 				database.getAbsolutePath())
 				.addMigrations(MIGRATION_1_2, MIGRATION_2_3, MIGRATION_3_4)
-				.enableMultiInstanceInvalidation()
-				.build();
+				.enableMultiInstanceInvalidation();
+		if (queryExecutor != null) builder.setQueryExecutor(queryExecutor);
+		return builder.build();
 	}
 }

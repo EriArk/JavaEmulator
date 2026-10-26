@@ -211,15 +211,16 @@ public final class SymbianActivity extends Activity implements Emulator.Host, In
         Button b = new Button(this); b.setText(title); b.setAllCaps(false); b.setTextColor(ru.playsoftware.j2meloader.ui.AppPalette.color(this, ru.playsoftware.j2meloader.R.color.text_primary));
         b.setTextSize(15); b.setGravity(Gravity.START | Gravity.CENTER_VERTICAL);
         b.setPadding(dp(14),dp(8),dp(14),dp(8));
-        b.setBackgroundResource(R.drawable.bg_quick_setting_button); b.setBackgroundTintList(null);
-        b.setMinHeight(dp(44)); b.setOnClickListener(v -> { if (!busy) run.run(); });
+        ru.playsoftware.j2meloader.ui.ConsoleSurface.apply(b, ru.playsoftware.j2meloader.ui.ConsoleSurface.Kind.KEY);
+        b.setMinHeight(dp(48)); b.setOnClickListener(v -> { if (!busy) run.run(); });
         LinearLayout.LayoutParams params = new LinearLayout.LayoutParams(-1,-2); params.topMargin=dp(4);
         parent.addView(b,params);
     }
     private void library() {
         archiveView=null;
         archivePage=false;
-        page = new LinearLayout(this); page.setOrientation(LinearLayout.VERTICAL); page.setBackgroundColor(ru.playsoftware.j2meloader.ui.AppPalette.color(this, ru.playsoftware.j2meloader.R.color.background));
+        page = new LinearLayout(this); page.setOrientation(LinearLayout.VERTICAL);
+        ru.playsoftware.j2meloader.ui.ConsoleSurface.apply(page, ru.playsoftware.j2meloader.ui.ConsoleSurface.Kind.CHASSIS);
         page.setPadding(dp(10), dp(8), dp(10), dp(8));
         page.addView(label("System files", 22));
         status = label("", 14); page.addView(status);
@@ -234,6 +235,7 @@ public final class SymbianActivity extends Activity implements Emulator.Host, In
             return;
         }
         ScrollView scroll = new ScrollView(this);
+        ru.playsoftware.j2meloader.ui.ConsoleSurface.apply(scroll, ru.playsoftware.j2meloader.ui.ConsoleSurface.Kind.SCREEN);
         LinearLayout list = new LinearLayout(this); list.setOrientation(LinearLayout.VERTICAL);
         scroll.addView(list); page.addView(scroll, new LinearLayout.LayoutParams(-1, 0, 1));
         if (hasPendingImport) action(list, "Pending import", this::pendingActions);
@@ -502,7 +504,7 @@ public final class SymbianActivity extends Activity implements Emulator.Host, In
     @Override protected void onSaveInstanceState(Bundle state) {
         state.putString("backupSystem",backupSystem); super.onSaveInstanceState(state);
     }
-    private GameMenuDialog dialog(String title) { GameMenuDialog menu = new GameMenuDialog(this, "Symbian / N-Gage"); menu.show(); menu.page(title); return menu; }
+    private GameMenuDialog dialog(String title) { GameMenuDialog menu = new GameMenuDialog(this, "Symbian / N-Gage"); menu.useEdgePanel(); menu.show(); menu.page(title); return menu; }
     private void notice(String title,String text,String action,Runnable run,String cancel) {
         GameMenuDialog menu = dialog(title); menu.message(text);
         menu.action(action,0,() -> { menu.dismiss(); if (run != null) run.run(); });

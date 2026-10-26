@@ -20,7 +20,7 @@ require Git history; the optional dev-flavor counter falls back to zero.
 The ordinary build compiles the checked-in M3G/Mophun sources;
 research generation and private game fixtures are not prerequisites.
 
-The 0.3 combined APKs additionally use the separate Symbian source bundle.
+The combined APKs additionally use the separate Symbian source bundle.
 Restore it with `tools/restore-symbian-sources.py`, follow
 `engines/symbian/DISTRIBUTION.md` for its NDK/CMake/MSYS prerequisites, and pass
 `-PsymbianRelease=true` to Gradle. Without that property the build contains only
@@ -35,7 +35,7 @@ included. Dependencies may still need downloading from Maven repositories.
 
 ## Native Dependency Provenance
 
-The unreleased secure peer module adds
+Starting with 0.6.0-beta.1, the experimental secure peer module adds
 `abyssme-peer-corresponding-source.zip` to preparation output. It contains pinned
 libdatachannel, libjuice, usrsctp, plog, Mbed TLS and build-tool source trees plus
 the JNI/Java wrapper/build scripts and component notices. See the matching app's

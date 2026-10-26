@@ -10,7 +10,7 @@ library, automatic first-launch preparation, and fast per-game controller
 mapping. Mophun and experimental Symbian / N-Gage support share the same
 library, display controls and in-game menu.
 
-**0.5.0 Beta 1 uses one APK for phones and handhelds**, with automatic controller
+**0.6.0 Beta 1 uses one APK for phones and handhelds**, with automatic controller
 detection and optional touch buttons. Existing Handheld installs update in place;
 users of the former Phone app can use the menu-based
 [migration workflow](docs/LIBRARY_TRANSFER.md#moving-from-abyssme-phone).
@@ -18,9 +18,9 @@ users of the former Phone app can use the menu-based
 > **Project status:** Beta. AbyssME is usable, but compatibility automation and
 > launcher integration still need testing across more games and devices.
 
-[Download 0.5.0 Beta 1](https://github.com/EriArk/JavaEmulator/releases/download/v0.5.0-beta.1/AbyssME-0.5.0-beta.1.apk)
+[Download 0.6.0 Beta 1](https://github.com/EriArk/JavaEmulator/releases/download/v0.6.0-beta.1/AbyssME-0.6.0-beta.1.apk)
 
-Use the **0.5.0-beta.1** APK. It updates the official unified app in place;
+Use the **0.6.0-beta.1** APK. It updates the official unified app in place;
 older releases remain available for reference.
 
 ## Current Beta
@@ -29,8 +29,24 @@ For website copy, progress posts and handoffs, start with the
 [current product/development status](docs/PROJECT_STATUS.md) and
 [dated changelog](CHANGELOG.md). They also describe local/private experiments,
 explicitly separated from public downloads. The
-[0.5.0 Beta 1 notes](docs/releases/v0.5.0-beta.1.md) include the combined-engine scope,
+[0.6.0 Beta 1 notes](docs/releases/v0.6.0-beta.1.md) include the combined-engine scope,
 verification limits and source downloads.
+
+**A refreshed game library and menus:** four platform tabs, remembered browsing
+state, contextual game actions instead of a permanent detail sidebar, and a
+shared Soft Console appearance in light and dark themes. Supported display
+presets preview immediately with Keep/Undo. Phone keypad placement can be
+Separate or Overlay without changing existing controller mappings.
+
+**Multiplayer is early experimental, with low compatibility.** Social provides
+Fluxer sign-in, friends, chats and AbyssME-compatible lobbies. Play Together is
+available for supported Java Bluetooth games; both players need the same game
+version and their own copy. It is not multiplayer for every Java game, Mophun
+or Symbian/N-Gage. Some networks cannot connect; there is no relay fallback.
+Offline play does not need an account. [Setup and limits](docs/MULTIPLAYER.md).
+
+After this feature beta, development is focused on usability, stability and game
+compatibility rather than another round of major features.
 
 **Image presets** for Java and Mophun now include Pixel sharp, Smooth,
 Enhanced (FSR), xBRZ and CRT EasyMode. Open **Game menu > Display > Enhancements**
@@ -40,7 +56,10 @@ pixel multiples. Optional frame interpolation and Mophun CPU budget remain
 experimental and off/original by default; they do not guarantee 60 FPS.
 Symbian/N-Gage does not use these new GPU effects.
 [Options and limits](docs/EXPERIMENTAL_ENHANCEMENTS.md),
-[fresh signed-app screenshots](screenshots/releases/v0.5.0-beta.1/README.md).
+[0.5 effect comparisons](screenshots/releases/v0.5.0-beta.1/README.md).
+
+[Fresh 0.6 signed-app screenshots](screenshots/releases/v0.6.0-beta.1/README.md)
+show the updated library, settings, Social and game menus in light and dark themes.
 
 This beta also improves Java frame pacing, short button taps and interrupted
 imports. Mophun screenshots can use the enhanced image or original pixels.

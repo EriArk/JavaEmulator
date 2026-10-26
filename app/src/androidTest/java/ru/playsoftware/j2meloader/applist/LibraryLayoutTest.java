@@ -112,13 +112,18 @@ public class LibraryLayoutTest {
         });
         assertTrue("Library filter did not finish", loaded.await(5, TimeUnit.SECONDS));
         instrumentation.runOnMainSync(() -> {
-            Context context = new ContextThemeWrapper(instrumentation.getTargetContext(), R.style.AppTheme);
+            for (float fontScale : new float[]{1f, 1.5f}) {
+            android.content.res.Configuration configuration = new android.content.res.Configuration(
+                    instrumentation.getTargetContext().getResources().getConfiguration());
+            configuration.fontScale = fontScale;
+            Context context = new ContextThemeWrapper(instrumentation.getTargetContext()
+                    .createConfigurationContext(configuration), R.style.AppTheme);
             float density = context.getResources().getDisplayMetrics().density;
             for (boolean compact : new boolean[]{false, true}) {
               adapter[0].setCompact(compact);
               for (int height : new int[]{136, 184, 224, 500}) {
-                adapter[0].setAvailableHeight(height);
                 for (int mode = 0; mode < 3; mode++) {
+                    adapter[0].setAvailableHeight(height);
                     adapter[0].setDisplayMode(mode);
                     AppsListAdapter.ViewHolder holder = adapter[0].onCreateViewHolder(new FrameLayout(context), 0);
                     adapter[0].onBindViewHolder(holder, 0);
@@ -135,8 +140,16 @@ public class LibraryLayoutTest {
                     assertEquals(mode == 0 ? View.GONE : View.VISIBLE, card.findViewById(R.id.icon).getVisibility());
                     View title = card.findViewById(R.id.name);
                     assertTrue(title.getHeight() >= 18 * density);
+                    adapter[0].setLibraryLayout(LibraryLayout.calculate(mode, LibraryLayout.AUTO,
+                            mode == 1 ? 448 : 216, height, fontScale));
+                    adapter[0].onBindViewHolder(holder, 0);
+                    card.measure(View.MeasureSpec.makeMeasureSpec(Math.round((mode == 1 ? 448 : 216) * density),
+                            View.MeasureSpec.EXACTLY), View.MeasureSpec.makeMeasureSpec(0, View.MeasureSpec.UNSPECIFIED));
+                    assertTrue("Resolved card clipped at font scale " + fontScale,
+                            card.getMeasuredHeight() + 8 * density <= height * density);
                 }
               }
+            }
             }
         });
     }

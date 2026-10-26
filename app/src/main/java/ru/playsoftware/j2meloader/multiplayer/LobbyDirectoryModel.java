@@ -20,8 +20,8 @@ public final class LobbyDirectoryModel extends AndroidViewModel {
     private final ScheduledFuture<?> timer;
 
     public LobbyDirectoryModel(Application app){
-        // Match the room owner's experimental adapter; production stays disabled.
-        this(app,new FluxerCredentialStore(app),null,ru.playsoftware.j2meloader.BuildConfig.DEBUG
+        // Advertise only the implemented Java Bluetooth adapter, in both build types.
+        this(app,new FluxerCredentialStore(app),null,ru.playsoftware.j2meloader.BuildConfig.EXPERIMENTAL_MULTIPLAYER
                 ?Collections.singleton(LobbyDirectory.JAVA_BLUETOOTH):Collections.emptySet());
     }
     LobbyDirectoryModel(Application app,FluxerAuth.Store store,FluxerAuth.Transport supplied,Set<String> capabilities){

@@ -14,6 +14,7 @@ import androidx.core.view.WindowInsetsControllerCompat;
 import ru.playsoftware.j2meloader.BuildConfig;
 import ru.playsoftware.j2meloader.R;
 import ru.playsoftware.j2meloader.base.BaseActivity;
+import ru.playsoftware.j2meloader.ui.ConsoleSurface;
 
 /** Shared compact chrome for settings and library transfer. */
 public abstract class CompactSettingsActivity extends BaseActivity {
@@ -30,10 +31,10 @@ public abstract class CompactSettingsActivity extends BaseActivity {
                 android.content.pm.ActivityInfo.SCREEN_ORIENTATION_SENSOR_LANDSCAPE);
         LinearLayout root = new LinearLayout(this);
         root.setOrientation(LinearLayout.VERTICAL);
-        root.setBackgroundColor(ru.playsoftware.j2meloader.ui.AppPalette.color(this, R.color.background));
+        ConsoleSurface.apply(root, ConsoleSurface.Kind.CHASSIS);
         screenHeader = new LinearLayout(this);
         screenHeader.setGravity(Gravity.CENTER_VERTICAL);
-        screenHeader.setBackgroundColor(ru.playsoftware.j2meloader.ui.AppPalette.color(this, R.color.phone_panel));
+        ConsoleSurface.apply(screenHeader, ConsoleSurface.Kind.CHASSIS);
         ImageButton back = headerButton("Back", androidx.appcompat.R.drawable.abc_ic_ab_back_material, this::onBackPressed);
         back.setId(R.id.settings_back);
         screenTitle = new TextView(this);
@@ -42,6 +43,7 @@ public abstract class CompactSettingsActivity extends BaseActivity {
         screenHeader.addView(screenTitle, new LinearLayout.LayoutParams(0, -2, 1));
         root.addView(screenHeader, new LinearLayout.LayoutParams(-1, dp(48)));
         screenContent = new FrameLayout(this); screenContent.setId(R.id.settings_content);
+        ConsoleSurface.apply(screenContent, ConsoleSurface.Kind.SCREEN);
         root.addView(screenContent, new LinearLayout.LayoutParams(-1, 0, 1));
         root.getViewTreeObserver().addOnGlobalLayoutListener(this::focusInitialAction);
         setContentView(root);
@@ -52,7 +54,7 @@ public abstract class CompactSettingsActivity extends BaseActivity {
     protected ImageButton headerButton(String label, int icon, Runnable action) {
         ImageButton button = new ImageButton(this);
         button.setImageResource(icon); button.setColorFilter(ru.playsoftware.j2meloader.ui.AppPalette.color(this, R.color.accent));
-        button.setBackgroundResource(R.drawable.bg_library_tab);
+        ConsoleSurface.apply(button, ConsoleSurface.Kind.KEY);
         button.setPadding(dp(12), dp(12), dp(12), dp(12));
         button.setContentDescription(label); button.setTooltipText(label);
         button.setOnClickListener(v -> action.run());

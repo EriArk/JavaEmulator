@@ -1,5 +1,19 @@
 # Multiplayer: Lobby Lite Implementation
 
+## 0.6 Release Candidate
+
+2026-10-26: the owner approved enabling the existing Fluxer social/room stack and
+two-player Java Bluetooth adapter in `0.6.0-beta.1`, explicitly **early
+experimental, low compatibility**. Same-edition checks, admission, Ready,
+encrypted peer binding and process isolation remain mandatory. Mophun/Symbian
+online play and TrainerOS cross-play are unsupported. Some networks cannot
+connect directly; no universal relay fallback is offered.
+[Release scope](releases/v0.6.0-beta.1.md) and
+[current build/publication evidence](releases/v0.6.0-beta.1-checks.md) supersede
+the disabled-Release statements in the historical checkpoint below.
+
+## Historical Foundation Checkpoint
+
 Status: **unreleased social/room features, virtual Java Bluetooth adapter and secure peer core**, 2026-10-25. Parent [#33](https://github.com/EriArk/JavaEmulator/issues/33).
 The public 0.5.0 Beta 1 APK has not changed. The new [Fluxer account screen](FLUXER_ACCOUNT.md)
 and [private text chats](FLUXER_CHATS.md) / [friends and requests](FLUXER_FRIENDS.md) are reachable in development builds;

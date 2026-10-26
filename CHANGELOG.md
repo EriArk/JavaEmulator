@@ -10,6 +10,28 @@ stated otherwise. **Experimental** in older checkpoints means local/private
 combined builds; released experimental features are explicitly identified.
 **Released** means an actual GitHub release asset.
 
+## 2026-10-26 - 0.6.0 Beta 1 Preparation
+
+- Bring the cumulative four-tab library, contextual game actions, in-game panels,
+  reversible visual presets, keypad placement and social refresh into one beta.
+- Finish the main settings/account/transfer journey with common Soft Console
+  surfaces, themed brightness/style choices and responsive account content.
+  Apply the same materials to native system-file setup and archive review.
+- Enable the existing encrypted two-player Java Bluetooth adapter in Release,
+  explicitly labeled **early experimental, low compatibility**. Keep matching
+  game versions, admission, preparation and Ready requirements; offline games
+  never require Fluxer. No Mophun/Symbian online adapter or relay is added.
+- Preserve account storage, imports, backups, game identity and existing input
+  mappings. Release guards additionally require the peer binary and notices.
+- Fix a library database shutdown race reproduced while switching screens on
+  the emulator. Unsubscribe before closing, finish accepted writes, and detach
+  preference callbacks from closed repositories. Adjust fallback card geometry
+  for large text and check both resolved and fallback layouts.
+- [Release scope](docs/releases/v0.6.0-beta.1.md),
+  [verification and publication](docs/releases/v0.6.0-beta.1-checks.md).
+  The following dated UI entries record their original development status.
+- Next phase: usability, reliability and compatibility, not feature expansion.
+
 ## 2026-10-26 - Soft Console Friends and Chats (#40, Unreleased)
 
 - Bring Friends and Chats into the same light/dark Soft Console materials:

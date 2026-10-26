@@ -125,7 +125,17 @@ public class LobbyDirectoryDeviceTest {
         assertFalse(FluxerHttpTransport.allowed("POST",LobbyDirectory.INVITE_PATH,null));assertFalse(FluxerHttpTransport.allowed("POST","/v1/invites/another",token));
         assertFalse(FluxerHttpTransport.allowed("POST",LobbyDirectory.INVITE_PATH+"?redirect=evil",token));assertFalse(FluxerHttpTransport.allowed("DELETE",LobbyDirectory.INVITE_PATH,token));
     }
-    private static void count(ActivityScenario<LobbyDirectoryActivity> s,int expected){s.onActivity(a->{androidx.recyclerview.widget.RecyclerView list=a.findViewById(R.id.lobby_list);assertEquals(expected,list.getAdapter().getItemCount());assertTrue(list.getBottom()<=((View)list.getParent()).getHeight());});}
+    private static void count(ActivityScenario<LobbyDirectoryActivity> s,int expected)throws Exception{
+        // ListAdapter commits diffs asynchronously; a fixed sleep races slow devices.
+        long until=android.os.SystemClock.elapsedRealtime()+5000;int[] actual={-1};
+        do{
+            s.onActivity(a->{androidx.recyclerview.widget.RecyclerView list=a.findViewById(R.id.lobby_list);actual[0]=list.getAdapter().getItemCount();});
+            if(actual[0]==expected)break;
+            Thread.sleep(50);
+        }while(android.os.SystemClock.elapsedRealtime()<until);
+        assertEquals(expected,actual[0]);
+        s.onActivity(a->{androidx.recyclerview.widget.RecyclerView list=a.findViewById(R.id.lobby_list);assertTrue(list.getBottom()<=((View)list.getParent()).getHeight());});
+    }
     private static void keyboard(ActivityScenario<LobbyDirectoryActivity> s,boolean visible)throws Exception{
         // IME startup and recreation animations are asynchronous, especially on the emulator.
         long until=android.os.SystemClock.elapsedRealtime()+5000;boolean[] actual={false};

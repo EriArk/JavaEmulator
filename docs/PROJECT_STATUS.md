@@ -35,6 +35,21 @@ bundled. The app UI is English.
 
 ## Availability: Do Not Mix These Channels
 
+**0.6.0-beta.1 candidate, code 311, 2026-10-26:** the owner approved a prerelease
+combining the cumulative #40 redesign with early experimental multiplayer.
+Common settings, account, transfers and native setup/archive pages now share
+Soft Console materials. The existing encrypted two-player Java Bluetooth path
+is enabled in Release and labeled low compatibility. No new networking service,
+engine or universal game adapter was introduced in this final slice.
+[Release notes](releases/v0.6.0-beta.1.md) and
+[verification/publication record](releases/v0.6.0-beta.1-checks.md).
+
+**Editorial direction after 0.6:** focus on polish, ordinary user journeys,
+stability and compatibility instead of adding more major features. Online is
+not a universal multiplayer solution: exact game versions are required, some
+networks cannot connect, and long sessions/different-network acceptance remain
+open. This is the wording boundary for website and announcement copy.
+
 **Current public beta: [0.5.0-beta.1](https://github.com/EriArk/JavaEmulator/releases/tag/v0.5.0-beta.1)**,
 code **310**, published **2026-10-23 at 21:32:23 UTC** (2026-10-24 locally).
 The maintainer approved a new 0.5 release instead of another Beta 3 revision.

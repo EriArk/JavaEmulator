@@ -87,9 +87,10 @@ public class AppsListAdapter extends RecyclerView.Adapter<AppsListAdapter.ViewHo
 	}
 
 	public void setAvailableHeight(int height) {
-		int bounded = Math.max(64, Math.min(154, height - 74));
-		if (availableHeight != bounded) {
+		int bounded = Math.max(1, height);
+		if (availableHeight != bounded || layout != null) {
 			availableHeight = bounded;
+			layout = null;
 			notifyDataSetChanged();
 		}
 	}
@@ -266,7 +267,9 @@ public class AppsListAdapter extends RecyclerView.Adapter<AppsListAdapter.ViewHo
 				binding.name.setMaxLines(1);
 			} else {
 				root.setOrientation(LinearLayout.VERTICAL);
-				int artHeight = dp(layout == null ? Math.min(mode == MODE_GALLERY ? 154 : 116, availableHeight) : layout.artHeight);
+				float font = Math.max(1, root.getResources().getConfiguration().fontScale);
+				int artBudget = Math.max(16, availableHeight - Math.round(30 + 44 * font));
+				int artHeight = dp(layout == null ? Math.min(mode == MODE_GALLERY ? 154 : 116, artBudget) : layout.artHeight);
 				LinearLayout.LayoutParams artLp = new LinearLayout.LayoutParams(
 						mode == MODE_GALLERY && layout != null ? dp(layout.artWidth) : ViewGroup.LayoutParams.MATCH_PARENT, artHeight);
 				artLp.gravity = android.view.Gravity.CENTER_HORIZONTAL;

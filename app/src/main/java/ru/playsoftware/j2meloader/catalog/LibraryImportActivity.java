@@ -24,6 +24,7 @@ import java.util.List;
 import ru.playsoftware.j2meloader.R;
 import ru.playsoftware.j2meloader.input.GameMenuDialog;
 import ru.playsoftware.j2meloader.settings.CompactSettingsActivity;
+import ru.playsoftware.j2meloader.ui.ConsoleSurface;
 
 public class LibraryImportActivity extends CompactSettingsActivity {
     private int LIGHT, MUTED, AMBER;
@@ -94,6 +95,7 @@ public class LibraryImportActivity extends CompactSettingsActivity {
         progress.setProgressTintList(ColorStateList.valueOf(AMBER));
         root.addView(progress, new LinearLayout.LayoutParams(-1, dp(4)));
         home = new ScrollView(this);
+        ConsoleSurface.apply(home, ConsoleSurface.Kind.SCREEN);
         LinearLayout choices = new LinearLayout(this); choices.setOrientation(LinearLayout.VERTICAL);
         homeStatus = text(14, LIGHT);
         homeStatus.setPadding(dp(4), 0, dp(4), dp(12)); choices.addView(homeStatus);
@@ -116,6 +118,7 @@ public class LibraryImportActivity extends CompactSettingsActivity {
         }
         home.addView(choices); root.addView(home, new LinearLayout.LayoutParams(-1, 0, 1));
         list = new RecyclerView(this); list.setContentDescription("Transfer games");
+        ConsoleSurface.apply(list, ConsoleSurface.Kind.SCREEN);
         list.setLayoutManager(new LinearLayoutManager(this)); list.setAdapter(adapter);
         root.addView(list, new LinearLayout.LayoutParams(-1, 0, 1));
         footer = new LinearLayout(this); footer.setGravity(Gravity.CENTER_VERTICAL);
@@ -177,7 +180,7 @@ public class LibraryImportActivity extends CompactSettingsActivity {
     }
     private GameMenuDialog menu(String title) {
         GameMenuDialog dialog = new GameMenuDialog(this, "Library transfer");
-        dialog.show(); dialog.page(title); return dialog;
+        dialog.useEdgePanel(); dialog.show(); dialog.page(title); return dialog;
     }
     private void showImportSources() {
         GameMenuDialog dialog = menu("J2ME Loader");
@@ -281,7 +284,7 @@ public class LibraryImportActivity extends CompactSettingsActivity {
         button.setPadding(dp(12), dp(8), dp(12), dp(8));
         button.setTextColor(new ColorStateList(new int[][]{new int[]{-android.R.attr.state_enabled}, new int[]{}},
                 new int[]{ru.playsoftware.j2meloader.ui.AppPalette.color(this, ru.playsoftware.j2meloader.R.color.text_secondary), LIGHT}));
-        button.setBackgroundResource(R.drawable.bg_quick_setting_button); button.setBackgroundTintList(null);
+        ConsoleSurface.apply(button, ConsoleSurface.Kind.KEY);
         setIcon(button, icon);
         button.setOnClickListener(v -> action.run()); return button;
     }
@@ -297,7 +300,7 @@ public class LibraryImportActivity extends CompactSettingsActivity {
         @Override public Row onCreateViewHolder(ViewGroup parent, int viewType) {
             LinearLayout row = new LinearLayout(LibraryImportActivity.this); row.setGravity(Gravity.CENTER_VERTICAL);
             row.setMinimumHeight(dp(64)); row.setPadding(0, dp(8), 0, dp(8)); row.setFocusable(true);
-            row.setBackgroundResource(R.drawable.bg_library_tab);
+            ConsoleSurface.apply(row, ConsoleSurface.Kind.ROW);
             row.setLayoutParams(new RecyclerView.LayoutParams(-1, -2));
             CheckBox check = new CheckBox(LibraryImportActivity.this); check.setButtonTintList(ColorStateList.valueOf(AMBER));
             check.setFocusable(false);

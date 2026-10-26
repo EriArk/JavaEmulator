@@ -1,5 +1,20 @@
 # Retro-Modern UI Refresh (#40)
 
+## 0.6 Release Checkpoint
+
+2026-10-26: the cumulative refresh is prepared for `0.6.0-beta.1`. Common
+settings, brightness/style choices, library transfer, Fluxer sign-in and native
+system-file/archive pages now share Soft Console materials. These changes keep
+the existing import, account, game identity and saved-profile logic intact.
+Multiplayer is enabled with an explicit early-experimental / low-compatibility
+warning; only the existing Java Bluetooth adapter is advertised.
+
+The main library-to-play-to-settings/social journey is the release scope. This
+does not claim every inherited expert editor or engine-owned installer dialog
+has been replaced, nor that all #40 acceptance scenarios are complete. The
+dated "unreleased" entries below describe their original checkpoints.
+[Release checks and remaining limits](releases/v0.6.0-beta.1-checks.md).
+
 ## Scope and Baseline
 
 2026-10-26, first implementation slice on top of `08e90023`.

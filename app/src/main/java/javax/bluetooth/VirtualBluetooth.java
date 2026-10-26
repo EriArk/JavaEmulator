@@ -29,7 +29,8 @@ import ru.playsoftware.j2meloader.multiplayer.FramedL2capConnection;
 
 /** Internal JSR-82 backend. Not an Internet transport or an admission mechanism.
  * The runtime may install this only for an authorized launch with an encrypted,
- * reliable peer transport. Production capabilities remain disabled until that exists.
+ * reliable peer transport. The host exposes this as an experimental capability;
+ * listing a game never authorizes a connection by itself.
  */
 public final class VirtualBluetooth implements Closeable {
     /** One instance per launch attempt; close must interrupt ALL outstanding operations.

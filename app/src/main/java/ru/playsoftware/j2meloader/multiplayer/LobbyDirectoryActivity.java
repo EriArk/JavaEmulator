@@ -47,6 +47,8 @@ public final class LobbyDirectoryActivity extends CompactSettingsActivity {
         LinearLayout root=new LinearLayout(this);root.setOrientation(LinearLayout.VERTICAL);screenContent.addView(root,new ViewGroup.LayoutParams(-1,-1));
         root.setBackground(new ConsoleSurface(this,ConsoleSurface.Kind.CHASSIS));
         screenHeader.setBackground(new ConsoleSurface(this,ConsoleSurface.Kind.CHASSIS));
+        TextView experimental=label(12,R.color.text_secondary);experimental.setText("Early experimental - low compatibility");
+        experimental.setPadding(dp(12),dp(4),dp(12),0);root.addView(experimental);
         status=label(14,R.color.text_secondary);status.setId(R.id.lobby_status);status.setPadding(dp(12),dp(8),dp(12),dp(8));
         status.setAccessibilityLiveRegion(View.ACCESSIBILITY_LIVE_REGION_POLITE);root.addView(status);
         progress=new ProgressBar(this,null,android.R.attr.progressBarStyleHorizontal);progress.setIndeterminate(true);root.addView(progress,new LinearLayout.LayoutParams(-1,dp(3)));

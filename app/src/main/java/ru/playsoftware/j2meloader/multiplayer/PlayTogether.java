@@ -19,7 +19,7 @@ public final class PlayTogether {
     private static final Handler MAIN = new Handler(Looper.getMainLooper());
     private PlayTogether() { }
     public static void action(GameMenuDialog menu, String path, Consumer<Intent> launch) {
-        if (!BuildConfig.DEBUG) return;
+        if (!BuildConfig.EXPERIMENTAL_MULTIPLAYER) return;
         Button button = menu.action("Play Together", android.R.drawable.ic_menu_share,
                 () -> launch.accept(new Intent(menu.getContext(), LobbyRoomActivity.class).putExtra(EXTRA_GAME, path)));
         button.setVisibility(View.GONE);
@@ -31,7 +31,7 @@ public final class PlayTogether {
         FILES.execute(() -> {
             NetworkGameCatalog.Entry entry = null;
             try {
-                if (BuildConfig.DEBUG && path != null && path.length() <= 4096) {
+                if (BuildConfig.EXPERIMENTAL_MULTIPLAYER && path != null && path.length() <= 4096) {
                     File root = new File(Config.getAppDir()), dir = new File(path);
                     NetworkGameCatalog.verify(root, new NetworkGameCatalog.Entry(dir, ""));
                     if (BluetoothGameProbe.referencesBluetooth(new File(dir, "res.jar")))

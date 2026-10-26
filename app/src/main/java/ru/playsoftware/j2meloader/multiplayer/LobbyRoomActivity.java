@@ -74,6 +74,7 @@ public final class LobbyRoomActivity extends CompactSettingsActivity {
         if(next.equals(signature))return;signature=next;
         int oldScroll=scroll.getScrollY();
         Object focused=getCurrentFocus()==null?null:getCurrentFocus().getTag();rows.removeAllViews();footer.removeAllViews();
+        rows.addView(label("Early experimental - low compatibility",13));
         footer.setVisibility(s.joined?View.VISIBLE:View.GONE);
         if(!selectionStatus.isEmpty())rows.addView(label(selectionStatus,14));
         if(selectedGame!=null&&!selectedGame.directory.getAbsolutePath().equals(s.selectedGamePath)){

@@ -48,6 +48,13 @@ the permission's wording, is the selected integration path.
 
 ## Dependency Materials
 
+The multiplayer components described below are included in `0.6.0-beta.1`,
+with their existing terms unchanged. "Unreleased" in the original checkpoint
+descriptions below refers to their introduction before this release. The peer
+corresponding-source archive is included inside the dependency source bundle;
+Symbian sources remain a separate bundle. No games, firmware or credentials are
+included. See [0.6 verification](releases/v0.6.0-beta.1-checks.md).
+
 The unreleased multiplayer temporary-contact actor is a Java adaptation of the
 owner's GPLv3 TrainerOS implementation at `d69e50dc`, not a Qt library linked into
 Android. The adaptation retains a GPL-3.0-only source header and its protocol/

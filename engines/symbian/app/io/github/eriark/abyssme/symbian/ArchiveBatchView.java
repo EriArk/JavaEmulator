@@ -24,7 +24,8 @@ final class ArchiveBatchView extends LinearLayout {
     private boolean binding;
     ArchiveBatchView(Context context,ArchiveBatch.Batch batch,Host host) {
         super(context); this.batch=batch; this.host=host;
-        setOrientation(VERTICAL); setPadding(dp(10),dp(8),dp(10),dp(8)); setBackgroundColor(ru.playsoftware.j2meloader.ui.AppPalette.color(getContext(), ru.playsoftware.j2meloader.R.color.background));
+        setOrientation(VERTICAL); setPadding(dp(10),dp(8),dp(10),dp(8));
+        ru.playsoftware.j2meloader.ui.ConsoleSurface.apply(this, ru.playsoftware.j2meloader.ui.ConsoleSurface.Kind.CHASSIS);
         LinearLayout header=new LinearLayout(context); header.setGravity(Gravity.CENTER_VERTICAL);
         header.addView(icon("Back",android.R.drawable.ic_media_previous,host::close),new LayoutParams(dp(44),dp(44)));
         TextView title=text("Archive import",20); header.addView(title,new LayoutParams(0,-2,1));
@@ -34,6 +35,7 @@ final class ArchiveBatchView extends LinearLayout {
         progress=new ProgressBar(context,null,android.R.attr.progressBarStyleHorizontal); progress.setIndeterminate(true);
         progress.setIndeterminateTintList(ColorStateList.valueOf(ru.playsoftware.j2meloader.ui.AppPalette.color(getContext(), ru.playsoftware.j2meloader.R.color.accent))); progress.setVisibility(GONE); addView(progress,new LayoutParams(-1,dp(4)));
         RecyclerView list=new RecyclerView(context); list.setLayoutManager(new LinearLayoutManager(context));
+        ru.playsoftware.j2meloader.ui.ConsoleSurface.apply(list, ru.playsoftware.j2meloader.ui.ConsoleSurface.Kind.SCREEN);
         list.setContentDescription("Archive files"); list.setAdapter(rows); addView(list,new LayoutParams(-1,0,1));
         LinearLayout footer=new LinearLayout(context); footer.setGravity(Gravity.CENTER_VERTICAL);
         all=new CheckBox(context); all.setText("Select all"); all.setTextColor(ru.playsoftware.j2meloader.ui.AppPalette.color(getContext(), ru.playsoftware.j2meloader.R.color.text_primary)); all.setButtonTintList(ColorStateList.valueOf(ru.playsoftware.j2meloader.ui.AppPalette.color(getContext(), ru.playsoftware.j2meloader.R.color.accent)));
@@ -57,11 +59,11 @@ final class ArchiveBatchView extends LinearLayout {
     }
     private Button button(String label,Runnable run) {
         Button b=new Button(getContext()); b.setText(label); b.setAllCaps(false); b.setTextSize(14); b.setTextColor(ru.playsoftware.j2meloader.ui.AppPalette.color(getContext(), ru.playsoftware.j2meloader.R.color.text_primary));
-        b.setBackgroundResource(R.drawable.bg_quick_setting_button); b.setOnClickListener(v->run.run()); return b;
+        ru.playsoftware.j2meloader.ui.ConsoleSurface.apply(b, ru.playsoftware.j2meloader.ui.ConsoleSurface.Kind.KEY); b.setOnClickListener(v->run.run()); return b;
     }
     private ImageButton icon(String label,int resource,Runnable run) {
         ImageButton b=new ImageButton(getContext()); b.setImageResource(resource); b.setImageTintList(ColorStateList.valueOf(ru.playsoftware.j2meloader.ui.AppPalette.color(getContext(), ru.playsoftware.j2meloader.R.color.accent)));
-        b.setBackgroundResource(R.drawable.bg_quick_setting_button); b.setContentDescription(label); b.setTooltipText(label); b.setOnClickListener(v->run.run()); return b;
+        ru.playsoftware.j2meloader.ui.ConsoleSurface.apply(b, ru.playsoftware.j2meloader.ui.ConsoleSurface.Kind.KEY); b.setContentDescription(label); b.setTooltipText(label); b.setOnClickListener(v->run.run()); return b;
     }
     private void update() {
         int selected=0,valid=0,done=0,failed=0,waiting=0;

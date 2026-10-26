@@ -23,6 +23,8 @@ import androidx.lifecycle.ViewModelProvider;
 import ru.playsoftware.j2meloader.R;
 import ru.playsoftware.j2meloader.settings.CompactSettingsActivity;
 import ru.playsoftware.j2meloader.ui.AppPalette;
+import ru.playsoftware.j2meloader.ui.ConsoleSurface;
+import ru.playsoftware.j2meloader.input.GameMenuDialog;
 
 public final class FluxerAccountActivity extends CompactSettingsActivity {
     private FluxerAccountModel model;
@@ -30,6 +32,7 @@ public final class FluxerAccountActivity extends CompactSettingsActivity {
     private TextView heading, description, code, detail;
     private ProgressBar progress;
     private Button primary, secondary, remove;
+    private GameMenuDialog confirmation;
     private final Handler handler = new Handler(Looper.getMainLooper());
     private final Runnable clock = new Runnable() {
         @Override public void run() { if (state != null) render(state); handler.postDelayed(this, 1000); }
@@ -44,6 +47,12 @@ public final class FluxerAccountActivity extends CompactSettingsActivity {
         int width = Math.min(getResources().getDisplayMetrics().widthPixels, dp(520));
         FrameLayout.LayoutParams column = new FrameLayout.LayoutParams(width, -2, Gravity.TOP | Gravity.CENTER_HORIZONTAL);
         frame.addView(body, column); scroll.addView(frame); screenContent.addView(scroll);
+        frame.addOnLayoutChangeListener((v,l,t,r,b,ol,ot,or,ob) -> {
+            int available = Math.min(r-l, dp(520));
+            if (available > 0 && body.getLayoutParams().width != available) {
+                body.getLayoutParams().width = available; body.requestLayout();
+            }
+        });
         heading = text(body, 24, R.color.text_primary); heading.setTypeface(null, Typeface.BOLD);
         heading.setId(R.id.fluxer_heading); heading.setText("Fluxer");
         description = text(body, 16, R.color.text_secondary); description.setId(R.id.fluxer_status);
@@ -54,14 +63,18 @@ public final class FluxerAccountActivity extends CompactSettingsActivity {
         code.setGravity(Gravity.CENTER); code.setTypeface(Typeface.MONOSPACE, Typeface.BOLD);
         androidx.core.widget.TextViewCompat.setAutoSizeTextTypeUniformWithConfiguration(code, 16, 26, 1, android.util.TypedValue.COMPLEX_UNIT_SP);
         code.setSingleLine(true); code.setMinHeight(dp(64));
-        code.setBackgroundResource(R.drawable.bg_fluxer_action);
+        ConsoleSurface.apply(code, ConsoleSurface.Kind.SCREEN);
         detail = text(body, 14, R.color.text_secondary); detail.setId(R.id.fluxer_detail);
         primary = action(body, R.id.fluxer_primary, android.R.drawable.ic_menu_send, this::primary);
         secondary = action(body, R.id.fluxer_secondary, android.R.drawable.ic_menu_close_clear_cancel, this::secondary);
         remove = action(body, R.id.fluxer_remove, android.R.drawable.ic_menu_delete, () -> {
-            new androidx.appcompat.app.AlertDialog.Builder(this).setTitle("Remove saved sign-in?")
-                    .setMessage("This removes the sign-in from this device only. It does not revoke the session on Fluxer. Games and saves will not be removed.")
-                    .setNegativeButton("Cancel", null).setPositiveButton("Remove", (dialog, which) -> model.forget()).show();
+            if (confirmation != null) confirmation.dismiss();
+            GameMenuDialog menu = new GameMenuDialog(this, "Remove saved sign-in?"); confirmation = menu;
+            menu.useEdgePanel(); menu.show(); menu.page("Remove saved sign-in?");
+            menu.message("This removes the sign-in from this device only. It does not revoke the session on Fluxer. Games and saves will not be removed.");
+            menu.action("Cancel", android.R.drawable.ic_menu_close_clear_cancel, menu::dismiss);
+            menu.action("Remove", android.R.drawable.ic_menu_delete, () -> { menu.dismiss(); model.forget(); });
+            menu.setOnDismissListener(d -> { if (confirmation == menu) confirmation = null; });
         });
         model = new ViewModelProvider(this).get(FluxerAccountModel.class);
         model.state.observe(this, this::render);
@@ -75,7 +88,7 @@ public final class FluxerAccountActivity extends CompactSettingsActivity {
     }
     private Button action(LinearLayout parent, int id, int icon, Runnable run) {
         Button button = new Button(this); button.setId(id); button.setAllCaps(false); button.setTextSize(16);
-        button.setTextColor(AppPalette.color(this, R.color.text_primary)); button.setBackgroundResource(R.drawable.bg_fluxer_action);
+        button.setTextColor(AppPalette.color(this, R.color.text_primary)); ConsoleSurface.apply(button, ConsoleSurface.Kind.KEY);
         android.graphics.drawable.Drawable drawable = androidx.core.content.ContextCompat.getDrawable(this, icon).mutate();
         drawable.setTint(AppPalette.color(this, R.color.accent)); drawable.setBounds(0,0,dp(22),dp(22));
         button.setCompoundDrawables(drawable, null, null, null); button.setCompoundDrawablePadding(dp(12));
@@ -149,5 +162,5 @@ public final class FluxerAccountActivity extends CompactSettingsActivity {
         else model.signOut();
     }
     @Override protected void onStart() { super.onStart(); model.revalidate(); handler.post(clock); }
-    @Override protected void onStop() { handler.removeCallbacks(clock); super.onStop(); }
+    @Override protected void onStop() { handler.removeCallbacks(clock); if (confirmation != null) confirmation.dismiss(); super.onStop(); }
 }

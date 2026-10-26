@@ -18,6 +18,12 @@ import ru.playsoftware.j2meloader.R;
 /** Shallow molded surfaces. No bitmap layers, blur, frame loop or guest-render effects. */
 public final class ConsoleSurface extends Drawable {
     public enum Kind { CHASSIS, SCREEN, KEY, TAB, CARD, ROW, PANEL }
+    public static void apply(android.view.View view, Kind kind) {
+        view.setBackgroundTintList(null);
+        view.setStateListAnimator(null);
+        view.setDefaultFocusHighlightEnabled(false);
+        view.setBackground(new ConsoleSurface(view.getContext(), kind));
+    }
     private final Kind kind;
     private final float dp;
     private final boolean dark, contrast;
