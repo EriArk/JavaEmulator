@@ -20,6 +20,8 @@ users of the former Phone app can use the menu-based
 
 [Download 0.6.0 Beta 1 Revision 1](https://github.com/EriArk/JavaEmulator/releases/download/v0.6.0-beta.1/AbyssME-0.6.0-beta.1-r1.apk)
 
+**[Setup & FAQ](docs/FAQ.md)** — step-by-step help with Java ME, Mophun, Symbian/N-Gage firmware and game installation, touchscreen controls, physical controller mapping, backups and troubleshooting.
+
 Use the **0.6.0-beta.1-r1** APK (code 312). It updates the official unified app in place;
 older releases remain available for reference.
 
