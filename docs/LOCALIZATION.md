@@ -10,14 +10,14 @@ been published in a new signed APK.
 
 | Locale | Canonical resource coverage | Availability |
 | --- | --- | --- |
-| English | 1517 source entries | Released fallback; current source includes newer labels |
-| Spanish | 1517 / 1517 | Selectable in unreleased source / local Debug |
-| Brazilian Portuguese | 1517 / 1517 | Selectable in unreleased source / local Debug |
-| Russian | 1517 / 1517 | Selectable in unreleased source / local Debug |
-| French | 1517 / 1517 | Selectable in unreleased source / local Debug |
-| German | 1517 / 1517 | Selectable in unreleased source / local Debug |
-| Japanese | 1517 / 1517 | Selectable in unreleased source / local Debug |
-| Simplified Chinese (`zh-CN`) | 1517 / 1517 | Selectable in unreleased source / local Debug |
+| English | 1518 source entries | Canonical fallback |
+| Spanish | 1518 / 1518 | Included in the 0.7.0 Beta 1 candidate |
+| Brazilian Portuguese | 1518 / 1518 | Included in the 0.7.0 Beta 1 candidate |
+| Russian | 1518 / 1518 | Included in the 0.7.0 Beta 1 candidate |
+| French | 1518 / 1518 | Included in the 0.7.0 Beta 1 candidate |
+| German | 1518 / 1518 | Included in the 0.7.0 Beta 1 candidate |
+| Japanese | 1518 / 1518 | Included in the 0.7.0 Beta 1 candidate |
+| Simplified Chinese (`zh-CN`) | 1518 / 1518 | Included in the 0.7.0 Beta 1 candidate |
 | Other inherited locales | Partial | Not advertised by the picker |
 
 Counts include strings, plurals and arrays; they do not certify translation

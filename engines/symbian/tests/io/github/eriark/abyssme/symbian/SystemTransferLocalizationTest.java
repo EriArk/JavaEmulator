@@ -29,6 +29,7 @@ public class SystemTransferLocalizationTest {
         return base.createConfigurationContext(config);
     }
     static Object[] arguments(SystemFailure.Code code) {
+        if(code==SystemFailure.Code.COMPONENT_BUNDLE_CONFLICT)return new Object[]{"Installer 100%","10202BE9","First 1.0.0 [0]","Second 2.0.0 [0]"};
         if(code==SystemFailure.Code.COMPONENT_REQUIRED_RANGE)return new Object[]{"Component 100%","1.2.3","2.0.0"};
         if(code==SystemFailure.Code.COMPONENT_REQUIRED_MINIMUM)return new Object[]{"Component 100%","1.2.3"};
         if(code.english.contains("%1$d"))return new Object[]{128L};

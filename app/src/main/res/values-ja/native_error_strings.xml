@@ -55,4 +55,5 @@
   <string name="native_error_damaged_file">バックアップのファイルが破損しています: %1$s</string>
   <string name="native_error_verification_failed">バックアップの検証に失敗しました: %1$s</string>
   <string name="native_error_space_required">空き容量が不足しています。%1$d MB 以上を空けてから再試行してください。既存の携帯電話は変更されていません。</string>
+  <string name="native_error_component_bundle_conflict">インストーラー %1$s に、UID %2$s の競合する、または未対応のコンポーネントがあります: %3$s / %4$s。このインストーラーの別のコピーを選択してください。端末とインストール待ちのゲームは変更されていません。</string>
 </resources>

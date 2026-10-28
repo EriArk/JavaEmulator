@@ -55,4 +55,5 @@
     <string name="native_error_damaged_file">Arquivo de backup danificado: %1$s</string>
     <string name="native_error_verification_failed">Falha na verificação do backup: %1$s</string>
     <string name="native_error_space_required">Espaço livre insuficiente. Libere pelo menos %1$d MB e tente novamente. Os telefones existentes não foram alterados.</string>
+  <string name="native_error_component_bundle_conflict">O instalador %1$s contém componentes conflitantes ou não compatíveis com o UID %2$s: %3$s / %4$s. Escolha outra cópia deste instalador. O telefone e o jogo pendente não foram alterados.</string>
 </resources>

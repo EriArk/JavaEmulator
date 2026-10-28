@@ -170,6 +170,7 @@ final class SystemFailureText {
             case IMPORT_EXPANDED_GAME_ARCHIVE_EXCEEDS_1_GB: return R.string.native_error_import_expanded_game_archive_exceeds_1_gb;
             case IMPORT_NOT_ENOUGH_SPACE_TO_READ_THIS_ARCHIVE: return R.string.native_error_import_not_enough_space_to_read_this_archive;
             case COMPONENT_VERSION_CONFLICT: return R.string.native_error_component_version_conflict;
+            case COMPONENT_BUNDLE_CONFLICT: return R.string.native_error_component_bundle_conflict;
             case COMPONENT_OLDER_REQUIRED: return R.string.native_error_component_older_required;
             case COMPONENT_CYCLE: return R.string.native_error_component_cycle;
             case COMPONENT_REGISTRATION: return R.string.native_error_component_registration;

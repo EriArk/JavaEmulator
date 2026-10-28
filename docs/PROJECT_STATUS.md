@@ -36,6 +36,14 @@ and translations are tracked below.
 
 ## Availability: Do Not Mix These Channels
 
+**0.7.0 Beta 1 candidate (2026-10-28):** code 313 includes the audio, touch
+mapping and eight-language UI work below, plus the [#47 installer preflight
+repair](checks/2026-10-28-ngage-platform-preflight.md). All 1518 canonical
+resources are present in each advertised translated locale. Fresh isolated N95
+setup passes on Retroid with the actual component preflight enabled, in both
+Debug and optimized rehearsal. Publication/update checks are in progress; this
+paragraph alone does not mean a new public APK is available.
+
 **Current public beta: [0.6.0-beta.1-r1](https://github.com/EriArk/JavaEmulator/releases/tag/v0.6.0-beta.1)**,
 code **312**, uploaded **2026-10-26 at 18:01 UTC** to the existing Beta 1 page.
 It centers confirmations

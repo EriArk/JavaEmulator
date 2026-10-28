@@ -40,6 +40,10 @@ public final class GameMenuDialog extends Dialog {
     private Runnable pageCleanup;
     private boolean picturePreview;
     private boolean confirmation;
+    private int layoutOrientation = -1;
+    private int layoutWidth = -1;
+    private int layoutHeight = -1;
+    private float layoutDensity;
     private final androidx.lifecycle.Lifecycle hostLifecycle;
     private final androidx.lifecycle.LifecycleEventObserver hostObserver = (source, event) -> {
         if (event == androidx.lifecycle.Lifecycle.Event.ON_DESTROY) dismiss();
@@ -136,6 +140,12 @@ public final class GameMenuDialog extends Dialog {
         LinearLayout panel = new LinearLayout(getContext()) {
             @Override protected void onLayout(boolean changed, int left, int top, int right, int bottom) {
                 super.onLayout(changed, left, top, right, bottom);
+                // Configuration callbacks can precede updated dialog resources.
+                // Reconcile once at traversal, without requesting another unchanged layout.
+                android.util.DisplayMetrics metrics = getResources().getDisplayMetrics();
+                if (layoutOrientation != getResources().getConfiguration().orientation
+                        || layoutWidth != metrics.widthPixels || layoutHeight != metrics.heightPixels
+                        || layoutDensity != metrics.density) updateWindowLayout();
                 focusPendingAction();
             }
             @Override public void onWindowFocusChanged(boolean hasFocus) {
@@ -240,6 +250,9 @@ public final class GameMenuDialog extends Dialog {
         // Keep pending geometry, but do not resize a detached window during Activity recreation.
         Window current = getWindow();
         if (current == null) return;
+        android.util.DisplayMetrics metrics = getContext().getResources().getDisplayMetrics();
+        layoutOrientation = getContext().getResources().getConfiguration().orientation;
+        layoutWidth = metrics.widthPixels; layoutHeight = metrics.heightPixels; layoutDensity = metrics.density;
         boolean canApply = !isShowing() || current.getDecorView().isAttachedToWindow();
         if (edgePanel || confirmation) {
             Window window = getWindow();

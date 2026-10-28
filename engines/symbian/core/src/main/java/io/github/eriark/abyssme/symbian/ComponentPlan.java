@@ -21,9 +21,9 @@ final class ComponentPlan {
     private void visit(SisMetadata pkg) throws Exception {
         if(visiting.size()>=32 || chosen.size()>=128 || !visiting.add(pkg.uid))
             throw new SystemFailure(SystemFailure.Code.IMPORT_THESE_INSTALLERS_HAVE_CIRCULAR_OR_EXCESSIVE_DEPENDENCIES_NO_INSTALLATION);
-        Map<Long,SisMetadata> bundled=new LinkedHashMap<>(); collect(pkg,bundled);
+        Map<Long,List<SisMetadata>> bundled=new LinkedHashMap<>(); collect(pkg,pkg.name,bundled);
         Map<Long,SisMetadata.Need> requirements=new LinkedHashMap<>();
-        for(SisMetadata child:bundled.values()) for(SisMetadata.Need need:child.needs) {
+        for(List<SisMetadata> group:bundled.values()) for(SisMetadata child:group) for(SisMetadata.Need need:child.needs) {
             SisMetadata.Need previous=requirements.get(need.uid);
             if(previous==null) requirements.put(need.uid,need);
             else {
@@ -35,8 +35,8 @@ final class ComponentPlan {
             }
         }
         for(SisMetadata.Need need:requirements.values()) {
-            SisMetadata provided=bundled.get(need.uid);
-            if(provided!=null && provided.installType==0 && need.accepts(provided.version)) continue;
+            List<SisMetadata> provided=bundled.get(need.uid);
+            if(provided!=null && provided.stream().anyMatch(p->p.installType==0 && need.accepts(p.version))) continue;
             SisMetadata.Version installed=backend.installedVersion(need.uid);
             if(need.accepts(installed)) continue;
             if(installed!=null && need.to!=null && installed.compareTo(need.to)>0)
@@ -56,8 +56,20 @@ final class ComponentPlan {
         }
         visiting.remove(pkg.uid);
     }
-    private static void collect(SisMetadata pkg,Map<Long,SisMetadata> result) throws IOException {
-        if(result.put(pkg.uid,pkg)!=null) throw new SystemFailure(SystemFailure.Code.IMPORT_DUPLICATE_EMBEDDED_COMPONENT_UID);
-        for(SisMetadata child:pkg.embedded) collect(child,result);
+    private static void collect(SisMetadata pkg,String installer,Map<Long,List<SisMetadata>> result) throws IOException {
+        List<SisMetadata> group=result.computeIfAbsent(pkg.uid,uid->new ArrayList<>());
+        for(SisMetadata previous:group) {
+            // Partial updates share the base UID. Keep every controller and its requirements;
+            // never substitute an update's version for a complete dependency provider.
+            boolean update=(pkg.installType==2 && (previous.installType==0 || previous.installType==2))
+                    || (previous.installType==2 && pkg.installType==0);
+            if(!update || Arrays.equals(previous.controllerDigest,pkg.controllerDigest))
+                throw new SystemFailure(SystemFailure.Code.COMPONENT_BUNDLE_CONFLICT,installer,
+                        String.format(Locale.ROOT,"%08X",pkg.uid),
+                        previous.name+" "+previous.version+" ["+previous.installType+"]",
+                        pkg.name+" "+pkg.version+" ["+pkg.installType+"]");
+        }
+        group.add(pkg);
+        for(SisMetadata child:pkg.embedded) collect(child,installer,result);
     }
 }

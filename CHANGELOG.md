@@ -10,6 +10,27 @@ stated otherwise. **Experimental** in older checkpoints means local/private
 combined builds; released experimental features are explicitly identified.
 **Released** means an actual GitHub release asset.
 
+## 2026-10-28 - N-Gage Platform Preflight (0.7.0 Beta 1 Preparation)
+
+- Preserve distinct same-UID partial updates and all embedded dependency ranges
+  when inspecting modern SIS/SISX installers. Keep full-package conflicts,
+  identical controllers and unsupported repeated types blocked before installation.
+- Identify the conflicting installer, UID and versions in all eight advertised
+  UI languages; preserve the pending game and existing virtual phones.
+- Correct the real N-Gage 2.0 test to use the same component preflight as the
+  app. Verify clean N95 setup, native installation and reuse on Retroid, plus
+  dependency/conflict/recovery checks. This is not full-game acceptance or
+  confirmation of the reporter's exact, still-unknown installer.
+- Prepare version `0.7.0-beta.1`, code 313, including the preceding audio,
+  touch-control and language batches. Publication is recorded separately after
+  signed-build and update checks.
+- Reconcile game-menu placement against current display configuration during
+  layout. Release checks reproduced stale placement after rotation even though
+  resources had the new orientation; repeated rotation coverage retains the
+  original placement assertions instead of extending waits or masking failures.
+  [Installer evidence](docs/checks/2026-10-28-ngage-platform-preflight.md),
+  [release notes](docs/releases/v0.7.0-beta.1.md).
+
 ## 2026-10-28 - Japanese and Simplified Chinese (Public Source, Unreleased)
 
 - Add Japanese and Simplified Chinese to the in-app and Android language lists,

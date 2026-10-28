@@ -32,8 +32,9 @@ final class SisMetadata {
     final int installType;
     final List<Need> needs;
     final List<SisMetadata> embedded;
-    private SisMetadata(long uid, String name, Version version, int type, List<Need> needs, List<SisMetadata> embedded) {
-        this.uid=uid; this.name=name; this.version=version; this.installType=type; this.needs=needs; this.embedded=embedded;
+    final byte[] controllerDigest;
+    private SisMetadata(long uid, String name, Version version, int type, List<Need> needs, List<SisMetadata> embedded, byte[] digest) {
+        this.uid=uid; this.name=name; this.version=version; this.installType=type; this.needs=needs; this.embedded=embedded; this.controllerDigest=digest;
     }
     static SisMetadata read(File file) throws IOException {
         try(RandomAccessFile in=new RandomAccessFile(file,"r")) {
@@ -91,6 +92,11 @@ final class SisMetadata {
     }
     private static SisMetadata controller(Reader r, int depth, int[] count) throws IOException {
         if(depth>16 || ++count[0]>256) throw bad();
+        byte[] digest;
+        try {
+            java.security.MessageDigest hash=java.security.MessageDigest.getInstance("SHA-256");
+            hash.update(r.data.asReadOnlyBuffer()); digest=hash.digest();
+        } catch(java.security.NoSuchAlgorithmException impossible) { throw new AssertionError(impossible); }
         Reader info=r.expect(14);
         long uid=info.expect(9).uint(); info.expect(1);
         List<Reader> names=info.array(1); info.array(1);
@@ -118,7 +124,7 @@ final class SisMetadata {
             }
         }
         if(!prerequisites) throw bad();
-        return new SisMetadata(uid,name(names,uid),version,type,needs,embedded);
+        return new SisMetadata(uid,name(names,uid),version,type,needs,embedded,digest);
     }
     private static Version version(Reader r, boolean wildcard, boolean upper) throws IOException {
         if(r.data.remaining()!=12) throw bad(); int[] parts=new int[3];

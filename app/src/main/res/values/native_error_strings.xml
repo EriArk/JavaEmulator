@@ -55,4 +55,5 @@
   <string name="native_error_damaged_file">Damaged backup file: %1$s</string>
   <string name="native_error_verification_failed">Backup verification failed: %1$s</string>
   <string name="native_error_space_required">Not enough free space. Free at least %1$d MB and try again. Existing phones are unchanged.</string>
+  <string name="native_error_component_bundle_conflict">Installer %1$s contains conflicting or unsupported components with UID %2$s: %3$s / %4$s. Choose another copy of this installer. Your phone and pending game are unchanged.</string>
 </resources>

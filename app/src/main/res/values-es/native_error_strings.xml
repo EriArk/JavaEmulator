@@ -54,4 +54,5 @@
     <string name="native_error_damaged_file">Archivo de copia dañado: %1$s</string>
     <string name="native_error_verification_failed">Error al verificar la copia: %1$s</string>
     <string name="native_error_space_required">No hay espacio libre suficiente. Libera al menos %1$d MB e inténtalo de nuevo. Los teléfonos existentes no se han modificado.</string>
+  <string name="native_error_component_bundle_conflict">El instalador %1$s contiene componentes incompatibles o no admitidos con UID %2$s: %3$s / %4$s. Elige otra copia de este instalador. El teléfono y el juego pendiente no se han modificado.</string>
 </resources>

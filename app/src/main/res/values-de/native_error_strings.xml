@@ -55,4 +55,5 @@
   <string name="native_error_damaged_file">Beschädigte Sicherungsdatei: %1$s</string>
   <string name="native_error_verification_failed">Sicherungsprüfung fehlgeschlagen: %1$s</string>
   <string name="native_error_space_required">Nicht genügend freier Speicherplatz. Gib mindestens %1$d MB frei und versuche es erneut. Vorhandene Telefone bleiben unverändert.</string>
+  <string name="native_error_component_bundle_conflict">Das Installationspaket %1$s enthält widersprüchliche oder nicht unterstützte Komponenten mit UID %2$s: %3$s / %4$s. Wähle eine andere Kopie dieses Pakets. Telefon und wartendes Spiel bleiben unverändert.</string>
 </resources>

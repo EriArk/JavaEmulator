@@ -184,6 +184,7 @@ public final class GameInstallFlowTest {
         File root = root(); PendingGameImport pending = new PendingGameImport(new File(root, "pending"));
         SystemFileCatalog catalog = new SystemFileCatalog(new File(root, "systems"));
         final File[] runtime = {null};
+        final int[] preflights={0}, installs={0};
         GameInstallFlow.Backend backend = new GameInstallFlow.Backend() {
             @Override public void open(SystemFileCatalog.Entry entry) throws Exception {
                 com.github.eka2l1.emu.Emulator.stopSession(); runtime[0] = catalog.runtime(entry);
@@ -191,7 +192,16 @@ public final class GameInstallFlowTest {
                 com.github.eka2l1.emu.Emulator.prepare(runtime[0].getAbsolutePath());
             }
             @Override public boolean hasPlatform() { return Arrays.asList(com.github.eka2l1.emu.Emulator.getCatalogApps()).contains("536902457"); }
+            @Override public SisMetadata.Version installedVersion(long uid) {
+                int[] v=com.github.eka2l1.emu.Emulator.installedPackageVersion(uid);
+                return v==null?null:new SisMetadata.Version(v[0],v[1],v[2]);
+            }
+            @Override public void status(SystemProgress step,Object... arguments) {
+                if(step==SystemProgress.CHECK_COMPONENTS) preflights[0]++;
+            }
             @Override public void install(File file, GameImport.Kind kind) throws Exception {
+                assertTrue("Production preflight must precede guest installation",preflights[0]>0);
+                installs[0]++;
                 assertEquals(0, com.github.eka2l1.emu.Emulator.installApp(file.getAbsolutePath()));
                 com.github.eka2l1.emu.Emulator.prepare(runtime[0].getAbsolutePath());
             }
@@ -202,18 +212,29 @@ public final class GameInstallFlowTest {
         try (GameImport game = GameImport.inspect(new File(inputs, "asphalt3.n-gage"));
              GameImport platform = GameImport.inspect(new File(inputs, "ngage2.sis"))) {
             PlatformStore store = new PlatformStore(new File(root, "platforms"));
-            pending.begin(game, "Asphalt 3"); GameInstallFlow flow = new GameInstallFlow(pending, catalog, backend, store);
+            ComponentStore components=new ComponentStore(new File(root,"components"));
+            pending.begin(game, "Asphalt 3"); GameInstallFlow flow = new GameInstallFlow(pending, catalog, backend, store,components);
             assertEquals(GameInstallFlow.Action.SYSTEM, flow.resume(null, false).action);
             catalog.add(context, Collections.singletonList(new File(inputs, "n95.zip")));
             assertEquals(GameInstallFlow.Action.PLATFORM, flow.resume(null, false).action);
+            assertFalse("Fixture must start without N-Gage 2.0",backend.hasPlatform());
+            assertEquals(0,preflights[0]); assertEquals(0,installs[0]);
             store.save(platform);
             assertEquals(GameInstallFlow.Action.OPEN_PLATFORM, flow.resume(null, false).action);
+            assertEquals(1,preflights[0]); assertEquals(1,installs[0]); assertTrue(backend.hasPlatform());
             File staged = new File(com.github.eka2l1.emu.Emulator.driveE(), "n-gage/" + game.hash + ".n-gage");
             assertEquals(game.hash, SystemFileCatalog.hash(staged));
             Files.delete(staged.toPath());
             pending = new PendingGameImport(new File(root, "pending"));
-            assertEquals(GameInstallFlow.Action.OPEN_PLATFORM, new GameInstallFlow(pending, catalog, backend).resume(null, false).action);
+            assertEquals(GameInstallFlow.Action.OPEN_PLATFORM, new GameInstallFlow(pending, catalog, backend,store,components).resume(null, false).action);
+            assertEquals(1,preflights[0]); assertEquals(1,installs[0]);
             assertFalse("Guest consumption must not trigger a second installation", staged.exists());
+            pending.discard(); pending.begin(game,"Asphalt 3 again");
+            assertEquals(GameInstallFlow.Action.OPEN_PLATFORM, new GameInstallFlow(pending,catalog,backend,store,components).resume(null,false).action);
+            assertEquals("Existing platform must skip preflight",1,preflights[0]);
+            assertEquals("Existing platform must not reinstall",1,installs[0]);
+            assertEquals(game.hash,SystemFileCatalog.hash(staged));
+            System.out.println("Fresh N95: platform absent -> preflight=1 -> native install=1 -> registered; resumed and new imports reuse it.");
         } finally { com.github.eka2l1.emu.Emulator.stopSession(); }
     }
 }

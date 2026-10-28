@@ -162,6 +162,7 @@ final class SystemFailure extends IOException {
         IMPORT_EXPANDED_GAME_ARCHIVE_EXCEEDS_1_GB("Expanded game archive exceeds 1 GB"),
         IMPORT_NOT_ENOUGH_SPACE_TO_READ_THIS_ARCHIVE("Not enough space to read this archive"),
         COMPONENT_VERSION_CONFLICT("Conflicting component versions for %1$s. No installation was started."),
+        COMPONENT_BUNDLE_CONFLICT("Installer %1$s contains conflicting or unsupported components with UID %2$s: %3$s / %4$s. Choose another copy of this installer. Your phone and pending game are unchanged."),
         COMPONENT_OLDER_REQUIRED("%1$s needs an older version. Choose another phone for this game; existing components were not downgraded."),
         COMPONENT_CYCLE("Circular component dependency: %1$s"),
         COMPONENT_REGISTRATION("%1$s was not registered with the expected version. Your game is still waiting."),

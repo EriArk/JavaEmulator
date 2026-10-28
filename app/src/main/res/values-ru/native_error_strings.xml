@@ -55,4 +55,5 @@
     <string name="native_error_damaged_file">Повреждённый файл резервной копии: %1$s</string>
     <string name="native_error_verification_failed">Проверка резервной копии не пройдена: %1$s</string>
     <string name="native_error_space_required">Недостаточно свободного места. Освободите не менее %1$d МБ и повторите попытку. Существующие телефоны не изменены.</string>
+  <string name="native_error_component_bundle_conflict">Установщик %1$s содержит конфликтующие или неподдерживаемые компоненты с UID %2$s: %3$s / %4$s. Выберите другую копию этого установщика. Телефон и ожидающая установки игра не изменены.</string>
 </resources>

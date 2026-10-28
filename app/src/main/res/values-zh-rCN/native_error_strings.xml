@@ -55,4 +55,5 @@
     <string name="native_error_damaged_file">备份文件已损坏：%1$s</string>
     <string name="native_error_verification_failed">备份验证失败：%1$s</string>
     <string name="native_error_space_required">可用空间不足。请至少释放 %1$d MB 后重试。现有手机未更改。</string>
+  <string name="native_error_component_bundle_conflict">安装程序 %1$s 包含 UID 为 %2$s 的冲突或不受支持的组件：%3$s / %4$s。请选择此安装程序的其他副本。手机系统和等待安装的游戏均未更改。</string>
 </resources>

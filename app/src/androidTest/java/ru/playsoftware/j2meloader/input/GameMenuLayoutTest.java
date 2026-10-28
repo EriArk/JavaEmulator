@@ -305,20 +305,22 @@ public class GameMenuLayoutTest {
                     dialog[0].action("Grid", 0, () -> {});
                     assertEquals(Gravity.BOTTOM, dialog[0].getWindow().getAttributes().gravity & Gravity.VERTICAL_GRAVITY_MASK);
                 });
-                rotate(instrumentation, activity, ActivityInfo.SCREEN_ORIENTATION_LANDSCAPE,
-                        Configuration.ORIENTATION_LANDSCAPE);
-                awaitGravity(instrumentation, dialog[0], Gravity.CENTER);
-                instrumentation.runOnMainSync(() -> {
-                    assertTrue(dialog[0].isShowing()); assertFalse(activity.isDestroyed());
-                    assertEquals(Gravity.CENTER, dialog[0].getWindow().getAttributes().gravity);
-                });
-                rotate(instrumentation, activity, ActivityInfo.SCREEN_ORIENTATION_PORTRAIT,
-                        Configuration.ORIENTATION_PORTRAIT);
-                awaitGravity(instrumentation, dialog[0], Gravity.BOTTOM | Gravity.CENTER_HORIZONTAL);
-                instrumentation.runOnMainSync(() -> {
-                    assertTrue(dialog[0].isShowing());
-                    assertEquals(Gravity.BOTTOM, dialog[0].getWindow().getAttributes().gravity & Gravity.VERTICAL_GRAVITY_MASK);
-                });
+                for (int cycle = 0; cycle < 3; cycle++) {
+                    rotate(instrumentation, activity, ActivityInfo.SCREEN_ORIENTATION_LANDSCAPE,
+                            Configuration.ORIENTATION_LANDSCAPE);
+                    awaitGravity(instrumentation, dialog[0], Gravity.CENTER);
+                    instrumentation.runOnMainSync(() -> {
+                        assertTrue(dialog[0].isShowing()); assertFalse(activity.isDestroyed());
+                        assertEquals(Gravity.CENTER, dialog[0].getWindow().getAttributes().gravity);
+                    });
+                    rotate(instrumentation, activity, ActivityInfo.SCREEN_ORIENTATION_PORTRAIT,
+                            Configuration.ORIENTATION_PORTRAIT);
+                    awaitGravity(instrumentation, dialog[0], Gravity.BOTTOM | Gravity.CENTER_HORIZONTAL);
+                    instrumentation.runOnMainSync(() -> {
+                        assertTrue(dialog[0].isShowing());
+                        assertEquals(Gravity.BOTTOM, dialog[0].getWindow().getAttributes().gravity & Gravity.VERTICAL_GRAVITY_MASK);
+                    });
+                }
             } finally { instrumentation.runOnMainSync(() -> { if (dialog[0] != null) dialog[0].dismiss(); }); }
         });
     }
@@ -332,7 +334,8 @@ public class GameMenuLayoutTest {
             if (actual.get() == expected) return;
             android.os.SystemClock.sleep(50);
         } while (android.os.SystemClock.uptimeMillis() < deadline);
-        assertEquals(expected, actual.get());
+        assertEquals("Dialog configuration: " + dialog.getContext().getResources().getConfiguration()
+                + "; metrics: " + dialog.getContext().getResources().getDisplayMetrics(),expected, actual.get());
     }
 
     private void rotate(Instrumentation instrumentation, MainActivity activity, int requested, int expected) {

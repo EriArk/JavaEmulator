@@ -190,6 +190,13 @@ Previous direct-touch and individual game stability checks were not rerun.
 
 ## Component Installers and Resumable Setup (2026-10-14)
 
+Update 2026-10-28: the [#47 preflight repair](checks/2026-10-28-ngage-platform-preflight.md)
+preserves distinct same-UID partial updates and all their dependency constraints.
+The fresh N95 integration check now uses production's nonnull component store;
+it verifies native N-Gage 2.0 installation and subsequent reuse. Other repeated
+package arrangements remain conservatively validated. The section below is the
+historical implementation checkpoint, not current release availability.
+
 Local-only, uncommitted opt-in work on `codex/symbian-integration`. Both isolated
 experimental variants were rebuilt and installed on Retroid Pocket Classic.
 No release, push, firmware distribution or licensing change. Public release
