@@ -24,7 +24,7 @@ public final class LauncherLinkDialog extends DialogFragment {
     @Override public void onStart() {
         super.onStart();
         GameMenuDialog dialog = (GameMenuDialog) requireDialog();
-        dialog.page("Opening game"); dialog.message("Reading launch file...");
+        dialog.page(getString(ru.playsoftware.j2meloader.R.string.helper_opening_game)); dialog.message(getString(ru.playsoftware.j2meloader.R.string.helper_reading_launch));
         dialog.setBackAction(this::close);
         Context context = requireContext().getApplicationContext();
         Uri uri = requireArguments().getParcelable("uri");
@@ -34,9 +34,9 @@ public final class LauncherLinkDialog extends DialogFragment {
                     item.launch(requireActivity(), false);
                     close();
                 }, error -> {
-                    dialog.page("Cannot open game"); dialog.message(error.getMessage());
+                    dialog.page(getString(ru.playsoftware.j2meloader.R.string.helper_cannot_open_game)); dialog.message(error.getMessage());
                     dialog.setBackAction(this::close);
-                    dialog.action("Close", android.R.drawable.ic_menu_close_clear_cancel, this::close);
+                    dialog.action(getString(ru.playsoftware.j2meloader.R.string.helper_close), android.R.drawable.ic_menu_close_clear_cancel, this::close);
                 });
     }
     private void close() {

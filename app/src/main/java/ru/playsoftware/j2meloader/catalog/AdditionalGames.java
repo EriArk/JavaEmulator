@@ -69,7 +69,7 @@ public final class AdditionalGames {
                 router.installer(context, uri, autoStart, finishHost).show(fragments, "installer");
             } catch (ReflectiveOperationException error) {
                 Log.e("AdditionalGames", "Cannot open import router", error);
-                Toast.makeText(context, "Cannot open the game importer", Toast.LENGTH_LONG).show();
+                Toast.makeText(context, context.getString(ru.playsoftware.j2meloader.R.string.helper_import_unavailable), Toast.LENGTH_LONG).show();
             }
             return;
         }
@@ -87,7 +87,7 @@ public final class AdditionalGames {
         if (!isManaged(directory)) return false;
         Engine extra = get(context);
         if (extra == null) {
-            Toast.makeText(context, "This build does not include the engine for this game", Toast.LENGTH_LONG).show();
+            Toast.makeText(context, context.getString(ru.playsoftware.j2meloader.R.string.helper_engine_missing), Toast.LENGTH_LONG).show();
         } else {
             extra.launch(context, title, directory, controls);
         }

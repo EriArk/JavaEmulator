@@ -72,7 +72,7 @@ final class SymbianSessionUi {
         try { SettingsTrial.claim(profile); }
         catch (IOException error) {
             android.util.Log.w("AbyssSymbian", "Could not apply settings draft", error);
-            Toast.makeText(activity, "Could not apply settings. Using saved settings.", Toast.LENGTH_LONG).show();
+            Toast.makeText(activity, activity.getString(ru.playsoftware.j2meloader.R.string.helper_apply_failed), Toast.LENGTH_LONG).show();
         }
         mappings = KeyMapper.resolveMappings(profile.getActiveKeyMappings());
         keys = new SymbianInput(host); input = new ControllerInput(key -> mappings.get(key, 0), keys.source());

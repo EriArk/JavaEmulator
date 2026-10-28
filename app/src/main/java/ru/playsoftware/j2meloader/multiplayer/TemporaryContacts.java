@@ -60,6 +60,7 @@ public final class TemporaryContacts implements AutoCloseable {
     private final Map<String, Long> next = new HashMap<>();
     private JsonObject records = new JsonObject();
     private Set<String> members = Collections.emptySet(), held = Collections.emptySet();
+    private SocialNotice errorCode=SocialNotice.NONE;
     private String room = "", host = "", busy = "", error = "";
     private long now, nextCreate, deadline, flight;
     private boolean online, recovering, closed;
@@ -92,7 +93,7 @@ public final class TemporaryContacts implements AutoCloseable {
                         || !r.getAsJsonPrimitive("host").isBoolean()) throw new IOException("Invalid lease");
                 if (phase.equals("creating") || phase.equals("accepting")) {
                     r.addProperty("phase", "uncertain");
-                    r.addProperty("error", "Check this friendship after the interrupted request.");
+                    setError(r,SocialNotice.ROOM_CHECK_THIS_FRIENDSHIP_AFTER_THE_INTERRUPTED_REQUEST);
                 }
                 if (phase.equals("deleting")) r.addProperty("phase", "cleanup");
                 next.put(entry.getKey(), now + 15);
@@ -100,7 +101,7 @@ public final class TemporaryContacts implements AutoCloseable {
             records = loaded;
         } catch (IOException | RuntimeException failure) {
             records = new JsonObject();
-            error = "Temporary contact history needs recovery. Automatic changes stopped.";
+            errorCode=SocialNotice.ROOM_TEMPORARY_CONTACT_HISTORY_NEEDS_RECOVERY_AUTOMATIC_CHANGES; error=errorCode.english;
         }
     }
 
@@ -136,9 +137,10 @@ public final class TemporaryContacts implements AutoCloseable {
             view.addProperty("canKeep", oneOf(phase, "friend", "accepted"));
             view.addProperty("pendingKeep", phase.equals("keep"));
             view.addProperty("error", string(r, "error"));
+            view.addProperty("errorCode", string(r,"errorCode"));
             peers.add(entry.getKey(), view);
         }
-        JsonObject result = object("error", error);
+        JsonObject result = object("error", error); result.addProperty("errorCode",errorCode.name());
         result.add("peers", peers);
         return result;
     }
@@ -151,7 +153,7 @@ public final class TemporaryContacts implements AutoCloseable {
         if (!oneOf(phase, "friend", "accepted", "keep")) return false;
         boolean host = flag(r, "host");
         r.addProperty("phase", host ? "kept" : "keep");
-        r.remove("error");
+        r.remove("error"); r.remove("errorCode");
         if (!put(peer, r)) return false;
         send(peer, host ? "kept" : "keep");
         return true;
@@ -169,7 +171,7 @@ public final class TemporaryContacts implements AutoCloseable {
         if (oneOf(phase, "baseline", "offer", "agree", "create", "creating", "wait", "accept", "accepting", "confirm",
                 "release", "released", "cleanup", "deleting")) return false;
         boolean host = flag(r, "host");
-        r.addProperty("phase", host ? "kept" : "keep"); r.remove("error");
+        r.addProperty("phase", host ? "kept" : "keep"); r.remove("error"); r.remove("errorCode");
         if (!put(peer, r)) return false;
         send(peer, host ? "kept" : "keep");
         // A guest waits until the host acknowledges that cleanup is disabled.
@@ -201,11 +203,11 @@ public final class TemporaryContacts implements AutoCloseable {
         if (op.equals("keep") && host) {
             if (busy.equals(peer) && oneOf(phase, "creating", "accepting", "deleting")) return;
             if (!oneOf(phase, "deleting", "gone", "done")) {
-                r.addProperty("phase", "kept"); r.remove("error");
+                r.addProperty("phase", "kept"); r.remove("error"); r.remove("errorCode");
                 if (put(peer, r)) send(peer, "kept");
             }
         } else if (op.equals("kept") && !host) {
-            r.addProperty("phase", "kept"); r.remove("error");
+            r.addProperty("phase", "kept"); r.remove("error"); r.remove("errorCode");
             if (put(peer, r)) send(peer, "kept-ok");
         } else if (op.equals("kept-ok") && host && phase.equals("kept")) {
             r.addProperty("acknowledged", true); put(peer, r);
@@ -218,7 +220,7 @@ public final class TemporaryContacts implements AutoCloseable {
         } else if (op.equals("gone-ok") && host && phase.equals("gone")) {
             put(peer, null);
         } else if (op.equals("blocked") && oneOf(phase, "offer", "baseline", "agree")) {
-            r.addProperty("phase", "blocked"); r.addProperty("error", "Friendship permissions need attention."); put(peer, r);
+            r.addProperty("phase", "blocked"); setError(r,SocialNotice.ROOM_FRIENDSHIP_PERMISSIONS_NEED_ATTENTION); put(peer, r);
         } else if (op.equals("agree") && host && phase.equals("offer") && active(peer)) {
             r.addProperty("phase", "create"); if (put(peer, r)) next.put(peer, now);
         } else if (op.equals("requested") && !host && phase.equals("agree") && active(peer)) {
@@ -242,7 +244,7 @@ public final class TemporaryContacts implements AutoCloseable {
             String phase = string(r, "phase");
             if (oneOf(phase, "creating", "accepting")) {
                 r.addProperty("phase", "uncertain");
-                r.addProperty("error", "Check this friendship after the interrupted request.");
+                setError(r,SocialNotice.ROOM_CHECK_THIS_FRIENDSHIP_AFTER_THE_INTERRUPTED_REQUEST);
                 put(peer, r);
             } else if (phase.equals("deleting")) { r.addProperty("phase", "cleanup"); put(peer, r); }
             next.put(peer, now + 15);
@@ -295,10 +297,10 @@ public final class TemporaryContacts implements AutoCloseable {
             for (JsonElement value : rows) {
                 if (!value.isJsonObject() || !validId(string(value.getAsJsonObject(), "id"))
                         || number(value.getAsJsonObject(), "type") < 1) {
-                    fail(peer, "Couldn't read friendship state. Automatic changes stopped."); return;
+                    fail(peer, SocialNotice.ROOM_COULDN_T_READ_FRIENDSHIP_STATE_AUTOMATIC_CHANGES); return;
                 }
                 if (peer.equals(string(value.getAsJsonObject(), "id"))) {
-                    if (relation.size() > 0) { fail(peer, "Ambiguous friendship state. Automatic changes stopped."); return; }
+                    if (relation.size() > 0) { fail(peer, SocialNotice.ROOM_AMBIGUOUS_FRIENDSHIP_STATE_AUTOMATIC_CHANGES_STOPPED); return; }
                     relation = value.getAsJsonObject();
                 }
             }
@@ -308,7 +310,7 @@ public final class TemporaryContacts implements AutoCloseable {
             if (phase.equals("baseline")) {
                 if (type != 0) {
                     r.addProperty("phase", type == 1 ? "exempt" : "blocked");
-                    if (type != 1) r.addProperty("error", "An existing request or block needs your decision.");
+                    if (type != 1) setError(r,SocialNotice.ROOM_AN_EXISTING_REQUEST_OR_BLOCK_NEEDS_YOUR);
                     if (put(peer, r) && !flag(r, "host")) send(peer, "blocked");
                 } else {
                     String op = flag(r, "host") ? "offer" : "agree";
@@ -316,17 +318,17 @@ public final class TemporaryContacts implements AutoCloseable {
                 }
             } else if (phase.equals("create")) {
                 if (!active(peer)) return;
-                if (type != 0) { fail(peer, "Friendship changed; automatic request stopped."); return; }
+                if (type != 0) { fail(peer, SocialNotice.ROOM_FRIENDSHIP_CHANGED_AUTOMATIC_REQUEST_STOPPED); return; }
                 if (now < nextCreate) { next.put(peer, nextCreate); return; }
                 nextCreate = now + 7; mutate(peer, "creating", "POST", new JsonObject(), 4);
             } else if (phase.equals("accept")) {
                 if (!active(peer)) return;
                 if (type == 0) { next.put(peer, now + 5); return; }
-                if (!stamped(relation, 3)) { fail(peer, "Friendship changed; automatic acceptance stopped."); return; }
+                if (!stamped(relation, 3)) { fail(peer, SocialNotice.ROOM_FRIENDSHIP_CHANGED_AUTOMATIC_ACCEPTANCE_STOPPED); return; }
                 JsonObject body = new JsonObject(); body.addProperty("type", 1);
                 mutate(peer, "accepting", "PUT", body, 1);
             } else if (phase.equals("confirm")) {
-                if (!stamped(relation, 1)) { fail(peer, "Couldn't verify the temporary friendship."); return; }
+                if (!stamped(relation, 1)) { fail(peer, SocialNotice.ROOM_COULDN_T_VERIFY_THE_TEMPORARY_FRIENDSHIP); return; }
                 r.addProperty("type", 1); r.addProperty("since", string(relation, "since")); r.addProperty("phase", "friend");
                 if (put(peer, r)) send(peer, "complete");
             } else if (phase.equals("cleanup")) {
@@ -334,7 +336,7 @@ public final class TemporaryContacts implements AutoCloseable {
                 if (type == 0) { r.addProperty("phase", "gone"); if (put(peer, r)) send(peer, "gone"); return; }
                 if (!oneOf(Long.toString(number(r, "type")), "1", "4") || !stamped(relation, (int) number(r, "type"))
                         || !string(relation, "since").equals(string(r, "since"))) {
-                    r.addProperty("phase", "uncertain"); r.addProperty("error", "Friendship changed; it was kept. Review it in the profile.");
+                    r.addProperty("phase", "uncertain"); setError(r,SocialNotice.ROOM_FRIENDSHIP_CHANGED_IT_WAS_KEPT_REVIEW_IT);
                     if (put(peer, r)) send(peer, "kept"); return;
                 }
                 mutate(peer, "deleting", "DELETE", new JsonObject(), 0);
@@ -363,7 +365,7 @@ public final class TemporaryContacts implements AutoCloseable {
             JsonObject relation = reply.body != null && reply.body.isJsonObject() ? reply.body.getAsJsonObject() : new JsonObject();
             if (reply.status < 200 || reply.status >= 300 || !peer.equals(string(relation, "id")) || !stamped(relation, expectedType)) {
                 current.addProperty("phase", reply.status == 0 || reply.status >= 500 || (reply.status >= 200 && reply.status < 300) ? "uncertain" : "error");
-                current.addProperty("error", "Couldn't confirm temporary friendship. Review permissions or open the profile.");
+                setError(current,SocialNotice.ROOM_COULDN_T_CONFIRM_TEMPORARY_FRIENDSHIP_REVIEW_PERMISSIONS);
                 if (put(peer, current)) send(peer, "blocked"); return;
             }
             current.addProperty("type", expectedType); current.addProperty("since", string(relation, "since"));
@@ -397,8 +399,9 @@ public final class TemporaryContacts implements AutoCloseable {
         if (put(peer, r) && !flag(r, "releaseRequested")) send(peer, "remove-ok");
     }
 
-    private void fail(String peer, String message) {
-        JsonObject r = record(peer); r.addProperty("phase", "error"); r.addProperty("error", message);
+    private static void setError(JsonObject record,SocialNotice code) {record.addProperty("error",code.english);record.addProperty("errorCode",code.name());}
+    private void fail(String peer, SocialNotice message) {
+        JsonObject r = record(peer); r.addProperty("phase", "error"); setError(r,message);
         if (put(peer, r)) send(peer, "blocked");
     }
 
@@ -413,7 +416,7 @@ public final class TemporaryContacts implements AutoCloseable {
         if (copy.equals(records)) return true;
         JsonObject snapshot = object("self", self); snapshot.addProperty("v", 1); snapshot.add("contacts", copy);
         try { journal.save(snapshot); }
-        catch (IOException | RuntimeException failure) { error = "Couldn't save temporary contact history. Automatic changes stopped."; return false; }
+        catch (IOException | RuntimeException failure) { errorCode=SocialNotice.ROOM_COULDN_T_SAVE_TEMPORARY_CONTACT_HISTORY_AUTOMATIC; error=errorCode.english; return false; }
         records = copy;
         return true;
     }

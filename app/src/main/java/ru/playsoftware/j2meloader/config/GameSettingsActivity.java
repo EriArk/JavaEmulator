@@ -48,7 +48,7 @@ public final class GameSettingsActivity extends AppCompatActivity {
                     Config.startApp(GameSettingsActivity.this, title, app.getPath(), false,
                             getIntent().getStringExtra(KEY_START_ARGUMENTS));
                     finish();
-                } catch (Exception e) { Toast.makeText(GameSettingsActivity.this, "Could not prepare settings", Toast.LENGTH_LONG).show(); }
+                } catch (Exception e) { Toast.makeText(GameSettingsActivity.this, getString(ru.playsoftware.j2meloader.R.string.helper_settings_failed), Toast.LENGTH_LONG).show(); }
             }
             public void mapping(ProfileModel draft, Runnable back) {
                 menu.hide();

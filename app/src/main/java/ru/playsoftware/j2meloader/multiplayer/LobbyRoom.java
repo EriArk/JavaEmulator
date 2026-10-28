@@ -19,7 +19,9 @@ public final class LobbyRoom {
     private final Runnable changed;
     private final Set<String> capabilities;
     private LobbySession session;
-    private String host="",room="",access="private",probe="",hostBoot="",notice="Create a room or accept an invitation.";
+    private SocialNotice notice=SocialNotice.ROOM_CREATE_A_ROOM_OR_ACCEPT_AN_INVITATION;
+    private String rawNotice="";
+    private String host="",room="",access="private",probe="",hostBoot="";
     private JsonObject remote=new JsonObject();
     private long serial,revision=1,lastHost,nextBeat,joiningAt;
     private long peerGeneration;
@@ -45,7 +47,8 @@ public final class LobbyRoom {
     public boolean joined(){return hosting()||!remote.entrySet().isEmpty();}
     public String room(){return room;}
     public String host(){return host;}
-    public String notice(){return notice;}
+    public String notice(){return notice==SocialNotice.EXTERNAL?rawNotice:notice.english;}
+    public SocialNotice noticeCode(){return notice;}
     public String access(){return hosting()?access:text(remote,"access");}
     public Map<String,String> requests(){return Collections.unmodifiableMap(new LinkedHashMap<>(requests));}
     public List<JsonObject> invitations(){List<JsonObject> out=new ArrayList<>();for(JsonObject i:invitations.values())out.add(i.deepCopy());return out;}
@@ -68,7 +71,8 @@ public final class LobbyRoom {
     public boolean available(){return active&&(hosting()||joined()&&clock.getAsLong()-lastHost<45);}
     boolean isActive(){return active;}
     private void emit(){changed.run();}
-    private void info(String text){notice=text;emit();}
+    private void info(String text){rawNotice=text;notice=SocialNotice.EXTERNAL;emit();}
+    private void info(SocialNotice code){notice=code;rawNotice="";emit();}
     public void active(boolean value){
         if(!value){String attempt=launchAttempt();if(!attempt.isEmpty())finish(attempt);}
         active=value;
@@ -79,13 +83,13 @@ public final class LobbyRoom {
     public boolean create(String policy){
         if(!active||!room.isEmpty()||!policy(policy))return false;
         room=uuid();host=self;access=policy;session=new LobbySession(UUID.fromString(room),self);revision=1;
-        notice="Room created. Invite someone to join.";emit();return true;
+        notice=SocialNotice.ROOM_ROOM_CREATED_INVITE_SOMEONE_TO_JOIN;emit();return true;
     }
     public void access(String value){if(hosting()&&active&&policy(value)){access=value;broadcast();}}
     public void invite(String peer){
         if(!hosting()||!active||!LobbyDirectory.id(peer)||self.equals(peer)||offers.size()>=32||session.members().contains(peer))return;
         JsonObject offer=new JsonObject();offer.addProperty("offer",uuid());offer.addProperty("until",clock.getAsLong()+300);
-        offers.put(peer,offer);send(peer,"invite",offer,room,"");info("Invitation pending. Waiting for an answer.");
+        offers.put(peer,offer);send(peer,"invite",offer,room,"");info(SocialNotice.ROOM_INVITATION_PENDING_WAITING_FOR_AN_ANSWER);
     }
     public void answer(String key,boolean accept){
         JsonObject invitation=invitations.remove(key);if(invitation==null)return;
@@ -96,13 +100,13 @@ public final class LobbyRoom {
         if(!active||!room.isEmpty()||!LobbyDirectory.id(peer)||peer.equals(self)||!uuid(id))return;
         host=peer;room=id;probe=uuid();hostBoot="";joiningAt=lastHost=clock.getAsLong();remote=new JsonObject();
         JsonObject data=new JsonObject();data.addProperty("probe",probe);if(uuid(offer))data.addProperty("offer",offer);
-        send(host,"join",data,room,"");info("Waiting for the host...");
+        send(host,"join",data,room,"");info(SocialNotice.ROOM_WAITING_FOR_THE_HOST);
     }
     public void approve(String peer,boolean yes){
         if(!hosting()||!active||!requests.containsKey(peer))return;
         String reply=requests.remove(peer);
         if(yes&&session.members().size()<16&&session.admit(self,peer)){
-            notice="Player joined the room.";
+            notice=SocialNotice.ROOM_PLAYER_JOINED_THE_ROOM;
             seen.put(peer,clock.getAsLong());send(peer,"state",hostState(),room,reply);broadcast();
         }else{send(peer,"rejected",new JsonObject(),room,reply);emit();}
     }
@@ -115,16 +119,21 @@ public final class LobbyRoom {
             Set<String> targets=new HashSet<>(session.members());targets.addAll(offers.keySet());targets.addAll(requests.keySet());targets.remove(self);
             for(String peer:targets)send(peer,"closed",new JsonObject(),room,"");session.close(self);
         }else if(!room.isEmpty())send(host,"leave",new JsonObject(),room,"");
-        clear();info("You left the room.");
+        clear();info(SocialNotice.ROOM_YOU_LEFT_THE_ROOM);
     }
     private void clear(){session=null;launch=null;attached.clear();cancelledAttempt=observedAttempt="";room=host=hostBoot=probe=peerAttempt="";peerGeneration=0;remote=new JsonObject();offers.clear();requests.clear();seen.clear();peerBoots.clear();joiningAt=0;}
     public void deliveryFailed(String peer){
-        deliveryFailed(peer,"Could not reach this player. Check Fluxer access and refresh.");
+        deliveryFailed(peer,SocialNotice.ROOM_PLAYER_UNREACHABLE);
     }
     void deliveryFailed(String peer,String reason){
+        deliveryLost(peer);info(reason);
+    }
+    void deliveryFailed(String peer,SocialNotice reason){
+        deliveryLost(peer);info(reason);
+    }
+    private void deliveryLost(String peer){
         if(hosting()&&session.isConnected(peer)){session.connection(peer,false);broadcast();}
         if(peer.equals(host)&&!hosting())lastHost=clock.getAsLong()-46;
-        info(reason);
     }
     public boolean select(LobbySession.Game game){
         if(!hosting()||!active||game!=null&&(!capabilities.contains(capability(game))||!wireGame(game)))return false;
@@ -149,7 +158,7 @@ public final class LobbyRoom {
         PeerBinding binding=peerBinding();if(binding==null)return false;
         launch=session.takeLaunch(binding.attempt);if(launch==null)return false;
         attached.clear();launchDeadline=monotonic.getAsLong()+30;
-        notice="Connecting game processes...";broadcast();return true;
+        notice=SocialNotice.ROOM_CONNECTING_GAME_PROCESSES;broadcast();return true;
     }
     public String launchAttempt(){
         if(!available())return "";
@@ -169,10 +178,10 @@ public final class LobbyRoom {
     public void finish(String attempt){
         if(attempt.isEmpty()||attempt.equals(cancelledAttempt)||!attempt.equals(currentAttempt()))return;
         if(hosting()){
-            session.finish(launch.attempt);launch=null;attached.clear();notice="Game ended. Prepare and press Ready to play again.";broadcast();
+            session.finish(launch.attempt);launch=null;attached.clear();notice=SocialNotice.ROOM_GAME_ENDED_PREPARE_AND_PRESS_READY_TO;broadcast();
         }else{
             cancelledAttempt=attempt;JsonObject data=new JsonObject();data.addProperty("attempt",attempt);send(host,"finish",data,room,"");
-            info("Returning to room. Waiting for the host...");
+            info(SocialNotice.ROOM_RETURNING_TO_ROOM_WAITING_FOR_THE_HOST);
         }
     }
     public void receive(String peer,JsonObject p){
@@ -217,7 +226,7 @@ public final class LobbyRoom {
                 replay.put(key,seq);peerBoots.put(peer,incarnation);
                 JsonObject offer=offers.get(peer);boolean invited=offer!=null&&number(offer,"until")>now&&text(offer,"offer").equals(text(data,"offer"));
                 if(session.members().contains(peer)||session.members().size()<16&&(invited||access.equals("public"))&&session.admit(self,peer)){
-                    notice="Player joined the room.";
+                    notice=SocialNotice.ROOM_PLAYER_JOINED_THE_ROOM;
                     offers.remove(peer);requests.remove(peer);seen.put(peer,now);session.connection(peer,true);send(peer,"state",hostState(),room,reply);broadcast();
                 }else if(access.equals("approval")&&requests.size()<32){requests.put(peer,reply);seen.put(peer,now);send(peer,"pending",new JsonObject(),room,reply);emit();}
                 else send(peer,"rejected",new JsonObject(),room,reply);
@@ -241,22 +250,22 @@ public final class LobbyRoom {
         boolean correlated=!probe.isEmpty()&&text(p,"reply").equals(probe);
         if(hostBoot.isEmpty()&&!correlated)return;
         if(kind.equals("unavailable")&&!joined()&&correlated){
-            replay.put(key,seq);clear();info("This room is no longer available. Refresh Lobbies.");return;
+            replay.put(key,seq);clear();info(SocialNotice.ROOM_THIS_ROOM_IS_NO_LONGER_AVAILABLE_REFRESH);return;
         }
-        if(kind.equals("pending")){replay.put(key,seq);info("Waiting for host approval...");return;}
-        if(Arrays.asList("closed","removed","rejected").contains(kind)){replay.put(key,seq);clear();info("The room is closed or your request was declined.");return;}
+        if(kind.equals("pending")){replay.put(key,seq);info(SocialNotice.ROOM_WAITING_FOR_HOST_APPROVAL);return;}
+        if(Arrays.asList("closed","removed","rejected").contains(kind)){replay.put(key,seq);clear();info(SocialNotice.ROOM_THE_ROOM_IS_CLOSED_OR_YOUR_REQUEST);return;}
         if(!kind.equals("state")||!validState(data,host,id,self)||number(data,"revision")<number(remote,"revision"))return;
         replay.put(key,seq);hostBoot=incarnation;remote=data.deepCopy();lastHost=now;joiningAt=0;probe="";
         String attempt=text(object(remote,"launch"),"attempt");
         if(!attempt.equals(observedAttempt)){observedAttempt=attempt;launchDeadline=monotonic.getAsLong()+30;}
-        notice=attempt.isEmpty()?"Connected to room":bool(object(remote,"launch"),"running")?"Game in progress":"Connecting game processes...";emit();
+        notice=attempt.isEmpty()?SocialNotice.ROOM_CONNECTED_TO_ROOM:bool(object(remote,"launch"),"running")?SocialNotice.ROOM_GAME_IN_PROGRESS:SocialNotice.ROOM_CONNECTING_GAME_PROCESSES;emit();
     }
     public void tick(){
         long now=clock.getAsLong();boolean expired=invitations.values().removeIf(i->number(i,"until")<=now);offers.values().removeIf(i->number(i,"until")<=now);
         if(expired)emit();if(!active)return;
         String attempt=launchAttempt();
-        if(!attempt.isEmpty()&&!running()&&monotonic.getAsLong()>=launchDeadline){finish(attempt);info("Game launch timed out. Prepare and press Ready again.");}
-        if(joiningAt>0&&now-joiningAt>90){clear();info("The host did not answer. Try joining again.");}
+        if(!attempt.isEmpty()&&!running()&&monotonic.getAsLong()>=launchDeadline){finish(attempt);info(SocialNotice.ROOM_GAME_LAUNCH_TIMED_OUT_PREPARE_AND_PRESS);}
+        if(joiningAt>0&&now-joiningAt>90){clear();info(SocialNotice.ROOM_THE_HOST_DID_NOT_ANSWER_TRY_JOINING);}
         if(now<nextBeat)return;nextBeat=now+20;
         if(hosting()){
             requests.keySet().removeIf(p->now-seen.getOrDefault(p,0L)>90);
@@ -264,7 +273,7 @@ public final class LobbyRoom {
             broadcast();
         }else if(joined()){
             JsonObject data=new JsonObject();data.addProperty("probe",uuid());send(host,"ping",data,room,"");
-            if(now-lastHost>45)info("Host unavailable. Waiting to reconnect...");
+            if(now-lastHost>45)info(SocialNotice.ROOM_HOST_UNAVAILABLE_WAITING_TO_RECONNECT);
         }
     }
     private void broadcast(){

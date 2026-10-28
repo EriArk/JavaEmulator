@@ -68,4 +68,30 @@ public class SocialLocalizationTest {
         assertTrue(expanded.getString(R.string.social_invitation_from,"Name 50% / [Attachment]").contains("Name 50% / [Attachment]"));
         assertEquals("Expires in 2:05",locale("en").getString(R.string.social_expires,2L,5L));
     }
+    @Test public void roomAndPublicationRenderingKeepRawReasonsAndProtocolCodes() {
+        Context expanded=locale("en-XA");LobbyRoomModel.State state=new LobbyRoomModel.State();
+        assertEquals(state.status,SocialText.roomStatus(locale("en"),state));
+        assertNotEquals(state.status,SocialText.roomStatus(expanded,state));
+        state.statusCode=SocialNotice.EXTERNAL;state.status="Waiting for the host...";
+        assertEquals(state.status,SocialText.roomStatus(expanded,state));
+        state.publicationCode=SocialNotice.ROOM_DIRECTORY_REJECTED;state.publicationDetail="unknown-capability";
+        assertEquals("Directory rejected this update: unknown-capability",SocialText.publication(locale("en"),state));
+        assertTrue(SocialText.publication(expanded,state).contains("unknown-capability"));
+        assertEquals("unknown-capability",state.publicationDetail);
+        state.account="1";state.names.put("1","You");state.names.put("2","You");
+        assertNotEquals("You",SocialText.player(expanded,state,"1"));
+        assertEquals("You",SocialText.player(expanded,state,"2"));
+    }
+    @Test public void contactJournalMessagesTranslateOnlyWithExplicitValidIdentity() {
+        Context expanded=locale("en-XA");JsonObject record=new JsonObject();
+        String raw="Check this friendship after the interrupted request.";record.addProperty("error",raw);
+        assertEquals(raw,SocialText.contactError(expanded,record));
+        record.addProperty("errorCode","FUTURE_CODE");assertEquals(raw,SocialText.contactError(expanded,record));
+        record.add("errorCode",new JsonObject());assertEquals(raw,SocialText.contactError(expanded,record));
+        record.addProperty("errorCode",SocialNotice.ROOM_CHECK_THIS_FRIENDSHIP_AFTER_THE_INTERRUPTED_REQUEST.name());
+        assertEquals(raw,SocialText.contactError(locale("en"),record));
+        assertNotEquals(raw,SocialText.contactError(expanded,record));
+        assertEquals(raw,record.get("error").getAsString());
+        record.remove("error");assertEquals("",SocialText.contactError(expanded,record));
+    }
 }

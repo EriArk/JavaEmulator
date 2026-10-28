@@ -85,14 +85,14 @@ public class CompatibilityTestActivity extends AppCompatActivity {
 		errorDialog = new GameMenuDialog(this, appName);
 		GameMenuDialog dialog = errorDialog;
 		boolean[] retry = {false};
-		dialog.show(); dialog.page("Could not prepare game");
+		dialog.show(); dialog.page(getString(ru.playsoftware.j2meloader.R.string.helper_prepare_failed));
 		dialog.setCanceledOnTouchOutside(false);
 		dialog.message(message);
 		dialog.setOnDismissListener(d -> { if (!retry[0] && !destroyed) finish(); });
-		if (retryable) dialog.action("Retry", android.R.drawable.ic_menu_rotate, () -> {
+		if (retryable) dialog.action(getString(ru.playsoftware.j2meloader.R.string.helper_retry), android.R.drawable.ic_menu_rotate, () -> {
 			retry[0] = true; dialog.dismiss(); startTesting();
 		});
-		dialog.action("Exit", android.R.drawable.ic_menu_close_clear_cancel, dialog::dismiss);
+		dialog.action(getString(ru.playsoftware.j2meloader.R.string.helper_exit), android.R.drawable.ic_menu_close_clear_cancel, dialog::dismiss);
 	}
 
 	private void startTesting() {

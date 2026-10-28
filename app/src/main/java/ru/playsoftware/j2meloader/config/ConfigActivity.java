@@ -862,7 +862,7 @@ public class ConfigActivity extends BaseActivity implements View.OnClickListener
 			for (View item : advanced) {
 				item.setVisibility(expertVisible ? View.VISIBLE : View.GONE);
 			}
-			binding.expertToggle.setText(expertVisible ? "Hide expert settings" : "Expert settings");
+			binding.expertToggle.setText(expertVisible ? getString(ru.playsoftware.j2meloader.R.string.helper_expert_hide) : getString(ru.playsoftware.j2meloader.R.string.helper_expert));
 		};
 		for (View item : advanced) {
 			item.setVisibility(View.GONE);
@@ -920,12 +920,12 @@ public class ConfigActivity extends BaseActivity implements View.OnClickListener
 			params.touchInput = false;
 		}
 		loadParams(false);
-		String change = symptom == 0 ? "Fit picture, preserve proportions, center the image."
-				: symptom == 1 ? "Try a different renderer with immediate drawing."
-				: "Try the default compatibility properties, 240 x 320 and a basic renderer.";
+		String change = symptom == 0 ? getString(ru.playsoftware.j2meloader.R.string.helper_fix_fit)
+				: symptom == 1 ? getString(ru.playsoftware.j2meloader.R.string.helper_fix_renderer)
+				: getString(ru.playsoftware.j2meloader.R.string.helper_fix_default);
 		Runnable undo = () -> { ProfilesManager.undoPreview(params); loadParams(false); };
-		new AlertDialog.Builder(this).setTitle("Try settings?").setMessage(change)
-				.setPositiveButton(isProfile ? "Keep" : "Try in game", (dialog, which) -> {
+		new AlertDialog.Builder(this).setTitle(getString(ru.playsoftware.j2meloader.R.string.helper_try_settings)).setMessage(change)
+				.setPositiveButton(isProfile ? getString(ru.playsoftware.j2meloader.R.string.helper_keep) : getString(ru.playsoftware.j2meloader.R.string.helper_try_in_game), (dialog, which) -> {
 					if (isProfile) {
 						if (!ProfilesManager.keepPreview(params)) Toast.makeText(this, R.string.display_save_failed, Toast.LENGTH_LONG).show();
 						return;
@@ -939,7 +939,7 @@ public class ConfigActivity extends BaseActivity implements View.OnClickListener
 						undo.run();
 						Toast.makeText(this, R.string.display_save_failed, Toast.LENGTH_LONG).show();
 					}
-				}).setNegativeButton("Undo", (dialog, which) -> undo.run())
+				}).setNegativeButton(getString(ru.playsoftware.j2meloader.R.string.helper_undo), (dialog, which) -> undo.run())
 				.setOnCancelListener(dialog -> undo.run()).show();
 	}
 

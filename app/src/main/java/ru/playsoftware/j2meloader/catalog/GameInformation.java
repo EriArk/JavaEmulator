@@ -9,11 +9,35 @@ import ru.playsoftware.j2meloader.config.Config;
 /** Read-only metadata: the installed descriptor is the installer's resolved JAD/JAR result. */
 public final class GameInformation {
     private GameInformation() { }
+    private enum Kind { EXTERNAL, MOPHUN, JAVA, UNREADABLE }
+    private static final class Details {
+        final Kind kind;final String version,vendor;
+        Details(Kind kind,String version,String vendor){this.kind=kind;this.version=version;this.vendor=vendor;}
+    }
     public static String describe(AppItem item) {
+        Details data=inspect(item);
+        switch(data.kind) {
+            case EXTERNAL:return "Platform: "+value(data.vendor)+"\nPhone: "+value(data.version);
+            case MOPHUN:return "Platform: Mophun\nVersion: "+value(data.version);
+            case UNREADABLE:return "Platform: Java ME\nVersion: Unavailable\nInstalled game information could not be read.";
+            default:return "Platform: Java ME\nVersion: "+value(data.version)+"\nVendor: "+value(data.vendor);
+        }
+    }
+    public static String describe(android.content.Context context,AppItem item) {
+        Details data=inspect(item);
+        String version=value(context,data.version),vendor=value(context,data.vendor);
+        switch(data.kind) {
+            case EXTERNAL:return context.getString(ru.playsoftware.j2meloader.R.string.game_info_external,vendor,version);
+            case MOPHUN:return context.getString(ru.playsoftware.j2meloader.R.string.game_info_mophun,version);
+            case UNREADABLE:return context.getString(ru.playsoftware.j2meloader.R.string.game_info_unreadable);
+            default:return context.getString(ru.playsoftware.j2meloader.R.string.game_info_java,version,vendor);
+        }
+    }
+    private static Details inspect(AppItem item) {
         if (item instanceof ExternalLibrary.Item)
-            return "Platform: " + value(item.getAuthor()) + "\nPhone: " + value(item.getVersion());
+            return new Details(Kind.EXTERNAL,item.getVersion(),item.getAuthor());
         if (AdditionalGames.isManaged(new File(item.getPathExt())))
-            return "Platform: Mophun\nVersion: " + value(item.getVersion());
+            return new Details(Kind.MOPHUN,item.getVersion(),item.getAuthor());
         String version = item.getVersion(), vendor = item.getAuthor();
         File descriptor = new File(item.getPathExt(), Config.MIDLET_MANIFEST_FILE);
         if (descriptor.isFile()) {
@@ -22,10 +46,10 @@ public final class GameInformation {
                 version = fields.getValue("MIDlet-Version");
                 vendor = fields.getValue("MIDlet-Vendor");
             } catch (IOException | RuntimeException error) {
-                return "Platform: Java ME\nVersion: Unavailable\nInstalled game information could not be read.";
+                return new Details(Kind.UNREADABLE,null,null);
             }
         }
-        return "Platform: Java ME\nVersion: " + value(version) + "\nVendor: " + value(vendor);
+        return new Details(Kind.JAVA,version,vendor);
     }
     static Attributes read(File file) throws IOException {
         if (file.length() > 1024 * 1024) throw new IOException("Descriptor is too large");
@@ -34,4 +58,7 @@ public final class GameInformation {
         }
     }
     private static String value(String value) { return value == null || value.trim().isEmpty() ? "Not provided" : value; }
+    private static String value(android.content.Context context,String value) {
+        return value==null||value.trim().isEmpty()?context.getString(ru.playsoftware.j2meloader.R.string.game_info_missing):value;
+    }
 }

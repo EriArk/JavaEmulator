@@ -61,10 +61,18 @@ mapping names have separate display aliases. Transfer idle state is semantic,
 not an English string comparison. Play styling and image-preset swatches are
 explicit properties, not label comparisons.
 
+Room/publication/mailbox notices and temporary-contact errors now carry typed
+display identities. New contact journal records store optional error keys;
+old, unknown or malformed keys retain their raw text. No display key changes
+network packets, contact decisions or account ownership. Switching accounts
+clears the previous mailbox status. Game-information labels use resources while
+game versions and vendor names remain verbatim. About/Help now describe AbyssME,
+preserve upstream attribution and link to this project's support and sources.
+
 This is still source preparation, not whole-app localization. Remaining backend
-messages (including Mophun and external diagnostics), room/publication/contact
-backend notices, game-information helpers and inherited About/Help still need
-extraction or review. No new locale is enabled or guest language modified as a
+messages (including Mophun, network-game preparation and external diagnostics)
+and helper-returned text still need extraction or review. No new locale is
+enabled or guest language modified as a
 side effect. English actor fallback fields are retained for diagnostics and
 non-Android tests; UI decisions must use typed keys, not translated labels.
 
@@ -158,3 +166,11 @@ legacy progress callbacks. `PreparedSystemArchiveTest` also verifies that
 cancelling a phone installation stops the collection, removes staging and
 preserves already imported phones. See the
 [native import checks](checks/2026-10-28-native-import-localization.md).
+
+`LobbyNoticeStateTest` protects typed room/mailbox/publication state, account
+reset, old contact journals and wire-format separation. `SocialLocalizationTest`
+also checks contact keys, raw rejection codes and player names. `InfoContentTest`
+checks current help, attribution/support links, unchanged game metadata,
+36 locale/font/viewport/content layouts and About/More/Help close callbacks.
+These are offline checks, not live multiplayer or full translation acceptance.
+See the [room/help checks](checks/2026-10-28-social-help-localization.md).

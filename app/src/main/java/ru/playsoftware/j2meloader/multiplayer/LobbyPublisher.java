@@ -15,15 +15,19 @@ final class LobbyPublisher {
     private final Consumer<String> send;
     private final Runnable changed;
     private JsonObject saved=new JsonObject(),pending,listing=projection(new JsonObject(),"");
-    private String desired="",access="private",status="Invite-only room",acknowledged="";
+    private SocialNotice status=SocialNotice.ROOM_INVITE_ONLY_ROOM;
+    private String rejectionCode="";
+    private String desired="",access="private",acknowledged="";
     private long next,deadline;
     private boolean broken,recovery;
     LobbyPublisher(String self,Store store,LongSupplier seconds,Consumer<String> send,Runnable changed){
         this.self=self;this.store=store;clock=seconds;this.send=send;this.changed=changed;
         try{saved=store.read();if(saved==null)saved=new JsonObject();if(!saved.entrySet().isEmpty()&&(!uuid(text(saved,"lobby"))||number(saved,"revision")<1))throw new IllegalStateException();recovery=!saved.entrySet().isEmpty();}
-        catch(Exception e){broken=true;status="Publication history could not be read. Public listing is disabled.";}
+        catch(Exception e){broken=true;status=SocialNotice.ROOM_PUBLICATION_HISTORY_COULD_NOT_BE_READ_PUBLIC;}
     }
-    String status(){return status;}
+    String status(){return status.english+(status==SocialNotice.ROOM_DIRECTORY_REJECTED?" "+rejectionCode:"");}
+    SocialNotice statusCode(){return status;}
+    String rejectionCode(){return rejectionCode;}
     void desired(String room,String access){desired(room,access,new JsonObject(),"");}
     void desired(String room,String access,JsonObject snapshot,String title){
         JsonObject updated=projection(snapshot,title);
@@ -63,7 +67,7 @@ final class LobbyPublisher {
                 // request. Follow it with removal, never replay the uncertain upsert.
                 boolean removal=text(pending,"op").equals("upsert")&&(!desired.equals(text(pending,"lobby"))||access.equals("private"));
                 pending=null;next=removal?0:Long.MAX_VALUE;
-                status=removal?"Removing public listing...":"Directory confirmation missing. Refresh or retry publication.";changed.run();
+                status=removal?SocialNotice.ROOM_REMOVING_PUBLIC_LISTING:SocialNotice.ROOM_DIRECTORY_CONFIRMATION_MISSING_REFRESH_OR_RETRY_PUBLICATION;changed.run();
             }
             return;
         }
@@ -72,13 +76,13 @@ final class LobbyPublisher {
         if(!old.isEmpty()&&(recovery||!old.equals(desired)))operation="close";
         else if(!desired.isEmpty()&&!access.equals("private"))operation="upsert";
         else if(!old.isEmpty()&&!acknowledged.equals("withdraw"))operation="withdraw";
-        else{status="Invite-only room";next=Long.MAX_VALUE;changed.run();return;}
+        else{status=SocialNotice.ROOM_INVITE_ONLY_ROOM;next=Long.MAX_VALUE;changed.run();return;}
         String target=operation.equals("upsert")?desired:old;
         long revision=target.equals(old)?number(saved,"revision")+1:1;
         JsonObject command=new JsonObject();command.addProperty("v",2);command.addProperty("product","abyssme");command.addProperty("protocol",1);command.addProperty("lobby",target);command.addProperty("revision",revision);command.addProperty("op",operation);command.addProperty("request",uuid());
         if(operation.equals("upsert")){for(String key:listing.keySet())command.add(key,listing.get(key).deepCopy());command.addProperty("access",access);}
-        try{store.write(command);saved=command.deepCopy();}catch(Exception e){broken=true;status="Could not save publication intent. Nothing was published.";changed.run();return;}
-        pending=command;deadline=now+45;status=operation.equals("upsert")?"Waiting for directory confirmation...":"Waiting for listing removal confirmation...";
+        try{store.write(command);saved=command.deepCopy();}catch(Exception e){broken=true;status=SocialNotice.ROOM_COULD_NOT_SAVE_PUBLICATION_INTENT_NOTHING_WAS;changed.run();return;}
+        pending=command;deadline=now+45;status=operation.equals("upsert")?SocialNotice.ROOM_WAITING_FOR_DIRECTORY_CONFIRMATION:SocialNotice.ROOM_WAITING_FOR_LISTING_REMOVAL_CONFIRMATION;
         send.accept(LobbyDirectory.PREFIX+command+"\n```");changed.run();
     }
     void receive(String peer,String content){
@@ -88,19 +92,19 @@ final class LobbyPublisher {
             if(number(result,"v")!=2||!text(result,"product").equals("abyssme")||number(result,"protocol")!=1||!text(result,"owner").equals(self)
                     ||!text(result,"request").equals(text(pending,"request"))||!text(result,"lobby").equals(text(pending,"lobby"))||number(result,"revision")!=number(pending,"revision")
                     ||!text(result,"op").equals(text(pending,"op"))||!LobbyExpiry.live(number(result,"expires"),clock.getAsLong(),90))return;
-            String code=text(result,"result"),op=text(pending,"op");pending=null;next=Long.MAX_VALUE;
-            if(code.equals("accepted")&&op.equals("upsert")){acknowledged=op;next=clock.getAsLong()+60;status="Public listing accepted by the directory";}
-            else if(code.equals("withdrawn")&&op.equals("withdraw")){acknowledged=op;status="Listing withdrawal accepted";}
+            String code=text(result,"result"),op=text(pending,"op");rejectionCode=code.matches("[a-z-]{1,24}")?code:"";pending=null;next=Long.MAX_VALUE;
+            if(code.equals("accepted")&&op.equals("upsert")){acknowledged=op;next=clock.getAsLong()+60;status=SocialNotice.ROOM_PUBLIC_LISTING_ACCEPTED_BY_THE_DIRECTORY;}
+            else if(code.equals("withdrawn")&&op.equals("withdraw")){acknowledged=op;status=SocialNotice.ROOM_LISTING_WITHDRAWAL_ACCEPTED;}
             else if(code.equals("closed")&&op.equals("close")){
-                store.write(new JsonObject());saved=new JsonObject();recovery=false;acknowledged="";next=0;status="Previous listing closed";
-            }else status=code.equals("already-listed")?"Another AbyssME public room is active. Close it first.":"Directory rejected this update: "+(code.matches("[a-z-]{1,24}")?code:"invalid response");
+                store.write(new JsonObject());saved=new JsonObject();recovery=false;acknowledged="";next=0;status=SocialNotice.ROOM_PREVIOUS_LISTING_CLOSED;
+            }else status=code.equals("already-listed")?SocialNotice.ROOM_ANOTHER_ABYSSME_PUBLIC_ROOM_IS_ACTIVE_CLOSE:(code.matches("[a-z-]{1,24}")?SocialNotice.ROOM_DIRECTORY_REJECTED:SocialNotice.ROOM_DIRECTORY_INVALID_REPLY);
             boolean success=code.equals("accepted")||code.equals("withdrawn")||code.equals("closed");
             boolean removal=op.equals("upsert")&&(!text(saved,"lobby").equals(desired)||access.equals("private"));
             if(!recovery&&(removal||success&&(!text(saved,"lobby").equals(desired)||code.equals("accepted")&&!currentListing(saved)||code.equals("withdrawn")&&!access.equals("private")))){
                 next=0;
-                status=removal?"Removing public listing...":"Updating public listing...";
+                status=removal?SocialNotice.ROOM_REMOVING_PUBLIC_LISTING:SocialNotice.ROOM_UPDATING_PUBLIC_LISTING;
             }
             changed.run();
-        }catch(Exception e){broken=true;status="Directory reply or saved publication state could not be confirmed.";changed.run();}
+        }catch(Exception e){broken=true;status=SocialNotice.ROOM_DIRECTORY_REPLY_OR_SAVED_PUBLICATION_STATE_COULD;changed.run();}
     }
 }

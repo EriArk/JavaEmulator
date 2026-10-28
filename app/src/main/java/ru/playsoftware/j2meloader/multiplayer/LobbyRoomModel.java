@@ -22,7 +22,9 @@ public final class LobbyRoomModel extends AndroidViewModel {
     static final ViewModelStore STORE=new ViewModelStore();
     static LobbyRoomModel get(Application app){return new ViewModelProvider(STORE,new ViewModelProvider.AndroidViewModelFactory(app)).get(LobbyRoomModel.class);}
     public static final class State {
-        public String account="",status="Sign in to Fluxer to use rooms.",publication="",room="",host="",access="private";
+        public SocialNotice statusCode=SocialNotice.ROOM_SIGN_IN_TO_FLUXER_TO_USE_ROOMS,publicationCode=SocialNotice.NONE;
+        public String publicationDetail="";
+        public String account="",status=SocialNotice.ROOM_SIGN_IN_TO_FLUXER_TO_USE_ROOMS.english,publication="",room="",host="",access="private";
         public boolean verified,hosting,joined,available;
         public boolean gameSelection,checkingGame,launchOffered;
         public String gameTitle="",attempt="",selectedGamePath="";
@@ -46,7 +48,10 @@ public final class LobbyRoomModel extends AndroidViewModel {
     private LobbyRoom room;
     private LobbyPeerCoordinator gameNetwork;
     private LobbyPublisher publisher;
-    private String token,self="",authNotice="Sign in to Fluxer to use rooms.";
+    private String token,self="",authNotice=SocialNotice.ROOM_SIGN_IN_TO_FLUXER_TO_USE_ROOMS.english;
+    private SocialNotice authCode=SocialNotice.ROOM_SIGN_IN_TO_FLUXER_TO_USE_ROOMS;
+    private void auth(SocialNotice code){authCode=code;authNotice=code.english;}
+    private void auth(String raw){authCode=raw.isEmpty()?SocialNotice.NONE:SocialNotice.EXTERNAL;authNotice=raw;}
     private boolean verifying,verified,closed;
     private int viewers;
     private long epoch,nextCredentials;
@@ -91,8 +96,9 @@ public final class LobbyRoomModel extends AndroidViewModel {
                 if(gameNetwork!=null&&content.startsWith(io.github.eriark.abyssme.peer.PeerSignals.PREFIX))gameNetwork.receive(peer,content);
             }
             public void changed(){publish();}
+            public void failed(String peer,SocialNotice reason){if(room!=null&&!peer.equals(LobbyDirectory.BOT))room.deliveryFailed(peer,reason);publish();}
             public void failed(String peer,String reason){if(room!=null&&!peer.equals(LobbyDirectory.BOT))room.deliveryFailed(peer,reason);publish();}
-            public void expired(){reset(null);authNotice="Sign-in expired. Open Account to reconnect.";publish();}
+            public void expired(){reset(null);auth(SocialNotice.ROOM_SIGN_IN_EXPIRED_OPEN_ACCOUNT_TO_RECONNECT);publish();}
         });
         owner.setExecuteExistingDelayedTasksAfterShutdownPolicy(false);
         timer=owner.scheduleWithFixedDelay(()->{
@@ -109,20 +115,20 @@ public final class LobbyRoomModel extends AndroidViewModel {
     void refresh(){owner.execute(()->{nextCredentials=0;load();mailbox.refresh();if(publisher!=null)publisher.retry();});}
     private void load(){
         nextCredentials=SystemClock.elapsedRealtime()+10000;
-        String saved;try{saved=credentials.read();}catch(Exception e){reset(null);authNotice="Could not unlock sign-in. Open Account to recover it.";publish();return;}
+        String saved;try{saved=credentials.read();}catch(Exception e){reset(null);auth(SocialNotice.ROOM_COULD_NOT_UNLOCK_SIGN_IN_OPEN_ACCOUNT);publish();return;}
         if(Objects.equals(saved,token)&&(verified||verifying))return;
         if(!Objects.equals(saved,token))reset(saved);
         if(token==null){publish();return;}verifying=true;long generation=epoch;
         http.request("GET","/v1/users/@me",null,token,r->{
             if(generation!=epoch||closed)return;verifying=false;
-            if(!r.ok()||!LobbyDirectory.id(text(r.body,"id"))){authNotice="Could not verify sign-in. Refresh or open Account.";if(r.status==429)nextCredentials=SystemClock.elapsedRealtime()+Math.max(1000,Math.min(300000,r.retryMillis));publish();return;}
-            self=text(r.body,"id");verified=true;authNotice="";mailbox.configure(token,self);mailbox.active(activeOwner());
+            if(!r.ok()||!LobbyDirectory.id(text(r.body,"id"))){auth(SocialNotice.ROOM_COULD_NOT_VERIFY_SIGN_IN_REFRESH_OR);if(r.status==429)nextCredentials=SystemClock.elapsedRealtime()+Math.max(1000,Math.min(300000,r.retryMillis));publish();return;}
+            self=text(r.body,"id");verified=true;auth(SocialNotice.NONE);mailbox.configure(token,self);mailbox.active(activeOwner());
             room=new LobbyRoom(self,()->System.currentTimeMillis()/1000,capabilities,(peer,p)->mailbox.send(peer,PREFIX+p+"\n```",
                     text(p,"kind").equals("state")&&text(p,"reply").isEmpty()?text(p,"boot")+"/"+text(p,"lobby"):""),this::roomChanged);
             room.active(activeOwner());
             gameNetwork=new LobbyPeerCoordinator(self,room,this::processLink,new LobbyPeerCoordinator.Events(){
                 public boolean signal(String peer,List<String> fragments){return mailbox.sendPeerSignals(peer,fragments);}
-                public void prepared(javax.bluetooth.VirtualBluetooth adapter){authNotice="";publish();}
+                public void prepared(javax.bluetooth.VirtualBluetooth adapter){auth(SocialNotice.NONE);publish();}
                 public void closed(String reason){networkClosed(reason);}
             });
             publisher=new LobbyPublisher(self,publicationStore.apply(self),()->System.currentTimeMillis()/1000,c->mailbox.send(LobbyDirectory.BOT,c),this::publish);
@@ -133,7 +139,7 @@ public final class LobbyRoomModel extends AndroidViewModel {
                     if(requestEpoch!=epoch||closed)return;
                     if(result.status==429)contactRetryAt=SystemClock.elapsedRealtime()+Math.max(15000,result.retryMillis);
                     done.accept(new TemporaryContacts.Reply(result.status,result.data,(int)Math.min(300,result.retryMillis/1000)));
-                    if(result.status==401){reset(null);authNotice="Sign-in expired. Open Account to reconnect.";}
+                    if(result.status==401){reset(null);auth(SocialNotice.ROOM_SIGN_IN_EXPIRED_OPEN_ACCOUNT_TO_RECONNECT);}
                     publish();
                 });
             },(peer,p)->mailbox.send(peer,LobbyMailbox.CONTACT_PREFIX+p+"\n```"),System.currentTimeMillis()/1000);
@@ -141,7 +147,7 @@ public final class LobbyRoomModel extends AndroidViewModel {
             publish();mailbox.refresh();
         });
     }
-    private void reset(String token){++epoch;++selectionEpoch;checkingGame=false;clearRuntime();returningUntil=0;installed=null;gameTitle="";if(networkTimer!=null)networkTimer.cancel(false);networkTimer=null;if(gameNetwork!=null)gameNetwork.close();gameNetwork=null;if(contacts!=null)contacts.close();contacts=null;manualLease=null;contactRetryAt=0;this.token=token;self="";verified=verifying=false;room=null;publisher=null;mailbox.configure(null,"");authNotice="Sign in to Fluxer to use rooms.";}
+    private void reset(String token){++epoch;++selectionEpoch;checkingGame=false;clearRuntime();returningUntil=0;installed=null;gameTitle="";if(networkTimer!=null)networkTimer.cancel(false);networkTimer=null;if(gameNetwork!=null)gameNetwork.close();gameNetwork=null;if(contacts!=null)contacts.close();contacts=null;manualLease=null;contactRetryAt=0;this.token=token;self="";verified=verifying=false;room=null;publisher=null;mailbox.configure(null,"");auth(SocialNotice.ROOM_SIGN_IN_TO_FLUXER_TO_USE_ROOMS);}
     private void roomChanged(){
         if(room==null)return;
         runtime();
@@ -176,6 +182,7 @@ public final class LobbyRoomModel extends AndroidViewModel {
         if(room==null||installed==null||!installed.game.equals(game(object(room.snapshot(),"game"))))s.gameTitle="";
         else s.selectedGamePath=installed.directory.getPath();
         s.attempt=runtimeAttempt;s.launchOffered=launchIntent!=null&&!launchTaken;
+        s.statusCode=!verified?authCode:!authNotice.isEmpty()?authCode:!mailbox.status().isEmpty()?mailbox.statusCode():room==null?SocialNotice.NONE:room.noticeCode();
         s.status=!verified?authNotice:!authNotice.isEmpty()?authNotice:!mailbox.status().isEmpty()?mailbox.status():room==null?"":room.notice();
         if(room!=null){s.room=room.room();s.host=room.host();s.hosting=room.hosting();s.joined=room.joined();s.available=room.available();s.access=room.access();s.snapshot=room.snapshot();s.invitations=room.invitations();
             for(String peer:room.requests().keySet())s.requests.put(peer,mailbox.name(peer));
@@ -185,9 +192,10 @@ public final class LobbyRoomModel extends AndroidViewModel {
         for(JsonObject invite:s.invitations){String id=text(invite,"host");s.names.put(id,mailbox.name(id));}
         if(contacts!=null){s.contacts=contacts.state();for(String id:object(s.contacts,"peers").keySet())s.names.put(id,mailbox.name(id));}
         s.publication=publisher==null?"":publisher.status();
+        s.publicationCode=publisher==null?SocialNotice.NONE:publisher.statusCode();s.publicationDetail=publisher==null?"":publisher.rejectionCode();
         RoomStatusProvider.update(!closed&&s.verified&&!s.room.isEmpty());state.postValue(s);
     }
-    void action(String account,Consumer<LobbyRoom> action){owner.execute(()->{if(!closed&&verified&&self.equals(account)&&room!=null){authNotice="";action.accept(room);}});}
+    void action(String account,Consumer<LobbyRoom> action){owner.execute(()->{if(!closed&&verified&&self.equals(account)&&room!=null){auth(SocialNotice.NONE);action.accept(room);}});}
     void games(Consumer<List<NetworkGameCatalog.Entry>> success,Consumer<String> failure){files.execute(()->{
         try{List<NetworkGameCatalog.Entry> entries=NetworkGameCatalog.list(new File(Config.getAppDir()));main.post(()->success.accept(entries));}
         catch(IOException e){main.post(()->failure.accept(e.getMessage()));}
@@ -200,9 +208,9 @@ public final class LobbyRoomModel extends AndroidViewModel {
     void chooseGame(String account,NetworkGameCatalog.Entry entry){owner.execute(()->prepareGame(account,entry));}
     private void prepareGame(String account,NetworkGameCatalog.Entry entry){
         if(closed||checkingGame||!verified||!self.equals(account)||room==null||!room.joined()||!room.launchAttempt().isEmpty()||!capabilities.contains("java/bluetooth/1"))return;
-        if(room.hosting()&&room.snapshot().getAsJsonArray("members").size()>2){authNotice="This game needs two players. Remove extra players before selecting it.";publish();return;}
+        if(room.hosting()&&room.snapshot().getAsJsonArray("members").size()>2){auth(SocialNotice.ROOM_THIS_GAME_NEEDS_TWO_PLAYERS_REMOVE_EXTRA);publish();return;}
         long selection=++selectionEpoch;String selectedRoom=room.room();long generation=number(room.snapshot(),"generation");
-        checkingGame=true;returningUntil=0;authNotice="Checking installed game...";gameNetwork.localContent(null);publish();
+        checkingGame=true;returningUntil=0;auth(SocialNotice.ROOM_CHECKING_INSTALLED_GAME);gameNetwork.localContent(null);publish();
         files.execute(()->{
             InstalledNetworkGame result=null;String error="";
             try{
@@ -215,11 +223,11 @@ public final class LobbyRoomModel extends AndroidViewModel {
             InstalledNetworkGame checked=result;String problem=error;
             owner.execute(()->{
                 if(closed||selection!=selectionEpoch)return;checkingGame=false;
-                if(!self.equals(account)||room==null||!room.room().equals(selectedRoom)||number(room.snapshot(),"generation")!=generation){authNotice="Room changed. Select the game again.";publish();return;}
-                if(!problem.isEmpty()){authNotice=problem;publish();return;}
-                if(!room.hosting()&&!checked.game.equals(game(object(room.snapshot(),"game")))){authNotice="This is a different game edition. Select the same JAR as the host.";publish();return;}
-                if(room.hosting()&&room.snapshot().getAsJsonArray("members").size()>checked.game.players){authNotice="This game needs two players. Remove extra players before selecting it.";publish();return;}
-                installed=checked;gameTitle=entry.title;authNotice="";
+                if(!self.equals(account)||room==null||!room.room().equals(selectedRoom)||number(room.snapshot(),"generation")!=generation){auth(SocialNotice.ROOM_ROOM_CHANGED_SELECT_THE_GAME_AGAIN);publish();return;}
+                if(!problem.isEmpty()){auth(problem);publish();return;}
+                if(!room.hosting()&&!checked.game.equals(game(object(room.snapshot(),"game")))){auth(SocialNotice.ROOM_THIS_IS_A_DIFFERENT_GAME_EDITION_SELECT);publish();return;}
+                if(room.hosting()&&room.snapshot().getAsJsonArray("members").size()>checked.game.players){auth(SocialNotice.ROOM_THIS_GAME_NEEDS_TWO_PLAYERS_REMOVE_EXTRA);publish();return;}
+                installed=checked;gameTitle=entry.title;auth(SocialNotice.NONE);
                 if(room.hosting()){room.select(null);room.select(checked.game);}
                 gameNetwork.localContent(checked.game);startNetworkTimer();publish();
             });
@@ -247,7 +255,7 @@ public final class LobbyRoomModel extends AndroidViewModel {
         // Coordinator teardown can synchronously finish the room before this callback.
         boolean returning=!runtimeAttempt.isEmpty()||returningUntil>SystemClock.elapsedRealtime();
         runtime();
-        authNotice=returning?"Game connection ended. Prepare and press Ready again.":reason;
+        if(returning)auth(SocialNotice.ROOM_GAME_CONNECTION_ENDED_PREPARE_AND_PRESS_READY);else auth(reason);
         publish();
     }
     private void clearRuntime(){
@@ -267,7 +275,7 @@ public final class LobbyRoomModel extends AndroidViewModel {
             if(gameLease==null||!gameLease.retain(self,room.peerBinding(),installed)){clearRuntime();room.finish(attempt);visibility();publish();return;}
             if(runtimeAttempt.isEmpty()){
                 try{launchIntent=GameNetworkService.offer(getApplication(),gameTitle,gameLease);runtimeAttempt=attempt;visibility();publish();}
-                catch(IOException e){clearRuntime();room.finish(attempt);authNotice="Could not start this game. Prepare it again.";visibility();publish();return;}
+                catch(IOException e){clearRuntime();room.finish(attempt);auth(SocialNotice.ROOM_COULD_NOT_START_THIS_GAME_PREPARE_IT);visibility();publish();return;}
             }
             if(gameLease.adapterReady()&&!attachmentSent){attachmentSent=true;room.attached(attempt);}
             if(room.running()&&gameLease.adapterReady())gameLease.release();

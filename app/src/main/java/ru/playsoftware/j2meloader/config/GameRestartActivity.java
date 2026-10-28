@@ -59,12 +59,12 @@ public final class GameRestartActivity extends Activity {
                     Config.startApp(GameRestartActivity.this, getIntent().getStringExtra(KEY_MIDLET_NAME),
                             path, false, getIntent().getStringExtra(KEY_START_ARGUMENTS));
                 } catch (RuntimeException e) {
-                    Toast.makeText(GameRestartActivity.this, "Could not launch the game. Previous settings kept.", Toast.LENGTH_LONG).show();
+                    Toast.makeText(GameRestartActivity.this, getString(ru.playsoftware.j2meloader.R.string.helper_launch_failed), Toast.LENGTH_LONG).show();
                     onBackPressed();
                 }
                 finish();
             } else if (SystemClock.elapsedRealtime() >= deadline) {
-                Toast.makeText(GameRestartActivity.this, "Could not restart the game. Previous settings kept.", Toast.LENGTH_LONG).show();
+                Toast.makeText(GameRestartActivity.this, getString(ru.playsoftware.j2meloader.R.string.helper_restart_failed), Toast.LENGTH_LONG).show();
                 onBackPressed();
             } else handler.postDelayed(this, 100);
         }

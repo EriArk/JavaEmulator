@@ -68,7 +68,7 @@ public class KeyMapperActivity extends BaseActivity implements View.OnClickListe
 		Intent intent = getIntent();
 		String path = intent.getDataString();
 		if (path == null) {
-			Toast.makeText(this, "Error", Toast.LENGTH_SHORT).show();
+			Toast.makeText(this, getString(ru.playsoftware.j2meloader.R.string.helper_mapper_error), Toast.LENGTH_SHORT).show();
 			finish();
 			return;
 		}
@@ -84,7 +84,7 @@ public class KeyMapperActivity extends BaseActivity implements View.OnClickListe
 		}
 		params = ProfilesManager.loadConfig(new File(path));
 		if (params == null) {
-			Toast.makeText(this, "Error", Toast.LENGTH_SHORT).show();
+			Toast.makeText(this, getString(ru.playsoftware.j2meloader.R.string.helper_mapper_error), Toast.LENGTH_SHORT).show();
 			finish();
 			return;
 		}

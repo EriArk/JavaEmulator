@@ -10,6 +10,23 @@ stated otherwise. **Experimental** in older checkpoints means local/private
 combined builds; released experimental features are explicitly identified.
 **Released** means an actual GitHub release asset.
 
+## 2026-10-28 - Room Messages and Current Product Help (Public Source, Unreleased)
+
+- Extract 66 room, publication, delivery and temporary-contact notices into
+  resources. Keep network commands, account identifiers and user text unchanged.
+  New contact journals retain optional display keys; old messages remain readable.
+- Fix a stale mailbox error surviving an account switch. Keep relationship
+  recovery and ownership decisions independent of translated labels.
+- Replace inherited About/Help with current AbyssME guidance, project/support
+  links and scrollable content. Preserve upstream attribution and license access.
+- Extract remaining direct helper-screen actions and game-information labels,
+  preserving original game versions and vendor names.
+- Verify combined Debug assembly, 414 JVM passes, 29 focused Retroid passes and
+  seven account-protected skips; lint reports zero errors / 439 warnings.
+  About/Help layout checks cover 36 cases, including expanded/RTL text and 200%
+  fonts. Full translations and language selection are not delivered yet.
+  No public APK update. [Evidence](docs/checks/2026-10-28-social-help-localization.md).
+
 ## 2026-10-28 - Native Import Messages and Safe Queue Persistence (Public Source, Unreleased)
 
 - Extract 163 more app-owned archive, firmware and component errors, native

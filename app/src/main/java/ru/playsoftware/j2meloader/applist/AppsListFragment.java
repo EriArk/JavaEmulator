@@ -1073,7 +1073,7 @@ public class AppsListFragment extends Fragment implements AppsListAdapter.Listen
         }
         dialog.action(getString(R.string.library_information), android.R.drawable.ic_menu_info_details, () -> {
             dialog.page(getString(R.string.library_information));
-            dialog.message(ru.playsoftware.j2meloader.catalog.GameInformation.describe(item));
+            dialog.message(ru.playsoftware.j2meloader.catalog.GameInformation.describe(requireContext(),item));
             dialog.setBackAction(() -> populateGameActions(dialog, item));
         });
         dialog.action(item.isFavorite() ? getString(R.string.library_remove_favorite) : getString(R.string.library_add_favorite), android.R.drawable.btn_star, () -> {
@@ -1434,7 +1434,7 @@ public class AppsListFragment extends Fragment implements AppsListAdapter.Listen
     private void showGameInformation(AppItem item) {
         GameMenuDialog dialog = new GameMenuDialog(requireContext(), item.getTitle());
         dialog.show(); dialog.page(getString(R.string.library_information));
-        dialog.message(ru.playsoftware.j2meloader.catalog.GameInformation.describe(item));
+        dialog.message(ru.playsoftware.j2meloader.catalog.GameInformation.describe(requireContext(),item));
     }
 
 	private void updateDetail(AppItem item) {

@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="helper_engine_missing">This build does not include the engine for this game</string>
+    <string name="helper_import_unavailable">Cannot open the game importer</string>
+    <string name="helper_close">Close</string>
+    <string name="helper_opening_game">Opening game</string>
+    <string name="helper_cannot_open_game">Cannot open game</string>
+    <string name="helper_reading_launch">Reading launch file...</string>
+    <string name="helper_retry">Retry</string>
+    <string name="helper_prepare_failed">Could not prepare game</string>
+    <string name="helper_exit">Exit</string>
+    <string name="helper_undo">Undo</string>
+    <string name="helper_try_in_game">Try in game</string>
+    <string name="helper_try_settings">Try settings?</string>
+    <string name="helper_fix_default">Try the default compatibility properties, 240 x 320 and a basic renderer.</string>
+    <string name="helper_fix_fit">Fit picture, preserve proportions, center the image.</string>
+    <string name="helper_expert_hide">Hide expert settings</string>
+    <string name="helper_fix_renderer">Try a different renderer with immediate drawing.</string>
+    <string name="helper_keep">Keep</string>
+    <string name="helper_expert">Expert settings</string>
+    <string name="helper_launch_failed">Could not launch the game. Previous settings kept.</string>
+    <string name="helper_restart_failed">Could not restart the game. Previous settings kept.</string>
+    <string name="helper_settings_failed">Could not prepare settings</string>
+    <string name="helper_mapper_error">Error</string>
+    <string name="helper_network_setup">Prepare this game\'s settings before joining a network game.</string>
+    <string name="helper_apply_failed">Could not apply settings. Using saved settings.</string>
+    <string name="helper_report_saved">Could not send report. Saved to file:\n%1$s</string>
+    <string name="helper_report_failed">Could not send report.</string>
+</resources>

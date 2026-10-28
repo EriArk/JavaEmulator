@@ -16,12 +16,8 @@
 
 package ru.playsoftware.j2meloader.info;
 
-import android.app.Activity;
 import android.app.Dialog;
 import android.os.Bundle;
-import android.text.Html;
-import android.text.method.LinkMovementMethod;
-import android.widget.TextView;
 
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AlertDialog;
@@ -33,19 +29,11 @@ public class HelpDialogFragment extends DialogFragment {
 	@NonNull
 	@Override
 	public Dialog onCreateDialog(Bundle savedInstanceState) {
-		Activity activity = requireActivity();
-		TextView tv = new TextView(activity);
-		tv.setMovementMethod(LinkMovementMethod.getInstance());
-		tv.setText(Html.fromHtml(getString(R.string.help_message)));
-		tv.setTextSize(16);
-		float density = getResources().getDisplayMetrics().density;
-		int paddingHorizontal = (int) (density * 20);
-		int paddingVertical = (int) (density * 14);
-		tv.setPadding(paddingHorizontal, paddingVertical, paddingHorizontal, paddingVertical);
-		AlertDialog.Builder builder = new AlertDialog.Builder(activity);
+		AlertDialog.Builder builder = new AlertDialog.Builder(requireActivity());
 		builder.setTitle(R.string.help)
 				.setIcon(R.mipmap.ic_launcher)
-				.setView(tv);
+				.setView(InfoContent.view(requireContext(),InfoContent.help(requireContext())))
+				.setPositiveButton(R.string.helper_close,null);
 		return builder.create();
 	}
 }

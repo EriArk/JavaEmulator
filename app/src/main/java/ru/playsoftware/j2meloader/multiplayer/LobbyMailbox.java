@@ -12,7 +12,7 @@ import static ru.playsoftware.j2meloader.multiplayer.LobbyRoom.*;
  */
 final class LobbyMailbox {
     static final String CONTACT_PREFIX="AbyssME contacts\n```json\n";
-    interface Listener {void message(String peer,String content);void changed();void failed(String peer,String reason);void expired();}
+    interface Listener {void message(String peer,String content);void changed();void failed(String peer,String reason);default void failed(String peer,SocialNotice reason){failed(peer,reason.english);}void expired();}
     private static final class Delivery {String peer,content,replaceKey;long expires;Delivery(String p,String c,long e,String k){peer=p;content=c;expires=e;replaceKey=k;}}
     private final FluxerAuth.Transport http;
     private final LongSupplier clock;
@@ -21,13 +21,15 @@ final class LobbyMailbox {
     private final Map<String,String> channels=new LinkedHashMap<>(),names=new HashMap<>();
     private final Set<String> blocked=new HashSet<>(),friends=new LinkedHashSet<>(),wanted=new LinkedHashSet<>();
     private final LinkedHashMap<String,Boolean> consumed=new LinkedHashMap<>();
-    private String token,self="",status="";
+    private String token,self="";
+    private SocialNotice status=SocialNotice.NONE;
     private long epoch,nextPoll,nextSend,retryAt;
     private boolean active,polling,sending,contactsKnown;
     LobbyMailbox(FluxerAuth.Transport http,LongSupplier milliseconds,Listener listener){this.http=http;clock=milliseconds;this.listener=listener;}
-    void configure(String token,String self){++epoch;this.token=token;this.self=self;queue.clear();channels.clear();names.clear();blocked.clear();friends.clear();wanted.clear();consumed.clear();polling=sending=contactsKnown=false;nextPoll=nextSend=retryAt=0;}
+    void configure(String token,String self){++epoch;this.token=token;this.self=self;status=SocialNotice.NONE;queue.clear();channels.clear();names.clear();blocked.clear();friends.clear();wanted.clear();consumed.clear();polling=sending=contactsKnown=false;nextPoll=nextSend=retryAt=0;}
     void active(boolean value){active=value;if(value)nextPoll=0;else{++epoch;polling=sending=false;}}
-    String status(){return status;}
+    String status(){return status.english;}
+    SocialNotice statusCode(){return status;}
     String name(String peer){return names.getOrDefault(peer,peer);}
     List<String> friends(){return new ArrayList<>(friends);}
     void watch(Collection<String> peers){wanted.clear();for(String peer:peers)if(wanted.size()<64&&LobbyDirectory.id(peer)&&!peer.equals(self))wanted.add(peer);}
@@ -44,7 +46,7 @@ final class LobbyMailbox {
         tick();return true;
     }
     void send(String peer,String content,String replaceKey){
-        if(!LobbyDirectory.id(peer)||peer.equals(self)||content.length()>2000){listener.failed(peer,"Lobby message could not be queued.");return;}
+        if(!LobbyDirectory.id(peer)||peer.equals(self)||content.length()>2000){listener.failed(peer,SocialNotice.ROOM_LOBBY_MESSAGE_COULD_NOT_BE_QUEUED);return;}
         // Coalesce only the latest pending delivery to this peer. Crossing a signal
         // would put the game-selection authority after the offer that needs it.
         if(!replaceKey.isEmpty())for(Iterator<Delivery> i=queue.descendingIterator();i.hasNext();){
@@ -54,7 +56,7 @@ final class LobbyMailbox {
             }
             break;
         }
-        if(queue.size()>=128){listener.failed(peer,"Lobby message could not be queued.");return;}
+        if(queue.size()>=128){listener.failed(peer,SocialNotice.ROOM_LOBBY_MESSAGE_COULD_NOT_BE_QUEUED);return;}
         queue.add(new Delivery(peer,content,clock.getAsLong()+85000,replaceKey));tick();
     }
     void tick(){
@@ -68,16 +70,16 @@ final class LobbyMailbox {
     private void poll(){
         polling=true;nextPoll=clock.getAsLong()+10000;
         request("GET","/v1/users/@me/relationships",null,r->{
-            if(!r.ok()||!r.data.isJsonArray()||r.data.getAsJsonArray().size()>5000){contactsKnown=false;end("Could not check contacts. Refresh to reconnect.");return;}
+            if(!r.ok()||!r.data.isJsonArray()||r.data.getAsJsonArray().size()>5000){contactsKnown=false;end(SocialNotice.ROOM_COULD_NOT_CHECK_CONTACTS_REFRESH_TO_RECONNECT);return;}
             Set<String> nextBlocked=new HashSet<>(),nextFriends=new LinkedHashSet<>();
             for(JsonElement e:r.data.getAsJsonArray()){
-                if(!e.isJsonObject()){contactsKnown=false;end("Invalid contacts response.");return;}JsonObject relation=e.getAsJsonObject();String id=text(relation,"id");
-                if(!LobbyDirectory.id(id)||!text(object(relation,"user"),"id").equals(id)){contactsKnown=false;end("Invalid contacts response.");return;}
+                if(!e.isJsonObject()){contactsKnown=false;end(SocialNotice.ROOM_INVALID_CONTACTS_RESPONSE);return;}JsonObject relation=e.getAsJsonObject();String id=text(relation,"id");
+                if(!LobbyDirectory.id(id)||!text(object(relation,"user"),"id").equals(id)){contactsKnown=false;end(SocialNotice.ROOM_INVALID_CONTACTS_RESPONSE);return;}
                 if(number(relation,"type")==2)nextBlocked.add(id);if(number(relation,"type")==1)nextFriends.add(id);label(id,object(relation,"user"));
             }
             blocked.clear();blocked.addAll(nextBlocked);friends.clear();friends.addAll(nextFriends);contactsKnown=true;
             request("GET","/v1/users/@me/channels",null,c->{
-                if(!c.ok()||!c.data.isJsonArray()||c.data.getAsJsonArray().size()>5000){end("Could not refresh invitations.");return;}
+                if(!c.ok()||!c.data.isJsonArray()||c.data.getAsJsonArray().size()>5000){end(SocialNotice.ROOM_COULD_NOT_REFRESH_INVITATIONS);return;}
                 List<JsonObject> list=new ArrayList<>();for(JsonElement e:c.data.getAsJsonArray())if(e.isJsonObject()&&!peer(e.getAsJsonObject()).isEmpty())list.add(e.getAsJsonObject());
                 list.sort((a,b)->compare(text(b,"last_message_id"),text(a,"last_message_id")));
                 channels.clear();List<String> selected=new ArrayList<>();
@@ -96,9 +98,9 @@ final class LobbyMailbox {
     }
     private void label(String id,JsonObject user){String label=text(user,"global_name");if(label.isEmpty())label=text(user,"username");if(!label.isEmpty())names.put(id,label.substring(0,Math.min(64,label.length())));}
     private void read(List<String> peers,int index){
-        if(index==peers.size()){end("");return;}String peer=peers.get(index),channel=channels.get(peer);
+        if(index==peers.size()){end(SocialNotice.NONE);return;}String peer=peers.get(index),channel=channels.get(peer);
         request("GET","/v1/channels/"+channel+"/messages?limit=50",null,r->{
-            if(!r.ok()||!r.data.isJsonArray()||r.data.getAsJsonArray().size()>50){end("Could not refresh lobby messages.");return;}
+            if(!r.ok()||!r.data.isJsonArray()||r.data.getAsJsonArray().size()>50){end(SocialNotice.ROOM_COULD_NOT_REFRESH_LOBBY_MESSAGES);return;}
             List<JsonObject> messages=new ArrayList<>();for(JsonElement e:r.data.getAsJsonArray())if(e.isJsonObject())messages.add(e.getAsJsonObject());
             messages.sort((a,b)->compare(text(a,"id"),text(b,"id")));
             for(JsonObject m:messages){String id=text(m,"id"),author=text(object(m,"author"),"id"),content=text(m,"content");
@@ -110,17 +112,17 @@ final class LobbyMailbox {
             read(peers,index+1);
         });
     }
-    private void end(String notice){
+    private void end(SocialNotice notice){
         // Space polls from completion: a slow inbox must leave time for queued controls.
         polling=false;nextPoll=clock.getAsLong()+10000;status=notice;listener.changed();tick();
     }
     private void pump(){
-        Delivery d=queue.remove();if(blocked.contains(d.peer)||clock.getAsLong()>=d.expires){listener.failed(d.peer,"Player blocked or lobby message expired.");nextSend=clock.getAsLong()+1000;return;}
+        Delivery d=queue.remove();if(blocked.contains(d.peer)||clock.getAsLong()>=d.expires){listener.failed(d.peer,SocialNotice.ROOM_PLAYER_BLOCKED_OR_LOBBY_MESSAGE_EXPIRED);nextSend=clock.getAsLong()+1000;return;}
         sending=true;nextSend=clock.getAsLong()+1000;String channel=channels.get(d.peer);
         if(channel!=null){post(d,channel);return;}
         JsonObject body=new JsonObject();body.addProperty("recipient_id",d.peer);
         request("POST","/v1/users/@me/channels",body,r->{
-            if(!r.ok()||!d.peer.equals(peer(r.body))){sending=false;listener.failed(d.peer,deliveryNotice(r));return;}
+            if(!r.ok()||!d.peer.equals(peer(r.body))){sending=false;listener.failed(d.peer,deliveryCode(r));return;}
             String id=text(r.body,"id");channels.put(d.peer,id);post(d,id);
         });
     }
@@ -130,20 +132,21 @@ final class LobbyMailbox {
         request("POST","/v1/channels/"+channel+"/messages",body,r->{
             sending=false;
             if(!r.ok()||!channel.equals(text(r.body,"channel_id"))||!self.equals(text(object(r.body,"author"),"id"))||!d.content.equals(text(r.body,"content"))){
-                listener.failed(d.peer,deliveryNotice(r));
+                listener.failed(d.peer,deliveryCode(r));
             }
             nextPoll=Math.min(nextPoll,clock.getAsLong()+1500);listener.changed();
         });
     }
-    static String deliveryNotice(FluxerAuth.Reply reply){
+    static String deliveryNotice(FluxerAuth.Reply reply){return deliveryCode(reply).english;}
+    static SocialNotice deliveryCode(FluxerAuth.Reply reply){
         String code=text(reply.body,"code");
         if(code.equals("DIRECT_MESSAGE_EMAIL_VERIFICATION_REQUIRED")||code.equals("EMAIL_VERIFICATION_REQUIRED"))
-            return "Verify your email in Fluxer before messaging new players.";
+            return SocialNotice.ROOM_VERIFY_YOUR_EMAIL_IN_FLUXER_BEFORE_MESSAGING;
         if(code.equals("CANNOT_SEND_MESSAGES_TO_USER")||code.equals("NOT_FRIENDS_WITH_USER"))
-            return "Fluxer does not allow messages to this player. Check Friends or message privacy in Fluxer.";
-        if(reply.status==403)return "Fluxer denied this message. Check account permissions and message privacy.";
-        if(reply.status==429)return "Fluxer is limiting requests. Wait before trying again.";
-        return "Message delivery was not confirmed. Refresh before trying again.";
+            return SocialNotice.ROOM_FLUXER_DOES_NOT_ALLOW_MESSAGES_TO_THIS;
+        if(reply.status==403)return SocialNotice.ROOM_FLUXER_DENIED_THIS_MESSAGE_CHECK_ACCOUNT_PERMISSIONS;
+        if(reply.status==429)return SocialNotice.ROOM_FLUXER_IS_LIMITING_REQUESTS_WAIT_BEFORE_TRYING;
+        return SocialNotice.ROOM_MESSAGE_DELIVERY_WAS_NOT_CONFIRMED_REFRESH_BEFORE;
     }
     static int compare(String a,String b){return a.length()==b.length()?a.compareTo(b):Integer.compare(a.length(),b.length());}
 }

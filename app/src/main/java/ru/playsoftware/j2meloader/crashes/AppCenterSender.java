@@ -84,10 +84,10 @@ public class AppCenterSender implements ReportSender {
 							}
 						}
 						fos.close();
-						Toast.makeText(context, "Can't send report! Saved to file:\n" + logFile, Toast.LENGTH_LONG).show();
+						Toast.makeText(context, context.getString(ru.playsoftware.j2meloader.R.string.helper_report_saved, logFile), Toast.LENGTH_LONG).show();
 					} catch (IOException e) {
 						e.printStackTrace();
-						Toast.makeText(context, "Can't send report!", Toast.LENGTH_LONG).show();
+						Toast.makeText(context, ru.playsoftware.j2meloader.R.string.helper_report_failed, Toast.LENGTH_LONG).show();
 					}
 				}
 		) {

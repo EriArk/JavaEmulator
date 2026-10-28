@@ -234,7 +234,7 @@ public class MicroActivity extends AppCompatActivity {
 		microLoader = new MicroLoader(this, appPath);
 		if (!microLoader.init()) {
 			if (intent.hasExtra(ru.playsoftware.j2meloader.multiplayer.GameNetworkService.EXTRA_TICKET)) {
-				Toast.makeText(this, "Prepare this game's settings before joining a network game.", Toast.LENGTH_LONG).show();
+				Toast.makeText(this, getString(ru.playsoftware.j2meloader.R.string.helper_network_setup), Toast.LENGTH_LONG).show();
 				finish();
 				MidletThread.notifyDestroyed();
 				return;

@@ -66,7 +66,7 @@ public final class LobbyRoomActivity extends CompactSettingsActivity {
     @Override protected void onSaveInstanceState(Bundle out){out.putBoolean("linkConsumed",proposed==null);super.onSaveInstanceState(out);}
     private void render(LobbyRoomModel.State s){
         if(state!=null&&!state.account.equals(s.account)&&dialog!=null)dialog.dismiss();state=s;
-        notice.setText(s.status);
+        notice.setText(SocialText.roomStatus(this,s));
         progress.setVisibility(s.checkingGame||!s.room.isEmpty()&&!s.joined||s.snapshot.has("launch")&&!bool(object(s.snapshot,"launch"),"running")?View.VISIBLE:View.INVISIBLE);
         launchIfOffered();
         share.setVisibility(s.hosting?View.VISIBLE:View.GONE);
@@ -99,7 +99,7 @@ public final class LobbyRoomActivity extends CompactSettingsActivity {
             if(!s.hosting)heading(getString(R.string.social_room_with,s.names.getOrDefault(s.host,s.host)));
             if(s.hosting){
                 LinearLayout actions=line();button(actions,getString(R.string.social_invite),"invite",this::invite);button(actions,accessLabel(s.access),"access",()->chooseAccess(false));
-                TextView publication=label(s.publication,14);publication.setPadding(0,dp(6),0,dp(6));rows.addView(publication);
+                TextView publication=label(SocialText.publication(this,s),14);publication.setPadding(0,dp(6),0,dp(6));rows.addView(publication);
             }
             int gamePosition=rows.getChildCount();
             JsonElement members=s.snapshot.get("members");if(members!=null&&members.isJsonArray()){
@@ -136,7 +136,7 @@ public final class LobbyRoomActivity extends CompactSettingsActivity {
             else button(rows,s.hosting?getString(R.string.social_close_room):getString(R.string.social_leave_room),"leave",()->confirm(s.hosting?getString(R.string.social_close_room_title):getString(R.string.social_leave_room_title),s.hosting?getString(R.string.social_close_room_body):getString(R.string.social_leave_room_body),()->model.action(s.account,LobbyRoom::leave)));
         }
         JsonObject contacts=object(s.contacts,"peers");
-        String contactError=text(s.contacts,"error");
+        String contactError=SocialText.contactError(this,s.contacts);
         if(contacts.size()>0||!contactError.isEmpty()){
             heading(getString(R.string.social_temporary_contacts));
             if(!contactError.isEmpty())rows.addView(label(contactError,14));
@@ -156,7 +156,7 @@ public final class LobbyRoomActivity extends CompactSettingsActivity {
     }
     private void player(String id){
         if(state==null)return;String account=state.account;
-        GameMenuDialog menu=menu(state.names.getOrDefault(id,id));
+        GameMenuDialog menu=menu(SocialText.player(this,state,id));
         JsonObject m=member(state.snapshot,id);
         menu.message(id.equals(state.host)?getString(R.string.social_host):getString(R.string.social_player));
         menu.message(!bool(m,"connected")||!state.available?getString(R.string.social_reconnecting):bool(m,"ready")?getString(R.string.social_ready):bool(m,"prepared")?getString(R.string.social_prepared):getString(R.string.social_waiting_game));
@@ -187,7 +187,7 @@ public final class LobbyRoomActivity extends CompactSettingsActivity {
         });
     }
     private String contactStatus(JsonObject contact){
-        if(!text(contact,"error").isEmpty())return text(contact,"error");
+        if(!text(contact,"error").isEmpty())return SocialText.contactError(this,contact);
         switch(text(contact,"phase")){
             case "friend":case "accepted":return getString(R.string.social_contact_connected);
             case "keep":return getString(R.string.social_contact_waiting);

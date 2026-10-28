@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="product_about">&lt;b>AbyssME&lt;/b>&lt;br>Version %1$s&lt;br>&lt;br>An independent J2ME Loader fork for phones and gaming handhelds.&lt;br>&lt;br>&lt;a href="https://github.com/EriArk/JavaEmulator">Project and source code&lt;/a>&lt;br>&lt;a href="https://github.com/EriArk/JavaEmulator/issues">Report a problem&lt;/a>&lt;br>&lt;a href="https://github.com/EriArk/JavaEmulator/blob/main/docs/LOCALIZATION.md">Translation progress&lt;/a>&lt;br>&lt;br>Combined distribution: GPL-3.0-only. Individual components retain their own notices; see Licenses.&lt;br>&lt;br>Built on J2ME Loader, MIDPShell and JL-Mod.&lt;br>J2ME Loader: Copyright 2017-2024 Nikita Shakarun.&lt;br>&lt;a href="https://github.com/nikita36078/J2ME-Loader">Upstream J2ME Loader&lt;/a></string>
+    <string name="product_overview_combined">AbyssME runs Java ME games, Mophun and experimental Symbian / N-Gage games on Android phones and gaming handhelds. Games and phone system files are not included.</string>
+    <string name="product_overview_java">AbyssME runs Java ME and Mophun games on Android phones and gaming handhelds. This build does not include the Symbian / N-Gage engine. Games are not included.</string>
+    <string name="product_help_library">Library\nAdd your game files or choose a game folder. Select a game to play; its actions include controls, display settings and artwork. Compatibility varies by game and edition.</string>
+    <string name="product_help_controls">Controls\nUse a physical controller or the on-screen Phone keys / Gamepad. Open Controls to choose a template or change bindings for the current game. Hold Select on a controller to open mapping while playing.</string>
+    <string name="product_help_picture">Picture and performance\nOpen the game menu for Display settings. Try changes before keeping them. If a picture preset is too slow, return to a simpler preset. Restart game is available if a screen change leaves the picture blank; unsaved progress may be lost.</string>
+    <string name="product_help_transfer">Games and saves\nUse Library transfer to back up or restore an AbyssME library, or import from J2ME Loader. Keep a backup before moving data. A game screenshot is not a saved game.</string>
+    <string name="product_help_systems">Symbian / N-Gage\nAdd your own compatible phone system files in System files. Some games also need the N-Gage 2.0 platform installer or components. The import screen explains what is missing; a game archive is not a phone system dump.</string>
+    <string name="product_help_online">Online play\nFluxer rooms and Java Bluetooth play over the internet are early experimental features with low compatibility. Both players need the same supported game edition. An available lobby does not guarantee that a game or network will work.</string>
+    <string name="game_info_external">Platform: %1$s\nPhone: %2$s</string>
+    <string name="game_info_mophun">Platform: Mophun\nVersion: %1$s</string>
+    <string name="game_info_java">Platform: Java ME\nVersion: %1$s\nVendor: %2$s</string>
+    <string name="game_info_unreadable">Platform: Java ME\nVersion: Unavailable\nInstalled game information could not be read.</string>
+    <string name="game_info_missing">Not provided</string>
+</resources>
