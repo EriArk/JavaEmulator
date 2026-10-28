@@ -1,0 +1,50 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="settings_title">Paramètres</string>
+    <string name="settings_visual_style">Style visuel</string>
+    <string name="settings_brightness">Luminosité</string>
+    <string name="settings_library">Bibliothèque</string>
+    <string name="settings_game_folders">Dossiers de jeux</string>
+    <string name="settings_library_transfer">Transfert de bibliothèque</string>
+    <string name="settings_playing">En jeu</string>
+    <string name="settings_vibration">Vibrations du jeu</string>
+    <string name="settings_keep_awake">Garder l\'écran allumé pendant le jeu</string>
+    <string name="settings_support">Assistance</string>
+    <string name="settings_diagnostics">Exporter les diagnostics locaux</string>
+    <string name="settings_expert">Paramètres experts</string>
+    <string name="settings_about">À propos d\'AbyssME</string>
+    <string name="settings_fluxer_account">Compte Fluxer</string>
+    <string name="settings_system_files">Fichiers système</string>
+    <string name="settings_system_files_summary">Fichiers requis pour Symbian et N-Gage</string>
+    <string name="folders_scanning">Analyse du dossier...</string>
+    <string name="folders_add_failed">Impossible d\'ajouter le dossier : %1$s</string>
+    <string name="folders_none_selected">Aucun dossier sélectionné</string>
+    <plurals name="folders_selected">
+        <item quantity="one">%1$d dossier</item>
+        <item quantity="other">%1$d dossiers</item>
+    </plurals>
+    <string name="folders_scan_summary">%1$d ajoutés, %2$d déjà dans la bibliothèque</string>
+    <string name="folders_no_games">Aucun jeu pris en charge trouvé</string>
+    <plurals name="folders_unreadable">
+        <item quantity="one">Impossible de lire %1$d dossier</item>
+        <item quantity="other">Impossible de lire %1$d dossiers</item>
+    </plurals>
+    <string name="folders_scan_limit">Limite d\'analyse atteinte. Sélectionnez un dossier plus petit pour les fichiers restants.</string>
+    <string name="folders_access_required">Impossible de lire ce dossier. Sélectionnez-le à nouveau pour autoriser l\'accès.</string>
+    <string name="folders_provider_empty">Le fournisseur de fichiers n\'a pas renvoyé ce dossier.</string>
+    <string name="folders_provider_loading">Ce dossier est encore en cours de chargement. Attendez le fournisseur de fichiers, puis réessayez.</string>
+    <string name="folders_read_failed">Impossible de lire ce dossier. %1$s</string>
+    <string name="folders_retry_provider">Sélectionnez-le à nouveau ou utilisez un autre fournisseur de fichiers.</string>
+    <string name="menu_back">Retour</string>
+    <string name="menu_close">Fermer</string>
+    <string name="menu_keep">Conserver</string>
+    <string name="menu_undo">Annuler</string>
+    <string name="menu_opacity">Opacité</string>
+    <string name="menu_percentage">%1$s : %2$d%%</string>
+    <string name="menu_picture_preset">Préréglage d\'image %1$s</string>
+    <string-array name="palette_names">
+        <item>Classique</item>
+        <item>LCD rétro</item>
+        <item>Contraste élevé</item>
+    </string-array>
+</resources>

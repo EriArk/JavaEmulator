@@ -1,0 +1,72 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="controls_use_mapping">Utiliser les associations</string>
+    <string name="controls_reset_layout">Réinitialiser la disposition</string>
+    <string name="controls_use_layout">Utiliser la disposition</string>
+    <string name="controls_preview">Aperçu</string>
+    <string name="controls_layout">Disposition</string>
+    <string name="controls_position">Position</string>
+    <string name="controls_style">Style</string>
+    <string name="controls_tab">Onglet %1$s</string>
+    <string name="controls_block">Bloc</string>
+    <string name="controls_block_size">Taille du bloc</string>
+    <string name="controls_block_size_value">Taille du bloc : %1$d%%</string>
+    <string name="controls_move_left">Déplacer à gauche</string>
+    <string name="controls_move_up">Déplacer vers le haut</string>
+    <string name="controls_move_down">Déplacer vers le bas</string>
+    <string name="controls_move_right">Déplacer à droite</string>
+    <string name="controls_touch_preview">Aperçu de la disposition tactile</string>
+    <string name="controls_show_game">Afficher les commandes du jeu</string>
+    <string name="controls_profile">Profil de commandes</string>
+    <string name="controls_buttons">Boutons</string>
+    <string name="controls_dpad">Croix directionnelle</string>
+    <string name="controls_stick">Stick</string>
+    <string name="controls_keypad">Clavier</string>
+    <string name="controls_navigation">Navigation</string>
+    <string name="controls_shoulders">Gâchettes et système</string>
+    <string name="controls_left_stick">Stick gauche</string>
+    <string name="controls_dpad_direction">Croix directionnelle %1$s</string>
+    <string name="controls_stick_direction">Stick %1$s</string>
+    <string name="controls_preset_arrows">Flèches</string>
+    <string name="controls_preset_numbers">Déplacement par chiffres</string>
+    <string name="controls_preset_eight_way">Chiffres à huit directions</string>
+    <string name="controls_preset_diagonals">Diagonales du pavé numérique</string>
+    <string name="controls_preset_actions">Chiffres d\'action</string>
+    <string name="controls_soft_left">Contextuelle gauche</string>
+    <string name="controls_soft_right">Contextuelle droite</string>
+    <string name="controls_up">Haut</string>
+    <string name="controls_down">Bas</string>
+    <string name="controls_left">Gauche</string>
+    <string name="controls_right">Droite</string>
+    <string name="controls_fire">OK / Tir</string>
+    <string name="controls_clear">Effacer</string>
+    <string name="controls_end_call">Raccrocher</string>
+    <string name="controls_menu">Menu</string>
+    <string name="controls_phone_key">Touche du téléphone %1$s</string>
+    <string name="controls_preview_seconds">%1$ds</string>
+    <plurals name="controls_preview_remaining">
+        <item quantity="one">Aperçu des paramètres : %1$d seconde restante</item>
+        <item quantity="other">Aperçu des paramètres : %1$d secondes restantes</item>
+    </plurals>
+    <string-array name="controls_preview_orientations">
+        <item>Portrait</item>
+        <item>Paysage</item>
+    </string-array>
+    <string-array name="controls_phone_blocks">
+        <item>Clavier</item>
+    </string-array>
+    <string-array name="controls_gamepad_blocks">
+        <item>Directions</item>
+        <item>Actions</item>
+    </string-array>
+    <string-array name="controls_directions">
+        <item>Haut</item>
+        <item>Bas</item>
+        <item>Gauche</item>
+        <item>Droite</item>
+        <item>Haut + gauche</item>
+        <item>Haut + droite</item>
+        <item>Bas + gauche</item>
+        <item>Bas + droite</item>
+    </string-array>
+</resources>

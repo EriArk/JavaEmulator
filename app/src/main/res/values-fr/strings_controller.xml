@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="quick_rotate_image">Tourner l\'image</string>
+    <string name="quick_rotation_value">Rotation de l\'image : %1$d\u00b0</string>
+    <string name="display_save_failed">Impossible d\'enregistrer les paramètres d\'affichage.</string>
+    <plurals name="library_games">
+        <item quantity="one">%d jeu</item>
+        <item quantity="other">%d jeux</item>
+    </plurals>
+    <string name="mapper_title">Commandes</string>
+    <string name="mapper_controller">MANETTE</string>
+    <string name="mapper_phone">TOUCHES DU TÉLÉPHONE</string>
+    <string name="mapper_detect">Identifier un bouton</string>
+    <string name="mapper_undo">Annuler la dernière modification</string>
+    <string name="mapper_listening">En attente...</string>
+    <string name="mapper_save">Enregistrer et reprendre</string>
+    <string name="mapper_unbind">Dissocier</string>
+    <string name="mapper_duplicate">Dupliquer le profil</string>
+    <string name="mapper_unbound">Non associé</string>
+    <string name="mapper_combined">Deux directions</string>
+    <string name="mapper_save_failed">Impossible d\'enregistrer les commandes. Vos modifications restent ouvertes.</string>
+</resources>

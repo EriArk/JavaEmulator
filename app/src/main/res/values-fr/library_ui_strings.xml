@@ -1,0 +1,80 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="library_menu_title">Menu de la bibliothèque</string>
+    <string name="library_collection">Collection</string>
+    <string name="library_all_games">Tous les jeux</string>
+    <string name="library_recent">Récents</string>
+    <string name="library_favorites">Favoris</string>
+    <string name="library_all_generations">Tous</string>
+    <string name="library_generation">Génération N-Gage</string>
+    <string name="library_generation_value">Génération N-Gage : %1$s</string>
+    <string name="library_collection_value">Collection : %1$s</string>
+    <string name="library_play_last">Dernier jeu : %1$s</string>
+    <string name="library_view_value">Vue : %1$s</string>
+    <string name="library_cover_format_value">Format des jaquettes : %1$s</string>
+    <string name="library_view">Vue</string>
+    <string name="library_cover_format">Format des jaquettes de la galerie</string>
+    <string name="library_gallery">Galerie</string>
+    <string name="library_list">Liste</string>
+    <string name="library_grid">Grille</string>
+    <string name="library_sort">Tri</string>
+    <string name="library_sort_by">Trier par</string>
+    <string name="library_reverse">Ordre inverse</string>
+    <string name="library_add_game">Ajouter un jeu</string>
+    <string name="library_add_folder">Ajouter un dossier</string>
+    <string name="library_close_search">Fermer la recherche</string>
+    <string name="library_no_matches">Aucun jeu correspondant</string>
+    <string name="library_no_favorites">Aucun favori dans cette collection</string>
+    <string name="library_no_recent">Aucun jeu récent dans cette collection</string>
+    <string name="library_no_platform_games">Aucun jeu %1$s</string>
+    <string name="library_no_games">Aucun jeu pour le moment</string>
+    <string name="library_actions">Actions du jeu</string>
+    <string name="library_play">Jouer</string>
+    <string name="library_information">Informations du jeu</string>
+    <string name="library_add_favorite">Ajouter aux favoris</string>
+    <string name="library_remove_favorite">Retirer des favoris</string>
+    <string name="library_edit_card">Modifier la fiche</string>
+    <string name="library_card_title">Titre</string>
+    <string name="library_game_title">Titre du jeu</string>
+    <string name="library_enter_title">Saisir un titre</string>
+    <string name="library_save_title_failed">Impossible d\'enregistrer le titre. %1$s</string>
+    <string name="library_save">Enregistrer</string>
+    <string name="library_delete_question">Supprimer le jeu ?</string>
+    <string name="library_delete_warning">Le jeu installé, ses paramètres et ses sauvegardes seront supprimés. Les fichiers source d\'origine seront conservés.</string>
+    <string name="library_delete">Supprimer le jeu</string>
+    <string name="library_artwork">Illustration</string>
+    <string name="library_icon">Icône</string>
+    <string name="library_cover">Jaquette</string>
+    <string name="library_choose_image">Choisir une image</string>
+    <string name="library_use_automatic">Utiliser l\'image automatique</string>
+    <string name="library_refresh_art">Actualiser les illustrations automatiques</string>
+    <string name="library_refresh_art_question">Actualiser les illustrations automatiques ?</string>
+    <string name="library_replace_legacy_art">Remplacer les anciennes illustrations, conserver les images personnalisées</string>
+    <string name="library_artwork_failed">Impossible de mettre à jour l\'illustration</string>
+    <string name="library_launch_export">Exporter le fichier de lancement</string>
+    <string name="library_launch_exported">Fichier de lancement exporté</string>
+    <string name="library_export_failed">Échec de l\'exportation</string>
+    <string name="library_uninstall_phone">Désinstaller du téléphone</string>
+    <string name="library_settings_load_failed">Impossible de charger les paramètres du jeu.</string>
+    <string name="library_settings_prepare_failed">Impossible de préparer les paramètres.</string>
+    <string-array name="library_collections">
+        <item>@string/library_all_games</item>
+        <item>@string/library_recent</item>
+        <item>@string/library_favorites</item>
+    </string-array>
+    <string-array name="library_view_modes">
+        <item>@string/library_gallery</item>
+        <item>@string/library_list</item>
+        <item>@string/library_grid</item>
+    </string-array>
+    <string-array name="library_generations">
+        <item>@string/library_all_generations</item>
+        <item>Classique</item>
+        <item>2.0</item>
+    </string-array>
+    <string-array name="library_cover_formats">
+        <item>Automatique</item>
+        <item>Large</item>
+        <item>Portrait</item>
+    </string-array>
+</resources>

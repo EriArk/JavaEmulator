@@ -43,7 +43,7 @@ public class FastForwardControlTest {
                 assertEquals(View.GONE,button.getVisibility()); root.findViewById(R.id.game_controls_handle).performClick();
                 button.performClick(); assertTrue(control.active()); assertEquals(400,speed[0]); assertEquals(120,frames[0]);
                 chrome.collapse(); assertEquals(View.VISIBLE,button.getVisibility());
-                assertEquals("Stop fast-forward",button.getContentDescription());
+                assertEquals(root.getContext().getString(R.string.game_fast_forward_stop),button.getContentDescription());
                 button.performClick(); assertEquals(75,speed[0]); assertEquals(30,frames[0]);
                 assertEquals(75,p.emulationSpeed);
                 p.fastForwardOnScreen = false; control.toggle(); chrome.render(); assertEquals(View.GONE,button.getVisibility());
@@ -66,7 +66,8 @@ public class FastForwardControlTest {
                 control[0].menuAction(menu[0]);
             });
             inst.waitForIdleSync();
-            main(() -> clickText(menu[0].getWindow().getDecorView(),"Fast-forward 200%"));
+            main(() -> assertTrue("Localized action exists",clickText(menu[0].getWindow().getDecorView(),
+                    activity.getString(R.string.game_fast_forward_value,200))));
             android.os.SystemClock.sleep(500); inst.waitForIdleSync();
             main(() -> {
                 assertTrue("Menu command must survive focus restoration",control[0].active());
@@ -75,11 +76,12 @@ public class FastForwardControlTest {
             });
         } finally { main(() -> { if (menu[0] != null) menu[0].dismiss(); if (control[0] != null) control[0].stop(); activity.finish(); }); }
     }
-    private void clickText(View view,String text) {
-        if (view instanceof android.widget.TextView && text.contentEquals(((android.widget.TextView)view).getText())) { view.performClick(); return; }
+    private boolean clickText(View view,String text) {
+        if (view instanceof android.widget.TextView && text.contentEquals(((android.widget.TextView)view).getText())) return view.performClick();
         if (view instanceof android.view.ViewGroup) {
             android.view.ViewGroup group = (android.view.ViewGroup)view;
-            for (int i=0;i<group.getChildCount();i++) clickText(group.getChildAt(i),text);
+            for (int i=0;i<group.getChildCount();i++) if(clickText(group.getChildAt(i),text))return true;
         }
+        return false;
     }
 }

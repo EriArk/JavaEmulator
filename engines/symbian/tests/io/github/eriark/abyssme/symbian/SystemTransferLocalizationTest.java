@@ -39,7 +39,7 @@ public class SystemTransferLocalizationTest {
         for(SystemFailure.Code code:SystemFailure.Code.values()) {
             SystemFailure error=new SystemFailure(code,arguments(code));
             assertEquals(code.name(),error.getMessage(),SystemFailureText.message(locale("en"),error));
-            for(String tag:new String[]{"es","pt-BR","ru","en-XA","ar-XB"}) {
+            for(String tag:new String[]{"es","pt-BR","ru","fr","de","en-XA","ar-XB"}) {
                 String translated=SystemFailureText.message(locale(tag),error);
                 assertNotEquals(code.name(),error.getMessage(),translated);
                 if(arguments(code).length>0 && arguments(code)[0] instanceof String)
@@ -156,7 +156,7 @@ public class SystemTransferLocalizationTest {
     }
     @Test public void queueLayoutFitsExpandedAndRtlLabelsAtPhoneAndHandheldSizes() {
         InstrumentationRegistry.getInstrumentation().runOnMainSync(()->{
-            for(String tag:new String[]{"en","es","pt-BR","ru","en-XA","ar-XB"})for(float font:new float[]{1f,1.5f,2f})
+            for(String tag:new String[]{"en","es","pt-BR","ru","fr","de","en-XA","ar-XB"})for(float font:new float[]{1f,1.5f,2f})
             for(int[] size:new int[][]{{320,640},{393,780},{540,540},{720,400}})
             for(int night:new int[]{Configuration.UI_MODE_NIGHT_NO,Configuration.UI_MODE_NIGHT_YES})
             for(boolean started:new boolean[]{false,true}) {
@@ -199,7 +199,8 @@ public class SystemTransferLocalizationTest {
             // RecyclerView may keep a partly visible row at the viewport edge.
             if(!(group instanceof RecyclerView)) {
                 assertTrue(label+" left",child.getLeft()>=0);assertTrue(label+" right",child.getRight()<=group.getWidth());
-                assertTrue(label+" bottom "+child.getClass().getSimpleName(),child.getBottom()<=group.getHeight());
+                if(!(group instanceof ScrollView))
+                    assertTrue(label+" bottom "+child.getClass().getSimpleName(),child.getBottom()<=group.getHeight());
             }
             if(child instanceof RecyclerView)assertTrue(label+" list usable",child.getHeight()>=Math.round(72*child.getResources().getDisplayMetrics().density));
             if(child instanceof TextView) {

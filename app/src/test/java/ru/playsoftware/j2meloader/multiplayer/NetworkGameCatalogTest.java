@@ -47,4 +47,20 @@ public class NetworkGameCatalogTest {
         File dir=game(new String(chars),manifest("demo.Game"));
         assertThrows(IOException.class,()->NetworkGameCatalog.verify(root.getRoot(),new NetworkGameCatalog.Entry(dir,"Fixture")));
     }
+    @Test public void inaccessibleLibraryAndCancellationHaveStableIdentities() throws Exception {
+        assertEquals(SocialNotice.GAME_LIBRARY_UNAVAILABLE,assertThrows(NetworkGameException.class,
+                ()->NetworkGameCatalog.list(new File(root.getRoot(),"missing"))).notice);
+        game(manifest("demo.Game"),manifest("demo.Game"));
+        try {
+            Thread.currentThread().interrupt();
+            assertEquals(SocialNotice.GAME_LOOKUP_CANCELLED,
+                    assertThrows(NetworkGameException.class,()->NetworkGameCatalog.list(root.getRoot())).notice);
+            assertTrue(Thread.currentThread().isInterrupted());
+        } finally {Thread.interrupted();}
+    }
+    @Test public void descriptorMismatchKeepsActionableIdentity() throws Exception {
+        File dir=game(manifest("demo.Game"),manifest("demo.Other"));
+        assertEquals(SocialNotice.GAME_ENTRY_DIFFERS,assertThrows(NetworkGameException.class,
+                ()->NetworkGameCatalog.verify(root.getRoot(),new NetworkGameCatalog.Entry(dir,"Fixture"))).notice);
+    }
 }

@@ -36,4 +36,23 @@ public class InstalledNetworkGameTest {
         InstalledNetworkGame verified = verify(); Files.write(new File(game,"save.rms").toPath(), new byte[]{1}); verified.recheck(game.getCanonicalPath());
     }
     @Test public void differentPathCannotConsumeLaunch() throws Exception { InstalledNetworkGame verified = verify(); assertThrows(IOException.class, () -> verified.recheck(root.getPath())); }
+    @Test public void changedFilesRetainTypedFailureIdentity() throws Exception {
+        InstalledNetworkGame verified=verify();
+        Files.write(new File(game,"converted.dex").toPath(),new byte[]{1});
+        NetworkGameException failure=assertThrows(NetworkGameException.class,()->verified.recheck(game.getCanonicalPath()));
+        assertEquals(SocialNotice.GAME_CHANGED,NetworkGameException.notice(failure));
+        assertEquals(SocialNotice.GAME_CHANGED.english,failure.getMessage());
+    }
+    @Test public void missingFilesAndWrongEditionHaveDistinctIdentities() throws Exception {
+        assertEquals(SocialNotice.GAME_EDITION_DIFFERS,assertThrows(NetworkGameException.class,
+                ()->InstalledNetworkGame.verify(root,game,selection(String.join("",java.util.Collections.nCopies(64,"a"))))).notice);
+        Files.delete(new File(game,"converted.dex").toPath());
+        assertEquals(SocialNotice.GAME_FILES_INVALID,assertThrows(NetworkGameException.class,this::verify).notice);
+    }
+    @Test public void externalExceptionTextCannotImpersonateOwnedFailure() {
+        IOException raw=new IOException(SocialNotice.GAME_CHANGED.english);
+        assertEquals(SocialNotice.GAME_PREPARE_FAILED,NetworkGameException.notice(raw));
+        assertEquals(SocialNotice.GAME_CHANGED.english,raw.getMessage());
+        assertEquals(SocialNotice.GAME_PREPARE_FAILED,NetworkGameException.notice(new SecurityException("denied")));
+    }
 }

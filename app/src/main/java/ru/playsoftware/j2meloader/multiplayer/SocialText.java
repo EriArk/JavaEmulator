@@ -48,6 +48,18 @@ final class SocialText {
     }
     static String notice(Context context, SocialNotice notice) {
         switch (notice) {
+            case GAME_LIBRARY_UNAVAILABLE: return context.getString(R.string.network_game_library_unavailable);
+            case GAME_LOOKUP_CANCELLED: return context.getString(R.string.network_game_lookup_cancelled);
+            case GAME_ADAPTER_UNSUPPORTED: return context.getString(R.string.network_game_adapter_unsupported);
+            case GAME_OUTSIDE_LIBRARY: return context.getString(R.string.network_game_outside_library);
+            case GAME_EDITION_DIFFERS: return context.getString(R.string.network_game_edition_differs);
+            case GAME_CHANGED: return context.getString(R.string.network_game_changed);
+            case GAME_FILES_INVALID: return context.getString(R.string.network_game_files_invalid);
+            case GAME_MANIFEST_INVALID: return context.getString(R.string.network_game_manifest_invalid);
+            case GAME_ENTRY_DIFFERS: return context.getString(R.string.network_game_entry_differs);
+            case GAME_SINGLE_MIDLET: return context.getString(R.string.network_game_single_midlet);
+            case GAME_SETUP_REQUIRED: return context.getString(R.string.network_game_setup_required);
+            case GAME_PREPARE_FAILED: return context.getString(R.string.network_game_prepare_failed);
             case ROOM_PLAYER_UNREACHABLE: return context.getString(R.string.social_room_player_unreachable);
             case ROOM_CREATE_A_ROOM_OR_ACCEPT_AN_INVITATION: return context.getString(R.string.social_room_create_a_room_or_accept_an_invitation);
             case ROOM_ROOM_CREATED_INVITE_SOMEONE_TO_JOIN: return context.getString(R.string.social_room_room_created_invite_someone_to_join);

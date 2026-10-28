@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="social_auth_signed_out">Non connecté</string>
+    <string name="social_auth_unlock_failed">La connexion enregistrée n\'a pas pu être déverrouillée. Supprimez-la de cet appareil pour vous reconnecter.</string>
+    <string name="social_auth_connecting">Connexion à Fluxer...</string>
+    <string name="social_auth_service_failed">Impossible de vérifier le service Fluxer. Réessayez.</string>
+    <string name="social_auth_start_failed">Impossible de démarrer la connexion. Réessayez.</string>
+    <string name="social_auth_invalid_expiry">Expiration de connexion invalide. Réessayez.</string>
+    <string name="social_auth_expired">Le code de connexion a expiré. Réessayez.</string>
+    <string name="social_auth_approval">Saisissez ce code sur Fluxer et approuvez la connexion.</string>
+    <string name="social_auth_busy">Fluxer est occupé. Veuillez patienter avant de réessayer.</string>
+    <string name="social_auth_invalid_session">Fluxer a renvoyé une session invalide. Réessayez.</string>
+    <string name="social_auth_declined">La connexion a été refusée.</string>
+    <string name="social_auth_waiting">En attente de Fluxer. Nouvelle tentative automatique...</string>
+    <string name="social_auth_complete_failed">Impossible de terminer la connexion. Réessayez.</string>
+    <string name="social_auth_checking">Vérification de votre compte...</string>
+    <string name="social_auth_session_expired">Votre session a expiré. Reconnectez-vous.</string>
+    <string name="social_auth_verify_failed">Impossible de vérifier votre compte. Votre connexion n\'a pas été supprimée.</string>
+    <string name="social_auth_saved">Connecté. Votre session est enregistrée de manière sécurisée sur cet appareil.</string>
+    <string name="social_auth_save_failed">Connecté pour le moment, mais la session n\'a pas pu être enregistrée. Réessayez l\'enregistrement avant de quitter.</string>
+    <string name="social_auth_cancelled">Connexion annulée.</string>
+    <string name="social_auth_signing_out">Déconnexion...</string>
+    <string name="social_auth_signout_failed">Impossible de se déconnecter de Fluxer. Réessayez ou supprimez la connexion enregistrée sur cet appareil.</string>
+    <string name="social_auth_remove_failed">Impossible de supprimer la connexion enregistrée. Veuillez réessayer.</string>
+</resources>

@@ -15,35 +15,35 @@ public final class InstalledNetworkGame {
 
     public static InstalledNetworkGame verify(File library, File directory, LobbySession.Game game) throws IOException {
         if (!"java".equals(game.engine) || !"bluetooth".equals(game.mode)
-                || !"1".equals(game.adapterVersion) || game.players != 2) throw new IOException("Unsupported game adapter");
+                || !"1".equals(game.adapterVersion) || game.players != 2) throw new NetworkGameException(SocialNotice.GAME_ADAPTER_UNSUPPORTED);
         File root = library.getCanonicalFile(), local = directory.getCanonicalFile();
-        if (!root.equals(local.getParentFile()) || !local.isDirectory()) throw new IOException("Game is outside the library");
+        if (!root.equals(local.getParentFile()) || !local.isDirectory()) throw new NetworkGameException(SocialNotice.GAME_OUTSIDE_LIBRARY);
         List<byte[]> digests = hashFiles(local);
-        if (!hex(digests.get(0)).equals(game.contentHash)) throw new IOException("Installed game differs from the room");
+        if (!hex(digests.get(0)).equals(game.contentHash)) throw new NetworkGameException(SocialNotice.GAME_EDITION_DIFFERS);
         return new InstalledNetworkGame(local, game, digests);
     }
     private InstalledNetworkGame(File directory, LobbySession.Game game, List<byte[]> digests) {
         this.directory = directory; this.game = game; this.digests = digests;
     }
     public void recheck(String path) throws IOException {
-        if (!directory.getPath().equals(path) || !directory.equals(directory.getCanonicalFile())) throw new IOException("Wrong launch path");
+        if (!directory.getPath().equals(path) || !directory.equals(directory.getCanonicalFile())) throw new NetworkGameException(SocialNotice.GAME_OUTSIDE_LIBRARY);
         List<byte[]> current = hashFiles(directory);
         for (int i = 0; i < FILES.length; i++) if (!MessageDigest.isEqual(digests.get(i), current.get(i)))
-            throw new IOException("Installed game changed; prepare it again");
+            throw new NetworkGameException(SocialNotice.GAME_CHANGED);
     }
     private static List<byte[]> hashFiles(File directory) throws IOException {
         List<byte[]> hashes = new ArrayList<>();
         for (String name : FILES) {
             File file = new File(directory, name);
             if (Files.isSymbolicLink(file.toPath()) || !file.isFile() || file.length() < 1 || file.length() > 128L * 1024 * 1024)
-                throw new IOException("Invalid installed game file");
+                throw new NetworkGameException(SocialNotice.GAME_FILES_INVALID);
             try {
                 MessageDigest digest = MessageDigest.getInstance("SHA-256");
                 long size = 0;
                 try (InputStream input = new FileInputStream(file)) {
                     byte[] buffer = new byte[32768]; int count;
                     while ((count = input.read(buffer)) != -1) {
-                        if ((size += count) > 128L * 1024 * 1024) throw new IOException("Game file grew during verification");
+                        if ((size += count) > 128L * 1024 * 1024) throw new NetworkGameException(SocialNotice.GAME_CHANGED);
                         digest.update(buffer, 0, count);
                     }
                 }

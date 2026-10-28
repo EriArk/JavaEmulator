@@ -10,6 +10,25 @@ stated otherwise. **Experimental** in older checkpoints means local/private
 combined builds; released experimental features are explicitly identified.
 **Released** means an actual GitHub release asset.
 
+## 2026-10-28 - French, German and Responsive Localized Panels (Public Source, Unreleased)
+
+- Add French and German to the in-app and Android language lists. All five
+  advertised translated locales contain 1517 canonical resources, including
+  import, system-file guidance, game controls, Social and recovery messages.
+- Localize network-game preparation failures using stable notice identities.
+  Preserve file verification and diagnostic causes; ignore late picker errors
+  after account changes or Activity destruction.
+- Adapt settings rows to long words, enlarge lobby initials for large fonts,
+  and keep lengthy archive summaries scrollable without hiding the file list.
+  These shared fixes address failures found on Android 11 and Retroid.
+- Extend array-reference checks and locale-aware regression tests. Source,
+  local Debug checks and [dark screenshots](screenshots/development/2026-10-28-localization-europe/README.md)
+  are available; no new signed APK or release update.
+  [Verification and remaining limits](docs/checks/2026-10-28-french-german-localization.md).
+- Verify 419 JVM tests and 55 focused tests each on Retroid and Android 11,
+  including cold-update language persistence on both. Lint: zero errors /
+  698 warnings. This does not certify live games, network matches or all languages.
+
 ## 2026-10-28 - Language Picker and First Translation Batch (Public Source, Unreleased)
 
 - Add Settings > Language with System default and native names for English,

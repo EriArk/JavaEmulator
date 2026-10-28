@@ -1,0 +1,37 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="native_progress_read_compressed">RAR- / 7z-Archiv wird gelesen</string>
+    <string name="native_progress_read_entry">Wird gelesen: %1$s</string>
+    <string name="native_progress_read_entry_size">Wird gelesen: %1$s (%2$d MB)</string>
+    <string name="native_selected_files">Ausgewählte Dateien</string>
+    <string name="native_import_source_error">%1$s: %2$s</string>
+    <string name="native_notice_installed">Installiert</string>
+    <string name="native_notice_phone_files">Telefondateien erforderlich</string>
+    <string name="native_notice_choose_phone">Telefon auswählen</string>
+    <string name="native_notice_platform">N-Gage 2.0 erforderlich</string>
+    <string name="native_notice_component">%1$s erforderlich</string>
+    <string name="native_notice_guest_installer">Im N-Gage-Installationsprogramm abschließen</string>
+    <string name="native_notice_retry">Unterbrochen; erneuter Versuch erforderlich</string>
+    <string name="native_notice_saved">Installationspaket gespeichert</string>
+    <string name="native_notice_skipped">Übersprungen; installierte Dateien wurden nicht entfernt</string>
+    <string name="native_notice_duplicate">Doppelte Datei</string>
+    <string name="native_notice_alternative">Alternative Version von %1$s</string>
+    <string name="native_progress_inspect_system">Systemarchiv wird geprüft</string>
+    <string name="native_progress_read_system">Systemdateien werden gelesen: %1$d%%</string>
+    <string name="native_progress_check_system">Systemdateien werden geprüft: %1$d%%</string>
+    <string name="native_progress_prepare_system">System %1$d/%2$d wird vorbereitet: %3$s</string>
+    <string name="native_progress_read_input">Ausgewählte Datei wird gelesen: %1$d MB</string>
+    <string name="native_progress_inspect_item">Prüfung %1$d / %2$d: %3$s</string>
+    <string name="native_progress_import_item">Import %1$d / %2$d: %3$s</string>
+    <string name="native_progress_continue_queue">Archivwarteschlange wird fortgesetzt</string>
+    <string name="native_progress_check_components">Erforderliche Komponenten werden geprüft</string>
+    <string name="native_progress_install_component">Komponente wird installiert: %1$s</string>
+    <string name="native_progress_install_game">%1$s wird installiert</string>
+    <string name="native_import_add">Zur Bibliothek hinzufügen</string>
+    <string name="native_import_ready">Bereit</string>
+    <string name="native_import_unavailable">Ausgewählter Import ist nicht mehr verfügbar</string>
+    <string name="mophun_installer_title">Mophun-Installation</string>
+    <string name="mophun_installer_experimental">Experimentell</string>
+    <string name="mophun_installer_preparing">Spiel wird vorbereitet</string>
+    <string name="mophun_installer_failed">Spiel konnte nicht importiert werden</string>
+</resources>

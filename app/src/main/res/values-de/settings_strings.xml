@@ -1,0 +1,48 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="settings_title">Einstellungen</string>
+    <string name="settings_visual_style">Darstellung</string>
+    <string name="settings_brightness">Helligkeit</string>
+    <string name="settings_library">Bibliothek</string>
+    <string name="settings_game_folders">Spieleordner</string>
+    <string name="settings_library_transfer">Bibliothek übertragen</string>
+    <string name="settings_playing">Beim Spielen</string>
+    <string name="settings_vibration">Spielvibration</string>
+    <string name="settings_keep_awake">Bildschirm beim Spielen eingeschaltet lassen</string>
+    <string name="settings_support">Support</string>
+    <string name="settings_diagnostics">Lokale Diagnosedaten exportieren</string>
+    <string name="settings_expert">Experteneinstellungen</string>
+    <string name="settings_about">Über AbyssME</string>
+    <string name="settings_fluxer_account">Fluxer-Konto</string>
+    <string name="settings_system_files">Systemdateien</string>
+    <string name="settings_system_files_summary">Erforderliche Dateien für Symbian und N-Gage</string>
+    <string name="folders_scanning">Ordner wird durchsucht...</string>
+    <string name="folders_add_failed">Ordner konnte nicht hinzugefügt werden: %1$s</string>
+    <string name="folders_none_selected">Keine Ordner ausgewählt</string>
+    <plurals name="folders_selected">
+        <item quantity="one">%1$d Ordner</item>
+        <item quantity="other">%1$d Ordner</item>
+    </plurals>
+    <string name="folders_scan_summary">%1$d hinzugefügt, %2$d bereits in der Bibliothek</string>
+    <string name="folders_no_games">Keine unterstützten Spiele gefunden</string>
+    <plurals name="folders_unreadable">
+        <item quantity="one">%1$d Ordner konnte nicht gelesen werden</item>
+        <item quantity="other">%1$d Ordner konnten nicht gelesen werden</item>
+    </plurals>
+    <string name="folders_scan_limit">Suchlimit erreicht. Wähle einen kleineren Ordner für die übrigen Dateien.</string>
+    <string name="folders_access_required">Dieser Ordner kann nicht gelesen werden. Wähle ihn erneut aus, um Zugriff zu gewähren.</string>
+    <string name="folders_provider_empty">Der Dateianbieter hat diesen Ordner nicht zurückgegeben.</string>
+    <string name="folders_provider_loading">Dieser Ordner wird noch geladen. Warte auf den Dateianbieter und versuche es erneut.</string>
+    <string name="folders_read_failed">Dieser Ordner kann nicht gelesen werden. %1$s</string>
+    <string name="folders_retry_provider">Wähle ihn erneut aus oder nutze einen anderen Dateianbieter.</string>
+    <string name="menu_back">Zurück</string>
+    <string name="menu_close">Schließen</string>
+    <string name="menu_keep">Beibehalten</string>
+    <string name="menu_undo">Rückgängig</string>
+    <string name="menu_opacity">Deckkraft</string>
+    <string name="menu_percentage">%1$s: %2$d%%</string>
+    <string name="menu_picture_preset">Bildvoreinstellung %1$s</string>
+    <string-array name="palette_names">
+        <item>Klassisch</item><item>Retro-LCD</item><item>Hoher Kontrast</item>
+    </string-array>
+</resources>

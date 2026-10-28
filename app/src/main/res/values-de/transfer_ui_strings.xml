@@ -1,0 +1,74 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="transfer_options">Übertragungsoptionen</string>
+    <string name="transfer_allow_access">Ordnerzugriff erlauben</string>
+    <string name="transfer_backup_java">Java / Mophun sichern</string>
+    <string name="transfer_backup_library">Bibliothek sichern</string>
+    <string name="transfer_restore_java">Java- / Mophun-Sicherung wiederherstellen</string>
+    <string name="transfer_restore_backup">Sicherung wiederherstellen</string>
+    <string name="transfer_import_loader">Aus J2ME Loader importieren</string>
+    <string name="transfer_move_phone">Von AbyssME Phone umziehen</string>
+    <string name="transfer_native_backups">Symbian- / N-Gage-Telefonsicherungen</string>
+    <string name="transfer_games">Spiele übertragen</string>
+    <string name="transfer_select_all">Alle auswählen</string>
+    <string name="transfer_import">Importieren</string>
+    <string name="transfer_restore">Wiederherstellen</string>
+    <string name="transfer_import_count">Importieren (%1$d)</string>
+    <string name="transfer_restore_count">Wiederherstellen (%1$d)</string>
+    <string name="transfer_phone_help">Öffne in AbyssME Phone Einstellungen &gt; Bibliothek &gt; Bibliothek übertragen und sichere Java / Mophun. Stelle die ZIP-Datei dann hier wieder her. Spiele, Spielstände und unterstützte Spieleinstellungen werden gemeinsam übertragen. Lass die alte App installiert, bis du deine Spiele und Spielstände geprüft hast.</string>
+    <string name="transfer_open_phone">AbyssME Phone öffnen</string>
+    <string name="transfer_phone_missing">AbyssME Phone ist nicht installiert</string>
+    <string name="transfer_native_help">Symbian / N-Gage verwendet separate Telefonsicherungen. Exportiere jedes Telefon in der alten App und stelle es hier mit seinen installierten Spielen und Spielständen wieder her. App-weite Einstellungen werden nicht übertragen.</string>
+    <string name="transfer_close_loader">Schließe J2ME Loader vor dem Import. Die Originaldateien bleiben unverändert.</string>
+    <string name="transfer_whole_library">Gesamte Bibliothek</string>
+    <string name="transfer_single_game">Einzelnes Spiel</string>
+    <string name="transfer_shared_conflict">Bei Konflikten mit gemeinsamen Dateien bleiben die bereits auf diesem Gerät vorhandenen Dateien erhalten.</string>
+    <string name="transfer_preserve_originals">Originaldateien und vorhandene Spielstände bleiben unverändert.</string>
+    <string name="transfer_add_saves">Spielstände hinzufügen</string>
+    <string name="transfer_add_settings">Einstellungen hinzufügen</string>
+    <string name="transfer_shared_files">Gemeinsame Dateien (vorhandene behalten)</string>
+    <string name="transfer_done">Fertig</string>
+    <string name="transfer_stopping">Wird sicher angehalten...</string>
+    <string name="transfer_no_saves_selected">Keine Spielstände ausgewählt</string>
+    <string name="transfer_no_saves_warning">Das Spiel startet ohne deinen bisherigen Fortschritt.</string>
+    <string name="transfer_without_saves">Ohne Spielstände importieren</string>
+    <string name="transfer_choose_folder">Ordner auswählen</string>
+    <string name="transfer_saves_included">Spielstände enthalten</string>
+    <string name="transfer_saves_missing">Keine Spielstände gefunden</string>
+    <string name="transfer_duplicate_notice">Bereits installiert: wird als separate Kopie importiert</string>
+    <string name="transfer_row_metadata">%1$s / %2$s\n%3$s</string>
+    <string-array name="transfer_folder_titles"><item>Spieleordner</item><item>Spielständeordner</item><item>Einstellungsordner</item></string-array>
+    <!-- Preserve the actual J2ME Loader directory names converted/data/configs. -->
+    <string-array name="transfer_folder_hints"><item>J2ME Loader / converted / dein Spiel</item><item>J2ME Loader / data / dasselbe Spiel</item><item>J2ME Loader / configs / dasselbe Spiel</item></string-array>
+    <string name="transfer_idle">Kein Ordner ausgewählt</string>
+    <string name="transfer_reading_game">Spiel und Spielstände werden gelesen...</string>
+    <string name="transfer_reading_library">Bibliothek wird gelesen...</string>
+    <string name="transfer_cancelled">Abgebrochen</string>
+    <string name="transfer_read_failed">Diese Bibliothek kann nicht gelesen werden. Wähle sie erneut aus.</string>
+    <string name="transfer_prepare">Import wird vorbereitet...</string>
+    <string name="transfer_importing">%1$s wird importiert</string>
+    <string name="transfer_not_imported">%1$s\nNicht importiert: %2$s</string>
+    <string name="transfer_finished">Abgeschlossen. %1$d importiert, %2$d fehlgeschlagen, %3$d nicht verarbeitet</string>
+    <string name="transfer_stopped">Angehalten. %1$d importiert, %2$d fehlgeschlagen, %3$d nicht verarbeitet</string>
+    <string name="transfer_saving">Spiele, Spielstände und Einstellungen werden gespeichert...</string>
+    <string name="transfer_exit_before_backup">Beende das laufende Spiel vor dem Sichern</string>
+    <string name="transfer_cannot_open_backup">Sicherung kann nicht geöffnet werden</string>
+    <string name="transfer_cannot_write_backup">Sicherung kann nicht geschrieben werden</string>
+    <string name="transfer_backup_failed">Sicherung nicht gespeichert: %1$s</string>
+    <plurals name="transfer_games_found"><item quantity="one">%1$d Spiel gefunden</item><item quantity="other">%1$d Spiele gefunden</item></plurals>
+    <plurals name="transfer_backup_saved"><item quantity="one">Sicherung gespeichert: %1$d Spiel mit Spielständen und Einstellungen</item><item quantity="other">Sicherung gespeichert: %1$d Spiele mit Spielständen und Einstellungen</item></plurals>
+    <string name="installer_midlet">MIDlet-Installation</string>
+    <string name="installer_mophun">Mophun-Installation</string>
+    <string name="installer_choose_jar">JAR auswählen</string>
+    <string name="installer_using_existing">Vorhandenes Spiel wird verwendet</string>
+    <string name="installer_existing_unchanged">Gespeicherter Fortschritt und Einstellungen bleiben unverändert.</string>
+    <string name="installer_reinstall">Neu installieren</string>
+    <string name="installer_update">Aktualisieren</string>
+    <string name="installer_preparing">Spiel wird vorbereitet</string>
+    <string name="installer_choose_game">Spiel auswählen</string>
+    <string name="installer_already_present">Bereits in deiner Bibliothek</string>
+    <string name="installer_duplicate_help">Nutze eine vorhandene Kopie mit ihren aktuellen Spielständen und Einstellungen oder installiere das Spiel separat. Es wird nichts zusammengeführt oder ersetzt.</string>
+    <string name="installer_use_copy">%1$s verwenden\nVersion %2$s / %3$s</string>
+    <string name="installer_separate">Separat installieren</string>
+    <string name="installer_failed">Installation fehlgeschlagen</string>
+</resources>

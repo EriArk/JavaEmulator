@@ -196,9 +196,12 @@ public final class LobbyRoomModel extends AndroidViewModel {
         RoomStatusProvider.update(!closed&&s.verified&&!s.room.isEmpty());state.postValue(s);
     }
     void action(String account,Consumer<LobbyRoom> action){owner.execute(()->{if(!closed&&verified&&self.equals(account)&&room!=null){auth(SocialNotice.NONE);action.accept(room);}});}
-    void games(Consumer<List<NetworkGameCatalog.Entry>> success,Consumer<String> failure){files.execute(()->{
+    void games(Consumer<List<NetworkGameCatalog.Entry>> success,Consumer<SocialNotice> failure){files.execute(()->{
         try{List<NetworkGameCatalog.Entry> entries=NetworkGameCatalog.list(new File(Config.getAppDir()));main.post(()->success.accept(entries));}
-        catch(IOException e){main.post(()->failure.accept(e.getMessage()));}
+        catch(IOException|RuntimeException e){
+            android.util.Log.w("LobbyRoomModel","Game lookup failed",e);
+            main.post(()->failure.accept(NetworkGameException.notice(e)));
+        }
     });}
     void createForGame(String account,String access,NetworkGameCatalog.Entry entry){owner.execute(()->{
         if(closed||!verified||!self.equals(account)||room==null||!room.room().isEmpty())return;
@@ -212,19 +215,22 @@ public final class LobbyRoomModel extends AndroidViewModel {
         long selection=++selectionEpoch;String selectedRoom=room.room();long generation=number(room.snapshot(),"generation");
         checkingGame=true;returningUntil=0;auth(SocialNotice.ROOM_CHECKING_INSTALLED_GAME);gameNetwork.localContent(null);publish();
         files.execute(()->{
-            InstalledNetworkGame result=null;String error="";
+            InstalledNetworkGame result=null;SocialNotice error=SocialNotice.NONE;
             try{
                 File config=new File(Config.getConfigsDir(),entry.directory.getName());
-                if(ProfilesManager.loadConfig(config)==null)throw new IOException("Open this game once from Library to finish its setup, then select it here.");
+                if(ProfilesManager.loadConfig(config)==null)throw new NetworkGameException(SocialNotice.GAME_SETUP_REQUIRED);
                 result=NetworkGameCatalog.verify(new File(Config.getAppDir()),entry);
                 MicroLoader.prepareNetworkCode(result.directory,getApplication().getCodeCacheDir());
                 result.recheck(result.directory.getPath());
-            }catch(IOException|RuntimeException e){error=e.getMessage()==null?"Could not prepare this game.":e.getMessage();}
-            InstalledNetworkGame checked=result;String problem=error;
+            }catch(IOException|RuntimeException e){
+                android.util.Log.w("LobbyRoomModel","Game preparation failed",e);
+                error=NetworkGameException.notice(e);
+            }
+            InstalledNetworkGame checked=result;SocialNotice problem=error;
             owner.execute(()->{
                 if(closed||selection!=selectionEpoch)return;checkingGame=false;
                 if(!self.equals(account)||room==null||!room.room().equals(selectedRoom)||number(room.snapshot(),"generation")!=generation){auth(SocialNotice.ROOM_ROOM_CHANGED_SELECT_THE_GAME_AGAIN);publish();return;}
-                if(!problem.isEmpty()){auth(problem);publish();return;}
+                if(problem!=SocialNotice.NONE){auth(problem);publish();return;}
                 if(!room.hosting()&&!checked.game.equals(game(object(room.snapshot(),"game")))){auth(SocialNotice.ROOM_THIS_IS_A_DIFFERENT_GAME_EDITION_SELECT);publish();return;}
                 if(room.hosting()&&room.snapshot().getAsJsonArray("members").size()>checked.game.players){auth(SocialNotice.ROOM_THIS_GAME_NEEDS_TWO_PLAYERS_REMOVE_EXTRA);publish();return;}
                 installed=checked;gameTitle=entry.title;auth(SocialNotice.NONE);

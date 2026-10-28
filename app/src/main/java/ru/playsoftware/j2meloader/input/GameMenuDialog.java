@@ -451,13 +451,40 @@ public final class GameMenuDialog extends Dialog {
         }
     }
     public void choice(String label, String[] options, int selected, java.util.function.IntConsumer change) {
-        LinearLayout row = new LinearLayout(getContext());
+        LinearLayout row = new LinearLayout(getContext()) {
+            @Override protected void onMeasure(int widthSpec, int heightSpec) {
+                TextView name = (TextView) getChildAt(0);
+                android.content.res.Configuration config = getResources().getConfiguration();
+                java.text.BreakIterator breaks = java.text.BreakIterator.getLineInstance(config.getLocales().get(0));
+                breaks.setText(label);
+                float longest = 0;
+                for (int start = breaks.first(), end = breaks.next(); end != java.text.BreakIterator.DONE;
+                        start = end, end = breaks.next()) {
+                    longest = Math.max(longest, name.getPaint().measureText(label.substring(start, end).trim()));
+                }
+                int width = MeasureSpec.getSize(widthSpec) - getPaddingLeft() - getPaddingRight();
+                boolean vertical = config.screenWidthDp < 384 || config.fontScale >= 1.3f
+                        || (MeasureSpec.getMode(widthSpec) != MeasureSpec.UNSPECIFIED && longest + dp(8) > width / 2.3f);
+                int orientation = vertical ? VERTICAL : HORIZONTAL;
+                if (getOrientation() != orientation) {
+                    setOrientation(orientation);
+                    for (int i = 0; i < getChildCount(); i++) {
+                        LinearLayout.LayoutParams params = (LinearLayout.LayoutParams) getChildAt(i).getLayoutParams();
+                        params.width = vertical ? LayoutParams.MATCH_PARENT : 0;
+                        params.weight = vertical ? 0 : i == 0 ? 1 : 1.3f;
+                    }
+                }
+                super.onMeasure(widthSpec, heightSpec);
+            }
+        };
         android.content.res.Configuration configuration = getContext().getResources().getConfiguration();
         boolean stacked = configuration.screenWidthDp < 384 || configuration.fontScale >= 1.3f;
         row.setOrientation(stacked ? LinearLayout.VERTICAL : LinearLayout.HORIZONTAL);
         row.setGravity(Gravity.CENTER_VERTICAL);
         TextView name = new TextView(getContext());
         name.setText(label); name.setTextSize(15); name.setTextColor(ru.playsoftware.j2meloader.ui.AppPalette.color(getContext(), ru.playsoftware.j2meloader.R.color.text_primary));
+        name.setBreakStrategy(android.graphics.text.LineBreaker.BREAK_STRATEGY_HIGH_QUALITY);
+        name.setHyphenationFrequency(android.text.Layout.HYPHENATION_FREQUENCY_NORMAL);
         name.setMinHeight(dp(48));
         row.addView(name, stacked ? new LinearLayout.LayoutParams(-1, -2) : new LinearLayout.LayoutParams(0,-2,1));
         name.setGravity(Gravity.CENTER_VERTICAL);

@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="helper_fix_game">Corriger le jeu</string>
+    <string name="helper_engine_missing">Cette version n\'inclut pas le moteur nécessaire à ce jeu</string>
+    <string name="helper_import_unavailable">Impossible d\'ouvrir l\'importateur de jeux</string>
+    <string name="helper_close">Fermer</string>
+    <string name="helper_opening_game">Ouverture du jeu</string>
+    <string name="helper_cannot_open_game">Impossible d\'ouvrir le jeu</string>
+    <string name="helper_reading_launch">Lecture du fichier de lancement...</string>
+    <string name="helper_retry">Réessayer</string>
+    <string name="helper_prepare_failed">Impossible de préparer le jeu</string>
+    <string name="helper_exit">Quitter</string>
+    <string name="helper_undo">Annuler</string>
+    <string name="helper_try_in_game">Essayer en jeu</string>
+    <string name="helper_try_settings">Essayer les paramètres ?</string>
+    <string name="helper_fix_default">Essayer les propriétés de compatibilité par défaut, la résolution 240 x 320 et un moteur de rendu simple.</string>
+    <string name="helper_fix_fit">Ajuster l\'image, conserver les proportions et centrer l\'image.</string>
+    <string name="helper_expert_hide">Masquer les paramètres experts</string>
+    <string name="helper_fix_renderer">Essayer un autre moteur de rendu avec le dessin immédiat.</string>
+    <string name="helper_keep">Conserver</string>
+    <string name="helper_expert">Paramètres experts</string>
+    <string name="helper_launch_failed">Impossible de lancer le jeu. Paramètres précédents conservés.</string>
+    <string name="helper_restart_failed">Impossible de redémarrer le jeu. Paramètres précédents conservés.</string>
+    <string name="helper_settings_failed">Impossible de préparer les paramètres</string>
+    <string name="helper_mapper_error">Erreur</string>
+    <string name="helper_network_setup">Préparez les paramètres de ce jeu avant de rejoindre une partie en réseau.</string>
+    <string name="helper_apply_failed">Impossible d\'appliquer les paramètres. Utilisation des paramètres enregistrés.</string>
+    <string name="helper_report_saved">Impossible d\'envoyer le rapport. Enregistré dans le fichier :\n%1$s</string>
+    <string name="helper_report_failed">Impossible d\'envoyer le rapport.</string>
+</resources>

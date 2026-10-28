@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="social_auth_signed_out">Nicht angemeldet</string>
+    <string name="social_auth_unlock_failed">Gespeicherte Anmeldung konnte nicht entsperrt werden. Entferne sie von diesem Gerät, um dich erneut anzumelden.</string>
+    <string name="social_auth_connecting">Verbindung zu Fluxer wird hergestellt...</string>
+    <string name="social_auth_service_failed">Fluxer-Dienst konnte nicht überprüft werden. Versuche es erneut.</string>
+    <string name="social_auth_start_failed">Anmeldung konnte nicht gestartet werden. Versuche es erneut.</string>
+    <string name="social_auth_invalid_expiry">Ungültige Ablaufzeit der Anmeldung. Versuche es erneut.</string>
+    <string name="social_auth_expired">Anmeldecode abgelaufen. Versuche es erneut.</string>
+    <string name="social_auth_approval">Gib diesen Code bei Fluxer ein und bestätige die Anmeldung.</string>
+    <string name="social_auth_busy">Fluxer ist ausgelastet. Warte vor einem erneuten Versuch.</string>
+    <string name="social_auth_invalid_session">Fluxer hat eine ungültige Sitzung zurückgegeben. Versuche es erneut.</string>
+    <string name="social_auth_declined">Anmeldung wurde abgelehnt.</string>
+    <string name="social_auth_waiting">Warten auf Fluxer. Automatischer neuer Versuch...</string>
+    <string name="social_auth_complete_failed">Anmeldung konnte nicht abgeschlossen werden. Versuche es erneut.</string>
+    <string name="social_auth_checking">Dein Konto wird geprüft...</string>
+    <string name="social_auth_session_expired">Deine Sitzung ist abgelaufen. Melde dich erneut an.</string>
+    <string name="social_auth_verify_failed">Dein Konto konnte nicht überprüft werden. Deine Anmeldung wurde nicht entfernt.</string>
+    <string name="social_auth_saved">Angemeldet. Deine Sitzung ist sicher auf diesem Gerät gespeichert.</string>
+    <string name="social_auth_save_failed">Vorerst angemeldet, aber die Sitzung konnte nicht gespeichert werden. Versuche vor dem Verlassen erneut zu speichern.</string>
+    <string name="social_auth_cancelled">Anmeldung abgebrochen.</string>
+    <string name="social_auth_signing_out">Abmeldung läuft...</string>
+    <string name="social_auth_signout_failed">Abmeldung bei Fluxer fehlgeschlagen. Versuche es erneut oder entferne die gespeicherte Anmeldung von diesem Gerät.</string>
+    <string name="social_auth_remove_failed">Gespeicherte Anmeldung konnte nicht entfernt werden. Bitte erneut versuchen.</string>
+</resources>

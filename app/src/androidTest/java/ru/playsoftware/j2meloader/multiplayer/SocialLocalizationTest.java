@@ -13,6 +13,17 @@ import static org.junit.Assert.*;
 
 /** Resource/state checks are offline and never touch the installed account vault. */
 public class SocialLocalizationTest {
+    @Test public void preparationErrorsTranslateInEveryAdvertisedLocaleWithoutMutatingFailure() {
+        for(SocialNotice code:SocialNotice.values()) {
+            if(!code.name().startsWith("GAME_"))continue;
+            NetworkGameException failure=new NetworkGameException(code);
+            for(String tag:ru.playsoftware.j2meloader.util.AppLanguage.TAGS) {
+                if(tag.isEmpty()||tag.equals("en"))continue;
+                assertNotEquals(tag+" "+code,code.english,SocialText.notice(locale(tag),NetworkGameException.notice(failure)));
+                assertEquals(code.english,failure.getMessage());
+            }
+        }
+    }
     private Context locale(String tag) {
         Context base=InstrumentationRegistry.getInstrumentation().getTargetContext();
         Configuration config=new Configuration(base.getResources().getConfiguration());

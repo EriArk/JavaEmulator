@@ -94,7 +94,7 @@ older 0.3 builds, not the current release series.
 | Channel | Current identifier | Availability |
 | --- | --- | --- |
 | Public download | `0.6.0-beta.1-r1`, code 312 | One signed adaptive APK on the existing Beta 1 page; centered confirmations, shape-adaptive panels and 29 dark screenshots. Corresponding r1 app source reuses unchanged dependency/peer and Symbian bundles. Early experimental Java Bluetooth multiplayer retains its limits. |
-| Development source | Unreleased audio, Phone controls and first translation batch after r1 | Nokia gain, shared audio recovery/repeat/event repairs, 16-bit ADPCM and independent direct MIDI; move/hide handle, opacity and graphical Gamepad mapping. Settings > Language now offers System default, English, Spanish, Brazilian Portuguese and Russian, with all 1505 canonical resources present per new locale. Debug checks only, not a new public APK or full-language acceptance. Exact #41 quiet-music reports and Treasure Towers remain unverified. [Languages](checks/2026-10-28-app-languages.md), [lifecycle/settings](checks/2026-10-28-audio-lifecycle-settings.md), [MIDI/ADPCM](checks/2026-10-28-audio-isolation.md), [audio pipeline](checks/2026-10-28-audio-pipeline.md), [audio/chrome](checks/2026-10-28-audio-and-phone-controls.md), [mapping](checks/2026-10-28-touch-gamepad-mapping.md) |
+| Development source | Unreleased audio, Phone controls and language batches after r1 | Nokia gain, shared audio recovery/repeat/event repairs, 16-bit ADPCM and independent direct MIDI; move/hide handle, opacity and graphical Gamepad mapping. Settings > Language offers System default, English, Spanish, Brazilian Portuguese, Russian, French and German, with all 1517 canonical resources present per translated locale. Shared long-word/large-font layout fixes and localized network-game preparation errors. Debug checks only, not a new public APK or full-language acceptance. Exact #41 quiet-music reports and Treasure Towers remain unverified. [Current languages](checks/2026-10-28-french-german-localization.md), [first batch](checks/2026-10-28-app-languages.md), [lifecycle/settings](checks/2026-10-28-audio-lifecycle-settings.md), [MIDI/ADPCM](checks/2026-10-28-audio-isolation.md), [audio pipeline](checks/2026-10-28-audio-pipeline.md), [audio/chrome](checks/2026-10-28-audio-and-phone-controls.md), [mapping](checks/2026-10-28-touch-gamepad-mapping.md) |
 | Private historical snapshot | `0.1.0-beta.2-experimental.15`, 2026-10-11 | Old Java/Mophun test build, not the current beta |
 | Local-only material | Game fixtures, firmware, diagnostics, device data and signing keys | Not in Git or public release assets; describing testing does not authorize redistribution |
 
@@ -141,7 +141,7 @@ events from marking a replacement sound stopped. **408 JVM and 35 Retroid audio
 checks pass**. #41's exact quiet-game editions remain open; gain and instruments
 are unchanged. [Evidence](checks/2026-10-28-audio-lifecycle-settings.md).
 
-**#43 now has an unreleased first language batch.** The preceding extraction
+**#43 now has two unreleased language batches.** The preceding extraction
 checkpoints below explain the foundation and their own verification. Settings,
 library actions, shared Java/Mophun/Symbian game menus/display controls,
 transfer/installer UI, physical/touch mapping, Social actions and system-file
@@ -196,6 +196,19 @@ emulator's system process crashed, so it is not counted as a final-build pass.
 This is development source and a local Debug build, not a public multilingual
 APK. Other #43 languages and remaining raw/backend diagnostics are not complete.
 [Language implementation, verification and limits](checks/2026-10-28-app-languages.md).
+
+The subsequent French/German batch expands the selectable list and brings each
+advertised translated locale to **1517 resources**. Twelve network-game
+preparation errors now have localized recovery text and stable identities.
+Long settings words trigger stacked rows; lobby initials adapt to large fonts;
+archive summaries scroll without consuming the usable file list. Final checks:
+**419 JVM passes, 55 Retroid passes and 55 Android 11 emulator passes**, plus
+successful cold-update language checks on both targets. Lint has zero errors /
+698 warnings. The earlier final-build API 30 gap is now covered for this
+UI/lifecycle fixture set. These are shared layout repairs, not language-specific
+exceptions. The broader language
+rollout and remaining diagnostic extraction stay open. No signed APK update.
+[Current checks, screenshots and limits](checks/2026-10-28-french-german-localization.md).
 
 The next batch implements **#45's general virtual Gamepad mapper** in the existing
 Touch layout editor: select a drawn button, choose a phone key, or use the Native

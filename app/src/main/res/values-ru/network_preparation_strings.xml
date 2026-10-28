@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="network_game_library_unavailable">Библиотека игр недоступна. Откройте библиотеку заново и повторите попытку.</string>
+    <string name="network_game_lookup_cancelled">Поиск игр отменён.</string>
+    <string name="network_game_adapter_unsupported">Этот игровой адаптер не поддерживается.</string>
+    <string name="network_game_outside_library">Выберите установленную игру в библиотеке.</string>
+    <string name="network_game_edition_differs">Установленная игра отличается от игры в комнате. Выберите то же издание.</string>
+    <string name="network_game_changed">Установленная игра изменилась. Выберите её заново для проверки файлов.</string>
+    <string name="network_game_files_invalid">Файлы установленной игры отсутствуют или повреждены. Переустановите игру и повторите попытку.</string>
+    <string name="network_game_manifest_invalid">Манифест игры отсутствует или повреждён. Переустановите игру и повторите попытку.</string>
+    <string name="network_game_entry_differs">Запись установленной игры не совпадает с записью в её архиве. Переустановите игру и повторите попытку.</string>
+    <string name="network_game_single_midlet">Выберите игру с единственной записью MIDlet.</string>
+    <string name="network_game_setup_required">Один раз откройте игру из библиотеки для завершения настройки, затем выберите её здесь.</string>
+    <string name="network_game_prepare_failed">Не удалось подготовить игру. Откройте её заново из библиотеки и повторите попытку.</string>
+</resources>

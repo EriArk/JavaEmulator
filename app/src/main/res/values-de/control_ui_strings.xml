@@ -1,0 +1,52 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="controls_use_mapping">Zuordnung übernehmen</string>
+    <string name="controls_reset_layout">Layout zurücksetzen</string>
+    <string name="controls_use_layout">Layout übernehmen</string>
+    <string name="controls_preview">Vorschau</string>
+    <string name="controls_layout">Layout</string>
+    <string name="controls_position">Position</string>
+    <string name="controls_style">Stil</string>
+    <string name="controls_tab">Tab %1$s</string>
+    <string name="controls_block">Block</string>
+    <string name="controls_block_size">Blockgröße</string>
+    <string name="controls_block_size_value">Blockgröße: %1$d%%</string>
+    <string name="controls_move_left">Nach links</string>
+    <string name="controls_move_up">Nach oben</string>
+    <string name="controls_move_down">Nach unten</string>
+    <string name="controls_move_right">Nach rechts</string>
+    <string name="controls_touch_preview">Vorschau des Touchlayouts</string>
+    <string name="controls_show_game">Spielsteuerung anzeigen</string>
+    <string name="controls_profile">Steuerungsprofil</string>
+    <string name="controls_buttons">Tasten</string>
+    <string name="controls_dpad">Steuerkreuz</string>
+    <string name="controls_stick">Stick</string>
+    <string name="controls_keypad">Tastenfeld</string>
+    <string name="controls_navigation">Navigation</string>
+    <string name="controls_shoulders">Schulter- &amp; Systemtasten</string>
+    <string name="controls_left_stick">Linker Stick</string>
+    <string name="controls_dpad_direction">Steuerkreuz %1$s</string>
+    <string name="controls_stick_direction">Stick %1$s</string>
+    <string name="controls_preset_arrows">Pfeile</string>
+    <string name="controls_preset_numbers">Bewegung mit Ziffern</string>
+    <string name="controls_preset_eight_way">Ziffern für acht Richtungen</string>
+    <string name="controls_preset_diagonals">Ziffernblock-Diagonalen</string>
+    <string name="controls_preset_actions">Aktionsziffern</string>
+    <string name="controls_soft_left">Linker Softkey</string>
+    <string name="controls_soft_right">Rechter Softkey</string>
+    <string name="controls_up">Oben</string>
+    <string name="controls_down">Unten</string>
+    <string name="controls_left">Links</string>
+    <string name="controls_right">Rechts</string>
+    <string name="controls_fire">OK / Feuer</string>
+    <string name="controls_clear">Löschen</string>
+    <string name="controls_end_call">Auflegen</string>
+    <string name="controls_menu">Menü</string>
+    <string name="controls_phone_key">Telefontaste %1$s</string>
+    <string name="controls_preview_seconds">%1$ds</string>
+    <plurals name="controls_preview_remaining"><item quantity="one">Einstellungsvorschau: noch %1$d Sekunde</item><item quantity="other">Einstellungsvorschau: noch %1$d Sekunden</item></plurals>
+    <string-array name="controls_preview_orientations"><item>Hochformat</item><item>Querformat</item></string-array>
+    <string-array name="controls_phone_blocks"><item>Tastenfeld</item></string-array>
+    <string-array name="controls_gamepad_blocks"><item>Richtungen</item><item>Aktionen</item></string-array>
+    <string-array name="controls_directions"><item>Oben</item><item>Unten</item><item>Links</item><item>Rechts</item><item>Oben + links</item><item>Oben + rechts</item><item>Unten + links</item><item>Unten + rechts</item></string-array>
+</resources>

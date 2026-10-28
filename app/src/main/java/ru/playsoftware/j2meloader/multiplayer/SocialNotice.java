@@ -130,7 +130,19 @@ public enum SocialNotice {
     COMMUNITY_CONNECTING("Connecting to the lobby community..."),
     COMMUNITY_INVITE_FAILED("Could not verify the lobby community invite. Nothing was joined."),
     COMMUNITY_UNCERTAIN("Community join result unknown. Checking access..."),
-    COMMUNITY_FAILED("Could not confirm community membership. Retry or check your Fluxer account.");
+    COMMUNITY_FAILED("Could not confirm community membership. Retry or check your Fluxer account."),
+    GAME_LIBRARY_UNAVAILABLE("Game library is unavailable. Reopen Library and try again."),
+    GAME_LOOKUP_CANCELLED("Game lookup cancelled."),
+    GAME_ADAPTER_UNSUPPORTED("This game adapter is not supported."),
+    GAME_OUTSIDE_LIBRARY("Select an installed game from Library."),
+    GAME_EDITION_DIFFERS("Installed game differs from the room. Select the same edition."),
+    GAME_CHANGED("Installed game changed. Select it again to verify its files."),
+    GAME_FILES_INVALID("Installed game files are missing or invalid. Reinstall the game and try again."),
+    GAME_MANIFEST_INVALID("The game manifest is missing or invalid. Reinstall the game and try again."),
+    GAME_ENTRY_DIFFERS("The installed game entry differs from its archive. Reinstall the game and try again."),
+    GAME_SINGLE_MIDLET("Choose a game with one MIDlet entry."),
+    GAME_SETUP_REQUIRED("Open this game once from Library to finish its setup, then select it here."),
+    GAME_PREPARE_FAILED("Could not prepare this game. Reopen it from Library and try again.");
     public final String english;
     SocialNotice(String english) { this.english = english; }
 }

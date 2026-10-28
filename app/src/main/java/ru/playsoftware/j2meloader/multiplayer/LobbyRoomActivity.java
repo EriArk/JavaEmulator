@@ -174,7 +174,9 @@ public final class LobbyRoomActivity extends CompactSettingsActivity {
             menu.message(getString(R.string.social_same_edition));
             if(entries.isEmpty())menu.message(getString(R.string.social_no_java_games));
             for(NetworkGameCatalog.Entry entry:entries)menu.action(entry.title,android.R.drawable.ic_media_play,()->{menu.dismiss();model.chooseGame(account,entry);});
-        },reason->{if(dialog==menu&&menu.isShowing()){menu.page(getString(R.string.social_select_java_game));menu.message(reason);}});
+        },reason->{if(!isFinishing()&&!isDestroyed()&&dialog==menu&&menu.isShowing()&&state!=null&&account.equals(state.account)){
+            menu.page(getString(R.string.social_select_java_game));menu.message(SocialText.notice(this,reason));
+        }});
     }
     private void launchIfOffered(){
         if(state==null||!state.launchOffered||!getLifecycle().getCurrentState().isAtLeast(androidx.lifecycle.Lifecycle.State.RESUMED))return;

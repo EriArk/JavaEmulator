@@ -22,16 +22,25 @@ final class ArchiveBatchView extends LinearLayout {
     private Button others;
     private boolean working;
     private boolean binding;
+    private int summaryMaxHeight;
     ArchiveBatchView(Context context,ArchiveBatch.Batch batch,Host host) {
         super(context); this.batch=batch; this.host=host;
         setOrientation(VERTICAL); setPadding(dp(10),dp(8),dp(10),dp(8));
         ru.playsoftware.j2meloader.ui.ConsoleSurface.apply(this, ru.playsoftware.j2meloader.ui.ConsoleSurface.Kind.CHASSIS);
         LinearLayout header=new LinearLayout(context); header.setGravity(Gravity.CENTER_VERTICAL);
         header.addView(icon(context.getString(R.string.system_back),android.R.drawable.ic_media_previous,host::close),new LayoutParams(dp(48),dp(48)));
-        TextView title=text(context.getString(R.string.native_queue_title),20); header.addView(title,new LayoutParams(0,-2,1));
+        TextView title=text(context.getString(R.string.native_queue_title),compact()?16:20); header.addView(title,new LayoutParams(0,-2,1));
         header.addView(icon(context.getString(R.string.native_queue_remove),android.R.drawable.ic_menu_delete,host::remove),new LayoutParams(dp(48),dp(48))); addView(header);
-        TextView name=text(batch.selectedFiles?getContext().getString(R.string.native_selected_files):batch.name,13); name.setMaxLines(1); name.setEllipsize(android.text.TextUtils.TruncateAt.END); addView(name);
-        status=text("",13); addView(status);
+        summaryMaxHeight=dp(160);
+        ScrollView summary=new ScrollView(context) {
+            @Override protected void onMeasure(int width,int height) {
+                super.onMeasure(width,MeasureSpec.makeMeasureSpec(summaryMaxHeight,MeasureSpec.AT_MOST));
+            }
+        };
+        LinearLayout summaryText=new LinearLayout(context); summaryText.setOrientation(VERTICAL);
+        summary.addView(summaryText); addView(summary,new LayoutParams(-1,-2));
+        TextView name=text(batch.selectedFiles?getContext().getString(R.string.native_selected_files):batch.name,13); name.setMaxLines(1); name.setEllipsize(android.text.TextUtils.TruncateAt.END); summaryText.addView(name);
+        status=text("",13); summaryText.addView(status);
         progress=new ProgressBar(context,null,android.R.attr.progressBarStyleHorizontal); progress.setIndeterminate(true);
         progress.setIndeterminateTintList(ColorStateList.valueOf(ru.playsoftware.j2meloader.ui.AppPalette.color(getContext(), ru.playsoftware.j2meloader.R.color.accent))); progress.setVisibility(GONE); addView(progress,new LayoutParams(-1,dp(4)));
         RecyclerView list=new RecyclerView(context); list.setLayoutManager(new LinearLayoutManager(context));
@@ -50,6 +59,12 @@ final class ArchiveBatchView extends LinearLayout {
         working=value; all.setEnabled(!value); if(others!=null)others.setEnabled(!value);
         start.setEnabled(!value && (batch.started || batch.items.stream().anyMatch(i->i.selected && i.problem.isEmpty())));
         rows.notifyDataSetChanged();
+    }
+    @Override protected void onMeasure(int width,int height) {
+        // Keep long translated summaries readable by scrolling, without consuming the file list.
+        summaryMaxHeight=MeasureSpec.getMode(height)==MeasureSpec.UNSPECIFIED?dp(160)
+                :Math.max(dp(48),Math.min(dp(160),MeasureSpec.getSize(height)/4));
+        super.onMeasure(width,height);
     }
     private boolean finished() {
         return batch.started && batch.items.stream().allMatch(i->i.state==ArchiveBatch.State.DONE || i.state==ArchiveBatch.State.SKIPPED);

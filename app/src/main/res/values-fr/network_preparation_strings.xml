@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="network_game_library_unavailable">La bibliothèque de jeux est indisponible. Rouvrez la bibliothèque et réessayez.</string>
+    <string name="network_game_lookup_cancelled">Recherche de jeux annulée.</string>
+    <string name="network_game_adapter_unsupported">Cet adaptateur de jeu n’est pas pris en charge.</string>
+    <string name="network_game_outside_library">Sélectionnez un jeu installé dans la bibliothèque.</string>
+    <string name="network_game_edition_differs">Le jeu installé ne correspond pas à celui du salon. Sélectionnez la même édition.</string>
+    <string name="network_game_changed">Le jeu installé a changé. Sélectionnez-le à nouveau pour vérifier ses fichiers.</string>
+    <string name="network_game_files_invalid">Les fichiers du jeu installé sont absents ou invalides. Réinstallez le jeu et réessayez.</string>
+    <string name="network_game_manifest_invalid">Le manifeste du jeu est absent ou invalide. Réinstallez le jeu et réessayez.</string>
+    <string name="network_game_entry_differs">L’entrée du jeu installé ne correspond pas à son archive. Réinstallez le jeu et réessayez.</string>
+    <string name="network_game_single_midlet">Choisissez un jeu avec une seule entrée MIDlet.</string>
+    <string name="network_game_setup_required">Ouvrez ce jeu une fois depuis la bibliothèque pour terminer sa configuration, puis sélectionnez-le ici.</string>
+    <string name="network_game_prepare_failed">Impossible de préparer ce jeu. Rouvrez-le depuis la bibliothèque et réessayez.</string>
+</resources>

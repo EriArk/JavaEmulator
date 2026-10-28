@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="network_game_library_unavailable">Game library is unavailable. Reopen Library and try again.</string>
+    <string name="network_game_lookup_cancelled">Game lookup cancelled.</string>
+    <string name="network_game_adapter_unsupported">This game adapter is not supported.</string>
+    <string name="network_game_outside_library">Select an installed game from Library.</string>
+    <string name="network_game_edition_differs">Installed game differs from the room. Select the same edition.</string>
+    <string name="network_game_changed">Installed game changed. Select it again to verify its files.</string>
+    <string name="network_game_files_invalid">Installed game files are missing or invalid. Reinstall the game and try again.</string>
+    <string name="network_game_manifest_invalid">The game manifest is missing or invalid. Reinstall the game and try again.</string>
+    <string name="network_game_entry_differs">The installed game entry differs from its archive. Reinstall the game and try again.</string>
+    <string name="network_game_single_midlet">Choose a game with one MIDlet entry.</string>
+    <string name="network_game_setup_required">Open this game once from Library to finish its setup, then select it here.</string>
+    <string name="network_game_prepare_failed">Could not prepare this game. Reopen it from Library and try again.</string>
+</resources>

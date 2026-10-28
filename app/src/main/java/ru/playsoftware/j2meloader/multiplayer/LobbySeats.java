@@ -48,7 +48,11 @@ final class LobbySeats {
             GradientDrawable circle = new GradientDrawable(); circle.setShape(GradientDrawable.OVAL);
             circle.setColor(AppPalette.color(context, R.color.input_surface));
             circle.setStroke(dp(context, 1), AppPalette.color(context, R.color.accent)); badge.setBackground(circle);
-            seat.addView(badge, new LinearLayout.LayoutParams(dp(context, 48), dp(context, 48)));
+            android.graphics.Paint.FontMetrics metrics=badge.getPaint().getFontMetrics();
+            int badgeSize=Math.max(dp(context,48),Math.max(
+                    (int)Math.ceil(metrics.bottom-metrics.top)+dp(context,8),
+                    (int)Math.ceil(badge.getPaint().measureText(badge.getText().toString()))+dp(context,12)));
+            seat.addView(badge, new LinearLayout.LayoutParams(badgeSize,badgeSize));
             TextView title = label(context, name, 16); title.setGravity(Gravity.CENTER); title.setTypeface(null, Typeface.BOLD);
             title.setPadding(0, dp(context, 8), 0, 0); seat.addView(title, new LinearLayout.LayoutParams(-1,-2));
             TextView role = label(context, context.getString(R.string.social_seat_role,i+1,roleName), 12);

@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="settings_language">Langue</string>
+    <string name="language_system">Langue du système</string>
+    <string name="language_failed">Impossible d\'enregistrer la langue. Veuillez réessayer.</string>
+</resources>

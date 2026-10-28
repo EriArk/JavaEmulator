@@ -129,6 +129,8 @@ public class AppLanguageTest {
                     android.widget.Button english=(android.widget.Button)find(root,"English");
                     if(english!=null) {
                         found=true;
+                        assertNotNull("French remains recognizable",find(root,"Français"));
+                        assertNotNull("German remains recognizable",find(root,"Deutsch"));
                         android.widget.Button spanish=(android.widget.Button)find(root,"Español");
                         assertEquals(0,english.getCompoundDrawablesRelative()[0].getAlpha());
                         assertEquals(255,spanish.getCompoundDrawablesRelative()[0].getAlpha());

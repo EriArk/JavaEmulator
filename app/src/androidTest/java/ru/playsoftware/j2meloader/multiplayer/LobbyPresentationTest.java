@@ -23,17 +23,17 @@ public class LobbyPresentationTest {
             LinearLayout parent=new LinearLayout(c);parent.setOrientation(LinearLayout.VERTICAL);
             LobbyRoomModel.State s=state();String[] selected={""};int[] invites={0};
             LobbySeats.add(parent,s,id->selected[0]=id,()->invites[0]++);
-            View guest=parent.findViewWithTag("member:22");assertTrue(guest.getContentDescription().toString().contains("Ready"));guest.performClick();assertEquals("22",selected[0]);
+            View guest=parent.findViewWithTag("member:22");assertTrue(guest.getContentDescription().toString().contains(c.getString(ru.playsoftware.j2meloader.R.string.social_ready)));guest.performClick();assertEquals("22",selected[0]);
             parent.findViewWithTag("empty-seat").performClick();assertEquals(1,invites[0]);
             s.snapshot.add("game",new JsonObject());parent.removeAllViews();LobbySeats.add(parent,s,id->{},()->fail());assertNull(parent.findViewWithTag("empty-seat"));
             s.available=false;parent.removeAllViews();LobbySeats.add(parent,s,id->{},()->fail());
-            assertTrue(parent.findViewWithTag("member:22").getContentDescription().toString().contains("Reconnecting"));
+            assertTrue(parent.findViewWithTag("member:22").getContentDescription().toString().contains(c.getString(ru.playsoftware.j2meloader.R.string.social_reconnecting)));
         });
     }
     @Test public void compactAndLargeTextSeatsFitWithoutClipping(){
         InstrumentationRegistry.getInstrumentation().runOnMainSync(()->{
             Context base=InstrumentationRegistry.getInstrumentation().getTargetContext();
-            for(String locale:new String[]{"en","es","pt-BR","ru","en-XA","ar-XB"})
+            for(String locale:new String[]{"en","es","pt-BR","ru","fr","de","en-XA","ar-XB"})
             for(int width:new int[]{320,393,480,540,720})for(float font:new float[]{1f,1.5f,2f})for(int night:new int[]{Configuration.UI_MODE_NIGHT_NO,Configuration.UI_MODE_NIGHT_YES}){
                 Configuration config=new Configuration(base.getResources().getConfiguration());config.screenWidthDp=width;config.fontScale=font;
                 config.setLocales(android.os.LocaleList.forLanguageTags(locale));
@@ -50,7 +50,7 @@ public class LobbyPresentationTest {
     private void check(ViewGroup group){
         for(int i=0;i<group.getChildCount();i++){
             View child=group.getChildAt(i);assertTrue(child.getLeft()>=0);assertTrue(child.getRight()<=group.getWidth());assertTrue(child.getBottom()<=group.getHeight());
-            if(child instanceof TextView){TextView text=(TextView)child;assertNotNull(text.getLayout());assertTrue(text.getLayout().getHeight()<=text.getHeight()-text.getCompoundPaddingTop()-text.getCompoundPaddingBottom());}
+            if(child instanceof TextView){TextView text=(TextView)child;assertNotNull(text.getLayout());assertTrue("Text height: "+text.getText(),text.getLayout().getHeight()<=text.getHeight()-text.getCompoundPaddingTop()-text.getCompoundPaddingBottom());}
             if(child instanceof ViewGroup)check((ViewGroup)child);
         }
     }

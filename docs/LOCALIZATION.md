@@ -3,26 +3,33 @@
 Issue [#43](https://github.com/EriArk/JavaEmulator/issues/43), checkpoint 2026-10-28.
 English remains the canonical source/fallback and the public APK's advertised UI.
 Unreleased source now includes Settings > Language, System default, English,
-Spanish, Brazilian Portuguese and Russian. Other inherited locale folders remain
+Spanish, Brazilian Portuguese, Russian, French and German. Other inherited locale folders remain
 partial translations; their presence is not whole-app support. This work has not
 been published in a new signed APK.
 
 | Locale | Canonical resource coverage | Availability |
 | --- | --- | --- |
-| English | 1505 source entries | Released fallback; current source includes newer labels |
-| Spanish | 1505 / 1505 | Selectable in unreleased source / local Debug |
-| Brazilian Portuguese | 1505 / 1505 | Selectable in unreleased source / local Debug |
-| Russian | 1505 / 1505 | Selectable in unreleased source / local Debug |
+| English | 1517 source entries | Released fallback; current source includes newer labels |
+| Spanish | 1517 / 1517 | Selectable in unreleased source / local Debug |
+| Brazilian Portuguese | 1517 / 1517 | Selectable in unreleased source / local Debug |
+| Russian | 1517 / 1517 | Selectable in unreleased source / local Debug |
+| French | 1517 / 1517 | Selectable in unreleased source / local Debug |
+| German | 1517 / 1517 | Selectable in unreleased source / local Debug |
 | Other inherited locales | Partial | Not advertised by the picker |
 
 Counts include strings, plurals and arrays; they do not certify translation
 quality or every low-level diagnostic. The [first language batch record](checks/2026-10-28-app-languages.md)
 separates source, device/emulator checks and remaining acceptance.
+The [French/German batch](checks/2026-10-28-french-german-localization.md) adds
+network-preparation messages and shared long-word/large-font layout repairs.
 
 ## Language Selection
 
 Native language names remain visible in every UI language. The selected option
 has a check mark and checked accessibility state, distinct from gamepad focus.
+Settings choices stack when a word cannot fit the label column; wider rows can
+return to two columns. Archive summaries scroll rather than consume the list,
+and lobby initials grow with the actual font metrics.
 Android 13+ uses the platform LocaleManager and declares the same supported
 list in `xml/app_locales.xml`; Android Settings and the in-app picker share it.
 Android 10-12 uses AppCompat 1.6.1 plus a non-exported, single-writer provider for
@@ -41,8 +48,8 @@ profile override still takes precedence. Guest phone language and user/chat
 content are not translated.
 
 This does not claim every low-level diagnostic is localized. Unknown OS/native
-errors, old persisted raw error messages and remaining network-game preparation
-details can still appear verbatim under a localized explanation. Do not treat
+errors and old persisted raw error messages can still appear verbatim under a
+localized explanation. Do not treat
 resource coverage as full network-session or native-game acceptance.
 
 ## Extracted Source
@@ -72,6 +79,13 @@ resource coverage as full network-session or native-game acceptance.
   directory, room actions and seat accessibility. Account/chat/directory actors
   expose stable notice enums; the UI renders resources without translating
   protocol payloads, account identifiers or user messages.
+- `values/network_preparation_strings.xml`: 12 typed game preparation/library
+  failures, including changed files, different game editions, missing setup and
+  unsupported adapters. Room state retains a notice identity; rendering follows
+  the current UI locale. Unknown filesystem/converter exceptions use a localized
+  recovery message while the original exception is retained in the diagnostic
+  log. No English-message matching is used. Late picker failures are ignored
+  after the account changes or the Activity is destroyed.
 - `values/system_files_strings.xml`: system-files entry, generation-specific
   requirements, phone-dump help and pending-import decisions. Rendering uses
   import kind/readiness, not English title comparisons. Technical identifiers
@@ -110,7 +124,7 @@ preserve upstream attribution and link to this project's support and sources.
 
 The first selectable translation batch covers all canonical Android resources,
 but is not a claim that every diagnostic is translated. Remaining backend
-messages (including Mophun, network-game preparation and external diagnostics)
+messages (including Mophun and external diagnostics)
 and helper-returned text still need extraction or review. Guest language is not
 modified as a side effect. English actor fallback fields are retained for diagnostics and
 non-Android tests; UI decisions must use typed keys, not translated labels.
@@ -149,8 +163,8 @@ not the number of locale directories or keys alone.
 
 ## Next Boundaries
 
-1. Finish remaining backend/helper and network-game preparation diagnostics.
-2. Expand reviewed language batches: French/German, then Simplified Chinese,
+1. Finish remaining backend/helper diagnostics.
+2. Expand reviewed language batches: Simplified Chinese,
    Japanese, Indonesian and Hindi. Keep the issue's wider language list open.
 3. Verify long-running native/network sessions and translated journeys before
    publishing a multilingual APK. Arabic/Hebrew still require explicit RTL QA.

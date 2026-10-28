@@ -61,7 +61,7 @@ public class LocalizationJourneyTest {
                 R.array.library_collections, R.array.library_view_modes, R.array.library_generations,
                 R.array.library_cover_formats, R.array.transfer_folder_titles, R.array.transfer_folder_hints};
         int[] counts = {4,3,3,3,3,3,2,2,3,3,2,2,4,3,2,4,11,2,6,3,3,6,3,3,3,3,3,3,3};
-        for (String language : new String[]{"en", "es", "pt-BR", "en-XA", "ar-XB", "ru", "ja"}) {
+        for (String language : new String[]{"en", "es", "pt-BR", "en-XA", "ar-XB", "ru", "fr", "de", "ja"}) {
             Context context = localized(base, language, 1);
             for (int i = 0; i < arrays.length; i++) {
                 String[] values = context.getResources().getStringArray(arrays[i]);
@@ -169,8 +169,9 @@ public class LocalizationJourneyTest {
 
     @Test public void translatedConfirmationKeepsEngineCallbacksSeparate() {
         try (ActivityScenario<SettingsActivity> scenario = ActivityScenario.launch(SettingsActivity.class)) {
+          for(String tag:new String[]{"en-XA","fr","de"}) {
             scenario.onActivity(activity -> {
-                GameMenuDialog menu = new GameMenuDialog(localized(activity, "en-XA", 1), "Guest title");
+                GameMenuDialog menu = new GameMenuDialog(localized(activity, tag, 1), "Guest title");
                 menu.show(); final int[] exits = {0};
                 try {
                     GameMenuPages pages = new GameMenuPages(menu, new GameMenuPages.Host() {
@@ -186,6 +187,37 @@ public class LocalizationJourneyTest {
                     text(menu.getWindow().getDecorView(), menu.text(R.string.game_leave_without_saving)).performClick();
                     assertEquals(1, exits[0]);
                 } finally { menu.dismiss(); }
+            });
+          }
+        }
+    }
+
+    @Test public void longChoiceWordsStackAndRestoreColumnsWhenWidthChanges() {
+        try(ActivityScenario<SettingsActivity> scenario=ActivityScenario.launch(SettingsActivity.class)) {
+            scenario.onActivity(activity -> {
+                Context context=localized(activity,"de",1);
+                GameMenuDialog menu=new GameMenuDialog(context,"Fixture");menu.show();
+                try {
+                    String label=context.getString(R.string.game_speed);
+                    menu.choice(label,new String[]{"100%"},0,index->fail("Layout must not change selection"));
+                    Spinner spinner=(Spinner)description(menu.getWindow().getDecorView(),label);
+                    LinearLayout row=(LinearLayout)spinner.getParent();
+                    TextView name=(TextView)row.getChildAt(0);
+                    int width=(int)Math.ceil(name.getPaint().measureText(label)*1.5f);
+                    row.measure(View.MeasureSpec.makeMeasureSpec(width,View.MeasureSpec.EXACTLY),
+                            View.MeasureSpec.makeMeasureSpec(0,View.MeasureSpec.UNSPECIFIED));
+                    row.layout(0,0,width,row.getMeasuredHeight());
+                    assertEquals(LinearLayout.VERTICAL,row.getOrientation());
+                    assertEquals(1,name.getLineCount());assertEquals(width,spinner.getWidth());
+                    assertTrue(spinner.getTop()>=name.getBottom());
+                    width*=2;
+                    row.measure(View.MeasureSpec.makeMeasureSpec(width,View.MeasureSpec.EXACTLY),
+                            View.MeasureSpec.makeMeasureSpec(0,View.MeasureSpec.UNSPECIFIED));
+                    row.layout(0,0,width,row.getMeasuredHeight());
+                    if(context.getResources().getConfiguration().screenWidthDp>=384)
+                        assertEquals(LinearLayout.HORIZONTAL,row.getOrientation());
+                    assertEquals(0,spinner.getSelectedItemPosition());
+                } finally {menu.dismiss();}
             });
         }
     }

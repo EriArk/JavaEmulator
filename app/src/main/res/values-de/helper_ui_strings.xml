@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="helper_fix_game">Spielprobleme beheben</string>
+    <string name="helper_engine_missing">Diese Version enthält die Engine für dieses Spiel nicht</string>
+    <string name="helper_import_unavailable">Spielimport kann nicht geöffnet werden</string>
+    <string name="helper_close">Schließen</string>
+    <string name="helper_opening_game">Spiel wird geöffnet</string>
+    <string name="helper_cannot_open_game">Spiel kann nicht geöffnet werden</string>
+    <string name="helper_reading_launch">Startdatei wird gelesen...</string>
+    <string name="helper_retry">Erneut versuchen</string>
+    <string name="helper_prepare_failed">Spiel konnte nicht vorbereitet werden</string>
+    <string name="helper_exit">Beenden</string>
+    <string name="helper_undo">Rückgängig</string>
+    <string name="helper_try_in_game">Im Spiel testen</string>
+    <string name="helper_try_settings">Einstellungen testen?</string>
+    <string name="helper_fix_default">Standard-Kompatibilitätseinstellungen, 240 x 320 und einen einfachen Renderer testen.</string>
+    <string name="helper_fix_fit">Bild einpassen, Seitenverhältnis beibehalten, Bild zentrieren.</string>
+    <string name="helper_expert_hide">Experteneinstellungen ausblenden</string>
+    <string name="helper_fix_renderer">Einen anderen Renderer mit sofortigem Zeichnen testen.</string>
+    <string name="helper_keep">Beibehalten</string>
+    <string name="helper_expert">Experteneinstellungen</string>
+    <string name="helper_launch_failed">Spiel konnte nicht gestartet werden. Vorherige Einstellungen beibehalten.</string>
+    <string name="helper_restart_failed">Spiel konnte nicht neu gestartet werden. Vorherige Einstellungen beibehalten.</string>
+    <string name="helper_settings_failed">Einstellungen konnten nicht vorbereitet werden</string>
+    <string name="helper_mapper_error">Fehler</string>
+    <string name="helper_network_setup">Bereite die Einstellungen dieses Spiels vor, bevor du einem Netzwerkspiel beitrittst.</string>
+    <string name="helper_apply_failed">Einstellungen konnten nicht angewendet werden. Gespeicherte Einstellungen werden verwendet.</string>
+    <string name="helper_report_saved">Bericht konnte nicht gesendet werden. In Datei gespeichert:\n%1$s</string>
+    <string name="helper_report_failed">Bericht konnte nicht gesendet werden.</string>
+</resources>

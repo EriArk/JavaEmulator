@@ -78,7 +78,7 @@ public class LocalizationAudit {
                     present++;
                     if (!compatible(entry.getValue(), other)) {
                         errors++;
-                        invalid.add(qualifier + "\t" + entry.getKey() + "\tArray length or formatting arguments differ");
+                        invalid.add(qualifier + "\t" + entry.getKey() + "\tArray length, resource reference order or formatting arguments differ");
                     }
                 }
                 coverage.add(qualifier + "\t" + present + "\t" + base.size() + "\t" + (base.size() - present) + "\t" + errors);
@@ -244,7 +244,11 @@ public class LocalizationAudit {
         if (!base.type.equals("plurals") && base.values.size() != localized.values.size()) return false;
         for (int i = 0; i < localized.values.size(); i++) {
             String expected = base.values.get(base.type.equals("plurals") ? base.values.size() - 1 : i);
-            if (!formats(expected).equals(formats(localized.values.get(i)))) return false;
+            String actual = localized.values.get(i);
+            if (!formats(expected).equals(formats(actual))) return false;
+            // Inline translated labels are valid; resource aliases must keep their original meaning/order.
+            if (base.type.equals("string-array") && expected.trim().startsWith("@")
+                    && actual.trim().startsWith("@") && !expected.trim().equals(actual.trim())) return false;
         }
         return true;
     }
@@ -270,6 +274,12 @@ public class LocalizationAudit {
                 || !formats("Value: % d").equals(Set.of("1:d"))) throw new AssertionError("Literal percent versus format flag");
         if (compatible(new Resource("string-array", "a", List.of("a", "b"), true),
                 new Resource("string-array", "a", List.of("x"), true))) throw new AssertionError("Array size");
+        if (compatible(new Resource("string-array", "a", List.of("@string/fit", "@string/fill"), true),
+                new Resource("string-array", "a", List.of("@string/fill", "@string/fit"), true)))
+            throw new AssertionError("Array alias order");
+        if (!compatible(new Resource("string-array", "a", List.of("@string/fit"), true),
+                new Resource("string-array", "a", List.of("Ajuster"), true)))
+            throw new AssertionError("Inline translated array label");
         if (!localeDirectory("es").equals("values-es") || !localeDirectory("pt-BR").equals("values-pt-rBR")
                 || !localeDirectory("zh-Hant-TW").equals("values-b+zh+Hant+TW"))
             throw new AssertionError("Advertised locale directory mapping");
@@ -278,6 +288,6 @@ public class LocalizationAudit {
                 + "<View android:text=\"240x320\"/><View android:text=\"AbyssME\"/><View android:text=\"Fix game\"/></View>";
         if (scanXml("string:///fixture.xml", new StringReader(layout)).size() != 2)
             throw new AssertionError("XML source labels versus resources, tools and identifiers");
-        System.out.println("Localization audit self-tests passed (AST boundaries, argument order/types, array size).");
+        System.out.println("Localization audit self-tests passed (AST boundaries, argument order/types, array size/alias order).");
     }
 }

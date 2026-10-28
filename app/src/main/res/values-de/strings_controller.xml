@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="utf-8"?><resources>
+    <string name="quick_rotate_image">Bild drehen</string>
+    <string name="quick_rotation_value">Bild drehen: %1$d\u00b0</string>
+    <string name="display_save_failed">Anzeigeeinstellungen konnten nicht gespeichert werden.</string>
+    <plurals name="library_games">
+        <item quantity="one">%d Spiel</item>
+        <item quantity="other">%d Spiele</item>
+    </plurals>
+    <string name="mapper_title">Steuerung</string>
+    <string name="mapper_controller">GAMEPAD</string>
+    <string name="mapper_phone">TELEFONTASTEN</string>
+    <string name="mapper_detect">Taste erkennen</string>
+    <string name="mapper_undo">Letzte Änderung rückgängig</string>
+    <string name="mapper_listening">Warte auf Eingabe...</string>
+    <string name="mapper_save">Speichern &amp; fortsetzen</string>
+    <string name="mapper_unbind">Zuordnung aufheben</string>
+    <string name="mapper_duplicate">Profil duplizieren</string>
+    <string name="mapper_unbound">Nicht zugeordnet</string>
+    <string name="mapper_combined">Zwei Richtungen</string>
+    <string name="mapper_save_failed">Steuerung konnte nicht gespeichert werden. Deine Änderungen sind noch offen.</string>
+</resources>
