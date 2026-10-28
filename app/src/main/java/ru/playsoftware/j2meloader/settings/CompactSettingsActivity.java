@@ -35,7 +35,7 @@ public abstract class CompactSettingsActivity extends BaseActivity {
         screenHeader = new LinearLayout(this);
         screenHeader.setGravity(Gravity.CENTER_VERTICAL);
         ConsoleSurface.apply(screenHeader, ConsoleSurface.Kind.CHASSIS);
-        ImageButton back = headerButton("Back", androidx.appcompat.R.drawable.abc_ic_ab_back_material, this::onBackPressed);
+        ImageButton back = headerButton(getString(R.string.menu_back), androidx.appcompat.R.drawable.abc_ic_ab_back_material, this::onBackPressed);
         back.setId(R.id.settings_back);
         screenTitle = new TextView(this);
         screenTitle.setTextSize(18); screenTitle.setTextColor(ru.playsoftware.j2meloader.ui.AppPalette.color(this, R.color.text_primary));

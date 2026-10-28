@@ -19,6 +19,9 @@ package javax.microedition.media;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.concurrent.LinkedBlockingQueue;
+import java.util.concurrent.ThreadPoolExecutor;
+import java.util.concurrent.TimeUnit;
 
 import javax.microedition.amms.control.PanControl;
 import javax.microedition.amms.control.audioeffect.EqualizerControl;
@@ -26,8 +29,11 @@ import javax.microedition.media.control.VolumeControl;
 
 public class BasePlayer implements Player, VolumeControl, PanControl {
 	private TimeBase timeBase;
-	protected int state;
+	protected volatile int state;
 	private int loopCount;
+	private int remainingLoops;
+	private final ThreadPoolExecutor callbacks = new ThreadPoolExecutor(0, 1, 1, TimeUnit.SECONDS,
+			new LinkedBlockingQueue<>(), task -> new Thread(task, "MIDletPlayerCallback"));
 
 	private final ArrayList<PlayerListener> listeners;
 	private final HashMap<String, Control> controls;
@@ -41,6 +47,7 @@ public class BasePlayer implements Player, VolumeControl, PanControl {
 		level = 100;
 		pan = 0;
 		loopCount = 1;
+		remainingLoops = 1;
 
 		InternalEqualizer equalizer = new InternalEqualizer();
 
@@ -56,22 +63,20 @@ public class BasePlayer implements Player, VolumeControl, PanControl {
 		controls.put(name, control);
 	}
 
-	public void complete() {
-		if (state == CLOSED) {
+	public synchronized void complete() {
+		if (state != STARTED) {
 			return;
 		}
-		postEvent(PlayerListener.END_OF_MEDIA, new Long(getMediaTime()));
-
-		if (loopCount == 1) {
+		long endTime = getMediaTime();
+		if (remainingLoops > 0) remainingLoops--;
+		if (remainingLoops == 0) {
 			state = PREFETCHED;
-			doReset();
-		} else if (loopCount > 1) {
-			loopCount--;
 		}
+		postEvent(PlayerListener.END_OF_MEDIA, Long.valueOf(endTime));
 
-		if (state == STARTED && loopCount != -1) {
+		if (state == STARTED) {
 			doStart();
-			postEvent(PlayerListener.STARTED, new Long(getMediaTime()));
+			postEvent(PlayerListener.STARTED, Long.valueOf(getMediaTime()));
 		}
 	}
 
@@ -91,7 +96,7 @@ public class BasePlayer implements Player, VolumeControl, PanControl {
 	}
 
 	@Override
-	public void addPlayerListener(PlayerListener playerListener) {
+	public synchronized void addPlayerListener(PlayerListener playerListener) {
 		checkClosed();
 		if (!listeners.contains(playerListener) && playerListener != null) {
 			listeners.add(playerListener);
@@ -99,17 +104,24 @@ public class BasePlayer implements Player, VolumeControl, PanControl {
 	}
 
 	@Override
-	public void removePlayerListener(PlayerListener playerListener) {
+	public synchronized void removePlayerListener(PlayerListener playerListener) {
 		checkClosed();
 		listeners.remove(playerListener);
 	}
 
 	public synchronized void postEvent(String event, Object eventData) {
-		for (PlayerListener listener : listeners) {
-			// Callbacks should be async
-			Runnable r = () -> listener.playerUpdate(this, event, eventData);
-			(new Thread(r, "MIDletPlayerCallback")).start();
-		}
+		if (callbacks.isShutdown() || listeners.isEmpty()) return;
+		PlayerListener[] snapshot = listeners.toArray(new PlayerListener[0]);
+		callbacks.execute(() -> {
+			// Wait for the posting state transition, then invoke guest code outside its lock.
+			synchronized (BasePlayer.this) { }
+			for (PlayerListener listener : snapshot) {
+				try { listener.playerUpdate(this, event, eventData); }
+				catch (RuntimeException failure) {
+					android.util.Log.w("J2MEAudio", "Player listener failed", failure);
+				}
+			}
+		});
 	}
 
 	@Override
@@ -157,6 +169,7 @@ public class BasePlayer implements Player, VolumeControl, PanControl {
 			}
 
 			state = STARTED;
+			if (remainingLoops == 0) remainingLoops = loopCount;
 			postEvent(PlayerListener.STARTED, new Long(getMediaTime()));
 		}
 	}
@@ -178,13 +191,7 @@ public class BasePlayer implements Player, VolumeControl, PanControl {
 
 		if (state == PREFETCHED) {
 			doReset();
-			state = UNREALIZED;
-
-			try {
-				realize();
-			} catch (MediaException e) {
-				e.printStackTrace();
-			}
+			state = REALIZED;
 		}
 	}
 
@@ -196,6 +203,8 @@ public class BasePlayer implements Player, VolumeControl, PanControl {
 
 			state = CLOSED;
 			postEvent(PlayerListener.CLOSED, null);
+			callbacks.shutdown(); // Deliver already queued events, then release the worker.
+			listeners.clear();
 		}
 	}
 
@@ -214,7 +223,7 @@ public class BasePlayer implements Player, VolumeControl, PanControl {
 	}
 
 	@Override
-	public long setMediaTime(long now) throws MediaException {
+	public synchronized long setMediaTime(long now) throws MediaException {
 		checkRealized();
 		if (state < PREFETCHED) {
 			return 0;
@@ -227,7 +236,7 @@ public class BasePlayer implements Player, VolumeControl, PanControl {
 	}
 
 	@Override
-	public long getMediaTime() {
+	public synchronized long getMediaTime() {
 		checkClosed();
 		if (state < PREFETCHED) {
 			return TIME_UNKNOWN;
@@ -237,7 +246,7 @@ public class BasePlayer implements Player, VolumeControl, PanControl {
 	}
 
 	@Override
-	public long getDuration() {
+	public synchronized long getDuration() {
 		checkClosed();
 		if (state < PREFETCHED) {
 			return TIME_UNKNOWN;
@@ -247,17 +256,18 @@ public class BasePlayer implements Player, VolumeControl, PanControl {
 	}
 
 	@Override
-	public void setLoopCount(int count) {
+	public synchronized void setLoopCount(int count) {
 		checkClosed();
 		if (state == STARTED)
 			throw new IllegalStateException("player must not be in STARTED state while using setLoopCount()");
 
-		if (count == 0) {
-			throw new IllegalArgumentException("loop count must not be 0");
+		if (count == 0 || count < -1) {
+			throw new IllegalArgumentException("loop count must be positive or -1");
 		}
 
 		doSetLooping(count == -1);
 		loopCount = count;
+		remainingLoops = count;
 	}
 
 	@Override
@@ -318,7 +328,7 @@ public class BasePlayer implements Player, VolumeControl, PanControl {
 	}
 
 	@Override
-	public void setMute(boolean mute) {
+	public synchronized void setMute(boolean mute) {
 		if (state == CLOSED) {
 			// Avoid IllegalStateException in MediaPlayer.setVolume()
 			return;
@@ -329,12 +339,12 @@ public class BasePlayer implements Player, VolumeControl, PanControl {
 	}
 
 	@Override
-	public boolean isMuted() {
+	public synchronized boolean isMuted() {
 		return mute;
 	}
 
 	@Override
-	public int setLevel(int level) {
+	public synchronized int setLevel(int level) {
 		if (state == CLOSED) {
 			// Avoid IllegalStateException in MediaPlayer.setVolume()
 			return this.level;
@@ -353,14 +363,14 @@ public class BasePlayer implements Player, VolumeControl, PanControl {
 	}
 
 	@Override
-	public int getLevel() {
+	public synchronized int getLevel() {
 		return level;
 	}
 
 	// PanControl
 
 	@Override
-	public int setPan(int pan) {
+	public synchronized int setPan(int pan) {
 		if (state == CLOSED) return this.pan;
 		if (pan < -100) {
 			pan = -100;
@@ -375,7 +385,7 @@ public class BasePlayer implements Player, VolumeControl, PanControl {
 	}
 
 	@Override
-	public int getPan() {
+	public synchronized int getPan() {
 		return pan;
 	}
 

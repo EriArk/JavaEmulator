@@ -32,6 +32,7 @@ public class MicroPlayer extends BasePlayer implements MediaPlayer.OnCompletionL
 	protected DataSource source;
 	private final MediaPlayer player;
 	private final InternalMetaData metadata;
+	private long completedTime = TIME_UNKNOWN;
 
 	public MicroPlayer(DataSource datasource) {
 		player = new AndroidPlayer();
@@ -45,6 +46,9 @@ public class MicroPlayer extends BasePlayer implements MediaPlayer.OnCompletionL
 
 	@Override
 	public synchronized void onCompletion(MediaPlayer mp) {
+		if (state != STARTED) return;
+		// Some Android backends report position zero in PlaybackCompleted.
+		completedTime = Math.max(player.getCurrentPosition(), player.getDuration()) * 1000L;
 		complete();
 	}
 
@@ -71,6 +75,7 @@ public class MicroPlayer extends BasePlayer implements MediaPlayer.OnCompletionL
 	public void doStart() {
 		traceVolume("start", Float.NaN, Float.NaN);
 		player.start();
+		completedTime = TIME_UNKNOWN;
 	}
 
 	public void doStop() {
@@ -84,15 +89,18 @@ public class MicroPlayer extends BasePlayer implements MediaPlayer.OnCompletionL
 
 	public void doReset() {
 		player.reset();
+		completedTime = TIME_UNKNOWN;
 	}
 
 	public void doSetMediaTime(long usec) {
 		int time = (int) Math.max(0L, Math.min(Integer.MAX_VALUE, usec / 1000L));
 		player.seekTo(time);
+		completedTime = TIME_UNKNOWN;
 	}
 
 	@Override
 	public long doGetMediaTime() {
+		if (completedTime != TIME_UNKNOWN) return completedTime;
 		return player.getCurrentPosition() * 1000L;
 	}
 

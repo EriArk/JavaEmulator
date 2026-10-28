@@ -754,18 +754,18 @@ public class AppsListFragment extends Fragment implements AppsListAdapter.Listen
 		}
 		Context context = requireContext().getApplicationContext();
 		ru.playsoftware.j2meloader.appsdb.AppRepository repository = appRepository;
-		Toast.makeText(context, "Scanning folder...", Toast.LENGTH_SHORT).show();
+		Toast.makeText(context, R.string.folders_scanning, Toast.LENGTH_SHORT).show();
 		folderExecutor.execute(() -> {
 			String message;
 			try {
 				GameFolderIndexer.Result result = GameFolderIndexer.scan(context, uri);
 				int added = repository.indexGames(result.games);
 				GameFolderIndexer.rememberFolder(context, uri);
-				message = result.summary(added);
+				message = result.summary(context, added);
 			} catch (Exception error) {
 				if (Thread.currentThread().isInterrupted()) return;
 				Log.e(TAG, "Folder scan failed", error);
-				message = "Could not add folder: " + error.getMessage();
+				message = context.getString(R.string.folders_add_failed, error.getMessage());
 			}
 			String status = message;
 			new android.os.Handler(android.os.Looper.getMainLooper()).post(() ->

@@ -10,6 +10,22 @@ stated otherwise. **Experimental** in older checkpoints means local/private
 combined builds; released experimental features are explicitly identified.
 **Released** means an actual GitHub release asset.
 
+## 2026-10-28 - Audio Repeat Lifecycle and Settings Text Resources (Public Source, Unreleased)
+
+- Keep audio notifications ordered per player without blocking other players.
+  Tolerate listener removal/failure and replay/close from a callback.
+- Preserve finite repeat counts across replay and remaining repeats across pause;
+  ignore completion after stop/deallocation. Keep completed time even on Android
+  backends that return zero at the end. Stop re-realizing during deallocation.
+- Do not let an old Nokia Sound completion or an intermediate repeat mark the
+  current sound stopped. Existing instruments and gain curves are unchanged.
+- Begin #43 with resource-backed English Settings, theme labels, shared menu
+  labels and folder scan messages/plurals. No new language or picker is enabled.
+- 408 JVM, 35 Retroid audio and 24 settings/catalog checks pass; lint has zero
+  errors / 443 warnings. Combined Debug only, no public APK
+  update. [Verification and limits](docs/checks/2026-10-28-audio-lifecycle-settings.md),
+  [localization scope](docs/LOCALIZATION.md).
+
 ## 2026-10-28 - Independent MIDI Players and 16-bit ADPCM (Public Source, Unreleased)
 
 - Give direct MIDI players independent synthesizer/output sessions. Fix channel

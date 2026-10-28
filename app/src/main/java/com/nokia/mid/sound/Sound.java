@@ -47,13 +47,17 @@ public class Sound {
 	};
 	private Player player;
 	private int gain = 255;
-	private int state;
+	private volatile int state;
 	private SoundListener soundListener;
-	private PlayerListener playerListener = (player, event, eventData) -> {
-		if ("endOfMedia".equals(event)) {
+	private final PlayerListener playerListener = this::onPlayerEvent;
+
+	private synchronized void onPlayerEvent(Player source, String event, Object data) {
+		// Queued events from a replaced sound or an intermediate repeat are not a stop.
+		if (source == player && PlayerListener.END_OF_MEDIA.equals(event)
+				&& state == SOUND_PLAYING && source.getState() == Player.PREFETCHED) {
 			postEvent(SOUND_STOPPED);
 		}
-	};
+	}
 
 	public Sound(int freq, long duration) {
 		init(freq, duration);
@@ -127,7 +131,7 @@ public class Sound {
 		}
 	}
 
-	public void play(int loop) {
+	public synchronized void play(int loop) {
 		try {
 			if (loop == 0) {
 				loop = -1;
@@ -148,7 +152,7 @@ public class Sound {
 		postEvent(SOUND_UNINITIALIZED);
 	}
 
-	public void resume() {
+	public synchronized void resume() {
 		try {
 			player.start();
 			postEvent(SOUND_PLAYING);
@@ -169,11 +173,11 @@ public class Sound {
 		}
 	}
 
-	public void setSoundListener(SoundListener soundListener) {
+	public synchronized void setSoundListener(SoundListener soundListener) {
 		this.soundListener = soundListener;
 	}
 
-	public void stop() {
+	public synchronized void stop() {
 		try {
 			player.stop();
 			postEvent(SOUND_STOPPED);

@@ -93,7 +93,7 @@ older 0.3 builds, not the current release series.
 | Channel | Current identifier | Availability |
 | --- | --- | --- |
 | Public download | `0.6.0-beta.1-r1`, code 312 | One signed adaptive APK on the existing Beta 1 page; centered confirmations, shape-adaptive panels and 29 dark screenshots. Corresponding r1 app source reuses unchanged dependency/peer and Symbian bundles. Early experimental Java Bluetooth multiplayer retains its limits. |
-| Development source | Unreleased audio, Phone chrome and per-game touch mapping after r1 | Nokia gain plus shared audio load/copy/seek/replay repairs, original-rate 16-bit ADPCM conversion and independent direct MIDI sessions; move/hide handle, independent opacity and graphical Gamepad mapping. Debug Retroid checks only, not a new public APK. Exact #41 quiet-music reports and Treasure Towers remain unverified. [MIDI/ADPCM](checks/2026-10-28-audio-isolation.md), [audio pipeline](checks/2026-10-28-audio-pipeline.md), [audio/chrome](checks/2026-10-28-audio-and-phone-controls.md), [mapping](checks/2026-10-28-touch-gamepad-mapping.md) |
+| Development source | Unreleased audio, Phone controls and initial text extraction after r1 | Nokia gain, shared audio recovery/repeat/event repairs, 16-bit ADPCM and independent direct MIDI; move/hide handle, opacity and graphical Gamepad mapping. Settings/menu/folder messages begin resource extraction, still English, no language picker. Debug Retroid checks only, not a new public APK. Exact #41 quiet-music reports and Treasure Towers remain unverified. [Lifecycle/settings](checks/2026-10-28-audio-lifecycle-settings.md), [MIDI/ADPCM](checks/2026-10-28-audio-isolation.md), [audio pipeline](checks/2026-10-28-audio-pipeline.md), [audio/chrome](checks/2026-10-28-audio-and-phone-controls.md), [mapping](checks/2026-10-28-touch-gamepad-mapping.md) |
 | Private historical snapshot | `0.1.0-beta.2-experimental.15`, 2026-10-11 | Old Java/Mophun test build, not the current beta |
 | Local-only material | Game fixtures, firmware, diagnostics, device data and signing keys | Not in Git or public release assets; describing testing does not authorize redistribution |
 
@@ -133,6 +133,18 @@ compile, with runtime checks on arm64 only. Local combined Debug APK installed;
 no signed/public release update. Exact #41 quiet-music editions, subjective
 listening and headset routing remain open.
 [Implementation, measurements and limits](checks/2026-10-28-audio-isolation.md).
+
+A further unreleased lifecycle repair orders audio callbacks, preserves finite
+loop counts on replay, retains completed media time and prevents old Nokia Sound
+events from marking a replacement sound stopped. **408 JVM and 35 Retroid audio
+checks pass**. #41's exact quiet-game editions remain open; gain and instruments
+are unchanged. [Evidence](checks/2026-10-28-audio-lifecycle-settings.md).
+
+**#43 localization has started with English source extraction**, not language
+rollout: general Settings, palette labels, shared menu navigation/preview labels
+and folder scan messages use resources/plurals. No locale picker, new translated
+language or change to guest text is included. 24 Retroid settings/catalog checks
+pass; final lint has zero errors / 443 warnings. [Scope and glossary](LOCALIZATION.md).
 
 The next batch implements **#45's general virtual Gamepad mapper** in the existing
 Touch layout editor: select a drawn button, choose a phone key, or use the Native

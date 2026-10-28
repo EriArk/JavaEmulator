@@ -41,7 +41,7 @@ public class SettingsFragment extends PreferenceFragmentCompat {
 		styleRows(getPreferenceScreen());
 		if (rootKey == null) {
 			Preference account = new Preference(requireContext()); account.setKey("pref_fluxer_account");
-			account.setTitle("Fluxer account"); account.setIcon(android.R.drawable.ic_menu_myplaces);
+			account.setTitle(R.string.settings_fluxer_account); account.setIcon(android.R.drawable.ic_menu_myplaces);
 			account.setLayoutResource(R.layout.preference_compact); account.setOrder(1);
 			account.setIntent(new Intent(requireContext(), ru.playsoftware.j2meloader.multiplayer.FluxerAccountActivity.class));
 			getPreferenceScreen().addPreference(account);
@@ -50,7 +50,7 @@ public class SettingsFragment extends PreferenceFragmentCompat {
 		if (palette != null) {
 			String selected = ru.playsoftware.j2meloader.ui.AppPalette.selected(requireContext());
 			int index = java.util.Arrays.asList(ru.playsoftware.j2meloader.ui.AppPalette.VALUES).indexOf(selected);
-			palette.setSummary(ru.playsoftware.j2meloader.ui.AppPalette.NAMES[Math.max(0, index)]);
+			palette.setSummary(getResources().getStringArray(R.array.palette_names)[Math.max(0, index)]);
 			palette.setOnPreferenceClickListener(p -> {
 				new ru.playsoftware.j2meloader.ui.PaletteDialog(requireActivity()).show();
 				return true;
@@ -58,7 +58,7 @@ public class SettingsFragment extends PreferenceFragmentCompat {
 		}
 		if (ru.playsoftware.j2meloader.BuildConfig.SYMBIAN_EXPERIMENT && rootKey == null) {
 			Preference systems = new Preference(requireContext()); systems.setKey("pref_system_files");
-			systems.setTitle("System files"); systems.setSummary("Required files for Symbian and N-Gage");
+			systems.setTitle(R.string.settings_system_files); systems.setSummary(R.string.settings_system_files_summary);
 			systems.setIcon(R.drawable.ic_setting_folder); systems.setLayoutResource(R.layout.preference_compact);
 			systems.setOrder(0); systems.setIntent(new Intent().setClassName(requireContext(), "io.github.eriark.abyssme.symbian.SymbianActivity"));
 			getPreferenceScreen().addPreference(systems);
@@ -174,18 +174,18 @@ public class SettingsFragment extends PreferenceFragmentCompat {
 		}
 		AppListModel model = new ViewModelProvider(requireActivity()).get(AppListModel.class);
 		android.content.Context context = requireContext().getApplicationContext();
-		Toast.makeText(context, "Scanning folder...", Toast.LENGTH_SHORT).show();
+		Toast.makeText(context, R.string.folders_scanning, Toast.LENGTH_SHORT).show();
 		executor.execute(() -> {
 			String message;
 			try {
 				GameFolderIndexer.Result result = GameFolderIndexer.scan(context, uri);
 				int added = model.getAppRepository().indexGames(result.games);
 				GameFolderIndexer.rememberFolder(context, uri);
-				message = result.summary(added);
+				message = result.summary(context, added);
 			} catch (Exception error) {
 				if (Thread.currentThread().isInterrupted()) return;
 				android.util.Log.e("GameFolders", "Folder scan failed", error);
-				message = "Could not add folder: " + error.getMessage();
+				message = context.getString(R.string.folders_add_failed, error.getMessage());
 			}
 			String status = message;
 			new android.os.Handler(android.os.Looper.getMainLooper()).post(() -> {
@@ -199,7 +199,8 @@ public class SettingsFragment extends PreferenceFragmentCompat {
 		if (foldersPreference == null) return;
 		int count = getPreferenceManager().getSharedPreferences()
 				.getStringSet("pref_game_folders", Collections.emptySet()).size();
-		foldersPreference.setSummary(count == 0 ? "No folders selected" : count + " folder(s)");
+		foldersPreference.setSummary(count == 0 ? getString(R.string.folders_none_selected)
+				: getResources().getQuantityString(R.plurals.folders_selected, count, count));
 	}
 
 	@Override

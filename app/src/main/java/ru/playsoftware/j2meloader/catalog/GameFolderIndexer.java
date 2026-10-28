@@ -19,6 +19,7 @@ import java.util.Locale;
 import java.util.Set;
 
 import ru.playsoftware.j2meloader.applist.AppItem;
+import ru.playsoftware.j2meloader.R;
 
 public final class GameFolderIndexer {
 	private static final int MAX_DEPTH = 8;
@@ -35,11 +36,12 @@ public final class GameFolderIndexer {
 		public boolean limited;
 		private int visited;
 
-		public String summary(int added) {
-			String text = added + " added, " + (games.size() - added) + " already in library";
-			if (games.isEmpty()) text = "No supported games found";
-			if (skippedFolders > 0) text += "\n" + skippedFolders + " folder(s) could not be read";
-			if (limited) text += "\nScan limit reached. Select a smaller folder for the remaining files.";
+		public String summary(Context context, int added) {
+			String text = context.getString(R.string.folders_scan_summary, added, games.size() - added);
+			if (games.isEmpty()) text = context.getString(R.string.folders_no_games);
+			if (skippedFolders > 0) text += "\n" + context.getResources().getQuantityString(
+					R.plurals.folders_unreadable, skippedFolders, skippedFolders);
+			if (limited) text += "\n" + context.getString(R.string.folders_scan_limit);
 			return text;
 		}
 	}
@@ -66,7 +68,7 @@ public final class GameFolderIndexer {
 			scanDirectory(context, treeUri, DocumentsContract.getTreeDocumentId(treeUri),
 					result, new HashSet<>(), 0);
 		} catch (SecurityException | IllegalArgumentException error) {
-			throw new IOException("Cannot read this folder. Select it again to grant access.", error);
+			throw new IOException(context.getString(R.string.folders_access_required), error);
 		}
 		return result;
 	}
@@ -83,7 +85,7 @@ public final class GameFolderIndexer {
 		Uri children = DocumentsContract.buildChildDocumentsUriUsingTree(tree, id);
 		// DocumentFile.listFiles() hides provider failures as empty folders. Keep them visible.
 		try (Cursor cursor = context.getContentResolver().query(children, COLUMNS, null, null, null)) {
-			if (cursor == null) throw new IOException("The file provider did not return this folder.");
+			if (cursor == null) throw new IOException(context.getString(R.string.folders_provider_empty));
 			while (cursor.moveToNext()) {
 				checkCancelled();
 				if (result.visited >= MAX_ITEMS) { result.limited = true; break; }
@@ -92,13 +94,13 @@ public final class GameFolderIndexer {
 				if (childId != null) entries.add(new Entry(childId, cursor.getString(1), cursor.getString(2)));
 			}
 			if (cursor.getExtras().getBoolean(DocumentsContract.EXTRA_LOADING, false)) {
-				throw new IOException("This folder is still loading. Wait for the file provider and try again.");
+				throw new IOException(context.getString(R.string.folders_provider_loading));
 			}
 		} catch (InterruptedIOException cancelled) {
 			throw cancelled;
 		} catch (RuntimeException | IOException error) {
-			if (depth == 0) throw new IOException("Cannot read this folder. "
-					+ (error instanceof IOException ? error.getMessage() : "Select it again or use another file provider."), error);
+			if (depth == 0) throw new IOException(context.getString(R.string.folders_read_failed,
+					error instanceof IOException ? error.getMessage() : context.getString(R.string.folders_retry_provider)), error);
 			result.skippedFolders++;
 			return;
 		}

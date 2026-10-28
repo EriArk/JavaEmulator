@@ -130,6 +130,11 @@ research hooks and game payloads in the signed APKs.
 
 ## Pull requests
 
+For UI text extraction and translations, follow the [localization scope and
+terminology](docs/LOCALIZATION.md). English is the canonical source; inherited
+locale folders do not imply full product coverage. Keep stored IDs and guest
+content unchanged, and verify placeholders/plurals and real-screen layouts.
+
 Keep changes scoped and explain the user-visible problem, approach, checks run
 and remaining gaps. Include before/after screenshots for UI changes. Do not
 commit keys, local settings, caches, personal device backups or newly built

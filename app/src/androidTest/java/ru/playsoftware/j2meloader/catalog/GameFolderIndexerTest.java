@@ -94,7 +94,7 @@ public class GameFolderIndexerTest {
         dir("root", "blocked"); blocked.add("blocked"); file("root", "ok", "Game.mpn");
         GameFolderIndexer.Result result = GameFolderIndexer.scan(context, TREE);
         assertEquals(1, result.games.size()); assertEquals(1, result.skippedFolders);
-        assertTrue(result.summary(1).contains("could not be read"));
+        assertTrue(result.summary(context, 1).contains("could not be read"));
     }
 
     @Test public void inaccessibleOrLoadingRootIsNotReportedAsEmptySuccess() throws Exception {

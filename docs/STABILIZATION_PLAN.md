@@ -20,6 +20,11 @@ replacing the existing libraries or instruments. 402 JVM / 29 Retroid audio
 checks pass. Exact reported editions and listening/routing acceptance remain
 open. [Evidence](checks/2026-10-28-audio-isolation.md).
 
+**Lifecycle follow-up implemented:** ordered per-player callbacks, finite-repeat
+replay/pause bookkeeping, retained end position, safe deallocation and Nokia
+replacement/repeat notifications. 408 JVM and 35 Retroid audio checks pass.
+[Evidence and unchanged acceptance limits](checks/2026-10-28-audio-lifecycle-settings.md).
+
 - Repair API-level gain/mute defects without game-name exceptions or a global
   boost that changes every title's sound balance.
 - Keep Nokia Sound, MMAPI MIDI files, direct MIDI, WAV and tone paths distinct.
@@ -59,6 +64,12 @@ open. [Evidence](checks/2026-10-28-touch-gamepad-mapping.md).
   touch mapping is the game's only compatibility problem.
 
 ## 4. Localization (#43)
+
+**Started, English-only extraction:** general Settings/palette labels, shared
+menu navigation/preview labels and folder scan messages now use Android string,
+array and plural resources. No language picker or new translated language is
+enabled. Full onboarding, game settings, Social and other journeys remain open.
+[Extraction scope and contributor glossary](LOCALIZATION.md).
 
 - Extract user-visible strings from shared screens and engine hosts before
   adding reviewed language batches. English remains the source/fallback.

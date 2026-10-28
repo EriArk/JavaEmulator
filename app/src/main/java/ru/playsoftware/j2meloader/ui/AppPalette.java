@@ -9,7 +9,6 @@ import ru.playsoftware.j2meloader.R;
 /** UI colors only. Guest rendering, imported art and per-game input are independent. */
 public final class AppPalette {
     public static final String PREFERENCE = "pref_palette";
-    public static final String[] NAMES = {"Classic", "Retro LCD", "High contrast"};
     public static final String[] VALUES = {"classic", "retro", "contrast"};
     private AppPalette() { }
 

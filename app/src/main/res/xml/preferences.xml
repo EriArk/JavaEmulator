@@ -1,37 +1,37 @@
 <?xml version="1.0" encoding="utf-8"?>
 <androidx.preference.PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:app="http://schemas.android.com/apk/res-auto" android:title="Settings">
+    xmlns:app="http://schemas.android.com/apk/res-auto" android:title="@string/settings_title">
 
-    <Preference android:key="pref_palette" android:title="Visual style"
+    <Preference android:key="pref_palette" android:title="@string/settings_visual_style"
         android:icon="@drawable/ic_setting_theme" />
 
-    <ListPreference android:key="pref_theme" android:title="Brightness"
+    <ListPreference android:key="pref_theme" android:title="@string/settings_brightness"
         android:icon="@drawable/ic_setting_theme" android:defaultValue="system"
         android:entries="@array/appearance_entries" android:entryValues="@array/appearance_values"
         app:useSimpleSummaryProvider="true" />
 
-    <PreferenceScreen android:key="library" android:title="Library" android:icon="@drawable/ic_setting_folder">
+    <PreferenceScreen android:key="library" android:title="@string/settings_library" android:icon="@drawable/ic_setting_folder">
         <Preference
             android:icon="@drawable/ic_setting_folder"
             android:key="pref_game_folders"
-            android:title="Game folders" />
+            android:title="@string/settings_game_folders" />
         <Preference
             android:icon="@drawable/ic_setting_folder"
             android:key="pref_import_library"
-            android:title="Library transfer" />
+            android:title="@string/settings_library_transfer" />
     </PreferenceScreen>
 
-    <PreferenceScreen android:key="playing" android:title="Playing" android:icon="@drawable/ic_action_keyboard">
+    <PreferenceScreen android:key="playing" android:title="@string/settings_playing" android:icon="@drawable/ic_action_keyboard">
         <SwitchPreferenceCompat
             android:defaultValue="true"
             android:icon="@drawable/ic_setting_enable_vibration"
             android:key="pref_vibration_switch"
-            android:title="Game vibration" />
+            android:title="@string/settings_vibration" />
         <SwitchPreferenceCompat
             android:defaultValue="true"
             android:icon="@drawable/ic_setting_keep_screen_on"
             android:key="pref_wakelock_switch"
-            android:title="Keep screen awake while playing" />
+            android:title="@string/settings_keep_awake" />
         <PreferenceScreen android:key="shortcuts" android:title="@string/on_screen_shortcuts"
             android:icon="@drawable/ic_baseline_tune_24">
             <SwitchPreferenceCompat
@@ -47,17 +47,17 @@
         </PreferenceScreen>
     </PreferenceScreen>
 
-    <PreferenceScreen android:key="support" android:title="Support" android:icon="@drawable/ic_baseline_tune_24">
+    <PreferenceScreen android:key="support" android:title="@string/settings_support" android:icon="@drawable/ic_baseline_tune_24">
         <Preference
             android:icon="@drawable/ic_setting_screenshot"
             android:key="pref_local_diagnostics"
-            android:title="Export local diagnostics" />
+            android:title="@string/settings_diagnostics" />
         <Preference
             android:icon="@drawable/ic_setting_default"
             android:key="pref_expert"
-            android:title="Expert settings" />
+            android:title="@string/settings_expert" />
         <Preference
             android:key="pref_about"
-            android:title="About AbyssME" />
+            android:title="@string/settings_about" />
     </PreferenceScreen>
 </androidx.preference.PreferenceScreen>

@@ -289,7 +289,7 @@ public final class GameMenuDialog extends Dialog {
         backAction = action;
         navigation.setImageResource(action == null ? android.R.drawable.ic_menu_close_clear_cancel
                 : androidx.appcompat.R.drawable.abc_ic_ab_back_material);
-        navigation.setContentDescription(action == null ? "Close" : "Back");
+        navigation.setContentDescription(getContext().getString(action == null ? R.string.menu_close : R.string.menu_back));
         navigation.setTooltipText(navigation.getContentDescription());
     }
     public void presetTiles(String[] names, int selected, java.util.function.IntConsumer change) {
@@ -312,7 +312,7 @@ public final class GameMenuDialog extends Dialog {
             tile.setDefaultFocusHighlightEnabled(false); tile.setStateListAnimator(null);
             tile.setCompoundDrawablesWithIntrinsicBounds(null,
                     new PresetSwatch(getContext(), names[i]), null, null);
-            tile.setContentDescription(names[i] + " picture preset");
+            tile.setContentDescription(getContext().getString(R.string.menu_picture_preset, names[i]));
             tile.setOnClickListener(v -> {
                 tile.requestFocusFromTouch();
                 change.accept(index);
@@ -329,7 +329,7 @@ public final class GameMenuDialog extends Dialog {
         if (names.length % 2 != 0) row.addView(new View(getContext()), new LinearLayout.LayoutParams(0, 1, 1));
     }
     public void previewDecisions(Runnable keep, Runnable undo) {
-        decisionButtons(new String[]{"Keep", "Undo"}, new Runnable[]{keep, undo});
+        decisionButtons(new String[]{getContext().getString(R.string.menu_keep), getContext().getString(R.string.menu_undo)}, new Runnable[]{keep, undo});
     }
     public void trialDecision(String label, Runnable action) {
         if (edgePanel) decisionButtons(new String[]{label}, new Runnable[]{action});
@@ -495,11 +495,11 @@ public final class GameMenuDialog extends Dialog {
         focusDefault(toggle);
     }
     public void opacity(int value, java.util.function.IntConsumer change) {
-        percentage("Opacity", value, 80, change);
+        percentage(getContext().getString(R.string.menu_opacity), value, 80, change);
     }
     public void percentage(String title, int value, int minimum, java.util.function.IntConsumer change) {
         TextView label = new TextView(getContext());
-        label.setText(title + ": " + value + "%"); label.setTextSize(15); label.setTextColor(ru.playsoftware.j2meloader.ui.AppPalette.color(getContext(), ru.playsoftware.j2meloader.R.color.text_primary));
+        label.setText(getContext().getString(R.string.menu_percentage, title, value)); label.setTextSize(15); label.setTextColor(ru.playsoftware.j2meloader.ui.AppPalette.color(getContext(), ru.playsoftware.j2meloader.R.color.text_primary));
         label.setPadding(0,dp(12),0,0); content.addView(label);
         android.widget.SeekBar slider = new android.widget.SeekBar(getContext());
         slider.setForeground(getContext().getDrawable(R.drawable.bg_settings_focus));
@@ -512,7 +512,7 @@ public final class GameMenuDialog extends Dialog {
             public void onStartTrackingTouch(android.widget.SeekBar view) { }
             public void onStopTrackingTouch(android.widget.SeekBar view) { change.accept(view.getProgress()+minimum); }
             public void onProgressChanged(android.widget.SeekBar view,int progress,boolean fromUser) {
-                label.setText(title + ": " + (progress+minimum) + "%");
+                label.setText(getContext().getString(R.string.menu_percentage, title, progress+minimum));
                 if (fromUser && !view.isPressed()) change.accept(progress+minimum);
             }
         });

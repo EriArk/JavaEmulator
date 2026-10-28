@@ -23,13 +23,14 @@ public final class PaletteDialog extends Dialog {
     @Override protected void onCreate(Bundle state) {
         requestWindowFeature(android.view.Window.FEATURE_NO_TITLE);
         super.onCreate(state);
-        setTitle("Visual style");
+        setTitle(R.string.settings_visual_style);
         LinearLayout rows = new LinearLayout(getContext()); rows.setOrientation(LinearLayout.VERTICAL);
         rows.setPadding(dp(12), dp(8), dp(12), dp(12));
-        TextView heading = new TextView(getContext()); heading.setText("Visual style");
+        TextView heading = new TextView(getContext()); heading.setText(R.string.settings_visual_style);
         heading.setTextSize(18); heading.setTextColor(AppPalette.color(getContext(), R.color.text_primary));
         heading.setPadding(dp(12),dp(12),dp(12),dp(8));rows.addView(heading);
         int night = getContext().getResources().getConfiguration().uiMode & Configuration.UI_MODE_NIGHT_MASK;
+        String[] names = getContext().getResources().getStringArray(R.array.palette_names);
         for (int i = 0; i < AppPalette.VALUES.length; i++) {
             final String value = AppPalette.VALUES[i];
             Context palette = AppPalette.preview(getContext(), value, night);
@@ -37,8 +38,8 @@ public final class PaletteDialog extends Dialog {
             row.setPadding(dp(12), dp(12), dp(12), dp(12));
             ConsoleSurface.apply(row, ConsoleSurface.Kind.KEY); row.setFocusable(true); row.setClickable(true);
             row.setSelected(value.equals(AppPalette.selected(activity)));
-            row.setContentDescription(AppPalette.NAMES[i]);
-            TextView title = new TextView(palette); title.setText(AppPalette.NAMES[i]);
+            row.setContentDescription(names[i]);
+            TextView title = new TextView(palette); title.setText(names[i]);
             title.setTextColor(AppPalette.color(palette, R.color.text_primary)); title.setTextSize(17);
             title.setTypeface(null, android.graphics.Typeface.BOLD);
             LinearLayout description = new LinearLayout(palette);
