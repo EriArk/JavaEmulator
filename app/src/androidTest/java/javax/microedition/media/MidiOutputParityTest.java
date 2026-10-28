@@ -90,7 +90,7 @@ public class MidiOutputParityTest {
         return meter;
     }
 
-    private static int rms(Visualizer meter) {
+    static int rms(Visualizer meter) {
         SystemClock.sleep(600);
         int[] samples = new int[9];
         for (int i = 0; i < samples.length; i++) {
@@ -103,8 +103,8 @@ public class MidiOutputParityTest {
         return samples[samples.length / 2];
     }
 
-    private interface Check { void run() throws Exception; }
-    private static void withAudio(Check check) throws Exception {
+    interface Check { void run() throws Exception; }
+    static void withAudio(Check check) throws Exception {
         android.app.UiAutomation ui = InstrumentationRegistry.getInstrumentation().getUiAutomation();
         ui.adoptShellPermissionIdentity("android.permission.RECORD_AUDIO", "android.permission.MODIFY_AUDIO_SETTINGS");
         AudioManager audio = (AudioManager) InstrumentationRegistry.getInstrumentation().getTargetContext()
@@ -122,7 +122,7 @@ public class MidiOutputParityTest {
         }
     }
 
-    private static void report(String message) {
+    static void report(String message) {
         Bundle report = new Bundle(); report.putString("stream", message + "\n");
         InstrumentationRegistry.getInstrumentation().sendStatus(0, report);
     }

@@ -1,0 +1,7 @@
+/* Public-header configuration for the supported little-endian Android ABIs.
+ * No FFmpeg implementation is compiled by this bridge. */
+#ifndef AVUTIL_AVCONFIG_H
+#define AVUTIL_AVCONFIG_H
+#define AV_HAVE_BIGENDIAN 0
+#define AV_HAVE_FAST_UNALIGNED 1
+#endif

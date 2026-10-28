@@ -93,7 +93,7 @@ older 0.3 builds, not the current release series.
 | Channel | Current identifier | Availability |
 | --- | --- | --- |
 | Public download | `0.6.0-beta.1-r1`, code 312 | One signed adaptive APK on the existing Beta 1 page; centered confirmations, shape-adaptive panels and 29 dark screenshots. Corresponding r1 app source reuses unchanged dependency/peer and Symbian bundles. Early experimental Java Bluetooth multiplayer retains its limits. |
-| Development source | Unreleased audio, Phone chrome and per-game touch mapping after r1 | Nokia gain plus shared audio load/copy/seek/replay repairs and original-rate ADPCM conversion; move/hide handle, independent opacity and graphical Gamepad mapping. Debug Retroid checks only, not a new public APK. Exact #41 quiet-music reports and Treasure Towers remain unverified. [Audio pipeline](checks/2026-10-28-audio-pipeline.md), [audio/chrome](checks/2026-10-28-audio-and-phone-controls.md), [mapping](checks/2026-10-28-touch-gamepad-mapping.md) |
+| Development source | Unreleased audio, Phone chrome and per-game touch mapping after r1 | Nokia gain plus shared audio load/copy/seek/replay repairs, original-rate 16-bit ADPCM conversion and independent direct MIDI sessions; move/hide handle, independent opacity and graphical Gamepad mapping. Debug Retroid checks only, not a new public APK. Exact #41 quiet-music reports and Treasure Towers remain unverified. [MIDI/ADPCM](checks/2026-10-28-audio-isolation.md), [audio pipeline](checks/2026-10-28-audio-pipeline.md), [audio/chrome](checks/2026-10-28-audio-and-phone-controls.md), [mapping](checks/2026-10-28-touch-gamepad-mapping.md) |
 | Private historical snapshot | `0.1.0-beta.2-experimental.15`, 2026-10-11 | Old Java/Mophun test build, not the current beta |
 | Local-only material | Game fixtures, firmware, diagnostics, device data and signing keys | Not in Git or public release assets; describing testing does not authorize redistribution |
 
@@ -116,13 +116,23 @@ music therefore remains open; no global boost or game-name workaround was added.
 
 The subsequent audio batch repairs shared stream copying, failed-load recovery,
 prefetch, seek/reset and cached duration; ADPCM keeps its original sample rate.
-Its existing 8-bit conversion remains an explicit compact-dependency limitation.
+That checkpoint still used 8-bit conversion; the follow-up below removes it.
 **398 JVM, 20 Retroid audio checks and two additional private MIDI comparisons
 pass**, lint zero errors / 447 warnings. Cops 1.2.1, Bounce Tales and Splinter Cell
 MIDI samples closely match direct Android playback; that is not original-phone
 synth equivalence or acceptance of the reported editions. Five additional games
 are installed in Debug only, with Rayman 3 reaching gameplay. Official app/data
 are untouched. [Audio evidence and remaining work](checks/2026-10-28-audio-pipeline.md).
+
+The next audio follow-up retains **16-bit ADPCM** through the existing decoder
+and gives direct MIDI players independent synth/output sessions. Player gain,
+mute and pan no longer rely on a shared driver; channel volume, event slices,
+stop/deallocate and replay are covered. Instrument banks and file-MIDI balance
+are unchanged. **402 JVM and 29 Retroid audio checks pass**; four native ABIs
+compile, with runtime checks on arm64 only. Local combined Debug APK installed;
+no signed/public release update. Exact #41 quiet-music editions, subjective
+listening and headset routing remain open.
+[Implementation, measurements and limits](checks/2026-10-28-audio-isolation.md).
 
 The next batch implements **#45's general virtual Gamepad mapper** in the existing
 Touch layout editor: select a drawn button, choose a phone key, or use the Native

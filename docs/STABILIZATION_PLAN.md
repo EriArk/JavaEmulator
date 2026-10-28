@@ -12,8 +12,13 @@ repairs, retained duration, and original-rate ADPCM conversion. 20 Retroid audio
 checks plus two additional private MIDI comparisons pass. Three game samples
 match direct Android MIDI output closely; this does not establish original-phone
 synth balance or fix the exact reported editions. Five more games installed in
-Debug only. Compact FFmpeg still outputs 8-bit PCM; 16-bit conversion and direct
-MIDI player isolation remain open. [Evidence](checks/2026-10-28-audio-pipeline.md).
+Debug only. [Earlier evidence](checks/2026-10-28-audio-pipeline.md).
+
+**Follow-up implemented:** direct MIDI instance/output isolation and channel/
+master gain semantics, plus native 16-bit IMA/Yamaha ADPCM conversion without
+replacing the existing libraries or instruments. 402 JVM / 29 Retroid audio
+checks pass. Exact reported editions and listening/routing acceptance remain
+open. [Evidence](checks/2026-10-28-audio-isolation.md).
 
 - Repair API-level gain/mute defects without game-name exceptions or a global
   boost that changes every title's sound balance.

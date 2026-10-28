@@ -20,8 +20,6 @@ package javax.microedition.media;
 import android.util.Log;
 import android.webkit.MimeTypeMap;
 
-import com.arthenica.mobileffmpeg.Config;
-import com.arthenica.mobileffmpeg.FFmpeg;
 import com.arthenica.mobileffmpeg.FFprobe;
 import com.arthenica.mobileffmpeg.MediaInformation;
 import com.arthenica.mobileffmpeg.StreamInformation;
@@ -69,13 +67,16 @@ public class InternalDataSource extends DataSource {
 
 		try {
 			convert();
-		} catch (Throwable e) {
-			// Thrown on fake Oppo devices
-			e.printStackTrace();
+		} catch (IOException e) {
+			mediaFile.delete();
+			throw e;
+		} catch (RuntimeException | LinkageError e) {
+			// Inspection may be unavailable on broken vendor builds. Keep the original.
+			Log.w(TAG, "Audio inspection unavailable", e);
 		}
 	}
 
-	private void convert() {
+	private void convert() throws IOException {
 		MediaInformation mediaInformation = FFprobe.getMediaInformation(mediaFile.getPath());
 		if (mediaInformation != null && mediaInformation.getStreams() != null
 				&& !mediaInformation.getStreams().isEmpty()) {
@@ -83,18 +84,14 @@ public class InternalDataSource extends DataSource {
 			String codec = streamInformation.getCodec();
 			if (codec != null && codec.contains("adpcm")) {
 				String newName = mediaFile.getPath() + ".wav";
-				// The compact FFmpeg dependency only encodes pcm_u8. Keep the original sample rate.
-				int rc = FFmpeg.execute(new String[]{"-y", "-i", mediaFile.getPath(),
-						"-acodec", "pcm_u8", newName});
-				if (rc == Config.RETURN_CODE_SUCCESS) {
-					Log.i(TAG, "Command execution completed successfully.");
-					mediaFile.delete();
-					mediaFile = new File(newName);
-				} else {
+				try {
+					NativeAudio.decodeAdpcm(mediaFile.getPath(), newName);
+				} catch (IOException | RuntimeException | LinkageError e) {
 					new File(newName).delete();
-					Log.i(TAG, String.format(
-							"Command execution failed with rc=%d and the output below.", rc));
+					throw new IOException("Cannot decode ADPCM without losing precision", e);
 				}
+				mediaFile.delete();
+				mediaFile = new File(newName);
 			}
 		}
 	}

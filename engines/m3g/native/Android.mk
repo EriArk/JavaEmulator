@@ -13,3 +13,5 @@ LOCAL_SRC_FILES := raster.cpp bitmap.cpp
 LOCAL_LDLIBS := -ljnigraphics
 LOCAL_CPPFLAGS := -std=c++17 -O3 -fwrapv -fno-fast-math -ffp-contract=off -Wall -Wextra
 include $(BUILD_SHARED_LIBRARY)
+
+include $(LOCAL_PATH)/../../../app/src/main/cpp/audio/Android.mk

@@ -136,7 +136,7 @@ if (candidate) {
     }
     android.sourceSets.main.assets.srcDir m3gGenerated.map { new File(it.asFile, 'assets') }
     android.externalNativeBuild.ndkBuild.path = rootProject.file('experiments/m3g-host/native/Android.mk')
-    android.defaultConfig.externalNativeBuild.ndkBuild.targets 'micro3d', 'abyssm3graster'
+    android.defaultConfig.externalNativeBuild.ndkBuild.targets 'micro3d', 'abyssm3graster', 'abyssaudiobridge'
     android.packaging.jniLibs.excludes.add('**/libjavam3g.so')
     tasks.register('adaptM3gHost') {
         dependsOn 'prepareM3g'

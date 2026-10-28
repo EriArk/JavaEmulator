@@ -16,14 +16,16 @@
 
 package javax.microedition.media;
 
-import org.billthefarmer.mididriver.MidiConstants;
-import org.billthefarmer.mididriver.MidiDriver;
+import java.io.IOException;
 
 import javax.microedition.media.control.MIDIControl;
 
 public class MidiPlayer extends BasePlayer implements MIDIControl {
 
-	private final MidiDriver midiDriver = MidiInterface.getDriver();
+	private MidiSession session;
+	private float left = 1, right = 1;
+	private boolean stopped;
+	private final MidiChannelState channels = new MidiChannelState();
 
 	public MidiPlayer() {
 		addControl(MIDIControl.class.getName(), this);
@@ -35,8 +37,10 @@ public class MidiPlayer extends BasePlayer implements MIDIControl {
 	}
 
 	@Override
-	public int getChannelVolume(int channel) {
-		return -1;
+	public synchronized int getChannelVolume(int channel) {
+		checkPrefetched();
+		checkRange(channel, 15);
+		return channels.volume(channel);
 	}
 
 	@Override
@@ -65,27 +69,94 @@ public class MidiPlayer extends BasePlayer implements MIDIControl {
 	}
 
 	@Override
-	public int longMidiEvent(byte[] data, int offset, int length) {
-		if (midiDriver.write(data)) {
-			return data.length;
-		} else {
-			return -1;
+	public synchronized int longMidiEvent(byte[] data, int offset, int length) {
+		checkPrefetched();
+		if (data == null || offset < 0 || length < 0 || offset > data.length - length) {
+			throw new IllegalArgumentException("Invalid MIDI slice");
+		}
+		if (length == 0) return 0;
+		stopped = false;
+		session.volume(left, right);
+		if (!session.write(data, offset, length)) return -1;
+		channels.accept(data, offset, length);
+		return length;
+	}
+
+	@Override
+	public synchronized void setChannelVolume(int channel, int volume) {
+		checkPrefetched();
+		checkRange(channel, 15);
+		checkRange(volume, 127);
+		shortMidiEvent(0xB0 | channel, 7, volume);
+	}
+
+	@Override
+	public synchronized void setProgram(int channel, int bank, int program) {
+		checkPrefetched();
+		checkRange(channel, 15);
+		checkRange(program, 127);
+		if (bank < -1 || bank > 16383) throw new IllegalArgumentException("Invalid MIDI bank");
+		if (bank == -1) bank = 0;
+		shortMidiEvent(0xB0 | channel, 0, bank >> 7);
+		shortMidiEvent(0xB0 | channel, 32, bank & 127);
+		shortMidiEvent(0xC0 | channel, program, 0);
+	}
+
+	@Override
+	public synchronized void shortMidiEvent(int type, int data1, int data2) {
+		checkPrefetched();
+		int size = MidiChannelState.messageSize(type);
+		if (size >= 2) checkRange(data1, 127);
+		if (size == 3) checkRange(data2, 127);
+		byte[] event = {(byte) type, (byte) data1, (byte) data2};
+		longMidiEvent(event, 0, size);
+	}
+
+	private void checkPrefetched() {
+		checkClosed();
+		if (state < PREFETCHED || session == null) throw new IllegalStateException("Prefetch MIDI player first");
+	}
+
+	private static void checkRange(int value, int max) {
+		if (value < 0 || value > max) throw new IllegalArgumentException("MIDI value out of range");
+	}
+
+	@Override public synchronized void doPrefetch() throws IOException {
+		if (session == null) { session = new MidiSession(left, right); stopped = false; }
+	}
+
+	@Override public synchronized void doStart() {
+		stopped = false;
+		if (session != null) session.volume(left, right);
+	}
+
+	@Override public synchronized void doStop() {
+		if (session == null) return;
+		stopped = true;
+		session.volume(0, 0);
+		for (int channel = 0; channel < 16; channel++) {
+			byte[] event = {(byte) (0xB0 | channel), 120, 0};
+			session.write(event, 0, event.length);
 		}
 	}
 
-	@Override
-	public void setChannelVolume(int channel, int volume) {
+	@Override public synchronized void stop() {
+		checkClosed();
+		if (state == STARTED) super.stop();
+		else if (state == PREFETCHED) doStop(); // Direct events can sound without Player.start().
 	}
 
-	@Override
-	public void setProgram(int channel, int bank, int program) {
-		byte[] event = new byte[]{(byte) (MidiConstants.PROGRAM_CHANGE | channel), (byte) program};
-		midiDriver.write(event);
+	@Override public synchronized void doReset() {
+		if (session != null) { session.close(); session = null; }
+		channels.reset();
 	}
 
-	@Override
-	public void shortMidiEvent(int type, int data1, int data2) {
-		byte[] event = new byte[]{(byte) type, (byte) data1, (byte) data2};
-		midiDriver.write(event);
+	@Override public void doClose() { doReset(); }
+	@Override public String doGetContentType() { return "audio/midi"; }
+	@Override public synchronized void doSetVolume(float left, float right) {
+		this.left = left; this.right = right;
+		if (session != null && !stopped) session.volume(left, right);
 	}
+
+	int audioSessionId() { return session.audioSessionId(); }
 }

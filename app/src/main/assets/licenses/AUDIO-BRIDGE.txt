@@ -1,0 +1,18 @@
+AbyssME audio backend bridge
+Copyright 2026 AbyssME contributors. GPL-3.0-only.
+
+Uses the existing, unchanged MidiDriver v1.21 / Sonivox library:
+https://github.com/billthefarmer/mididriver/tree/ce52b068ae3525edf6a8a946c396f9ce08d1dd69
+Public EAS headers: Copyright Sonic Network Inc. 2004, Apache-2.0.
+Existing synthesizer and instruments are unchanged.
+
+Uses the existing, unchanged MobileFFmpeg v4.3.2-compact libraries:
+https://github.com/nikita36078/mobile-ffmpeg/tree/963b4eea110250811f4f4fc7d59c1a86d9dd6b2c
+FFmpeg public headers retain their LGPL-2.1-or-later notices. The pinned
+native FFmpeg build uses LGPL-3.0-or-later, without GPL/nonfree codec switches.
+No replacement codecs, libraries or sound banks are included by this bridge.
+
+Header provenance, ABI checks and build instructions:
+app/src/main/cpp/audio/README.md in the corresponding AbyssME source.
+Complete upstream source archives are included by tools/prepare-release-sources.ps1
+using tools/release-source-lock.json. See the bundled GPL, LGPL and Apache texts.

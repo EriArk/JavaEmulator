@@ -10,6 +10,21 @@ stated otherwise. **Experimental** in older checkpoints means local/private
 combined builds; released experimental features are explicitly identified.
 **Released** means an actual GitHub release asset.
 
+## 2026-10-28 - Independent MIDI Players and 16-bit ADPCM (Public Source, Unreleased)
+
+- Give direct MIDI players independent synthesizer/output sessions. Fix channel
+  volume, player mute/gain/pan, event slices and stop/close/deallocate behavior,
+  including direct notes played without starting a timeline. Preserve authored
+  dynamics and the existing instrument bank; no global loudness boost.
+- Keep original sample rate and 16-bit precision when converting supported
+  IMA/Yamaha ADPCM. Remove the lossy 8-bit encoder step without replacing codecs.
+- 402 JVM and 29 Retroid audio checks pass, including measured concurrent-player
+  gain/isolation, silence and exact mono/stereo decoded samples. The bridge builds
+  for four Android ABIs; only arm64 received runtime verification.
+- Combined Debug installed separately from the official app. No public APK or
+  release update; exact quiet-game reports and subjective/headset checks remain
+  open. [Evidence and artifact identity](docs/checks/2026-10-28-audio-isolation.md).
+
 ## 2026-10-28 - Audio Pipeline Recovery and MIDI Measurements (Public Source, Unreleased)
 
 - Fix incomplete/incorrect audio stream copies, failed-load recovery, stale seek

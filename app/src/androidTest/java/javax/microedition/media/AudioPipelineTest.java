@@ -103,7 +103,7 @@ public class AudioPipelineTest {
             source = new InternalDataSource(new ByteArrayInputStream(wav.array()), "audio/wav");
             com.arthenica.mobileffmpeg.StreamInformation stream = FFprobe
                     .getMediaInformation(source.getLocator()).getStreams().get(0);
-            assertEquals("pcm_u8", stream.getCodec());
+            assertEquals("pcm_s16le", stream.getCodec());
             assertEquals("22050", String.valueOf(stream.getSampleRate()));
             AndroidPlayer player = new AndroidPlayer();
             try {

@@ -103,6 +103,14 @@ codec switches. The source bundle must include its source, build scripts and
 native dependency provenance. This does not claim a bit-for-bit reproduction of
 every upstream third-party binary.
 
+The unreleased direct-MIDI/ADPCM bridge calls these existing pinned native
+libraries; it introduces no replacement synthesizer, bank or prebuilt codec.
+Public EAS/FFmpeg headers retain their Apache/LGPL notices and original contents,
+except an original Android public-header configuration file. The original bridge
+is GPL-3.0-only. [Header provenance and ABI requirements](../app/src/main/cpp/audio/README.md)
+and `assets/licenses/AUDIO-BRIDGE.txt` identify the corresponding sources already
+included in the dependency bundle. Inherited component terms remain unchanged.
+
 APK assets retain full GPL, LGPL, Apache, MPL and component notices. Source and
 build materials allow installing a modified version with a user's own signing
 key. Maintainer signing keys are never shipped.
