@@ -33,8 +33,10 @@ public class LobbyPresentationTest {
     @Test public void compactAndLargeTextSeatsFitWithoutClipping(){
         InstrumentationRegistry.getInstrumentation().runOnMainSync(()->{
             Context base=InstrumentationRegistry.getInstrumentation().getTargetContext();
-            for(int width:new int[]{320,393,480,540,720})for(float font:new float[]{1f,1.5f})for(int night:new int[]{Configuration.UI_MODE_NIGHT_NO,Configuration.UI_MODE_NIGHT_YES}){
+            for(String locale:new String[]{"en","en-XA","ar-XB"})
+            for(int width:new int[]{320,393,480,540,720})for(float font:new float[]{1f,1.5f,2f})for(int night:new int[]{Configuration.UI_MODE_NIGHT_NO,Configuration.UI_MODE_NIGHT_YES}){
                 Configuration config=new Configuration(base.getResources().getConfiguration());config.screenWidthDp=width;config.fontScale=font;
+                config.setLocales(android.os.LocaleList.forLanguageTags(locale));
                 Context c=AppPalette.preview(base.createConfigurationContext(config),"classic",night);
                 LinearLayout parent=new LinearLayout(c);parent.setOrientation(LinearLayout.VERTICAL);
                 LobbySeats.add(parent,state(),id->{},()->{});

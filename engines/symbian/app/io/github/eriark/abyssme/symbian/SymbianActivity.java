@@ -222,7 +222,7 @@ public final class SymbianActivity extends Activity implements Emulator.Host, In
         page = new LinearLayout(this); page.setOrientation(LinearLayout.VERTICAL);
         ru.playsoftware.j2meloader.ui.ConsoleSurface.apply(page, ru.playsoftware.j2meloader.ui.ConsoleSurface.Kind.CHASSIS);
         page.setPadding(dp(10), dp(8), dp(10), dp(8));
-        page.addView(label("System files", 22));
+        page.addView(label(getString(R.string.system_files_title), 22));
         status = label("", 14); page.addView(status);
         progressBar=new ProgressBar(this,null,android.R.attr.progressBarStyleHorizontal);
         progressBar.setIndeterminate(true);
@@ -230,7 +230,7 @@ public final class SymbianActivity extends Activity implements Emulator.Host, In
         progressBar.setVisibility(busy?View.VISIBLE:View.GONE);
         page.addView(progressBar,new LinearLayout.LayoutParams(-1,dp(4)));
         if (directLaunch) {
-            action(page, "Library", this::finish);
+            action(page, getString(R.string.system_library), this::finish);
             setContentView(page); hideBars();
             return;
         }
@@ -238,26 +238,26 @@ public final class SymbianActivity extends Activity implements Emulator.Host, In
         ru.playsoftware.j2meloader.ui.ConsoleSurface.apply(scroll, ru.playsoftware.j2meloader.ui.ConsoleSurface.Kind.SCREEN);
         LinearLayout list = new LinearLayout(this); list.setOrientation(LinearLayout.VERTICAL);
         scroll.addView(list); page.addView(scroll, new LinearLayout.LayoutParams(-1, 0, 1));
-        if (hasPendingImport) action(list, "Pending import", this::pendingActions);
-        if (archives.exists()) action(list,"Archive queue",this::openArchive);
-        action(list, "Add system files", () -> pick(1,true));
+        if (hasPendingImport) action(list, getString(R.string.system_pending_import), this::pendingActions);
+        if (archives.exists()) action(list,getString(R.string.system_archive_queue),this::openArchive);
+        action(list, getString(R.string.system_add_files), () -> pick(1,true));
         for (SystemRequirements.Row row : SystemRequirements.rows(systems, platformSaved)) {
-            action(list, row.title + "\n" + row.status, () -> requirements(row));
+            action(list, SystemRequirementsUi.title(this,row) + "\n" + SystemRequirementsUi.status(this,row,platformSaved), () -> requirements(row));
         }
         if (platformError != null) list.addView(label(platformError,14));
-        action(list, "What files do I need?", () -> notice("Phone system files",SystemRequirements.formats(),"Add system files",() -> pick(1,true),"Close"));
-        action(list, "Installed phones", this::systemFiles);
-        action(list, "Phone backups", this::phoneBackups);
-        action(list, "Saved components", this::savedComponents);
-        action(list, "Add game", () -> { if (hasPendingImport) pendingActions(); else pick(2, true); });
-        if (apps.length > 0) action(list, "Phone tools", () -> {
-            GameMenuDialog menu = dialog("Phone tools");
+        action(list, getString(R.string.system_what_files), () -> notice(getString(R.string.system_phone_files),getString(R.string.system_formats_help),getString(R.string.system_add_files),() -> pick(1,true),getString(R.string.system_close)));
+        action(list, getString(R.string.system_installed_phones), this::systemFiles);
+        action(list, getString(R.string.system_phone_backups), this::phoneBackups);
+        action(list, getString(R.string.system_saved_components), this::savedComponents);
+        action(list, getString(R.string.system_add_game), () -> { if (hasPendingImport) pendingActions(); else pick(2, true); });
+        if (apps.length > 0) action(list, getString(R.string.system_phone_tools), () -> {
+            GameMenuDialog menu = dialog(getString(R.string.system_phone_tools));
             for (int i = 0; i + 1 < apps.length; i += 2) {
                 final int uid = (int) Long.parseLong(apps[i]);
                 menu.action(apps[i + 1],0,() -> { menu.dismiss(); play(uid); });
             }
         });
-        action(page, "Library", this::finish);
+        action(page, getString(R.string.system_library), this::finish);
         setContentView(page);
         hideBars();
     }
@@ -266,40 +266,40 @@ public final class SymbianActivity extends Activity implements Emulator.Host, In
             List<ComponentStore.Item> saved=components.list();
             afterTask=() -> {
                 status.setText(saved.isEmpty() ? "No saved component installers" : saved.size()+" saved component installer"+(saved.size()==1 ? "" : "s"));
-                GameMenuDialog menu=dialog("Saved components");
+                GameMenuDialog menu=dialog(getString(R.string.system_saved_components));
                 menu.message(saved.isEmpty() ? "No component installers saved. Games will ask for the ones they need."
                         : "Installers are reused when a game needs them. Removing a saved installer does not uninstall it from any phone.");
-                menu.action("Add installer",android.R.drawable.ic_input_add,() -> { menu.dismiss(); pick(6,false); });
+                menu.action(getString(R.string.system_add_installer),android.R.drawable.ic_input_add,() -> { menu.dismiss(); pick(6,false); });
                 for(ComponentStore.Item item:saved) menu.action(item.metadata.name+"  "+item.metadata.version,android.R.drawable.ic_menu_delete,() -> {
                     menu.dismiss(); notice("Remove saved installer?",item.metadata.name+"\nInstalled games and saves stay untouched.",
-                            "Remove",() -> task("Removing saved installer",() -> { components.remove(item.hash); refresh("Saved installer removed"); }),"Cancel");
+                            getString(R.string.system_remove),() -> task("Removing saved installer",() -> { components.remove(item.hash); refresh("Saved installer removed"); }),getString(R.string.system_cancel));
                 });
                 menu.action("Remove saved installers",android.R.drawable.ic_menu_delete,() -> {
                     menu.dismiss(); notice("Remove saved installers?","Only saved component installers are removed. Installed phones, games and saves stay untouched.",
-                            "Remove",() -> task("Removing saved installers",() -> { components.clear(); refresh("Saved installers removed"); }),"Cancel");
+                            getString(R.string.system_remove),() -> task("Removing saved installers",() -> { components.clear(); refresh("Saved installers removed"); }),getString(R.string.system_cancel));
                 });
-                menu.action("Close",0,menu::dismiss);
+                menu.action(getString(R.string.system_close),0,menu::dismiss);
             };
         });
     }
     private void requirements(SystemRequirements.Row row) {
-        GameMenuDialog menu = dialog(row.title);
-        menu.message(row.description);
+        GameMenuDialog menu = dialog(SystemRequirementsUi.title(this,row));
+        menu.message(SystemRequirementsUi.description(this,row,platformSaved));
         if (row.phoneReady && (!row.platform || platformSaved))
-            menu.action("Back to library",android.R.drawable.ic_media_play,() -> { menu.dismiss(); finish(); });
-        if (!row.title.equals("Java / Mophun")) {
+            menu.action(getString(R.string.system_back_library),android.R.drawable.ic_media_play,() -> { menu.dismiss(); finish(); });
+        if (row.kind != null) {
             if (row.platform && row.phoneReady && !platformSaved)
-                menu.action("Add N-Gage 2.0 installer",android.R.drawable.ic_input_add,
+                menu.action(getString(R.string.system_add_ngage2),android.R.drawable.ic_input_add,
                         () -> { menu.dismiss(); pick(3,false); });
-            menu.action(row.phoneReady ? "Add another phone" : "Add phone files", android.R.drawable.ic_input_add,
+            menu.action(row.phoneReady ? getString(R.string.system_add_another_phone) : getString(R.string.system_add_phone_files), android.R.drawable.ic_input_add,
                     () -> { menu.dismiss(); pick(1,true); });
-            if (row.platform && (!row.phoneReady || platformSaved)) menu.action("Add N-Gage 2.0 installer",android.R.drawable.ic_input_add,
+            if (row.platform && (!row.phoneReady || platformSaved)) menu.action(getString(R.string.system_add_ngage2),android.R.drawable.ic_input_add,
                     () -> { menu.dismiss(); pick(3,false); });
-            menu.action("About phone dumps",android.R.drawable.ic_menu_info_details,() -> {
-                menu.dismiss(); notice("Phone system files",SystemRequirements.formats(),"Back",() -> requirements(row),null);
+            menu.action(getString(R.string.system_about_dumps),android.R.drawable.ic_menu_info_details,() -> {
+                menu.dismiss(); notice(getString(R.string.system_phone_files),getString(R.string.system_formats_help),getString(R.string.system_back),() -> requirements(row),null);
             });
         }
-        menu.action("Close",0,menu::dismiss);
+        menu.action(getString(R.string.system_close),0,menu::dismiss);
     }
     private void hideBars() {
         if (android.os.Build.VERSION.SDK_INT >= 30) {
@@ -335,7 +335,7 @@ public final class SymbianActivity extends Activity implements Emulator.Host, In
                     if (!running) { hasPendingImport = pendingImport.exists(); library(); }
                     status.setText(error.getMessage());
                     if (!(error instanceof java.io.InterruptedIOException))
-                        notice("Could not finish", error.getMessage() == null ? text : error.getMessage(), "Close", null, null);
+                        notice(getString(R.string.system_could_not_finish), error.getMessage() == null ? text : error.getMessage(), getString(R.string.system_close), null, null);
                 } });
             } finally { runOnUiThread(() -> {
                 busy = false;
@@ -373,25 +373,25 @@ public final class SymbianActivity extends Activity implements Emulator.Host, In
         });
     }
     private void systemFiles() {
-        GameMenuDialog menu = dialog("Installed phones");
+        GameMenuDialog menu = dialog(getString(R.string.system_installed_phones));
         for (SystemFileCatalog.Entry entry : systems) menu.action(entry.label(),0,() -> {
             menu.dismiss(); task("Opening system", () -> { openSystem(entry); refresh(); });
         });
-        menu.action("Add system files",android.R.drawable.ic_input_add,() -> { menu.dismiss(); pick(1,true); });
-        menu.action("Close",0,menu::dismiss);
+        menu.action(getString(R.string.system_add_files),android.R.drawable.ic_input_add,() -> { menu.dismiss(); pick(1,true); });
+        menu.action(getString(R.string.system_close),0,menu::dismiss);
     }
     private void phoneBackups() {
-        GameMenuDialog menu = dialog("Phone backups");
+        GameMenuDialog menu = dialog(getString(R.string.system_phone_backups));
         menu.message("Transfer a whole Symbian / N-Gage phone with its games, saves and controls. Java and Mophun use Library transfer.");
         if (!systems.isEmpty()) menu.action("Back up phone",android.R.drawable.ic_menu_save,() -> {
             menu.dismiss(); GameMenuDialog choose=dialog("Choose phone to back up");
             for(SystemFileCatalog.Entry entry:systems) choose.action(entry.label(),0,() -> {
                 choose.dismiss(); requestPhoneBackup(entry);
             });
-            choose.action("Cancel",0,choose::dismiss);
+            choose.action(getString(R.string.system_cancel),0,choose::dismiss);
         });
         menu.action("Restore phone backup",android.R.drawable.ic_menu_revert,() -> { menu.dismiss(); pick(RESTORE_PHONE,false); });
-        menu.action("Close",0,menu::dismiss);
+        menu.action(getString(R.string.system_close),0,menu::dismiss);
     }
     private void requestPhoneBackup(SystemFileCatalog.Entry entry) {
         notice("Back up phone",entry.label()
@@ -402,7 +402,7 @@ public final class SymbianActivity extends Activity implements Emulator.Host, In
                     .putExtra(Intent.EXTRA_TITLE,"AbyssME-phone-"+entry.firmware+"-"
                             +new java.text.SimpleDateFormat("yyyy-MM-dd-HHmm",Locale.ROOT).format(new Date())+".zip");
             startActivityForResult(intent,SAVE_PHONE);
-        },"Cancel");
+        },getString(R.string.system_cancel));
     }
     private PreparedSystemArchive.Progress transferProgress() {
         final long[] last={0};
@@ -433,7 +433,7 @@ public final class SymbianActivity extends Activity implements Emulator.Host, In
                     output.flush();
                 }
                 saved=true;
-                afterTask=() -> notice("Backup saved","Your phone, installed games, saves and game settings are in the selected ZIP. Use Phone backups > Restore phone backup on the other device.","Close",null,null);
+                afterTask=() -> notice("Backup saved","Your phone, installed games, saves and game settings are in the selected ZIP. Use Phone backups > Restore phone backup on the other device.",getString(R.string.system_close),null,null);
             } finally {
                 Files.deleteIfExists(archive.toPath());
                 if(!saved) {
@@ -462,7 +462,7 @@ public final class SymbianActivity extends Activity implements Emulator.Host, In
             menu.action("Restore as new phone",android.R.drawable.ic_menu_revert,() -> {
                 restoreArchive=null; menu.dismiss(); restorePhone(retained);
             });
-            menu.action("Cancel",0,menu::dismiss);
+            menu.action(getString(R.string.system_cancel),0,menu::dismiss);
             menu.setOnDismissListener(d -> {
                 if(restoreArchive==retained) { restoreArchive=null; worker.execute(() -> removeTransfer(retained)); }
             });
@@ -489,7 +489,7 @@ public final class SymbianActivity extends Activity implements Emulator.Host, In
                     } finally { Emulator.stopSession(); }
                 },transferProgress());
                 openSystem(restored); refresh("Phone restored. Existing phones are unchanged.");
-                afterTask=() -> notice("Phone restored","Games from the restored copy are now in your library. Your previous phones and saves were kept.","Library",this::finish,"Close");
+                afterTask=() -> notice("Phone restored","Games from the restored copy are now in your library. Your previous phones and saves were kept.",getString(R.string.system_library),this::finish,getString(R.string.system_close));
             } catch(Exception error) {
                 Emulator.stopSession(); runtimeRoot=previous;
                 if(!closing) refreshStopped(null);
@@ -548,7 +548,7 @@ public final class SymbianActivity extends Activity implements Emulator.Host, In
             menu.confirmationPage("Uninstall from phone?");
             menu.message(plan.description(entry.label()+" ["+entry.id.substring(0,8)+"]"));
             menu.setBackAction(() -> { menu.dismiss(); finish(); });
-            menu.action("Cancel",0,() -> { menu.dismiss(); finish(); });
+            menu.action(getString(R.string.system_cancel),0,() -> { menu.dismiss(); finish(); });
             menu.action("Back up this phone",android.R.drawable.ic_menu_save,() -> { menu.dismiss(); requestPhoneBackup(entry); });
             menu.action("Uninstall",android.R.drawable.ic_menu_delete,() -> {
                 menu.dismiss(); task("Uninstalling from phone",() -> {
@@ -557,7 +557,7 @@ public final class SymbianActivity extends Activity implements Emulator.Host, In
                     removal(entry).remove(plan);
                     refresh("Uninstalled from " + entry.displayName());
                     afterTask=() -> notice("Uninstalled", "The package was removed from " + entry.displayName()
-                            + ". Other phones are unchanged.","Library",this::finish,"Close");
+                            + ". Other phones are unchanged.",getString(R.string.system_library),this::finish,getString(R.string.system_close));
                 });
             });
         };
@@ -608,7 +608,7 @@ public final class SymbianActivity extends Activity implements Emulator.Host, In
             public void remove() {
                 if(busy) return;
                 notice("Remove archive queue?","Only retained queue files are removed. Original archives, installed games and saves stay untouched.",
-                        "Remove",()->task("Removing archive queue",()-> { archiveQueue.discard(); refresh(); }),"Cancel");
+                        getString(R.string.system_remove),()->task("Removing archive queue",()-> { archiveQueue.discard(); refresh(); }),getString(R.string.system_cancel));
             }
         });
         status=view.status; progressBar=view.progress;
@@ -620,13 +620,13 @@ public final class SymbianActivity extends Activity implements Emulator.Host, In
         menu.message(item.name+"\n\n"+(!item.problem.isEmpty() ? item.problem : item.detail.isEmpty()
                 ? item.role==ArchiveBatch.Role.GAME ? "Install as a game." : "Save this installer for games that need it." : item.detail));
         if(started && item.problem.isEmpty() && (item.state==ArchiveBatch.State.WAITING || item.state==ArchiveBatch.State.FAILED))
-            menu.action("Retry",android.R.drawable.ic_menu_rotate,()-> {
+            menu.action(getString(R.string.system_retry),android.R.drawable.ic_menu_rotate,()-> {
                 menu.dismiss(); notice("Retry this file?","An interrupted installation may have written files. Retry may reinstall them on the same phone.",
-                        "Retry",()->task("Retrying queued file",()-> { pauseArchive=false; archiveQueue.retry(item.id); runArchive(null,true); }),"Cancel");
+                        getString(R.string.system_retry),()->task("Retrying queued file",()-> { pauseArchive=false; archiveQueue.retry(item.id); runArchive(null,true); }),getString(R.string.system_cancel));
             });
         if(started && item.state!=ArchiveBatch.State.DONE && item.state!=ArchiveBatch.State.SKIPPED)
             menu.action("Skip",android.R.drawable.ic_media_next,()-> { menu.dismiss(); task("Skipping queued file",()-> { archiveQueue.skip(item.id); showArchive(); }); });
-        menu.action("Close",0,menu::dismiss);
+        menu.action(getString(R.string.system_close),0,menu::dismiss);
     }
     private void runArchive(String selected,boolean retry) throws Exception {
         GameInstallFlow.Result result=archiveQueue.run(selected,retry,message-> {
@@ -636,7 +636,7 @@ public final class SymbianActivity extends Activity implements Emulator.Host, In
         if(result==null) showArchive(); else showImportResult(result);
     }
     private void resumeImport(String selected, boolean retry) {
-        task("Continuing import", () -> {
+        task(getString(R.string.system_continuing_import), () -> {
             if(archiveQueue.ownsPending()) runArchive(selected,retry);
             else showImportResult(installFlow.resume(selected,retry));
         });
@@ -647,47 +647,46 @@ public final class SymbianActivity extends Activity implements Emulator.Host, In
             if(result.action==GameInstallFlow.Action.DONE) { runArchive(null,false); return; }
         }
         PendingGameImport.Entry job = pendingImport.read();
-        refresh(result.action == GameInstallFlow.Action.DONE ? "Installation complete" : "Import saved: " + job.name);
+        refresh(result.action == GameInstallFlow.Action.DONE ? getString(R.string.system_install_complete) : "Import saved: " + job.name);
         afterTask = () -> {
             switch (result.action) {
                 case SYSTEM:
-                    notice("System files needed", SystemRequirements.needed(job.kind)
-                            + "\n\n" + SystemRequirements.formats() + "\n\nYour game is kept and will continue after import.",
-                            "Add system files", () -> pick(1,true), "Later");
+                    notice(getString(R.string.system_needed_title), getString(R.string.system_needed_help,
+                            SystemRequirementsUi.needed(this,job.kind),getString(R.string.system_formats_help)),
+                            getString(R.string.system_add_files), () -> pick(1,true), getString(R.string.system_later));
                     break;
                 case CHOOSE: chooseSystem(result.choices); break;
                 case PLATFORM:
-                    notice("N-Gage 2.0 needed", "Phone system files are ready. Add the N-Gage 2.0 platform installer (SIS or ZIP), not a game. AbyssME keeps a copy for later games.",
-                            "Add platform", () -> pick(3,false), "Later");
+                    notice(getString(R.string.system_ngage2_needed_title), getString(R.string.system_ngage2_needed_body),
+                            getString(R.string.system_add_platform), () -> pick(3,false), getString(R.string.system_later));
                     break;
                 case RETRY:
-                    notice("Installation interrupted", "The previous installation did not finish. Your game is kept. Retrying may reinstall files on the selected phone.",
-                            "Retry", () -> resumeImport(null,true), "Later");
+                    notice(getString(R.string.system_interrupted_title), getString(R.string.system_interrupted_body),
+                            getString(R.string.system_retry), () -> resumeImport(null,true), getString(R.string.system_later));
                     break;
                 case COMPONENT:
-                    notice("Component needed",result.component.description()
-                            +"\n\nAdd this component's SIS/SISX installer, or a ZIP containing it. Use a version for this Symbian phone. Your game is kept; installation continues after you add the file. The installer is saved for later games.",
-                            "Add installer",() -> pick(5,false),"Later");
+                    notice(getString(R.string.system_component_needed),getString(R.string.system_component_help,result.component.description()),
+                            getString(R.string.system_add_installer),() -> pick(5,false),getString(R.string.system_later));
                     break;
                 case OPEN_PLATFORM: installingInGuest = true; play(GameInstallFlow.PLATFORM_UID); break;
-                case DONE: notice("Installation complete", "The installed game is available in your library.","Library",this::finish,null); break;
+                case DONE: notice(getString(R.string.system_install_complete), getString(R.string.system_installed_body),getString(R.string.system_library),this::finish,null); break;
                 default: break;
             }
         };
     }
     private void pendingActions() {
-        GameMenuDialog menu = dialog("Pending import");
-        menu.action("Continue import",android.R.drawable.ic_media_play,() -> { menu.dismiss(); resumeImport(null,false); });
-        menu.action("Remove pending import",android.R.drawable.ic_menu_delete,() -> {
-            menu.dismiss(); notice("Remove pending import?","Only the retained import is removed. Original files, installed games and saves stay untouched.",
-                    "Remove",() -> task("Removing pending import",() -> {
+        GameMenuDialog menu = dialog(getString(R.string.system_pending_import));
+        menu.action(getString(R.string.system_continue_import),android.R.drawable.ic_media_play,() -> { menu.dismiss(); resumeImport(null,false); });
+        menu.action(getString(R.string.system_remove_import),android.R.drawable.ic_menu_delete,() -> {
+            menu.dismiss(); notice(getString(R.string.system_remove_import_title),getString(R.string.system_remove_import_body),
+                    getString(R.string.system_remove),() -> task(getString(R.string.system_removing_import),() -> {
                         if(archiveQueue.ownsPending()) {
                             ArchiveBatch.Batch batch=archives.read(); archiveQueue.skip(batch.owned(pendingImport.read().owner).id);
                         } else pendingImport.discard();
                         refresh();
-                    }),"Cancel");
+                    }),getString(R.string.system_cancel));
         });
-        menu.action("Close",0,menu::dismiss);
+        menu.action(getString(R.string.system_close),0,menu::dismiss);
     }
     private void pick(int request, boolean multiple) {
         Intent intent = new Intent(Intent.ACTION_OPEN_DOCUMENT).setType("*/*")
@@ -796,7 +795,7 @@ public final class SymbianActivity extends Activity implements Emulator.Host, In
                         String report = String.join("\n\n", reports);
                         boolean resume = pendingImport.exists();
                         if (resume && last != null && !importWarnings) afterTask = () -> resumeImport(null, false);
-                        else afterTask = () -> notice("System import",report,resume ? "Continue import" : "Close", () -> {
+                        else afterTask = () -> notice("System import",report,resume ? getString(R.string.system_continue_import) : getString(R.string.system_close), () -> {
                                     if (resume) resumeImport(null, false);
                                 }, null);
                     } catch (Exception error) {
@@ -822,7 +821,7 @@ public final class SymbianActivity extends Activity implements Emulator.Host, In
                         if(job!=null && job.step==PendingGameImport.Step.COMPONENT) showImportResult(installFlow.resume(null,false));
                         else {
                             refresh("Saved component: "+metadata.name);
-                            afterTask=() -> notice("Component saved",metadata.name+"\nThe installer is ready for games that need it. Installed phones were not changed.","Close",null,null);
+                            afterTask=() -> notice("Component saved",metadata.name+"\nThe installer is ready for games that need it. Installed phones were not changed.",getString(R.string.system_close),null,null);
                         }
                     }
                     else if (route == 3) {
@@ -832,7 +831,7 @@ public final class SymbianActivity extends Activity implements Emulator.Host, In
                             showImportResult(installFlow.resume(null, false));
                         else {
                             refresh("N-Gage 2.0 installer saved");
-                            afterTask = () -> notice("N-Gage platform saved", "The installer is ready for games that need it. Existing phones and games were not changed.","Close",null,null);
+                            afterTask = () -> notice("N-Gage platform saved", "The installer is ready for games that need it. Existing phones and games were not changed.",getString(R.string.system_close),null,null);
                         }
                     }
                     else {
@@ -866,7 +865,7 @@ public final class SymbianActivity extends Activity implements Emulator.Host, In
                     if(archive)task("Choosing archive phone",()-> {archiveQueue.rememberPhone(entry.id,reuse[0]);runArchive(entry.id,false);});
                     else resumeImport(entry.id, false);
                 });
-        choice.action("Later",0,choice::dismiss);
+        choice.action(getString(R.string.system_later),0,choice::dismiss);
         choice.setOnDismissListener(d -> systemChoice = null);
     }
     public void play(int uid) {
@@ -1019,7 +1018,7 @@ public final class SymbianActivity extends Activity implements Emulator.Host, In
         releaseKeys(); Emulator.pauseSession(true);
         new AlertDialog.Builder(this).setTitle("Leave game?")
                 .setMessage("Unsaved progress will be lost.")
-                .setPositiveButton("Library", (d, w) -> returnToLibrary())
+                .setPositiveButton(getString(R.string.system_library), (d, w) -> returnToLibrary())
                 .setNegativeButton("Resume", (d, w) -> resumeGame())
                 .setOnCancelListener(d -> resumeGame()).show();
     }
@@ -1122,7 +1121,7 @@ public final class SymbianActivity extends Activity implements Emulator.Host, In
             edit.setFilters(new InputFilter[]{new InputFilter.LengthFilter(Math.max(0, maxLength))});
             inputDialog = new AlertDialog.Builder(this).setView(edit)
                     .setPositiveButton("OK", (d, w) -> Emulator.submitInput(edit.getText().toString()))
-                    .setNegativeButton("Cancel", (d, w) -> Emulator.submitInput(""))
+                    .setNegativeButton(getString(R.string.system_cancel), (d, w) -> Emulator.submitInput(""))
                     .setOnCancelListener(d -> Emulator.submitInput("")).show();
         });
     }

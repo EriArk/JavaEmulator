@@ -48,25 +48,25 @@ public final class FluxerChatsActivity extends CompactSettingsActivity {
     private GameMenuDialog dialog;
 
     @Override protected void onCreate(Bundle saved) {
-        super.onCreate(saved);screenTitle("Chats");
+        super.onCreate(saved);screenTitle(getString(R.string.social_chats));
         getWindow().setSoftInputMode(android.view.WindowManager.LayoutParams.SOFT_INPUT_ADJUST_RESIZE
                 |android.view.WindowManager.LayoutParams.SOFT_INPUT_STATE_ALWAYS_HIDDEN);
-        headerButton("Refresh",android.R.drawable.ic_popup_sync,()->model.refresh());
-        headerButton("Social options",R.drawable.ic_library_ellipsis_vertical,this::socialOptions);
+        headerButton(getString(R.string.social_refresh),android.R.drawable.ic_popup_sync,()->model.refresh());
+        headerButton(getString(R.string.social_options),R.drawable.ic_library_ellipsis_vertical,this::socialOptions);
         LinearLayout root=column();screenContent.addView(root,new ViewGroup.LayoutParams(-1,-1));
         root.setBackground(new ConsoleSurface(this,ConsoleSurface.Kind.CHASSIS));
         screenHeader.setBackground(new ConsoleSurface(this,ConsoleSurface.Kind.CHASSIS));
         tabs=new RadioGroup(this);tabs.setOrientation(LinearLayout.HORIZONTAL);
-        chatsTab=tab("Chats",R.id.fluxer_tab_chats);friendsTab=tab("Friends",R.id.fluxer_tab_friends);
+        chatsTab=tab(getString(R.string.social_chats),R.id.fluxer_tab_chats);friendsTab=tab(getString(R.string.social_friends),R.id.fluxer_tab_friends);
         tabs.addView(chatsTab,new RadioGroup.LayoutParams(0,dp(48),1));tabs.addView(friendsTab,new RadioGroup.LayoutParams(0,dp(48),1));root.addView(tabs);
         status=text(13,R.color.text_secondary);status.setId(R.id.fluxer_chat_status);status.setPadding(dp(12),dp(6),dp(12),dp(6));
         status.setMaxLines(2);status.setEllipsize(android.text.TextUtils.TruncateAt.END);root.addView(status);
-        signIn=new Button(this);signIn.setText("Open Fluxer account");signIn.setAllCaps(false);signIn.setId(R.id.fluxer_chat_sign_in);
+        signIn=new Button(this);signIn.setText(getString(R.string.social_open_account));signIn.setAllCaps(false);signIn.setId(R.id.fluxer_chat_sign_in);
         surface(signIn,ConsoleSurface.Kind.KEY);signIn.setTextColor(color(R.color.text_primary));
         signIn.setOnClickListener(v->startActivity(new Intent(this,FluxerAccountActivity.class)));root.addView(signIn);
         workspace=new LinearLayout(this);root.addView(workspace,new LinearLayout.LayoutParams(-1,0,1));
         listPane=column();listPane.setBackground(new ConsoleSurface(this,ConsoleSurface.Kind.SCREEN));
-        search=editor("Search chats");search.setId(R.id.fluxer_chat_search);search.setSingleLine(true);listPane.addView(search,new LinearLayout.LayoutParams(-1,dp(48)));
+        search=editor(getString(R.string.social_search_chats));search.setId(R.id.fluxer_chat_search);search.setSingleLine(true);listPane.addView(search,new LinearLayout.LayoutParams(-1,dp(48)));
         search.setImeOptions(EditorInfo.IME_ACTION_SEARCH|EditorInfo.IME_FLAG_NO_EXTRACT_UI|EditorInfo.IME_FLAG_NO_PERSONALIZED_LEARNING);
         channels=new RecyclerView(this);channels.setId(R.id.fluxer_chat_channels);channels.setLayoutManager(new LinearLayoutManager(this));
         channelAdapter=new ChannelAdapter();channels.setAdapter(channelAdapter);
@@ -75,8 +75,8 @@ public final class FluxerChatsActivity extends CompactSettingsActivity {
         listEmpty.setPadding(dp(12),dp(12),dp(12),dp(12));channelArea.addView(listEmpty,new FrameLayout.LayoutParams(-1,-1));
         chatPane=column();chatPane.setBackground(new ConsoleSurface(this,ConsoleSurface.Kind.SCREEN));title=text(16,R.color.text_primary);title.setTypeface(null,android.graphics.Typeface.BOLD);
         title.setMaxLines(2);title.setEllipsize(android.text.TextUtils.TruncateAt.END);title.setPadding(dp(12),dp(8),dp(12),dp(8));chatPane.addView(title);
-        historyActions=new LinearLayout(this);older=command("Earlier",()->{showEarlier=true;model.older();});older.setId(R.id.fluxer_chat_older);
-        latest=command("Latest",()->model.latest());latest.setId(R.id.fluxer_chat_latest);
+        historyActions=new LinearLayout(this);older=command(getString(R.string.social_earlier),()->{showEarlier=true;model.older();});older.setId(R.id.fluxer_chat_older);
+        latest=command(getString(R.string.social_latest),()->model.latest());latest.setId(R.id.fluxer_chat_latest);
         historyActions.addView(older,new LinearLayout.LayoutParams(0,dp(48),1));historyActions.addView(latest,new LinearLayout.LayoutParams(0,dp(48),1));chatPane.addView(historyActions);
         FrameLayout history=new FrameLayout(this);chatPane.addView(history,new LinearLayout.LayoutParams(-1,0,1));
         messages=new RecyclerView(this);messages.setId(R.id.fluxer_chat_messages);LinearLayoutManager layout=new LinearLayoutManager(this);layout.setStackFromEnd(true);
@@ -85,14 +85,14 @@ public final class FluxerChatsActivity extends CompactSettingsActivity {
         empty=text(16,R.color.text_secondary);empty.setGravity(Gravity.CENTER);empty.setPadding(dp(16),dp(8),dp(16),dp(8));
         history.addView(empty,new FrameLayout.LayoutParams(-1,-1));
         composer=new LinearLayout(this);composer.setGravity(Gravity.CENTER_VERTICAL);composer.setPadding(dp(8),dp(4),dp(8),dp(4));composer.setBackground(new ConsoleSurface(this,ConsoleSurface.Kind.CHASSIS));
-        input=editor("Message");input.setId(R.id.fluxer_chat_input);input.setMinLines(1);input.setMaxLines(3);
+        input=editor(getString(R.string.social_message));input.setId(R.id.fluxer_chat_input);input.setMinLines(1);input.setMaxLines(3);
         input.setInputType(android.text.InputType.TYPE_CLASS_TEXT|android.text.InputType.TYPE_TEXT_FLAG_CAP_SENTENCES|android.text.InputType.TYPE_TEXT_FLAG_MULTI_LINE);
         input.setFilters(new android.text.InputFilter[]{new android.text.InputFilter.LengthFilter(FluxerChats.TEXT_LIMIT)});
         input.setImeOptions(EditorInfo.IME_ACTION_SEND|EditorInfo.IME_FLAG_NO_EXTRACT_UI|EditorInfo.IME_FLAG_NO_PERSONALIZED_LEARNING);
         input.setSaveEnabled(false);input.setImportantForAutofill(View.IMPORTANT_FOR_AUTOFILL_NO);
         composer.addView(input,new LinearLayout.LayoutParams(0,-2,1));
         send=new ImageButton(this);send.setId(R.id.fluxer_chat_send);send.setImageResource(android.R.drawable.ic_menu_send);
-        send.setColorFilter(color(R.color.accent));send.setContentDescription("Send message");send.setTooltipText("Send message");surface(send,ConsoleSurface.Kind.KEY);
+        send.setColorFilter(color(R.color.accent));send.setContentDescription(getString(R.string.social_send));send.setTooltipText(getString(R.string.social_send));surface(send,ConsoleSurface.Kind.KEY);
         send.setOnClickListener(v->send());composer.addView(send,new LinearLayout.LayoutParams(dp(48),dp(48)));chatPane.addView(composer);
         counter=text(11,R.color.text_secondary);counter.setGravity(Gravity.END);counter.setPadding(0,0,dp(12),dp(2));chatPane.addView(counter);
         model=new ViewModelProvider(this).get(FluxerChatsModel.class);
@@ -156,12 +156,12 @@ public final class FluxerChatsActivity extends CompactSettingsActivity {
         counter.setVisibility(ime||compact||shown.isEmpty()?View.GONE:View.VISIBLE);
         if(status.getMaxLines()!=(ime?1:2))status.setMaxLines(ime?1:2);
         if(state!=null){
-            screenTitle(showFriends?"Friends":(!wide||ime)&&!shown.isEmpty()?state.title:"Chats");
+            screenTitle(showFriends?getString(R.string.social_friends):(!wide||ime)&&!shown.isEmpty()?SocialText.chatTitle(this,state):getString(R.string.social_chats));
             workspace.setVisibility(state.verified&&!showFriends?View.VISIBLE:View.GONE);
             friendsView.setVisibility(state.verified&&showFriends?View.VISIBLE:View.GONE);
-            String notice=showFriends?state.friendsStatus():state.status;
+            String notice=showFriends?SocialText.friendsStatus(this,state):SocialText.notice(this,state.statusCode);
             if(!android.text.TextUtils.equals(status.getText(),notice))status.setText(notice);
-            boolean quiet=notice.equals("Up to date")||notice.equals("Contacts up to date.")||notice.equals("Contacts refreshed.");
+            boolean quiet=state.quiet(showFriends);
             status.setVisibility(compact&&quiet?View.GONE:View.VISIBLE);
         }
         if(ime!=lastIme){
@@ -180,11 +180,11 @@ public final class FluxerChatsActivity extends CompactSettingsActivity {
         if(next.openedConversation>handledOpen){handledOpen=next.openedConversation;returnToFriends=true;tabs.check(R.id.fluxer_tab_chats);}
         friendsView.render(next);
         long incoming=next.friends.stream().filter(f->f.type==3).count();
-        friendsTab.setText(incoming==0?"Friends":"Friends ("+incoming+")");
+        friendsTab.setText(incoming==0?getString(R.string.social_friends):getString(R.string.social_friends_count,incoming));
         if(accountChanged){binding=true;input.setText("");binding=false;search.setText("");messageAdapter.submitList(Collections.emptyList());}
-        status.setText(next.status);signIn.setVisibility(!next.verified&&!next.loading?View.VISIBLE:View.GONE);
+        status.setText(SocialText.notice(this,next.statusCode));signIn.setVisibility(!next.verified&&!next.loading?View.VISIBLE:View.GONE);
         workspace.setVisibility(next.verified?View.VISIBLE:View.GONE);
-        title.setText(next.title);screenTitle(!wide&&!next.channel.isEmpty()?next.title:"Chats");
+        title.setText(SocialText.chatTitle(this,next));screenTitle(!wide&&!next.channel.isEmpty()?SocialText.chatTitle(this,next):getString(R.string.social_chats));
         shown=next.channel;
         if(switched||next.draftRevision>=editRevision) {
             binding=true;
@@ -202,7 +202,7 @@ public final class FluxerChatsActivity extends CompactSettingsActivity {
                 keepTailOnResize=true;messages.scrollToPosition(next.messages.size()-1);
             }
         });
-        empty.setText(shown.isEmpty()?"Select a conversation":next.historyBusy?"Loading messages...":"No messages in this window");
+        empty.setText(shown.isEmpty()?getString(R.string.social_select_conversation):next.historyBusy?getString(R.string.social_loading_messages):getString(R.string.social_no_messages));
         empty.setVisibility(next.messages.isEmpty()?View.VISIBLE:View.GONE);
         historyActions.setVisibility(shown.isEmpty()?View.GONE:View.VISIBLE);
         older.setEnabled(next.more&&!next.historyBusy);latest.setEnabled(!next.historyBusy);
@@ -212,9 +212,9 @@ public final class FluxerChatsActivity extends CompactSettingsActivity {
     }
     private void filterChannels() {
         if(state==null)return;String query=search.getText().toString().toLowerCase(Locale.ROOT).trim();List<FluxerChats.Channel> list=new ArrayList<>();
-        for(FluxerChats.Channel c:state.channels)if(c.name.toLowerCase(Locale.ROOT).contains(query))list.add(c);
+        for(FluxerChats.Channel c:state.channels)if(SocialText.channel(this,c).toLowerCase(Locale.ROOT).contains(query))list.add(c);
         channelAdapter.submitList(list);
-        listEmpty.setText(state.loading?"Loading conversations...":query.isEmpty()?"No conversations":"No matching conversations");
+        listEmpty.setText(state.loading?getString(R.string.social_loading_conversations):query.isEmpty()?getString(R.string.social_no_conversations):getString(R.string.social_no_matching_conversations));
         listEmpty.setVisibility(list.isEmpty()?View.VISIBLE:View.GONE);
     }
     private void updateSend() {boolean ok=state!=null&&state.canSend&&!input.getText().toString().trim().isEmpty();send.setEnabled(ok);send.setAlpha(ok?1f:0.4f);counter.setText(input.length()+" / "+FluxerChats.TEXT_LIMIT);}
@@ -241,25 +241,25 @@ public final class FluxerChatsActivity extends CompactSettingsActivity {
     private void dismissActions(){GameMenuDialog old=dialog;dialog=null;if(old!=null)old.dismiss();}
     private GameMenuDialog menu(String title){dismissActions();GameMenuDialog m=new GameMenuDialog(this,title);dialog=m;m.useEdgePanel();m.show();m.page(title);m.setOnDismissListener(d->{if(dialog==m)dialog=null;});return m;}
     private void socialOptions(){
-        GameMenuDialog m=menu("Social");
+        GameMenuDialog m=menu(getString(R.string.social_title));
         if(!showFriends&&!shown.isEmpty()){
-            m.action("Conversations",R.drawable.ic_library_messages_square,()->{dismissActions();returnToFriends=false;model.list();});
-            m.action("Earlier",android.R.drawable.ic_media_previous,()->{dismissActions();showEarlier=true;model.older();}).setEnabled(state!=null&&state.more&&!state.historyBusy);
-            m.action("Latest",android.R.drawable.ic_media_next,()->{dismissActions();model.latest();}).setEnabled(state!=null&&!state.historyBusy);
+            m.action(getString(R.string.social_conversations),R.drawable.ic_library_messages_square,()->{dismissActions();returnToFriends=false;model.list();});
+            m.action(getString(R.string.social_earlier),android.R.drawable.ic_media_previous,()->{dismissActions();showEarlier=true;model.older();}).setEnabled(state!=null&&state.more&&!state.historyBusy);
+            m.action(getString(R.string.social_latest),android.R.drawable.ic_media_next,()->{dismissActions();model.latest();}).setEnabled(state!=null&&!state.historyBusy);
         }
-        m.action("Browse lobbies",android.R.drawable.ic_menu_search,()->{dismissActions();startActivity(new Intent(this,LobbyDirectoryActivity.class));});
-        m.action("My room",android.R.drawable.ic_menu_myplaces,()->{dismissActions();startActivity(new Intent(this,LobbyRoomActivity.class));});
-        m.action("Account",android.R.drawable.ic_menu_myplaces,()->{dismissActions();startActivity(new Intent(this,FluxerAccountActivity.class));});
+        m.action(getString(R.string.social_browse_lobbies),android.R.drawable.ic_menu_search,()->{dismissActions();startActivity(new Intent(this,LobbyDirectoryActivity.class));});
+        m.action(getString(R.string.social_my_room),android.R.drawable.ic_menu_myplaces,()->{dismissActions();startActivity(new Intent(this,LobbyRoomActivity.class));});
+        m.action(getString(R.string.social_account_short),android.R.drawable.ic_menu_myplaces,()->{dismissActions();startActivity(new Intent(this,FluxerAccountActivity.class));});
     }
     private void deliveryActions(String channel,FluxerChats.Message message){
         if(state==null||!channel.equals(shown))return;
-        GameMenuDialog m=menu("Message delivery");m.message(message.delivery);
-        if(message.retryable)m.action("Retry sending",android.R.drawable.ic_popup_sync,()->{dismissActions();model.retry(channel,message.id);});
-        m.action("Check delivery",android.R.drawable.ic_menu_search,()->{dismissActions();model.latest();});
-        if(!message.delivery.equals("Sending..."))m.action("Dismiss local notice",android.R.drawable.ic_menu_close_clear_cancel,()->{
-            GameMenuDialog confirm=menu("Dismiss local notice?");confirm.confirmationPage("Dismiss local notice?");confirm.message("This does not delete a message already delivered to Fluxer.");
-            confirm.action("Cancel",android.R.drawable.ic_menu_close_clear_cancel,this::dismissActions);
-            confirm.action("Dismiss",android.R.drawable.ic_menu_delete,()->{dismissActions();model.discard(channel,message.id);});
+        GameMenuDialog m=menu(getString(R.string.social_delivery));m.message(SocialText.notice(this,message.deliveryCode));
+        if(message.retryable)m.action(getString(R.string.social_retry_sending),android.R.drawable.ic_popup_sync,()->{dismissActions();model.retry(channel,message.id);});
+        m.action(getString(R.string.social_check_delivery),android.R.drawable.ic_menu_search,()->{dismissActions();model.latest();});
+        if(message.deliveryCode!=SocialNotice.SENDING)m.action(getString(R.string.social_dismiss_notice),android.R.drawable.ic_menu_close_clear_cancel,()->{
+            GameMenuDialog confirm=menu(getString(R.string.social_dismiss_notice_title));confirm.confirmationPage(getString(R.string.social_dismiss_notice_title));confirm.message(getString(R.string.social_dismiss_notice_body));
+            confirm.action(getString(R.string.social_cancel),android.R.drawable.ic_menu_close_clear_cancel,this::dismissActions);
+            confirm.action(getString(R.string.social_dismiss),android.R.drawable.ic_menu_delete,()->{dismissActions();model.discard(channel,message.id);});
         });
     }
     @Override protected void screenTitle(CharSequence title){
@@ -270,7 +270,7 @@ public final class FluxerChatsActivity extends CompactSettingsActivity {
     private EditText editor(String hint){EditText e=new EditText(this);e.setTextSize(16);e.setHint(hint);e.setTextColor(color(R.color.text_primary));e.setHintTextColor(color(R.color.text_secondary));e.setPadding(dp(12),dp(8),dp(12),dp(8));return e;}
     private Button command(String label,Runnable action){Button b=new Button(this);b.setText(label);b.setAllCaps(false);b.setTextSize(13);b.setTextColor(color(R.color.text_primary));surface(b,ConsoleSurface.Kind.KEY);b.setPadding(dp(8),0,dp(8),0);b.setOnClickListener(v->action.run());return b;}
     private TextWatcher watcher(Runnable changed){return new TextWatcher(){public void beforeTextChanged(CharSequence s,int start,int count,int after){}public void onTextChanged(CharSequence s,int start,int before,int count){}public void afterTextChanged(Editable s){changed.run();}};}
-    private static String time(String iso){try{return OffsetDateTime.parse(iso).atZoneSameInstant(java.time.ZoneId.systemDefault()).format(DateTimeFormatter.ofPattern("dd MMM HH:mm",Locale.ENGLISH));}catch(RuntimeException e){return "";}}
+    private String time(String iso){try{return OffsetDateTime.parse(iso).atZoneSameInstant(java.time.ZoneId.systemDefault()).format(DateTimeFormatter.ofLocalizedDateTime(java.time.format.FormatStyle.SHORT).withLocale(getResources().getConfiguration().getLocales().get(0)));}catch(RuntimeException e){return "";}}
     private final class Row extends RecyclerView.ViewHolder {
         final LinearLayout root;final TextView top,body,foot;
         Row(boolean conversation){super(column());root=(LinearLayout)itemView;root.setPadding(dp(12),dp(10),dp(12),dp(10));root.setLayoutParams(new RecyclerView.LayoutParams(-1,-2));
@@ -282,23 +282,23 @@ public final class FluxerChatsActivity extends CompactSettingsActivity {
     private final class ChannelAdapter extends ListAdapter<FluxerChats.Channel,Row> {
         ChannelAdapter(){super(new DiffUtil.ItemCallback<FluxerChats.Channel>(){
             public boolean areItemsTheSame(FluxerChats.Channel a,FluxerChats.Channel b){return a.id.equals(b.id);}
-            public boolean areContentsTheSame(FluxerChats.Channel a,FluxerChats.Channel b){return a.name.equals(b.name)&&a.last.equals(b.last)&&a.group==b.group;}
+            public boolean areContentsTheSame(FluxerChats.Channel a,FluxerChats.Channel b){return a.name.equals(b.name)&&a.last.equals(b.last)&&a.group==b.group&&a.fallbackName==b.fallbackName;}
         });}
         public Row onCreateViewHolder(ViewGroup parent,int type){return new Row(true);}
-        public void onBindViewHolder(Row r,int position){FluxerChats.Channel c=getItem(position);r.top.setText(c.group?"GROUP":"DIRECT MESSAGE");r.body.setText(c.name);r.foot.setVisibility(View.GONE);
+        public void onBindViewHolder(Row r,int position){FluxerChats.Channel c=getItem(position);r.top.setText(c.group?getString(R.string.social_group):getString(R.string.social_direct_message));r.body.setText(SocialText.channel(FluxerChatsActivity.this,c));r.foot.setVisibility(View.GONE);
             r.root.setSelected(c.id.equals(shown));r.root.setBackground(new ConsoleSurface(FluxerChatsActivity.this,c.id.equals(shown)?ConsoleSurface.Kind.KEY:ConsoleSurface.Kind.ROW));r.root.setOnClickListener(v->{returnToFriends=false;model.select(c.id);});
         }
     }
     private final class MessageAdapter extends ListAdapter<FluxerChats.Message,Row> {
         MessageAdapter(){super(new DiffUtil.ItemCallback<FluxerChats.Message>(){
             public boolean areItemsTheSame(FluxerChats.Message a,FluxerChats.Message b){return a.id.equals(b.id);}
-            public boolean areContentsTheSame(FluxerChats.Message a,FluxerChats.Message b){return a.author.equals(b.author)&&a.text.equals(b.text)&&a.time.equals(b.time)&&a.delivery.equals(b.delivery)&&a.retryable==b.retryable&&a.mine==b.mine;}
+            public boolean areContentsTheSame(FluxerChats.Message a,FluxerChats.Message b){return a.author.equals(b.author)&&a.text.equals(b.text)&&a.time.equals(b.time)&&a.deliveryCode==b.deliveryCode&&a.contentKind==b.contentKind&&a.retryable==b.retryable&&a.mine==b.mine;}
         });}
         public Row onCreateViewHolder(ViewGroup parent,int type){return new Row(false);}
-        public void onBindViewHolder(Row r,int position){FluxerChats.Message m=getItem(position);r.top.setText(m.mine?"You":m.author);r.body.setText(m.text);
-            r.top.setTextColor(color(m.mine?R.color.phone_cyan:R.color.accent));String stamp=time(m.time);r.foot.setText(stamp+(stamp.isEmpty()||m.delivery.isEmpty()?"":"  ")+m.delivery);
+        public void onBindViewHolder(Row r,int position){FluxerChats.Message m=getItem(position);r.top.setText(m.mine?getString(R.string.social_you):m.author);r.body.setText(SocialText.content(FluxerChatsActivity.this,m));
+            r.top.setTextColor(color(m.mine?R.color.phone_cyan:R.color.accent));String stamp=time(m.time);r.foot.setText(stamp+(stamp.isEmpty()||m.deliveryCode==SocialNotice.NONE?"":"  ")+SocialText.notice(FluxerChatsActivity.this,m.deliveryCode));
             r.foot.setVisibility(stamp.isEmpty()&&m.delivery.isEmpty()?View.GONE:View.VISIBLE);
-            boolean pending=!m.delivery.isEmpty()&&!m.delivery.equals("Edited");String channel=shown;
+            boolean pending=m.deliveryCode!=SocialNotice.NONE&&m.deliveryCode!=SocialNotice.EDITED;String channel=shown;
             r.root.setOnClickListener(pending?v->deliveryActions(channel,m):null);
             r.root.setClickable(pending);
         }

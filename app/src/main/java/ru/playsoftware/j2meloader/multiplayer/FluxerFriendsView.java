@@ -38,8 +38,8 @@ final class FluxerFriendsView extends LinearLayout {
         super(context);this.model=model;setOrientation(VERTICAL);setId(R.id.fluxer_friends_panel);
         tools=new LinearLayout(context);tools.setGravity(Gravity.CENTER_VERTICAL);
         filter=new Spinner(context);filter.setId(R.id.fluxer_friends_filter);
-        filter.setContentDescription("Contact filter");surface(filter,ConsoleSurface.Kind.KEY);
-        filter.setAdapter(new ArrayAdapter<String>(context,android.R.layout.simple_spinner_item,new String[]{"Friends","Requests","Blocked"}){
+        filter.setContentDescription(getContext().getString(R.string.social_contact_filter));surface(filter,ConsoleSurface.Kind.KEY);
+        filter.setAdapter(new ArrayAdapter<String>(context,android.R.layout.simple_spinner_item,new String[]{getContext().getString(R.string.social_friends),getContext().getString(R.string.social_requests),getContext().getString(R.string.social_blocked)}){
             private View item(int p,boolean dropdown){
                 TextView text=label(15,R.color.text_primary);text.setText(getItem(p));text.setGravity(Gravity.CENTER_VERTICAL);
                 text.setPadding(dp(14),dp(6),dp(12),dp(6));text.setMinHeight(dp(48));
@@ -52,9 +52,9 @@ final class FluxerFriendsView extends LinearLayout {
         });
         tools.addView(filter,new LayoutParams(0,dp(48),1));
         add=new ImageButton(context);add.setId(R.id.fluxer_friends_add);add.setImageResource(android.R.drawable.ic_input_add);
-        add.setColorFilter(color(R.color.accent));add.setContentDescription("Add friend");add.setTooltipText("Add friend");surface(add,ConsoleSurface.Kind.KEY);
+        add.setColorFilter(color(R.color.accent));add.setContentDescription(getContext().getString(R.string.social_add_friend));add.setTooltipText(getContext().getString(R.string.social_add_friend));surface(add,ConsoleSurface.Kind.KEY);
         tools.addView(add,new LayoutParams(dp(48),dp(48)));addView(tools);add.setOnClickListener(v->addDialog());
-        search=new EditText(context);search.setId(R.id.fluxer_friends_search);search.setHint("Search people");search.setSingleLine(true);
+        search=new EditText(context);search.setId(R.id.fluxer_friends_search);search.setHint(getContext().getString(R.string.social_search_people));search.setSingleLine(true);
         search.setTextSize(16);search.setTextColor(color(R.color.text_primary));search.setHintTextColor(color(R.color.text_secondary));
         search.setPadding(dp(12),0,dp(12),0);search.setSaveEnabled(false);search.setImportantForAutofill(IMPORTANT_FOR_AUTOFILL_NO);
         search.setImeOptions(EditorInfo.IME_ACTION_SEARCH|EditorInfo.IME_FLAG_NO_EXTRACT_UI|EditorInfo.IME_FLAG_NO_PERSONALIZED_LEARNING);
@@ -96,12 +96,12 @@ final class FluxerFriendsView extends LinearLayout {
         for(FluxerChats.Friend f:state.friends)if((section==0?f.type==1:section==1?f.type==3||f.type==4:f.type==2)
                 &&(f.name+" "+f.tag).toLowerCase(Locale.ROOT).contains(query))rows.add(f);
         adapter.submitList(rows);
-        empty.setText(state.friendsBusy?"Loading contacts...":!query.isEmpty()?"No matching people":section==0?"No friends yet":section==1?"No requests":"No blocked accounts");
+        empty.setText(state.friendsBusy?getContext().getString(R.string.social_loading_contacts):!query.isEmpty()?getContext().getString(R.string.social_no_matching_people):section==0?getContext().getString(R.string.social_no_friends):section==1?getContext().getString(R.string.social_no_requests):getContext().getString(R.string.social_no_blocked));
         empty.setVisibility(rows.isEmpty()?VISIBLE:GONE);
     }
     private void addDialog(){
         if(state==null||!state.friendsReady)return;String account=state.account;
-        GameMenuDialog m=menu("Add friend");
+        GameMenuDialog m=menu(getContext().getString(R.string.social_add_friend));
         EditText tag=m.textInput("username#1234","");tag.setId(R.id.fluxer_friend_tag);tag.setSingleLine(true);tag.setHint("username#1234");tag.setTextSize(16);
         tag.setTextColor(color(R.color.text_primary));tag.setHintTextColor(color(R.color.text_secondary));
         tag.setInputType(android.text.InputType.TYPE_CLASS_TEXT|android.text.InputType.TYPE_TEXT_VARIATION_VISIBLE_PASSWORD);
@@ -111,24 +111,24 @@ final class FluxerFriendsView extends LinearLayout {
             public void beforeTextChanged(CharSequence s,int start,int count,int after){}public void onTextChanged(CharSequence s,int start,int before,int count){}
             public void afterTextChanged(Editable e){if(tag.getError()!=null)tag.setError(null);}
         });
-        m.action("Send request",android.R.drawable.ic_menu_send,()->{
-            String value=tag.getText().toString().trim();if(!value.matches("[A-Za-z0-9_]{1,32}#[0-9]{4}")){tag.setError("Enter username#1234");return;}
+        m.action(getContext().getString(R.string.social_send_request),android.R.drawable.ic_menu_send,()->{
+            String value=tag.getText().toString().trim();if(!value.matches("[A-Za-z0-9_]{1,32}#[0-9]{4}")){tag.setError(getContext().getString(R.string.social_enter_tag));return;}
             model.addFriend(account,value);dismissActions();
         });
-        m.action("Cancel",android.R.drawable.ic_menu_close_clear_cancel,this::dismissActions);
+        m.action(getContext().getString(R.string.social_cancel),android.R.drawable.ic_menu_close_clear_cancel,this::dismissActions);
     }
     private void actions(View anchor,FluxerChats.Friend f){
-        if(state==null||!state.friendsReady)return;String account=state.account;menu(f.name).message(f.tag+" / "+f.kind());
-        if(f.type==1){item("Message",account,f,FluxerChats.FriendAction.MESSAGE,false);item("Remove friend",account,f,FluxerChats.FriendAction.REMOVE,true);}
-        if(f.type==3){item("Accept request",account,f,FluxerChats.FriendAction.ACCEPT,false);item("Decline request",account,f,FluxerChats.FriendAction.DECLINE,true);}
-        if(f.type==4)item("Cancel request",account,f,FluxerChats.FriendAction.CANCEL,true);
-        if(f.type==2)item("Unblock",account,f,FluxerChats.FriendAction.UNBLOCK,true);
-        else item("Block",account,f,FluxerChats.FriendAction.BLOCK,true);
+        if(state==null||!state.friendsReady)return;String account=state.account;menu(f.name).message(f.tag+" / "+SocialText.friend(getContext(),f.type));
+        if(f.type==1){item(getContext().getString(R.string.social_message),account,f,FluxerChats.FriendAction.MESSAGE,false);item(getContext().getString(R.string.social_remove_friend),account,f,FluxerChats.FriendAction.REMOVE,true);}
+        if(f.type==3){item(getContext().getString(R.string.social_accept_request),account,f,FluxerChats.FriendAction.ACCEPT,false);item(getContext().getString(R.string.social_decline_request),account,f,FluxerChats.FriendAction.DECLINE,true);}
+        if(f.type==4)item(getContext().getString(R.string.social_cancel_request),account,f,FluxerChats.FriendAction.CANCEL,true);
+        if(f.type==2)item(getContext().getString(R.string.social_unblock),account,f,FluxerChats.FriendAction.UNBLOCK,true);
+        else item(getContext().getString(R.string.social_block),account,f,FluxerChats.FriendAction.BLOCK,true);
     }
     private void item(String name,String account,FluxerChats.Friend f,FluxerChats.FriendAction action,boolean confirm){
         dialog.action(name,action==FluxerChats.FriendAction.MESSAGE?R.drawable.ic_library_messages_square:android.R.drawable.ic_menu_edit,()->{
-            if(confirm){GameMenuDialog m=menu(name+"?");m.confirmationPage(name+"?");m.message(f.name+"\n"+f.tag);
-                m.action("Cancel",android.R.drawable.ic_menu_close_clear_cancel,this::dismissActions);
+            if(confirm){String title=getContext().getString(R.string.social_confirm_action,name);GameMenuDialog m=menu(title);m.confirmationPage(title);m.message(f.name+"\n"+f.tag);
+                m.action(getContext().getString(R.string.social_cancel),android.R.drawable.ic_menu_close_clear_cancel,this::dismissActions);
                 m.action(name,android.R.drawable.ic_menu_delete,()->{dismissActions();model.friendAction(account,f,action);});}
             else {dismissActions();model.friendAction(account,f,action);}
         });
@@ -152,7 +152,7 @@ final class FluxerFriendsView extends LinearLayout {
             public boolean areContentsTheSame(FluxerChats.Friend a,FluxerChats.Friend b){return a.same(b)&&a.name.equals(b.name)&&a.tag.equals(b.tag);}
         });}
         public PersonRow onCreateViewHolder(ViewGroup parent,int type){return new PersonRow();}
-        public void onBindViewHolder(PersonRow row,int position){FluxerChats.Friend f=getItem(position);row.name.setText(f.name);row.tag.setText(f.tag);row.kind.setText(f.kind());
+        public void onBindViewHolder(PersonRow row,int position){FluxerChats.Friend f=getItem(position);row.name.setText(f.name);row.tag.setText(f.tag);row.kind.setText(SocialText.friend(getContext(),f.type));
             row.root.setEnabled(state!=null&&state.friendsReady);row.root.setOnClickListener(v->actions(row.root,f));
         }
     }

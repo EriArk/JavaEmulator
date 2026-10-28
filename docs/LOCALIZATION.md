@@ -28,6 +28,15 @@ language batch has shipped in this checkpoint.
   open; those errors still fall back to their original text.
 - `values/control_ui_strings.xml`: physical mapper, touch layout editor,
   preview countdowns and game chrome accessibility labels.
+- `values/social_ui_strings.xml`, `social_auth_strings.xml` and
+  `social_state_strings.xml`: account approval/recovery, chats, friends, lobby
+  directory, room actions and seat accessibility. Account/chat/directory actors
+  expose stable notice enums; the UI renders resources without translating
+  protocol payloads, account identifiers or user messages.
+- `values/system_files_strings.xml`: system-files entry, generation-specific
+  requirements, phone-dump help and pending-import decisions. Rendering uses
+  import kind/readiness, not English title comparisons. Technical identifiers
+  in help are protected with XLIFF placeholders.
 
 Display resolution is selected by numeric dimensions, not by parsing translated
 labels. Phone profile IDs and stored mapping names remain stable; built-in
@@ -35,10 +44,17 @@ mapping names have separate display aliases. Transfer idle state is semantic,
 not an English string comparison. Play styling and image-preset swatches are
 explicit properties, not label comparisons.
 
-This is still source preparation, not whole-app localization. Detailed firmware
-onboarding, Fluxer account/chat/lobby screens, game-information helpers, backend
-errors and inherited About/Help need extraction or review. No new locale is
-enabled or guest language modified as a side effect.
+This is still source preparation, not whole-app localization. System archive,
+backup/component subflows, room/publication/contact backend notices,
+game-information helpers, backend errors and inherited About/Help still need
+extraction or review. No new locale is enabled or guest language modified as a
+side effect. English actor fallback fields are retained for diagnostics and
+non-Android tests; UI decisions must use typed keys, not translated labels.
+
+Messages and channel names carry explicit content/fallback kinds: a user who
+writes `[Attachment]` or names a chat `Group conversation` keeps that exact text.
+Only app-generated placeholders are localized. Chat timestamps use the UI
+locale's short date/time format; transport timestamps remain unchanged.
 
 ## Terminology for Contributors
 
@@ -102,3 +118,11 @@ including errors and accessibility. Never mirror the guest game or keypad as a
 side effect of app RTL layout.
 See the [journey verification record](checks/2026-10-28-localization-journeys.md)
 and the [earlier settings checks](checks/2026-10-28-audio-lifecycle-settings.md).
+
+`SocialLocalizationTest` checks every account/chat/directory notice and protects
+user text, URLs and identifiers. `SystemRequirementsLocalizationTest` checks
+phone generations and distinguishes firmware from the N-Gage 2.0 installer.
+`LobbyPresentationTest` exercises seat layout across English, expanded and RTL
+pseudolocales, three font scales, five widths and both themes. This is bounded
+layout evidence, not full RTL navigation or live network acceptance.
+See the [Social/system verification record](checks/2026-10-28-social-system-localization.md).

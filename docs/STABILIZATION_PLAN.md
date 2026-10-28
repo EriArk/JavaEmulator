@@ -69,9 +69,12 @@ open. [Evidence](checks/2026-10-28-touch-gamepad-mapping.md).
 shared game menus/display settings, transfer/installer UI and physical/touch
 mapping now use Android string, array and plural resources. Localized labels no
 longer determine resolution values, transfer idle state, Play styling or shader
-swatches. No language picker or new translated language is enabled. Detailed
-firmware onboarding, Fluxer/chat/lobby screens, helpers and backend errors remain
-open, followed by process-safe language selection and reviewed language batches.
+swatches. Account/chats/friends, lobby directory/room actions and system-file
+requirements now use resources too. Notice enums and explicit content kinds
+keep behavior and user text independent of translated labels. No language picker
+or new translated language is enabled. Archive/backup/component subflows,
+room/publication/contact backend notices, helpers and backend errors remain open,
+followed by process-safe language selection and reviewed language batches.
 [Extraction scope and contributor glossary](LOCALIZATION.md).
 
 - Extract user-visible strings from shared screens and engine hosts before

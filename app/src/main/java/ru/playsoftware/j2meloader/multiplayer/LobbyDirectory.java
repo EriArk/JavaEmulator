@@ -44,10 +44,11 @@ public final class LobbyDirectory implements AutoCloseable {
     public static final class State {
         public final boolean verified,busy,needsCommunity,error;
         public final String account,status;
+        public final SocialNotice notice;
         public final List<Room> rooms;
         public final long retryAt;
         State(LobbyDirectory d){verified=d.verified;busy=d.busy;needsCommunity=d.needsCommunity;error=d.error;account=d.self;
-            status=d.status;rooms=Collections.unmodifiableList(new ArrayList<>(d.rows.values()));retryAt=d.retryAt;}
+            notice=d.status;status=d.status.english;rooms=Collections.unmodifiableList(new ArrayList<>(d.rows.values()));retryAt=d.retryAt;}
     }
     private final FluxerAuth.Transport http;
     private final LongSupplier wall,elapsed;
@@ -56,7 +57,8 @@ public final class LobbyDirectory implements AutoCloseable {
     private final Membership membership;
     private final Map<String,Room> rows=new LinkedHashMap<>(),pending=new LinkedHashMap<>(),seen=new HashMap<>();
     private final Set<String> conflicts=new HashSet<>();
-    private String token,self="",status="Sign in to Fluxer to browse lobbies.";
+    private String token,self="";
+    private SocialNotice status=SocialNotice.DIRECTORY_SIGNIN;
     private boolean verified,busy,needsCommunity,active,closed,error;
     private long epoch,nextRefresh,retryAt;
     private int pages;
@@ -81,45 +83,45 @@ public final class LobbyDirectory implements AutoCloseable {
         if(Objects.equals(token,value)&&elapsed.getAsLong()<retryAt)return;
         if(Objects.equals(token,value)&&verified){refresh();return;}
         ++epoch;token=value;self="";verified=busy=needsCommunity=error=false;rows.clear();pending.clear();seen.clear();conflicts.clear();retryAt=nextRefresh=0;
-        status="Sign in to Fluxer to browse lobbies.";
+        status=SocialNotice.DIRECTORY_SIGNIN;
         if(value==null){emit();return;}
-        busy=true;status="Checking Fluxer account...";emit();long generation=epoch;
+        busy=true;status=SocialNotice.DIRECTORY_CHECK;emit();long generation=epoch;
         http.request("GET","/v1/users/@me",null,token,r->{
             if(!current(generation))return;busy=false;
-            if(!r.ok()||!id(text(r.body,"id"))){failure(r,"Could not verify sign-in. Open Account or refresh.");return;}
+            if(!r.ok()||!id(text(r.body,"id"))){failure(r,SocialNotice.DIRECTORY_VERIFY_FAILED);return;}
             self=text(r.body,"id");verified=true;refresh();
         });
     }
-    public void storageError(){session(null);error=true;status="Saved sign-in could not be unlocked. Open Account to recover it.";emit();}
+    public void storageError(){session(null);error=true;status=SocialNotice.UNLOCK_FAILED;emit();}
     public void refresh(){
         if(closed||!verified||busy||elapsed.getAsLong()<retryAt)return;
         busy=true;needsCommunity=error=false;pending.clear();pages=0;nextRefresh=elapsed.getAsLong()+30000;
-        status="Refreshing lobbies...";emit();load(0,"",epoch);
+        status=SocialNotice.DIRECTORY_REFRESHING;emit();load(0,"",epoch);
     }
     private void load(int channel,String before,long generation){
         if(channel==CHANNELS.size()){
             rows.clear();long now=wall.getAsLong(),mono=elapsed.getAsLong();
             for(Room room:pending.values())if(!conflicts.contains(room.id)&&room.live(now,mono)
                     &&(room.status.equals("choosing")||capabilities.contains(room.capability())))rows.put(room.id,room);
-            pending.clear();busy=false;status=rows.isEmpty()?"No compatible lobbies right now.":"Up to date";emit();return;
+            pending.clear();busy=false;status=rows.isEmpty()?SocialNotice.DIRECTORY_EMPTY:SocialNotice.CURRENT;emit();return;
         }
-        if(++pages>50){failure(new FluxerAuth.Reply(0,null,0),"Directory is too large to load. Try again later.");return;}
+        if(++pages>50){failure(new FluxerAuth.Reply(0,null,0),SocialNotice.DIRECTORY_LARGE);return;}
         String channelId=CHANNELS.get(channel),path="/v1/channels/"+channelId+"/messages?limit=50"+(before.isEmpty()?"":"&before="+before);
         http.request("GET",path,null,token,r->{
             if(!current(generation))return;
             if(r.status==403||r.status==404){
                 busy=false;pending.clear();rows.clear();needsCommunity=true;
                 try{if(membership.claim(self)){joinCommunity(generation);return;}}
-                catch(Exception ignored){status="Could not save community access state. Retry to continue.";emit();return;}
-                status="Community access is unavailable. Retry to join or check your Fluxer account.";emit();return;
+                catch(Exception ignored){status=SocialNotice.MEMBERSHIP_SAVE_FAILED;emit();return;}
+                status=SocialNotice.MEMBERSHIP_UNAVAILABLE;emit();return;
             }
-            if(!r.ok()||!r.data.isJsonArray()||r.data.getAsJsonArray().size()>50){failure(r,"Could not refresh lobbies. Try again.");return;}
+            if(!r.ok()||!r.data.isJsonArray()||r.data.getAsJsonArray().size()>50){failure(r,SocialNotice.DIRECTORY_FAILED);return;}
             JsonArray messages=r.data.getAsJsonArray();String last=before;
             for(JsonElement item:messages){
-                if(!item.isJsonObject()){failure(new FluxerAuth.Reply(0,null,0),"Invalid directory response. Refresh to try again.");return;}
+                if(!item.isJsonObject()){failure(new FluxerAuth.Reply(0,null,0),SocialNotice.DIRECTORY_INVALID);return;}
                 JsonObject message=item.getAsJsonObject();String messageId=text(message,"id");
                 if(!id(messageId)||(!last.isEmpty()&&compareIds(messageId,last)>=0)||!channelId.equals(text(message,"channel_id"))){
-                    failure(new FluxerAuth.Reply(0,null,0),"Invalid directory page. Refresh to try again.");return;
+                    failure(new FluxerAuth.Reply(0,null,0),SocialNotice.DIRECTORY_PAGE_INVALID);return;
                 }
                 last=messageId;
                 Room room=parse(message,channelId,wall.getAsLong(),elapsed.getAsLong());if(room==null)continue;
@@ -132,46 +134,46 @@ public final class LobbyDirectory implements AutoCloseable {
                         room.deadline=Math.min(room.deadline,old.deadline);
                     }
                 }
-                if(seen.size()>=5000&&!seen.containsKey(room.id)){failure(new FluxerAuth.Reply(0,null,0),"Directory limit reached. Reopen Lobbies to refresh.");return;}
+                if(seen.size()>=5000&&!seen.containsKey(room.id)){failure(new FluxerAuth.Reply(0,null,0),SocialNotice.DIRECTORY_LIMIT);return;}
                 seen.put(room.id,room);pending.put(room.id,room);
             }
             if(messages.size()==50)load(channel,last,generation);else load(channel+1,"",generation);
         });
     }
-    private void failure(FluxerAuth.Reply r,String message){
+    private void failure(FluxerAuth.Reply r,SocialNotice message){
         busy=false;error=true;pending.clear();rows.clear();needsCommunity=r.status==403||r.status==404;
-        if(r.status==401){++epoch;verified=false;self="";token=null;seen.clear();conflicts.clear();message="Sign-in expired. Open Account to sign in again.";}
-        else if(needsCommunity)message="Join the TrainerOS community to browse public lobbies.";
-        else if(r.status==429){retryAt=elapsed.getAsLong()+Math.max(1000,Math.min(300000,r.retryMillis>0?r.retryMillis:30000));message="Fluxer is busy. Please wait before refreshing.";}
+        if(r.status==401){++epoch;verified=false;self="";token=null;seen.clear();conflicts.clear();message=SocialNotice.DIRECTORY_EXPIRED;}
+        else if(needsCommunity)message=SocialNotice.JOIN_COMMUNITY;
+        else if(r.status==429){retryAt=elapsed.getAsLong()+Math.max(1000,Math.min(300000,r.retryMillis>0?r.retryMillis:30000));message=SocialNotice.DIRECTORY_BUSY;}
         status=message;nextRefresh=elapsed.getAsLong()+30000;emit();
     }
     public void retryCommunity(String account){
         if(closed||busy||!verified||!self.equals(account)||!needsCommunity||elapsed.getAsLong()<retryAt)return;
-        try{membership.claim(self);}catch(Exception ignored){status="Could not save community access state. Retry to continue.";emit();return;}
+        try{membership.claim(self);}catch(Exception ignored){status=SocialNotice.MEMBERSHIP_SAVE_FAILED;emit();return;}
         joinCommunity(epoch);
     }
     private void joinCommunity(long generation){
-        busy=true;needsCommunity=error=false;status="Connecting to the lobby community...";emit();
+        busy=true;needsCommunity=error=false;status=SocialNotice.COMMUNITY_CONNECTING;emit();
         http.request("GET",INVITE_PATH,null,token,r->{
             if(!current(generation))return;
-            if(!r.ok()||!communityInvite(r.body)){joinFailure(r,"Could not verify the lobby community invite. Nothing was joined.");return;}
+            if(!r.ok()||!communityInvite(r.body)){joinFailure(r,SocialNotice.COMMUNITY_INVITE_FAILED);return;}
             http.request("POST",INVITE_PATH,new JsonObject(),token,result->{
                 if(!current(generation))return;busy=false;
                 if(result.ok()&&communityInvite(result.body)){refresh();return;}
                 if(result.status==0||result.status>=500){
                     // The POST may have succeeded. Read access, never replay the membership write.
-                    status="Community join result unknown. Checking access...";emit();refresh();return;
+                    status=SocialNotice.COMMUNITY_UNCERTAIN;emit();refresh();return;
                 }
-                joinFailure(result,"Could not confirm community membership. Retry or check your Fluxer account.");
+                joinFailure(result,SocialNotice.COMMUNITY_FAILED);
             });
         });
     }
     private boolean communityInvite(JsonObject invite){return integer(invite,"type")==0&&GUILD.equals(text(object(invite,"guild"),"id"))&&"kOYY3hzY".equals(text(invite,"code"));}
-    private void joinFailure(FluxerAuth.Reply r,String message){failure(r,message);if(r.status!=401){needsCommunity=true;if(r.status!=429)status=message;emit();}}
+    private void joinFailure(FluxerAuth.Reply r,SocialNotice message){failure(r,message);if(r.status!=401){needsCommunity=true;if(r.status!=429)status=message;emit();}}
     public void tick(){
         if(closed||!active)return;
         if(retryAt>0&&elapsed.getAsLong()>=retryAt){retryAt=0;emit();}
-        if(rows.values().removeIf(r->!r.live(wall.getAsLong(),elapsed.getAsLong()))){if(rows.isEmpty())status="No compatible lobbies right now.";emit();}
+        if(rows.values().removeIf(r->!r.live(wall.getAsLong(),elapsed.getAsLong()))){if(rows.isEmpty())status=SocialNotice.DIRECTORY_EMPTY;emit();}
         if(verified&&!busy&&!needsCommunity&&elapsed.getAsLong()>=nextRefresh)refresh();
     }
     private boolean current(long generation){return !closed&&generation==epoch;}

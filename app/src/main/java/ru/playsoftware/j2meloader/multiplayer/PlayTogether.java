@@ -8,6 +8,7 @@ import android.widget.Button;
 import java.io.*;
 import java.util.concurrent.*;
 import java.util.function.Consumer;
+import ru.playsoftware.j2meloader.R;
 import ru.playsoftware.j2meloader.BuildConfig;
 import ru.playsoftware.j2meloader.config.Config;
 import ru.playsoftware.j2meloader.input.GameMenuDialog;
@@ -20,7 +21,7 @@ public final class PlayTogether {
     private PlayTogether() { }
     public static void action(GameMenuDialog menu, String path, Consumer<Intent> launch) {
         if (!BuildConfig.EXPERIMENTAL_MULTIPLAYER) return;
-        Button button = menu.action("Play Together", android.R.drawable.ic_menu_share,
+        Button button = menu.action(menu.text(R.string.social_play_together), android.R.drawable.ic_menu_share,
                 () -> launch.accept(new Intent(menu.getContext(), LobbyRoomActivity.class).putExtra(EXTRA_GAME, path)));
         button.setVisibility(View.GONE);
         inspect(path, entry -> {

@@ -142,15 +142,22 @@ are unchanged. [Evidence](checks/2026-10-28-audio-lifecycle-settings.md).
 
 **#43 localization is in source preparation, not language rollout.** Settings,
 library actions, shared Java/Mophun/Symbian game menus/display controls,
-transfer/installer UI and physical/touch mapping use resources/plurals. Selection
-values, mapping IDs, import state and styling no longer depend on translated
-labels. Long menu titles wrap and large-font choices stack vertically.
-**408 JVM and 53 Retroid checks pass; lint has zero errors / 408 warnings.**
-Expanded pseudolocale/200% font checks are not real-language acceptance. Detailed
-firmware onboarding, Fluxer/chat/lobbies, backend errors and helpers remain open,
-then process-safe language selection and reviewed translations. No locale picker,
-new supported language, guest-language change or public APK update is included.
+transfer/installer UI, physical/touch mapping, Social actions and system-file
+requirements use resources/plurals. Selection values, mapping IDs, import state,
+actor notices and styling no longer depend on translated labels. Explicit
+message/channel kinds protect user text that matches an English UI placeholder.
+Long menu titles wrap and large-font choices stack vertically.
+**410 JVM and 53 Retroid checks pass in the latest batch; 10 optional/account-
+protected cases were skipped.** Seat layouts cover 90 locale/font/width/theme
+combinations. The latest lint run was cancelled after a prolonged file-tree
+analysis stall; the earlier zero-error / 408-warning result is not a current
+lint result. Expanded/RTL pseudolocales are not real-language acceptance.
+Archive/backup/component subflows, room/publication/contact backend notices,
+other errors and helpers remain open, then process-safe language selection and
+reviewed translations. No locale picker, new supported language, guest-language
+change or public APK update is included.
 [Scope and glossary](LOCALIZATION.md), [evidence](checks/2026-10-28-localization-journeys.md).
+[Social/system follow-up and verification limits](checks/2026-10-28-social-system-localization.md).
 
 The next batch implements **#45's general virtual Gamepad mapper** in the existing
 Touch layout editor: select a drawn button, choose a phone key, or use the Native

@@ -39,7 +39,7 @@ public final class FluxerAccountActivity extends CompactSettingsActivity {
     };
 
     @Override protected void onCreate(Bundle saved) {
-        super.onCreate(saved); screenTitle("Fluxer account");
+        super.onCreate(saved); screenTitle(getString(R.string.social_account));
         ScrollView scroll = new ScrollView(this); scroll.setFillViewport(true);
         FrameLayout frame = new FrameLayout(this);
         LinearLayout body = new LinearLayout(this); body.setOrientation(LinearLayout.VERTICAL);
@@ -69,16 +69,16 @@ public final class FluxerAccountActivity extends CompactSettingsActivity {
         secondary = action(body, R.id.fluxer_secondary, android.R.drawable.ic_menu_close_clear_cancel, this::secondary);
         remove = action(body, R.id.fluxer_remove, android.R.drawable.ic_menu_delete, () -> {
             if (confirmation != null) confirmation.dismiss();
-            GameMenuDialog menu = new GameMenuDialog(this, "Remove saved sign-in?"); confirmation = menu;
-            menu.useEdgePanel(); menu.show(); menu.confirmationPage("Remove saved sign-in?");
-            menu.message("This removes the sign-in from this device only. It does not revoke the session on Fluxer. Games and saves will not be removed.");
-            menu.action("Cancel", android.R.drawable.ic_menu_close_clear_cancel, menu::dismiss);
-            menu.action("Remove", android.R.drawable.ic_menu_delete, () -> { menu.dismiss(); model.forget(); });
+            GameMenuDialog menu = new GameMenuDialog(this, getString(R.string.social_remove_signin_title)); confirmation = menu;
+            menu.useEdgePanel(); menu.show(); menu.confirmationPage(getString(R.string.social_remove_signin_title));
+            menu.message(getString(R.string.social_remove_signin_body));
+            menu.action(getString(R.string.social_cancel), android.R.drawable.ic_menu_close_clear_cancel, menu::dismiss);
+            menu.action(getString(R.string.social_remove), android.R.drawable.ic_menu_delete, () -> { menu.dismiss(); model.forget(); });
             menu.setOnDismissListener(d -> { if (confirmation == menu) confirmation = null; });
         });
         model = new ViewModelProvider(this).get(FluxerAccountModel.class);
         model.state.observe(this, this::render);
-        description.setText("Checking saved sign-in...");
+        description.setText(getString(R.string.social_check_saved));
         primary.setVisibility(View.GONE); secondary.setVisibility(View.GONE); remove.setVisibility(View.GONE);
         code.setVisibility(View.GONE); detail.setVisibility(View.GONE);
     }
@@ -91,7 +91,7 @@ public final class FluxerAccountActivity extends CompactSettingsActivity {
         button.setTextColor(AppPalette.color(this, R.color.text_primary)); ConsoleSurface.apply(button, ConsoleSurface.Kind.KEY);
         android.graphics.drawable.Drawable drawable = androidx.core.content.ContextCompat.getDrawable(this, icon).mutate();
         drawable.setTint(AppPalette.color(this, R.color.accent)); drawable.setBounds(0,0,dp(22),dp(22));
-        button.setCompoundDrawables(drawable, null, null, null); button.setCompoundDrawablePadding(dp(12));
+        button.setCompoundDrawablesRelative(drawable, null, null, null); button.setCompoundDrawablePadding(dp(12));
         button.setGravity(Gravity.CENTER_VERTICAL | Gravity.START); button.setPadding(dp(16),dp(10),dp(16),dp(10));
         button.setMinHeight(dp(52)); button.setOnClickListener(v -> run.run());
         LinearLayout.LayoutParams params = new LinearLayout.LayoutParams(-1, -2); params.topMargin = dp(8);
@@ -104,32 +104,33 @@ public final class FluxerAccountActivity extends CompactSettingsActivity {
         boolean busy = next.phase == FluxerAuth.Phase.STARTING || next.phase == FluxerAuth.Phase.VERIFYING
                 || next.phase == FluxerAuth.Phase.SIGNING_OUT;
         heading.setText(next.name.isEmpty() ? "Fluxer" : next.name);
-        if (!description.getText().toString().equals(next.message)) description.setText(next.message);
+        String message = SocialText.auth(this, next.notice);
+        if (!description.getText().toString().equals(message)) description.setText(message);
         progress.setVisibility(busy ? View.VISIBLE : View.GONE);
         code.setVisibility(waiting ? View.VISIBLE : View.GONE); code.setText(next.code);
         detail.setVisibility(View.VISIBLE);
         long seconds = Math.max(0, (next.expiresAt - System.currentTimeMillis() + 999) / 1000);
-        if (waiting) detail.setText("Expires in " + (seconds / 60) + ":" + String.format(java.util.Locale.ROOT, "%02d", seconds % 60));
+        if (waiting) detail.setText(getString(R.string.social_expires, seconds / 60, seconds % 60));
         else if (!next.username.isEmpty()) detail.setText("@" + next.username);
-        else if (next.phase == FluxerAuth.Phase.SIGNED_OUT) detail.setText("Sign in securely on the official Fluxer website. Playing offline does not require an account.");
+        else if (next.phase == FluxerAuth.Phase.SIGNED_OUT) detail.setText(getString(R.string.social_signin_help));
         else detail.setVisibility(View.GONE);
         String mainAction = null, alternateAction = null;
         boolean canRemove = false;
         if (waiting) {
-            mainAction = "Copy code & open Fluxer"; alternateAction = "Cancel sign-in";
-        } else if (next.phase == FluxerAuth.Phase.SIGNED_OUT) mainAction = "Continue with Fluxer";
-        else if (next.phase == FluxerAuth.Phase.STARTING) alternateAction = "Cancel sign-in";
+            mainAction = getString(R.string.social_copy_code); alternateAction = getString(R.string.social_cancel_signin);
+        } else if (next.phase == FluxerAuth.Phase.SIGNED_OUT) mainAction = getString(R.string.social_continue);
+        else if (next.phase == FluxerAuth.Phase.STARTING) alternateAction = getString(R.string.social_cancel_signin);
         else if (next.phase == FluxerAuth.Phase.CONNECTED) {
-            mainAction = next.remembered ? "Open chats" : "Retry saving session";
-            alternateAction = "Sign out";
+            mainAction = next.remembered ? getString(R.string.social_open_chats) : getString(R.string.social_retry_save);
+            alternateAction = getString(R.string.social_signout);
         } else if (next.phase == FluxerAuth.Phase.OFFLINE) {
-            mainAction = "Retry connection"; alternateAction = "Sign out"; canRemove = true;
+            mainAction = getString(R.string.social_retry_connection); alternateAction = getString(R.string.social_signout); canRemove = true;
         } else if (next.phase == FluxerAuth.Phase.ERROR) canRemove = true;
-        show(primary, mainAction); show(secondary, alternateAction); show(remove, canRemove ? "Remove from device" : null);
+        show(primary, mainAction); show(secondary, alternateAction); show(remove, canRemove ? getString(R.string.social_remove_device) : null);
         boolean ready = System.currentTimeMillis() >= next.retryAt;
         primary.setEnabled(ready); secondary.setEnabled(ready || !next.hasSession);
         primary.setAlpha(primary.isEnabled() ? 1f : 0.5f); secondary.setAlpha(secondary.isEnabled() ? 1f : 0.5f);
-        if (!ready) { detail.setVisibility(View.VISIBLE); detail.setText("Try again in " + Math.max(1, (next.retryAt - System.currentTimeMillis() + 999) / 1000) + "s"); }
+        if (!ready) { detail.setVisibility(View.VISIBLE); detail.setText(getString(R.string.social_retry_seconds, Math.max(1, (next.retryAt - System.currentTimeMillis() + 999) / 1000))); }
         // Do not expose the approval code in Android's app-switcher snapshot.
         if (waiting) getWindow().addFlags(WindowManager.LayoutParams.FLAG_SECURE);
         else getWindow().clearFlags(WindowManager.LayoutParams.FLAG_SECURE);
@@ -144,13 +145,13 @@ public final class FluxerAccountActivity extends CompactSettingsActivity {
         if (state.phase == FluxerAuth.Phase.SIGNED_OUT) model.begin();
         else if (state.phase == FluxerAuth.Phase.WAITING) {
             ClipboardManager clipboard = (ClipboardManager)getSystemService(CLIPBOARD_SERVICE);
-            ClipData clip = ClipData.newPlainText("Fluxer sign-in code", state.code);
+            ClipData clip = ClipData.newPlainText(getString(R.string.social_code_label), state.code);
             android.os.PersistableBundle extras = new android.os.PersistableBundle();
             extras.putBoolean("android.content.extra.IS_SENSITIVE", true); clip.getDescription().setExtras(extras);
             clipboard.setPrimaryClip(clip);
             try { startActivity(new Intent(Intent.ACTION_VIEW, Uri.parse(FluxerAuth.LOGIN_URL))); }
             catch (android.content.ActivityNotFoundException e) {
-                Toast.makeText(this, "No browser found. Open web.fluxer.app/login?handoff=1 in a browser and enter the code.", Toast.LENGTH_LONG).show();
+                Toast.makeText(this, getString(R.string.social_no_browser, FluxerAuth.LOGIN_URL), Toast.LENGTH_LONG).show();
             }
         } else if (state.phase == FluxerAuth.Phase.CONNECTED && state.remembered) {
             startActivity(new Intent(this, FluxerChatsActivity.class));

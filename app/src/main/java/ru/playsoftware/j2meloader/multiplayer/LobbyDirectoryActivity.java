@@ -39,29 +39,29 @@ public final class LobbyDirectoryActivity extends CompactSettingsActivity {
     private boolean checkingGame;
 
     @Override protected void onCreate(Bundle saved){
-        super.onCreate(saved);screenTitle("Lobbies");
+        super.onCreate(saved);screenTitle(getString(R.string.social_lobbies));
         getWindow().setSoftInputMode(android.view.WindowManager.LayoutParams.SOFT_INPUT_ADJUST_RESIZE
                 |android.view.WindowManager.LayoutParams.SOFT_INPUT_STATE_ALWAYS_HIDDEN);
-        refresh=headerButton("Refresh",android.R.drawable.ic_popup_sync,()->model.refresh());refresh.setId(R.id.lobby_refresh);
-        headerButton("Social options",R.drawable.ic_library_ellipsis_vertical,this::socialOptions);
+        refresh=headerButton(getString(R.string.social_refresh),android.R.drawable.ic_popup_sync,()->model.refresh());refresh.setId(R.id.lobby_refresh);
+        headerButton(getString(R.string.social_options),R.drawable.ic_library_ellipsis_vertical,this::socialOptions);
         LinearLayout root=new LinearLayout(this);root.setOrientation(LinearLayout.VERTICAL);screenContent.addView(root,new ViewGroup.LayoutParams(-1,-1));
         root.setBackground(new ConsoleSurface(this,ConsoleSurface.Kind.CHASSIS));
         screenHeader.setBackground(new ConsoleSurface(this,ConsoleSurface.Kind.CHASSIS));
-        TextView experimental=label(12,R.color.text_secondary);experimental.setText("Early experimental - low compatibility");
+        TextView experimental=label(12,R.color.text_secondary);experimental.setText(getString(R.string.social_experimental));
         experimental.setPadding(dp(12),dp(4),dp(12),0);root.addView(experimental);
         status=label(14,R.color.text_secondary);status.setId(R.id.lobby_status);status.setPadding(dp(12),dp(8),dp(12),dp(8));
         status.setAccessibilityLiveRegion(View.ACCESSIBILITY_LIVE_REGION_POLITE);root.addView(status);
         progress=new ProgressBar(this,null,android.R.attr.progressBarStyleHorizontal);progress.setIndeterminate(true);root.addView(progress,new LinearLayout.LayoutParams(-1,dp(3)));
-        account=action(root,"Open Fluxer account",R.id.lobby_account,()->startActivity(new Intent(this,FluxerAccountActivity.class)));
-        community=action(root,"Retry community access",R.id.lobby_community,()->{if(state!=null)model.retryCommunity(state.account);});
-        retry=action(root,"Retry loading",View.NO_ID,()->model.refresh());retry.setTag("retry-lobbies");
+        account=action(root,getString(R.string.social_open_account),R.id.lobby_account,()->startActivity(new Intent(this,FluxerAccountActivity.class)));
+        community=action(root,getString(R.string.social_retry_community),R.id.lobby_community,()->{if(state!=null)model.retryCommunity(state.account);});
+        retry=action(root,getString(R.string.social_retry_loading),View.NO_ID,()->model.refresh());retry.setTag("retry-lobbies");
         filters=new LinearLayout(this);filters.setGravity(Gravity.CENTER_VERTICAL);root.addView(filters);
-        search=new EditText(this);search.setId(R.id.lobby_search);search.setSingleLine(true);search.setTextSize(16);search.setHint("Search lobbies");
+        search=new EditText(this);search.setId(R.id.lobby_search);search.setSingleLine(true);search.setTextSize(16);search.setHint(getString(R.string.social_search_lobbies));
         search.setTextColor(color(R.color.text_primary));search.setHintTextColor(color(R.color.text_secondary));search.setSaveEnabled(false);
         search.setImportantForAutofill(View.IMPORTANT_FOR_AUTOFILL_NO);search.setPadding(dp(12),0,dp(8),0);
         search.setImeOptions(EditorInfo.IME_ACTION_SEARCH|EditorInfo.IME_FLAG_NO_EXTRACT_UI|EditorInfo.IME_FLAG_NO_PERSONALIZED_LEARNING);
         filters.addView(search,new LinearLayout.LayoutParams(0,dp(48),1));
-        free=new CheckBox(this);free.setId(R.id.lobby_free);free.setText("Free seats");free.setTextSize(14);free.setTextColor(color(R.color.text_primary));free.setMinHeight(dp(48));filters.addView(free);
+        free=new CheckBox(this);free.setId(R.id.lobby_free);free.setText(getString(R.string.social_free_seats));free.setTextSize(14);free.setTextColor(color(R.color.text_primary));free.setMinHeight(dp(48));filters.addView(free);
         FrameLayout area=new FrameLayout(this);root.addView(area,new LinearLayout.LayoutParams(-1,0,1));
         area.setBackground(new ConsoleSurface(this,ConsoleSurface.Kind.SCREEN));
         RecyclerView list=new RecyclerView(this);list.setId(R.id.lobby_list);list.setLayoutManager(new LinearLayoutManager(this));list.setAdapter(adapter);area.addView(list,new FrameLayout.LayoutParams(-1,-1));
@@ -71,7 +71,7 @@ public final class LobbyDirectoryActivity extends CompactSettingsActivity {
         });
         gamePath=getIntent().getStringExtra(PlayTogether.EXTRA_GAME);
         if(gamePath!=null){
-            checkingGame=true;screenTitle("Matching lobbies");
+            checkingGame=true;screenTitle(getString(R.string.social_matching_lobbies));
             PlayTogether.inspect(gamePath,entry->{
                 if(isFinishing()||isDestroyed())return;
                 if(entry==null){checkingGame=false;filter();return;}
@@ -82,7 +82,7 @@ public final class LobbyDirectoryActivity extends CompactSettingsActivity {
     }
     private void render(LobbyDirectory.State next){
         if(state!=null&&!state.account.equals(next.account)){search.setText("");dismissDetail();}
-        state=next;status.setText(next.status);progress.setVisibility(next.busy?View.VISIBLE:View.INVISIBLE);
+        state=next;status.setText(SocialText.notice(this,next.notice));progress.setVisibility(next.busy?View.VISIBLE:View.INVISIBLE);
         account.setVisibility(!next.verified&&!next.busy?View.VISIBLE:View.GONE);community.setVisibility(next.needsCommunity?View.VISIBLE:View.GONE);
         refresh.setEnabled(!next.busy&&android.os.SystemClock.elapsedRealtime()>=next.retryAt);
         community.setEnabled(!next.busy&&android.os.SystemClock.elapsedRealtime()>=next.retryAt);
@@ -98,31 +98,31 @@ public final class LobbyDirectoryActivity extends CompactSettingsActivity {
                 &&(!free.isChecked()||r.hasSpace())
                 &&(r.title+" "+r.name+" "+r.platform).toLowerCase(Locale.ROOT).contains(query))filtered.add(r);
         adapter.submitList(filtered);empty.setVisibility(filtered.isEmpty()?View.VISIBLE:View.GONE);
-        empty.setText(!state.verified||state.needsCommunity?"":state.busy?"Loading lobbies...":state.error?"Unable to load rooms":!query.isEmpty()||free.isChecked()?"No rooms match these filters":"No compatible lobbies right now.");
+        empty.setText(!state.verified||state.needsCommunity?"":state.busy?getString(R.string.social_loading_lobbies):state.error?getString(R.string.social_load_rooms_failed):!query.isEmpty()||free.isChecked()?getString(R.string.social_no_rooms_match):getString(R.string.social_no_compatible_lobbies));
         if(gamePath!=null&&state.verified&&!state.needsCommunity&&!state.busy&&!state.error&&filtered.isEmpty())
-            empty.setText(checkingGame?"Checking selected game...":gameHash.isEmpty()?"Selected game is unavailable. Return to Library.":!query.isEmpty()||free.isChecked()?"No rooms match these filters":"No rooms for this game yet. Create one in My room.");
+            empty.setText(checkingGame?getString(R.string.social_check_selected_game):gameHash.isEmpty()?getString(R.string.social_selected_unavailable):!query.isEmpty()||free.isChecked()?getString(R.string.social_no_rooms_match):getString(R.string.social_no_game_rooms));
     }
     private void open(LobbyDirectory.Room expected){
         if(state==null)return;LobbyDirectory.Room room=null;for(LobbyDirectory.Room candidate:state.rooms)if(candidate.id.equals(expected.id)&&candidate.revision==expected.revision)room=candidate;
         if(room==null)return;dismissDetail();selected=room.id;selectedRevision=room.revision;
         LobbyDirectory.Room target=room;
-        detail=new GameMenuDialog(this,room.title);detail.useEdgePanel();detail.show();detail.page(room.title);
-        detail.message("Host: "+room.name);detail.message(room.phase());
-        detail.message(room.access.equals("approval")?"Host approval required":"Open access");
-        if(room.seats>0)detail.message(room.available+" / "+room.seats+" seats available");
+        detail=new GameMenuDialog(this,SocialText.roomTitle(this,room));detail.useEdgePanel();detail.show();detail.page(SocialText.roomTitle(this,room));
+        detail.message(getString(R.string.social_host_value,room.name));detail.message(SocialText.roomPhase(this,room));
+        detail.message(room.access.equals("approval")?getString(R.string.social_approval_required):getString(R.string.social_open_access));
+        if(room.seats>0)detail.message(getString(R.string.social_seats_available,room.available,room.seats));
         boolean own=room.owner.equals(state.account);
-        if(own||room.hasSpace())detail.action(own?"My room":"Open room",android.R.drawable.ic_media_play,()->{
+        if(own||room.hasSpace())detail.action(own?getString(R.string.social_my_room):getString(R.string.social_open_room),android.R.drawable.ic_media_play,()->{
             if(state==null||state.rooms.stream().noneMatch(r->r.id.equals(target.id)&&r.revision==target.revision&&r.live(System.currentTimeMillis()/1000,android.os.SystemClock.elapsedRealtime())))return;
             dismissDetail();startActivity(new Intent(this,LobbyRoomActivity.class).setData(own?null:android.net.Uri.parse(LobbyLink.create(target.owner,target.id))).putExtra(PlayTogether.EXTRA_GAME,gamePath));
         });
-        detail.action("Close",android.R.drawable.ic_menu_close_clear_cancel,this::dismissDetail);
+        detail.action(getString(R.string.social_close),android.R.drawable.ic_menu_close_clear_cancel,this::dismissDetail);
         GameMenuDialog shown=detail;detail.setOnDismissListener(d->{if(detail==shown){selected="";detail=null;}});
     }
     private void socialOptions(){
-        dismissDetail();detail=new GameMenuDialog(this,"Social");detail.useEdgePanel();detail.show();detail.page("Social");
-        detail.action("My room",android.R.drawable.ic_menu_myplaces,()->{dismissDetail();startActivity(new Intent(this,LobbyRoomActivity.class).putExtra(PlayTogether.EXTRA_GAME,gamePath));});
-        detail.action("Chats",R.drawable.ic_library_messages_square,()->{dismissDetail();startActivity(new Intent(this,FluxerChatsActivity.class));});
-        detail.action("Account",android.R.drawable.ic_menu_myplaces,()->{dismissDetail();startActivity(new Intent(this,FluxerAccountActivity.class));});
+        dismissDetail();detail=new GameMenuDialog(this,getString(R.string.social_title));detail.useEdgePanel();detail.show();detail.page(getString(R.string.social_title));
+        detail.action(getString(R.string.social_my_room),android.R.drawable.ic_menu_myplaces,()->{dismissDetail();startActivity(new Intent(this,LobbyRoomActivity.class).putExtra(PlayTogether.EXTRA_GAME,gamePath));});
+        detail.action(getString(R.string.social_chats),R.drawable.ic_library_messages_square,()->{dismissDetail();startActivity(new Intent(this,FluxerChatsActivity.class));});
+        detail.action(getString(R.string.social_account_short),android.R.drawable.ic_menu_myplaces,()->{dismissDetail();startActivity(new Intent(this,FluxerAccountActivity.class));});
         GameMenuDialog shown=detail;detail.setOnDismissListener(d->{if(detail==shown)detail=null;});
     }
     private void dismissDetail(){GameMenuDialog old=detail;detail=null;if(old!=null)old.dismiss();selected="";}
@@ -150,7 +150,8 @@ public final class LobbyDirectoryActivity extends CompactSettingsActivity {
             public boolean areContentsTheSame(LobbyDirectory.Room a,LobbyDirectory.Room b){return a.revision==b.revision;}
         });}
         public Row onCreateViewHolder(ViewGroup p,int type){return new Row();}
-        public void onBindViewHolder(Row row,int position){LobbyDirectory.Room r=getItem(position);row.title.setText(r.title);row.host.setText(r.name);
-            row.info.setText(r.phase()+"  /  "+(r.access.equals("approval")?"Approval":"Open")+(r.seats>0?"  /  "+r.available+" of "+r.seats+" free":""));row.root.setOnClickListener(v->open(r));}
+        public void onBindViewHolder(Row row,int position){LobbyDirectory.Room r=getItem(position);row.title.setText(SocialText.roomTitle(LobbyDirectoryActivity.this,r));row.host.setText(r.name);
+            String access=getString(r.access.equals("approval")?R.string.social_approval:R.string.social_open);
+            row.info.setText(r.seats>0?getString(R.string.social_room_summary_seats,SocialText.roomPhase(LobbyDirectoryActivity.this,r),access,r.available,r.seats):getString(R.string.social_room_summary,SocialText.roomPhase(LobbyDirectoryActivity.this,r),access));row.root.setOnClickListener(v->open(r));}
     }
 }

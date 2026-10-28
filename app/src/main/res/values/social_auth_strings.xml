@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="social_auth_signed_out">Not signed in</string>
+    <string name="social_auth_unlock_failed">Saved sign-in could not be unlocked. Remove it from this device to sign in again.</string>
+    <string name="social_auth_connecting">Connecting to Fluxer...</string>
+    <string name="social_auth_service_failed">Could not verify the Fluxer service. Try again.</string>
+    <string name="social_auth_start_failed">Could not start sign-in. Try again.</string>
+    <string name="social_auth_invalid_expiry">Invalid sign-in expiry. Try again.</string>
+    <string name="social_auth_expired">Sign-in code expired. Try again.</string>
+    <string name="social_auth_approval">Enter this code on Fluxer and approve sign-in.</string>
+    <string name="social_auth_busy">Fluxer is busy. Please wait before trying again.</string>
+    <string name="social_auth_invalid_session">Fluxer returned an invalid session. Try again.</string>
+    <string name="social_auth_declined">Sign-in was declined.</string>
+    <string name="social_auth_waiting">Waiting for Fluxer. Retrying automatically...</string>
+    <string name="social_auth_complete_failed">Could not complete sign-in. Try again.</string>
+    <string name="social_auth_checking">Checking your account...</string>
+    <string name="social_auth_session_expired">Your session expired. Sign in again.</string>
+    <string name="social_auth_verify_failed">Could not verify your account. Your sign-in has not been removed.</string>
+    <string name="social_auth_saved">Signed in. Your session is saved securely on this device.</string>
+    <string name="social_auth_save_failed">Signed in for now, but the session could not be saved. Retry saving before leaving.</string>
+    <string name="social_auth_cancelled">Sign-in cancelled.</string>
+    <string name="social_auth_signing_out">Signing out...</string>
+    <string name="social_auth_signout_failed">Could not sign out of Fluxer. Retry, or remove the saved sign-in from this device.</string>
+    <string name="social_auth_remove_failed">Saved sign-in could not be removed. Please try again.</string>
+</resources>

@@ -8,6 +8,23 @@ import java.util.function.Consumer;
 import static org.junit.Assert.*;
 
 public class FluxerChatsTest {
+    @Test public void deliveryAndQuietFlagsUseStateKeysNotEnglishText() {
+        Fixture f=new Fixture();f.open();assertTrue(f.chats.state().quiet(false));
+        Request request=f.send();
+        assertEquals(SocialNotice.SENDING,f.chats.state().messages.get(1).deliveryCode);
+        request.reply(0,null);
+        assertEquals(SocialNotice.DELIVERY_UNKNOWN,f.chats.state().messages.get(1).deliveryCode);
+        assertFalse(f.chats.state().quiet(false));
+    }
+    @Test public void placeholderLookalikesKeepTheirUserContentIdentity() {
+        Fixture f=new Fixture();f.open();f.chats.history(false);
+        f.history("101").reply(200,"["+message("801","101","22","[Attachment]","")+"]");
+        assertEquals(FluxerChats.Message.ContentKind.TEXT,f.chats.state().messages.get(0).contentKind);
+        JsonObject media=JsonParser.parseString(message("802","101","22","","")).getAsJsonObject();
+        JsonArray attachments=new JsonArray();attachments.add(new JsonObject());media.add("attachments",attachments);
+        f.chats.history(false);f.history("101").reply(200,"["+media+"]");
+        assertEquals(FluxerChats.Message.ContentKind.ATTACHMENT,f.chats.state().messages.get(0).contentKind);
+    }
     @Test public void peerSignalingPayloadIsHiddenButOrdinaryChatRemains(){
         Fixture f=new Fixture();f.connect();f.chats.select("101");
         String signal=io.github.eriark.abyssme.peer.PeerSignals.PREFIX+"opaque-fragment";

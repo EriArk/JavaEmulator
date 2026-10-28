@@ -10,6 +10,25 @@ stated otherwise. **Experimental** in older checkpoints means local/private
 combined builds; released experimental features are explicitly identified.
 **Released** means an actual GitHub release asset.
 
+## 2026-10-28 - Social and System-File Localization Preparation (Public Source, Unreleased)
+
+- Move account sign-in/recovery, chat/friend actions, lobby directory and room
+  controls into English resources, including accessibility labels and complete
+  formatted messages. Render chat dates using the UI locale.
+- Replace account/chat/directory display-state comparisons with typed notices.
+  Distinguish generated placeholders from real messages/chat names so user text,
+  account identifiers and protocol payloads remain unchanged.
+- Extract system-file requirements and pending-import decisions. Use phone
+  generation/readiness keys rather than English titles; keep phone firmware and
+  the N-Gage 2.0 platform installer distinct. Preserve technical identifiers in help.
+- Verify 410 JVM tests and 53 Retroid checks; 10 optional/account-protected cases
+  are skipped, not passes. Seat layout covers 90 locale/font/width/theme cases.
+  Final lint stalled during file-tree analysis and was cancelled; no fresh lint
+  result is claimed. Offline fixture screenshots were inspected.
+- Full localization still needs backend/helper messages, remaining system-file
+  subflows, language selection and reviewed translations. No public APK update.
+  [Evidence and limits](docs/checks/2026-10-28-social-system-localization.md).
+
 ## 2026-10-28 - Localization Preparation Across Library and Game Controls (Public Source, Unreleased)
 
 - Extract English library actions, installer/transfer menus, shared game settings

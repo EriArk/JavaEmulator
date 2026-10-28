@@ -21,7 +21,8 @@ public class LocalizationAudit {
     private static final Set<String> PROTECTED = Set.of("GameSettingsPages.java", "GameMenuPages.java",
             "SocialMenuPages.java", "DisplayPanel.java", "FastForwardControl.java", "AppsListFragment.java",
             "LibraryImportActivity.java", "InstallerDialog.java", "ControllerMapperView.java", "MapperDialog.java",
-            "TouchLayoutEditor.java", "SettingsPreviewBar.java", "GameChrome.java");
+            "TouchLayoutEditor.java", "SettingsPreviewBar.java", "GameChrome.java",
+            "FluxerChatsActivity.java", "LobbyDirectoryActivity.java", "LobbyRoomActivity.java");
     private static final Set<String> BRANDS = Set.of("AbyssME", "Java ME", "Mophun", "Symbian", "N-Gage", "J2ME Loader");
     private record Candidate(String file, long line, String call, String text) { }
     private record Resource(String type, String name, List<String> values, boolean translated) { }

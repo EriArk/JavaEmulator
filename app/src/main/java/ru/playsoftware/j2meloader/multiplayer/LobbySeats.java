@@ -29,16 +29,17 @@ final class LobbySeats {
             }
             final boolean vacant = i == members.size();
             JsonObject member = vacant ? new JsonObject() : members.get(i).getAsJsonObject();
-            String id = text(member, "id"), name = vacant ? "Invite player" : state.names.getOrDefault(id, id);
-            String status = vacant ? "Empty seat" : !bool(member,"connected") || !state.available ? "Reconnecting"
-                    : bool(member,"ready") ? "Ready" : bool(member,"prepared") ? "Prepared" : "Waiting for game";
+            String id = text(member, "id"), name = vacant ? context.getString(R.string.social_invite_player) : state.names.getOrDefault(id, id);
+            String status = vacant ? context.getString(R.string.social_empty_seat) : !bool(member,"connected") || !state.available ? context.getString(R.string.social_reconnecting)
+                    : bool(member,"ready") ? context.getString(R.string.social_ready) : bool(member,"prepared") ? context.getString(R.string.social_prepared) : context.getString(R.string.social_waiting_game);
             LinearLayout seat = new LinearLayout(context); seat.setOrientation(LinearLayout.VERTICAL);
             seat.setGravity(Gravity.CENTER); seat.setPadding(dp(context, 12), dp(context, 14), dp(context, 12), dp(context, 14));
             seat.setBackground(new ConsoleSurface(context, ConsoleSurface.Kind.CARD));
             seat.setTag(vacant ? "empty-seat" : "member:" + id);
             seat.setFocusable(true); seat.setClickable(true); seat.setDefaultFocusHighlightEnabled(false);
             seat.setEnabled(!vacant || state.available && !state.snapshot.has("launch"));
-            seat.setContentDescription("P" + (i+1) + ", " + name + (id.equals(state.host) ? ", Host" : "") + ", " + status);
+            String roleName=context.getString(id.equals(state.host)?R.string.social_host:R.string.social_player);
+            seat.setContentDescription(context.getString(R.string.social_seat_accessibility,i+1,name,roleName,status));
             seat.setOnClickListener(v -> { if (vacant) invite.run(); else memberAction.accept(id); });
             LinearLayout.LayoutParams cell = new LinearLayout.LayoutParams(0, -2, 1);
             cell.setMargins(dp(context, 3), dp(context, 3), dp(context, 3), dp(context, 6)); line.addView(seat, cell);
@@ -50,7 +51,7 @@ final class LobbySeats {
             seat.addView(badge, new LinearLayout.LayoutParams(dp(context, 48), dp(context, 48)));
             TextView title = label(context, name, 16); title.setGravity(Gravity.CENTER); title.setTypeface(null, Typeface.BOLD);
             title.setPadding(0, dp(context, 8), 0, 0); seat.addView(title, new LinearLayout.LayoutParams(-1,-2));
-            TextView role = label(context, "P" + (i+1) + (id.equals(state.host) ? "  /  Host" : ""), 12);
+            TextView role = label(context, context.getString(R.string.social_seat_role,i+1,roleName), 12);
             role.setGravity(Gravity.CENTER); seat.addView(role, new LinearLayout.LayoutParams(-1,-2));
             TextView phase = label(context, status, 14); phase.setGravity(Gravity.CENTER);
             phase.setPadding(0, dp(context, 6), 0, 0); seat.addView(phase, new LinearLayout.LayoutParams(-1,-2));
