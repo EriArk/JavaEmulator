@@ -91,6 +91,9 @@ public final class SymbianActivity extends Activity implements Emulator.Host, In
             @Override public void status(String message) throws Exception {
                 checkImportOpen(); runOnUiThread(() -> { if(!closing) status.setText(message); });
             }
+            @Override public void status(SystemProgress step,Object... arguments) throws Exception {
+                status(SystemTransferText.progress(SymbianActivity.this,step,arguments));
+            }
             @Override public void install(File file, GameImport.Kind kind) throws Exception {
                 checkImportOpen();
                 int code = kind == GameImport.Kind.CARD ? Emulator.installNGageGame(file.getAbsolutePath())
@@ -620,8 +623,8 @@ public final class SymbianActivity extends Activity implements Emulator.Host, In
     }
     private void archiveItem(ArchiveBatch.Item item,boolean started) {
         GameMenuDialog menu=dialog(item.label());
-        menu.message(item.name+"\n\n"+(!item.problem.isEmpty() ? item.problem : item.detail.isEmpty()
-                ? item.role==ArchiveBatch.Role.GAME ? getString(R.string.native_install_game_help) : getString(R.string.native_save_component_help) : item.detail));
+        menu.message(item.name+"\n\n"+(!item.problem.isEmpty() ? SystemTransferText.problem(this,item) : item.detail.isEmpty()
+                ? item.role==ArchiveBatch.Role.GAME ? getString(R.string.native_install_game_help) : getString(R.string.native_save_component_help) : SystemTransferText.detail(this,item)));
         if(started && item.problem.isEmpty() && (item.state==ArchiveBatch.State.WAITING || item.state==ArchiveBatch.State.FAILED))
             menu.action(getString(R.string.system_retry),android.R.drawable.ic_menu_rotate,()-> {
                 menu.dismiss(); notice(getString(R.string.native_retry_file_title),getString(R.string.native_retry_file_body),
@@ -632,10 +635,10 @@ public final class SymbianActivity extends Activity implements Emulator.Host, In
         menu.action(getString(R.string.system_close),0,menu::dismiss);
     }
     private void runArchive(String selected,boolean retry) throws Exception {
-        GameInstallFlow.Result result=archiveQueue.run(selected,retry,message-> {
+        GameInstallFlow.Result result=archiveQueue.run(selected,retry,SystemTransferText.localize(this,message-> {
             checkImportOpen(); if(pauseArchive) throw new java.io.InterruptedIOException(getString(R.string.native_queue_paused));
             runOnUiThread(()-> { if(!closing) status.setText(message); });
-        });
+        }));
         if(result==null) showArchive(); else showImportResult(result);
     }
     private void resumeImport(String selected, boolean retry) {
@@ -723,10 +726,10 @@ public final class SymbianActivity extends Activity implements Emulator.Host, In
             List<File> staged = new ArrayList<>();
             GameImport game = null;
             try {
-                PreparedSystemArchive.Progress progress = text -> {
+                PreparedSystemArchive.Progress progress = SystemTransferText.localize(this,text -> {
                     if (closing) throw new java.io.InterruptedIOException(getString(R.string.native_import_cancelled));
                     runOnUiThread(() -> { if (!closing) status.setText(text); });
-                };
+                });
                 if (incoming != null) staged.add(SymbianFiles.claimStaged(this, incoming));
                 else {
                     if(uris.size()>256) throw new IOException(getString(R.string.native_selection_limit));

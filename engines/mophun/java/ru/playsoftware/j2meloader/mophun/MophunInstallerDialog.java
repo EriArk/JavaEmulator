@@ -17,6 +17,7 @@ import java.io.File;
 import ru.playsoftware.j2meloader.applist.AppItem;
 import ru.playsoftware.j2meloader.config.Config;
 import ru.playsoftware.j2meloader.databinding.DialogInstallerBinding;
+import ru.playsoftware.j2meloader.R;
 
 public final class MophunInstallerDialog extends DialogFragment {
     private DialogInstallerBinding binding;
@@ -37,8 +38,8 @@ public final class MophunInstallerDialog extends DialogFragment {
     @Override public Dialog onCreateDialog(Bundle state) {
         binding = DialogInstallerBinding.inflate(getLayoutInflater());
         Uri uri = requireArguments().getParcelable("uri");
-        binding.installerTitle.setText("Mophun installer");
-        binding.installationStatus.setText("Experimental");
+        binding.installerTitle.setText(R.string.mophun_installer_title);
+        binding.installationStatus.setText(R.string.mophun_installer_experimental);
         binding.installerMessage.setMinHeight(0);
         binding.installerMessage.setText(MophunStore.name(requireContext(), uri));
         binding.installationProgress.setVisibility(View.GONE);
@@ -100,7 +101,7 @@ public final class MophunInstallerDialog extends DialogFragment {
         binding.buttonClose.setEnabled(false);
         binding.buttonInstall.setEnabled(false);
         binding.installationProgress.setVisibility(View.VISIBLE);
-        binding.installationStatus.setText("Preparing game");
+        binding.installationStatus.setText(R.string.mophun_installer_preparing);
         android.content.Context context = requireContext().getApplicationContext();
         File root = new File(Config.getEmulatorDir());
         work = Single.fromCallable(() -> MophunStore.install(context, root, uri))
@@ -108,14 +109,14 @@ public final class MophunInstallerDialog extends DialogFragment {
                 .subscribe(item -> {
                     installed = item;
                     done();
-                    binding.installationStatus.setText("Ready");
+                    binding.installationStatus.setText(R.string.native_import_ready);
                     binding.buttonInstall.setVisibility(View.GONE);
                     binding.buttonStart.setVisibility(View.VISIBLE);
                     binding.buttonStart.requestFocus();
                     if (requireArguments().getBoolean("autoStart")) start();
                 }, error -> {
                     done();
-                    binding.installationStatus.setText("Could not import game");
+                    binding.installationStatus.setText(R.string.mophun_installer_failed);
                     binding.installerMessage.setText(error.getMessage());
                     binding.buttonInstall.setEnabled(true);
                 });

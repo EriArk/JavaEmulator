@@ -10,6 +10,23 @@ stated otherwise. **Experimental** in older checkpoints means local/private
 combined builds; released experimental features are explicitly identified.
 **Released** means an actual GitHub release asset.
 
+## 2026-10-28 - Native Import Messages and Safe Queue Persistence (Public Source, Unreleased)
+
+- Extract 163 more app-owned archive, firmware and component errors, native
+  import progress and installer labels into English resources. Preserve raw
+  filenames, game names, original causes and unknown external diagnostics.
+- Store optional display identities with new archive queue messages, so they
+  can be rendered using the current UI locale after reload. Keep old queues
+  readable without guessing translation keys from their English text.
+- Bound optional metadata and reject oversized journal writes before replacing
+  the previous queue. Malformed display metadata cannot change import decisions.
+- Fix cancellation during a phone collection import: stop further installations,
+  clean temporary files and retain phones successfully imported before cancel.
+- Verify combined Debug assembly, 410 JVM passes, 124 Retroid passes and six
+  optional skips; lint has zero errors / 418 warnings. Full language selection
+  and reviewed translations are still pending. No public APK update.
+  [Evidence and limits](docs/checks/2026-10-28-native-import-localization.md).
+
 ## 2026-10-28 - Native Transfer and Recovery Localization Preparation (Public Source, Unreleased)
 
 - Extract Symbian/N-Gage host actions, archive queues, saved components,

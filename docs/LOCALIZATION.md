@@ -45,6 +45,15 @@ language batch has shipped in this checkpoint.
   Core errors remain `IOException` subclasses with English diagnostics and
   preserved causes; presentation uses keys, not matching English messages.
   Unknown/native/OS errors and user-provided paths stay verbatim.
+- `values/native_import_error_strings.xml` and `native_import_strings.xml`:
+  another 163 typed errors for archives, firmware and SIS/component imports,
+  14 additional progress events, 11 persistent queue notices and native/Mophun
+  installer labels. The total typed native error set is now 218 keys.
+- New queue journals retain optional notice/error identities alongside the old
+  English fallback fields. Old version-1 journals remain readable; their old
+  raw messages are not guessed or rewritten into translation keys. Invalid or
+  oversized display metadata falls back to the raw diagnostic. Journal writes
+  cannot replace the previous queue with an unreadably large record.
 
 Display resolution is selected by numeric dimensions, not by parsing translated
 labels. Phone profile IDs and stored mapping names remain stable; built-in
@@ -52,8 +61,8 @@ mapping names have separate display aliases. Transfer idle state is semantic,
 not an English string comparison. Play styling and image-preset swatches are
 explicit properties, not label comparisons.
 
-This is still source preparation, not whole-app localization. Persisted archive
-details, remaining firmware/component backend errors, room/publication/contact
+This is still source preparation, not whole-app localization. Remaining backend
+messages (including Mophun and external diagnostics), room/publication/contact
 backend notices, game-information helpers and inherited About/Help still need
 extraction or review. No new locale is enabled or guest language modified as a
 side effect. English actor fallback fields are retained for diagnostics and
@@ -142,3 +151,10 @@ Archive controls stack for narrow/large-font layouts and keep their actions
 independent of display labels. This does not prove all firmware/backend errors
 are localized or all RTL navigation is ready.
 See the [native transfer checks](checks/2026-10-28-native-transfer-localization.md).
+
+`NativeImportLocalizationTest` covers typed error persistence, locale-time
+rendering, old/unknown/malformed queue metadata, bounded journal writes and
+legacy progress callbacks. `PreparedSystemArchiveTest` also verifies that
+cancelling a phone installation stops the collection, removes staging and
+preserves already imported phones. See the
+[native import checks](checks/2026-10-28-native-import-localization.md).

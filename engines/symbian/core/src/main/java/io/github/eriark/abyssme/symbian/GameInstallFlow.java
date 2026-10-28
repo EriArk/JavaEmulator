@@ -22,6 +22,7 @@ final class GameInstallFlow {
         void stage(File file, String hash) throws Exception;
         default SisMetadata.Version installedVersion(long uid) throws Exception { return null; }
         default void status(String message) throws Exception { }
+        default void status(SystemProgress step,Object... arguments) throws Exception { status(step.fallback(arguments)); }
     }
     private final PendingGameImport pending;
     private final SystemFileCatalog catalog;
@@ -48,9 +49,9 @@ final class GameInstallFlow {
         pending.verify(job);
         SystemFileCatalog.Entry system;
         if (!job.system.isEmpty()) {
-            if (selected != null && !selected.equals(job.system)) throw new IOException("This import already has a selected system");
+            if (selected != null && !selected.equals(job.system)) throw new SystemFailure(SystemFailure.Code.IMPORT_THIS_IMPORT_ALREADY_HAS_A_SELECTED_SYSTEM);
             system = catalog.read(job.system);
-            if (!system.supports(job.kind)) throw new IOException("The selected system is incompatible with this package");
+            if (!system.supports(job.kind)) throw new SystemFailure(SystemFailure.Code.IMPORT_THE_SELECTED_SYSTEM_IS_INCOMPATIBLE_WITH_THIS_PACKAGE);
         } else {
             List<SystemFileCatalog.Entry> choices = catalog.candidates(job.kind, job.hash);
             if (choices.isEmpty()) return new Result(Action.SYSTEM);
@@ -60,7 +61,7 @@ final class GameInstallFlow {
             system = null;
             for (SystemFileCatalog.Entry choice : choices)
                 if (selected == null || selected.equals(choice.id)) { system = choice; break; }
-            if (system == null) throw new IOException("The selected system is no longer available");
+            if (system == null) throw new SystemFailure(SystemFailure.Code.IMPORT_THE_SELECTED_SYSTEM_IS_NO_LONGER_AVAILABLE);
             job = pending.update(job, system.id, PendingGameImport.Step.READY);
         }
         backend.open(system);
@@ -96,7 +97,7 @@ final class GameInstallFlow {
         return new Result(Action.DONE);
     }
     private Result prepareComponents(PendingGameImport.Entry job,File installer) throws Exception {
-        backend.status("Checking required components");
+        backend.status(SystemProgress.CHECK_COMPONENTS);
         ComponentPlan plan;
         try { plan=new ComponentPlan(SisMetadata.read(installer),components,backend); }
         catch(ComponentPlan.Missing missing) {
@@ -105,27 +106,27 @@ final class GameInstallFlow {
         }
         for(ComponentStore.Item item:plan.installs) {
             item.verify();
-            backend.status("Installing component: "+item.metadata.name);
+            backend.status(SystemProgress.INSTALL_COMPONENT,item.metadata.name);
             pending.update(job,job.system,PendingGameImport.Step.INSTALLING);
             backend.install(item.file,GameImport.Kind.SIS_MODERN);
             SisMetadata.Version installed=backend.installedVersion(item.metadata.uid);
             if(installed==null || installed.compareTo(item.metadata.version)!=0)
-                throw new IOException(item.metadata.name+" was not registered with the expected version. Your game is still waiting.");
+                throw new SystemFailure(SystemFailure.Code.COMPONENT_REGISTRATION, item.metadata.name);
         }
-        backend.status("Installing "+job.name);
+        backend.status(SystemProgress.INSTALL_GAME,job.name);
         return null;
     }
     Result addComponent(GameImport input) throws Exception {
         PendingGameImport.Entry job=pending.read();
         if(components==null || job==null || job.step!=PendingGameImport.Step.COMPONENT)
-            throw new IOException("No component is currently requested. Continue the pending import first.");
+            throw new SystemFailure(SystemFailure.Code.IMPORT_NO_COMPONENT_IS_CURRENTLY_REQUESTED_CONTINUE_THE_PENDING_IMPORT);
         pending.verify(job); backend.open(catalog.read(job.system));
         GameImport platform=null;
         try {
             File installer=pending.payload();
             if(job.kind==GameImport.Kind.NGAGE2) {
                 platform=platforms.open();
-                if(platform==null) throw new IOException("Add the N-Gage 2.0 installer again.");
+                if(platform==null) throw new SystemFailure(SystemFailure.Code.IMPORT_ADD_THE_N_GAGE_2_0_INSTALLER_AGAIN);
                 installer=platform.file;
             }
             try { new ComponentPlan(SisMetadata.read(installer),components,backend); }
@@ -133,15 +134,15 @@ final class GameInstallFlow {
                 components.save(input,missing.need);
                 return resume(null,true);
             }
-            throw new IOException("This component is no longer needed. Continue the pending import.");
+            throw new SystemFailure(SystemFailure.Code.IMPORT_THIS_COMPONENT_IS_NO_LONGER_NEEDED_CONTINUE_THE_PENDING);
         } finally { if(platform!=null) platform.close(); }
     }
     Result addPlatform(GameImport platform) throws Exception {
         PendingGameImport.Entry job = pending.read();
         if (job == null || job.kind != GameImport.Kind.NGAGE2 || job.system.isEmpty()
                 || (job.step != PendingGameImport.Step.PLATFORM && job.step != PendingGameImport.Step.INSTALLING))
-            throw new IOException("No N-Gage platform is requested");
-        if (!platform.isPlatform()) throw new IOException("Select the N-Gage 2.0 platform SIS or its ZIP, not a game");
+            throw new SystemFailure(SystemFailure.Code.IMPORT_NO_N_GAGE_PLATFORM_IS_REQUESTED);
+        if (!platform.isPlatform()) throw new SystemFailure(SystemFailure.Code.IMPORT_SELECT_THE_N_GAGE_2_0_PLATFORM_SIS_OR);
         pending.verify(job);
         backend.open(catalog.read(job.system));
         if (!backend.hasPlatform()) {
@@ -152,7 +153,7 @@ final class GameInstallFlow {
             }
             pending.update(job, job.system, PendingGameImport.Step.INSTALLING);
             backend.install(platform.file, platform.kind);
-            if (!backend.hasPlatform()) throw new IOException("This installer did not add N-Gage 2.0. The game is still waiting.");
+            if (!backend.hasPlatform()) throw new SystemFailure(SystemFailure.Code.IMPORT_THIS_INSTALLER_DID_NOT_ADD_N_GAGE_2_0);
         }
         if (platforms != null) platforms.save(platform);
         return resume(null, true);

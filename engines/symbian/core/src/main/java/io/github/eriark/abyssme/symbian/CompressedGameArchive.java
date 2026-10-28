@@ -26,7 +26,7 @@ final class CompressedGameArchive {
         try(SevenZFile archive=new SevenZFile(file,SevenZFileOptions.builder().withMaxMemoryLimitInKb(128*1024).build())) {
             int count=0; boolean system=false;
             for(SevenZArchiveEntry entry:archive.getEntries()) {
-                if(++count>250000)throw new IOException("Too many archive entries");
+                if(++count>250000)throw new SystemFailure(SystemFailure.Code.IMPORT_TOO_MANY_ARCHIVE_ENTRIES);
                 String path=entry.getName().toLowerCase(Locale.ROOT);
                 system|=!entry.isDirectory() && (path.endsWith(".rom") || path.endsWith(".rpkg"));
             }
@@ -34,8 +34,8 @@ final class CompressedGameArchive {
         }
     }
     static File toZip(File source,PreparedSystemArchive.Progress progress) throws IOException {
-        if(source.length()>ArchiveBatch.LIMIT)throw new IOException("Game archive exceeds 1 GB");
-        progress.update("Reading RAR / 7z archive");
+        if(source.length()>ArchiveBatch.LIMIT)throw new SystemFailure(SystemFailure.Code.IMPORT_GAME_ARCHIVE_EXCEEDS_1_GB);
+        progress.update(SystemProgress.READ_COMPRESSED);
         File output=File.createTempFile("decoded-",".zip",source.getParentFile()); boolean complete=false;
         try {
             try(FileOutputStream file=new FileOutputStream(output); ZipOutputStream zip=new ZipOutputStream(new BufferedOutputStream(file))) {
@@ -45,21 +45,21 @@ final class CompressedGameArchive {
                     long total,written,last; String current;
                     public void begin(String name,long size,boolean directory) throws IOException {
                         check(); String path=ArchiveBatch.safe(name); String key=path.toLowerCase(Locale.ROOT).replaceAll("/+$","");
-                        if(paths.size()>=20000)throw new IOException("Too many game archive entries");
-                        if(paths.put(key,directory)!=null)throw new IOException("Duplicate archive path");
+                        if(paths.size()>=20000)throw new SystemFailure(SystemFailure.Code.IMPORT_TOO_MANY_GAME_ARCHIVE_ENTRIES);
+                        if(paths.put(key,directory)!=null)throw new SystemFailure(SystemFailure.Code.IMPORT_DUPLICATE_ARCHIVE_PATH);
                         for(int slash=key.lastIndexOf('/');slash>0;slash=key.lastIndexOf('/',slash-1))
-                            if(Boolean.FALSE.equals(paths.get(key.substring(0,slash))))throw new IOException("Conflicting archive paths");
+                            if(Boolean.FALSE.equals(paths.get(key.substring(0,slash))))throw new SystemFailure(SystemFailure.Code.IMPORT_CONFLICTING_ARCHIVE_PATHS);
                         String child=paths.ceilingKey(key+"/");
-                        if(!directory && child!=null && child.startsWith(key+"/"))throw new IOException("Conflicting archive paths");
-                        if(size<0 || size>ArchiveBatch.LIMIT-total)throw new IOException("Expanded game archive exceeds 1 GB");
+                        if(!directory && child!=null && child.startsWith(key+"/"))throw new SystemFailure(SystemFailure.Code.IMPORT_CONFLICTING_ARCHIVE_PATHS);
+                        if(size<0 || size>ArchiveBatch.LIMIT-total)throw new SystemFailure(SystemFailure.Code.IMPORT_EXPANDED_GAME_ARCHIVE_EXCEEDS_1_GB);
                         total+=size;
-                        if(output.getParentFile().getUsableSpace()<size+64L*1024*1024)throw new IOException("Not enough space to read this archive");
-                        current=ArchiveBatch.clean(path,100); progress.update("Reading: "+current);
+                        if(output.getParentFile().getUsableSpace()<size+64L*1024*1024)throw new SystemFailure(SystemFailure.Code.IMPORT_NOT_ENOUGH_SPACE_TO_READ_THIS_ARCHIVE);
+                        current=ArchiveBatch.clean(path,100); progress.update(SystemProgress.READ_ENTRY,current);
                         ZipEntry entry=new ZipEntry(directory && !path.endsWith("/") ? path+"/" : path); entry.setTime(0); zip.putNextEntry(entry);
                     }
                     public void write(byte[] bytes,int length) throws IOException {
                         check(); zip.write(bytes,0,length); written+=length;
-                        long now=System.nanoTime(); if(now-last>250000000L) {last=now;progress.update("Reading: "+current+" ("+written/(1024*1024)+" MB)");}
+                        long now=System.nanoTime(); if(now-last>250000000L) {last=now;progress.update(SystemProgress.READ_ENTRY_SIZE,current,written/(1024*1024));}
                     }
                     public void end() throws IOException {check();zip.closeEntry();}
                     private void check() throws IOException {

@@ -34,21 +34,21 @@ final class PendingGameImport {
             byte[] bytes = new byte[8193];
             int size = 0, count;
             while (size < bytes.length && (count = input.read(bytes, size, bytes.length - size)) != -1) size += count;
-            if (size > 8192) throw new IOException("Import record is too large");
+            if (size > 8192) throw new SystemFailure(SystemFailure.Code.IMPORT_IMPORT_RECORD_IS_TOO_LARGE);
             JSONObject json = new JSONObject(new String(bytes, 0, size, StandardCharsets.UTF_8));
             String hash = json.getString("hash"), system = json.getString("system");
             if (json.getInt("version") != 1 || !hash.matches("[0-9a-f]{64}")
                     || (!system.isEmpty() && !system.matches("[0-9a-f]{64}")))
-                throw new IOException("Invalid import identity");
+                throw new SystemFailure(SystemFailure.Code.IMPORT_INVALID_IMPORT_IDENTITY);
             String owner=json.optString("owner","");
-            if(!owner.isEmpty() && !owner.matches("[0-9a-f-]{36}:[0-9]{1,3}")) throw new IOException("Invalid queue owner");
+            if(!owner.isEmpty() && !owner.matches("[0-9a-f-]{36}:[0-9]{1,3}")) throw new SystemFailure(SystemFailure.Code.IMPORT_INVALID_QUEUE_OWNER);
             Entry entry = new Entry(json.getString("name"), hash, GameImport.Kind.valueOf(json.getString("kind")),
                     system, Step.valueOf(json.getString("step")),owner);
             if (!Files.isRegularFile(payload().toPath(), LinkOption.NOFOLLOW_LINKS))
-                throw new IOException("The pending game file is missing");
+                throw new SystemFailure(SystemFailure.Code.IMPORT_THE_PENDING_GAME_FILE_IS_MISSING);
             return entry;
         } catch (RuntimeException | org.json.JSONException error) {
-            throw new IOException("Cannot read pending import", error);
+            throw new SystemFailure(SystemFailure.Code.IMPORT_CANNOT_READ_PENDING_IMPORT, error);
         }
     }
 
@@ -56,10 +56,10 @@ final class PendingGameImport {
         begin(game,name,"");
     }
     void begin(GameImport game, String name, String owner) throws IOException {
-        if (exists()) throw new IOException("Finish or remove the pending import first");
+        if (exists()) throw new SystemFailure(SystemFailure.Code.IMPORT_FINISH_OR_REMOVE_THE_PENDING_IMPORT_FIRST);
         Files.createDirectories(root.toPath());
         if (game.file.length() > 1024L * 1024 * 1024 || root.getUsableSpace() < game.file.length() + 32L * 1024 * 1024)
-            throw new IOException("Not enough space to retain the game import");
+            throw new SystemFailure(SystemFailure.Code.IMPORT_NOT_ENOUGH_SPACE_TO_RETAIN_THE_GAME_IMPORT);
         File staging = Files.createTempDirectory(root.toPath(), "staging-").toFile();
         try {
             File target = new File(staging, "payload");
@@ -67,12 +67,12 @@ final class PendingGameImport {
                 byte[] buffer = new byte[65536]; long size = 0;
                 for (int count; (count = input.read(buffer)) != -1;) {
                     size += count;
-                    if (size > 1024L * 1024 * 1024) throw new IOException("Game exceeds 1 GB");
+                    if (size > 1024L * 1024 * 1024) throw new SystemFailure(SystemFailure.Code.IMPORT_GAME_EXCEEDS_1_GB);
                     output.write(buffer, 0, count);
                 }
                 output.getFD().sync();
             }
-            if (!game.hash.equals(SystemFileCatalog.hash(target))) throw new IOException("Game changed while retaining import");
+            if (!game.hash.equals(SystemFileCatalog.hash(target))) throw new SystemFailure(SystemFailure.Code.IMPORT_GAME_CHANGED_WHILE_RETAINING_IMPORT);
             String label = name == null ? "Game" : name.replaceAll("[\\p{Cntrl}]", " ").trim();
             if (label.isEmpty()) label = "Game";
             if (label.length() > 160) label = label.substring(0, 160);
@@ -83,13 +83,13 @@ final class PendingGameImport {
 
     Entry update(Entry entry, String system, Step step) throws IOException {
         Entry actual = read();
-        if (actual == null || !actual.hash.equals(entry.hash)) throw new IOException("Pending import changed");
+        if (actual == null || !actual.hash.equals(entry.hash)) throw new SystemFailure(SystemFailure.Code.IMPORT_PENDING_IMPORT_CHANGED);
         Entry updated = new Entry(entry.name, entry.hash, entry.kind, system, step,entry.owner);
         write(current(), updated);
         return updated;
     }
     void verify(Entry entry) throws IOException {
-        if (!entry.hash.equals(SystemFileCatalog.hash(payload()))) throw new IOException("The pending game file has changed");
+        if (!entry.hash.equals(SystemFileCatalog.hash(payload()))) throw new SystemFailure(SystemFailure.Code.IMPORT_THE_PENDING_GAME_FILE_HAS_CHANGED);
     }
     void discard() throws IOException {
         if (!exists()) return;
@@ -114,12 +114,12 @@ final class PendingGameImport {
             file.finishWrite(stream);
         } catch (Exception error) {
             if (stream != null) file.failWrite(stream);
-            throw new IOException("Cannot save import progress", error);
+            throw new SystemFailure(SystemFailure.Code.IMPORT_CANNOT_SAVE_IMPORT_PROGRESS, error);
         }
     }
     private void remove(File target) throws IOException {
         Path path = target.toPath().toAbsolutePath().normalize();
-        if (!path.getParent().equals(root.toPath().toAbsolutePath().normalize())) throw new IOException("Invalid import cleanup path");
+        if (!path.getParent().equals(root.toPath().toAbsolutePath().normalize())) throw new SystemFailure(SystemFailure.Code.IMPORT_INVALID_IMPORT_CLEANUP_PATH);
         if (!Files.exists(path, LinkOption.NOFOLLOW_LINKS)) return;
         Files.walkFileTree(path, new SimpleFileVisitor<Path>() {
             @Override public FileVisitResult visitFile(Path file, BasicFileAttributes attrs) throws IOException {

@@ -28,10 +28,11 @@ public class SystemTransferLocalizationTest {
         config.setLocales(LocaleList.forLanguageTags(tag));
         return base.createConfigurationContext(config);
     }
-    private Object[] arguments(SystemFailure.Code code) {
-        if(code==SystemFailure.Code.SPACE_REQUIRED)return new Object[]{128L};
-        if(code==SystemFailure.Code.UNSUPPORTED_FILE || code==SystemFailure.Code.DAMAGED_FILE
-                || code==SystemFailure.Code.VERIFICATION_FAILED)return new Object[]{"runtime/100% game.dat"};
+    static Object[] arguments(SystemFailure.Code code) {
+        if(code==SystemFailure.Code.COMPONENT_REQUIRED_RANGE)return new Object[]{"Component 100%","1.2.3","2.0.0"};
+        if(code==SystemFailure.Code.COMPONENT_REQUIRED_MINIMUM)return new Object[]{"Component 100%","1.2.3"};
+        if(code.english.contains("%1$d"))return new Object[]{128L};
+        if(code.english.contains("%1$s"))return new Object[]{"runtime/100% game.dat"};
         return new Object[0];
     }
     @Test public void everyOwnedFailureHasLocalizedPresentationAndExactEnglishFallback() {
@@ -89,7 +90,7 @@ public class SystemTransferLocalizationTest {
     @Test public void typedProgressPreservesLegacyCallbacksAndCancellation() throws Exception {
         String[] seen={null};PreparedSystemArchive.Progress legacy=text->seen[0]=text;
         for(SystemProgress step:SystemProgress.values()) {
-            Object[] args={4L,9L};legacy.update(step,args);
+            Object[] args=step==SystemProgress.READ_ENTRY_SIZE?new Object[]{"File 100%",9L}:new Object[]{4L,9L,"File 100%"};legacy.update(step,args);
             assertEquals(step.fallback(args),seen[0]);
             assertEquals(seen[0],SystemTransferText.progress(locale("en"),step,args));
             assertNotEquals(seen[0],SystemTransferText.progress(locale("en-XA"),step,args));

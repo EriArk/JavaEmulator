@@ -20,7 +20,7 @@ final class ComponentPlan {
     }
     private void visit(SisMetadata pkg) throws Exception {
         if(visiting.size()>=32 || chosen.size()>=128 || !visiting.add(pkg.uid))
-            throw new IOException("These installers have circular or excessive dependencies. No installation was started.");
+            throw new SystemFailure(SystemFailure.Code.IMPORT_THESE_INSTALLERS_HAVE_CIRCULAR_OR_EXCESSIVE_DEPENDENCIES_NO_INSTALLATION);
         Map<Long,SisMetadata> bundled=new LinkedHashMap<>(); collect(pkg,bundled);
         Map<Long,SisMetadata.Need> requirements=new LinkedHashMap<>();
         for(SisMetadata child:bundled.values()) for(SisMetadata.Need need:child.needs) {
@@ -30,7 +30,7 @@ final class ComponentPlan {
                 SisMetadata.Version from=previous.from.compareTo(need.from)>0 ? previous.from : need.from;
                 SisMetadata.Version to=previous.to==null ? need.to : need.to==null ? previous.to
                         : previous.to.compareTo(need.to)<0 ? previous.to : need.to;
-                if(to!=null && from.compareTo(to)>0) throw new IOException("Conflicting component versions for "+need.name+". No installation was started.");
+                if(to!=null && from.compareTo(to)>0) throw new SystemFailure(SystemFailure.Code.COMPONENT_VERSION_CONFLICT, need.name);
                 requirements.put(need.uid,new SisMetadata.Need(need.uid,need.name,from,to));
             }
         }
@@ -40,11 +40,11 @@ final class ComponentPlan {
             SisMetadata.Version installed=backend.installedVersion(need.uid);
             if(need.accepts(installed)) continue;
             if(installed!=null && need.to!=null && installed.compareTo(need.to)>0)
-                throw new IOException(need.name+" needs an older version. Choose another phone for this game; existing components were not downgraded.");
+                throw new SystemFailure(SystemFailure.Code.COMPONENT_OLDER_REQUIRED, need.name);
             ComponentStore.Item selected=chosen.get(need.uid);
             if(selected!=null) {
-                if(visiting.contains(need.uid)) throw new IOException("Circular component dependency: "+need.name);
-                if(!need.accepts(selected.metadata.version)) throw new IOException("Conflicting component versions for "+need.name+". No installation was started.");
+                if(visiting.contains(need.uid)) throw new SystemFailure(SystemFailure.Code.COMPONENT_CYCLE, need.name);
+                if(!need.accepts(selected.metadata.version)) throw new SystemFailure(SystemFailure.Code.COMPONENT_VERSION_CONFLICT, need.name);
                 continue;
             }
             for(ComponentStore.Item candidate:available) {
@@ -57,7 +57,7 @@ final class ComponentPlan {
         visiting.remove(pkg.uid);
     }
     private static void collect(SisMetadata pkg,Map<Long,SisMetadata> result) throws IOException {
-        if(result.put(pkg.uid,pkg)!=null) throw new IOException("Duplicate embedded component UID");
+        if(result.put(pkg.uid,pkg)!=null) throw new SystemFailure(SystemFailure.Code.IMPORT_DUPLICATE_EMBEDDED_COMPONENT_UID);
         for(SisMetadata child:pkg.embedded) collect(child,result);
     }
 }

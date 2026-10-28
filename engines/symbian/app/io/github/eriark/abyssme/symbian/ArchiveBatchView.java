@@ -30,7 +30,7 @@ final class ArchiveBatchView extends LinearLayout {
         header.addView(icon(context.getString(R.string.system_back),android.R.drawable.ic_media_previous,host::close),new LayoutParams(dp(48),dp(48)));
         TextView title=text(context.getString(R.string.native_queue_title),20); header.addView(title,new LayoutParams(0,-2,1));
         header.addView(icon(context.getString(R.string.native_queue_remove),android.R.drawable.ic_menu_delete,host::remove),new LayoutParams(dp(48),dp(48))); addView(header);
-        TextView name=text(batch.name,13); name.setMaxLines(1); name.setEllipsize(android.text.TextUtils.TruncateAt.END); addView(name);
+        TextView name=text(batch.selectedFiles?getContext().getString(R.string.native_selected_files):batch.name,13); name.setMaxLines(1); name.setEllipsize(android.text.TextUtils.TruncateAt.END); addView(name);
         status=text("",13); addView(status);
         progress=new ProgressBar(context,null,android.R.attr.progressBarStyleHorizontal); progress.setIndeterminate(true);
         progress.setIndeterminateTintList(ColorStateList.valueOf(ru.playsoftware.j2meloader.ui.AppPalette.color(getContext(), ru.playsoftware.j2meloader.R.color.accent))); progress.setVisibility(GONE); addView(progress,new LayoutParams(-1,dp(4)));
@@ -107,7 +107,8 @@ final class ArchiveBatchView extends LinearLayout {
             ArchiveBatch.Item item=batch.items.get(position); row.name.setText(item.label());
             String type=SystemTransferText.archiveType(getContext(),item);
             String state=SystemTransferText.archiveState(getContext(),item.state);
-            row.detail.setText(!item.problem.isEmpty() ? item.problem : batch.started ? item.detail.isEmpty()?state:getContext().getString(R.string.native_queue_detail,state,item.detail) : getContext().getString(R.string.native_queue_type_detail,type,item.detail.isEmpty() ? item.name : item.detail));
+            String detail=SystemTransferText.detail(getContext(),item);
+            row.detail.setText(!item.problem.isEmpty() ? SystemTransferText.problem(getContext(),item) : batch.started ? detail.isEmpty()?state:getContext().getString(R.string.native_queue_detail,state,detail) : getContext().getString(R.string.native_queue_type_detail,type,detail.isEmpty() ? item.name : detail));
             row.check.setOnCheckedChangeListener(null); row.check.setChecked(item.selected); row.check.setEnabled(!working && item.problem.isEmpty());
             row.check.setContentDescription(getContext().getString(R.string.native_queue_select_item,item.label())); row.check.setVisibility(batch.started ? GONE : VISIBLE);
             row.check.setOnCheckedChangeListener((v,value)->{ item.selected=value; update(); host.changed(); });

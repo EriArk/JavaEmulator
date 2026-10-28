@@ -11,8 +11,8 @@ final class PlatformStore {
     private final File root;
     PlatformStore(File root) { this.root = root; }
     void save(GameImport platform) throws IOException {
-        if (!platform.isPlatform()) throw new IOException("Select the N-Gage 2.0 platform installer, not a game SIS");
-        if (platform.file.length() > LIMIT) throw new IOException("Platform installer exceeds 256 MB");
+        if (!platform.isPlatform()) throw new SystemFailure(SystemFailure.Code.IMPORT_SELECT_THE_N_GAGE_2_0_PLATFORM_INSTALLER_NOT);
+        if (platform.file.length() > LIMIT) throw new SystemFailure(SystemFailure.Code.IMPORT_PLATFORM_INSTALLER_EXCEEDS_256_MB);
         Files.createDirectories(root.toPath());
         File target = new File(root, platform.hash + ".sis");
         if (!Files.isRegularFile(target.toPath(), LinkOption.NOFOLLOW_LINKS) || !platform.hash.equals(SystemFileCatalog.hash(target))) {
@@ -22,12 +22,12 @@ final class PlatformStore {
                     byte[] buffer = new byte[65536]; long size = 0;
                     for (int n; (n = in.read(buffer)) != -1;) {
                         if (Thread.currentThread().isInterrupted()) throw new InterruptedIOException("Import cancelled");
-                        size += n; if (size > LIMIT) throw new IOException("Platform installer exceeds 256 MB");
+                        size += n; if (size > LIMIT) throw new SystemFailure(SystemFailure.Code.IMPORT_PLATFORM_INSTALLER_EXCEEDS_256_MB);
                         out.write(buffer, 0, n);
                     }
                     out.getFD().sync();
                 }
-                if (!platform.hash.equals(SystemFileCatalog.hash(temporary))) throw new IOException("Platform installer changed while copying");
+                if (!platform.hash.equals(SystemFileCatalog.hash(temporary))) throw new SystemFailure(SystemFailure.Code.IMPORT_PLATFORM_INSTALLER_CHANGED_WHILE_COPYING);
                 Files.move(temporary.toPath(), target.toPath(), StandardCopyOption.REPLACE_EXISTING, StandardCopyOption.ATOMIC_MOVE);
             } finally { Files.deleteIfExists(temporary.toPath()); }
         }
@@ -45,13 +45,13 @@ final class PlatformStore {
             while (size < value.length && (n = in.read(value, size, value.length - size)) != -1) size += n;
             hash = new String(value, 0, size, StandardCharsets.US_ASCII);
         }
-        if (!hash.matches("[0-9a-f]{64}")) throw new IOException("Saved platform index is damaged. Add the platform again.");
+        if (!hash.matches("[0-9a-f]{64}")) throw new SystemFailure(SystemFailure.Code.IMPORT_SAVED_PLATFORM_INDEX_IS_DAMAGED_ADD_THE_PLATFORM_AGAIN);
         File file = new File(root, hash + ".sis");
         if (!Files.isRegularFile(file.toPath(), LinkOption.NOFOLLOW_LINKS) || file.length() > LIMIT)
-            throw new IOException("Saved platform is missing. Add the platform again.");
+            throw new SystemFailure(SystemFailure.Code.IMPORT_SAVED_PLATFORM_IS_MISSING_ADD_THE_PLATFORM_AGAIN);
         GameImport result = GameImport.inspect(file);
         if (!result.hash.equals(hash) || !result.isPlatform()) {
-            result.close(); throw new IOException("Saved platform changed. Add the platform again.");
+            result.close(); throw new SystemFailure(SystemFailure.Code.IMPORT_SAVED_PLATFORM_CHANGED_ADD_THE_PLATFORM_AGAIN);
         }
         return result;
     }

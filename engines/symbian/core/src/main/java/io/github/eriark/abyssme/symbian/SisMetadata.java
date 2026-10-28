@@ -61,7 +61,7 @@ final class SisMetadata {
                                 if(n==0) throw bad(); offset+=n;
                             }
                             if(!inflater.finished() || inflater.getRemaining()!=0) throw bad();
-                        } catch(DataFormatException e) { throw new IOException("Invalid SIS compression",e); }
+                        } catch(DataFormatException e) { throw new SystemFailure(SystemFailure.Code.IMPORT_INVALID_SIS_COMPRESSION,e); }
                         finally { inflater.end(); }
                     } else throw bad();
                     Reader reader=new Reader(controller); Field root=reader.field();
@@ -73,7 +73,7 @@ final class SisMetadata {
                 in.seek(start+((size+3)&~3L));
             }
             throw bad();
-        } catch(BufferUnderflowException | IllegalArgumentException e) { throw new IOException("Invalid SIS metadata",e); }
+        } catch(BufferUnderflowException | IllegalArgumentException e) { throw new SystemFailure(SystemFailure.Code.IMPORT_INVALID_SIS_METADATA,e); }
     }
     private static long word(RandomAccessFile in) throws IOException { return Integer.toUnsignedLong(Integer.reverseBytes(in.readInt())); }
     static SisMetadata storedController(File file) throws IOException {
@@ -87,7 +87,7 @@ final class SisMetadata {
             if(Integer.toUnsignedLong(ByteBuffer.wrap(body).order(ByteOrder.LITTLE_ENDIAN).getInt())==size-4)
                 body=Arrays.copyOfRange(body,4,body.length);
             return controller(new Reader(body),0,new int[]{0});
-        } catch(BufferUnderflowException | IllegalArgumentException error) { throw new IOException("Invalid stored SIS controller",error); }
+        } catch(BufferUnderflowException | IllegalArgumentException error) { throw new SystemFailure(SystemFailure.Code.IMPORT_INVALID_STORED_SIS_CONTROLLER,error); }
     }
     private static SisMetadata controller(Reader r, int depth, int[] count) throws IOException {
         if(depth>16 || ++count[0]>256) throw bad();
@@ -133,7 +133,7 @@ final class SisMetadata {
         if(value.length()>160) value=value.substring(0,160);
         return value.isEmpty() ? String.format(Locale.ROOT,"Component %08X",uid) : value;
     }
-    private static IOException bad() { return new IOException("Cannot read this SIS installer safely. Select an intact SIS/SISX or a ZIP containing one installer."); }
+    private static IOException bad() { return new SystemFailure(SystemFailure.Code.IMPORT_CANNOT_READ_THIS_SIS_INSTALLER_SAFELY_SELECT_AN_INTACT); }
     private static final class Field {
         final int type; final Reader body;
         Field(int type,Reader body) { this.type=type; this.body=body; }

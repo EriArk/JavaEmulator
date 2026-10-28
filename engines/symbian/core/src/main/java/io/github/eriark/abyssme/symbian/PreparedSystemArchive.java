@@ -37,7 +37,7 @@ final class PreparedSystemArchive {
         String phone, relative;
         Item(String path, long size, long crc, boolean directory) throws IOException {
             this.path = normalize(path); this.size = size; this.crc = crc; this.directory = directory;
-            if (size < 0 || size > 1024L * 1024 * 1024) throw new IOException("Invalid system archive entry size");
+            if (size < 0 || size > 1024L * 1024 * 1024) throw new SystemFailure(SystemFailure.Code.IMPORT_INVALID_SYSTEM_ARCHIVE_ENTRY_SIZE);
         }
     }
     static boolean isArchive(File file) throws IOException {
@@ -52,13 +52,13 @@ final class PreparedSystemArchive {
     private static String normalize(String raw) throws IOException {
         String name = raw.replace('\\', '/').toLowerCase(Locale.ROOT);
         if (name.length() > 1024 || name.startsWith("/") || name.contains(":") || name.indexOf('\0') >= 0)
-            throw new IOException("Unsafe path in system archive");
-        for (int i = 0; i < name.length(); i++) if (name.charAt(i) < 32) throw new IOException("Invalid archive path characters");
+            throw new SystemFailure(SystemFailure.Code.IMPORT_UNSAFE_PATH_IN_SYSTEM_ARCHIVE);
+        for (int i = 0; i < name.length(); i++) if (name.charAt(i) < 32) throw new SystemFailure(SystemFailure.Code.IMPORT_INVALID_ARCHIVE_PATH_CHARACTERS);
         if (name.endsWith("/")) name = name.substring(0, name.length() - 1);
         String[] parts = name.split("/", -1);
-        if (parts.length > 64) throw new IOException("System archive paths are too deep");
+        if (parts.length > 64) throw new SystemFailure(SystemFailure.Code.IMPORT_SYSTEM_ARCHIVE_PATHS_ARE_TOO_DEEP);
         for (String part : parts) if (part.isEmpty() || part.equals(".") || part.equals(".."))
-            throw new IOException("Unsafe path in system archive");
+            throw new SystemFailure(SystemFailure.Code.IMPORT_UNSAFE_PATH_IN_SYSTEM_ARCHIVE);
         return name;
     }
     /** Empty means a legacy ROM/RPKG archive; malformed prepared collections fail explicitly. */
@@ -66,8 +66,13 @@ final class PreparedSystemArchive {
         return extract(archive, destination, progress, new ArrayList<>());
     }
     static List<Dump> extract(File archive, File destination, Progress progress, List<String> skipped) throws IOException {
-        if (archive.length() > MAX_INPUT) throw new IOException("System archive exceeds 4 GB");
-        progress.update("Inspecting system archive");
+        return extractReported(archive, destination, progress,
+                (source, failure) -> skipped.add(source + ": " + failure.getMessage()));
+    }
+    static List<Dump> extractReported(File archive, File destination, Progress progress,
+            java.util.function.BiConsumer<String, SystemFailure> skipped) throws IOException {
+        if (archive.length() > MAX_INPUT) throw new SystemFailure(SystemFailure.Code.IMPORT_SYSTEM_ARCHIVE_EXCEEDS_4_GB);
+        progress.update(SystemProgress.INSPECT_SYSTEM);
         boolean seven = isSevenZ(archive);
         List<Item> items = new ArrayList<>();
         try (SevenZFile sz = seven ? openSeven(archive) : null;
@@ -78,9 +83,9 @@ final class PreparedSystemArchive {
                     int mode = entry.getHasWindowsAttributes() ? (entry.getWindowsAttributes() >>> 16) & 0170000 : 0;
                     if (entry.isAntiItem() || (entry.getHasWindowsAttributes() && (entry.getWindowsAttributes() & 0x400) != 0)
                             || (mode != 0 && mode != 0100000 && mode != 0040000))
-                        throw new IOException("Links and deletion entries are not supported in system archives");
+                        throw new SystemFailure(SystemFailure.Code.IMPORT_LINKS_AND_DELETION_ENTRIES_ARE_NOT_SUPPORTED_IN_SYSTEM);
                     items.add(new Item(entry.getName(), entry.getSize(), entry.getHasCrc() ? entry.getCrcValue() : -1, entry.isDirectory()));
-                    if (items.size() > 250000) throw new IOException("Too many files in system archive");
+                    if (items.size() > 250000) throw new SystemFailure(SystemFailure.Code.IMPORT_TOO_MANY_FILES_IN_SYSTEM_ARCHIVE);
                 }
             } else {
                 Enumeration<ZipArchiveEntry> entries = zip.getEntries();
@@ -89,18 +94,18 @@ final class PreparedSystemArchive {
                     int type = entry.getUnixMode() & 0170000;
                     if (entry.isUnixSymlink() || (type != 0 && type != 0100000 && type != 0040000)
                             || (entry.getExternalAttributes() & 0x400) != 0)
-                        throw new IOException("Links are not supported in system archives");
+                        throw new SystemFailure(SystemFailure.Code.IMPORT_LINKS_ARE_NOT_SUPPORTED_IN_SYSTEM_ARCHIVES);
                     items.add(new Item(entry.getName(), entry.getSize(), entry.getCrc(), entry.isDirectory()));
-                    if (items.size() > 250000) throw new IOException("Too many files in system archive");
+                    if (items.size() > 250000) throw new SystemFailure(SystemFailure.Code.IMPORT_TOO_MANY_FILES_IN_SYSTEM_ARCHIVE);
                 }
             }
             Map<String, Boolean> paths = new HashMap<>();
             Set<String> phones = new TreeSet<>(), roms = new HashSet<>(), disks = new HashSet<>();
             long selected = 0, retainedRoms = 0;
             for (Item item : items) {
-                if (paths.put(item.path, item.directory) != null) throw new IOException("Duplicate or case-colliding archive path: " + item.path);
+                if (paths.put(item.path, item.directory) != null) throw new SystemFailure(SystemFailure.Code.ARCHIVE_PATH_COLLISION, item.path);
                 expanded += item.size;
-                if (expanded > MAX_EXPANDED) throw new IOException("Expanded system archive exceeds 8 GB");
+                if (expanded > MAX_EXPANDED) throw new SystemFailure(SystemFailure.Code.IMPORT_EXPANDED_SYSTEM_ARCHIVE_EXCEEDS_8_GB);
                 String[] parts = item.path.split("/");
                 for (int i = 0; i + 3 < parts.length; i++) {
                     if (!parts[i].equals("data")) continue;
@@ -120,31 +125,31 @@ final class PreparedSystemArchive {
                 if (item.phone != null && !item.directory) {
                     if ((item.relative.contains("/versions/") && item.size > 1024 * 1024)
                             || (item.relative.endsWith("/hal.dll") && item.size > 32L * 1024 * 1024))
-                        throw new IOException("Oversized phone metadata");
+                        throw new SystemFailure(SystemFailure.Code.IMPORT_OVERSIZED_PHONE_METADATA);
                     phones.add(item.phone); selected += item.size;
                     if (item.relative.isEmpty()) retainedRoms += item.size;
                 }
             }
             for (Item item : items) {
                 for (int slash = item.path.lastIndexOf('/'); slash > 0; slash = item.path.lastIndexOf('/', slash - 1))
-                    if (Boolean.FALSE.equals(paths.get(item.path.substring(0, slash)))) throw new IOException("Conflicting archive paths");
+                    if (Boolean.FALSE.equals(paths.get(item.path.substring(0, slash)))) throw new SystemFailure(SystemFailure.Code.IMPORT_CONFLICTING_ARCHIVE_PATHS);
             }
             if (phones.isEmpty()) return Collections.emptyList();
-            if (phones.size() > 64) throw new IOException("Too many phones in system archive");
+            if (phones.size() > 64) throw new SystemFailure(SystemFailure.Code.IMPORT_TOO_MANY_PHONES_IN_SYSTEM_ARCHIVE);
             Set<String> incomplete = new HashSet<>(phones);
             phones.retainAll(roms); phones.retainAll(disks);
             incomplete.removeAll(phones);
-            for (String phone : new TreeSet<>(incomplete)) skipped.add(phone.substring(phone.lastIndexOf('/') + 1)
-                    + (roms.contains(phone) ? ": Z drive missing" : ": ROM missing"));
-            if (phones.isEmpty()) throw new IOException("No complete ROM and Z drive pair found");
-            if (!destination.isDirectory() && !destination.mkdirs()) throw new IOException("Cannot create archive staging directory");
+            for (String phone : new TreeSet<>(incomplete)) skipped.accept(phone.substring(phone.lastIndexOf('/') + 1),
+                    new SystemFailure(roms.contains(phone) ? SystemFailure.Code.Z_DRIVE_MISSING : SystemFailure.Code.ROM_MISSING));
+            if (phones.isEmpty()) throw new SystemFailure(SystemFailure.Code.IMPORT_NO_COMPLETE_ROM_AND_Z_DRIVE_PAIR_FOUND);
+            if (!destination.isDirectory() && !destination.mkdirs()) throw new SystemFailure(SystemFailure.Code.IMPORT_CANNOT_CREATE_ARCHIVE_STAGING_DIRECTORY);
             if (destination.getUsableSpace() < selected + retainedRoms + 256L * 1024 * 1024)
-                throw new IOException("Not enough free space for system files");
+                throw new SystemFailure(SystemFailure.Code.IMPORT_NOT_ENOUGH_FREE_SPACE_FOR_SYSTEM_FILES);
             Map<String, Dump> dumps = new TreeMap<>();
             Map<String, TreeMap<String, String>> hashes = new HashMap<>();
             for (String phone : phones) {
                 File root = new File(destination, Integer.toString(dumps.size()));
-                if (!root.mkdir()) throw new IOException("Cannot stage phone");
+                if (!root.mkdir()) throw new SystemFailure(SystemFailure.Code.IMPORT_CANNOT_STAGE_PHONE);
                 dumps.put(phone, new Dump(phone.substring(phone.lastIndexOf('/') + 1), root));
                 hashes.put(phone, new TreeMap<>());
             }
@@ -158,7 +163,7 @@ final class PreparedSystemArchive {
                         String path = normalize(name);
                         Item item = expected.get(path);
                         if (item == null || item.size != size || item.directory != directory || !seen.add(path))
-                            throw new IOException("System archive changed during extraction");
+                            throw new SystemFailure(SystemFailure.Code.IMPORT_SYSTEM_ARCHIVE_CHANGED_DURING_EXTRACTION);
                         if (directory || item.phone == null || !phones.contains(item.phone)) return "";
                         Dump dump = dumps.get(item.phone);
                         return (item.relative.isEmpty() ? dump.rom : new File(dump.z, item.relative)).getAbsolutePath();
@@ -166,11 +171,11 @@ final class PreparedSystemArchive {
                     @Override public void progress(long completed, long total) throws IOException {
                         long now = System.nanoTime();
                         if (now - last > 250000000L) {
-                            progress.update("Reading system files " + (completed * 100 / Math.max(1, total)) + "%"); last = now;
+                            progress.update(SystemProgress.READ_SYSTEM, completed * 100 / Math.max(1, total)); last = now;
                         }
                     }
                 });
-                if (seen.size() != items.size()) throw new IOException("Incomplete system archive");
+                if (seen.size() != items.size()) throw new SystemFailure(SystemFailure.Code.IMPORT_INCOMPLETE_SYSTEM_ARCHIVE);
             }
             long done = 0, lastUpdate = 0;
             byte[] buffer = new byte[65536];
@@ -180,7 +185,7 @@ final class PreparedSystemArchive {
                 if (item.directory || item.phone == null || !phones.contains(item.phone)) continue;
                 Dump dump = dumps.get(item.phone);
                 File target = item.relative.isEmpty() ? dump.rom : new File(dump.z, item.relative);
-                if (!target.getParentFile().isDirectory() && !target.getParentFile().mkdirs()) throw new IOException("Cannot create Z drive directory");
+                if (!target.getParentFile().isDirectory() && !target.getParentFile().mkdirs()) throw new SystemFailure(SystemFailure.Code.IMPORT_CANNOT_CREATE_Z_DRIVE_DIRECTORY);
                 CRC32 crc = new CRC32();
                 java.security.MessageDigest digest = SystemFileCatalog.sha256();
                 long written = 0;
@@ -189,17 +194,17 @@ final class PreparedSystemArchive {
                      OutputStream out = seven ? null : new BufferedOutputStream(new FileOutputStream(target))) {
                     for (int n; (n = input.read(buffer)) != -1;) {
                         written += n; done += n;
-                        if (written > item.size) throw new IOException("System archive size mismatch");
+                        if (written > item.size) throw new SystemFailure(SystemFailure.Code.IMPORT_SYSTEM_ARCHIVE_SIZE_MISMATCH);
                         crc.update(buffer, 0, n); digest.update(buffer, 0, n); if (out != null) out.write(buffer, 0, n);
                         long now = System.nanoTime();
                         if (now - lastUpdate > 250000000L) {
-                            progress.update((seven ? "Checking system files " : "Reading system files ") + (done * 100 / Math.max(1, selected)) + "%"); lastUpdate = now;
+                            progress.update(seven ? SystemProgress.CHECK_SYSTEM : SystemProgress.READ_SYSTEM, done * 100 / Math.max(1, selected)); lastUpdate = now;
                         }
                     }
                 }
-                if (written != item.size || (item.crc != -1 && crc.getValue() != item.crc)) throw new IOException("Damaged system archive entry");
+                if (written != item.size || (item.crc != -1 && crc.getValue() != item.crc)) throw new SystemFailure(SystemFailure.Code.IMPORT_DAMAGED_SYSTEM_ARCHIVE_ENTRY);
                 if (item.relative.isEmpty()) {
-                    if (written < 256) throw new IOException("Incomplete phone ROM");
+                    if (written < 256) throw new SystemFailure(SystemFailure.Code.IMPORT_INCOMPLETE_PHONE_ROM);
                     dump.romHash = SystemFileCatalog.hex(digest.digest());
                 } else hashes.get(item.phone).put(item.relative, written + ":" + SystemFileCatalog.hex(digest.digest()));
             }

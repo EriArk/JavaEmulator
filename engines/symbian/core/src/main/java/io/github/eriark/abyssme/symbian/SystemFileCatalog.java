@@ -40,9 +40,9 @@ final class SystemFileCatalog {
     SystemFileCatalog(Context context) { this(new File(context.getFilesDir(), "symbian-systems")); }
     SystemFileCatalog(File base) { this.base = base; }
     File set(String id) throws IOException {
-        if (id == null || !id.matches("[0-9a-f]{64}")) throw new IOException("Invalid system set identity");
+        if (id == null || !id.matches("[0-9a-f]{64}")) throw new SystemFailure(SystemFailure.Code.IMPORT_INVALID_SYSTEM_SET_IDENTITY);
         File file = new File(base, id).getCanonicalFile();
-        if (!file.getParentFile().equals(base.getCanonicalFile())) throw new IOException("Invalid system directory");
+        if (!file.getParentFile().equals(base.getCanonicalFile())) throw new SystemFailure(SystemFailure.Code.IMPORT_INVALID_SYSTEM_DIRECTORY);
         return file;
     }
     File runtime(Entry entry) throws IOException { return new File(set(entry.id), "runtime"); }
@@ -59,25 +59,25 @@ final class SystemFileCatalog {
         File root = set(id);
         try {
             JSONObject json = readJson(new File(root, "set.json"));
-            if ((json.getInt("version") != 1 && json.getInt("version") != 2) || !id.equals(json.getString("id"))) throw new IOException("Unsupported system set");
+            if ((json.getInt("version") != 1 && json.getInt("version") != 2) || !id.equals(json.getString("id"))) throw new SystemFailure(SystemFailure.Code.IMPORT_UNSUPPORTED_SYSTEM_SET);
             if (!new File(root, "runtime/data/devices.yml").isFile() || !new File(root, "source/phone.rom").isFile()
                     || (!json.getString("rpkgSha256").isEmpty() && !new File(root, "source/phone.rpkg").isFile()))
-                throw new IOException("System set is incomplete. Existing game data has been kept.");
+                throw new SystemFailure(SystemFailure.Code.IMPORT_SYSTEM_SET_IS_INCOMPLETE_EXISTING_GAME_DATA_HAS_BEEN);
             if (json.getInt("version") == 2) {
                 String firmware = json.getString("firmware").toLowerCase(Locale.ROOT);
                 if (firmware.contains("/") || firmware.contains("\\") || firmware.equals("..")
                         || !new File(root, "runtime/data/drives/z/" + firmware).isDirectory()
                         || !new File(root, "runtime/data/roms/" + firmware + "/SYM.ROM").isFile())
-                    throw new IOException("Prepared system files are missing. Existing game data has been kept.");
+                    throw new SystemFailure(SystemFailure.Code.IMPORT_PREPARED_SYSTEM_FILES_ARE_MISSING_EXISTING_GAME_DATA_HAS);
             }
             return new Entry(id, json.getString("model"), json.getString("firmware"), json.getString("os"), json.has("restoredFrom"));
-        } catch (JSONException error) { throw new IOException("Invalid system set metadata", error); }
+        } catch (JSONException error) { throw new SystemFailure(SystemFailure.Code.IMPORT_INVALID_SYSTEM_SET_METADATA, error); }
     }
     File activeRoot(File legacy) throws IOException {
         File file = new File(base, "active.json");
         if (!file.exists()) return legacy;
         try { return runtime(read(readJson(file).getString("id"))); }
-        catch (JSONException error) { throw new IOException("Invalid selected system set", error); }
+        catch (JSONException error) { throw new SystemFailure(SystemFailure.Code.IMPORT_INVALID_SELECTED_SYSTEM_SET, error); }
     }
     void activate(Entry entry) throws IOException {
         try { writeJson(new File(base, "active.json"), new JSONObject().put("id", entry.id)); }
@@ -106,7 +106,7 @@ final class SystemFileCatalog {
         return result;
     }
     void bind(String sourceHash, Entry entry) throws IOException {
-        if (!sourceHash.matches("[0-9a-f]{64}")) throw new IOException("Invalid game identity");
+        if (!sourceHash.matches("[0-9a-f]{64}")) throw new SystemFailure(SystemFailure.Code.IMPORT_INVALID_GAME_IDENTITY);
         File file = new File(base, "bindings.json");
         JSONObject json = file.exists() ? readJson(file) : new JSONObject();
         try { json.put(sourceHash, entry.id); }
@@ -148,8 +148,8 @@ final class SystemFileCatalog {
     void discardRestore(File pending) throws IOException { removePending(pending); }
     Entry commitRestore(File pending, String id) throws IOException {
         if (!pending.getParentFile().getCanonicalFile().equals(base.getCanonicalFile()) || !pending.getName().startsWith("pending-restore-"))
-            throw new IOException("Invalid restore directory");
-        if (set(id).exists()) throw new IOException("This restored phone already exists");
+            throw new SystemFailure(SystemFailure.Code.IMPORT_INVALID_RESTORE_DIRECTORY);
+        if (set(id).exists()) throw new SystemFailure(SystemFailure.Code.IMPORT_THIS_RESTORED_PHONE_ALREADY_EXISTS);
         Files.move(pending.toPath(), set(id).toPath(), StandardCopyOption.ATOMIC_MOVE);
         return read(id);
     }
@@ -158,11 +158,20 @@ final class SystemFileCatalog {
     static final class ImportResult {
         final List<Entry> entries = new ArrayList<>();
         final List<String> failures = new ArrayList<>();
+        final Map<Integer, ImportFailure> failureDetails = new HashMap<>();
+        void failure(String source,Exception error) {
+            failureDetails.put(failures.size(),new ImportFailure(source,error));
+            failures.add(source+": "+error.getMessage());
+        }
         int reused;
         String summary() {
             return "Added: " + (entries.size() - reused) + " / Already available: " + reused
                     + (failures.isEmpty() ? "" : "\nNot imported:\n" + String.join("\n", failures));
         }
+    }
+    static final class ImportFailure {
+        final String source; final Exception error;
+        ImportFailure(String source,Exception error) {this.source=source;this.error=error;}
     }
     interface PreparedInstaller { String[] install(File runtime, File rom, File z, String hint) throws Exception; }
     ImportResult addArchive(Context context, File archive, PreparedSystemArchive.Progress progress) throws Exception {
@@ -176,27 +185,27 @@ final class SystemFileCatalog {
         });
     }
     ImportResult addArchive(File archive, PreparedSystemArchive.Progress progress, PreparedInstaller installer) throws Exception {
-        if (!base.isDirectory() && !base.mkdirs()) throw new IOException("Cannot create system catalog");
+        if (!base.isDirectory() && !base.mkdirs()) throw new SystemFailure(SystemFailure.Code.IMPORT_CANNOT_CREATE_SYSTEM_CATALOG);
         File staging = Files.createTempDirectory(base.toPath(), "pending-collection-").toFile();
         try {
             ImportResult result = new ImportResult();
-            List<PreparedSystemArchive.Dump> dumps = PreparedSystemArchive.extract(archive, staging, progress, result.failures);
+            List<PreparedSystemArchive.Dump> dumps = PreparedSystemArchive.extractReported(archive, staging, progress, result::failure);
             if (dumps.isEmpty()) return null;
             for (int i = 0; i < dumps.size(); i++) {
                 PreparedSystemArchive.Dump dump = dumps.get(i);
-                progress.update("Preparing system " + (i + 1) + "/" + dumps.size() + ": " + dump.hint);
+                progress.update(SystemProgress.PREPARE_SYSTEM, i + 1, dumps.size(), dump.hint);
                 String id = digest(("rom=" + dump.romHash + "\nz=" + dump.zHash).getBytes(StandardCharsets.UTF_8));
                 if (set(id).exists()) { result.entries.add(read(id)); result.reused++; continue; }
                 File pending = Files.createTempDirectory(base.toPath(), "pending-").toFile();
                 try {
                     File source = new File(pending, "source"), runtime = new File(pending, "runtime");
-                    if (!source.mkdir() || !runtime.mkdir()) throw new IOException("Cannot create system environment");
+                    if (!source.mkdir() || !runtime.mkdir()) throw new SystemFailure(SystemFailure.Code.IMPORT_CANNOT_CREATE_SYSTEM_ENVIRONMENT);
                     File rom = new File(source, "phone.rom"), z = new File(runtime, "incoming-z");
                     Files.move(dump.rom.toPath(), rom.toPath());
                     Files.move(dump.z.toPath(), z.toPath());
                     String[] info = installer.install(runtime, rom, z, dump.hint);
                     if (info == null || info.length != 3 || Arrays.stream(info).anyMatch(s -> s == null || s.isEmpty())
-                            || !new File(runtime, "data/devices.yml").isFile()) throw new IOException("System could not be identified");
+                            || !new File(runtime, "data/devices.yml").isFile()) throw new SystemFailure(SystemFailure.Code.IMPORT_SYSTEM_COULD_NOT_BE_IDENTIFIED);
                     JSONObject metadata = new JSONObject().put("version", 2).put("id", id)
                             .put("firmware", info[0]).put("model", info[1]).put("os", info[2])
                             .put("romSha256", dump.romHash).put("rpkgSha256", "").put("zSha256", dump.zHash);
@@ -204,7 +213,9 @@ final class SystemFileCatalog {
                     Files.move(pending.toPath(), set(id).toPath(), StandardCopyOption.ATOMIC_MOVE);
                     result.entries.add(read(id));
                 } catch (Exception error) {
-                    result.failures.add(dump.hint + ": " + error.getMessage());
+                    if (error instanceof InterruptedIOException || error instanceof InterruptedException
+                            || Thread.currentThread().isInterrupted()) throw error;
+                    result.failure(dump.hint,error);
                 } finally { removePending(pending); }
             }
             return result;
@@ -217,16 +228,16 @@ final class SystemFileCatalog {
             try {
                 Emulator.prepare(runtime.getAbsolutePath());
                 if (Emulator.doesRomNeedRPKG(rom.getAbsolutePath()) && rpkg == null)
-                    throw new IOException("This phone also needs its .rpkg file. Select the .rom and .rpkg from the same phone dump together, or add their ZIP archive. Existing phones and saves are unchanged.");
+                    throw new SystemFailure(SystemFailure.Code.IMPORT_THIS_PHONE_ALSO_NEEDS_ITS_RPKG_FILE_SELECT_THE);
                 int code = Emulator.installDevice(rpkg == null ? "" : rpkg.getAbsolutePath(), rom.getAbsolutePath(), true, true);
-                if (code != 0) throw new IOException("System installation failed (" + code + ")");
+                if (code != 0) throw new SystemFailure(SystemFailure.Code.SYSTEM_INSTALL_CODE, code);
                 Emulator.prepare(runtime.getAbsolutePath());
                 return Emulator.getDeviceInfo();
             } finally { Emulator.stopSession(); }
         });
     }
     Entry add(List<File> inputs, Installer installer) throws Exception {
-        if (!base.isDirectory() && !base.mkdirs()) throw new IOException("Cannot create system catalog");
+        if (!base.isDirectory() && !base.mkdirs()) throw new SystemFailure(SystemFailure.Code.IMPORT_CANNOT_CREATE_SYSTEM_CATALOG);
         File pending = Files.createTempDirectory(base.toPath(), "pending-").toFile();
         try {
             List<File> files = inputs;
@@ -237,26 +248,26 @@ final class SystemFileCatalog {
                 String name = file.getName().toLowerCase(Locale.ROOT);
                 if (name.endsWith(".rom") && rom == null) rom = file;
                 else if (name.endsWith(".rpkg") && rpkg == null) rpkg = file;
-                else throw new IOException("Select one phone ZIP/7z archive, or its .rom and matching .rpkg together.");
+                else throw new SystemFailure(SystemFailure.Code.IMPORT_SELECT_ONE_PHONE_ZIP_7Z_ARCHIVE_OR_ITS_ROM);
             }
-            if (rom == null) throw new IOException("No phone .rom file found. Add an EKA2L1 phone dump, not a game or N-Gage installer.");
+            if (rom == null) throw new SystemFailure(SystemFailure.Code.IMPORT_NO_PHONE_ROM_FILE_FOUND_ADD_AN_EKA2L1_PHONE);
             String romHash = hash(rom), rpkgHash = rpkg == null ? "" : hash(rpkg);
             String id = digest(("rom=" + romHash + "\nrpkg=" + rpkgHash).getBytes(StandardCharsets.UTF_8));
             if (set(id).exists()) return read(id);
             File source = new File(pending, "source");
-            if (!source.mkdir()) throw new IOException("Cannot retain system inputs");
+            if (!source.mkdir()) throw new SystemFailure(SystemFailure.Code.IMPORT_CANNOT_RETAIN_SYSTEM_INPUTS);
             File retainedRom = new File(source, "phone.rom"), retainedRpkg = rpkg == null ? null : new File(source, "phone.rpkg");
             copy(rom, retainedRom);
             if (rpkg != null) copy(rpkg, retainedRpkg);
             if (files != inputs) for (File file : files) Files.deleteIfExists(file.toPath());
             if (!hash(retainedRom).equals(romHash) || (rpkg != null && !hash(retainedRpkg).equals(rpkgHash)))
-                throw new IOException("System input changed while importing");
+                throw new SystemFailure(SystemFailure.Code.IMPORT_SYSTEM_INPUT_CHANGED_WHILE_IMPORTING);
             File runtime = new File(pending, "runtime");
-            if (!runtime.mkdir()) throw new IOException("Cannot create system environment");
+            if (!runtime.mkdir()) throw new SystemFailure(SystemFailure.Code.IMPORT_CANNOT_CREATE_SYSTEM_ENVIRONMENT);
             String[] info = installer.install(runtime, retainedRom, retainedRpkg);
             if (info == null || info.length != 3 || Arrays.stream(info).anyMatch(s -> s == null || s.isEmpty()))
-                throw new IOException("The system files could not be identified");
-            if (!new File(runtime, "data/devices.yml").isFile()) throw new IOException("System installation is incomplete");
+                throw new SystemFailure(SystemFailure.Code.IMPORT_THE_SYSTEM_FILES_COULD_NOT_BE_IDENTIFIED);
+            if (!new File(runtime, "data/devices.yml").isFile()) throw new SystemFailure(SystemFailure.Code.IMPORT_SYSTEM_INSTALLATION_IS_INCOMPLETE);
             JSONObject metadata = new JSONObject().put("version", 1).put("id", id)
                     .put("firmware", info[0]).put("model", info[1]).put("os", info[2])
                     .put("romSha256", romHash).put("rpkgSha256", rpkgHash);
@@ -272,7 +283,7 @@ final class SystemFileCatalog {
     }
     private void removePending(File dir) throws IOException {
         if (!dir.getParentFile().getCanonicalFile().equals(base.getCanonicalFile()) || !dir.getName().startsWith("pending-"))
-            throw new IOException("Invalid temporary system directory");
+            throw new SystemFailure(SystemFailure.Code.IMPORT_INVALID_TEMPORARY_SYSTEM_DIRECTORY);
         if (!Files.exists(dir.toPath(), LinkOption.NOFOLLOW_LINKS)) return;
         Files.walkFileTree(dir.toPath(), new SimpleFileVisitor<Path>() {
             @Override public FileVisitResult visitFile(Path path, BasicFileAttributes attrs) throws IOException {
@@ -315,7 +326,7 @@ final class SystemFileCatalog {
     private static JSONObject readJson(File file) throws IOException {
         AtomicFile atomic = new AtomicFile(file);
         try { return new JSONObject(new String(atomic.readFully(), StandardCharsets.UTF_8)); }
-        catch (JSONException error) { throw new IOException("Invalid system catalog data", error); }
+        catch (JSONException error) { throw new SystemFailure(SystemFailure.Code.IMPORT_INVALID_SYSTEM_CATALOG_DATA, error); }
     }
     private static void writeJson(File file, JSONObject json) throws IOException {
         AtomicFile atomic = new AtomicFile(file);

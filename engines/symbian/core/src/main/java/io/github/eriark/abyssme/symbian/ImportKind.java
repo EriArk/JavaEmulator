@@ -20,10 +20,10 @@ final class ImportKind {
                 for (Enumeration<? extends ZipEntry> entries = zip.entries(); entries.hasMoreElements();) {
                     if (Thread.currentThread().isInterrupted()) throw new InterruptedIOException("Import cancelled");
                     ZipEntry entry = entries.nextElement();
-                    if (++count > 250000) throw new IOException("Too many archive entries");
+                    if (++count > 250000) throw new SystemFailure(SystemFailure.Code.IMPORT_TOO_MANY_ARCHIVE_ENTRIES);
                     String path = entry.getName().replace('\\', '/').toLowerCase(Locale.ROOT);
                     if (path.startsWith("/") || path.contains(":") || path.indexOf('\0') >= 0
-                            || Arrays.asList(path.split("/")).contains("..")) throw new IOException("Unsafe archive path");
+                            || Arrays.asList(path.split("/")).contains("..")) throw new SystemFailure(SystemFailure.Code.IMPORT_UNSAFE_ARCHIVE_PATH);
                     if (entry.isDirectory()) continue;
                     prepared |= path.matches("(?:.*/)?data/roms/[^/]+/sym\\.rom");
                     system |= path.endsWith(".rom") || path.endsWith(".rpkg");
@@ -35,7 +35,7 @@ final class ImportKind {
             }
             if (prepared) return Kind.SYSTEM; // Writable files inside prepared dumps are ignored by the system importer.
             if ((system && (game || existing)) || (game && existing))
-                throw new IOException("This archive mixes game types or system files. Select one game or system archive.");
+                throw new SystemFailure(SystemFailure.Code.IMPORT_THIS_ARCHIVE_MIXES_GAME_TYPES_OR_SYSTEM_FILES_SELECT);
             if (system) return Kind.SYSTEM;
             if (!existing && ArchiveBatch.multiple(source)) return Kind.BATCH;
             if (!game) return Kind.EXISTING;
@@ -54,11 +54,11 @@ final class ImportKind {
                 SevenZFileOptions.builder().withMaxMemoryLimitInKb(128 * 1024).build())) {
             for (SevenZArchiveEntry entry : archive.getEntries()) {
                 if (Thread.currentThread().isInterrupted()) throw new InterruptedIOException("Import cancelled");
-                if (++count > 250000) throw new IOException("Too many archive entries");
-                if (entry.getName() == null) throw new IOException("Invalid archive path");
+                if (++count > 250000) throw new SystemFailure(SystemFailure.Code.IMPORT_TOO_MANY_ARCHIVE_ENTRIES);
+                if (entry.getName() == null) throw new SystemFailure(SystemFailure.Code.IMPORT_INVALID_ARCHIVE_PATH);
                 String path = entry.getName().replace('\\', '/').toLowerCase(Locale.ROOT);
                 if (path.startsWith("/") || path.contains(":") || path.indexOf('\0') >= 0
-                        || Arrays.asList(path.split("/")).contains("..")) throw new IOException("Unsafe archive path");
+                        || Arrays.asList(path.split("/")).contains("..")) throw new SystemFailure(SystemFailure.Code.IMPORT_UNSAFE_ARCHIVE_PATH);
                 if (entry.isDirectory()) continue;
                 prepared |= path.matches("(?:.*/)?data/roms/[^/]+/sym\\.rom");
                 system |= path.endsWith(".rom") || path.endsWith(".rpkg");
@@ -69,7 +69,7 @@ final class ImportKind {
         }
         if (prepared) return Kind.SYSTEM;
         if ((system && (game || existing)) || (game && existing))
-            throw new IOException("This archive mixes game types or system files. Select one game or system archive.");
+            throw new SystemFailure(SystemFailure.Code.IMPORT_THIS_ARCHIVE_MIXES_GAME_TYPES_OR_SYSTEM_FILES_SELECT);
         if (system) return Kind.SYSTEM;
         return existing ? Kind.EXISTING : Kind.CONTAINER;
     }

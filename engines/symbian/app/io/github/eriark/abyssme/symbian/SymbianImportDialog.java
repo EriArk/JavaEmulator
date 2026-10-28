@@ -19,6 +19,7 @@ import java.util.Locale;
 import java.util.concurrent.*;
 import ru.playsoftware.j2meloader.catalog.AdditionalGames;
 import ru.playsoftware.j2meloader.databinding.DialogInstallerBinding;
+import ru.playsoftware.j2meloader.R;
 
 /** Main-process content routing; native libraries are not loaded by inspection. */
 public final class SymbianImportDialog extends DialogFragment implements AdditionalGames.ImportRouter {
@@ -38,12 +39,12 @@ public final class SymbianImportDialog extends DialogFragment implements Additio
     @Override public Dialog onCreateDialog(Bundle saved) {
         binding = DialogInstallerBinding.inflate(getLayoutInflater());
         Uri uri = requireArguments().getParcelable("uri");
-        binding.installerTitle.setText("Add to library");
+        binding.installerTitle.setText(R.string.native_import_add);
         binding.installerMessage.setText(SymbianFiles.name(requireContext(), uri));
-        binding.installationStatus.setText("Inspecting selected file");
+        binding.installationStatus.setText(R.string.native_inspecting_selected);
         binding.installationProgress.setVisibility(View.VISIBLE);
         binding.buttonInstall.setVisibility(View.GONE); binding.buttonStart.setVisibility(View.GONE);
-        binding.buttonClose.setContentDescription("Cancel"); binding.buttonClose.setTooltipText("Cancel");
+        binding.buttonClose.setContentDescription(getString(R.string.system_cancel)); binding.buttonClose.setTooltipText(getString(R.string.system_cancel));
         binding.buttonClose.setOnClickListener(v -> { cancelImport(); dismiss(); });
         model = new ViewModelProvider(this).get(Inspection.class);
         model.state.observe(this, this::render);
@@ -68,10 +69,10 @@ public final class SymbianImportDialog extends DialogFragment implements Additio
     @Override public void onResume() { super.onResume(); render(model.state.getValue()); }
     private void render(Result result) {
         if (result == null || binding == null || delivered) return;
-        binding.installationStatus.setText(result.message);
-        if (result.error) {
+        binding.installationStatus.setText(result.message(requireContext()));
+        if (result.failure!=null) {
             binding.installationProgress.setVisibility(View.GONE);
-            binding.buttonClose.setContentDescription("Close"); binding.buttonClose.setTooltipText("Close"); return;
+            binding.buttonClose.setContentDescription(getString(R.string.system_close)); binding.buttonClose.setTooltipText(getString(R.string.system_close)); return;
         }
         if (result.kind == null || !isResumed() || getParentFragmentManager().isStateSaved()) return;
         Context context = requireContext(); FragmentManager fragments = getParentFragmentManager();
@@ -86,7 +87,7 @@ public final class SymbianImportDialog extends DialogFragment implements Additio
                             .putExtra("symbian.importName", SymbianFiles.name(context, uri)));
                 } catch (RuntimeException error) { Files.deleteIfExists(staged.toPath()); throw error; }
             } catch (IOException | RuntimeException error) {
-                binding.installationStatus.setText(error.getMessage()); binding.installationProgress.setVisibility(View.GONE); return;
+                binding.installationStatus.setText(SystemFailureText.message(context,error)); binding.installationProgress.setVisibility(View.GONE); return;
             }
         }
         delivered = true;
@@ -107,9 +108,20 @@ public final class SymbianImportDialog extends DialogFragment implements Additio
         super.onCancel(dialog);
     }
 
-    private static final class Result {
-        final ImportKind.Kind kind; final String message; final boolean error;
-        Result(ImportKind.Kind kind, String message, boolean error) { this.kind = kind; this.message = message; this.error = error; }
+    static final class Result {
+        final ImportKind.Kind kind;
+        final String raw;
+        final Throwable failure;
+        final SystemProgress step;
+        final Object[] arguments;
+        Result(ImportKind.Kind kind,String raw,Throwable failure,SystemProgress step,Object... arguments) {
+            this.kind=kind;this.raw=raw;this.failure=failure;this.step=step;this.arguments=arguments.clone();
+        }
+        String message(Context context) {
+            if(failure!=null)return SystemFailureText.message(context,failure);
+            if(step!=null)return SystemTransferText.progress(context,step,arguments);
+            return kind!=null?context.getString(R.string.native_import_ready):raw;
+        }
     }
     public static final class Inspection extends AndroidViewModel {
         final MutableLiveData<Result> state = new MutableLiveData<>();
@@ -124,20 +136,28 @@ public final class SymbianImportDialog extends DialogFragment implements Additio
                 File staged = null;
                 try {
                     staged = SymbianFiles.stage(getApplication(), uri, PreparedSystemArchive.MAX_INPUT,
-                            text -> { if (Thread.currentThread().isInterrupted()) throw new InterruptedIOException("Import cancelled");
-                                state.postValue(new Result(null, text, false)); });
+                            new PreparedSystemArchive.Progress() {
+                                public void update(String text) throws IOException {
+                                    if(Thread.currentThread().isInterrupted())throw new InterruptedIOException("Import cancelled");
+                                    state.postValue(new Result(null,text,null,null));
+                                }
+                                public void update(SystemProgress step,Object... arguments) throws IOException {
+                                    if(Thread.currentThread().isInterrupted())throw new InterruptedIOException("Import cancelled");
+                                    state.postValue(new Result(null,null,null,step,arguments));
+                                }
+                            });
                     ImportKind.Kind kind = ImportKind.inspect(staged, SymbianFiles.name(getApplication(), uri));
                     synchronized (this) {
                         if (cancelled) return;
                         owned = staged; staged = null;
-                        state.postValue(new Result(kind, "Ready", false));
+                        state.postValue(new Result(kind,null,null,null));
                     }
-                } catch (Exception error) { state.postValue(new Result(null, error.getMessage(), true)); }
+                } catch (Exception error) { state.postValue(new Result(null,null,error,null)); }
                 finally { if (staged != null) remove(staged); }
             });
         }
         synchronized File transfer() throws IOException {
-            if (cancelled || owned == null) throw new IOException("Selected import is no longer available");
+            if (cancelled || owned == null) throw new IOException(getApplication().getString(R.string.native_import_unavailable));
             File file = owned; owned = null; return file;
         }
         @Override protected synchronized void onCleared() {

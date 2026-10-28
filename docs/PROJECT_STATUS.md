@@ -148,20 +148,26 @@ actor notices and styling no longer depend on translated labels. Explicit
 message/channel kinds protect user text that matches an English UI placeholder.
 Long menu titles wrap and large-font choices stack vertically. Native host,
 archive queue, component menus, phone backup/restore and uninstall warnings now
-use resources too; 55 backup/removal failures carry stable keys with original
-causes and paths. Queue actions stack on compact/large-font layouts.
-**410 JVM and 61 Retroid checks pass in the latest native-transfer batch; one
-optional real-archive case was skipped.** Queue layout covers 144 locale/font/
+use resources too; 218 app-owned backup/removal/import failures carry stable
+keys with original causes and paths. New archive queue records preserve display
+identities across reloads; old raw messages stay readable. Progress and native/
+Mophun installer labels use resources. Cancelling a phone collection now stops
+the import instead of being swallowed as a per-phone failure, and oversized
+queue writes keep the previous readable journal intact.
+Queue actions stack on compact/large-font layouts.
+**410 JVM and 124 Retroid checks pass in the latest native-import batch; six
+optional real-input cases were skipped.** Queue layout covers 144 locale/font/
 viewport/theme/state combinations. Fresh lint now completes with **zero errors /
-425 warnings**, resolving the previous unverified lint gap. Expanded/RTL
+418 warnings**. Expanded/RTL
 pseudolocales are not real-language or complete RTL acceptance.
-Persisted archive details, other firmware/component errors, room/publication/
-contact backend notices and helpers remain open, then process-safe language selection and
+Remaining backend messages, room/publication/contact notices and helpers remain
+open, then process-safe language selection and
 reviewed translations. No locale picker, new supported language, guest-language
 change or public APK update is included.
 [Scope and glossary](LOCALIZATION.md), [evidence](checks/2026-10-28-localization-journeys.md).
 [Social/system follow-up and verification limits](checks/2026-10-28-social-system-localization.md).
 [Native transfer implementation and current checks](checks/2026-10-28-native-transfer-localization.md).
+[Native import persistence, cancellation and current checks](checks/2026-10-28-native-import-localization.md).
 
 The next batch implements **#45's general virtual Gamepad mapper** in the existing
 Touch layout editor: select a drawn button, choose a phone key, or use the Native

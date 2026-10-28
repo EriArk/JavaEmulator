@@ -25,7 +25,7 @@ final class GameImport implements AutoCloseable {
         }
     }
     static GameImport inspect(File source) throws IOException {
-        if (source.length() > 1024L * 1024 * 1024) throw new IOException("Game input exceeds 1 GB");
+        if (source.length() > 1024L * 1024 * 1024) throw new SystemFailure(SystemFailure.Code.IMPORT_GAME_INPUT_EXCEEDS_1_GB);
         if(CompressedGameArchive.accepts(source)) {
             File zip=CompressedGameArchive.toZip(source,message->{}); boolean retained=false;
             try {
@@ -45,15 +45,15 @@ final class GameImport implements AutoCloseable {
             for (Enumeration<? extends ZipEntry> entries = zip.entries(); entries.hasMoreElements();) {
                 if (Thread.currentThread().isInterrupted()) throw new InterruptedIOException("Import cancelled");
                 ZipEntry entry = entries.nextElement();
-                if (++count > 20000) throw new IOException("Too many entries in game archive");
+                if (++count > 20000) throw new SystemFailure(SystemFailure.Code.IMPORT_TOO_MANY_ENTRIES_IN_GAME_ARCHIVE);
                 String path = entry.getName().replace('\\', '/');
                 if (path.startsWith("/") || path.contains(":") || Arrays.asList(path.split("/")).contains(".."))
-                    throw new IOException("Unsafe path in game archive");
+                    throw new SystemFailure(SystemFailure.Code.IMPORT_UNSAFE_PATH_IN_GAME_ARCHIVE);
                 if (entry.isDirectory()) continue;
                 String name = path.toLowerCase(Locale.ROOT);
-                if (!fileNames.add(name)) throw new IOException("Duplicate path in game archive");
+                if (!fileNames.add(name)) throw new SystemFailure(SystemFailure.Code.IMPORT_DUPLICATE_PATH_IN_GAME_ARCHIVE);
                 if (entry.getSize() < 0 || entry.getSize() > 1024L * 1024 * 1024 - expandedSize)
-                    throw new IOException("Expanded game exceeds 1 GB");
+                    throw new SystemFailure(SystemFailure.Code.IMPORT_EXPANDED_GAME_EXCEEDS_1_GB);
                 expandedSize += entry.getSize();
                 if (name.matches("(?:.*/)?system/apps/[^/]+/[^/]+\\.app")) {
                     cardDirectories.add(name.substring(0, name.lastIndexOf('/') + 1));
@@ -72,7 +72,7 @@ final class GameImport implements AutoCloseable {
                 }
                 if (embeddedOnly) return new GameImport(source, Kind.CARD, false);
             }
-            if (!cardRoots.isEmpty() || packages.size() != 1) throw new IOException("Select an archive containing one game or installer");
+            if (!cardRoots.isEmpty() || packages.size() != 1) throw new SystemFailure(SystemFailure.Code.IMPORT_SELECT_AN_ARCHIVE_CONTAINING_ONE_GAME_OR_INSTALLER);
             File file = File.createTempFile("game-", ".package", source.getParentFile());
             boolean complete = false;
             try {
@@ -84,10 +84,10 @@ final class GameImport implements AutoCloseable {
                     for (int n; (n = input.read(buffer)) != -1;) {
                         if (Thread.currentThread().isInterrupted()) throw new InterruptedIOException("Import cancelled");
                         size += n;
-                        if (size > 1024L * 1024 * 1024) throw new IOException("Expanded game exceeds 1 GB");
+                        if (size > 1024L * 1024 * 1024) throw new SystemFailure(SystemFailure.Code.IMPORT_EXPANDED_GAME_EXCEEDS_1_GB);
                         crc.update(buffer, 0, n); output.write(buffer, 0, n);
                     }
-                    if (size != entry.getSize() || crc.getValue() != entry.getCrc()) throw new IOException("Damaged game archive");
+                    if (size != entry.getSize() || crc.getValue() != entry.getCrc()) throw new SystemFailure(SystemFailure.Code.IMPORT_DAMAGED_GAME_ARCHIVE);
                     output.getFD().sync();
                 }
                 GameImport result = new GameImport(file, packageKind(file), true);
@@ -108,7 +108,7 @@ final class GameImport implements AutoCloseable {
             if (text.startsWith("content-type: multipart/mixed;") && text.contains("content-description: ngage-install-file"))
                 return Kind.NGAGE2;
         }
-        throw new IOException("Not a supported Symbian package. Select a SIS/SISX, N-Gage package or game ZIP.");
+        throw new SystemFailure(SystemFailure.Code.IMPORT_NOT_A_SUPPORTED_SYMBIAN_PACKAGE_SELECT_A_SIS_SISX);
     }
     boolean isPlatform() throws IOException {
         if (kind != Kind.SIS_MODERN) return false;

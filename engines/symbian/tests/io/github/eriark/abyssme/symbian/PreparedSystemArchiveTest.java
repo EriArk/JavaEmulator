@@ -99,12 +99,36 @@ public final class PreparedSystemArchiveTest {
             assertEquals(0, new File(root, "catalog").list().length);
         }
     }
+    @Test public void cancelledInstallationStopsCollectionAndKeepsPreviouslyInstalledPhones() throws Exception {
+        File root = folder();
+        try {
+            File base = new File(root, "catalog"); SystemFileCatalog catalog = new SystemFileCatalog(base);
+            Map<String, byte[]> entries = files("");
+            entries.put("data/roms/zz-last/SYM.ROM", new byte[512]);
+            entries.put("data/drives/z/zz-last/System/Versions/sw.txt", new byte[]{3});
+            List<String> attempted = new ArrayList<>();
+            InterruptedIOException cancellation = new InterruptedIOException("cancelled");
+            try {
+                catalog.addArchive(archive(root, "cancel-install.zip", entries, false), t -> { }, (runtime, rom, z, hint) -> {
+                    attempted.add(hint);
+                    if (hint.equals("rm-320")) throw cancellation;
+                    return install(runtime, rom, z, hint);
+                });
+                fail("Cancellation must escape the collection loop");
+            } catch (InterruptedIOException expected) { assertSame(cancellation, expected); }
+            assertEquals(Arrays.asList("rh-29", "rm-320"), attempted);
+            assertEquals(1, catalog.list().size());
+            assertEquals("RH-29", catalog.list().get(0).firmware);
+            assertEquals(0, base.listFiles(f -> f.getName().startsWith("pending-")).length);
+        } finally { PhoneBackupTest.remove(root); }
+    }
     @Test public void incompletePhoneIsReportedWithoutBlockingCompletePairs() throws Exception {
         File root = folder(); Map<String, byte[]> entries = files("");
         entries.put("data/drives/z/temp/leftover", new byte[]{1});
         SystemFileCatalog catalog = new SystemFileCatalog(new File(root, "catalog"));
         SystemFileCatalog.ImportResult result = catalog.addArchive(archive(root, "partial.zip", entries, false), t -> { }, this::install);
         assertEquals(2, result.entries.size()); assertEquals(Collections.singletonList("temp: ROM missing"), result.failures);
+        assertEquals(SystemFailure.Code.ROM_MISSING, ((SystemFailure)result.failureDetails.get(0).error).code);
     }
     @Test public void interruptedExtractionRemovesStagingWithoutPublishingPhones() throws Exception {
         File root = folder(); File base = new File(root, "catalog"); SystemFileCatalog catalog = new SystemFileCatalog(base);

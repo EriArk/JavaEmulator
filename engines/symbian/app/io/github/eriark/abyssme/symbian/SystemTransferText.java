@@ -7,11 +7,43 @@ import ru.playsoftware.j2meloader.R;
 /** Presentation only: manifests, package plans and component identities remain unchanged. */
 final class SystemTransferText {
     private SystemTransferText() { }
+    static String problem(Context context,ArchiveBatch.Item item) {
+        return item.problemFailure==null?item.problem:SystemFailureText.message(context,item.problemFailure);
+    }
+    static String detail(Context context,ArchiveBatch.Item item) {
+        if(item.detailFailure!=null)return SystemFailureText.message(context,item.detailFailure);
+        if(item.notice==null)return item.detail;
+        switch(item.notice) {
+            case INSTALLED: return context.getString(R.string.native_notice_installed);
+            case PHONE_FILES: return context.getString(R.string.native_notice_phone_files);
+            case CHOOSE_PHONE: return context.getString(R.string.native_notice_choose_phone);
+            case PLATFORM: return context.getString(R.string.native_notice_platform);
+            case COMPONENT: return context.getString(R.string.native_notice_component,item.noticeArgument);
+            case GUEST_INSTALLER: return context.getString(R.string.native_notice_guest_installer);
+            case RETRY: return context.getString(R.string.native_notice_retry);
+            case SAVED: return context.getString(R.string.native_notice_saved);
+            case SKIPPED: return context.getString(R.string.native_notice_skipped);
+            case DUPLICATE: return context.getString(R.string.native_notice_duplicate);
+            case ALTERNATIVE: return context.getString(R.string.native_notice_alternative,item.noticeArgument);
+            default: throw new IllegalArgumentException("Unknown archive notice: "+item.notice);
+        }
+    }
+    static PreparedSystemArchive.Progress localize(Context context, PreparedSystemArchive.Progress sink) {
+        return new PreparedSystemArchive.Progress() {
+            public void update(String raw) throws java.io.IOException { sink.update(raw); }
+            public void update(SystemProgress step,Object... arguments) throws java.io.IOException { sink.update(progress(context,step,arguments)); }
+        };
+    }
     static String imported(Context context, SystemFileCatalog.ImportResult result) {
         int added=result.entries.size()-result.reused;
+        java.util.List<String> failures=new java.util.ArrayList<>();
+        for(int i=0;i<result.failures.size();i++) {
+            SystemFileCatalog.ImportFailure failure=result.failureDetails.get(i);
+            failures.add(failure==null?result.failures.get(i):context.getString(R.string.native_import_source_error,failure.source,SystemFailureText.message(context,failure.error)));
+        }
         return result.failures.isEmpty()
                 ?context.getString(R.string.native_system_import_counts,added,result.reused)
-                :context.getString(R.string.native_system_import_errors,added,result.reused,String.join("\n",result.failures));
+                :context.getString(R.string.native_system_import_errors,added,result.reused,String.join("\n",failures));
     }
     static String backup(Context context, PhoneBackup.Preview preview) {
         int version=preview.manifest.optInt("version");
@@ -33,6 +65,20 @@ final class SystemTransferText {
     }
     static String progress(Context context, SystemProgress step, Object... arguments) {
         switch(step) {
+            case READ_COMPRESSED: return context.getString(R.string.native_progress_read_compressed);
+            case READ_ENTRY: return context.getString(R.string.native_progress_read_entry,arguments[0]);
+            case READ_ENTRY_SIZE: return context.getString(R.string.native_progress_read_entry_size,arguments[0],((Number)arguments[1]).longValue());
+            case INSPECT_SYSTEM: return context.getString(R.string.native_progress_inspect_system);
+            case READ_SYSTEM: return context.getString(R.string.native_progress_read_system,((Number)arguments[0]).longValue());
+            case CHECK_SYSTEM: return context.getString(R.string.native_progress_check_system,((Number)arguments[0]).longValue());
+            case PREPARE_SYSTEM: return context.getString(R.string.native_progress_prepare_system,((Number)arguments[0]).longValue(),((Number)arguments[1]).longValue(),arguments[2]);
+            case READ_INPUT: return context.getString(R.string.native_progress_read_input,((Number)arguments[0]).longValue());
+            case INSPECT_ITEM: return context.getString(R.string.native_progress_inspect_item,((Number)arguments[0]).longValue(),((Number)arguments[1]).longValue(),arguments[2]);
+            case IMPORT_ITEM: return context.getString(R.string.native_progress_import_item,((Number)arguments[0]).longValue(),((Number)arguments[1]).longValue(),arguments[2]);
+            case CONTINUE_QUEUE: return context.getString(R.string.native_progress_continue_queue);
+            case CHECK_COMPONENTS: return context.getString(R.string.native_progress_check_components);
+            case INSTALL_COMPONENT: return context.getString(R.string.native_progress_install_component,arguments[0]);
+            case INSTALL_GAME: return context.getString(R.string.native_progress_install_game,arguments[0]);
             case BACKUP: return context.getString(R.string.native_progress_backup,
                     ((Number)arguments[0]).longValue(),((Number)arguments[1]).longValue());
             case RESTORE: return context.getString(R.string.native_progress_restore,

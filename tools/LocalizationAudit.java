@@ -23,7 +23,7 @@ public class LocalizationAudit {
             "LibraryImportActivity.java", "InstallerDialog.java", "ControllerMapperView.java", "MapperDialog.java",
             "TouchLayoutEditor.java", "SettingsPreviewBar.java", "GameChrome.java",
             "FluxerChatsActivity.java", "LobbyDirectoryActivity.java", "LobbyRoomActivity.java",
-            "SymbianActivity.java", "ArchiveBatchView.java");
+            "SymbianActivity.java", "ArchiveBatchView.java", "SymbianImportDialog.java", "MophunInstallerDialog.java");
     private static final Set<String> BRANDS = Set.of("AbyssME", "Java ME", "Mophun", "Symbian", "N-Gage", "J2ME Loader");
     private record Candidate(String file, long line, String call, String text) { }
     private record Resource(String type, String name, List<String> values, boolean translated) { }

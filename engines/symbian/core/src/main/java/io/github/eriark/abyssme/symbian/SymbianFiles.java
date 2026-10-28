@@ -31,7 +31,7 @@ public final class SymbianFiles {
     static void retainFallbackFont(File source, File target) throws IOException {
         if (target.isFile()) return;
         File folder = target.getParentFile();
-        if (!folder.isDirectory() && !folder.mkdirs()) throw new IOException("Cannot create font directory");
+        if (!folder.isDirectory() && !folder.mkdirs()) throw new SystemFailure(SystemFailure.Code.IMPORT_CANNOT_CREATE_FONT_DIRECTORY);
         File pending = File.createTempFile("font-", ".pending", folder);
         try {
             try (InputStream input = new FileInputStream(source); FileOutputStream output = new FileOutputStream(pending)) {
@@ -39,10 +39,10 @@ public final class SymbianFiles {
                 long total = 0;
                 for (int n; (n = input.read(buffer)) != -1;) {
                     total += n;
-                    if (total > 32L * 1024 * 1024) throw new IOException("Fallback font exceeds 32 MB");
+                    if (total > 32L * 1024 * 1024) throw new SystemFailure(SystemFailure.Code.IMPORT_FALLBACK_FONT_EXCEEDS_32_MB);
                     output.write(buffer, 0, n);
                 }
-                if (total == 0) throw new IOException("Empty fallback font");
+                if (total == 0) throw new SystemFailure(SystemFailure.Code.IMPORT_EMPTY_FALLBACK_FONT);
                 output.getFD().sync();
             }
             Files.move(pending.toPath(), target.toPath());
@@ -51,7 +51,7 @@ public final class SymbianFiles {
     private static void copyAssets(Context context, String asset, File target) throws IOException {
         String[] entries = context.getAssets().list(asset);
         if (entries != null && entries.length > 0) {
-            if (!target.isDirectory() && !target.mkdirs()) throw new IOException("Cannot create engine directory");
+            if (!target.isDirectory() && !target.mkdirs()) throw new SystemFailure(SystemFailure.Code.IMPORT_CANNOT_CREATE_ENGINE_DIRECTORY);
             for (String child : entries) copyAssets(context, asset + "/" + child, new File(target, child));
         } else if (!target.exists()) {
             try (InputStream input = context.getAssets().open(asset)) {
@@ -72,35 +72,35 @@ public final class SymbianFiles {
     static File claimStaged(Context context, String token) throws IOException {
         File folder = new File(root(context), "imports").getCanonicalFile();
         if (token == null || !token.startsWith("input-") || !token.equals(new File(token).getName()) || token.contains("\\"))
-            throw new IOException("Invalid import transfer");
+            throw new SystemFailure(SystemFailure.Code.IMPORT_INVALID_IMPORT_TRANSFER);
         File file = new File(folder, token);
         if (!file.getCanonicalFile().getParentFile().equals(folder)
                 || !Files.isRegularFile(file.toPath(), java.nio.file.LinkOption.NOFOLLOW_LINKS))
-            throw new IOException("Selected import is no longer available. Select the file again.");
+            throw new SystemFailure(SystemFailure.Code.IMPORT_SELECTED_IMPORT_IS_NO_LONGER_AVAILABLE_SELECT_THE_FILE);
         return file;
     }
     static File stage(Context context, Uri uri, long limit, PreparedSystemArchive.Progress progress) throws IOException {
         String name = name(context, uri);
         if (name == null || !name.equals(new File(name).getName()) || name.contains("\\"))
-            throw new IOException("Invalid input filename");
+            throw new SystemFailure(SystemFailure.Code.IMPORT_INVALID_INPUT_FILENAME);
         File folder = new File(root(context), "imports");
-        if (!folder.isDirectory() && !folder.mkdirs()) throw new IOException("Cannot create import directory");
+        if (!folder.isDirectory() && !folder.mkdirs()) throw new SystemFailure(SystemFailure.Code.IMPORT_CANNOT_CREATE_IMPORT_DIRECTORY);
         File target = File.createTempFile("input-", "-" + name, folder);
         boolean complete = false;
         try (InputStream input = context.getContentResolver().openInputStream(uri);
              FileOutputStream output = new FileOutputStream(target)) {
-            if (input == null) throw new IOException("Cannot open input");
+            if (input == null) throw new SystemFailure(SystemFailure.Code.IMPORT_CANNOT_OPEN_INPUT);
             byte[] buffer = new byte[65536];
             long total = 0;
             long lastUpdate = 0;
             for (int n; (n = input.read(buffer)) != -1;) {
                 if (Thread.currentThread().isInterrupted()) throw new InterruptedIOException("Import cancelled");
                 total += n;
-                if (total > limit) throw new IOException("Input exceeds " + (limit / (1024L * 1024 * 1024)) + " GB");
+                if (total > limit) throw new SystemFailure(SystemFailure.Code.INPUT_GB_LIMIT, limit / (1024L * 1024 * 1024));
                 output.write(buffer, 0, n);
                 long now = System.nanoTime();
                 if (now - lastUpdate > 250000000L) {
-                    progress.update("Reading selected file: " + (total / (1024 * 1024)) + " MB"); lastUpdate = now;
+                    progress.update(SystemProgress.READ_INPUT, total / (1024 * 1024)); lastUpdate = now;
                 }
             }
             output.getFD().sync();
@@ -131,24 +131,24 @@ public final class SymbianFiles {
             while (iterator.hasMoreElements()) {
                 if (Thread.currentThread().isInterrupted()) throw new InterruptedIOException("Import cancelled");
                 ZipEntry entry = iterator.nextElement();
-                if (++entries > 20000) throw new IOException("Too many entries in phone archive");
+                if (++entries > 20000) throw new SystemFailure(SystemFailure.Code.IMPORT_TOO_MANY_ENTRIES_IN_PHONE_ARCHIVE);
                 String name = ArchiveBatch.safe(entry.getName());
                 String key = name.toLowerCase(Locale.ROOT).replaceAll("/+$", "");
-                if (paths.put(key, entry.isDirectory()) != null) throw new IOException("Duplicate archive path");
+                if (paths.put(key, entry.isDirectory()) != null) throw new SystemFailure(SystemFailure.Code.IMPORT_DUPLICATE_ARCHIVE_PATH);
                 if (entry.isDirectory()) continue;
                 String lower = name.toLowerCase(Locale.ROOT);
                 boolean isRom = lower.endsWith(".rom"), isRpkg = lower.endsWith(".rpkg");
                 if (lower.endsWith(".sis") || lower.endsWith(".sisx") || lower.endsWith(".jar") || lower.endsWith(".mpn")
                         || lower.endsWith(".jad") || lower.endsWith(".kjx")
                         || lower.endsWith(".n-gage"))
-                    throw new IOException("This archive mixes games and phone files. Select a phone-only archive.");
+                    throw new SystemFailure(SystemFailure.Code.IMPORT_THIS_ARCHIVE_MIXES_GAMES_AND_PHONE_FILES_SELECT_A);
                 if (!isRom && !isRpkg) continue;
-                if ((isRom && rom) || (isRpkg && rpkg)) throw new IOException("Select an archive containing one phone");
+                if ((isRom && rom) || (isRpkg && rpkg)) throw new SystemFailure(SystemFailure.Code.IMPORT_SELECT_AN_ARCHIVE_CONTAINING_ONE_PHONE);
                 rom |= isRom; rpkg |= isRpkg;
                 if (entry.getSize() < 1 || entry.getSize() > 1024L * 1024 * 1024 - total)
-                    throw new IOException("Invalid phone file size (maximum 1 GB expanded)");
+                    throw new SystemFailure(SystemFailure.Code.IMPORT_INVALID_PHONE_FILE_SIZE_MAXIMUM_1_GB_EXPANDED);
                 if (folder.getUsableSpace() < entry.getSize() + 64L * 1024 * 1024)
-                    throw new IOException("Not enough space to unpack phone files. Free storage and try again.");
+                    throw new SystemFailure(SystemFailure.Code.IMPORT_NOT_ENOUGH_SPACE_TO_UNPACK_PHONE_FILES_FREE_STORAGE);
                 File target = File.createTempFile("phone-", isRom ? ".rom" : ".rpkg", folder);
                 files.add(target);
                 try (InputStream input = zip.getInputStream(entry); FileOutputStream output = new FileOutputStream(target)) {
@@ -158,20 +158,20 @@ public final class SymbianFiles {
                     for (int n; (n = input.read(buffer)) != -1;) {
                         if (Thread.currentThread().isInterrupted()) throw new InterruptedIOException("Import cancelled");
                         total += n;
-                        if (total > 1024L * 1024 * 1024) throw new IOException("Expanded phone files exceed 1 GB");
+                        if (total > 1024L * 1024 * 1024) throw new SystemFailure(SystemFailure.Code.IMPORT_EXPANDED_PHONE_FILES_EXCEED_1_GB);
                         size += n;
                         crc.update(buffer, 0, n);
                         output.write(buffer, 0, n);
                     }
                     if (size == 0 || size != entry.getSize() || crc.getValue() != entry.getCrc())
-                        throw new IOException("Damaged system file in phone archive");
+                        throw new SystemFailure(SystemFailure.Code.IMPORT_DAMAGED_SYSTEM_FILE_IN_PHONE_ARCHIVE);
                     output.getFD().sync();
                 }
             }
             for (String path : paths.keySet())
                 for (int slash = path.lastIndexOf('/'); slash > 0; slash = path.lastIndexOf('/', slash - 1))
-                    if (Boolean.FALSE.equals(paths.get(path.substring(0, slash)))) throw new IOException("Conflicting archive paths");
-            if (!rom) throw new IOException("No phone ROM found in this archive");
+                    if (Boolean.FALSE.equals(paths.get(path.substring(0, slash)))) throw new SystemFailure(SystemFailure.Code.IMPORT_CONFLICTING_ARCHIVE_PATHS);
+            if (!rom) throw new SystemFailure(SystemFailure.Code.IMPORT_NO_PHONE_ROM_FOUND_IN_THIS_ARCHIVE);
             complete = true;
             return files;
         } finally {
@@ -181,13 +181,13 @@ public final class SymbianFiles {
 
     public static void stageCardPackage(File root, File drive, File source, String name) throws IOException {
         if (name == null || name.isEmpty() || !name.equals(new File(name).getName()) || name.contains("\\"))
-            throw new IOException("Invalid package filename");
+            throw new SystemFailure(SystemFailure.Code.IMPORT_INVALID_PACKAGE_FILENAME);
         File folder = new File(drive, "n-gage").getCanonicalFile();
         if (!folder.toPath().startsWith(root.getCanonicalFile().toPath()))
-            throw new IOException("The memory card is outside this environment");
-        if (!folder.isDirectory() && !folder.mkdirs()) throw new IOException("Cannot open memory card");
+            throw new SystemFailure(SystemFailure.Code.IMPORT_THE_MEMORY_CARD_IS_OUTSIDE_THIS_ENVIRONMENT);
+        if (!folder.isDirectory() && !folder.mkdirs()) throw new SystemFailure(SystemFailure.Code.IMPORT_CANNOT_OPEN_MEMORY_CARD);
         File destination = new File(folder, name);
-        if (destination.exists()) throw new IOException("This package is already on the memory card");
+        if (destination.exists()) throw new SystemFailure(SystemFailure.Code.IMPORT_THIS_PACKAGE_IS_ALREADY_ON_THE_MEMORY_CARD);
         File pending = File.createTempFile("package-", ".pending", folder);
         try {
             try (InputStream input = new FileInputStream(source);
