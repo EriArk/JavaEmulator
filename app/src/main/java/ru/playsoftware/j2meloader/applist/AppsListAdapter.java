@@ -245,6 +245,8 @@ public class AppsListAdapter extends RecyclerView.Adapter<AppsListAdapter.ViewHo
 		}
 
 		private void applyMode(int mode, int availableHeight, boolean compact, LibraryLayout layout) {
+			binding.name.setTextAlignment(View.TEXT_ALIGNMENT_GRAVITY);
+			binding.name.setGravity(mode == MODE_LIST ? android.view.Gravity.START : android.view.Gravity.CENTER_HORIZONTAL);
 			LinearLayout root = binding.rowRoot;
 			FrameLayout art = binding.artContainer;
 			LinearLayout text = binding.textColumn;

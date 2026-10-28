@@ -28,6 +28,36 @@ import ru.playsoftware.j2meloader.config.Config;
 import static org.junit.Assert.*;
 
 public class GalleryPresentationTest {
+    @Test public void recycledCardTitlesResetAlignmentForEveryMode() throws Exception {
+        Method applyMode = AppsListAdapter.ViewHolder.class.getDeclaredMethod("applyMode",
+                int.class, int.class, boolean.class, LibraryLayout.class);
+        applyMode.setAccessible(true);
+        try (ActivityScenario<MainActivity> scenario = ActivityScenario.launch(MainActivity.class)) {
+            scenario.onActivity(activity -> {
+                AppsListAdapter adapter = new AppsListAdapter(new AppsListAdapter.Listener() {
+                    public void onAppClicked(AppItem item) { }
+                    public void onAppFocused(AppItem item) { }
+                    public void onAppActionsRequested(View anchor, AppItem item) { }
+                });
+                RecyclerView parent = new RecyclerView(activity);
+                parent.setLayoutManager(new androidx.recyclerview.widget.LinearLayoutManager(activity));
+                AppsListAdapter.ViewHolder holder = adapter.onCreateViewHolder(parent, 0);
+                TextView title = holder.itemView.findViewById(R.id.name);
+                for (int direction : new int[]{View.LAYOUT_DIRECTION_LTR, View.LAYOUT_DIRECTION_RTL}) {
+                    holder.itemView.setLayoutDirection(direction);
+                    for (int mode : new int[]{1, 2, 0, 1, 0, 2, 1}) {
+                        try { applyMode.invoke(holder, mode, 400, false, null); }
+                        catch (ReflectiveOperationException error) { throw new AssertionError(error); }
+                        assertEquals(View.TEXT_ALIGNMENT_GRAVITY, title.getTextAlignment());
+                        assertEquals(mode == 1 ? android.view.Gravity.START : android.view.Gravity.CENTER_HORIZONTAL,
+                                title.getGravity() & android.view.Gravity.RELATIVE_HORIZONTAL_GRAVITY_MASK);
+                        assertEquals(mode == 1 ? 1 : 2, title.getMaxLines());
+                    }
+                }
+            });
+        }
+    }
+
     @Test public void formatsPreserveArtworkAndSurviveRecreation() throws Exception {
         Context context = InstrumentationRegistry.getInstrumentation().getTargetContext();
         File root = Files.createTempDirectory(context.getCacheDir().toPath(), "gallery-layout-").toFile();
@@ -91,6 +121,9 @@ public class GalleryPresentationTest {
                         assertEquals(80,((android.graphics.drawable.BitmapDrawable)((ImageView)card.findViewById(R.id.cover)).getDrawable()).getBitmap().getWidth());
                         assertTrue("One complete card must remain visible",card.getHeight() < list.getHeight());
                         assertTrue("No clipped title",card.findViewById(R.id.name).getBottom() <= card.getHeight());
+                        assertEquals(android.view.Gravity.CENTER_HORIZONTAL,
+                                ((TextView)card.findViewById(R.id.name)).getGravity()
+                                        & android.view.Gravity.HORIZONTAL_GRAVITY_MASK);
                     });
                     for (int position=1;position<4;position++) {
                         final int at=position;
