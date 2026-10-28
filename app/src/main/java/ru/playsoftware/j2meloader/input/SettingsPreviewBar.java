@@ -23,8 +23,9 @@ public final class SettingsPreviewBar extends LinearLayout {
     private final Runnable tick = new Runnable() {
         public void run() {
             if (seconds <= 0) { undo.run(); return; }
-            label.setText(seconds + "s");
-            label.setContentDescription("Settings preview: " + seconds-- + " seconds remaining");
+            label.setText(getContext().getString(R.string.controls_preview_seconds, seconds));
+            label.setContentDescription(getResources().getQuantityString(R.plurals.controls_preview_remaining, seconds, seconds));
+            seconds--;
             handler.postDelayed(this, 1000);
         }
     };
@@ -42,8 +43,8 @@ public final class SettingsPreviewBar extends LinearLayout {
         label.setTextSize(14); label.setSingleLine(true); label.setGravity(Gravity.CENTER);
         label.setAutoSizeTextTypeUniformWithConfiguration(10, 14, 1, android.util.TypedValue.COMPLEX_UNIT_SP);
         addView(label, new LayoutParams(dp(64), dp(48)));
-        button(palette, "Keep", android.R.drawable.ic_menu_save, keep);
-        button(palette, "Undo", android.R.drawable.ic_menu_revert, undo);
+        button(palette, context.getString(R.string.menu_keep), context.getString(R.string.game_keep_changes), android.R.drawable.ic_menu_save, keep);
+        button(palette, context.getString(R.string.menu_undo), context.getString(R.string.game_undo_changes), android.R.drawable.ic_menu_revert, undo);
         setVisibility(GONE);
     }
     /** Overlay only: leave the game bounds and the shortcut row untouched in every engine. */
@@ -53,10 +54,10 @@ public final class SettingsPreviewBar extends LinearLayout {
         lp.setMargins(dp(8), dp(54), dp(8), 0);
         parent.addView(this, lp);
     }
-    private void button(Context palette, String name, int icon, Runnable action) {
+    private void button(Context palette, String name, String description, int icon, Runnable action) {
         ImageButton button = new ImageButton(getContext()); button.setImageResource(icon);
         button.setFocusable(true);
-        button.setContentDescription(name); button.setTooltipText(name + " changes");
+        button.setContentDescription(name); button.setTooltipText(description);
         button.setImageTintList(ColorStateList.valueOf(ru.playsoftware.j2meloader.ui.AppPalette.color(palette, R.color.text_primary)));
         button.setBackground(palette.getDrawable(R.drawable.bg_touch_shortcut));
         button.setPadding(dp(12), dp(12), dp(12), dp(12));

@@ -81,10 +81,10 @@ final class SymbianSessionUi {
         };
         root.setBackgroundColor(Color.BLACK); root.addView(surface);
         deckView = new DeckView(keys.source()); root.addView(deckView, new FrameLayout.LayoutParams(-1,-1));
-        ImageButton settings = icon("Game menu", R.drawable.ic_baseline_tune_24, this::showMenu);
+        ImageButton settings = icon(activity.getString(R.string.game_menu_title), R.drawable.ic_baseline_tune_24, this::showMenu);
         settings.setId(R.id.game_menu_button);
         root.addView(settings, new FrameLayout.LayoutParams(dp(48),dp(48), Gravity.TOP | Gravity.END));
-        camera = icon("Screenshot", R.drawable.ic_action_screenshot, this::screenshot);
+        camera = icon(activity.getString(R.string.game_screenshot), R.drawable.ic_action_screenshot, this::screenshot);
         camera.setId(R.id.game_screenshot_button);
         root.addView(camera, new FrameLayout.LayoutParams(dp(48),dp(48), Gravity.TOP | Gravity.START));
         preview = new SettingsPreviewBar(activity, this::keep, this::undo);
@@ -221,12 +221,12 @@ final class SymbianSessionUi {
         menuPages().more();
     }
     private void populateMorePage() {
-        menu.action("Fast-forward settings", android.R.drawable.ic_media_ff,
+        menu.action(activity.getString(R.string.game_fast_forward_settings), android.R.drawable.ic_media_ff,
                 () -> pages().fastForward(this::morePage));
-        menu.action("Emulation speed: " + profile.getEmulationSpeed() + "%",
+        menu.action(activity.getString(R.string.game_speed_value, profile.getEmulationSpeed()),
                 R.drawable.ic_baseline_tune_24, () -> pages().speed(this::morePage));
         menu.setBackAction(this::home);
-        menu.action("Frame rate limit: " + GameSettingsPages.frameRateLabel(profile.getNativeFpsLimit()),
+        menu.action(activity.getString(R.string.game_fps_limit_value, GameSettingsPages.frameRateLabel(activity, profile.getNativeFpsLimit())),
                 R.drawable.ic_baseline_tune_24, () -> pages().frameRate(this::morePage));
         menu.action(activity.getString(R.string.on_screen_shortcuts), R.drawable.ic_baseline_tune_24,
                 () -> ru.playsoftware.j2meloader.util.GameShortcuts.page(activity, menu, false,
@@ -272,7 +272,7 @@ final class SymbianSessionUi {
         if (menu != null) menu.dismiss(); preview.start(); pause();
     }
     private void keep() {
-        if (!ProfilesManager.keepPreview(profile)) { Toast.makeText(activity,"Could not save settings",Toast.LENGTH_LONG).show(); return; }
+        if (!ProfilesManager.keepPreview(profile)) { Toast.makeText(activity,activity.getString(R.string.game_save_settings_failed),Toast.LENGTH_LONG).show(); return; }
         preview.stop(); if (menu != null) home();
     }
     private void undo() { ProfilesManager.undoPreview(profile); apply(); preview.stop(); if (menu != null) home(); }

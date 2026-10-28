@@ -14,22 +14,22 @@
             android:layout_width="48dp" android:layout_height="48dp"
             android:background="@drawable/bg_library_tab" android:src="@drawable/ic_library_search"
             app:tint="?attr/abyss_text_primary" android:padding="12dp"
-            android:contentDescription="Search" android:tooltipText="Search" />
+            android:contentDescription="@string/search" android:tooltipText="@string/search" />
         <ImageButton android:id="@+id/rail_add_game"
             android:layout_width="48dp" android:layout_height="48dp"
             android:background="@drawable/bg_library_tab" android:src="@drawable/ic_library_plus"
             app:tint="?attr/abyss_text_primary" android:padding="12dp"
-            android:contentDescription="Add game" android:tooltipText="Add game" />
+            android:contentDescription="@string/library_add_game" android:tooltipText="@string/library_add_game" />
         <ImageButton android:id="@+id/library_social"
             android:layout_width="48dp" android:layout_height="48dp"
             android:background="@drawable/bg_library_tab" android:src="@drawable/ic_library_messages_square"
             app:tint="?attr/abyss_text_primary" android:padding="12dp"
-            android:contentDescription="Social" android:tooltipText="Social" />
+            android:contentDescription="@string/social_title" android:tooltipText="@string/social_title" />
         <ImageButton android:id="@+id/library_menu"
             android:layout_width="48dp" android:layout_height="48dp"
             android:background="@drawable/bg_library_tab" android:src="@drawable/ic_library_ellipsis_vertical"
             app:tint="?attr/abyss_text_primary" android:padding="12dp"
-            android:contentDescription="Library menu" android:tooltipText="Library menu" />
+            android:contentDescription="@string/library_menu_title" android:tooltipText="@string/library_menu_title" />
     </LinearLayout>
     <HorizontalScrollView android:id="@+id/library_platform_scroll"
         android:layout_width="match_parent" android:layout_height="48dp"
@@ -79,7 +79,7 @@
             android:layout_width="48dp" android:layout_height="48dp"
             android:background="@drawable/bg_library_tab" android:src="@android:drawable/ic_menu_close_clear_cancel"
             app:tint="?attr/abyss_text_primary" android:padding="12dp"
-            android:contentDescription="Close search" android:tooltipText="Close search" />
+            android:contentDescription="@string/library_close_search" android:tooltipText="@string/library_close_search" />
     </LinearLayout>
     <LinearLayout android:id="@+id/library_tools"
         android:layout_width="match_parent" android:layout_height="48dp"
@@ -88,14 +88,14 @@
             android:layout_width="0dp" android:layout_weight="1" android:layout_height="48dp"
             android:background="@drawable/bg_library_tab" android:clickable="true" android:focusable="true"
             android:gravity="center_vertical" android:paddingHorizontal="8dp"
-            android:singleLine="true" android:ellipsize="end" android:text="All games"
+            android:singleLine="true" android:ellipsize="end" android:text="@string/library_all_games"
             android:drawableEnd="@drawable/ic_arrow_down" android:drawableTint="?attr/abyss_text_secondary"
             android:textSize="13sp" android:textColor="?attr/abyss_text_secondary" />
         <TextView android:id="@+id/library_generation"
             android:layout_width="wrap_content" android:layout_height="48dp"
             android:background="@drawable/bg_library_tab" android:clickable="true" android:focusable="true"
             android:minWidth="48dp" android:paddingHorizontal="8dp" android:gravity="center"
-            android:text="All" android:textSize="13sp" android:textColor="?attr/abyss_text_secondary"
+            android:text="@string/library_all_generations" android:textSize="13sp" android:textColor="?attr/abyss_text_secondary"
             android:visibility="gone" />
         <TextView android:id="@+id/library_count"
             android:layout_width="wrap_content" android:layout_height="48dp"
@@ -107,17 +107,17 @@
             android:layout_width="48dp" android:layout_height="48dp"
             android:background="@drawable/bg_library_tab" android:src="@drawable/ic_library_gallery_horizontal_end"
             app:tint="?attr/abyss_text_primary" android:padding="12dp"
-            android:contentDescription="Gallery" android:tooltipText="Gallery" />
+            android:contentDescription="@string/library_gallery" android:tooltipText="@string/library_gallery" />
         <ImageButton android:id="@+id/view_mode_list"
             android:layout_width="48dp" android:layout_height="48dp"
             android:background="@drawable/bg_library_tab" android:src="@drawable/ic_library_list"
             app:tint="?attr/abyss_text_primary" android:padding="12dp"
-            android:contentDescription="List" android:tooltipText="List" />
+            android:contentDescription="@string/library_list" android:tooltipText="@string/library_list" />
         <ImageButton android:id="@+id/view_mode_grid"
             android:layout_width="48dp" android:layout_height="48dp"
             android:background="@drawable/bg_library_tab" android:src="@drawable/ic_library_layout_grid"
             app:tint="?attr/abyss_text_primary" android:padding="12dp"
-            android:contentDescription="Grid" android:tooltipText="Grid" />
+            android:contentDescription="@string/library_grid" android:tooltipText="@string/library_grid" />
         </LinearLayout>
     </LinearLayout>
     <FrameLayout android:layout_width="match_parent" android:layout_height="0dp"
@@ -135,7 +135,7 @@
             <Button android:id="@+id/empty_add_game"
                 android:layout_width="wrap_content" android:layout_height="wrap_content"
                 android:minHeight="48dp" android:layout_marginTop="12dp"
-                android:text="Add game" android:textAllCaps="false"
+                android:text="@string/library_add_game" android:textAllCaps="false"
                 android:drawableStart="@drawable/ic_add_white" android:drawableTint="?attr/abyss_accent"
                 android:drawablePadding="8dp" android:paddingHorizontal="16dp"
                 android:background="@drawable/bg_library_tab" android:textColor="?attr/abyss_text_primary" />

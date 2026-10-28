@@ -9,6 +9,7 @@ import android.view.Window;
 import android.view.WindowManager;
 import java.util.ArrayList;
 import ru.playsoftware.j2meloader.config.ProfileModel;
+import ru.playsoftware.j2meloader.R;
 
 /** Edits a detached draft; Save here does not commit the game profile. */
 public final class MapperDialog extends Dialog {
@@ -27,7 +28,7 @@ public final class MapperDialog extends Dialog {
                     }
                     public void cancel() { dismiss(); }
                 });
-        mapper.setSaveLabel("Use mapping");
+        mapper.setSaveLabel(getContext().getString(R.string.controls_use_mapping));
         setContentView(mapper);
         setOnDismissListener(d -> closed.run());
     }

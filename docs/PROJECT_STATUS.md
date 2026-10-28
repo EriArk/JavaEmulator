@@ -140,11 +140,17 @@ events from marking a replacement sound stopped. **408 JVM and 35 Retroid audio
 checks pass**. #41's exact quiet-game editions remain open; gain and instruments
 are unchanged. [Evidence](checks/2026-10-28-audio-lifecycle-settings.md).
 
-**#43 localization has started with English source extraction**, not language
-rollout: general Settings, palette labels, shared menu navigation/preview labels
-and folder scan messages use resources/plurals. No locale picker, new translated
-language or change to guest text is included. 24 Retroid settings/catalog checks
-pass; final lint has zero errors / 443 warnings. [Scope and glossary](LOCALIZATION.md).
+**#43 localization is in source preparation, not language rollout.** Settings,
+library actions, shared Java/Mophun/Symbian game menus/display controls,
+transfer/installer UI and physical/touch mapping use resources/plurals. Selection
+values, mapping IDs, import state and styling no longer depend on translated
+labels. Long menu titles wrap and large-font choices stack vertically.
+**408 JVM and 53 Retroid checks pass; lint has zero errors / 408 warnings.**
+Expanded pseudolocale/200% font checks are not real-language acceptance. Detailed
+firmware onboarding, Fluxer/chat/lobbies, backend errors and helpers remain open,
+then process-safe language selection and reviewed translations. No locale picker,
+new supported language, guest-language change or public APK update is included.
+[Scope and glossary](LOCALIZATION.md), [evidence](checks/2026-10-28-localization-journeys.md).
 
 The next batch implements **#45's general virtual Gamepad mapper** in the existing
 Touch layout editor: select a drawn button, choose a phone key, or use the Native
@@ -158,7 +164,8 @@ warnings. ADB-driven UI verifies Keep and relaunch, plus Avatar menu navigation;
 this is not a complete-game or physical-button acceptance claim.
 Treasure Towers was not found in the local filename search and is **not yet
 reproduced**. #45 stays open for that acceptance gap and touch-phone accessibility
-checks. #43 remains queued. New mapping labels use English resources; this is
+checks. At that earlier checkpoint #43 was queued; its current progress is above.
+New mapping labels use English resources; this is
 not whole-app localization. No new signed APK or public release assets.
 [Mapping evidence and local captures](checks/2026-10-28-touch-gamepad-mapping.md).
 [Changes, measurements, fixture identities and remaining checks](checks/2026-10-28-audio-and-phone-controls.md).

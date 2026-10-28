@@ -381,8 +381,8 @@ public class AppsListFragment extends Fragment implements AppsListAdapter.Listen
 	}
 
 	private void showGenerationMenu() {
-		GameMenuDialog dialog = libraryDialog("N-Gage generation");
-		String[] labels = {"All", "Classic", "2.0"};
+		GameMenuDialog dialog = libraryDialog(getString(R.string.library_generation));
+		String[] labels = getResources().getStringArray(R.array.library_generations);
 		for (int i = 0; i < labels.length; i++) {
 			int target = i;
 			dialog.action(labels[i], i == generation ? android.R.drawable.checkbox_on_background : 0, () -> {
@@ -394,7 +394,7 @@ public class AppsListFragment extends Fragment implements AppsListAdapter.Listen
 	}
 
 	private void showSocial() {
-		GameMenuDialog dialog = libraryDialog("Social");
+		GameMenuDialog dialog = libraryDialog(getString(R.string.social_title));
 		ru.playsoftware.j2meloader.input.SocialMenuPages.show(dialog, requireContext(), null, this::startActivity);
 	}
 
@@ -431,13 +431,13 @@ public class AppsListFragment extends Fragment implements AppsListAdapter.Listen
 	}
 
 	private void showCategoryMenu() {
-		GameMenuDialog dialog = libraryDialog("Collection");
+		GameMenuDialog dialog = libraryDialog(getString(R.string.library_collection));
 		populateCollectionMenu(dialog);
 	}
 
 	private void populateCollectionMenu(GameMenuDialog dialog) {
-		dialog.page("Collection");
-		String[] names = {"All games", "Recent", "Favorites"};
+		dialog.page(getString(R.string.library_collection));
+		String[] names = {getString(R.string.library_all_games), getString(R.string.library_recent), getString(R.string.library_favorites)};
 		for (int i = 0; i < names.length; i++) {
 			int target = i;
 			dialog.action(names[i], i == category ? android.R.drawable.checkbox_on_background : 0,
@@ -446,32 +446,32 @@ public class AppsListFragment extends Fragment implements AppsListAdapter.Listen
 	}
 
 	private void showLibraryMenu() {
-		GameMenuDialog dialog = libraryDialog("Library menu");
+		GameMenuDialog dialog = libraryDialog(getString(R.string.library_menu_title));
 		populateLibraryMenu(dialog);
 	}
 
 	private void populateLibraryMenu(GameMenuDialog dialog) {
-		dialog.page("Library menu");
+		dialog.page(getString(R.string.library_menu_title));
 		List<AppItem> all = new java.util.ArrayList<>(databaseItems);
 		all.addAll(externalItems);
 		AppItem last = LibraryQuery.lastPlayed(all);
-		if (last != null) dialog.action("Play last: " + last.getTitle(), android.R.drawable.ic_media_play,
+		if (last != null) dialog.action(getString(R.string.library_play_last, last.getTitle()), android.R.drawable.ic_media_play,
 				() -> { dialog.dismiss(); startApp(last, false); });
-		dialog.action("Collection", R.drawable.ic_list, () -> {
+		dialog.action(getString(R.string.library_collection), R.drawable.ic_list, () -> {
 			dialog.dismiss(); showCategoryMenu();
 		});
 		if (BuildConfig.SYMBIAN_EXPERIMENT) {
-			dialog.action("System files", R.drawable.ic_baseline_tune_24, () -> {
+			dialog.action(getString(R.string.settings_system_files), R.drawable.ic_baseline_tune_24, () -> {
 				dialog.dismiss();
 				startActivity(new Intent().setClassName(requireContext(),
 						"io.github.eriark.abyssme.symbian.SymbianActivity"));
 			});
 		}
-		dialog.action("View: " + new String[]{"Gallery", "List", "Grid"}[adapter.getDisplayMode()],
+		dialog.action(getString(R.string.library_view_value, getResources().getStringArray(R.array.library_view_modes)[adapter.getDisplayMode()]),
 				android.R.drawable.ic_menu_view, () -> {
-			dialog.page("View");
+			dialog.page(getString(R.string.library_view));
 			dialog.setBackAction(() -> populateLibraryMenu(dialog));
-			String[] modes = {"Gallery", "List", "Grid"};
+			String[] modes = {getString(R.string.library_gallery), getString(R.string.library_list), getString(R.string.library_grid)};
 			for (int i = 0; i < modes.length; i++) {
 				int target = i;
 				dialog.action(modes[i], 0, () -> {
@@ -480,48 +480,49 @@ public class AppsListFragment extends Fragment implements AppsListAdapter.Listen
 				});
 			}
 		});
-		dialog.action("Cover format: " + LibraryLayout.COVER_LABELS[coverFormat()], android.R.drawable.ic_menu_gallery, () -> {
-			dialog.page("Gallery cover format");
+		String[] coverFormats = getResources().getStringArray(R.array.library_cover_formats);
+		dialog.action(getString(R.string.library_cover_format_value, coverFormats[coverFormat()]), android.R.drawable.ic_menu_gallery, () -> {
+			dialog.page(getString(R.string.library_cover_format));
 			dialog.setBackAction(() -> populateLibraryMenu(dialog));
-			for (int i = 0; i < LibraryLayout.COVER_LABELS.length; i++) {
+			for (int i = 0; i < coverFormats.length; i++) {
 				final int value = i;
-				dialog.action(LibraryLayout.COVER_LABELS[i], 0, () -> {
+				dialog.action(coverFormats[i], 0, () -> {
 					preferences.edit().putInt(LibraryLayout.COVER_PREFERENCE, value).apply();
 					updateLibraryLayout(); dialog.dismiss();
 					if (ru.playsoftware.j2meloader.input.DeviceControls.connected(requireContext())) focusGame(selectedItem == null ? null : selectedItem.getPath());
 				});
 			}
 		});
-		dialog.action("Sort", R.drawable.ic_setting_sort, () -> {
-			dialog.page("Sort");
+		dialog.action(getString(R.string.library_sort), R.drawable.ic_setting_sort, () -> {
+			dialog.page(getString(R.string.library_sort));
 			dialog.setBackAction(() -> populateLibraryMenu(dialog));
-			dialog.choice("Sort by", getResources().getStringArray(R.array.pref_app_sort_entries),
+			dialog.choice(getString(R.string.library_sort_by), getResources().getStringArray(R.array.pref_app_sort_entries),
 					appRepository.getSort() & Integer.MAX_VALUE, index -> preferences.edit()
 							.putInt(PREF_APP_SORT, index | (appRepository.getSort() & Integer.MIN_VALUE)).apply());
-			dialog.toggle("Reverse order", appRepository.getSort() < 0, checked -> {
+			dialog.toggle(getString(R.string.library_reverse), appRepository.getSort() < 0, checked -> {
 				int sort = appRepository.getSort() & Integer.MAX_VALUE;
 				preferences.edit().putInt(PREF_APP_SORT, checked ? sort | Integer.MIN_VALUE : sort).apply();
 			});
 		});
-		dialog.action("Add game", R.drawable.ic_add_white, () -> { dialog.dismiss(); openLastDirectory(); });
-		dialog.action("Add folder", R.drawable.ic_setting_folder, () -> { dialog.dismiss(); openFolderLauncher.launch(null); });
-		dialog.action("Fluxer account", android.R.drawable.ic_menu_myplaces, () -> {
+		dialog.action(getString(R.string.library_add_game), R.drawable.ic_add_white, () -> { dialog.dismiss(); openLastDirectory(); });
+		dialog.action(getString(R.string.library_add_folder), R.drawable.ic_setting_folder, () -> { dialog.dismiss(); openFolderLauncher.launch(null); });
+		dialog.action(getString(R.string.settings_fluxer_account), android.R.drawable.ic_menu_myplaces, () -> {
 			dialog.dismiss(); startActivity(new Intent(requireActivity(),
 					ru.playsoftware.j2meloader.multiplayer.FluxerAccountActivity.class));
 		});
-		dialog.action("Chats", android.R.drawable.ic_dialog_email, () -> {
+		dialog.action(getString(R.string.social_chats), android.R.drawable.ic_dialog_email, () -> {
 			dialog.dismiss(); startActivity(new Intent(requireActivity(),
 					ru.playsoftware.j2meloader.multiplayer.FluxerChatsActivity.class));
 		});
-		dialog.action("Friends", android.R.drawable.ic_menu_myplaces, () -> {
+		dialog.action(getString(R.string.social_friends), android.R.drawable.ic_menu_myplaces, () -> {
 			dialog.dismiss(); startActivity(new Intent(requireContext(),
 					ru.playsoftware.j2meloader.multiplayer.FluxerChatsActivity.class).putExtra("friends", true));
 		});
-		dialog.action("Lobbies", android.R.drawable.ic_menu_share, () -> {
+		dialog.action(getString(R.string.social_lobbies), android.R.drawable.ic_menu_share, () -> {
 			dialog.dismiss(); startActivity(new Intent(requireContext(),
 					ru.playsoftware.j2meloader.multiplayer.LobbyDirectoryActivity.class));
 		});
-		dialog.action("Settings", R.drawable.ic_baseline_tune_24, () -> {
+		dialog.action(getString(R.string.settings_title), R.drawable.ic_baseline_tune_24, () -> {
 			dialog.dismiss(); startActivity(new Intent(requireActivity(), SettingsActivity.class));
 		});
 	}
@@ -567,9 +568,9 @@ public class AppsListFragment extends Fragment implements AppsListAdapter.Listen
 	}
 
 	private void updateCollectionLabel() {
-		String label = category == 0 ? "All games" : category == 1 ? "Recent" : "Favorites";
+		String label = category == 0 ? getString(R.string.library_all_games) : category == 1 ? getString(R.string.library_recent) : getString(R.string.library_favorites);
 		binding.libraryCategory.setText(label);
-		binding.libraryCategory.setContentDescription("Collection: " + label);
+		binding.libraryCategory.setContentDescription(getString(R.string.library_collection_value, label));
 		binding.libraryCategory.setTooltipText(label);
 		for (int i = 0; i < binding.libraryPlatformTabs.getChildCount(); i++) {
 			View tab = binding.libraryPlatformTabs.getChildAt(i);
@@ -579,8 +580,8 @@ public class AppsListFragment extends Fragment implements AppsListAdapter.Listen
 			});
 		}
 		binding.libraryGeneration.setVisibility(platform == 4 && bothNgageGenerations ? View.VISIBLE : View.GONE);
-		binding.libraryGeneration.setText(new String[]{"All", "Classic", "2.0"}[generation]);
-		binding.libraryGeneration.setContentDescription("N-Gage generation: " + binding.libraryGeneration.getText());
+		binding.libraryGeneration.setText(getResources().getStringArray(R.array.library_generations)[generation]);
+		binding.libraryGeneration.setContentDescription(getString(R.string.library_generation_value, binding.libraryGeneration.getText()));
 	}
 
 	private String locationKey() { return "libraryLocation." + category + "." + platform
@@ -825,28 +826,28 @@ public class AppsListFragment extends Fragment implements AppsListAdapter.Listen
 	}
 
 	private void populateArtworkMenu(GameMenuDialog dialog, AppItem item) {
-		dialog.page("Artwork");
+		dialog.page(getString(R.string.library_artwork));
 		for (boolean icon : new boolean[]{true, false}) {
-			dialog.action(icon ? "Icon" : "Cover", android.R.drawable.ic_menu_gallery, () -> {
-				dialog.page(icon ? "Icon" : "Cover");
+			dialog.action(icon ? getString(R.string.library_icon) : getString(R.string.library_cover), android.R.drawable.ic_menu_gallery, () -> {
+				dialog.page(icon ? getString(R.string.library_icon) : getString(R.string.library_cover));
 				dialog.setBackAction(() -> populateArtworkMenu(dialog, item));
-				dialog.action("Choose image", android.R.drawable.ic_menu_gallery, () -> {
+				dialog.action(getString(R.string.library_choose_image), android.R.drawable.ic_menu_gallery, () -> {
 					dialog.dismiss(); artworkTargetId = item.getId(); pickingIcon = icon;
 					artworkLauncher.launch("image/*");
 				});
-				dialog.action("Use automatic", android.R.drawable.ic_menu_revert, () -> {
+				dialog.action(getString(R.string.library_use_automatic), android.R.drawable.ic_menu_revert, () -> {
 					dialog.dismiss(); refreshArtwork(item, icon ? GameArtwork.USER_ICON : GameArtwork.USER_COVER);
 				});
 			});
 		}
 		if (!(item instanceof ExternalLibrary.Item) && new File(item.getPathExt(), Config.MIDLET_RES_FILE).isFile()) {
-			dialog.action("Refresh automatic art", android.R.drawable.ic_popup_sync, () -> {
-				dialog.confirmationPage("Refresh automatic art?");
+			dialog.action(getString(R.string.library_refresh_art), android.R.drawable.ic_popup_sync, () -> {
+				dialog.confirmationPage(getString(R.string.library_refresh_art_question));
 				dialog.setBackAction(() -> populateArtworkMenu(dialog, item));
-				dialog.action("Replace legacy art, keep custom images", 0, () -> {
+				dialog.action(getString(R.string.library_replace_legacy_art), 0, () -> {
 					dialog.dismiss(); refreshArtwork(item, null);
 				});
-				dialog.action("Cancel", 0, dialog::dismiss);
+				dialog.action(getString(R.string.game_cancel), 0, dialog::dismiss);
 			});
 		}
 	}
@@ -878,7 +879,7 @@ public class AppsListFragment extends Fragment implements AppsListAdapter.Listen
 	private void showArtworkError(Context context, Exception e) {
 		Log.w(TAG, "Artwork update failed", e);
 		new android.os.Handler(android.os.Looper.getMainLooper()).post(() ->
-				Toast.makeText(context, "Could not update artwork", Toast.LENGTH_SHORT).show());
+				Toast.makeText(context, context.getString(R.string.library_artwork_failed), Toast.LENGTH_SHORT).show());
 	}
 
 	@Override public void onSaveInstanceState(@NonNull Bundle state) {
@@ -896,19 +897,19 @@ public class AppsListFragment extends Fragment implements AppsListAdapter.Listen
 
 	private void alertRename(AppItem item) {
 		GameMenuDialog dialog = new GameMenuDialog(requireContext(), item.getTitle());
-		dialog.show(); dialog.page("Title");
-		EditText editText = dialog.textInput("Game title", item.getTitle());
-		dialog.action("Save", android.R.drawable.ic_menu_save, () -> {
+		dialog.show(); dialog.page(getString(R.string.library_card_title));
+		EditText editText = dialog.textInput(getString(R.string.library_game_title), item.getTitle());
+		dialog.action(getString(R.string.library_save), android.R.drawable.ic_menu_save, () -> {
 					String title = editText.getText().toString().trim();
 					if (title.equals("")) {
-						editText.setError("Enter a title");
+						editText.setError(getString(R.string.library_enter_title));
 						editText.requestFocus();
 					} else {
 						if (item instanceof ExternalLibrary.Item) {
 							try {
 								((ExternalLibrary.Item) item).rename(title);
 							} catch (java.io.IOException e) {
-								editText.setError("Could not save title. " + e.getMessage());
+								editText.setError(getString(R.string.library_save_title_failed, e.getMessage()));
 								return;
 							}
 							publishLibrary();
@@ -919,16 +920,16 @@ public class AppsListFragment extends Fragment implements AppsListAdapter.Listen
 						dialog.dismiss();
 					}
 		});
-		dialog.action("Cancel", android.R.drawable.ic_menu_close_clear_cancel, dialog::dismiss);
+		dialog.action(getString(R.string.game_cancel), android.R.drawable.ic_menu_close_clear_cancel, dialog::dismiss);
 	}
 
 	private void alertDelete(AppItem item) {
 		ru.playsoftware.j2meloader.input.GameMenuDialog dialog =
 				new ru.playsoftware.j2meloader.input.GameMenuDialog(requireActivity(), item.getTitle());
-		dialog.show(); dialog.confirmationPage("Delete game?");
-		dialog.message("This removes the installed game, its settings and saves. Original source files are kept.");
-		dialog.action("Cancel", android.R.drawable.ic_menu_close_clear_cancel, dialog::dismiss);
-		dialog.action("Delete game", android.R.drawable.ic_menu_delete, () -> {
+		dialog.show(); dialog.confirmationPage(getString(R.string.library_delete_question));
+		dialog.message(getString(R.string.library_delete_warning));
+		dialog.action(getString(R.string.game_cancel), android.R.drawable.ic_menu_close_clear_cancel, dialog::dismiss);
+		dialog.action(getString(R.string.library_delete), android.R.drawable.ic_menu_delete, () -> {
 			dialog.dismiss();
 			AppUtils.deleteApp(item);
 			appRepository.delete(item);
@@ -1062,33 +1063,33 @@ public class AppsListFragment extends Fragment implements AppsListAdapter.Listen
     private ru.playsoftware.j2meloader.input.MapperDialog contextMapper;
 
     private void populateGameActions(GameMenuDialog dialog, AppItem item) {
-        dialog.page("Game actions");
-        dialog.action("Play", android.R.drawable.ic_media_play, () -> { dialog.dismiss(); startApp(item, false); });
+        dialog.page(getString(R.string.library_actions));
+        dialog.primaryAction(getString(R.string.library_play), android.R.drawable.ic_media_play, () -> { dialog.dismiss(); startApp(item, false); });
         if (!(item instanceof ExternalLibrary.Item))
             ru.playsoftware.j2meloader.multiplayer.PlayTogether.action(dialog, item.getPathExt(), this::startActivity);
         if (!(item instanceof ExternalLibrary.Item) || ((ExternalLibrary.Item) item).supportsGameSettings()) {
-            dialog.action("Display", R.drawable.ic_quick_size, () -> showCardSettings(dialog, item, false));
-            dialog.action("Controls", R.drawable.ic_action_keyboard, () -> showCardSettings(dialog, item, true));
+            dialog.action(getString(R.string.game_display), R.drawable.ic_quick_size, () -> showCardSettings(dialog, item, false));
+            dialog.action(getString(R.string.game_controls), R.drawable.ic_action_keyboard, () -> showCardSettings(dialog, item, true));
         }
-        dialog.action("Game information", android.R.drawable.ic_menu_info_details, () -> {
-            dialog.page("Game information");
+        dialog.action(getString(R.string.library_information), android.R.drawable.ic_menu_info_details, () -> {
+            dialog.page(getString(R.string.library_information));
             dialog.message(ru.playsoftware.j2meloader.catalog.GameInformation.describe(item));
             dialog.setBackAction(() -> populateGameActions(dialog, item));
         });
-        dialog.action(item.isFavorite() ? "Remove favorite" : "Add favorite", android.R.drawable.btn_star, () -> {
+        dialog.action(item.isFavorite() ? getString(R.string.library_remove_favorite) : getString(R.string.library_add_favorite), android.R.drawable.btn_star, () -> {
             toggleFavorite(item); dialog.dismiss();
         });
-        dialog.action("More", R.drawable.ic_library_ellipsis_vertical, () -> populateGameMore(dialog, item));
+        dialog.action(getString(R.string.game_more), R.drawable.ic_library_ellipsis_vertical, () -> populateGameMore(dialog, item));
     }
 
     private void populateGameMore(GameMenuDialog dialog, AppItem appItem) {
-        dialog.page("More");
+        dialog.page(getString(R.string.game_more));
         dialog.setBackAction(() -> populateGameActions(dialog, appItem));
-        dialog.action("Edit card", android.R.drawable.ic_menu_edit, () -> populateEditCard(dialog, appItem,
+        dialog.action(getString(R.string.library_edit_card), android.R.drawable.ic_menu_edit, () -> populateEditCard(dialog, appItem,
                 () -> populateGameMore(dialog, appItem)));
         if (appItem instanceof ExternalLibrary.Item) {
             ExternalLibrary.Item item = (ExternalLibrary.Item) appItem;
-            dialog.action("Export launch file", android.R.drawable.ic_menu_save, () -> {
+            dialog.action(getString(R.string.library_launch_export), android.R.drawable.ic_menu_save, () -> {
                 try {
                     pendingLauncherLink = ru.playsoftware.j2meloader.catalog.LauncherLink.encode(
                             requireContext().getPackageName(), item.getPath());
@@ -1096,8 +1097,8 @@ public class AppsListFragment extends Fragment implements AppsListAdapter.Listen
                     launcherLinkExporter.launch(item.getTitle().replaceAll("[/\\\\:*?\"<>|]", "_") + ".abyssme");
                 } catch (IOException error) { dialog.message(error.getMessage()); }
             });
-            dialog.action("System files", R.drawable.ic_baseline_tune_24, () -> { dialog.dismiss(); startApp(item, true); });
-            if(item.supportsUninstallReview()) dialog.action("Uninstall from phone", android.R.drawable.ic_menu_delete,
+            dialog.action(getString(R.string.settings_system_files), R.drawable.ic_baseline_tune_24, () -> { dialog.dismiss(); startApp(item, true); });
+            if(item.supportsUninstallReview()) dialog.action(getString(R.string.library_uninstall_phone), android.R.drawable.ic_menu_delete,
                     () -> { dialog.dismiss(); item.uninstall(requireActivity()); });
             return;
         }
@@ -1137,7 +1138,7 @@ public class AppsListFragment extends Fragment implements AppsListAdapter.Listen
 			return true;
 		};
 		{
-			dialog.action("Settings", R.drawable.ic_baseline_tune_24, () -> {
+			dialog.action(getString(R.string.settings_title), R.drawable.ic_baseline_tune_24, () -> {
 				dialog.dismiss(); startApp(appItem, true);
 			});
 			for (int i = 0; i < menu.size(); i++) {
@@ -1159,15 +1160,15 @@ public class AppsListFragment extends Fragment implements AppsListAdapter.Listen
 	}
 
 	private void populateEditCard(GameMenuDialog dialog, AppItem item, Runnable back) {
-		dialog.page("Edit card");
+		dialog.page(getString(R.string.library_edit_card));
 		dialog.setBackAction(back);
-		dialog.action("Title", android.R.drawable.ic_menu_edit, () -> { dialog.dismiss(); alertRename(item); });
+		dialog.action(getString(R.string.library_card_title), android.R.drawable.ic_menu_edit, () -> { dialog.dismiss(); alertRename(item); });
 		boolean artworkAvailable = item instanceof ExternalLibrary.Item
 				? ((ExternalLibrary.Item) item).getArtworkDirectory() != null
 				: new File(item.getPathExt(), Config.MIDLET_RES_FILE).isFile()
 						|| ru.playsoftware.j2meloader.catalog.AdditionalGames.isManaged(new File(item.getPathExt()));
 		if (artworkAvailable)
-			dialog.action("Artwork", android.R.drawable.ic_menu_gallery, () -> { dialog.dismiss(); showArtworkMenu(item); });
+			dialog.action(getString(R.string.library_artwork), android.R.drawable.ic_menu_gallery, () -> { dialog.dismiss(); showArtworkMenu(item); });
 	}
 
     private void showCardSettings(GameMenuDialog dialog, AppItem item, boolean controls) {
@@ -1180,7 +1181,7 @@ public class AppsListFragment extends Fragment implements AppsListAdapter.Listen
                 File dir = new File(app.getParentFile().getParentFile(), "configs/" + app.getName());
                 profile = ru.playsoftware.j2meloader.config.ProfilesManager.loadConfig(dir);
             }
-        } catch (IOException error) { dialog.message("Could not load game settings."); return; }
+        } catch (IOException error) { dialog.message(getString(R.string.library_settings_load_failed)); return; }
         if (profile == null) { dialog.dismiss(); startApp(item, true); return; }
         ru.playsoftware.j2meloader.config.GameSettingsPages pages = new ru.playsoftware.j2meloader.config.GameSettingsPages(
                 dialog, profile, false, external == null && !ru.playsoftware.j2meloader.catalog.AdditionalGames.isManaged(app),
@@ -1189,7 +1190,7 @@ public class AppsListFragment extends Fragment implements AppsListAdapter.Listen
                         try {
                             ru.playsoftware.j2meloader.config.SettingsTrial.stage(draft);
                             dialog.dismiss(); startApp(item, false);
-                        } catch (Exception error) { dialog.message("Could not prepare settings."); }
+                        } catch (Exception error) { dialog.message(getString(R.string.library_settings_prepare_failed)); }
                     }
                     public void mapping(ru.playsoftware.j2meloader.config.ProfileModel draft, Runnable back) {
                         dialog.hide();
@@ -1405,11 +1406,11 @@ public class AppsListFragment extends Fragment implements AppsListAdapter.Listen
 			return;
 		}
 		boolean empty = adapter.getItemCount() == 0;
-		binding.empty.setText(!restoredSearch.isEmpty() ? "No matching games"
-				: category == 2 ? "No favorites in this collection"
-				: category == 1 ? "No recently played games in this collection"
-				: platform != 0 ? "No " + LibraryQuery.PLATFORMS[platform] + " games"
-				: "No games yet");
+		binding.empty.setText(!restoredSearch.isEmpty() ? getString(R.string.library_no_matches)
+				: category == 2 ? getString(R.string.library_no_favorites)
+				: category == 1 ? getString(R.string.library_no_recent)
+				: platform != 0 ? getString(R.string.library_no_platform_games, LibraryQuery.PLATFORMS[platform])
+				: getString(R.string.library_no_games));
 		binding.libraryEmpty.setVisibility(empty ? View.VISIBLE : View.GONE);
 		binding.emptyAddGame.setVisibility(category == 0 && restoredSearch.isEmpty() ? View.VISIBLE : View.GONE);
 		binding.appsRecycler.setVisibility(empty ? View.GONE : View.VISIBLE);
@@ -1423,16 +1424,16 @@ public class AppsListFragment extends Fragment implements AppsListAdapter.Listen
         try (java.io.OutputStream output = requireContext().getContentResolver().openOutputStream(uri, "wt")) {
             if (output == null) throw new IOException("Cannot write launch file");
             output.write(payload.getBytes(java.nio.charset.StandardCharsets.UTF_8));
-            Toast.makeText(requireContext(), "Launch file exported", Toast.LENGTH_SHORT).show();
+            Toast.makeText(requireContext(), getString(R.string.library_launch_exported), Toast.LENGTH_SHORT).show();
         } catch (IOException | RuntimeException error) {
             GameMenuDialog dialog = new GameMenuDialog(requireContext(), "AbyssME");
-            dialog.show(); dialog.page("Export failed"); dialog.message(error.getMessage());
+            dialog.show(); dialog.page(getString(R.string.library_export_failed)); dialog.message(error.getMessage());
         }
     }
 
     private void showGameInformation(AppItem item) {
         GameMenuDialog dialog = new GameMenuDialog(requireContext(), item.getTitle());
-        dialog.show(); dialog.page("Game information");
+        dialog.show(); dialog.page(getString(R.string.library_information));
         dialog.message(ru.playsoftware.j2meloader.catalog.GameInformation.describe(item));
     }
 

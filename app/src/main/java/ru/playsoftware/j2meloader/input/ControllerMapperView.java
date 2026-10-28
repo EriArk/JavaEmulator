@@ -45,8 +45,6 @@ public final class ControllerMapperView extends LinearLayout {
     private final int BG, PANEL, LINE, TEXT, MUTED, AMBER, CYAN;
     private static final int[] DPAD = {19, 20, 21, 22, -1011, -1012, -1013, -1014};
     private static final int[] STICK = {-1001, -1002, -1003, -1004, -1005, -1006, -1007, -1008};
-    private static final String[] DIR_NAMES = {"Up", "Down", "Left", "Right",
-            "Up + left", "Up + right", "Down + left", "Down + right"};
     private static final String[] DIR_ICONS = {"\u2191", "\u2193", "\u2190", "\u2192",
             "\u2196", "\u2197", "\u2199", "\u2198"};
 
@@ -140,7 +138,7 @@ public final class ControllerMapperView extends LinearLayout {
         title.addView(subtitle);
         header.addView(title, new LayoutParams(0, dp(52), 1));
         profilePicker = new Spinner(context);
-        profilePicker.setContentDescription("Control profile");
+        profilePicker.setContentDescription(getContext().getString(R.string.controls_profile));
         profilePicker.setBackground(states(PANEL));
         header.addView(profilePicker, new LayoutParams(0, dp(44), 1.2f));
         Button duplicate = iconButton(android.R.drawable.ic_menu_add, R.string.mapper_duplicate);
@@ -159,7 +157,7 @@ public final class ControllerMapperView extends LinearLayout {
         sourceHeading = section(R.string.mapper_controller);
         sources.addView(sourceHeading);
         LinearLayout groups = new LinearLayout(context);
-        String[] groupNames = {"Buttons", "D-pad", "Stick"};
+        String[] groupNames = {getContext().getString(R.string.controls_buttons), getContext().getString(R.string.controls_dpad), getContext().getString(R.string.controls_stick)};
         for (int i = 0; i < groupNames.length; i++) {
             final int group = i;
             Button tab = button(groupNames[i]);
@@ -185,8 +183,8 @@ public final class ControllerMapperView extends LinearLayout {
         phoneHeading = section(R.string.mapper_phone);
         destination.addView(phoneHeading);
         phoneTabs = new LinearLayout(context);
-        keypadTab = button("Keypad");
-        navigationTab = button("Navigation");
+        keypadTab = button(getContext().getString(R.string.controls_keypad));
+        navigationTab = button(getContext().getString(R.string.controls_navigation));
         keypadTab.setOnClickListener(v -> showPhonePage(false));
         navigationTab.setOnClickListener(v -> showPhonePage(true));
         phoneTabs.addView(keypadTab, new LayoutParams(0, dp(32), 1));
@@ -210,23 +208,24 @@ public final class ControllerMapperView extends LinearLayout {
         lcd.setBackground(shape(ru.playsoftware.j2meloader.ui.AppPalette.color(getContext(), ru.playsoftware.j2meloader.R.color.mapper_lcd), ru.playsoftware.j2meloader.ui.AppPalette.color(getContext(), ru.playsoftware.j2meloader.R.color.mapper_lcd_line), 3));
         rebuildPhone();
 
-        addSection("Buttons");
+        addSection(getContext().getString(R.string.controls_buttons));
         addInput(96, "A", "A", ru.playsoftware.j2meloader.ui.AppPalette.color(getContext(), ru.playsoftware.j2meloader.R.color.control_a));
         addInput(97, "B", "B", ru.playsoftware.j2meloader.ui.AppPalette.color(getContext(), ru.playsoftware.j2meloader.R.color.control_b));
         addInput(99, "X", "X", ru.playsoftware.j2meloader.ui.AppPalette.color(getContext(), ru.playsoftware.j2meloader.R.color.control_x));
         addInput(100, "Y", "Y", ru.playsoftware.j2meloader.ui.AppPalette.color(getContext(), ru.playsoftware.j2meloader.R.color.control_y));
         buildingGroup = 1;
-        addSection("D-pad");
-        for (int i = 0; i < DPAD.length; i++) addInput(DPAD[i], DIR_ICONS[i], "D-pad " + DIR_NAMES[i], CYAN);
+        addSection(getContext().getString(R.string.controls_dpad));
+        String[] directions = getResources().getStringArray(R.array.controls_directions);
+        for (int i = 0; i < DPAD.length; i++) addInput(DPAD[i], DIR_ICONS[i], getContext().getString(R.string.controls_dpad_direction, directions[i]), CYAN);
         buildingGroup = 0;
-        addSection("Shoulders & system");
+        addSection(getContext().getString(R.string.controls_shoulders));
         addInput(102, "L1", "L1", TEXT); addInput(103, "R1", "R1", TEXT);
         addInput(104, "L2", "L2", TEXT); addInput(105, "R2", "R2", TEXT);
         addInput(109, "\u2212", "Select", TEXT); addInput(108, "+", "Start", TEXT);
         addInput(106, "L3", "L3", TEXT); addInput(107, "R3", "R3", TEXT);
         buildingGroup = 2;
-        addSection("Left stick");
-        for (int i = 0; i < STICK.length; i++) addInput(STICK[i], DIR_ICONS[i], "Stick " + DIR_NAMES[i], CYAN);
+        addSection(getContext().getString(R.string.controls_left_stick));
+        for (int i = 0; i < STICK.length; i++) addInput(STICK[i], DIR_ICONS[i], getContext().getString(R.string.controls_stick_direction, directions[i]), CYAN);
 
         LinearLayout footer = new LinearLayout(context);
         footer.setGravity(Gravity.CENTER_VERTICAL);
@@ -275,9 +274,11 @@ public final class ControllerMapperView extends LinearLayout {
         ArrayList<String> names = new ArrayList<>();
         for (ProfileModel.KeyMappingProfile profile : profiles) {
             String name = profile.name;
-            if ("Native arrows".equals(name)) name = "Arrows";
-            else if ("Numpad 2/4/6/8".equals(name)) name = "Number movement";
-            else if ("8-way numpad".equals(name)) name = "Eight-way numbers";
+            if ("Native arrows".equals(name)) name = getContext().getString(R.string.controls_preset_arrows);
+            else if ("Numpad 2/4/6/8".equals(name)) name = getContext().getString(R.string.controls_preset_numbers);
+            else if ("8-way numpad".equals(name)) name = getContext().getString(R.string.controls_preset_eight_way);
+            else if ("Numpad diagonals".equals(name)) name = getContext().getString(R.string.controls_preset_diagonals);
+            else if ("Action digits".equals(name)) name = getContext().getString(R.string.controls_preset_actions);
             names.add(name);
         }
         ArrayAdapter<String> adapter = new ArrayAdapter<String>(getContext(), android.R.layout.simple_spinner_item, names) {
@@ -361,16 +362,16 @@ public final class ControllerMapperView extends LinearLayout {
     private String keyName(int key) {
         if (key == ControllerInput.UNBOUND) return getContext().getString(R.string.mapper_unbound);
         switch (key) {
-            case Canvas.KEY_SOFT_LEFT: return "Soft left";
-            case Canvas.KEY_SOFT_RIGHT: return "Soft right";
-            case Canvas.KEY_UP: return "Up";
-            case Canvas.KEY_DOWN: return "Down";
-            case Canvas.KEY_LEFT: return "Left";
-            case Canvas.KEY_RIGHT: return "Right";
-            case Canvas.KEY_FIRE: return "OK / Fire";
-            case Canvas.KEY_CLEAR: return "Clear";
-            case Canvas.KEY_END: return "End call";
-            case 0: return "Menu";
+            case Canvas.KEY_SOFT_LEFT: return getContext().getString(R.string.controls_soft_left);
+            case Canvas.KEY_SOFT_RIGHT: return getContext().getString(R.string.controls_soft_right);
+            case Canvas.KEY_UP: return getContext().getString(R.string.controls_up);
+            case Canvas.KEY_DOWN: return getContext().getString(R.string.controls_down);
+            case Canvas.KEY_LEFT: return getContext().getString(R.string.controls_left);
+            case Canvas.KEY_RIGHT: return getContext().getString(R.string.controls_right);
+            case Canvas.KEY_FIRE: return getContext().getString(R.string.controls_fire);
+            case Canvas.KEY_CLEAR: return getContext().getString(R.string.controls_clear);
+            case Canvas.KEY_END: return getContext().getString(R.string.controls_end_call);
+            case 0: return getContext().getString(R.string.controls_menu);
             default: return key > 0 && key < 128 ? Character.toString((char) key) : Integer.toString(key);
         }
     }
@@ -504,7 +505,7 @@ public final class ControllerMapperView extends LinearLayout {
             button.setTextSize(compactPhone ? 15 : 19);
             button.setPadding(0, 0, 0, 0);
             button.setGravity(Gravity.CENTER);
-            button.setContentDescription("Phone key " + keyName(key));
+            button.setContentDescription(getContext().getString(R.string.controls_phone_key, keyName(key)));
             button.setTooltipText(keyName(key));
             button.setBackground(states(ru.playsoftware.j2meloader.ui.AppPalette.color(getContext(), ru.playsoftware.j2meloader.R.color.phone_panel_alt)));
             if (labels[i].contains("\n")) {

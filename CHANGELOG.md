@@ -10,6 +10,24 @@ stated otherwise. **Experimental** in older checkpoints means local/private
 combined builds; released experimental features are explicitly identified.
 **Released** means an actual GitHub release asset.
 
+## 2026-10-28 - Localization Preparation Across Library and Game Controls (Public Source, Unreleased)
+
+- Extract English library actions, installer/transfer menus, shared game settings
+  and physical/touch mapping labels into string, array and plural resources.
+  Java, Mophun and Symbian game hosts use the shared resources.
+- Separate resolution dimensions, stored profile IDs, import state, primary
+  actions and preset swatches from their displayed labels. Preserve guest/user
+  text and saved settings. Fix an inherited Russian missing-format-argument bug.
+- Let long menu headings wrap and stack choice rows on narrow/large-font layouts.
+  Add Debug-only pseudolocales and a manual AST/resource audit with format checks.
+- Verify 408 JVM tests and 53 Retroid tests, including expanded strings, 200%
+  font, numeric resolution selection, mapping IDs and gallery recreation. Repair
+  the gallery fixture's stale navigation setup; restore tab preferences afterward.
+  Lint: zero errors / 408 warnings.
+- Full localization is not complete: firmware onboarding, detailed Social flows,
+  helpers/errors, language selection and reviewed translations remain open.
+  No public APK or release update. [Evidence](docs/checks/2026-10-28-localization-journeys.md).
+
 ## 2026-10-28 - Audio Repeat Lifecycle and Settings Text Resources (Public Source, Unreleased)
 
 - Keep audio notifications ordered per player without blocking other players.

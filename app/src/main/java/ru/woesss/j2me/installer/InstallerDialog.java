@@ -172,7 +172,7 @@ public class InstallerDialog extends DialogFragment {
 			}
 			return false;
 		});
-		binding.installerTitle.setText("MIDlet installer");
+		binding.installerTitle.setText(getString(R.string.installer_midlet));
 		binding.installerMessage.setText("");
 		binding.installerIcon.setImageResource(R.mipmap.ic_launcher);
 		hideButtons();
@@ -293,7 +293,7 @@ public class InstallerDialog extends DialogFragment {
 		mDialog.setCancelable(false);
 		mDialog.setCanceledOnTouchOutside(false);
 		binding.installerMessage.setText(getString(R.string.install_jar_needed));
-		btnOk.setText("Choose JAR");
+		btnOk.setText(getString(R.string.installer_choose_jar));
 		btnOk.setOnClickListener(positive);
 		showButtons();
 	}
@@ -311,8 +311,8 @@ public class InstallerDialog extends DialogFragment {
 		if (status == AppInstaller.STATUS_SUCCESS || status == AppInstaller.STATUS_REUSED) {
 			binding.installationProgress.setVisibility(View.GONE);
 			binding.installationStatus.setVisibility(View.VISIBLE);
-			binding.installationStatus.setText(status == AppInstaller.STATUS_REUSED ? "Using existing game" : getString(R.string.install_done));
-			if(status == AppInstaller.STATUS_REUSED) binding.installerMessage.setText("Saved progress and settings are unchanged.");
+			binding.installationStatus.setText(status == AppInstaller.STATUS_REUSED ? getString(R.string.installer_using_existing) : getString(R.string.install_done));
+			if(status == AppInstaller.STATUS_REUSED) binding.installerMessage.setText(getString(R.string.installer_existing_unchanged));
 			AppItem app = installer.getExistsApp();
 			setInstallerIcon(app.getImagePathExt());
 			binding.installerTitle.setText(app.getTitle());
@@ -329,7 +329,7 @@ public class InstallerDialog extends DialogFragment {
 		SpannableStringBuilder message;
 		switch (status) {
 			case AppInstaller.STATUS_ADDITIONAL_GAME:
-				binding.installerTitle.setText("Mophun installer");
+				binding.installerTitle.setText(getString(R.string.installer_mophun));
 				binding.installerMessage.setText(installer.getSourceName());
 				if (isAutoStart()) installAdditional();
 				else alertConfirm(new SpannableStringBuilder(installer.getSourceName()), v -> installAdditional());
@@ -342,7 +342,7 @@ public class InstallerDialog extends DialogFragment {
 				message = nd.getInfo(requireActivity());
 				break;
 			case AppInstaller.STATUS_OLDEST:
-				btnOk.setText("Reinstall");
+				btnOk.setText(getString(R.string.installer_reinstall));
 				if (isAutoStart()) {
 					convert();
 					return;
@@ -353,7 +353,7 @@ public class InstallerDialog extends DialogFragment {
 						installer.getCurrentVersion()));
 				break;
 			case AppInstaller.STATUS_EQUAL:
-				btnOk.setText("Reinstall");
+				btnOk.setText(getString(R.string.installer_reinstall));
 				if (isAutoStart()) {
 					launchAndDismiss(installer.getExistsApp());
 					return;
@@ -368,7 +368,7 @@ public class InstallerDialog extends DialogFragment {
 				});
 				break;
 			case AppInstaller.STATUS_NEWEST:
-				btnOk.setText("Update");
+				btnOk.setText(getString(R.string.installer_update));
 				if (isAutoStart()) {
 					convert();
 					return;
@@ -417,7 +417,7 @@ public class InstallerDialog extends DialogFragment {
 	}
 
 	private void installAdditional() {
-		binding.installationStatus.setText("Preparing game");
+		binding.installationStatus.setText(getString(R.string.installer_preparing));
 		showProgress();
 		hideButtons();
 		compositeDisposable.add(installer.installAdditional().subscribeOn(Schedulers.io())
@@ -425,7 +425,7 @@ public class InstallerDialog extends DialogFragment {
 	}
 
 	private void showArchiveChoices() {
-		binding.installerTitle.setText("Choose a game");
+		binding.installerTitle.setText(getString(R.string.installer_choose_game));
 		hideProgress();
 		hideButtons();
 		btnClose.setVisibility(View.VISIBLE);
@@ -464,13 +464,13 @@ public class InstallerDialog extends DialogFragment {
 
 	private void showExistingChoices() {
 		hideProgress(); hideButtons();
-		binding.installerTitle.setText("Already in your library");
-		binding.installerMessage.setText("Use an existing copy with its current saves and settings, or install separately. Nothing is merged or replaced.");
+		binding.installerTitle.setText(getString(R.string.installer_already_present));
+		binding.installerMessage.setText(getString(R.string.installer_duplicate_help));
 		LinearLayout choices=binding.installerArchiveChoices;
 		choices.removeAllViews(); choices.setVisibility(View.VISIBLE);
 		for(AppItem app:installer.getExistingChoices()) {
 			Button button=new Button(requireContext());
-			button.setText("Use " + app.getTitle() + "\nVersion " + app.getVersion() + " / " + app.getPath());
+			button.setText(getString(R.string.installer_use_copy, app.getTitle(), app.getVersion(), app.getPath()));
 			button.setTextColor(ru.playsoftware.j2meloader.ui.AppPalette.color(requireContext(), R.color.text_primary));
 			button.setTextSize(15); button.setAllCaps(false);
 			button.setBackgroundResource(R.drawable.bg_quick_setting_button); button.setBackgroundTintList(null);
@@ -480,7 +480,7 @@ public class InstallerDialog extends DialogFragment {
 			choices.addView(button,params);
 			button.setOnClickListener(v -> resolveExisting(installer.useExisting(app.getId())));
 		}
-		btnOk.setText("Install separately");
+		btnOk.setText(getString(R.string.installer_separate));
 		btnOk.setOnClickListener(v -> resolveExisting(installer.installSeparately()));
 		showButtons();
 	}
@@ -542,7 +542,7 @@ public class InstallerDialog extends DialogFragment {
 		hideProgress();
 		hideButtons();
 		binding.installerArchiveChoices.setVisibility(View.GONE);
-		binding.installerTitle.setText("Installation failed");
+		binding.installerTitle.setText(getString(R.string.installer_failed));
 		String message = e.getMessage();
 		binding.installerMessage.setText(message == null || message.trim().isEmpty()
 				? getString(R.string.error) : message);

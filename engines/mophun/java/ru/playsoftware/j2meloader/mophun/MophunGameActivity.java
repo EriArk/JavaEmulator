@@ -122,8 +122,8 @@ public final class MophunGameActivity extends Activity {
                 menuButton.setImageTintList(android.content.res.ColorStateList.valueOf(ru.playsoftware.j2meloader.ui.AppPalette.color(this, ru.playsoftware.j2meloader.R.color.text_primary)));
                 menuButton.setBackgroundResource(R.drawable.bg_quick_setting_button);
                 menuButton.setPadding(dp(12), dp(12), dp(12), dp(12));
-                menuButton.setContentDescription("Game menu");
-                menuButton.setTooltipText("Game menu");
+                menuButton.setContentDescription(getString(R.string.game_menu_title));
+                menuButton.setTooltipText(getString(R.string.game_menu_title));
                 menuButton.setOnClickListener(v -> showMenu());
                 root.addView(menuButton, new FrameLayout.LayoutParams(dp(48), dp(48), Gravity.TOP | Gravity.END));
             }
@@ -272,7 +272,7 @@ public final class MophunGameActivity extends Activity {
                 if (isDestroyed()) return;
                 if (menu != null) menu.cancelPreviewPage();
                 frameView.invalidate();
-                Toast.makeText(this, "Enhancements unavailable. Original picture restored.", Toast.LENGTH_LONG).show();
+                Toast.makeText(this, R.string.game_enhancements_unavailable, Toast.LENGTH_LONG).show();
             });
             root.addView(gpuView, 0, new FrameLayout.LayoutParams(-1, -1));
         }
@@ -309,7 +309,7 @@ public final class MophunGameActivity extends Activity {
             return true;
         } catch (Exception failure) {
             file.failWrite(stream);
-            Toast.makeText(this, "Could not save controls", Toast.LENGTH_LONG).show();
+            Toast.makeText(this, R.string.game_controls_save_failed, Toast.LENGTH_LONG).show();
             return false;
         }
     }
@@ -329,7 +329,7 @@ public final class MophunGameActivity extends Activity {
                     }
                     public void cancel() { closeControls(); }
                 });
-        mapper.setSaveLabel("Try changes");
+        mapper.setSaveLabel(getString(R.string.game_try_changes));
         root.addView(mapper, new FrameLayout.LayoutParams(-1, -1));
         updateScreenshotButton();
         pauseState();
@@ -387,12 +387,12 @@ public final class MophunGameActivity extends Activity {
         menuPages().more();
     }
     private void populateMorePage() {
-        menu.action("Fast-forward settings", android.R.drawable.ic_media_ff,
+        menu.action(getString(R.string.game_fast_forward_settings), android.R.drawable.ic_media_ff,
                 () -> settingsPages().fastForward(this::showMorePage));
-        menu.action("Emulation speed: " + profile.getEmulationSpeed() + "%",
+        menu.action(getString(R.string.game_speed_value, profile.getEmulationSpeed()),
                 R.drawable.ic_baseline_tune_24, () -> settingsPages().speed(this::showMorePage));
         menu.setBackAction(this::showMenuPage);
-        menu.action("Frame rate limit: " + ru.playsoftware.j2meloader.config.GameSettingsPages.frameRateLabel(profile.getNativeFpsLimit()),
+        menu.action(getString(R.string.game_fps_limit_value, ru.playsoftware.j2meloader.config.GameSettingsPages.frameRateLabel(this, profile.getNativeFpsLimit())),
                 R.drawable.ic_baseline_tune_24, () -> settingsPages().frameRate(this::showMorePage));
         menu.action(getString(R.string.on_screen_shortcuts), R.drawable.ic_baseline_tune_24,
                 () -> ru.playsoftware.j2meloader.util.GameShortcuts.page(this, menu, false,
@@ -435,7 +435,7 @@ public final class MophunGameActivity extends Activity {
     }
     private void keepPreview() {
         if (!ProfilesManager.keepPreview(profile)) {
-            Toast.makeText(this, "Could not save settings", Toast.LENGTH_LONG).show(); return;
+            Toast.makeText(this, getString(R.string.game_save_settings_failed), Toast.LENGTH_LONG).show(); return;
         }
         previewBar.stop();
         if (menu != null) showMenuPage();
@@ -456,16 +456,16 @@ public final class MophunGameActivity extends Activity {
     }
 
     private void showTouchPage() {
-        menu.page("Touch controls");
-        menu.choice("Layout", new String[]{"Phone", "Gamepad"}, profile.touchLayout, index -> {
+        menu.page(getString(R.string.game_touch_controls));
+        menu.choice(getString(R.string.controls_layout), menu.labels(R.array.game_native_touch_layouts), profile.touchLayout, index -> {
             int before = profile.touchLayout;
             changeTouch(() -> profile.touchLayout = index, () -> profile.touchLayout = before);
         });
-        menu.choice("Button theme", new String[]{"Follow app", "Dark", "Light"}, Math.max(0, Math.min(2, profile.touchTheme)), index -> {
+        menu.choice(getString(R.string.game_button_theme), menu.labels(R.array.game_button_themes), Math.max(0, Math.min(2, profile.touchTheme)), index -> {
             int before = profile.touchTheme;
             changeTouch(() -> profile.touchTheme = index, () -> profile.touchTheme = before);
         });
-        menu.choice("Size", new String[]{"Standard", "Large", "Extra large"}, Math.max(0, Math.min(2, profile.touchSize)), index -> {
+        menu.choice(getString(R.string.game_button_size), menu.labels(R.array.game_button_sizes), Math.max(0, Math.min(2, profile.touchSize)), index -> {
             int before = profile.touchSize;
             changeTouch(() -> profile.touchSize = index, () -> profile.touchSize = before);
         });
@@ -475,12 +475,12 @@ public final class MophunGameActivity extends Activity {
         });
         boolean landscape = getResources().getConfiguration().orientation == Configuration.ORIENTATION_LANDSCAPE;
         float reach = landscape ? profile.touchLandscapeReach : profile.touchPortraitReach;
-        menu.choice("Position", new String[]{"Bottom", "Raised"}, reach >= .5f ? 1 : 0, index -> {
+        menu.choice(getString(R.string.controls_position), menu.labels(R.array.game_touch_positions), reach >= .5f ? 1 : 0, index -> {
             float before = landscape ? profile.touchLandscapeReach : profile.touchPortraitReach;
             changeTouch(() -> { if (landscape) profile.touchLandscapeReach = index; else profile.touchPortraitReach = index; },
                     () -> { if (landscape) profile.touchLandscapeReach = before; else profile.touchPortraitReach = before; });
         });
-        menu.action("Back", android.R.drawable.ic_media_previous, this::showMenuPage);
+        menu.action(getString(R.string.menu_back), android.R.drawable.ic_media_previous, this::showMenuPage);
     }
 
     private boolean restarting;
@@ -489,7 +489,7 @@ public final class MophunGameActivity extends Activity {
         restarting = true;
         if (ProfilesManager.isPreview(profile)) undoPreview();
         clearInput(); previewBar.stop(); visible = false;
-        menu.setOnDismissListener(null); menu.page("Restarting game");
+        menu.setOnDismissListener(null); menu.page(getString(R.string.game_restarting));
         menu.setCancelable(false);
         session.stop();
         disk.execute(() -> {
@@ -500,9 +500,9 @@ public final class MophunGameActivity extends Activity {
                 android.util.Log.e("Mophun", "Restart", error);
                 runOnUiThread(() -> {
                     if (isFinishing() || isDestroyed()) return;
-                    menu.page("Could not restart game");
-                    menu.message("The previous session did not stop. Exit before trying again.");
-                    menu.action("Exit game", android.R.drawable.ic_menu_close_clear_cancel, this::leaveGame);
+                    menu.page(getString(R.string.game_restart_error_title));
+                    menu.message(getString(R.string.game_restart_busy));
+                    menu.action(getString(R.string.game_exit), android.R.drawable.ic_menu_close_clear_cancel, this::leaveGame);
                 });
             }
         });

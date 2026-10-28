@@ -12,9 +12,9 @@ final class PresetSwatch extends Drawable {
     private final Paint paint = new Paint();
     private final Bitmap pixels = Bitmap.createBitmap(12, 6, Bitmap.Config.ARGB_8888);
     private final int width, height;
-    private final String name;
-    PresetSwatch(Context context, String name) {
-        this.name = name;
+    private final int style;
+    PresetSwatch(Context context, int style) {
+        this.style = style;
         float density = context.getResources().getDisplayMetrics().density;
         width = Math.round(72 * density); height = Math.round(36 * density);
         int accent = AppPalette.color(context, R.color.accent);
@@ -27,9 +27,9 @@ final class PresetSwatch extends Drawable {
     @Override public int getIntrinsicHeight() { return height; }
     @Override public void draw(Canvas canvas) {
         paint.setColor(Color.WHITE); paint.setAlpha(255);
-        paint.setFilterBitmap("Smooth".equals(name));
+        paint.setFilterBitmap(style == 1);
         canvas.drawBitmap(pixels, null, getBounds(), paint);
-        if ("CRT".equals(name) || name.startsWith("LCD")) {
+        if (style == 2) {
             paint.setColor(0x70000000);
             float step = getBounds().height() / 6f;
             for (float y = getBounds().top; y < getBounds().bottom; y += step)

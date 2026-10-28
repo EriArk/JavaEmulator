@@ -1,0 +1,74 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="transfer_options">Transfer options</string>
+    <string name="transfer_allow_access">Allow folder access</string>
+    <string name="transfer_backup_java">Back up Java / Mophun</string>
+    <string name="transfer_backup_library">Back up library</string>
+    <string name="transfer_restore_java">Restore Java / Mophun backup</string>
+    <string name="transfer_restore_backup">Restore backup</string>
+    <string name="transfer_import_loader">Import from J2ME Loader</string>
+    <string name="transfer_move_phone">Move from AbyssME Phone</string>
+    <string name="transfer_native_backups">Symbian / N-Gage phone backups</string>
+    <string name="transfer_games">Transfer games</string>
+    <string name="transfer_select_all">Select all</string>
+    <string name="transfer_import">Import</string>
+    <string name="transfer_restore">Restore</string>
+    <string name="transfer_import_count">Import (%1$d)</string>
+    <string name="transfer_restore_count">Restore (%1$d)</string>
+    <string name="transfer_phone_help">In AbyssME Phone, open Settings &gt; Library &gt; Library transfer and back up Java / Mophun. Then restore that ZIP here. Games, saves and supported game settings travel together. Keep the old app installed until you have checked your games and saves.</string>
+    <string name="transfer_open_phone">Open AbyssME Phone</string>
+    <string name="transfer_phone_missing">AbyssME Phone is not installed</string>
+    <string name="transfer_native_help">Symbian / N-Gage uses separate phone backups. Export each phone in the old app, then restore it here, including its installed games and saves. App-wide preferences are not transferred.</string>
+    <string name="transfer_close_loader">Close J2ME Loader before importing. Original files stay unchanged.</string>
+    <string name="transfer_whole_library">Whole library</string>
+    <string name="transfer_single_game">Single game</string>
+    <string name="transfer_shared_conflict">Shared file conflicts keep the files already on this device.</string>
+    <string name="transfer_preserve_originals">Original files and existing saves stay unchanged.</string>
+    <string name="transfer_add_saves">Add saves</string>
+    <string name="transfer_add_settings">Add settings</string>
+    <string name="transfer_shared_files">Shared files (keep existing)</string>
+    <string name="transfer_done">Done</string>
+    <string name="transfer_stopping">Stopping safely...</string>
+    <string name="transfer_no_saves_selected">No saves selected</string>
+    <string name="transfer_no_saves_warning">The game will start without your previous progress.</string>
+    <string name="transfer_without_saves">Import without saves</string>
+    <string name="transfer_choose_folder">Choose folder</string>
+    <string name="transfer_saves_included">Saves included</string>
+    <string name="transfer_saves_missing">No saves found</string>
+    <string name="transfer_duplicate_notice">Also installed: imports as a separate copy</string>
+    <string name="transfer_row_metadata">%1$s / %2$s\n%3$s</string>
+    <string-array name="transfer_folder_titles"><item>Game folder</item><item>Saves folder</item><item>Settings folder</item></string-array>
+    <!-- Preserve the actual J2ME Loader directory names converted/data/configs. -->
+    <string-array name="transfer_folder_hints"><item>J2ME Loader / converted / your game</item><item>J2ME Loader / data / the same game</item><item>J2ME Loader / configs / the same game</item></string-array>
+    <string name="transfer_idle">No folder selected</string>
+    <string name="transfer_reading_game">Reading game and saves...</string>
+    <string name="transfer_reading_library">Reading library...</string>
+    <string name="transfer_cancelled">Cancelled</string>
+    <string name="transfer_read_failed">Cannot read this library. Try selecting it again.</string>
+    <string name="transfer_prepare">Preparing import...</string>
+    <string name="transfer_importing">Importing %1$s</string>
+    <string name="transfer_not_imported">%1$s\nNot imported: %2$s</string>
+    <string name="transfer_finished">Finished. %1$d imported, %2$d failed, %3$d not processed</string>
+    <string name="transfer_stopped">Stopped. %1$d imported, %2$d failed, %3$d not processed</string>
+    <string name="transfer_saving">Saving games, saves and settings...</string>
+    <string name="transfer_exit_before_backup">Exit the running game before backing up</string>
+    <string name="transfer_cannot_open_backup">Cannot open backup</string>
+    <string name="transfer_cannot_write_backup">Cannot write backup</string>
+    <string name="transfer_backup_failed">Backup not saved: %1$s</string>
+    <plurals name="transfer_games_found"><item quantity="one">%1$d game found</item><item quantity="other">%1$d games found</item></plurals>
+    <plurals name="transfer_backup_saved"><item quantity="one">Backup saved: %1$d game with saves and settings</item><item quantity="other">Backup saved: %1$d games with saves and settings</item></plurals>
+    <string name="installer_midlet">MIDlet installer</string>
+    <string name="installer_mophun">Mophun installer</string>
+    <string name="installer_choose_jar">Choose JAR</string>
+    <string name="installer_using_existing">Using existing game</string>
+    <string name="installer_existing_unchanged">Saved progress and settings are unchanged.</string>
+    <string name="installer_reinstall">Reinstall</string>
+    <string name="installer_update">Update</string>
+    <string name="installer_preparing">Preparing game</string>
+    <string name="installer_choose_game">Choose a game</string>
+    <string name="installer_already_present">Already in your library</string>
+    <string name="installer_duplicate_help">Use an existing copy with its current saves and settings, or install separately. Nothing is merged or replaced.</string>
+    <string name="installer_use_copy">Use %1$s\nVersion %2$s / %3$s</string>
+    <string name="installer_separate">Install separately</string>
+    <string name="installer_failed">Installation failed</string>
+</resources>

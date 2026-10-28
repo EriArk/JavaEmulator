@@ -33,8 +33,8 @@ public final class GameChrome {
         handle.setId(R.id.game_controls_handle);
         handle.setImageResource(R.drawable.ic_arrow_down);
         handle.setPadding(dp(16), dp(16), dp(16), dp(16));
-        handle.setContentDescription("Show game controls");
-        handle.setTooltipText("Show game controls");
+        handle.setContentDescription(root.getContext().getString(R.string.controls_show_game));
+        handle.setTooltipText(handle.getContentDescription());
         handle.setOnClickListener(view -> reveal());
         root.addView(handle, new FrameLayout.LayoutParams(dp(48), dp(48), Gravity.TOP | Gravity.END));
         root.getViewTreeObserver().addOnGlobalLayoutListener(this::render);

@@ -60,11 +60,11 @@ public final class TouchLayoutEditor extends Dialog {
         };
         root.setOrientation(LinearLayout.VERTICAL); root.setBackgroundColor(color(R.color.background));
         LinearLayout header = new LinearLayout(getContext()); header.setGravity(Gravity.CENTER_VERTICAL);
-        icon(header, "Cancel", androidx.appcompat.R.drawable.abc_ic_ab_back_material, this::dismiss);
-        TextView title = label(handleMode ? getContext().getString(R.string.game_handle_editor) : "Touch layout", 18); title.setTypeface(null, android.graphics.Typeface.BOLD);
+        icon(header, getContext().getString(R.string.game_cancel), androidx.appcompat.R.drawable.abc_ic_ab_back_material, this::dismiss);
+        TextView title = label(handleMode ? getContext().getString(R.string.game_handle_editor) : getContext().getString(R.string.game_touch_layout), 18); title.setTypeface(null, android.graphics.Typeface.BOLD);
         title.setSingleLine(true); title.setEllipsize(android.text.TextUtils.TruncateAt.END);
         header.addView(title, new LinearLayout.LayoutParams(0, -2, 1));
-        reset = icon(header, "Reset layout", R.drawable.ic_restore, () -> {
+        reset = icon(header, getContext().getString(R.string.controls_reset_layout), R.drawable.ic_restore, () -> {
             if (handleMode) {
                 if (landscape) draft.gameHandleLandscape = null; else draft.gameHandlePortrait = null;
                 preview.invalidate(); return;
@@ -78,7 +78,7 @@ public final class TouchLayoutEditor extends Dialog {
             if (landscape) draft.touchLandscapeReach = 0; else draft.touchPortraitReach = 0;
             preview.rebuild(); buildControls();
         });
-        icon(header, "Use layout", R.drawable.ic_check, () -> {
+        icon(header, getContext().getString(R.string.controls_use_layout), R.drawable.ic_check, () -> {
             if (handleMode) copyHandle(draft, target); else copyLayout(draft, target);
             dismiss(); done.run();
         });
@@ -157,7 +157,7 @@ public final class TouchLayoutEditor extends Dialog {
         controls.removeAllViews();
         scale = null;
         if (handleMode) {
-            choice("Preview", new String[]{"Portrait", "Landscape"}, landscape ? 1 : 0, i -> {
+            choice(getContext().getString(R.string.controls_preview), getContext().getResources().getStringArray(R.array.controls_preview_orientations), landscape ? 1 : 0, i -> {
                 landscape = i == 1; preview.rebuild(); buildControls();
             });
             addMoveButtons();
@@ -166,44 +166,44 @@ public final class TouchLayoutEditor extends Dialog {
         tabs.removeAllViews();
         String resetLabel = getContext().getString(tab == 3 ? R.string.touch_mapping_reset : R.string.touch_positions_reset);
         reset.setContentDescription(resetLabel); reset.setTooltipText(resetLabel);
-        String[] names = {"Layout", "Position", "Style", getContext().getString(R.string.touch_mapping_tab)};
+        String[] names = {getContext().getString(R.string.controls_layout), getContext().getString(R.string.controls_position), getContext().getString(R.string.controls_style), getContext().getString(R.string.touch_mapping_tab)};
         for (int i=0;i<names.length;i++) {
             final int index=i;
             TextView button=label(names[i],14); button.setGravity(Gravity.CENTER);
             button.setSingleLine(true); button.setEllipsize(android.text.TextUtils.TruncateAt.END);
             ru.playsoftware.j2meloader.ui.ConsoleSurface.apply(button, ru.playsoftware.j2meloader.ui.ConsoleSurface.Kind.TAB);
             button.setSelected(tab==i);
-            button.setFocusable(true); button.setClickable(true); button.setContentDescription(names[i]+" tab");
+            button.setFocusable(true); button.setClickable(true); button.setContentDescription(getContext().getString(R.string.controls_tab, names[i]));
             button.setOnClickListener(v->{tab=index; settings.scrollTo(0,0); buildControls(); preview.invalidate();});
             tabs.addView(button,new LinearLayout.LayoutParams(0,dp(48),1));
         }
         if (tab == 0) {
-        choice("Layout", new String[]{"Phone", "Gamepad"}, draft.touchLayout == null ? 0 : Math.min(1,draft.touchLayout), i -> {
+        choice(getContext().getString(R.string.controls_layout), getContext().getResources().getStringArray(R.array.game_native_touch_layouts), draft.touchLayout == null ? 0 : Math.min(1,draft.touchLayout), i -> {
             draft.touchLayout=i; selected=0; preview.rebuild(); buildControls();
         });
         if (draft.touchLayout == null || draft.touchLayout == TouchDeck.PHONE)
-            choice("Keypad placement", new String[]{"Separate", "Overlay"}, draft.touchKeypadOverlay ? 1 : 0,
+            choice(getContext().getString(R.string.game_keypad_placement), getContext().getResources().getStringArray(R.array.game_keypad_placements), draft.touchKeypadOverlay ? 1 : 0,
                     i -> { draft.touchKeypadOverlay = i == 1; preview.rebuild(); buildControls(); });
-        choice("Preview", new String[]{"Portrait", "Landscape"}, landscape ? 1 : 0, i -> {
+        choice(getContext().getString(R.string.controls_preview), getContext().getResources().getStringArray(R.array.controls_preview_orientations), landscape ? 1 : 0, i -> {
             landscape=i==1; selected=0; preview.rebuild(); buildControls();
         });
-        choice("Button size", new String[]{"Standard", "Large", "Extra large"}, Math.max(0,Math.min(2,draft.touchSize)), i -> {
+        choice(getContext().getString(R.string.game_button_size), getContext().getResources().getStringArray(R.array.game_button_sizes), Math.max(0,Math.min(2,draft.touchSize)), i -> {
             draft.touchSize=i; preview.rebuild(); updateScale();
         });
         } else if (tab == 1) {
-        choice("Block", preview.deck.groupCount()==1 ? new String[]{"Keypad"} : new String[]{"Directions", "Actions"}, selected, i -> {
+        choice(getContext().getString(R.string.controls_block), preview.deck.groupCount()==1 ? getContext().getResources().getStringArray(R.array.controls_phone_blocks) : getContext().getResources().getStringArray(R.array.controls_gamepad_blocks), selected, i -> {
             selected=i; preview.invalidate(); updateScale();
         });
-        scaleLabel=label("Block size",14); controls.addView(scaleLabel);
-        scale = slider("Block size", 50, 30, value -> {
+        scaleLabel=label(getContext().getString(R.string.controls_block_size),14); controls.addView(scaleLabel);
+        scale = slider(getContext().getString(R.string.controls_block_size), 50, 30, value -> {
             preview.deck.placement(selected).scale = (value+70)/100f;
-            preview.rebuild(); scaleLabel.setText("Block size: " + (value+70) + "%");
+            preview.rebuild(); scaleLabel.setText(getContext().getString(R.string.controls_block_size_value, value + 70));
         }); updateScale();
         addMoveButtons();
         } else if (tab == 3) {
             buildMapping();
         } else {
-        choice("Button theme",new String[]{"Follow app","Dark","Light"},Math.max(0,Math.min(2,draft.touchTheme)), i->{draft.touchTheme=i; preview.rebuild();});
+        choice(getContext().getString(R.string.game_button_theme),getContext().getResources().getStringArray(R.array.game_button_themes),Math.max(0,Math.min(2,draft.touchTheme)), i->{draft.touchTheme=i; preview.rebuild();});
         TextView opacity=label(getContext().getString(R.string.touch_button_opacity_value, draft.touchOpacity),14); controls.addView(opacity);
         int minimum = 20;
         slider(getContext().getString(R.string.touch_button_opacity),100-minimum,Math.max(0,Math.min(100-minimum,draft.touchOpacity-minimum)),v->{draft.touchOpacity=v+minimum; opacity.setText(getContext().getString(R.string.touch_button_opacity_value,v+minimum)); preview.invalidate();});
@@ -212,7 +212,7 @@ public final class TouchLayoutEditor extends Dialog {
     }
     private void buildMapping() {
         if (draft.touchLayout == null || draft.touchLayout != TouchDeck.GAMEPAD) {
-            choice("Layout", new String[]{"Phone", "Gamepad"}, 0,
+            choice(getContext().getString(R.string.controls_layout), getContext().getResources().getStringArray(R.array.game_native_touch_layouts), 0,
                     i -> { draft.touchLayout = i; preview.rebuild(); buildControls(); });
             return;
         }
@@ -276,10 +276,10 @@ public final class TouchLayoutEditor extends Dialog {
     }
     private void addMoveButtons() {
         LinearLayout move = new LinearLayout(getContext()); move.setGravity(Gravity.CENTER);
-        icon(move,"Move left",androidx.appcompat.R.drawable.abc_ic_ab_back_material,()->move(-8,0));
-        icon(move,"Move up",R.drawable.ic_arrow_up,()->move(0,-8));
-        icon(move,"Move down",R.drawable.ic_arrow_down,()->move(0,8));
-        icon(move,"Move right",androidx.appcompat.R.drawable.abc_ic_ab_back_material,()->move(8,0));
+        icon(move,getContext().getString(R.string.controls_move_left),androidx.appcompat.R.drawable.abc_ic_ab_back_material,()->move(-8,0));
+        icon(move,getContext().getString(R.string.controls_move_up),R.drawable.ic_arrow_up,()->move(0,-8));
+        icon(move,getContext().getString(R.string.controls_move_down),R.drawable.ic_arrow_down,()->move(0,8));
+        icon(move,getContext().getString(R.string.controls_move_right),androidx.appcompat.R.drawable.abc_ic_ab_back_material,()->move(8,0));
         ((ImageButton) move.getChildAt(3)).setRotation(180);
         controls.addView(move);
     }
@@ -292,7 +292,7 @@ public final class TouchLayoutEditor extends Dialog {
         if(scale==null) return;
         TouchPlacement p = draft.touchPlacements == null ? null : draft.touchPlacements.get(preview.deck.placementId(selected));
         int value = p == null ? 100 : Math.round(p.scale()*100);
-        scale.setProgress(value-70); scaleLabel.setText("Block size: "+value+"%");
+        scale.setProgress(value-70); scaleLabel.setText(getContext().getString(R.string.controls_block_size_value, value));
     }
     private SeekBar slider(String name,int max,int value,java.util.function.IntConsumer changed) {
         SeekBar bar = new SeekBar(getContext()); bar.setContentDescription(name); bar.setMax(max); bar.setProgress(value);
@@ -348,7 +348,7 @@ public final class TouchLayoutEditor extends Dialog {
         float zoom=1, offsetX,offsetY,lastX,lastY;
         int pointer=-1;
         Preview(Context context) {
-            super(context); setContentDescription("Touch layout preview");
+            super(context); setContentDescription(getContext().getString(R.string.controls_touch_preview));
             deck=new TouchDeck(draft,1,new TouchDeck.Sink() {
                 public void press(int key) { } public void release(int key) { } public void repeat(int key) { }
                 public void feedback() { } public void invalidate() { Preview.this.invalidate(); }

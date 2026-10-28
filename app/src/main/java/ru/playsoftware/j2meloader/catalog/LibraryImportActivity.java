@@ -78,7 +78,7 @@ public class LibraryImportActivity extends CompactSettingsActivity {
         LIGHT = ru.playsoftware.j2meloader.ui.AppPalette.color(this, R.color.text_primary);
         MUTED = ru.playsoftware.j2meloader.ui.AppPalette.color(this, R.color.text_secondary);
         AMBER = ru.playsoftware.j2meloader.ui.AppPalette.color(this, R.color.accent);
-        screenTitle("Library transfer");
+        screenTitle(getString(R.string.settings_library_transfer));
         if (state != null) {
             singlePart = state.getInt("singlePart"); includeShared = state.getBoolean("includeShared", true);
             homeRequested = state.getBoolean("homeRequested"); restoring = state.getBoolean("restoring");
@@ -86,7 +86,7 @@ public class LibraryImportActivity extends CompactSettingsActivity {
         }
         model = new ViewModelProvider(this).get(LibraryImportModel.class);
         if (state != null) model.restoreState(state.getBundle("transfer"), pickerPending);
-        options = headerButton("Transfer options", R.drawable.ic_baseline_tune_24, this::showOptions);
+        options = headerButton(getString(R.string.transfer_options), R.drawable.ic_baseline_tune_24, this::showOptions);
         LinearLayout root = new LinearLayout(this); root.setOrientation(LinearLayout.VERTICAL);
         root.setPadding(dp(12), dp(8), dp(12), dp(8));
         status = text(14, MUTED); status.setMaxLines(2); status.setEllipsize(android.text.TextUtils.TruncateAt.END);
@@ -99,30 +99,30 @@ public class LibraryImportActivity extends CompactSettingsActivity {
         LinearLayout choices = new LinearLayout(this); choices.setOrientation(LinearLayout.VERTICAL);
         homeStatus = text(14, LIGHT);
         homeStatus.setPadding(dp(4), 0, dp(4), dp(12)); choices.addView(homeStatus);
-        allowAccess = button("Allow folder access", R.drawable.ic_setting_folder, () -> {
+        allowAccess = button(getString(R.string.transfer_allow_access), R.drawable.ic_setting_folder, () -> {
             if (current != null && current.access != null) launchPicker(accessPicker, android.provider.DocumentsContract.buildDocumentUri(
                     current.access.folder.getAuthority(), android.provider.DocumentsContract.getDocumentId(current.access.folder)));
         });
         choices.addView(allowAccess, actionParams());
-        choices.addView(button(ru.playsoftware.j2meloader.BuildConfig.SYMBIAN_EXPERIMENT ? "Back up Java / Mophun" : "Back up library", android.R.drawable.ic_menu_save, () -> launchPicker(backupPicker,
+        choices.addView(button(ru.playsoftware.j2meloader.BuildConfig.SYMBIAN_EXPERIMENT ? getString(R.string.transfer_backup_java) : getString(R.string.transfer_backup_library), android.R.drawable.ic_menu_save, () -> launchPicker(backupPicker,
                 "AbyssME-" + new java.text.SimpleDateFormat("yyyy-MM-dd-HHmm", java.util.Locale.ROOT)
                         .format(new java.util.Date()) + ".zip")), actionParams());
-        choices.addView(button(ru.playsoftware.j2meloader.BuildConfig.SYMBIAN_EXPERIMENT ? "Restore Java / Mophun backup" : "Restore backup", android.R.drawable.ic_menu_revert,
+        choices.addView(button(ru.playsoftware.j2meloader.BuildConfig.SYMBIAN_EXPERIMENT ? getString(R.string.transfer_restore_java) : getString(R.string.transfer_restore_backup), android.R.drawable.ic_menu_revert,
                 () -> launchPicker(restorePicker, new String[]{"application/zip", "application/octet-stream"})), actionParams());
-        choices.addView(button("Import from J2ME Loader", R.drawable.ic_setting_folder, this::showImportSources), actionParams());
-        choices.addView(button("Move from AbyssME Phone", android.R.drawable.ic_menu_revert, this::showPhoneMigration), actionParams());
+        choices.addView(button(getString(R.string.transfer_import_loader), R.drawable.ic_setting_folder, this::showImportSources), actionParams());
+        choices.addView(button(getString(R.string.transfer_move_phone), android.R.drawable.ic_menu_revert, this::showPhoneMigration), actionParams());
         if (ru.playsoftware.j2meloader.BuildConfig.SYMBIAN_EXPERIMENT) {
-            choices.addView(button("Symbian / N-Gage phone backups", android.R.drawable.ic_menu_save, () ->
+            choices.addView(button(getString(R.string.transfer_native_backups), android.R.drawable.ic_menu_save, () ->
                     startActivity(new Intent().setClassName(this,"io.github.eriark.abyssme.symbian.SymbianActivity")
                             .putExtra("symbian.backups",true))), actionParams());
         }
         home.addView(choices); root.addView(home, new LinearLayout.LayoutParams(-1, 0, 1));
-        list = new RecyclerView(this); list.setContentDescription("Transfer games");
+        list = new RecyclerView(this); list.setContentDescription(getString(R.string.transfer_games));
         ConsoleSurface.apply(list, ConsoleSurface.Kind.SCREEN);
         list.setLayoutManager(new LinearLayoutManager(this)); list.setAdapter(adapter);
         root.addView(list, new LinearLayout.LayoutParams(-1, 0, 1));
         footer = new LinearLayout(this); footer.setGravity(Gravity.CENTER_VERTICAL);
-        select = new CheckBox(this); select.setText("Select all"); select.setTextColor(LIGHT); select.setTextSize(14);
+        select = new CheckBox(this); select.setText(getString(R.string.transfer_select_all)); select.setTextColor(LIGHT); select.setTextSize(14);
         select.setMinHeight(dp(48)); select.setButtonTintList(ColorStateList.valueOf(AMBER));
         select.setOnCheckedChangeListener((view, checked) -> {
             if (updatingSelection) return;
@@ -130,7 +130,7 @@ public class LibraryImportActivity extends CompactSettingsActivity {
             adapter.notifyDataSetChanged(); updateSelection();
         });
         footer.addView(select, new LinearLayout.LayoutParams(0, -2, 1));
-        start = button("Import", android.R.drawable.ic_media_play, this::startOrCancel);
+        start = button(getString(R.string.transfer_import), android.R.drawable.ic_media_play, this::startOrCancel);
         footer.addView(start, new LinearLayout.LayoutParams(0, -2, 1)); root.addView(footer);
         screenContent.addView(root);
         model.state.observe(this, this::render);
@@ -142,25 +142,22 @@ public class LibraryImportActivity extends CompactSettingsActivity {
     }
 
     private void showPhoneMigration() {
-        GameMenuDialog dialog = menu("Move from AbyssME Phone");
-        dialog.message("In AbyssME Phone, open Settings > Library > Library transfer and back up Java / Mophun. "
-                + "Then restore that ZIP here. Games, saves and supported game settings travel together. "
-                + "Keep the old app installed until you have checked your games and saves.");
-        dialog.action("Open AbyssME Phone", android.R.drawable.ic_menu_view, () -> {
+        GameMenuDialog dialog = menu(getString(R.string.transfer_move_phone));
+        dialog.message(getString(R.string.transfer_phone_help));
+        dialog.action(getString(R.string.transfer_open_phone), android.R.drawable.ic_menu_view, () -> {
             try {
                 startActivity(new Intent(Intent.ACTION_MAIN).setClassName("io.github.eriark.abyssme.phone",
                         "ru.playsoftware.j2meloader.MainActivity"));
             } catch (android.content.ActivityNotFoundException e) {
-                android.widget.Toast.makeText(this, "AbyssME Phone is not installed", android.widget.Toast.LENGTH_LONG).show();
+                android.widget.Toast.makeText(this, getString(R.string.transfer_phone_missing), android.widget.Toast.LENGTH_LONG).show();
             }
         });
-        dialog.action("Restore Java / Mophun backup", android.R.drawable.ic_menu_revert, () -> {
+        dialog.action(getString(R.string.transfer_restore_java), android.R.drawable.ic_menu_revert, () -> {
             dialog.dismiss(); launchPicker(restorePicker, new String[]{"application/zip", "application/octet-stream"});
         });
         if (ru.playsoftware.j2meloader.BuildConfig.SYMBIAN_EXPERIMENT) {
-            dialog.message("Symbian / N-Gage uses separate phone backups. Export each phone in the old app, "
-                    + "then restore it here, including its installed games and saves. App-wide preferences are not transferred.");
-            dialog.action("Symbian / N-Gage phone backups", android.R.drawable.ic_menu_save, () -> {
+            dialog.message(getString(R.string.transfer_native_help));
+            dialog.action(getString(R.string.transfer_native_backups), android.R.drawable.ic_menu_save, () -> {
                 dialog.dismiss(); startActivity(new Intent().setClassName(this,
                         "io.github.eriark.abyssme.symbian.SymbianActivity").putExtra("symbian.backups", true));
             });
@@ -179,27 +176,27 @@ public class LibraryImportActivity extends CompactSettingsActivity {
         params.bottomMargin = dp(6); return params;
     }
     private GameMenuDialog menu(String title) {
-        GameMenuDialog dialog = new GameMenuDialog(this, "Library transfer");
+        GameMenuDialog dialog = new GameMenuDialog(this, getString(R.string.settings_library_transfer));
         dialog.useEdgePanel(); dialog.show(); dialog.page(title); return dialog;
     }
     private void showImportSources() {
         GameMenuDialog dialog = menu("J2ME Loader");
-        dialog.message("Close J2ME Loader before importing. Original files stay unchanged.");
-        dialog.action("Whole library", R.drawable.ic_setting_folder, () -> { dialog.dismiss(); launchPicker(picker, null); });
-        dialog.action("Single game", R.drawable.ic_list, () -> { dialog.dismiss(); selectSinglePart(0); });
+        dialog.message(getString(R.string.transfer_close_loader));
+        dialog.action(getString(R.string.transfer_whole_library), R.drawable.ic_setting_folder, () -> { dialog.dismiss(); launchPicker(picker, null); });
+        dialog.action(getString(R.string.transfer_single_game), R.drawable.ic_list, () -> { dialog.dismiss(); selectSinglePart(0); });
     }
     private void showOptions() {
-        GameMenuDialog dialog = menu("Transfer options");
+        GameMenuDialog dialog = menu(getString(R.string.transfer_options));
         dialog.message(current == null ? "" : current.status);
         dialog.message(current != null && current.preview != null && current.preview.sharedFiles
-                ? "Shared file conflicts keep the files already on this device."
-                : "Original files and existing saves stay unchanged.");
+                ? getString(R.string.transfer_shared_conflict)
+                : getString(R.string.transfer_preserve_originals));
         if (current != null && !current.busy && current.preview != null && !homeRequested) {
             if (model.isSingleGame()) {
-                dialog.action("Add saves", android.R.drawable.ic_menu_save, () -> { dialog.dismiss(); selectSinglePart(1); });
-                dialog.action("Add settings", R.drawable.ic_baseline_tune_24, () -> { dialog.dismiss(); selectSinglePart(2); });
+                dialog.action(getString(R.string.transfer_add_saves), android.R.drawable.ic_menu_save, () -> { dialog.dismiss(); selectSinglePart(1); });
+                dialog.action(getString(R.string.transfer_add_settings), R.drawable.ic_baseline_tune_24, () -> { dialog.dismiss(); selectSinglePart(2); });
             }
-            if (current.preview.sharedFiles) dialog.toggle("Shared files (keep existing)", includeShared, value -> includeShared = value);
+            if (current.preview.sharedFiles) dialog.toggle(getString(R.string.transfer_shared_files), includeShared, value -> includeShared = value);
         }
     }
     private void render(LibraryImportModel.State state) {
@@ -210,7 +207,7 @@ public class LibraryImportActivity extends CompactSettingsActivity {
         home.setVisibility(review ? View.GONE : View.VISIBLE);
         list.setVisibility(review ? View.VISIBLE : View.GONE);
         footer.setVisibility(review ? View.VISIBLE : View.GONE);
-        boolean showStatus = !"No folder selected".equals(state.status) && !(homeRequested && state.preview != null);
+        boolean showStatus = !state.idle && !(homeRequested && state.preview != null);
         status.setText(review ? state.status : "");
         status.setVisibility(showStatus && review ? View.VISIBLE : View.GONE);
         homeStatus.setText(!review ? state.status : "");
@@ -230,11 +227,11 @@ public class LibraryImportActivity extends CompactSettingsActivity {
     private void updateSelection() {
         if (current == null) return;
         if (current.busy) {
-            start.setText("Cancel"); setIcon(start, android.R.drawable.ic_menu_close_clear_cancel);
+            start.setText(R.string.game_cancel); setIcon(start, android.R.drawable.ic_menu_close_clear_cancel);
             start.setEnabled(true); return;
         }
         if (current.results != null) {
-            start.setText("Done"); setIcon(start, android.R.drawable.checkbox_on_background);
+            start.setText(getString(R.string.transfer_done)); setIcon(start, android.R.drawable.checkbox_on_background);
             start.setEnabled(true); return;
         }
         setIcon(start, android.R.drawable.ic_media_play);
@@ -244,27 +241,27 @@ public class LibraryImportActivity extends CompactSettingsActivity {
         }
         updatingSelection = true; select.setChecked(available > 0 && count == available); updatingSelection = false;
         select.setEnabled(available > 0);
-        start.setText((restoring ? "Restore" : "Import") + (count > 0 ? " (" + count + ")" : ""));
+        start.setText(count > 0 ? getString(restoring ? R.string.transfer_restore_count : R.string.transfer_import_count, count)
+                : getString(restoring ? R.string.transfer_restore : R.string.transfer_import));
         start.setEnabled(count > 0);
     }
     private void startOrCancel() {
         if (current == null) return;
-        if (current.busy) { model.cancel(); status.setText("Stopping safely..."); return; }
+        if (current.busy) { model.cancel(); status.setText(getString(R.string.transfer_stopping)); return; }
         if (current.results != null) { homeRequested = true; render(current); return; }
         if (model.isSingleGame() && !adapter.entries.isEmpty() && !adapter.entries.get(0).hasSaves) {
-            GameMenuDialog dialog = menu("No saves selected");
-            dialog.confirmationPage("No saves selected");
-            dialog.message("The game will start without your previous progress.");
-            dialog.action("Add saves", android.R.drawable.ic_menu_save, () -> { dialog.dismiss(); selectSinglePart(1); });
-            dialog.action("Import without saves", android.R.drawable.ic_media_play, () -> { dialog.dismiss(); model.start(includeShared); });
+            GameMenuDialog dialog = menu(getString(R.string.transfer_no_saves_selected));
+            dialog.confirmationPage(getString(R.string.transfer_no_saves_selected));
+            dialog.message(getString(R.string.transfer_no_saves_warning));
+            dialog.action(getString(R.string.transfer_add_saves), android.R.drawable.ic_menu_save, () -> { dialog.dismiss(); selectSinglePart(1); });
+            dialog.action(getString(R.string.transfer_without_saves), android.R.drawable.ic_media_play, () -> { dialog.dismiss(); model.start(includeShared); });
         } else model.start(includeShared);
     }
     private void selectSinglePart(int part) {
         singlePart = part;
-        GameMenuDialog dialog = menu(new String[]{"Game folder", "Saves folder", "Settings folder"}[part]);
-        dialog.message(new String[]{"J2ME Loader / converted / your game", "J2ME Loader / data / the same game",
-                "J2ME Loader / configs / the same game"}[part]);
-        dialog.action("Choose folder", R.drawable.ic_setting_folder, () -> { dialog.dismiss(); launchPicker(singlePicker, null); });
+        GameMenuDialog dialog = menu(getResources().getStringArray(R.array.transfer_folder_titles)[part]);
+        dialog.message(getResources().getStringArray(R.array.transfer_folder_hints)[part]);
+        dialog.action(getString(R.string.transfer_choose_folder), R.drawable.ic_setting_folder, () -> { dialog.dismiss(); launchPicker(singlePicker, null); });
     }
     @Override protected void onSaveInstanceState(Bundle state) {
         state.putBundle("transfer", model.saveState());
@@ -274,7 +271,7 @@ public class LibraryImportActivity extends CompactSettingsActivity {
         super.onSaveInstanceState(state);
     }
     @Override public void onBackPressed() {
-        if (current != null && current.busy) { model.cancel(); status.setText("Stopping safely..."); }
+        if (current != null && current.busy) { model.cancel(); status.setText(getString(R.string.transfer_stopping)); }
         else if (current != null && !homeRequested && (current.preview != null || current.results != null)) {
             homeRequested = true; render(current);
         } else super.onBackPressed();
@@ -318,9 +315,10 @@ public class LibraryImportActivity extends CompactSettingsActivity {
             LibraryImporter.Entry entry = entries.get(position);
             row.check.setVisibility(View.VISIBLE); row.check.setChecked(entry.selected); row.check.setEnabled(entry.problem == null);
             row.check.setContentDescription(entry.title);
+            String metadata = getString(R.string.transfer_row_metadata, entry.vendor, entry.version,
+                    getString(entry.hasSaves ? R.string.transfer_saves_included : R.string.transfer_saves_missing));
             row.label.setText(entry.title + "\n" + (entry.problem != null ? entry.problem
-                    : entry.vendor + " / " + entry.version + (entry.hasSaves ? "\nSaves included" : "\nNo saves found")
-                    + (entry.duplicateTitle ? "\nAlso installed: imports as a separate copy" : "")));
+                    : metadata + (entry.duplicateTitle ? "\n" + getString(R.string.transfer_duplicate_notice) : "")));
             row.check.setOnCheckedChangeListener((button, checked) -> { entry.selected = checked; updateSelection(); });
             row.itemView.setOnClickListener(v -> { if (row.check.isEnabled()) row.check.toggle(); });
         }

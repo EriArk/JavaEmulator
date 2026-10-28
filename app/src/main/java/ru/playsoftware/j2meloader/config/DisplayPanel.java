@@ -19,16 +19,17 @@ public final class DisplayPanel {
         preview = new DisplayPreview(profile, render); draft = preview.draft();
     }
     public void show() {
-        menu.page("Display");
+        menu.page(menu.text(R.string.game_display));
         menu.setPageCleanup(this::undoQuietly);
-        String[] names = nativePhone ? new String[]{"Original", "LCD Soft", "LCD Classic"}
-                : gpu ? new String[]{"Original", "Pixel sharp", "Smooth", "FSR", "xBRZ", "CRT"}
-                : new String[]{"Original", "Pixel sharp", "Smooth"};
+        String[] names = menu.labels(nativePhone ? R.array.game_display_native_presets
+                : gpu ? R.array.game_display_gpu_presets : R.array.game_display_software_presets);
+        int[] swatches = nativePhone ? new int[]{0, 2, 2}
+                : gpu ? new int[]{0, 0, 1, 0, 0, 2} : new int[]{0, 0, 1};
         int selected = nativePhone ? Math.min(2, Math.max(0, draft.screenEffect))
                 : draft.screenEffect == 0 && !draft.frameInterpolation
                 ? (draft.screenScaleType == 0 && !draft.screenFilter && !draft.fsrUpscaling && draft.getRetroShader() == 0
                     ? 0 : ImagePresets.selected(draft, gpu) + 1) : -1;
-        menu.presetTiles(names, selected, i -> {
+        menu.presetTiles(names, swatches, selected, i -> {
             if (nativePhone) draft.screenEffect = i;
             else if (i == 0) {
                 ImagePresets.apply(draft, ImagePresets.PIXEL_SHARP, gpu);
@@ -41,20 +42,20 @@ public final class DisplayPanel {
             }
             apply();
         });
-        if (!gpu && !nativePhone) menu.message("FSR, xBRZ and CRT require OpenGL ES without a custom shader.");
-        if (nativePhone) menu.message("Size and rotation apply on resume in Performance & advanced.");
+        if (!gpu && !nativePhone) menu.message(menu.text(R.string.game_retro_gpu_required));
+        if (nativePhone) menu.message(menu.text(R.string.game_native_display_hint));
         else {
-            menu.choice("Picture size", new String[]{"Original", "Fit", "Stretch", "Integer"},
+            menu.choice(menu.text(R.string.game_picture_size), menu.labels(R.array.game_picture_sizes),
                     Math.max(0, Math.min(3, draft.screenScaleType)), i -> {
                         draft.screenScaleType = i; draft.screenScaleRatio = 100; apply();
                     });
-            menu.choice("Image rotation", new String[]{"0\u00b0", "90\u00b0", "180\u00b0", "270\u00b0"},
+            menu.choice(menu.text(R.string.game_rotation), menu.labels(R.array.game_rotations),
                     Math.floorMod(draft.screenRotation / 90, 4), i -> { draft.screenRotation = i * 90; apply(); });
         }
         menu.previewDecisions(() -> {
-            if (preview.keep()) back.run(); else menu.message("Could not save settings. Your previous settings are unchanged.");
+            if (preview.keep()) back.run(); else menu.message(menu.text(R.string.game_save_settings_failed));
         }, () -> { undoQuietly(); back.run(); });
-        menu.action("Performance & advanced", R.drawable.ic_baseline_tune_24, advanced);
+        menu.action(menu.text(R.string.game_performance_advanced), R.drawable.ic_baseline_tune_24, advanced);
         menu.setBackAction(back);
     }
     private void apply() {
@@ -66,7 +67,7 @@ public final class DisplayPanel {
         }
         menu.setPageCleanup(null);
         show();
-        if (failed) menu.message("Could not preview this picture. Previous settings restored.");
+        if (failed) menu.message(menu.text(R.string.game_preview_failed));
     }
     private void undoQuietly() {
         try { preview.undo(); }

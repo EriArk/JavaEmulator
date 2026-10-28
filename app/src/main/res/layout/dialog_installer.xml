@@ -13,13 +13,13 @@
         <TextView android:id="@+id/installer_title"
             android:layout_width="0dp" android:layout_height="wrap_content" android:layout_weight="1"
             android:layout_marginHorizontal="8dp" android:maxLines="2" android:ellipsize="end"
-            android:text="MIDlet installer" android:textColor="?attr/abyss_accent"
+            android:text="@string/installer_midlet" android:textColor="?attr/abyss_accent"
             android:textSize="18sp" android:textStyle="bold" />
         <ImageButton android:id="@+id/button_close"
             android:layout_width="48dp" android:layout_height="48dp"
             android:background="@drawable/bg_quick_setting_button" android:backgroundTint="@null"
             android:src="@android:drawable/ic_menu_close_clear_cancel" app:tint="?attr/abyss_accent"
-            android:padding="12dp" android:contentDescription="Close" android:tooltipText="Close" />
+            android:padding="12dp" android:contentDescription="@string/menu_close" android:tooltipText="@string/menu_close" />
     </LinearLayout>
     <ScrollView android:id="@+id/installer_scroll"
         android:layout_width="match_parent" android:layout_height="0dp" android:layout_weight="1"

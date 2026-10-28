@@ -18,11 +18,27 @@ language batch has shipped in this checkpoint.
 - `appearance.xml` already supplies brightness entries. Palette display names
   now use a resource array; the stable `classic`/`retro`/`contrast` IDs do not change.
 
-This is a first extraction slice, not a whole-app translation. Main library
-actions, game settings pages, transfers, detailed firmware onboarding and Social
-still contain literals. The menu widget's shared labels are extracted, but its
-caller-provided page/action names still require extraction. No locale is enabled
-or guest language modified as a side effect.
+- `values/game_menu_strings.xml`: shared Java/Mophun/Symbian game menus,
+  display controls, preview decisions, restart/exit warnings, and Social entry
+  actions. Full messages and choice arrays replace English fragments.
+- `values/library_ui_strings.xml`: library views, actions, artwork, collections,
+  title editing, empty states and accessibility labels.
+- `values/transfer_ui_strings.xml`: transfer menus, instructions, result summaries,
+  progress states, counts and installer actions. Backend error extraction remains
+  open; those errors still fall back to their original text.
+- `values/control_ui_strings.xml`: physical mapper, touch layout editor,
+  preview countdowns and game chrome accessibility labels.
+
+Display resolution is selected by numeric dimensions, not by parsing translated
+labels. Phone profile IDs and stored mapping names remain stable; built-in
+mapping names have separate display aliases. Transfer idle state is semantic,
+not an English string comparison. Play styling and image-preset swatches are
+explicit properties, not label comparisons.
+
+This is still source preparation, not whole-app localization. Detailed firmware
+onboarding, Fluxer account/chat/lobby screens, game-information helpers, backend
+errors and inherited About/Help need extraction or review. No new locale is
+enabled or guest language modified as a side effect.
 
 ## Terminology for Contributors
 
@@ -58,7 +74,31 @@ not the number of locale directories or keys alone.
    killing active games or changing the emulated OS language.
 3. Review language batches and layouts before exposing them in the picker.
 
-`SettingsResourcesTest` checks resource-backed titles, English fallback in
-isolated locale contexts, plural counts, argument preservation and palette
-array/ID alignment. It does not prove translations or runtime locale switching.
-See the dated [verification record](checks/2026-10-28-audio-lifecycle-settings.md).
+## Manual Regression Checks
+
+Run with JDK 21 from the repository root:
+
+```powershell
+java tools/LocalizationAudit.java --self-test
+java tools/LocalizationAudit.java --check
+```
+
+The AST inventory reports direct UI literal candidates in app-owned Java sources;
+it is not an exhaustive scan of helper-returned text, native code or XML. The
+check rejects new direct literals in extracted screens and structural translation
+errors (format argument types and array lengths). Reports go to ignored `build/`.
+Coverage counts resource presence, not translation quality or approval.
+
+Debug builds include Android pseudolocales. `LocalizationJourneyTest` uses isolated
+expanded/RTL contexts, preserves dynamic user text, checks array positions,
+numeric resolution selection, mapper IDs, confirmation callbacks and a 200% font
+dialog. It does not switch the device locale or prove full RTL support. Shared
+menu headings wrap; compact/large-font choice rows stack vertically.
+
+`SettingsResourcesTest` also checks fallback, plural counts and palette alignment.
+These checks do not prove translations or runtime locale switching. Full language
+acceptance still requires reviewed strings and ordinary phone/handheld journeys,
+including errors and accessibility. Never mirror the guest game or keypad as a
+side effect of app RTL layout.
+See the [journey verification record](checks/2026-10-28-localization-journeys.md)
+and the [earlier settings checks](checks/2026-10-28-audio-lifecycle-settings.md).

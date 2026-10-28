@@ -1,0 +1,52 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="controls_use_mapping">Use mapping</string>
+    <string name="controls_reset_layout">Reset layout</string>
+    <string name="controls_use_layout">Use layout</string>
+    <string name="controls_preview">Preview</string>
+    <string name="controls_layout">Layout</string>
+    <string name="controls_position">Position</string>
+    <string name="controls_style">Style</string>
+    <string name="controls_tab">%1$s tab</string>
+    <string name="controls_block">Block</string>
+    <string name="controls_block_size">Block size</string>
+    <string name="controls_block_size_value">Block size: %1$d%%</string>
+    <string name="controls_move_left">Move left</string>
+    <string name="controls_move_up">Move up</string>
+    <string name="controls_move_down">Move down</string>
+    <string name="controls_move_right">Move right</string>
+    <string name="controls_touch_preview">Touch layout preview</string>
+    <string name="controls_show_game">Show game controls</string>
+    <string name="controls_profile">Control profile</string>
+    <string name="controls_buttons">Buttons</string>
+    <string name="controls_dpad">D-pad</string>
+    <string name="controls_stick">Stick</string>
+    <string name="controls_keypad">Keypad</string>
+    <string name="controls_navigation">Navigation</string>
+    <string name="controls_shoulders">Shoulders &amp; system</string>
+    <string name="controls_left_stick">Left stick</string>
+    <string name="controls_dpad_direction">D-pad %1$s</string>
+    <string name="controls_stick_direction">Stick %1$s</string>
+    <string name="controls_preset_arrows">Arrows</string>
+    <string name="controls_preset_numbers">Number movement</string>
+    <string name="controls_preset_eight_way">Eight-way numbers</string>
+    <string name="controls_preset_diagonals">Numpad diagonals</string>
+    <string name="controls_preset_actions">Action digits</string>
+    <string name="controls_soft_left">Soft left</string>
+    <string name="controls_soft_right">Soft right</string>
+    <string name="controls_up">Up</string>
+    <string name="controls_down">Down</string>
+    <string name="controls_left">Left</string>
+    <string name="controls_right">Right</string>
+    <string name="controls_fire">OK / Fire</string>
+    <string name="controls_clear">Clear</string>
+    <string name="controls_end_call">End call</string>
+    <string name="controls_menu">Menu</string>
+    <string name="controls_phone_key">Phone key %1$s</string>
+    <string name="controls_preview_seconds">%1$ds</string>
+    <plurals name="controls_preview_remaining"><item quantity="one">Settings preview: %1$d second remaining</item><item quantity="other">Settings preview: %1$d seconds remaining</item></plurals>
+    <string-array name="controls_preview_orientations"><item>Portrait</item><item>Landscape</item></string-array>
+    <string-array name="controls_phone_blocks"><item>Keypad</item></string-array>
+    <string-array name="controls_gamepad_blocks"><item>Directions</item><item>Actions</item></string-array>
+    <string-array name="controls_directions"><item>Up</item><item>Down</item><item>Left</item><item>Right</item><item>Up + left</item><item>Up + right</item><item>Down + left</item><item>Down + right</item></string-array>
+</resources>

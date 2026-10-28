@@ -77,8 +77,8 @@ public final class FastForwardControl {
     }
     public void menuAction(GameMenuDialog menu) {
         if (!enabled()) return;
-        menu.action("Fast-forward " + Math.max(profile.getEmulationSpeed(),
-                ru.playsoftware.j2meloader.runtime.EmulationClock.normalize(profile.fastForwardSpeed)) + "%",
+        menu.action(menu.text(R.string.game_fast_forward_value, Math.max(profile.getEmulationSpeed(),
+                ru.playsoftware.j2meloader.runtime.EmulationClock.normalize(profile.fastForwardSpeed))),
                 android.R.drawable.ic_media_ff, () -> {
                     menu.dismiss();
                     // Dismiss listeners may clear input while the host still lacks focus.
@@ -89,7 +89,7 @@ public final class FastForwardControl {
     private void render() {
         boolean active = state != null && state.active();
         button.setSelected(active);
-        button.setContentDescription(active ? "Stop fast-forward" : "Fast-forward");
+        button.setContentDescription(button.getContext().getString(active ? R.string.game_fast_forward_stop : R.string.game_fast_forward));
         button.setTooltipText(button.getContentDescription());
         button.setAlpha(active ? 1f : .8f);
         button.setEnabled(enabled());

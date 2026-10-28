@@ -80,6 +80,12 @@ public final class GameMenuDialog extends Dialog {
         ru.playsoftware.j2meloader.ui.AppPalette.apply(getContext());
         requestWindowFeature(Window.FEATURE_NO_TITLE);
     }
+    public String text(@androidx.annotation.StringRes int id, Object... args) {
+        return getContext().getString(id, args);
+    }
+    public String[] labels(@androidx.annotation.ArrayRes int id) {
+        return getContext().getResources().getStringArray(id);
+    }
     @Override public void show() {
         boolean fullscreen = isFullscreenHost();
         // Set this before attaching the dialog: a transient system-bar resize
@@ -155,7 +161,6 @@ public final class GameMenuDialog extends Dialog {
         titles.setOrientation(LinearLayout.VERTICAL);
         heading = new TextView(getContext());
         heading.setTextColor(ru.playsoftware.j2meloader.ui.AppPalette.color(getContext(), ru.playsoftware.j2meloader.R.color.accent)); heading.setTextSize(18);
-        heading.setMaxLines(2); heading.setEllipsize(android.text.TextUtils.TruncateAt.END);
         titles.addView(heading);
         subtitle = new TextView(getContext());
         subtitle.setText(game); subtitle.setTextColor(ru.playsoftware.j2meloader.ui.AppPalette.color(getContext(), ru.playsoftware.j2meloader.R.color.text_secondary)); subtitle.setTextSize(13);
@@ -292,7 +297,8 @@ public final class GameMenuDialog extends Dialog {
         navigation.setContentDescription(getContext().getString(action == null ? R.string.menu_close : R.string.menu_back));
         navigation.setTooltipText(navigation.getContentDescription());
     }
-    public void presetTiles(String[] names, int selected, java.util.function.IntConsumer change) {
+    public void presetTiles(String[] names, int[] swatches, int selected, java.util.function.IntConsumer change) {
+        if (names.length != swatches.length) throw new IllegalArgumentException("Preset labels/styles mismatch");
         LinearLayout row = null;
         java.util.ArrayList<Button> buttons = new java.util.ArrayList<>();
         for (int i = 0; i < names.length; i++) {
@@ -311,7 +317,7 @@ public final class GameMenuDialog extends Dialog {
             tile.setSelected(i == selected); tile.setFocusable(true);
             tile.setDefaultFocusHighlightEnabled(false); tile.setStateListAnimator(null);
             tile.setCompoundDrawablesWithIntrinsicBounds(null,
-                    new PresetSwatch(getContext(), names[i]), null, null);
+                    new PresetSwatch(getContext(), swatches[i]), null, null);
             tile.setContentDescription(getContext().getString(R.string.menu_picture_preset, names[i]));
             tile.setOnClickListener(v -> {
                 tile.requestFocusFromTouch();
@@ -374,6 +380,12 @@ public final class GameMenuDialog extends Dialog {
         content.addView(text, new LinearLayout.LayoutParams(-1, -2));
     }
     public Button action(String label, int icon, Runnable run) {
+        return action(label, icon, run, false);
+    }
+    public Button primaryAction(String label, int icon, Runnable run) {
+        return action(label, icon, run, true);
+    }
+    private Button action(String label, int icon, Runnable run, boolean primary) {
         Button button = new Button(getContext());
         button.setText(label); button.setTextSize(15); button.setAllCaps(false);
         button.setGravity(Gravity.CENTER_VERTICAL);
@@ -385,7 +397,7 @@ public final class GameMenuDialog extends Dialog {
             button.setDefaultFocusHighlightEnabled(false);
             button.setElevation(0);
             button.setBackground(new ru.playsoftware.j2meloader.ui.ConsoleSurface(getContext(),
-                    "Play".equals(label) ? ru.playsoftware.j2meloader.ui.ConsoleSurface.Kind.KEY
+                    primary ? ru.playsoftware.j2meloader.ui.ConsoleSurface.Kind.KEY
                             : ru.playsoftware.j2meloader.ui.ConsoleSurface.Kind.ROW));
         }
         button.setPadding(dp(14),dp(8),dp(14),dp(8));
@@ -394,7 +406,7 @@ public final class GameMenuDialog extends Dialog {
         if (icon != 0) {
             android.graphics.drawable.Drawable drawable = getContext().getDrawable(icon).mutate();
             drawable.setTint(ru.playsoftware.j2meloader.ui.AppPalette.color(getContext(), ru.playsoftware.j2meloader.R.color.accent)); drawable.setBounds(0,0,dp(22),dp(22));
-            button.setCompoundDrawables(drawable,null,null,null); button.setCompoundDrawablePadding(dp(12));
+            button.setCompoundDrawablesRelative(drawable,null,null,null); button.setCompoundDrawablePadding(dp(12));
         }
         button.setOnClickListener(v -> run.run());
         LinearLayout.LayoutParams lp = new LinearLayout.LayoutParams(-1,-2);
@@ -426,11 +438,14 @@ public final class GameMenuDialog extends Dialog {
     }
     public void choice(String label, String[] options, int selected, java.util.function.IntConsumer change) {
         LinearLayout row = new LinearLayout(getContext());
+        android.content.res.Configuration configuration = getContext().getResources().getConfiguration();
+        boolean stacked = configuration.screenWidthDp < 384 || configuration.fontScale >= 1.3f;
+        row.setOrientation(stacked ? LinearLayout.VERTICAL : LinearLayout.HORIZONTAL);
         row.setGravity(Gravity.CENTER_VERTICAL);
         TextView name = new TextView(getContext());
         name.setText(label); name.setTextSize(15); name.setTextColor(ru.playsoftware.j2meloader.ui.AppPalette.color(getContext(), ru.playsoftware.j2meloader.R.color.text_primary));
         name.setMinHeight(dp(48));
-        row.addView(name,new LinearLayout.LayoutParams(0,-2,1));
+        row.addView(name, stacked ? new LinearLayout.LayoutParams(-1, -2) : new LinearLayout.LayoutParams(0,-2,1));
         name.setGravity(Gravity.CENTER_VERTICAL);
         android.widget.Spinner spinner = new android.widget.Spinner(getContext());
         spinner.setForeground(getContext().getDrawable(R.drawable.bg_settings_focus));
@@ -475,7 +490,7 @@ public final class GameMenuDialog extends Dialog {
                 if (current[0] != index) { current[0]=index; change.accept(index); }
             }
         });
-        row.addView(spinner,new LinearLayout.LayoutParams(0,-2,1.3f));
+        row.addView(spinner, stacked ? new LinearLayout.LayoutParams(-1, -2) : new LinearLayout.LayoutParams(0,-2,1.3f));
         row.setPadding(0,dp(3),0,dp(3));
         content.addView(row,new LinearLayout.LayoutParams(-1,-2));
         focusDefault(spinner);

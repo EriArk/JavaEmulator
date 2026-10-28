@@ -65,10 +65,13 @@ open. [Evidence](checks/2026-10-28-touch-gamepad-mapping.md).
 
 ## 4. Localization (#43)
 
-**Started, English-only extraction:** general Settings/palette labels, shared
-menu navigation/preview labels and folder scan messages now use Android string,
-array and plural resources. No language picker or new translated language is
-enabled. Full onboarding, game settings, Social and other journeys remain open.
+**Started, English source extraction:** general Settings, library actions,
+shared game menus/display settings, transfer/installer UI and physical/touch
+mapping now use Android string, array and plural resources. Localized labels no
+longer determine resolution values, transfer idle state, Play styling or shader
+swatches. No language picker or new translated language is enabled. Detailed
+firmware onboarding, Fluxer/chat/lobby screens, helpers and backend errors remain
+open, followed by process-safe language selection and reviewed language batches.
 [Extraction scope and contributor glossary](LOCALIZATION.md).
 
 - Extract user-visible strings from shared screens and engine hosts before

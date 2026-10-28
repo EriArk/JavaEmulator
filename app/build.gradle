@@ -81,6 +81,7 @@ android {
         }
         debug {
             applicationIdSuffix '.debug'
+            pseudoLocalesEnabled true
             jniDebuggable true
             multiDexEnabled true
             multiDexKeepProguard file('multidex-config.pro')

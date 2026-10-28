@@ -805,7 +805,7 @@ public class MicroActivity extends AppCompatActivity {
 					}
 					public void cancel() { hideQuickMapOverlay(); }
 				});
-		controllerMapper.setSaveLabel("Try changes");
+		controllerMapper.setSaveLabel(getString(R.string.game_try_changes));
 		binding.quickMapOverlay.removeAllViews();
 		binding.quickMapOverlay.addView(controllerMapper, new ViewGroup.LayoutParams(
 				ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT));
@@ -912,7 +912,7 @@ public class MicroActivity extends AppCompatActivity {
 					// Keep the panel alive: returning from Social restores blocked game input.
 					socialNavigation = true;
 					try { startActivity(intent); }
-					catch (RuntimeException failure) { socialNavigation = false; gameMenu.message("Could not open Social."); }
+					catch (RuntimeException failure) { socialNavigation = false; gameMenu.message(getString(R.string.social_open_failed)); }
 				});
 			}
 			public boolean hasPreview() { return ProfilesManager.isPreview(microLoader.getTouchSettings()); }
@@ -967,35 +967,35 @@ public class MicroActivity extends AppCompatActivity {
 	}
 
 	private void populateMorePage() {
-		gameMenu.action("Fast-forward settings", android.R.drawable.ic_media_ff,
+		gameMenu.action(getString(R.string.game_fast_forward_settings), android.R.drawable.ic_media_ff,
 				() -> settingsPages().fastForward(this::showMorePage));
 		gameMenu.setBackAction(this::showGameMenuPage);
-		gameMenu.action("Screen presets", R.drawable.ic_quick_size,
+		gameMenu.action(getString(R.string.game_screen_presets), R.drawable.ic_quick_size,
 				() -> settingsPages().screenPresets(this::showMorePage));
-		gameMenu.action("Phone profile", R.drawable.ic_baseline_tune_24,
+		gameMenu.action(getString(R.string.game_phone_profile), R.drawable.ic_baseline_tune_24,
 				() -> settingsPages().phonePresets(this::showMorePage, this::restartGame));
 		gameMenu.action(getString(R.string.on_screen_shortcuts), R.drawable.ic_baseline_tune_24,
 				() -> ru.playsoftware.j2meloader.util.GameShortcuts.page(this, gameMenu, true,
 						this::updateScreenshotButton, this::showMorePage));
 		if (!BuildConfig.HANDHELD_MODE) gameMenu.action(getString(R.string.game_shortcut_appearance), R.drawable.ic_baseline_tune_24,
 				() -> settingsPages().gameShortcuts(this::showMorePage));
-		gameMenu.action("System keyboard", R.drawable.ic_action_keyboard, () -> {
+		gameMenu.action(getString(R.string.game_system_keyboard), R.drawable.ic_action_keyboard, () -> {
 			gameMenu.dismiss();
 			inputMethodManager.toggleSoftInputFromWindow(binding.displayableContainer.getWindowToken(),
 					InputMethodManager.SHOW_FORCED, 0);
 		});
-		gameMenu.action("Frame rate limit: " + GameSettingsPages.frameRateLabel(microLoader.getTouchSettings().fpsLimit),
+		gameMenu.action(getString(R.string.game_fps_limit_value, GameSettingsPages.frameRateLabel(this, microLoader.getTouchSettings().fpsLimit)),
 				R.drawable.ic_quick_quality, this::showLimitFpsDialog);
-		gameMenu.action("Save log", android.R.drawable.ic_menu_save, this::saveLog);
-		gameMenu.action("Emulation speed: " + microLoader.getTouchSettings().getEmulationSpeed() + "%",
+		gameMenu.action(getString(R.string.game_save_log), android.R.drawable.ic_menu_save, this::saveLog);
+		gameMenu.action(getString(R.string.game_speed_value, microLoader.getTouchSettings().getEmulationSpeed()),
 				R.drawable.ic_quick_quality, () -> settingsPages().speed(this::showMorePage));
-		gameMenu.action("Back", android.R.drawable.ic_media_previous, this::showGameMenuPage);
+		gameMenu.action(getString(R.string.menu_back), android.R.drawable.ic_media_previous, this::showGameMenuPage);
 	}
 
 	private void restartGame(ProfileModel draft) {
 		if (restarting || isFinishing()) return;
 		if (networkClient != null) {
-			Toast.makeText(this, "Return to the room to restart a network game.", Toast.LENGTH_LONG).show();
+			Toast.makeText(this, getString(R.string.game_restart_network), Toast.LENGTH_LONG).show();
 			return;
 		}
 		try {
@@ -1004,7 +1004,7 @@ public class MicroActivity extends AppCompatActivity {
 					getIntent().getStringExtra(KEY_START_ARGUMENTS), microLoader.getTouchSettings().dir);
 		} catch (Exception e) {
 			ru.playsoftware.j2meloader.config.SettingsTrial.discard(microLoader.getTouchSettings().dir);
-			Toast.makeText(this, "Could not restart the game. Previous settings kept.", Toast.LENGTH_LONG).show();
+			Toast.makeText(this, getString(R.string.game_restart_failed), Toast.LENGTH_LONG).show();
 			return;
 		}
 		restarting = true;
@@ -1026,23 +1026,23 @@ public class MicroActivity extends AppCompatActivity {
 	}
 
 	private void showLegacyTouchPage() {
-		gameMenu.page("Legacy controls");
+		gameMenu.page(getString(R.string.game_legacy_controls));
 		VirtualKeyboard vk = ContextHolder.getVk();
 		if (vk.getLayoutEditMode() != VirtualKeyboard.LAYOUT_EOF) {
-			gameMenu.action("Finish editing", android.R.drawable.ic_menu_save, () -> {
+			gameMenu.action(getString(R.string.game_finish_editing), android.R.drawable.ic_menu_save, () -> {
 				gameMenu.dismiss(); handleVkOptions(R.id.action_layout_edit_finish);
 			});
 		} else {
-			gameMenu.action("Move buttons", R.drawable.ic_baseline_tune_24, () -> {
+			gameMenu.action(getString(R.string.game_move_buttons), R.drawable.ic_baseline_tune_24, () -> {
 				gameMenu.dismiss(); handleVkOptions(R.id.action_layout_edit_mode);
 			});
-			gameMenu.action("Resize buttons", R.drawable.ic_quick_size, () -> {
+			gameMenu.action(getString(R.string.game_resize_buttons), R.drawable.ic_quick_size, () -> {
 				gameMenu.dismiss(); handleVkOptions(R.id.action_layout_scale_mode);
 			});
 		}
-		gameMenu.action("Choose layout", R.drawable.ic_action_keyboard, () -> { gameMenu.dismiss(); showSetLayoutDialog(); });
-		gameMenu.action("Visible buttons", R.drawable.ic_list, () -> { gameMenu.dismiss(); showHideButtonDialog(); });
-		gameMenu.action("Back", android.R.drawable.ic_media_previous, this::showTouchPage);
+		gameMenu.action(getString(R.string.game_choose_layout), R.drawable.ic_action_keyboard, () -> { gameMenu.dismiss(); showSetLayoutDialog(); });
+		gameMenu.action(getString(R.string.game_visible_buttons), R.drawable.ic_list, () -> { gameMenu.dismiss(); showHideButtonDialog(); });
+		gameMenu.action(getString(R.string.menu_back), android.R.drawable.ic_media_previous, this::showTouchPage);
 	}
 
 	@Override

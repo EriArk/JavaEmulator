@@ -19,6 +19,8 @@ import java.io.FileOutputStream;
 import java.lang.reflect.Method;
 import java.nio.file.Files;
 import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.HashMap;
+import java.util.Map;
 import ru.playsoftware.j2meloader.MainActivity;
 import ru.playsoftware.j2meloader.R;
 import ru.playsoftware.j2meloader.appsdb.AppDatabase;
@@ -52,19 +54,26 @@ public class GalleryPresentationTest {
             }
         }
         SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(context);
+        Map<String, Object> navigation = new HashMap<>();
+        prefs.getAll().forEach((key, value) -> {
+            if (key.startsWith("library")) navigation.put(key, value);
+        });
         int oldFormat = prefs.getInt(LibraryLayout.COVER_PREFERENCE,0), oldMode = prefs.getInt("pref_library_view_mode",0);
         int oldSort = prefs.getInt("pref_app_sort",0);
         String originalRoot = Config.getEmulatorDir();
         Method init = Config.class.getDeclaredMethod("initDirs",String.class); init.setAccessible(true);
         try {
             init.invoke(null,root.getPath()); prefs.edit().putInt("pref_library_view_mode",0).putInt("pref_app_sort",0).commit();
+            new LibraryNavigation(prefs).save(1, 0, 0, 0, "Gallery fixture", null);
             try (ActivityScenario<MainActivity> scenario = ActivityScenario.launch(MainActivity.class)) {
                 scenario.onActivity(activity -> ((android.widget.EditText)activity.findViewById(R.id.library_search)).setText("Gallery fixture"));
                 awaitLibrary(scenario);
                 for (int format : new int[]{2,1,0}) {
                     scenario.onActivity(activity -> activity.findViewById(R.id.library_menu).performClick());
-                    click("Cover format: " + LibraryLayout.COVER_LABELS[LibraryLayout.format(prefs.getInt(LibraryLayout.COVER_PREFERENCE,0))]);
-                    click(LibraryLayout.COVER_LABELS[format]);
+                    String[] formats = context.getResources().getStringArray(R.array.library_cover_formats);
+                    click(context.getString(R.string.library_cover_format_value,
+                            formats[LibraryLayout.format(prefs.getInt(LibraryLayout.COVER_PREFERENCE,0))]));
+                    click(formats[format]);
                     assertEquals(format,prefs.getInt(LibraryLayout.COVER_PREFERENCE,-1));
                     scenario.recreate(); awaitLibrary(scenario);
                     scenario.onActivity(activity -> {
@@ -102,6 +111,16 @@ public class GalleryPresentationTest {
         } finally {
             init.invoke(null,originalRoot);
             prefs.edit().putInt(LibraryLayout.COVER_PREFERENCE,oldFormat).putInt("pref_library_view_mode",oldMode).putInt("pref_app_sort",oldSort).commit();
+            SharedPreferences.Editor restore = prefs.edit();
+            for (String key : prefs.getAll().keySet()) if (key.startsWith("library")) restore.remove(key);
+            navigation.forEach((key, value) -> {
+                if (value instanceof String) restore.putString(key, (String)value);
+                else if (value instanceof Integer) restore.putInt(key, (Integer)value);
+                else if (value instanceof Boolean) restore.putBoolean(key, (Boolean)value);
+                else if (value instanceof Long) restore.putLong(key, (Long)value);
+                else if (value instanceof Float) restore.putFloat(key, (Float)value);
+            });
+            restore.commit();
         }
     }
 
