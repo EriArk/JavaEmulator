@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="social_auth_signed_out">Вход не выполнен</string>
+    <string name="social_auth_unlock_failed">Не удалось разблокировать сохранённые данные входа. Удалите их с этого устройства, чтобы войти снова.</string>
+    <string name="social_auth_connecting">Подключение к Fluxer...</string>
+    <string name="social_auth_service_failed">Не удалось проверить службу Fluxer. Повторите попытку.</string>
+    <string name="social_auth_start_failed">Не удалось начать вход. Повторите попытку.</string>
+    <string name="social_auth_invalid_expiry">Некорректный срок действия входа. Повторите попытку.</string>
+    <string name="social_auth_expired">Срок действия кода входа истёк. Повторите попытку.</string>
+    <string name="social_auth_approval">Введите этот код в Fluxer и подтвердите вход.</string>
+    <string name="social_auth_busy">Fluxer занят. Подождите перед повторной попыткой.</string>
+    <string name="social_auth_invalid_session">Fluxer вернул некорректный сеанс. Повторите попытку.</string>
+    <string name="social_auth_declined">Вход отклонён.</string>
+    <string name="social_auth_waiting">Ожидание Fluxer. Повторная попытка выполняется автоматически...</string>
+    <string name="social_auth_complete_failed">Не удалось завершить вход. Повторите попытку.</string>
+    <string name="social_auth_checking">Проверка вашей учётной записи...</string>
+    <string name="social_auth_session_expired">Срок действия сеанса истёк. Войдите снова.</string>
+    <string name="social_auth_verify_failed">Не удалось проверить учётную запись. Ваши данные входа не удалены.</string>
+    <string name="social_auth_saved">Вход выполнен. Сеанс надёжно сохранён на этом устройстве.</string>
+    <string name="social_auth_save_failed">Вход выполнен, но сохранить сеанс не удалось. Повторите сохранение перед выходом.</string>
+    <string name="social_auth_cancelled">Вход отменён.</string>
+    <string name="social_auth_signing_out">Выход из учётной записи...</string>
+    <string name="social_auth_signout_failed">Не удалось выйти из Fluxer. Повторите попытку или удалите сохранённые данные входа с этого устройства.</string>
+    <string name="social_auth_remove_failed">Не удалось удалить сохранённые данные входа. Повторите попытку.</string>
+</resources>

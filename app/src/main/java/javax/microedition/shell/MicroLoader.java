@@ -224,7 +224,7 @@ public class MicroLoader {
 	}
 
 	private void setProperties() {
-		final Locale defaultLocale = Locale.getDefault();
+		final Locale defaultLocale = ru.playsoftware.j2meloader.util.AppLanguage.systemLocale(ContextHolder.getAppContext());
 		final String country = defaultLocale.getCountry();
 		System.setProperty("microedition.locale", defaultLocale.getLanguage()
 				+ (country.length() == 2 ? "-" + country : ""));

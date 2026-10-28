@@ -5,6 +5,9 @@
     <Preference android:key="pref_palette" android:title="@string/settings_visual_style"
         android:icon="@drawable/ic_setting_theme" />
 
+    <Preference android:key="pref_language" android:title="@string/settings_language"
+        android:icon="@drawable/ic_baseline_tune_24" />
+
     <ListPreference android:key="pref_theme" android:title="@string/settings_brightness"
         android:icon="@drawable/ic_setting_theme" android:defaultValue="system"
         android:entries="@array/appearance_entries" android:entryValues="@array/appearance_values"

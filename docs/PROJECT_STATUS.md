@@ -19,7 +19,8 @@ games on Android phones and gaming handhelds.
 It is an independent J2ME Loader fork focused on browsing a game collection,
 using physical controllers, and adjusting each game's controls and picture
 without a long setup process. It requires Android 10 or newer. Games are not
-bundled. The app UI is English.
+bundled. The public APK's advertised UI is English; unreleased language selection
+and translations are tracked below.
 
 - **One adaptive APK:** portrait and landscape, physical controllers and touch.
 - Automatic controller detection with per-game priority/visibility overrides.
@@ -93,7 +94,7 @@ older 0.3 builds, not the current release series.
 | Channel | Current identifier | Availability |
 | --- | --- | --- |
 | Public download | `0.6.0-beta.1-r1`, code 312 | One signed adaptive APK on the existing Beta 1 page; centered confirmations, shape-adaptive panels and 29 dark screenshots. Corresponding r1 app source reuses unchanged dependency/peer and Symbian bundles. Early experimental Java Bluetooth multiplayer retains its limits. |
-| Development source | Unreleased audio, Phone controls and initial text extraction after r1 | Nokia gain, shared audio recovery/repeat/event repairs, 16-bit ADPCM and independent direct MIDI; move/hide handle, opacity and graphical Gamepad mapping. Settings/menu/folder messages begin resource extraction, still English, no language picker. Debug Retroid checks only, not a new public APK. Exact #41 quiet-music reports and Treasure Towers remain unverified. [Lifecycle/settings](checks/2026-10-28-audio-lifecycle-settings.md), [MIDI/ADPCM](checks/2026-10-28-audio-isolation.md), [audio pipeline](checks/2026-10-28-audio-pipeline.md), [audio/chrome](checks/2026-10-28-audio-and-phone-controls.md), [mapping](checks/2026-10-28-touch-gamepad-mapping.md) |
+| Development source | Unreleased audio, Phone controls and first translation batch after r1 | Nokia gain, shared audio recovery/repeat/event repairs, 16-bit ADPCM and independent direct MIDI; move/hide handle, opacity and graphical Gamepad mapping. Settings > Language now offers System default, English, Spanish, Brazilian Portuguese and Russian, with all 1505 canonical resources present per new locale. Debug checks only, not a new public APK or full-language acceptance. Exact #41 quiet-music reports and Treasure Towers remain unverified. [Languages](checks/2026-10-28-app-languages.md), [lifecycle/settings](checks/2026-10-28-audio-lifecycle-settings.md), [MIDI/ADPCM](checks/2026-10-28-audio-isolation.md), [audio pipeline](checks/2026-10-28-audio-pipeline.md), [audio/chrome](checks/2026-10-28-audio-and-phone-controls.md), [mapping](checks/2026-10-28-touch-gamepad-mapping.md) |
 | Private historical snapshot | `0.1.0-beta.2-experimental.15`, 2026-10-11 | Old Java/Mophun test build, not the current beta |
 | Local-only material | Game fixtures, firmware, diagnostics, device data and signing keys | Not in Git or public release assets; describing testing does not authorize redistribution |
 
@@ -140,7 +141,8 @@ events from marking a replacement sound stopped. **408 JVM and 35 Retroid audio
 checks pass**. #41's exact quiet-game editions remain open; gain and instruments
 are unchanged. [Evidence](checks/2026-10-28-audio-lifecycle-settings.md).
 
-**#43 localization is in source preparation, not language rollout.** Settings,
+**#43 now has an unreleased first language batch.** The preceding extraction
+checkpoints below explain the foundation and their own verification. Settings,
 library actions, shared Java/Mophun/Symbian game menus/display controls,
 transfer/installer UI, physical/touch mapping, Social actions and system-file
 requirements use resources/plurals. Selection values, mapping IDs, import state,
@@ -165,15 +167,35 @@ translating vendor names or versions. Contact journals retain old raw messages.
 account-protected room tests were skipped.** About/Help covers 36 layout cases.
 Fresh lint completes with **zero errors / 439 warnings**, not a clean-warning
 claim. Expanded/RTL pseudolocales are not real-language or complete RTL acceptance.
-Remaining backend/helper messages and network-game preparation errors remain
-open, followed by process-safe language selection and
-reviewed translations. No locale picker, new supported language, guest-language
-change or public APK update is included.
+Those earlier extraction checkpoints did not include a picker or new supported
+language. Remaining backend/helper messages and network-game preparation errors
+are still open; the subsequent language-selection implementation is described below.
 [Scope and glossary](LOCALIZATION.md), [evidence](checks/2026-10-28-localization-journeys.md).
 [Social/system follow-up and verification limits](checks/2026-10-28-social-system-localization.md).
 [Native transfer implementation and current checks](checks/2026-10-28-native-transfer-localization.md).
 [Native import persistence, cancellation and current checks](checks/2026-10-28-native-import-localization.md).
 [Room/contact messages, product help and current checks](checks/2026-10-28-social-help-localization.md).
+
+The first translation batch adds **Settings > Language** with native names,
+System default, English, Spanish, Brazilian Portuguese and Russian. Each new
+locale contains all **1505 canonical Android resources**. The picker shares
+Android 13+ system selection; Android 10-12 persists through a non-exported
+provider and refreshes app-owned processes. Game Activities handle locale
+changes without locale-driven recreation. Java guest locale still comes from
+the device or explicit game profile, not the chosen UI language. Selected rows
+use a visible check mark plus checked accessibility state, separate from focus.
+XML labels are now audited alongside Java literals and translation structure.
+Final combined Debug assembly, **414 JVM tests and 53 focused Retroid tests pass**;
+lint reports **zero errors / 565 warnings**. The two Retroid cold-update stages
+also pass. Layout fixtures cover 288 queue cases and 180 lobby-seat cases;
+these are not live import/network sessions. Actual development captures are
+linked in the verification record.
+Android 11 passed 13 checks and cold-update persistence at the earlier
+English/Spanish checkpoint; its final three-language retry aborted when the
+emulator's system process crashed, so it is not counted as a final-build pass.
+This is development source and a local Debug build, not a public multilingual
+APK. Other #43 languages and remaining raw/backend diagnostics are not complete.
+[Language implementation, verification and limits](checks/2026-10-28-app-languages.md).
 
 The next batch implements **#45's general virtual Gamepad mapper** in the existing
 Touch layout editor: select a drawn button, choose a phone key, or use the Native

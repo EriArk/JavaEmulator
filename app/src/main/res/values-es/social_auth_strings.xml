@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="utf-8"?><resources>
+    <string name="social_auth_signed_out">Sesión no iniciada</string>
+    <string name="social_auth_unlock_failed">No se pudo desbloquear la sesión guardada. Elimínala de este dispositivo para iniciar sesión de nuevo.</string>
+    <string name="social_auth_connecting">Conectando con Fluxer…</string>
+    <string name="social_auth_service_failed">No se pudo verificar el servicio de Fluxer. Inténtalo de nuevo.</string>
+    <string name="social_auth_start_failed">No se pudo iniciar el acceso. Inténtalo de nuevo.</string>
+    <string name="social_auth_invalid_expiry">Caducidad de acceso no válida. Inténtalo de nuevo.</string>
+    <string name="social_auth_expired">El código de acceso ha caducado. Inténtalo de nuevo.</string>
+    <string name="social_auth_approval">Introduce este código en Fluxer y autoriza el acceso.</string>
+    <string name="social_auth_busy">Fluxer está ocupado. Espera antes de volver a intentarlo.</string>
+    <string name="social_auth_invalid_session">Fluxer devolvió una sesión no válida. Inténtalo de nuevo.</string>
+    <string name="social_auth_declined">Se rechazó el acceso.</string>
+    <string name="social_auth_waiting">Esperando a Fluxer. Reintentando automáticamente…</string>
+    <string name="social_auth_complete_failed">No se pudo completar el acceso. Inténtalo de nuevo.</string>
+    <string name="social_auth_checking">Comprobando tu cuenta…</string>
+    <string name="social_auth_session_expired">Tu sesión ha caducado. Inicia sesión de nuevo.</string>
+    <string name="social_auth_verify_failed">No se pudo verificar tu cuenta. No se ha eliminado tu sesión.</string>
+    <string name="social_auth_saved">Sesión iniciada. Se ha guardado de forma segura en este dispositivo.</string>
+    <string name="social_auth_save_failed">La sesión está iniciada por ahora, pero no se pudo guardar. Reintenta guardarla antes de salir.</string>
+    <string name="social_auth_cancelled">Acceso cancelado.</string>
+    <string name="social_auth_signing_out">Cerrando sesión…</string>
+    <string name="social_auth_signout_failed">No se pudo cerrar la sesión de Fluxer. Reinténtalo o elimina la sesión guardada de este dispositivo.</string>
+    <string name="social_auth_remove_failed">No se pudo eliminar la sesión guardada. Inténtalo de nuevo.</string>
+</resources>

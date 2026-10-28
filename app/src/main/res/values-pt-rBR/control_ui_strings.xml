@@ -1,0 +1,72 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="controls_use_mapping">Usar mapeamento</string>
+    <string name="controls_reset_layout">Redefinir layout</string>
+    <string name="controls_use_layout">Usar layout</string>
+    <string name="controls_preview">Prévia</string>
+    <string name="controls_layout">Layout</string>
+    <string name="controls_position">Posição</string>
+    <string name="controls_style">Estilo</string>
+    <string name="controls_tab">Aba %1$s</string>
+    <string name="controls_block">Bloco</string>
+    <string name="controls_block_size">Tamanho do bloco</string>
+    <string name="controls_block_size_value">Tamanho do bloco: %1$d%%</string>
+    <string name="controls_move_left">Mover para a esquerda</string>
+    <string name="controls_move_up">Mover para cima</string>
+    <string name="controls_move_down">Mover para baixo</string>
+    <string name="controls_move_right">Mover para a direita</string>
+    <string name="controls_touch_preview">Prévia do layout de toque</string>
+    <string name="controls_show_game">Mostrar controles do jogo</string>
+    <string name="controls_profile">Perfil de controles</string>
+    <string name="controls_buttons">Botões</string>
+    <string name="controls_dpad">Direcional</string>
+    <string name="controls_stick">Analógico</string>
+    <string name="controls_keypad">Teclado numérico</string>
+    <string name="controls_navigation">Navegação</string>
+    <string name="controls_shoulders">Botões superiores e sistema</string>
+    <string name="controls_left_stick">Analógico esquerdo</string>
+    <string name="controls_dpad_direction">Direcional: %1$s</string>
+    <string name="controls_stick_direction">Analógico: %1$s</string>
+    <string name="controls_preset_arrows">Setas</string>
+    <string name="controls_preset_numbers">Movimento por números</string>
+    <string name="controls_preset_eight_way">Números em oito direções</string>
+    <string name="controls_preset_diagonals">Diagonais do teclado numérico</string>
+    <string name="controls_preset_actions">Dígitos de ação</string>
+    <string name="controls_soft_left">Tecla de função esquerda</string>
+    <string name="controls_soft_right">Tecla de função direita</string>
+    <string name="controls_up">Cima</string>
+    <string name="controls_down">Baixo</string>
+    <string name="controls_left">Esquerda</string>
+    <string name="controls_right">Direita</string>
+    <string name="controls_fire">OK / Disparo</string>
+    <string name="controls_clear">Limpar</string>
+    <string name="controls_end_call">Encerrar chamada</string>
+    <string name="controls_menu">Menu</string>
+    <string name="controls_phone_key">Tecla do telefone %1$s</string>
+    <string name="controls_preview_seconds">%1$ds</string>
+    <plurals name="controls_preview_remaining">
+        <item quantity="one">Prévia das configurações: falta %1$d segundo</item>
+        <item quantity="other">Prévia das configurações: faltam %1$d segundos</item>
+    </plurals>
+    <string-array name="controls_preview_orientations">
+        <item>Retrato</item>
+        <item>Paisagem</item>
+    </string-array>
+    <string-array name="controls_phone_blocks">
+        <item>Teclado numérico</item>
+    </string-array>
+    <string-array name="controls_gamepad_blocks">
+        <item>Direções</item>
+        <item>Ações</item>
+    </string-array>
+    <string-array name="controls_directions">
+        <item>Cima</item>
+        <item>Baixo</item>
+        <item>Esquerda</item>
+        <item>Direita</item>
+        <item>Cima + esquerda</item>
+        <item>Cima + direita</item>
+        <item>Baixo + esquerda</item>
+        <item>Baixo + direita</item>
+    </string-array>
+</resources>

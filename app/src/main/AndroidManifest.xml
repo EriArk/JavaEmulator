@@ -34,6 +34,7 @@
         android:icon="@mipmap/ic_launcher"
         android:label="@string/app_name"
         android:largeHeap="true"
+        android:localeConfig="@xml/app_locales"
         android:roundIcon="@mipmap/ic_launcher"
         android:supportsRtl="true"
         android:theme="@style/AppTheme"
@@ -137,7 +138,7 @@
             android:name="javax.microedition.shell.MicroActivity"
             android:exported="false"
             android:theme="@style/AppTheme.NoActionBar"
-            android:configChanges="orientation|screenSize|keyboardHidden|screenLayout|smallestScreenSize|uiMode"
+            android:configChanges="orientation|screenSize|keyboardHidden|screenLayout|smallestScreenSize|uiMode|locale|layoutDirection"
             android:process=":midlet" />
         <activity android:name=".catalog.LibraryImportActivity" android:exported="false" />
         <service android:name=".multiplayer.GameNetworkService" android:exported="false" />
@@ -176,6 +177,8 @@
 
         <provider android:name=".multiplayer.RoomStatusProvider"
             android:authorities="${applicationId}.roomStatus" android:exported="false" />
+        <provider android:name=".util.AppLanguageProvider"
+            android:authorities="${applicationId}.language" android:exported="false" />
         <provider
             android:name=".util.ScreenshotSettingsProvider"
             android:authorities="${applicationId}.screenshotSettings"

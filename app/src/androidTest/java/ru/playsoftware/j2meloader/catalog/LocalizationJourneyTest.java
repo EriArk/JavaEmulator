@@ -61,7 +61,7 @@ public class LocalizationJourneyTest {
                 R.array.library_collections, R.array.library_view_modes, R.array.library_generations,
                 R.array.library_cover_formats, R.array.transfer_folder_titles, R.array.transfer_folder_hints};
         int[] counts = {4,3,3,3,3,3,2,2,3,3,2,2,4,3,2,4,11,2,6,3,3,6,3,3,3,3,3,3,3};
-        for (String language : new String[]{"en", "en-XA", "ar-XB", "ru", "ja"}) {
+        for (String language : new String[]{"en", "es", "pt-BR", "en-XA", "ar-XB", "ru", "ja"}) {
             Context context = localized(base, language, 1);
             for (int i = 0; i < arrays.length; i++) {
                 String[] values = context.getResources().getStringArray(arrays[i]);

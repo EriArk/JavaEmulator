@@ -1,0 +1,54 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="settings_title">Настройки</string>
+    <string name="settings_visual_style">Оформление</string>
+    <string name="settings_brightness">Яркость</string>
+    <string name="settings_library">Библиотека</string>
+    <string name="settings_game_folders">Папки с играми</string>
+    <string name="settings_library_transfer">Перенос библиотеки</string>
+    <string name="settings_playing">Во время игры</string>
+    <string name="settings_vibration">Вибрация в игре</string>
+    <string name="settings_keep_awake">Не выключать экран во время игры</string>
+    <string name="settings_support">Поддержка</string>
+    <string name="settings_diagnostics">Экспортировать локальную диагностику</string>
+    <string name="settings_expert">Экспертные настройки</string>
+    <string name="settings_about">Об AbyssME</string>
+    <string name="settings_fluxer_account">Учётная запись Fluxer</string>
+    <string name="settings_system_files">Системные файлы</string>
+    <string name="settings_system_files_summary">Необходимые файлы для Symbian и N-Gage</string>
+    <string name="folders_scanning">Сканирование папки...</string>
+    <string name="folders_add_failed">Не удалось добавить папку: %1$s</string>
+    <string name="folders_none_selected">Папки не выбраны</string>
+    <plurals name="folders_selected">
+        <item quantity="one">%1$d папка</item>
+        <item quantity="few">%1$d папки</item>
+        <item quantity="many">%1$d папок</item>
+        <item quantity="other">%1$d папки</item>
+    </plurals>
+    <string name="folders_scan_summary">Добавлено: %1$d, уже в библиотеке: %2$d</string>
+    <string name="folders_no_games">Поддерживаемые игры не найдены</string>
+    <plurals name="folders_unreadable">
+        <item quantity="one">Не удалось прочитать %1$d папку</item>
+        <item quantity="few">Не удалось прочитать %1$d папки</item>
+        <item quantity="many">Не удалось прочитать %1$d папок</item>
+        <item quantity="other">Не удалось прочитать %1$d папки</item>
+    </plurals>
+    <string name="folders_scan_limit">Достигнут предел сканирования. Выберите папку меньшего размера для оставшихся файлов.</string>
+    <string name="folders_access_required">Не удалось прочитать папку. Выберите её снова, чтобы предоставить доступ.</string>
+    <string name="folders_provider_empty">Поставщик файлов не вернул эту папку.</string>
+    <string name="folders_provider_loading">Эта папка ещё загружается. Дождитесь ответа поставщика файлов и повторите попытку.</string>
+    <string name="folders_read_failed">Не удалось прочитать папку. %1$s</string>
+    <string name="folders_retry_provider">Выберите её снова или используйте другого поставщика файлов.</string>
+    <string name="menu_back">Назад</string>
+    <string name="menu_close">Закрыть</string>
+    <string name="menu_keep">Сохранить</string>
+    <string name="menu_undo">Отменить</string>
+    <string name="menu_opacity">Непрозрачность</string>
+    <string name="menu_percentage">%1$s: %2$d%%</string>
+    <string name="menu_picture_preset">Предустановка изображения: %1$s</string>
+    <string-array name="palette_names">
+        <item>Классическая</item>
+        <item>Ретро ЖК</item>
+        <item>Высокая контрастность</item>
+    </string-array>
+</resources>

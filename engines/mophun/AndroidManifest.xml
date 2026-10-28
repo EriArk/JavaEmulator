@@ -4,7 +4,7 @@
             android:value="ru.playsoftware.j2meloader.mophun.MophunEngine" />
         <activity android:name="ru.playsoftware.j2meloader.mophun.MophunGameActivity"
             android:exported="false" android:screenOrientation="landscape"
-            android:configChanges="orientation|screenSize|screenLayout|smallestScreenSize"
+            android:configChanges="orientation|screenSize|screenLayout|smallestScreenSize|locale|layoutDirection"
             android:theme="@style/AppTheme.NoActionBar" />
     </application>
 </manifest>

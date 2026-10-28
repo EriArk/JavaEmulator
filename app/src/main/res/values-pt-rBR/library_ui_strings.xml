@@ -1,0 +1,80 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="library_menu_title">Menu da biblioteca</string>
+    <string name="library_collection">Coleção</string>
+    <string name="library_all_games">Todos os jogos</string>
+    <string name="library_recent">Recentes</string>
+    <string name="library_favorites">Favoritos</string>
+    <string name="library_all_generations">Todas</string>
+    <string name="library_generation">Geração do N-Gage</string>
+    <string name="library_generation_value">Geração do N-Gage: %1$s</string>
+    <string name="library_collection_value">Coleção: %1$s</string>
+    <string name="library_play_last">Jogar último: %1$s</string>
+    <string name="library_view_value">Visualização: %1$s</string>
+    <string name="library_cover_format_value">Formato da capa: %1$s</string>
+    <string name="library_view">Visualização</string>
+    <string name="library_cover_format">Formato das capas da galeria</string>
+    <string name="library_gallery">Galeria</string>
+    <string name="library_list">Lista</string>
+    <string name="library_grid">Grade</string>
+    <string name="library_sort">Ordenar</string>
+    <string name="library_sort_by">Ordenar por</string>
+    <string name="library_reverse">Ordem inversa</string>
+    <string name="library_add_game">Adicionar jogo</string>
+    <string name="library_add_folder">Adicionar pasta</string>
+    <string name="library_close_search">Fechar pesquisa</string>
+    <string name="library_no_matches">Nenhum jogo corresponde à pesquisa</string>
+    <string name="library_no_favorites">Nenhum favorito nesta coleção</string>
+    <string name="library_no_recent">Nenhum jogo jogado recentemente nesta coleção</string>
+    <string name="library_no_platform_games">Nenhum jogo de %1$s</string>
+    <string name="library_no_games">Ainda não há jogos</string>
+    <string name="library_actions">Ações do jogo</string>
+    <string name="library_play">Jogar</string>
+    <string name="library_information">Informações do jogo</string>
+    <string name="library_add_favorite">Adicionar aos favoritos</string>
+    <string name="library_remove_favorite">Remover dos favoritos</string>
+    <string name="library_edit_card">Editar cartão</string>
+    <string name="library_card_title">Título</string>
+    <string name="library_game_title">Título do jogo</string>
+    <string name="library_enter_title">Digite um título</string>
+    <string name="library_save_title_failed">Não foi possível salvar o título. %1$s</string>
+    <string name="library_save">Salvar</string>
+    <string name="library_delete_question">Excluir o jogo?</string>
+    <string name="library_delete_warning">Isso remove o jogo instalado, suas configurações e seus dados salvos. Os arquivos de origem são mantidos.</string>
+    <string name="library_delete">Excluir jogo</string>
+    <string name="library_artwork">Imagens</string>
+    <string name="library_icon">Ícone</string>
+    <string name="library_cover">Capa</string>
+    <string name="library_choose_image">Escolher imagem</string>
+    <string name="library_use_automatic">Usar automática</string>
+    <string name="library_refresh_art">Atualizar imagens automáticas</string>
+    <string name="library_refresh_art_question">Atualizar as imagens automáticas?</string>
+    <string name="library_replace_legacy_art">Substituir imagens antigas e manter as personalizadas</string>
+    <string name="library_artwork_failed">Não foi possível atualizar as imagens</string>
+    <string name="library_launch_export">Exportar arquivo de inicialização</string>
+    <string name="library_launch_exported">Arquivo de inicialização exportado</string>
+    <string name="library_export_failed">Falha na exportação</string>
+    <string name="library_uninstall_phone">Desinstalar do telefone</string>
+    <string name="library_settings_load_failed">Não foi possível carregar as configurações do jogo.</string>
+    <string name="library_settings_prepare_failed">Não foi possível preparar as configurações.</string>
+    <string-array name="library_collections">
+        <item>@string/library_all_games</item>
+        <item>@string/library_recent</item>
+        <item>@string/library_favorites</item>
+    </string-array>
+    <string-array name="library_view_modes">
+        <item>@string/library_gallery</item>
+        <item>@string/library_list</item>
+        <item>@string/library_grid</item>
+    </string-array>
+    <string-array name="library_generations">
+        <item>@string/library_all_generations</item>
+        <item>Clássico</item>
+        <item>2.0</item>
+    </string-array>
+    <string-array name="library_cover_formats">
+        <item>Automático</item>
+        <item>Horizontal</item>
+        <item>Vertical</item>
+    </string-array>
+</resources>

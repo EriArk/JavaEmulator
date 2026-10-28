@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="quick_rotate_image">Повернуть изображение</string>
+    <string name="quick_rotation_value">Поворот изображения: %1$d\u00b0</string>
+    <string name="display_save_failed">Не удалось сохранить настройки изображения.</string>
+    <plurals name="library_games">
+        <item quantity="one">%d игра</item>
+        <item quantity="few">%d игры</item>
+        <item quantity="many">%d игр</item>
+        <item quantity="other">%d игры</item>
+    </plurals>
+    <string name="mapper_title">Управление</string>
+    <string name="mapper_controller">ГЕЙМПАД</string>
+    <string name="mapper_phone">КЛАВИШИ ТЕЛЕФОНА</string>
+    <string name="mapper_detect">Определить кнопку</string>
+    <string name="mapper_undo">Отменить последнее изменение</string>
+    <string name="mapper_listening">Ожидание нажатия...</string>
+    <string name="mapper_save">Сохранить и продолжить</string>
+    <string name="mapper_unbind">Убрать назначение</string>
+    <string name="mapper_duplicate">Создать копию профиля</string>
+    <string name="mapper_unbound">Не назначено</string>
+    <string name="mapper_combined">Два направления</string>
+    <string name="mapper_save_failed">Не удалось сохранить настройки управления. Ваши изменения остаются в редакторе.</string>
+</resources>

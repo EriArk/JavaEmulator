@@ -25,6 +25,7 @@ public final class AppearanceContext {
     }
 
     public static Context wrap(Context base) {
+        base = AppLanguage.wrapNative(base);
         android.os.Bundle appearance = refresh(base);
         int choice = appearance == null ? AppCompatDelegate.getDefaultNightMode()
                 : appearance.getInt("nightMode", AppCompatDelegate.MODE_NIGHT_FOLLOW_SYSTEM);

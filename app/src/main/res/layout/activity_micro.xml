@@ -107,14 +107,14 @@
             <LinearLayout android:layout_width="wrap_content" android:layout_height="wrap_content"
                 android:background="@drawable/bg_quick_map_panel" android:orientation="vertical">
             <LinearLayout android:layout_width="wrap_content" android:layout_height="wrap_content" android:orientation="horizontal">
-                <Button android:id="@+id/quick_screen_auto" style="@style/QuickOptionButton" android:text="Auto" />
+                <Button android:id="@+id/quick_screen_auto" style="@style/QuickOptionButton" android:text="@string/pref_orientation_auto" />
                 <Button android:id="@+id/quick_screen_176" style="@style/QuickOptionButton" android:text="176x220" />
                 <Button android:id="@+id/quick_screen_240" style="@style/QuickOptionButton" android:text="240x320" />
             </LinearLayout>
             <LinearLayout android:layout_width="wrap_content" android:layout_height="wrap_content" android:orientation="horizontal">
                 <Button android:id="@+id/quick_screen_land" style="@style/QuickOptionButton" android:text="320x240" />
                 <Button android:id="@+id/quick_screen_480" style="@style/QuickOptionButton" android:text="480x800" />
-                <Button android:id="@+id/quick_screen_swap" style="@style/QuickOptionButton" android:text="Swap W/H" />
+                <Button android:id="@+id/quick_screen_swap" style="@style/QuickOptionButton" android:text="@string/SWAP_SIZES" />
             </LinearLayout>
             <Button android:id="@+id/quick_screen_rotate" style="@style/QuickOptionButton"
                 android:layout_width="264dp" android:drawableStart="@drawable/ic_quick_orientation"
@@ -132,8 +132,8 @@
         android:src="@drawable/ic_quick_size"
         app:tint="?attr/abyss_text_primary"
         android:padding="12dp"
-        android:contentDescription="Quick display settings"
-        android:tooltipText="Quick display settings"
+        android:contentDescription="@string/game_display"
+        android:tooltipText="@string/game_display"
         android:visibility="gone" />
 
     <ImageButton
@@ -159,8 +159,8 @@
         android:src="@drawable/ic_baseline_tune_24"
         app:tint="?attr/abyss_text_primary"
         android:padding="12dp"
-        android:contentDescription="Game menu"
-        android:tooltipText="Game menu"
+        android:contentDescription="@string/game_menu_title"
+        android:tooltipText="@string/game_menu_title"
         android:visibility="gone" />
 
     <FrameLayout

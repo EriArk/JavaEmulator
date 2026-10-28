@@ -385,6 +385,20 @@ public final class GameMenuDialog extends Dialog {
     public Button primaryAction(String label, int icon, Runnable run) {
         return action(label, icon, run, true);
     }
+    public Button selectionAction(String label, boolean selected, Runnable run) {
+        Button button = action(label, R.drawable.ic_check, run);
+        button.getCompoundDrawablesRelative()[0].setAlpha(selected ? 255 : 0);
+        button.setSelected(selected);
+        androidx.core.view.ViewCompat.setAccessibilityDelegate(button, new androidx.core.view.AccessibilityDelegateCompat() {
+            @Override public void onInitializeAccessibilityNodeInfo(View host,
+                    androidx.core.view.accessibility.AccessibilityNodeInfoCompat info) {
+                super.onInitializeAccessibilityNodeInfo(host, info);
+                info.setClassName(android.widget.RadioButton.class.getName());
+                info.setCheckable(true); info.setChecked(selected);
+            }
+        });
+        return button;
+    }
     private Button action(String label, int icon, Runnable run, boolean primary) {
         Button button = new Button(getContext());
         button.setText(label); button.setTextSize(15); button.setAllCaps(false);

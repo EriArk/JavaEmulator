@@ -1,0 +1,37 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="native_progress_read_compressed">Чтение архива RAR / 7z</string>
+    <string name="native_progress_read_entry">Чтение: %1$s</string>
+    <string name="native_progress_read_entry_size">Чтение: %1$s (%2$d МБ)</string>
+    <string name="native_selected_files">Выбранные файлы</string>
+    <string name="native_import_source_error">%1$s: %2$s</string>
+    <string name="native_notice_installed">Установлено</string>
+    <string name="native_notice_phone_files">Нужны файлы телефона</string>
+    <string name="native_notice_choose_phone">Выберите телефон</string>
+    <string name="native_notice_platform">Нужна платформа N-Gage 2.0</string>
+    <string name="native_notice_component">Требуется %1$s</string>
+    <string name="native_notice_guest_installer">Завершите установку в установщике N-Gage</string>
+    <string name="native_notice_retry">Прервано; нужна повторная попытка</string>
+    <string name="native_notice_saved">Установщик сохранён</string>
+    <string name="native_notice_skipped">Пропущено; установленные файлы не удалены</string>
+    <string name="native_notice_duplicate">Повторяющийся файл</string>
+    <string name="native_notice_alternative">Альтернативная версия %1$s</string>
+    <string name="native_progress_inspect_system">Анализ системного архива</string>
+    <string name="native_progress_read_system">Чтение системных файлов: %1$d%%</string>
+    <string name="native_progress_check_system">Проверка системных файлов: %1$d%%</string>
+    <string name="native_progress_prepare_system">Подготовка системы %1$d/%2$d: %3$s</string>
+    <string name="native_progress_read_input">Чтение выбранного файла: %1$d МБ</string>
+    <string name="native_progress_inspect_item">Анализ %1$d / %2$d: %3$s</string>
+    <string name="native_progress_import_item">Импорт %1$d / %2$d: %3$s</string>
+    <string name="native_progress_continue_queue">Продолжение очереди архива</string>
+    <string name="native_progress_check_components">Проверка необходимых компонентов</string>
+    <string name="native_progress_install_component">Установка компонента: %1$s</string>
+    <string name="native_progress_install_game">Установка %1$s</string>
+    <string name="native_import_add">Добавить в библиотеку</string>
+    <string name="native_import_ready">Готово</string>
+    <string name="native_import_unavailable">Выбранный импорт больше недоступен</string>
+    <string name="mophun_installer_title">Установщик Mophun</string>
+    <string name="mophun_installer_experimental">Экспериментально</string>
+    <string name="mophun_installer_preparing">Подготовка игры</string>
+    <string name="mophun_installer_failed">Не удалось импортировать игру</string>
+</resources>

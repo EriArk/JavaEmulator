@@ -43,6 +43,15 @@ import javax.microedition.util.ContextHolder;
 import ru.playsoftware.j2meloader.util.Constants;
 
 public class EmulatorApplication extends Application {
+	@Override public void onCreate() {
+		super.onCreate();
+		ru.playsoftware.j2meloader.util.AppLanguage.initialize(this);
+	}
+
+	@Override public void onConfigurationChanged(android.content.res.Configuration configuration) {
+		super.onConfigurationChanged(configuration);
+		ru.playsoftware.j2meloader.util.AppLanguage.configurationChanged();
+	}
 	private static final String[] VALID_SIGNATURES = {
 			"78EF7758720A9902F731ED706F72C669C39B765C", // GPlay
 			"289F84A32207DF89BE749481ED4BD07E15FC268F", // F-Droid

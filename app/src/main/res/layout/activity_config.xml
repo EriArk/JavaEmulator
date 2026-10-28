@@ -19,7 +19,7 @@
             android:layout_height="48dp"
             android:layout_marginHorizontal="8dp"
             android:layout_marginTop="8dp"
-            android:text="Fix game"
+            android:text="@string/helper_fix_game"
             android:textAllCaps="false" />
 
         <Button
@@ -28,7 +28,7 @@
             android:layout_height="48dp"
             android:layout_marginHorizontal="8dp"
             android:layout_marginVertical="4dp"
-            android:text="Expert settings"
+            android:text="@string/helper_expert"
             android:textAllCaps="false" />
 
         <!-- Screen -->

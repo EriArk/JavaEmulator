@@ -1,10 +1,49 @@
 # Localization Workstream
 
 Issue [#43](https://github.com/EriArk/JavaEmulator/issues/43), checkpoint 2026-10-28.
-English remains the complete source/fallback and the current advertised UI.
-Existing inherited locale folders are partial translations, not proof that the
-whole application supports those languages. No language picker or new translated
-language batch has shipped in this checkpoint.
+English remains the canonical source/fallback and the public APK's advertised UI.
+Unreleased source now includes Settings > Language, System default, English,
+Spanish, Brazilian Portuguese and Russian. Other inherited locale folders remain
+partial translations; their presence is not whole-app support. This work has not
+been published in a new signed APK.
+
+| Locale | Canonical resource coverage | Availability |
+| --- | --- | --- |
+| English | 1505 source entries | Released fallback; current source includes newer labels |
+| Spanish | 1505 / 1505 | Selectable in unreleased source / local Debug |
+| Brazilian Portuguese | 1505 / 1505 | Selectable in unreleased source / local Debug |
+| Russian | 1505 / 1505 | Selectable in unreleased source / local Debug |
+| Other inherited locales | Partial | Not advertised by the picker |
+
+Counts include strings, plurals and arrays; they do not certify translation
+quality or every low-level diagnostic. The [first language batch record](checks/2026-10-28-app-languages.md)
+separates source, device/emulator checks and remaining acceptance.
+
+## Language Selection
+
+Native language names remain visible in every UI language. The selected option
+has a check mark and checked accessibility state, distinct from gamepad focus.
+Android 13+ uses the platform LocaleManager and declares the same supported
+list in `xml/app_locales.xml`; Android Settings and the in-app picker share it.
+Android 10-12 uses AppCompat 1.6.1 plus a non-exported, single-writer provider for
+cross-process persistence. Application and plain native Activity contexts are
+updated as well, because AppCompat alone only handles AppCompat Activities on
+these versions. No external translation service or runtime download is needed.
+Bundle language splitting is disabled so a future bundle install also keeps
+picker languages available offline; this batch does not publish an App Bundle.
+
+Java, Mophun and Symbian game Activities handle locale changes without locale-
+driven Activity destruction. Idle Symbian setup refreshes its labels; open
+native forms/import selections are not rebuilt just to change their text.
+They use the new locale when reopened. Java's default `microedition.locale`
+comes from the device language, not the app UI language; an explicit game
+profile override still takes precedence. Guest phone language and user/chat
+content are not translated.
+
+This does not claim every low-level diagnostic is localized. Unknown OS/native
+errors, old persisted raw error messages and remaining network-game preparation
+details can still appear verbatim under a localized explanation. Do not treat
+resource coverage as full network-session or native-game acceptance.
 
 ## Extracted Source
 
@@ -69,11 +108,11 @@ clears the previous mailbox status. Game-information labels use resources while
 game versions and vendor names remain verbatim. About/Help now describe AbyssME,
 preserve upstream attribution and link to this project's support and sources.
 
-This is still source preparation, not whole-app localization. Remaining backend
+The first selectable translation batch covers all canonical Android resources,
+but is not a claim that every diagnostic is translated. Remaining backend
 messages (including Mophun, network-game preparation and external diagnostics)
-and helper-returned text still need extraction or review. No new locale is
-enabled or guest language modified as a
-side effect. English actor fallback fields are retained for diagnostics and
+and helper-returned text still need extraction or review. Guest language is not
+modified as a side effect. English actor fallback fields are retained for diagnostics and
 non-Android tests; UI decisions must use typed keys, not translated labels.
 
 Messages and channel names carry explicit content/fallback kinds: a user who
@@ -110,10 +149,11 @@ not the number of locale directories or keys alone.
 
 ## Next Boundaries
 
-1. Finish English extraction, particularly firmware onboarding and blocking errors.
-2. Add one safe, persistent language choice shared by app-owned processes without
-   killing active games or changing the emulated OS language.
-3. Review language batches and layouts before exposing them in the picker.
+1. Finish remaining backend/helper and network-game preparation diagnostics.
+2. Expand reviewed language batches: French/German, then Simplified Chinese,
+   Japanese, Indonesian and Hindi. Keep the issue's wider language list open.
+3. Verify long-running native/network sessions and translated journeys before
+   publishing a multilingual APK. Arabic/Hebrew still require explicit RTL QA.
 
 ## Manual Regression Checks
 
@@ -125,9 +165,11 @@ java tools/LocalizationAudit.java --check
 ```
 
 The AST inventory reports direct UI literal candidates in app-owned Java sources;
-it is not an exhaustive scan of helper-returned text, native code or XML. The
-check rejects new direct literals in extracted screens and structural translation
-errors (format argument types and array lengths). Reports go to ignored `build/`.
+a structured XML scan also checks visible labels in layouts, menus and preferences.
+These are not an exhaustive scan of helper-returned text or native code. The
+check rejects new direct literals in extracted screens and XML labels, missing canonical keys
+for languages advertised by `app_locales.xml`, and structural translation errors
+(format argument types and array lengths). Reports go to ignored `build/`.
 Coverage counts resource presence, not translation quality or approval.
 
 Debug builds include Android pseudolocales. `LocalizationJourneyTest` uses isolated
@@ -147,14 +189,16 @@ and the [earlier settings checks](checks/2026-10-28-audio-lifecycle-settings.md)
 `SocialLocalizationTest` checks every account/chat/directory notice and protects
 user text, URLs and identifiers. `SystemRequirementsLocalizationTest` checks
 phone generations and distinguishes firmware from the N-Gage 2.0 installer.
-`LobbyPresentationTest` exercises seat layout across English, expanded and RTL
-pseudolocales, three font scales, five widths and both themes. This is bounded
+`LobbyPresentationTest` exercises seat layout across English, Spanish, Brazilian
+Portuguese, Russian and expanded/RTL pseudolocales, three font scales, five
+widths and both themes (180 cases). This is bounded
 layout evidence, not full RTL navigation or live network acceptance.
 See the [Social/system verification record](checks/2026-10-28-social-system-localization.md).
 
 `SystemTransferLocalizationTest` checks every typed backup/removal error,
 version-specific warnings, raw paths/causes, component versions, cancellation,
-queue callbacks and layout across 144 locale/font/viewport/theme/state cases.
+queue callbacks and layout across 288 locale/font/viewport/theme/state cases in
+the expanded first-language batch (144 in the earlier native-transfer record).
 Archive controls stack for narrow/large-font layouts and keep their actions
 independent of display labels. This does not prove all firmware/backend errors
 are localized or all RTL navigation is ready.

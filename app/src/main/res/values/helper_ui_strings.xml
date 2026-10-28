@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
+    <string name="helper_fix_game">Fix game</string>
     <string name="helper_engine_missing">This build does not include the engine for this game</string>
     <string name="helper_import_unavailable">Cannot open the game importer</string>
     <string name="helper_close">Close</string>

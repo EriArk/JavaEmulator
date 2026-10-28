@@ -2,7 +2,7 @@
     <application>
         <activity android:name="io.github.eriark.abyssme.symbian.SymbianActivity"
             android:exported="false" android:process=":symbian" android:screenOrientation="landscape"
-            android:configChanges="orientation|screenSize|screenLayout|smallestScreenSize"
+            android:configChanges="orientation|screenSize|screenLayout|smallestScreenSize|locale|layoutDirection"
             android:theme="@android:style/Theme.Material.NoActionBar" />
     </application>
 </manifest>

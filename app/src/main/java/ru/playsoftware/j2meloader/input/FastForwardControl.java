@@ -27,7 +27,7 @@ public final class FastForwardControl {
         button = new androidx.appcompat.widget.AppCompatImageButton(root.getContext()) {
             @Override public void onWindowFocusChanged(boolean focused) {
                 super.onWindowFocusChanged(focused);
-                if (focused) post(FastForwardControl.this::startPending);
+                if (focused) { FastForwardControl.this.render(); post(FastForwardControl.this::startPending); }
             }
         };
         button.setId(R.id.game_fast_forward_button);

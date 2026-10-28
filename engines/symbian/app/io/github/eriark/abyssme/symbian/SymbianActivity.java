@@ -22,7 +22,8 @@ import ru.playsoftware.j2meloader.R;
 import ru.playsoftware.j2meloader.BuildConfig;
 
 /** Opt-in environment/session prototype. It does not expose arbitrary host paths. */
-public final class SymbianActivity extends Activity implements Emulator.Host, InputManager.InputDeviceListener {
+public final class SymbianActivity extends Activity implements Emulator.Host, InputManager.InputDeviceListener,
+        ru.playsoftware.j2meloader.util.AppLanguage.NativeScreen {
     @Override protected void attachBaseContext(android.content.Context base) {
         super.attachBaseContext(ru.playsoftware.j2meloader.util.AppearanceContext.wrap(base));
     }
@@ -39,6 +40,7 @@ public final class SymbianActivity extends Activity implements Emulator.Host, In
     private volatile long sessionGeneration;
     private boolean attached, busy, returnRequested, menuOpen;
     private boolean resumed;
+    private String pageLanguage;
     private volatile boolean closing;
     private InputManager inputManager;
     private int pendingUid;
@@ -220,6 +222,7 @@ public final class SymbianActivity extends Activity implements Emulator.Host, In
         parent.addView(b,params);
     }
     private void library() {
+        pageLanguage = getResources().getConfiguration().getLocales().toLanguageTags();
         archiveView=null;
         archivePage=false;
         page = new LinearLayout(this); page.setOrientation(LinearLayout.VERTICAL);
@@ -1086,8 +1089,21 @@ public final class SymbianActivity extends Activity implements Emulator.Host, In
     }
     @Override protected void onResume() {
         super.onResume(); resumed = true;
+        onAppLanguageChanged();
         if (running && attached && !menuOpen && !closing) Emulator.pauseSession(false);
         if (sessionUi != null) sessionUi.visible(true);
+    }
+    @Override public void onConfigurationChanged(android.content.res.Configuration configuration) {
+        super.onConfigurationChanged(configuration);
+        onAppLanguageChanged();
+    }
+    @Override public void onAppLanguageChanged() {
+        // Rebuild only the idle setup page. A locale switch must not discard an
+        // import selection, input dialog, preview draft or running guest session.
+        String current = getResources().getConfiguration().getLocales().toLanguageTags();
+        if (page != null && !Objects.equals(pageLanguage, current) && !closing && !running && !busy
+                && !archivePage && (inputDialog == null || !inputDialog.isShowing())
+                && (systemChoice == null || !systemChoice.isShowing())) library();
     }
     @Override protected void onDestroy() {
         closing = true;

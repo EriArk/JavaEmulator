@@ -10,6 +10,29 @@ stated otherwise. **Experimental** in older checkpoints means local/private
 combined builds; released experimental features are explicitly identified.
 **Released** means an actual GitHub release asset.
 
+## 2026-10-28 - Language Picker and First Translation Batch (Public Source, Unreleased)
+
+- Add Settings > Language with System default and native names for English,
+  Spanish, Brazilian Portuguese and Russian. The three new locales each cover
+  all 1505 canonical Android resources, including library, game menus, controls,
+  transfers, system-file guidance and Social screens.
+- Persist selection across launches and in-place updates. Share Android 13+
+  system per-app language settings; synchronize app-owned processes on Android
+  10-12. Keep Java guest locale independent of UI language and avoid destroying
+  game Activities merely to change app labels.
+- Make the selected choice visible with a check mark and checked accessibility
+  state, separate from controller focus. Apply the same repair to list settings.
+- Remove remaining literal XML menu/game-screen labels and refresh game-chrome
+  accessibility labels after language changes. Expand the audit to visible XML
+  text and reject incomplete advertised locales and invalid format structures.
+- Keep inherited partial languages and English fallback; do not translate game
+  assets, user messages or technical identifiers. Remaining raw/backend errors,
+  other issue #43 languages and native-speaker acceptance remain open.
+- Verify combined Debug assembly, 414 JVM tests, 53 focused Retroid checks and
+  cold-update persistence. Lint reports zero errors / 565 warnings; the resource
+  audit has no missing advertised keys, structural errors or visible XML literals.
+  No signed/public APK update. [Checks and screenshots](docs/checks/2026-10-28-app-languages.md).
+
 ## 2026-10-28 - Room Messages and Current Product Help (Public Source, Unreleased)
 
 - Extract 66 room, publication, delivery and temporary-contact notices into

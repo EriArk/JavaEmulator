@@ -20,6 +20,7 @@ public final class GameChrome {
     private final ImageButton handle;
     private final View display, screenshot, menu, fastForward;
     private boolean available, expanded, displayEnabled, screenshotEnabled;
+    private String labelLanguage;
     private final Runnable timeout = this::collapse;
 
     @SuppressLint("ClickableViewAccessibility")
@@ -84,6 +85,14 @@ public final class GameChrome {
     }
 
     public void render() {
+        String language = root.getResources().getConfiguration().getLocales().toLanguageTags();
+        if (!language.equals(labelLanguage)) {
+            labelLanguage = language;
+            describe(handle, R.string.controls_show_game);
+            describe(display, R.string.game_display);
+            describe(screenshot, R.string.capture_screenshot);
+            describe(menu, R.string.game_menu_title);
+        }
         positionHandle();
         visible(handle, available && !expanded && profile.gameHandleVisible && !previewCoversHandle());
         visible(display, available && expanded && displayEnabled);
@@ -91,6 +100,12 @@ public final class GameChrome {
         visible(menu, available && expanded);
         visible(fastForward, available && profile.fastForwardOnScreen
                 && (expanded || fastForward != null && fastForward.isSelected()));
+    }
+
+    private void describe(View view, int resource) {
+        if (view == null) return;
+        view.setContentDescription(root.getContext().getString(resource));
+        view.setTooltipText(view.getContentDescription());
     }
 
     private boolean previewCoversHandle() {

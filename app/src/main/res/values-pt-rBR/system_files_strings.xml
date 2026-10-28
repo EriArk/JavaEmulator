@@ -1,0 +1,67 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
+    <string name="system_files_title">Arquivos de sistema</string>
+    <string name="system_original_ngage">N-Gage original</string>
+    <string name="system_legacy_s60">Symbian S60 1ª / 2ª edição</string>
+    <string name="system_modern_s60">Symbian S60 3ª edição e posteriores</string>
+    <string name="system_no_extra">Nenhum arquivo adicional</string>
+    <string name="system_phone_needed">Arquivos de telefone necessários</string>
+    <string name="system_phone_added">Arquivos de telefone adicionados</string>
+    <string name="system_setup_added">Arquivos de instalação adicionados</string>
+    <string name="system_checked_on_import">Verificado na importação</string>
+    <string name="system_java_help">Jogos Java (.jar / .jad) e Mophun (.mpn) não precisam de firmware de telefone.</string>
+    <string name="system_ngage_help">Telefone: Nokia N-Gage ou N-Gage QD.\n\nNecessário: uma cópia de sistema de telefone preparada para EKA2L1, em um arquivo ZIP/7z ou um arquivo .rom com o .rpkg correspondente quando necessário.\n\nOs instaladores N-Gage 2.0 são para outra plataforma e não substituem esses arquivos.</string>
+    <string name="system_legacy_help">Telefone: um modelo S60 de 1ª/2ª edição compatível com o jogo, como Nokia 3650 ou 6600.\n\nNecessário: uma cópia de sistema de telefone do EKA2L1, em um arquivo ZIP/7z ou .rom com o .rpkg correspondente quando necessário. Um .sis de jogo não é firmware de telefone.</string>
+    <string name="system_modern_help">Telefone: a geração Symbian exigida pelo jogo, por exemplo Nokia N95 para S60 de 3ª edição.\n\nNecessário: uma cópia de sistema de telefone do EKA2L1, em um arquivo ZIP/7z ou .rom com o .rpkg correspondente quando necessário. As gerações do Symbian não são intercambiáveis.</string>
+    <string name="system_ngage2_help">Telefone: Nokia N95 recomendado (S60 de 3ª edição).\n\n%1$s\n\n%2$s\n\nUse o instalador da plataforma N-Gage 2.0 (.sis ou ZIP), não um jogo .n-gage. Os arquivos salvos são reutilizados; a instalação da plataforma é verificada ao adicionar um jogo.</string>
+    <string name="system_dump_added">Cópia de sistema do telefone: adicionada.</string>
+    <string name="system_dump_needed">Cópia de sistema do telefone: necessária (.rom + .rpkg correspondente, ou ZIP/7z preparado).</string>
+    <string name="system_platform_saved">Aplicativo N-Gage 2.0: instalador salvo.</string>
+    <string name="system_platform_needed">Aplicativo N-Gage 2.0: instalador necessário se ainda não estiver instalado no telefone.</string>
+    <string name="system_needed_card">Este jogo precisa dos arquivos de sistema originais do <xliff:g id="phone">Nokia N-Gage / N-Gage QD</xliff:g>.</string>
+    <string name="system_needed_ngage2">Este jogo precisa dos arquivos de sistema S60 de 3ª edição (<xliff:g id="phone">N95</xliff:g> recomendado) e do instalador da plataforma <xliff:g id="platform">N-Gage 2.0</xliff:g>.</string>
+    <string name="system_needed_legacy">Este jogo precisa dos arquivos de sistema de um telefone Symbian S60 de 1ª/2ª edição compatível.</string>
+    <string name="system_needed_modern">Este jogo precisa dos arquivos de sistema da sua geração Symbian (S60 de 3ª edição ou posterior).</string>
+    <string name="system_formats_help">Uma cópia de sistema de telefone do <xliff:g id="emulator">EKA2L1</xliff:g> contém o sistema operacional do telefone, não jogos. Adicione um <xliff:g id="archive">ZIP/7z</xliff:g> que contenha um <xliff:g id="rom">.rom</xliff:g> e o <xliff:g id="package">.rpkg</xliff:g> correspondente, ou selecione esses arquivos juntos. Subpastas e extensões em maiúsculas são suportadas. Ambos os arquivos precisam ser da mesma cópia de sistema; não misture vários telefones ou jogos neste arquivo compactado. Também é aceito um arquivo preparado de <xliff:g id="folder">ROM + Z-folder</xliff:g>.\n\nUse arquivos que você tem direito de usar. Firmware e jogos não estão incluídos.</string>
+    <string name="system_needed_help">%1$s\n\n%2$s\n\nSeu jogo é mantido e continuará após a importação.</string>
+    <string name="system_pending_import">Importação pendente</string>
+    <string name="system_archive_queue">Fila de arquivos</string>
+    <string name="system_add_files">Adicionar arquivos de sistema</string>
+    <string name="system_what_files">De quais arquivos preciso?</string>
+    <string name="system_phone_files">Arquivos de sistema do telefone</string>
+    <string name="system_installed_phones">Telefones instalados</string>
+    <string name="system_phone_backups">Backups de telefones</string>
+    <string name="system_saved_components">Componentes salvos</string>
+    <string name="system_add_game">Adicionar jogo</string>
+    <string name="system_phone_tools">Ferramentas do telefone</string>
+    <string name="system_library">Biblioteca</string>
+    <string name="system_back_library">Voltar à biblioteca</string>
+    <string name="system_add_ngage2">Adicionar instalador N-Gage 2.0</string>
+    <string name="system_add_another_phone">Adicionar outro telefone</string>
+    <string name="system_add_phone_files">Adicionar arquivos de telefone</string>
+    <string name="system_about_dumps">Sobre cópias de sistema de telefone</string>
+    <string name="system_back">Voltar</string>
+    <string name="system_close">Fechar</string>
+    <string name="system_later">Depois</string>
+    <string name="system_retry">Tentar novamente</string>
+    <string name="system_cancel">Cancelar</string>
+    <string name="system_remove">Remover</string>
+    <string name="system_could_not_finish">Não foi possível concluir</string>
+    <string name="system_needed_title">Arquivos de sistema necessários</string>
+    <string name="system_ngage2_needed_title">N-Gage 2.0 necessário</string>
+    <string name="system_ngage2_needed_body">Os arquivos de sistema do telefone estão prontos. Adicione o instalador da plataforma N-Gage 2.0 (SIS ou ZIP), não um jogo. O AbyssME mantém uma cópia para jogos futuros.</string>
+    <string name="system_add_platform">Adicionar plataforma</string>
+    <string name="system_interrupted_title">Instalação interrompida</string>
+    <string name="system_interrupted_body">A instalação anterior não foi concluída. Seu jogo foi mantido. Tentar novamente pode reinstalar arquivos no telefone selecionado.</string>
+    <string name="system_component_needed">Componente necessário</string>
+    <string name="system_component_help">%1$s\n\nAdicione o instalador SIS/SISX deste componente ou um ZIP que o contenha. Use uma versão para este telefone Symbian. Seu jogo é mantido; a instalação continua após adicionar o arquivo. O instalador é salvo para jogos futuros.</string>
+    <string name="system_add_installer">Adicionar instalador</string>
+    <string name="system_install_complete">Instalação concluída</string>
+    <string name="system_installed_body">O jogo instalado está disponível na sua biblioteca.</string>
+    <string name="system_continue_import">Continuar importação</string>
+    <string name="system_remove_import">Remover importação pendente</string>
+    <string name="system_remove_import_title">Remover a importação pendente?</string>
+    <string name="system_remove_import_body">Apenas a importação retida é removida. Os arquivos originais, jogos instalados e dados salvos permanecem intactos.</string>
+    <string name="system_removing_import">Removendo importação pendente</string>
+    <string name="system_continuing_import">Continuando importação</string>
+</resources>

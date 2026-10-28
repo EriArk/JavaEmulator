@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="settings_language">Idioma</string>
+    <string name="language_system">Padrão do sistema</string>
+    <string name="language_failed">Não foi possível salvar o idioma. Tente novamente.</string>
+</resources>

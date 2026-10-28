@@ -1,0 +1,40 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="settings_title">Ajustes</string>
+    <string name="settings_visual_style">Estilo visual</string>
+    <string name="settings_brightness">Brillo</string>
+    <string name="settings_library">Biblioteca</string>
+    <string name="settings_game_folders">Carpetas de juegos</string>
+    <string name="settings_library_transfer">Transferir biblioteca</string>
+    <string name="settings_playing">Durante el juego</string>
+    <string name="settings_vibration">Vibración del juego</string>
+    <string name="settings_keep_awake">Mantener la pantalla encendida al jugar</string>
+    <string name="settings_support">Ayuda</string>
+    <string name="settings_diagnostics">Exportar diagnóstico local</string>
+    <string name="settings_expert">Ajustes avanzados</string>
+    <string name="settings_about">Acerca de AbyssME</string>
+    <string name="settings_fluxer_account">Cuenta de Fluxer</string>
+    <string name="settings_system_files">Archivos del sistema</string>
+    <string name="settings_system_files_summary">Archivos necesarios para Symbian y N-Gage</string>
+    <string name="folders_scanning">Explorando carpeta…</string>
+    <string name="folders_add_failed">No se pudo añadir la carpeta: %1$s</string>
+    <string name="folders_none_selected">Ninguna carpeta seleccionada</string>
+    <plurals name="folders_selected"><item quantity="one">%1$d carpeta</item><item quantity="other">%1$d carpetas</item></plurals>
+    <string name="folders_scan_summary">%1$d añadidos, %2$d ya estaban en la biblioteca</string>
+    <string name="folders_no_games">No se encontraron juegos compatibles</string>
+    <plurals name="folders_unreadable"><item quantity="one">No se pudo leer %1$d carpeta</item><item quantity="other">No se pudieron leer %1$d carpetas</item></plurals>
+    <string name="folders_scan_limit">Se alcanzó el límite de exploración. Selecciona una carpeta más pequeña para los archivos restantes.</string>
+    <string name="folders_access_required">No se puede leer esta carpeta. Selecciónala de nuevo para conceder acceso.</string>
+    <string name="folders_provider_empty">El proveedor de archivos no devolvió esta carpeta.</string>
+    <string name="folders_provider_loading">La carpeta aún se está cargando. Espera al proveedor de archivos e inténtalo de nuevo.</string>
+    <string name="folders_read_failed">No se puede leer esta carpeta. %1$s</string>
+    <string name="folders_retry_provider">Selecciónala de nuevo o usa otro proveedor de archivos.</string>
+    <string name="menu_back">Volver</string>
+    <string name="menu_close">Cerrar</string>
+    <string name="menu_keep">Conservar</string>
+    <string name="menu_undo">Deshacer</string>
+    <string name="menu_opacity">Opacidad</string>
+    <string name="menu_percentage">%1$s: %2$d%%</string>
+    <string name="menu_picture_preset">Preajuste de imagen: %1$s</string>
+    <string-array name="palette_names"><item>Clásico</item><item>LCD retro</item><item>Alto contraste</item></string-array>
+</resources>

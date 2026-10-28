@@ -33,6 +33,13 @@ android {
     ndkVersion NDK_VERSION
     namespace 'ru.playsoftware.j2meloader'
 
+    bundle {
+        language {
+            // The in-app picker must work offline, including after a bundle install.
+            enableSplit = false
+        }
+    }
+
     defaultConfig {
         applicationId "io.github.eriark.abyssme"
         minSdk MIN_SDK

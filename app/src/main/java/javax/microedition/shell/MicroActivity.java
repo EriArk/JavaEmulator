@@ -330,6 +330,7 @@ public class MicroActivity extends AppCompatActivity {
 		if (keepNetworkRunningInUi()) MidletThread.resumeApp();
 		if (devices != null && devices.resumeRequired()) openOptionsMenu();
 		updateScreenshotButton();
+		updateQuickSettingsLabels();
 		if (!isQuickMapVisible() && (gameMenu == null || !gameMenu.isShowing())
 				&& (settingsMapper == null || !settingsMapper.isShowing())
 				&& (devices == null || !devices.resumeRequired())) {
@@ -769,6 +770,8 @@ public class MicroActivity extends AppCompatActivity {
 		binding.quickSettingsScreen.setText(getString(R.string.quick_settings_screen)
 				+ "\n" + microLoader.getScreenWidth() + "x" + microLoader.getScreenHeight());
 		binding.quickSettingsControls.setText(R.string.quick_settings_controls);
+		binding.quickScreenAuto.setText(R.string.pref_orientation_auto);
+		binding.quickScreenSwap.setText(R.string.SWAP_SIZES);
 		binding.quickScreenRotate.setText(getString(R.string.quick_rotation_value, microLoader.getScreenRotation()));
 		binding.quickScreenRotate.setEnabled(current instanceof Canvas);
 	}

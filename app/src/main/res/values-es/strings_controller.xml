@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="utf-8"?><resources>
+    <string name="quick_rotate_image">Girar imagen</string>
+    <string name="quick_rotation_value">Girar imagen: %1$d\u00b0</string>
+    <string name="display_save_failed">No se pudieron guardar los ajustes de pantalla.</string>
+    <plurals name="library_games">
+        <item quantity="one">%d juego</item>
+        <item quantity="other">%d juegos</item>
+    </plurals>
+    <string name="mapper_title">Controles</string>
+    <string name="mapper_controller">MANDO</string>
+    <string name="mapper_phone">TECLAS DEL TELÉFONO</string>
+    <string name="mapper_detect">Identificar botón</string>
+    <string name="mapper_undo">Deshacer último cambio</string>
+    <string name="mapper_listening">Esperando entrada...</string>
+    <string name="mapper_save">Guardar y continuar</string>
+    <string name="mapper_unbind">Quitar asignación</string>
+    <string name="mapper_duplicate">Duplicar perfil</string>
+    <string name="mapper_unbound">Sin asignar</string>
+    <string name="mapper_combined">Dos direcciones</string>
+    <string name="mapper_save_failed">No se pudieron guardar los controles. Tus cambios siguen abiertos.</string>
+</resources>

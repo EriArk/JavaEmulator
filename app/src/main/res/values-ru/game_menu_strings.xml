@@ -1,0 +1,230 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="game_enhancements_unavailable">Улучшения недоступны. Исходное изображение восстановлено.</string>
+    <string name="game_controls_save_failed">Не удалось сохранить настройки управления</string>
+    <string name="game_touch_controls">Сенсорное управление</string>
+    <string name="game_restarting">Перезапуск игры</string>
+    <string name="game_restart_error_title">Не удалось перезапустить игру</string>
+    <string name="game_restart_busy">Предыдущий сеанс не завершён. Выйдите перед повторной попыткой.</string>
+    <string name="game_menu_title">Меню игры</string>
+    <string name="game_settings_title">Настройки игры</string>
+    <string name="game_resume">Продолжить</string>
+    <string name="game_display">Изображение</string>
+    <string name="game_controls">Управление</string>
+    <string name="game_more">Ещё</string>
+    <string name="game_advanced">Дополнительно</string>
+    <string name="game_keep_changes">Сохранить изменения</string>
+    <string name="game_undo_changes">Отменить изменения</string>
+    <string name="game_try_changes">Проверить изменения</string>
+    <string name="game_try_in_game">Проверить в игре</string>
+    <string name="game_exit">Выйти из игры</string>
+    <string name="game_exit_question">Выйти из игры?</string>
+    <string name="game_exit_warning">Несохранённый прогресс может быть потерян.</string>
+    <string name="game_leave_without_saving">Выйти без сохранения</string>
+    <string name="game_restart">Перезапустить игру</string>
+    <string name="game_restart_question">Перезапустить игру?</string>
+    <string name="game_restart_confirm">Перезапустить</string>
+    <string name="game_restart_warning">Несохранённый прогресс может быть потерян. Будут использованы сохранённые настройки.</string>
+    <string name="game_restart_preview_warning">Несохранённый прогресс может быть потерян. Будут использованы сохранённые настройки. Неподтверждённые изменения настроек будут отменены.</string>
+    <string name="game_restart_network">Для перезапуска сетевой игры вернитесь в комнату.</string>
+    <string name="game_restart_failed">Не удалось перезапустить игру. Прежние настройки сохранены.</string>
+    <string name="game_cancel">Отмена</string>
+    <string name="game_screenshot">Снимок экрана</string>
+    <string name="game_picture_size">Размер изображения</string>
+    <string name="game_smoothing">Сглаживание</string>
+    <string name="game_rotation">Поворот изображения</string>
+    <string name="game_orientation">Ориентация</string>
+    <string name="game_control_mode">Режим управления</string>
+    <string name="game_touch_visibility">Экранные кнопки</string>
+    <string name="game_controller_mapping">Назначение кнопок контроллера</string>
+    <string name="game_touch_layout">Сенсорная раскладка</string>
+    <string name="game_feedback">Тактильный отклик</string>
+    <string name="game_keypad_placement">Расположение клавиатуры</string>
+    <string name="game_legacy_editor">Прежний редактор раскладки</string>
+    <string name="game_touch_editor">Изменить сенсорную раскладку</string>
+    <string name="game_button_theme">Тема кнопок</string>
+    <string name="game_button_size">Размер кнопок</string>
+    <string name="game_portrait_position">Положение в портретной ориентации</string>
+    <string name="game_landscape_position">Положение в альбомной ориентации</string>
+    <string name="game_enhancements">Улучшения</string>
+    <string name="game_enhancements_experimental">Улучшения (экспериментально)</string>
+    <string name="game_image_preset">Предустановка изображения</string>
+    <string name="game_interpolation">Интерполяция кадров</string>
+    <string name="game_fine_tuning">Тонкая настройка</string>
+    <string name="game_image_fine_tuning">Тонкая настройка изображения</string>
+    <string name="game_capture_image">Изображение на снимке</string>
+    <string name="game_cpu_budget">Лимит процессорного времени</string>
+    <string name="game_fsr">Масштабирование FSR 1.0</string>
+    <string name="game_sharpness">Резкость</string>
+    <string name="game_gpu_required">Требуется OpenGL ES без пользовательского шейдера.</string>
+    <string name="game_retro_gpu_required">Для FSR, xBRZ и CRT требуется OpenGL ES без пользовательского шейдера.</string>
+    <string name="game_native_display_hint">Размер и поворот из раздела «Производительность и прочее» применятся при возобновлении игры.</string>
+    <string name="game_performance_advanced">Производительность и прочее</string>
+    <string name="game_save_settings_failed">Не удалось сохранить настройки. Прежние настройки не изменены.</string>
+    <string name="game_preview_failed">Не удалось показать это изображение. Прежние настройки восстановлены.</string>
+    <string name="game_compatibility_settings">Настройки совместимости</string>
+    <string name="game_screen_presets">Предустановки экрана</string>
+    <string name="game_phone_profile">Профиль телефона</string>
+    <string name="game_profile">Профиль</string>
+    <string name="game_current_settings">Текущие настройки</string>
+    <string name="game_auto_value">Авто (%1$s)</string>
+    <string name="game_phone_restart_warning">Требуется перезапуск. Несохранённый прогресс игры может быть потерян.</string>
+    <string name="game_restart_try">Перезапустить и проверить</string>
+    <string name="game_phone_resolution">Разрешение телефона</string>
+    <string name="game_resolution_value">%1$d x %2$d</string>
+    <string name="game_fps_limit">Ограничение частоты кадров</string>
+    <string name="game_fps_limit_value">Ограничение частоты кадров: %1$s</string>
+    <string name="game_fps_unlimited">Без ограничений</string>
+    <string name="game_fps_value">%1$d FPS</string>
+    <string name="game_screen_effect">Эффект экрана</string>
+    <string name="game_effect_intensity">Интенсивность эффекта</string>
+    <string name="game_screenshot_image">Изображение на снимке экрана</string>
+    <string name="game_speed">Скорость эмуляции</string>
+    <string name="game_speed_value">Скорость эмуляции: %1$d%%</string>
+    <string name="game_speed_normal">%1$d%% (обычная)</string>
+    <string name="game_percent_value">%1$d%%</string>
+    <string name="game_speed_needs_jar">Нужен исходный JAR. Импортируйте игру заново, сохранив её существующие сохранения, чтобы включить управление скоростью.</string>
+    <string name="game_fast_forward">Ускорение</string>
+    <string name="game_fast_forward_stop">Отключить ускорение</string>
+    <string name="game_fast_forward_value">Ускорение %1$d%%</string>
+    <string name="game_fast_forward_settings">Настройки ускорения</string>
+    <string name="game_target_speed">Целевая скорость</string>
+    <string name="game_controller_button">Кнопка контроллера</string>
+    <string name="game_controller_mode">Режим кнопки контроллера</string>
+    <string name="game_screen_shortcut">Экранная кнопка</string>
+    <string name="game_system_keyboard">Системная клавиатура</string>
+    <string name="game_save_log">Сохранить журнал</string>
+    <string name="game_legacy_controls">Прежнее управление</string>
+    <string name="game_finish_editing">Завершить редактирование</string>
+    <string name="game_move_buttons">Переместить кнопки</string>
+    <string name="game_resize_buttons">Изменить размер кнопок</string>
+    <string name="game_choose_layout">Выбрать раскладку</string>
+    <string name="game_visible_buttons">Видимые кнопки</string>
+    <string name="social_title">Общение</string>
+    <string name="social_experimental_notice">Сетевая игра: ранняя экспериментальная версия, низкая совместимость. Только Java-игры с Bluetooth; обоим игрокам нужна одна и та же версия игры. В некоторых сетях подключение невозможно.</string>
+    <string name="social_active_room">Вернуться в активную комнату</string>
+    <string name="social_lobbies">Лобби</string>
+    <string name="social_friends">Друзья</string>
+    <string name="social_chats">Чаты</string>
+    <string name="social_open_failed">Не удалось открыть раздел «Общение».</string>
+    <string-array name="game_picture_sizes">
+        <item>Исходный</item>
+        <item>Вписать</item>
+        <item>Растянуть</item>
+        <item>Целочисленный</item>
+    </string-array>
+    <string-array name="game_native_picture_sizes">
+        <item>Исходный</item>
+        <item>Вписать</item>
+        <item>Растянуть</item>
+    </string-array>
+    <string-array name="game_orientations">
+        <item>Авто</item>
+        <item>Портретная</item>
+        <item>Альбомная</item>
+    </string-array>
+    <string-array name="game_control_modes">
+        <item>Авто</item>
+        <item>Сенсорный экран</item>
+        <item>Контроллер</item>
+    </string-array>
+    <string-array name="game_touch_visibility_modes">
+        <item>Авто</item>
+        <item>Всегда</item>
+        <item>Выкл.</item>
+    </string-array>
+    <string-array name="game_touch_layouts">
+        <item>Телефон</item>
+        <item>Геймпад</item>
+        <item>Прежняя</item>
+    </string-array>
+    <string-array name="game_native_touch_layouts">
+        <item>Телефон</item>
+        <item>Геймпад</item>
+    </string-array>
+    <string-array name="game_keypad_placements">
+        <item>Отдельно</item>
+        <item>Поверх изображения</item>
+    </string-array>
+    <string-array name="game_button_themes">
+        <item>Как в приложении</item>
+        <item>Тёмная</item>
+        <item>Светлая</item>
+    </string-array>
+    <string-array name="game_button_sizes">
+        <item>Обычный</item>
+        <item>Крупный</item>
+        <item>Очень крупный</item>
+    </string-array>
+    <string-array name="game_touch_positions">
+        <item>Внизу</item>
+        <item>Выше</item>
+    </string-array>
+    <string-array name="game_capture_modes">
+        <item>С улучшениями</item>
+        <item>Исходное</item>
+    </string-array>
+    <string-array name="game_cpu_budgets">
+        <item>100% (исходный)</item>
+        <item>150%</item>
+        <item>200%</item>
+        <item>300%</item>
+    </string-array>
+    <string-array name="game_lcd_effects">
+        <item>Выкл.</item>
+        <item>Мягкий ЖК-экран</item>
+        <item>Классический ЖК-экран</item>
+    </string-array>
+    <string-array name="game_screenshot_modes">
+        <item>Без эффекта</item>
+        <item>С эффектом ЖК-экрана</item>
+    </string-array>
+    <string-array name="game_forward_buttons">
+        <item>Нет</item>
+        <item>L3</item>
+        <item>R3</item>
+        <item>L1</item>
+        <item>R1</item>
+        <item>L2</item>
+        <item>R2</item>
+        <item>A</item>
+        <item>B</item>
+        <item>X</item>
+        <item>Y</item>
+    </string-array>
+    <string-array name="game_forward_modes">
+        <item>Удержание</item>
+        <item>Переключение</item>
+    </string-array>
+    <string-array name="game_image_presets">
+        <item>Чёткие пиксели</item>
+        <item>Сглаживание</item>
+        <item>Улучшение (FSR)</item>
+        <item>xBRZ</item>
+        <item>CRT EasyMode</item>
+        <item>Своя</item>
+    </string-array>
+    <string-array name="game_software_image_presets">
+        <item>Чёткие пиксели</item>
+        <item>Сглаживание</item>
+        <item>Своя</item>
+    </string-array>
+    <string-array name="game_display_native_presets">
+        <item>Исходное</item>
+        <item>Мягкий ЖК-экран</item>
+        <item>Классический ЖК-экран</item>
+    </string-array>
+    <string-array name="game_display_gpu_presets">
+        <item>Исходное</item>
+        <item>Чёткие пиксели</item>
+        <item>Сглаживание</item>
+        <item>FSR</item>
+        <item>xBRZ</item>
+        <item>CRT</item>
+    </string-array>
+    <string-array name="game_display_software_presets">
+        <item>Исходное</item>
+        <item>Чёткие пиксели</item>
+        <item>Сглаживание</item>
+    </string-array>
+</resources>

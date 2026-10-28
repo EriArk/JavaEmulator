@@ -1,0 +1,91 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="transfer_options">Параметры переноса</string>
+    <string name="transfer_allow_access">Разрешить доступ к папке</string>
+    <string name="transfer_backup_java">Создать резервную копию Java / Mophun</string>
+    <string name="transfer_backup_library">Создать резервную копию библиотеки</string>
+    <string name="transfer_restore_java">Восстановить резервную копию Java / Mophun</string>
+    <string name="transfer_restore_backup">Восстановить резервную копию</string>
+    <string name="transfer_import_loader">Импортировать из J2ME Loader</string>
+    <string name="transfer_move_phone">Перенести из AbyssME Phone</string>
+    <string name="transfer_native_backups">Резервные копии телефонов Symbian / N-Gage</string>
+    <string name="transfer_games">Перенос игр</string>
+    <string name="transfer_select_all">Выбрать всё</string>
+    <string name="transfer_import">Импортировать</string>
+    <string name="transfer_restore">Восстановить</string>
+    <string name="transfer_import_count">Импортировать (%1$d)</string>
+    <string name="transfer_restore_count">Восстановить (%1$d)</string>
+    <string name="transfer_phone_help">В AbyssME Phone откройте «Настройки» &gt; «Библиотека» &gt; «Перенос библиотеки» и создайте резервную копию Java / Mophun. Затем восстановите этот ZIP-архив здесь. Игры, сохранения и поддерживаемые настройки игр переносятся вместе. Не удаляйте старое приложение, пока не проверите игры и сохранения.</string>
+    <string name="transfer_open_phone">Открыть AbyssME Phone</string>
+    <string name="transfer_phone_missing">AbyssME Phone не установлен</string>
+    <string name="transfer_native_help">Для Symbian / N-Gage используются отдельные резервные копии телефонов. Экспортируйте каждый телефон в старом приложении, затем восстановите его здесь вместе с установленными играми и сохранениями. Общие настройки приложения не переносятся.</string>
+    <string name="transfer_close_loader">Закройте J2ME Loader перед импортом. Исходные файлы останутся без изменений.</string>
+    <string name="transfer_whole_library">Вся библиотека</string>
+    <string name="transfer_single_game">Одна игра</string>
+    <string name="transfer_shared_conflict">При конфликте общих файлов сохраняются файлы, уже имеющиеся на этом устройстве.</string>
+    <string name="transfer_preserve_originals">Исходные файлы и существующие сохранения останутся без изменений.</string>
+    <string name="transfer_add_saves">Добавить сохранения</string>
+    <string name="transfer_add_settings">Добавить настройки</string>
+    <string name="transfer_shared_files">Общие файлы (сохранить существующие)</string>
+    <string name="transfer_done">Готово</string>
+    <string name="transfer_stopping">Безопасная остановка...</string>
+    <string name="transfer_no_saves_selected">Сохранения не выбраны</string>
+    <string name="transfer_no_saves_warning">Игра запустится без вашего предыдущего прогресса.</string>
+    <string name="transfer_without_saves">Импортировать без сохранений</string>
+    <string name="transfer_choose_folder">Выбрать папку</string>
+    <string name="transfer_saves_included">Сохранения включены</string>
+    <string name="transfer_saves_missing">Сохранения не найдены</string>
+    <string name="transfer_duplicate_notice">Уже установлено: импортируется как отдельная копия</string>
+    <string name="transfer_row_metadata">%1$s / %2$s\n%3$s</string>
+    <string-array name="transfer_folder_titles">
+        <item>Папка игры</item>
+        <item>Папка сохранений</item>
+        <item>Папка настроек</item>
+    </string-array>
+    <string-array name="transfer_folder_hints">
+        <item>J2ME Loader / converted / ваша игра</item>
+        <item>J2ME Loader / data / та же игра</item>
+        <item>J2ME Loader / configs / та же игра</item>
+    </string-array>
+    <string name="transfer_idle">Папка не выбрана</string>
+    <string name="transfer_reading_game">Чтение игры и сохранений...</string>
+    <string name="transfer_reading_library">Чтение библиотеки...</string>
+    <string name="transfer_cancelled">Отменено</string>
+    <string name="transfer_read_failed">Не удалось прочитать эту библиотеку. Попробуйте выбрать её заново.</string>
+    <string name="transfer_prepare">Подготовка импорта...</string>
+    <string name="transfer_importing">Импорт %1$s</string>
+    <string name="transfer_not_imported">%1$s\nНе импортировано: %2$s</string>
+    <string name="transfer_finished">Завершено. Импортировано: %1$d, ошибок: %2$d, не обработано: %3$d</string>
+    <string name="transfer_stopped">Остановлено. Импортировано: %1$d, ошибок: %2$d, не обработано: %3$d</string>
+    <string name="transfer_saving">Сохранение игр, сохранений и настроек...</string>
+    <string name="transfer_exit_before_backup">Выйдите из запущенной игры перед резервным копированием</string>
+    <string name="transfer_cannot_open_backup">Не удалось открыть резервную копию</string>
+    <string name="transfer_cannot_write_backup">Не удалось записать резервную копию</string>
+    <string name="transfer_backup_failed">Резервная копия не сохранена: %1$s</string>
+    <plurals name="transfer_games_found">
+        <item quantity="one">Найдена %1$d игра</item>
+        <item quantity="few">Найдено %1$d игры</item>
+        <item quantity="many">Найдено %1$d игр</item>
+        <item quantity="other">Найдено %1$d игры</item>
+    </plurals>
+    <plurals name="transfer_backup_saved">
+        <item quantity="one">Резервная копия сохранена: %1$d игра с сохранениями и настройками</item>
+        <item quantity="few">Резервная копия сохранена: %1$d игры с сохранениями и настройками</item>
+        <item quantity="many">Резервная копия сохранена: %1$d игр с сохранениями и настройками</item>
+        <item quantity="other">Резервная копия сохранена: %1$d игры с сохранениями и настройками</item>
+    </plurals>
+    <string name="installer_midlet">Установщик MIDlet</string>
+    <string name="installer_mophun">Установщик Mophun</string>
+    <string name="installer_choose_jar">Выбрать JAR</string>
+    <string name="installer_using_existing">Используется существующая игра</string>
+    <string name="installer_existing_unchanged">Сохранённый прогресс и настройки не изменены.</string>
+    <string name="installer_reinstall">Переустановить</string>
+    <string name="installer_update">Обновить</string>
+    <string name="installer_preparing">Подготовка игры</string>
+    <string name="installer_choose_game">Выберите игру</string>
+    <string name="installer_already_present">Уже в вашей библиотеке</string>
+    <string name="installer_duplicate_help">Используйте существующую копию с её текущими сохранениями и настройками или установите отдельно. Ничего не объединяется и не заменяется.</string>
+    <string name="installer_use_copy">Использовать %1$s\nВерсия %2$s / %3$s</string>
+    <string name="installer_separate">Установить отдельно</string>
+    <string name="installer_failed">Не удалось выполнить установку</string>
+</resources>

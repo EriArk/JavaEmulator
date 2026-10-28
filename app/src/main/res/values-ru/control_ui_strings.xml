@@ -1,0 +1,74 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="controls_use_mapping">Применить назначения</string>
+    <string name="controls_reset_layout">Сбросить раскладку</string>
+    <string name="controls_use_layout">Применить раскладку</string>
+    <string name="controls_preview">Предпросмотр</string>
+    <string name="controls_layout">Раскладка</string>
+    <string name="controls_position">Положение</string>
+    <string name="controls_style">Стиль</string>
+    <string name="controls_tab">Вкладка «%1$s»</string>
+    <string name="controls_block">Блок</string>
+    <string name="controls_block_size">Размер блока</string>
+    <string name="controls_block_size_value">Размер блока: %1$d%%</string>
+    <string name="controls_move_left">Сдвинуть влево</string>
+    <string name="controls_move_up">Сдвинуть вверх</string>
+    <string name="controls_move_down">Сдвинуть вниз</string>
+    <string name="controls_move_right">Сдвинуть вправо</string>
+    <string name="controls_touch_preview">Предпросмотр сенсорной раскладки</string>
+    <string name="controls_show_game">Показать элементы управления игрой</string>
+    <string name="controls_profile">Профиль управления</string>
+    <string name="controls_buttons">Кнопки</string>
+    <string name="controls_dpad">Крестовина</string>
+    <string name="controls_stick">Стик</string>
+    <string name="controls_keypad">Клавиатура</string>
+    <string name="controls_navigation">Навигация</string>
+    <string name="controls_shoulders">Плечевые и системные кнопки</string>
+    <string name="controls_left_stick">Левый стик</string>
+    <string name="controls_dpad_direction">Крестовина: %1$s</string>
+    <string name="controls_stick_direction">Стик: %1$s</string>
+    <string name="controls_preset_arrows">Стрелки</string>
+    <string name="controls_preset_numbers">Движение цифровыми клавишами</string>
+    <string name="controls_preset_eight_way">Цифры: восемь направлений</string>
+    <string name="controls_preset_diagonals">Диагонали цифровой клавиатуры</string>
+    <string name="controls_preset_actions">Действия цифровыми клавишами</string>
+    <string name="controls_soft_left">Левая софт-клавиша</string>
+    <string name="controls_soft_right">Правая софт-клавиша</string>
+    <string name="controls_up">Вверх</string>
+    <string name="controls_down">Вниз</string>
+    <string name="controls_left">Влево</string>
+    <string name="controls_right">Вправо</string>
+    <string name="controls_fire">ОК / Огонь</string>
+    <string name="controls_clear">Очистить</string>
+    <string name="controls_end_call">Завершить вызов</string>
+    <string name="controls_menu">Меню</string>
+    <string name="controls_phone_key">Клавиша телефона %1$s</string>
+    <string name="controls_preview_seconds">%1$d с</string>
+    <plurals name="controls_preview_remaining">
+        <item quantity="one">Предпросмотр настроек: осталась %1$d секунда</item>
+        <item quantity="few">Предпросмотр настроек: осталось %1$d секунды</item>
+        <item quantity="many">Предпросмотр настроек: осталось %1$d секунд</item>
+        <item quantity="other">Предпросмотр настроек: осталось %1$d секунды</item>
+    </plurals>
+    <string-array name="controls_preview_orientations">
+        <item>Портретная</item>
+        <item>Альбомная</item>
+    </string-array>
+    <string-array name="controls_phone_blocks">
+        <item>Клавиатура</item>
+    </string-array>
+    <string-array name="controls_gamepad_blocks">
+        <item>Направления</item>
+        <item>Действия</item>
+    </string-array>
+    <string-array name="controls_directions">
+        <item>Вверх</item>
+        <item>Вниз</item>
+        <item>Влево</item>
+        <item>Вправо</item>
+        <item>Вверх + влево</item>
+        <item>Вверх + вправо</item>
+        <item>Вниз + влево</item>
+        <item>Вниз + вправо</item>
+    </string-array>
+</resources>

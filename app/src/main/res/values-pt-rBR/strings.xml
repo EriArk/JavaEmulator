@@ -6,11 +6,40 @@
     <string name="help">Ajuda</string>
     <string name="more">Mais</string>
     <string name="search">Pesquisar</string>
+    <string name="library_title">BIBLIOTECA</string>
+    <string name="launcher_title">ABYSSME</string>
+    <string name="library_game_count">%1$d JOGOS</string>
+    <string name="launcher_ready">PRONTO</string>
+    <string name="launcher_all_games">TODOS OS JOGOS</string>
+    <string name="launcher_add_game">ADICIONAR JOGO</string>
+    <string name="launcher_recent">RECENTES</string>
+    <string name="launcher_favorites">FAVORITOS</string>
+    <string name="launcher_folders">PASTAS</string>
+    <string name="archive_choose_game">Escolha um jogo deste arquivo compactado</string>
+    <string name="fix_game_title">Qual é o problema?</string>
+    <string name="fix_game_size">Tamanho incorreto ou imagem cortada</string>
+    <string name="fix_game_flicker">Tela preta ou piscando</string>
+    <string name="fix_game_crash">Falha ao iniciar</string>
+    <string name="fix_game_controls">Os controles não funcionam</string>
+    <string name="fix_game_applied">Correção aplicada. Inicie o jogo para testá-la.</string>
+    <string name="add_favorite">Adicionar aos favoritos</string>
+    <string name="remove_favorite">Remover dos favoritos</string>
+    <string name="launcher_soft_select">A  SELECIONAR</string>
+    <string name="launcher_soft_back">B  VOLTAR</string>
+    <string name="launcher_soft_favorite">Y  FAVORITO</string>
+    <string name="launcher_soft_mode">L/R  TROCAR ABA</string>
+    <string name="launcher_search_hint">FILTRAR / PESQUISAR</string>
+    <string name="launcher_detail_title">DETALHES DO JOGO</string>
+    <string name="launcher_compatibility">Compatibilidade</string>
+    <string name="play">Jogar</string>
+    <string name="view_mode_gallery">Galeria</string>
+    <string name="view_mode_list">Lista</string>
+    <string name="view_mode_grid">Grade</string>
     <string name="licenses">Licenças</string>
     <string name="profiles">Perfis</string>
     <string name="save_log">Salvar registro</string>
-    <string name="about_message">Este aplicativo permite iniciar aplicativos e jogos J2ME no Android. Ele suporta a maioria dos jogos 2D e 3D (incluindo Mascot Capsule 3D).&lt;BR&gt;</string>
-    <string name="help_message">&#8226; Ativando a filtragem em alguns casos pode reduzir muito a performance. Desative esta opção se o jogo estiver muito lento.&lt;BR&gt;&#8226; Problemas de exibição de imagens podem ser corrigidos ao ativar a opção \"Modo de processamento imediato\".</string>
+    <string name="about_message">Um emulador J2ME para Android 10 ou mais recente, voltado a dispositivos portáteis e ao uso de controles.&lt;BR&gt;</string>
+    <string name="help_message">• Ativar a filtragem pode reduzir muito o desempenho em alguns casos. Desative esta opção se o jogo estiver muito lento.&lt;BR&gt;• Problemas de imagem piscando podem ser corrigidos ativando a opção \"Modo de processamento imediato\".</string>
     <string name="author">Autor: </string>
     <string name="version">Versão: </string>
     <string name="no_data_for_display">Sem dados</string>
@@ -22,21 +51,33 @@
     <string name="action_context_shortcut">Adicionar atalho</string>
     <string name="action_reinstall">Reinstalar</string>
     <string name="action_settings">Configurações</string>
-    <string name="action_context_delete">Apagar</string>
+    <string name="action_context_delete">Excluir</string>
     <string name="action_context_rename">Renomear</string>
+    <string name="action_change_artwork">Alterar capa</string>
     <string name="retry">tentar novamente</string>
-    <string name="err_missing_app">Aplicativo não encontrado.\nPor favor, verifique se o armazenamento %sesta disponível ou recrie o atalho.</string>
+    <string name="err_missing_app">Aplicativo não encontrado.\nVerifique a disponibilidade do armazenamento %s ou recrie o atalho.</string>
     <string name="error_disk_io">Erro de armazenamento: verifique o espaço no disco</string>
     <string name="create_apps_dir_failed">Falha ao criar uma pasta no caminho:\n\'%s\'\nselecione outra.</string>
     <string name="change">Alterar</string>
     <string name="choose">Escolher</string>
     <string name="warning">Atenção</string>
     <string name="scoped_storage_warning">Seus dados de usuário são armazenados em um local que <b>será excluído</b> quando você desinstalar o aplicativo:\n</string>
-    <string name="midlet_name"><b>Nome: </b></string>
-    <string name="midlet_size"><b>Tamanho: </b></string>
-    <string name="midlet_source"><b>Fonte: </b></string>
-    <string name="midlet_vendor"><b>Fabricante: </b></string>
-    <string name="midlet_version"><b>Versão: </b></string>
+    <string name="error_no_picker">Instale um aplicativo seletor de arquivos</string>
+    <string name="midlet_name">
+        <b>Nome: </b>
+    </string>
+    <string name="midlet_size">
+        <b>Tamanho: </b>
+    </string>
+    <string name="midlet_source">
+        <b>Origem: </b>
+    </string>
+    <string name="midlet_vendor">
+        <b>Fornecedor: </b>
+    </string>
+    <string name="midlet_version">
+        <b>Versão: </b>
+    </string>
     <string name="converting_wait">Convertendo JAR...</string>
     <string name="install">instalar</string>
     <string name="install_done">Aplicativo instalado com sucesso!</string>
@@ -44,8 +85,8 @@
     <string name="install_jar_needed">Selecione o arquivo JAR</string>
     <string name="invalid_resolution_not_saved">Resoluções inválidas: não salvas!</string>
     <string name="warn_install_from_net">O arquivo será baixado da Internet</string>
-    <string name="reinstall">Aplicativo já instalado.\n\nVocê deseja reinstalá-lo?\nTodos os dados serão salvos.</string>
-    <string name="reinstall_newest">Atualizar esta aplicação para a versão %1$s?\n\nAtualmente instalado: %2$s\nTodos os dados serão salvos.</string>
+    <string name="reinstall">Aplicativo já instalado.\n\nDeseja reinstalá-lo?\nTodos os dados serão preservados.</string>
+    <string name="reinstall_newest">Atualizar este aplicativo para a versão %1$s?\n\nVersão instalada: %2$s\nTodos os dados serão preservados.</string>
     <string name="reinstall_older">Substituir este aplicativo pela versão %1$s?\n\nInstalada atualmente: %2$s\nA versão mais antiga pode não funcionar corretamente com os dados registrados.</string>
     <string name="loading_info">Carregando informações…</string>
     <string name="START_CMD">Iniciar</string>
@@ -65,17 +106,18 @@
     <string name="PREF_FORCE_FULLSCREEN">Forçar tela cheia</string>
     <string name="PREF_LIMIT_FPS">Limite de FPS</string>
     <string name="PREF_FONT_OPTIONS">Opções de fonte</string>
+    <string name="font_size_auto">Automático</string>
     <string name="PREF_WIDTH">Largura</string>
     <string name="PREF_HEIGHT">Altura</string>
     <string name="PREF_FONT_SMALL">Pequena</string>
     <string name="PREF_FONT_MEDIUM">Média</string>
     <string name="PREF_FONT_LARGE">Grande</string>
-    <string name="PREF_FONT_SIZE_IN_SP">Os valores estão em Pixels Escalonados</string>
+    <string name="PREF_FONT_SIZE_IN_SP">Os valores estão em pixels escalonados</string>
     <string name="PREF_BACKGROUND">Cor de fundo</string>
     <string name="PREF_VIRTUAL_KEYBOARD_OPTIONS">Teclado virtual</string>
     <string name="PREF_VK_SHOW">Exibir o teclado</string>
-    <string name="PREF_VK_FEEDBACK">Feedback tátil</string>
-    <string name="PREF_VK_FORCE_OPACITY">Forçar opacidade dos botões fora da tela</string>
+    <string name="PREF_VK_FEEDBACK">Resposta tátil</string>
+    <string name="PREF_VK_FORCE_OPACITY">Forçar opacidade das teclas fora da tela</string>
     <string name="PREF_TOUCH_INPUT">Entrada por toque</string>
     <string name="PREF_HW_ACCELERATION">Aceleração de HW (instável)</string>
     <string name="pref_graphics_software">Software</string>
@@ -86,19 +128,19 @@
     <string name="PREF_VK_FORE">Rótulos</string>
     <string name="PREF_VK_OUTLINE">Contorno</string>
     <string name="PREF_VK_ALPHA">Opacidade: </string>
-    <string name="PREF_VK_HIDE_DELAY">Esconder atraso: </string>
+    <string name="PREF_VK_HIDE_DELAY">Atraso para ocultar: </string>
     <string name="PREF_UNIT_MS">ms</string>
     <string name="PREF_VK_SEL_FORE">Rótulos (P)</string>
     <string name="PREF_VK_SEL_BACK">Botões (P)</string>
     <string name="PREF_VK_KEY_SIZES">Tamanho dos botões</string>
-    <string name="PREF_VK_NAV_KEYS">Controle: </string>
+    <string name="PREF_VK_NAV_KEYS">Direcional: </string>
     <string name="PREF_VK_SOFT_KEYS">Teclas de função: </string>
     <string name="PREF_VK_NUM_KEYS">Dígitos: </string>
-    <string name="PREF_VK_FIRE_KEY">Escolher: </string>
+    <string name="PREF_VK_FIRE_KEY">Disparo: </string>
     <string name="PREF_VK_SIZE_HINT">Tamanho</string>
     <string name="SIZE_PRESETS">Predefinições</string>
-    <string name="SWAP_SIZES">Inverter resolução</string>
-    <string name="PREF_SYS_PROPS">Propriedades do Sistema</string>
+    <string name="SWAP_SIZES">Trocar tamanhos</string>
+    <string name="PREF_SYS_PROPS">Propriedades do sistema</string>
     <string name="PREF_ORIENTATION">Orientação da tela</string>
     <string name="pref_orientation_default">Padrão</string>
     <string name="pref_orientation_auto">Automático</string>
@@ -109,34 +151,36 @@
     <string name="PREF_VK_TYPE">Tipo de teclado</string>
     <string name="pref_vk_type_arrows">Setas</string>
     <string name="pref_vk_type_arrows_numbers">Setas &amp; números</string>
-    <string name="pref_vk_type_custom">Personalizar</string>
+    <string name="pref_vk_type_custom">Personalizado</string>
     <string name="pref_vk_type_numbers">Números</string>
     <string name="pref_vk_type_numbers_arrows">Números &amp; setas</string>
     <string name="pref_vk_type_phone">Telefone</string>
     <string name="pref_vk_type_phone_arrows">Telefone (setas)</string>
     <string name="PREF_LAYOUT">Layout</string>
+    <string name="pref_handheld_controls_preset">Predefinição de controles para portátil</string>
+    <string name="pref_handheld_controls_preset_applied">Predefinição de controles para portátil aplicada</string>
     <string name="PREF_SHADER_FILTER">Shader:</string>
     <string name="identity_filter">Rápido (sem filtro)</string>
-    <string name="shader_tuning">Ajustar Shader</string>
+    <string name="shader_tuning">Ajustes do shader</string>
     <string name="reset">Redefinir</string>
     <string name="pref_input_devices_title">Dispositivos de entrada</string>
-    <string name="pref_graphics_mode_title">Modos de gráfico:</string>
-    <string name="PREF_FONT_ANTI_ALIASING">Anti-Serrilhado</string>
-    <string name="pref_screen_gravity">Gravidade da tela</string>
+    <string name="pref_graphics_mode_title">Modo gráfico:</string>
+    <string name="PREF_FONT_ANTI_ALIASING">Suavização de bordas</string>
+    <string name="pref_screen_gravity">Alinhamento da tela</string>
     <string name="pref_screen_gravity_bottom">Inferior</string>
     <string name="pref_screen_gravity_center">Centro</string>
-    <string name="pref_screen_gravity_left">Esquerdo</string>
+    <string name="pref_screen_gravity_left">Esquerda</string>
     <string name="pref_screen_gravity_right">Direita</string>
     <string name="pref_screen_gravity_top">Superior</string>
-    <string name="pref_screen_scale_type">Tipo de Escala</string>
+    <string name="pref_screen_scale_type">Tipo de escala</string>
     <string name="pref_screen_scale_type_fill">Preencher janela (ignorar proporção de aspecto)</string>
-    <string name="pref_screen_scale_type_fit">Ajuste para caber na janela</string>
-    <string name="pref_screen_scale_type_none">Estilo padrão</string>
+    <string name="pref_screen_scale_type_fit">Ajustar à janela</string>
+    <string name="pref_screen_scale_type_none">Sem redimensionamento</string>
     <string name="pref_vk_hide_hint">desativado</string>
     <string name="unlimited">ilimitado</string>
     <string name="parallel_screen_redrawing">Redesenho de tela paralelo</string>
     <string name="saved">Salvo</string>
-    <string name="FORCE_CLOSE_CONFIRMATION">O fechamento forçado do aplicativo pode resultar em perda de dados ou até mesmo interrompê-lo completamente!\nContinuar?</string>
+    <string name="FORCE_CLOSE_CONFIRMATION">Forçar o fechamento do aplicativo pode causar perda de dados ou até deixá-lo completamente inutilizável!\nContinuar?</string>
     <string name="CONFIRMATION_REQUIRED">Confirmação necessária</string>
     <string name="select_dialog_title">Selecionar MIDlet</string>
     <string name="crash_dialog_message">Deseja enviar um relatório de erro ao desenvolvedor?</string>
@@ -150,49 +194,77 @@
     <string name="hide_buttons">Ocultar botões</string>
     <string name="take_screenshot">Tirar captura de tela</string>
     <string name="screenshot_saved">Captura de tela salva em</string>
-    <string name="log_saved">Log foi salvo</string>
+    <string name="log_saved">Registro salvo</string>
     <string name="action_keyboard_ime">Teclado (IME)</string>
     <string name="action_lock_orientation">Bloquear rotação de tela</string>
-    <string name="pref_vk_save_alert">O Teclado Personalizado será substituído por\nSalvar?</string>
+    <string name="pref_vk_save_alert">O teclado personalizado será substituído pelo atual.\nSalvar?</string>
     <string name="opt_save_screen_params">salvar parâmetros de tela</string>
     <string name="cmd_menu">Menu</string>
     <string name="dismiss">Descartar</string>
-    <string name="pref_theme_auto_battery">Automático, por Economia de Bateria</string>
+    <string name="show">Mostrar</string>
+    <string name="quick_map_title">Controles</string>
+    <string name="quick_map_pick_target">Escolha uma tecla do telefone e pressione um botão do controle ou mova o analógico.</string>
+    <string name="quick_map_waiting">Mapeando %1$s: pressione um botão ou mova o analógico</string>
+    <string name="quick_map_saved">%1$s mapeado para %2$s</string>
+    <string name="quick_settings_size">Tamanho</string>
+    <string name="quick_settings_orientation">Orientação</string>
+    <string name="quick_settings_scale">Escala</string>
+    <string name="quick_settings_look">Aparência</string>
+    <string name="quick_settings_view">Visualização</string>
+    <string name="quick_settings_screen">Tela</string>
+    <string name="quick_settings_controls">Controles</string>
+    <string name="quick_display_preset_pixel">Pixel</string>
+    <string name="quick_display_preset_smooth">Suave</string>
+    <string name="quick_display_preset_sharp">Nítido</string>
+    <string name="quick_display_preset_full">Completo</string>
+    <string name="compatibility_test_title">Preparando jogo</string>
+    <string name="compatibility_test_starting">Iniciando análise...</string>
+    <string name="compatibility_test_manifest">Lendo manifesto do MIDlet</string>
+    <string name="compatibility_test_resources">Verificando recursos e indícios de APIs</string>
+    <string name="compatibility_test_profile">Verificando indícios de %1$s</string>
+    <string name="compatibility_test_save">Salvando análise: %1$s</string>
+    <string name="compatibility_test_done">Preparação concluída. Iniciando...</string>
+    <string name="compatibility_test_failed">Não foi possível salvar a preparação do jogo. Verifique o espaço disponível e tente novamente.</string>
+    <string name="compatibility_test_retry">Tentar novamente</string>
+    <string name="pref_theme_auto_battery">Automático, pela economia de bateria</string>
     <string name="pref_theme_auto_time">Automático, por hora do dia</string>
     <string name="pref_theme_light">Claro</string>
     <string name="pref_theme_night">Escuro</string>
     <string name="pref_theme_system">Seguir as configurações do sistema</string>
     <string name="pref_theme_title">Tema</string>
     <string name="pref_requires_restart_summary">Requer reinicialização</string>
-    <string name="pref_enable_actionbar_title">Ativar Barra de Ação</string>
+    <string name="pref_enable_actionbar_title">Ativar barra de ações</string>
     <string name="pref_enable_actionbar_summary">Em aplicativos em tela cheia</string>
+    <string name="pref_black_background_title">Fundo preto</string>
+    <string name="pref_black_background_summary">Para o tema escuro</string>
     <string name="pref_enable_statusbar_title">Ativar barra de status</string>
+    <string name="pref_add_cutout_area_title">Incluir área do recorte da tela</string>
     <string name="pref_wakelock_title">Manter a tela ligada</string>
     <string name="pref_vibration_title">Ativar vibração</string>
     <string name="pref_button_shape_title">Formato dos botões</string>
-    <string name="pref_button_shape_oval">Redondo</string>
-    <string name="pref_button_shape_rect">Quadrado</string>
-    <string name="pref_button_shape_round">Quadrado arredondado</string>
+    <string name="pref_button_shape_oval">Oval</string>
+    <string name="pref_button_shape_rect">Retângulo</string>
+    <string name="pref_button_shape_round">Retângulo arredondado</string>
     <string name="pref_app_sort_title">Ordem de classificação</string>
     <string name="pref_app_sort_name">Nome</string>
     <string name="pref_app_sort_date">Data</string>
-    <string name="pref_app_sort_vendor">Fabricante</string>
-    <string name="pref_map_keys">Mapeamento do teclado</string>
+    <string name="pref_app_sort_vendor">Fornecedor</string>
+    <string name="pref_map_keys">Mapeamento de teclas</string>
     <string name="pref_encoding_title">Codificação</string>
     <string name="pref_default_settings">Configurações padrão</string>
-    <string name="pref_emulator_dir">Pasta padrão</string>
+    <string name="pref_emulator_dir">Diretório de trabalho</string>
     <string name="pref_screenshot_summary">Desativar escala e filtragem para capturas de tela</string>
-    <string name="pref_screenshot_title">Captura de tela em raw</string>
+    <string name="pref_screenshot_title">Captura de tela sem processamento</string>
     <string name="pref_category_experimental">Opções experimentais/temporárias</string>
     <string name="pref_mascot_summary">Mostrar mensagem ao usar</string>
     <string name="pref_mascot_title">Detectar Mascot Capsule 3D</string>
     <string name="mapping_dialog_message">Mapeamento atual: %1$s</string>
     <string name="mapping_dialog_key_not_specified">não especificado</string>
-    <string name="mapping_dialog_title">Pressione um botão</string>
+    <string name="mapping_dialog_title">Pressione uma tecla</string>
     <string name="reset_mapping">Redefinir</string>
     <string name="alert_map_menu">Tecla de menu (M) não está atribuída!\nIsto pode impossibilitar o acesso às opções do emulador</string>
     <string name="save">Salvar</string>
-    <string name="error_name">Digitar nome!</string>
+    <string name="error_name">Digite um nome!</string>
     <string name="set_as_default">Definir como padrão</string>
     <string name="edit">Editar</string>
     <string name="add">Adicionar</string>
@@ -204,4 +276,48 @@
     <string name="default_label">"%s (padrão)"</string>
     <string name="not_saved_exists">Já existe</string>
     <string name="alert_rewrite_profile">Um perfil chamado \"%1$s\" já existe.\nVocê deseja substituí-lo?</string>
+    <string name="capture_screenshot">Capturar tela</string>
+    <string name="screenshot_button">Botão de captura de tela</string>
+    <string name="display_button">Botão de exibição</string>
+    <string name="on_screen_shortcuts">Atalhos na tela</string>
+    <string name="game_shortcut_appearance">Alça e opacidade</string>
+    <string name="game_handle_visible">Mostrar alça dos controles</string>
+    <string name="game_handle_move">Mover alça</string>
+    <string name="game_handle_editor">Alça do menu</string>
+    <string name="game_handle_back_hint">Use o botão Voltar do Android para abrir o menu do jogo. Deslize a partir da borda da tela se a navegação estiver oculta.</string>
+    <string name="game_shortcut_opacity">Opacidade dos atalhos</string>
+    <string name="touch_button_opacity">Opacidade dos botões de toque</string>
+    <string name="touch_button_opacity_value">Opacidade dos botões de toque: %1$d%%</string>
+    <string name="touch_contrast_opacity">O alto contraste mantém os botões totalmente opacos.</string>
+    <string name="screenshot_gallery_saved">Captura de tela salva em Pictures/AbyssME</string>
+    <string name="screenshot_failed">Não foi possível salvar a captura de tela</string>
+    <string name="touch_mapping_tab">Botões</string>
+    <string name="touch_mapping_reset">Redefinir mapeamentos dos botões</string>
+    <string name="touch_positions_reset">Redefinir posições do layout</string>
+    <string name="touch_mapping_template">Modelo</string>
+    <string name="touch_mapping_button">Botão</string>
+    <string name="touch_mapping_default">Padrão</string>
+    <string name="touch_mapping_default_description">Mapeamento padrão; diagonais seguem as direções</string>
+    <string-array name="touch_mapping_templates">
+        <item>Setas nativas</item>
+        <item>Teclado numérico 2/4/6/8 + 5</item>
+        <item>Personalizado</item>
+    </string-array>
+    <string-array name="touch_mapping_buttons">
+        <item>Cima</item>
+        <item>Baixo</item>
+        <item>Esquerda</item>
+        <item>Direita</item>
+        <item>OK / Disparo</item>
+        <item>Cima + esquerda</item>
+        <item>Cima + direita</item>
+        <item>Baixo + esquerda</item>
+        <item>Baixo + direita</item>
+        <item>Tecla de função esquerda</item>
+        <item>Tecla de função direita</item>
+        <item>Ação superior</item>
+        <item>Ação esquerda</item>
+        <item>Ação direita</item>
+        <item>Ação inferior</item>
+    </string-array>
 </resources>

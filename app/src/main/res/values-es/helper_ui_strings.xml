@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="helper_fix_game">Corregir juego</string>
+    <string name="helper_engine_missing">Esta versión no incluye el motor de este juego</string>
+    <string name="helper_import_unavailable">No se puede abrir el importador de juegos</string>
+    <string name="helper_close">Cerrar</string>
+    <string name="helper_opening_game">Abriendo juego</string>
+    <string name="helper_cannot_open_game">No se puede abrir el juego</string>
+    <string name="helper_reading_launch">Leyendo archivo de lanzamiento…</string>
+    <string name="helper_retry">Reintentar</string>
+    <string name="helper_prepare_failed">No se pudo preparar el juego</string>
+    <string name="helper_exit">Salir</string>
+    <string name="helper_undo">Deshacer</string>
+    <string name="helper_try_in_game">Probar en el juego</string>
+    <string name="helper_try_settings">¿Probar los ajustes?</string>
+    <string name="helper_fix_default">Prueba las propiedades de compatibilidad predeterminadas, 240 x 320 y un renderizador básico.</string>
+    <string name="helper_fix_fit">Ajustar la imagen, conservar las proporciones y centrarla.</string>
+    <string name="helper_expert_hide">Ocultar ajustes avanzados</string>
+    <string name="helper_fix_renderer">Prueba otro renderizador con dibujado inmediato.</string>
+    <string name="helper_keep">Conservar</string>
+    <string name="helper_expert">Ajustes avanzados</string>
+    <string name="helper_launch_failed">No se pudo iniciar el juego. Se conservaron los ajustes anteriores.</string>
+    <string name="helper_restart_failed">No se pudo reiniciar el juego. Se conservaron los ajustes anteriores.</string>
+    <string name="helper_settings_failed">No se pudieron preparar los ajustes</string>
+    <string name="helper_mapper_error">Error</string>
+    <string name="helper_network_setup">Prepara los ajustes de este juego antes de unirte a una partida en red.</string>
+    <string name="helper_apply_failed">No se pudieron aplicar los ajustes. Se usarán los guardados.</string>
+    <string name="helper_report_saved">No se pudo enviar el informe. Guardado en:\n%1$s</string>
+    <string name="helper_report_failed">No se pudo enviar el informe.</string>
+</resources>

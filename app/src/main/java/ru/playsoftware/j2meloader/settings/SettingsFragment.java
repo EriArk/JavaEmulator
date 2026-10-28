@@ -39,6 +39,13 @@ public class SettingsFragment extends PreferenceFragmentCompat {
 	public void onCreatePreferences(Bundle bundle, String rootKey) {
 		setPreferencesFromResource(R.xml.preferences, rootKey);
 		styleRows(getPreferenceScreen());
+		Preference language = findPreference("pref_language");
+		if (language != null) {
+			language.setTitle(getString(R.string.settings_language));
+			String selected = ru.playsoftware.j2meloader.util.AppLanguage.selected(requireContext());
+			language.setSummary(languageName(selected));
+			language.setOnPreferenceClickListener(p -> { showLanguages(); return true; });
+		}
 		if (rootKey == null) {
 			Preference account = new Preference(requireContext()); account.setKey("pref_fluxer_account");
 			account.setTitle(R.string.settings_fluxer_account); account.setIcon(android.R.drawable.ic_menu_myplaces);
@@ -114,6 +121,31 @@ public class SettingsFragment extends PreferenceFragmentCompat {
 		}
 	}
 
+    private String languageName(String tag) {
+        if (tag.isEmpty()) return getString(R.string.language_system);
+        if (tag.equals("en")) return getString(R.string.language_english);
+        if (tag.equals("es")) return getString(R.string.language_spanish);
+        if (tag.equals("pt-BR")) return getString(R.string.language_portuguese_brazil);
+        if (tag.equals("ru")) return getString(R.string.language_russian);
+        return java.util.Locale.forLanguageTag(tag).getDisplayName(java.util.Locale.forLanguageTag(tag));
+    }
+
+    private void showLanguages() {
+        if (choiceDialog != null) choiceDialog.dismiss();
+        String selected = ru.playsoftware.j2meloader.util.AppLanguage.selected(requireContext());
+        ru.playsoftware.j2meloader.input.GameMenuDialog menu = new ru.playsoftware.j2meloader.input.GameMenuDialog(
+                requireContext(), getString(R.string.settings_language));
+        choiceDialog = menu; menu.useEdgePanel(); menu.show(); menu.page(getString(R.string.settings_language));
+        for (String tag : ru.playsoftware.j2meloader.util.AppLanguage.TAGS) {
+            menu.selectionAction(languageName(tag), tag.equals(selected), () -> {
+                menu.dismiss();
+                try { ru.playsoftware.j2meloader.util.AppLanguage.select(requireContext(), tag); }
+                catch (RuntimeException error) { Toast.makeText(requireContext(), R.string.language_failed, Toast.LENGTH_LONG).show(); }
+            });
+        }
+        menu.setOnDismissListener(d -> { if (choiceDialog == menu) choiceDialog = null; });
+    }
+
     @Override public void onViewCreated(android.view.View view, Bundle state) {
         super.onViewCreated(view, state);
         androidx.recyclerview.widget.RecyclerView list = getListView();
@@ -140,10 +172,8 @@ public class SettingsFragment extends PreferenceFragmentCompat {
         CharSequence[] entries = list.getEntries(), values = list.getEntryValues();
         for (int i = 0; i < entries.length; i++) {
             String value = values[i].toString();
-            android.widget.Button button = menu.action(entries[i].toString(),
-                    value.equals(list.getValue()) ? android.R.drawable.radiobutton_on_background : android.R.drawable.radiobutton_off_background,
+            menu.selectionAction(entries[i].toString(), value.equals(list.getValue()),
                     () -> { menu.dismiss(); if (list.callChangeListener(value)) list.setValue(value); });
-            button.setSelected(value.equals(list.getValue()));
         }
         menu.setOnDismissListener(d -> { if (choiceDialog == menu) choiceDialog = null; });
     }

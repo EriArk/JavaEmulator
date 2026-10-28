@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="helper_fix_game">Corrigir jogo</string>
+    <string name="helper_engine_missing">Esta compilação não inclui o mecanismo necessário para este jogo</string>
+    <string name="helper_import_unavailable">Não é possível abrir o importador de jogos</string>
+    <string name="helper_close">Fechar</string>
+    <string name="helper_opening_game">Abrindo jogo</string>
+    <string name="helper_cannot_open_game">Não é possível abrir o jogo</string>
+    <string name="helper_reading_launch">Lendo arquivo de inicialização...</string>
+    <string name="helper_retry">Tentar novamente</string>
+    <string name="helper_prepare_failed">Não foi possível preparar o jogo</string>
+    <string name="helper_exit">Sair</string>
+    <string name="helper_undo">Desfazer</string>
+    <string name="helper_try_in_game">Testar no jogo</string>
+    <string name="helper_try_settings">Testar as configurações?</string>
+    <string name="helper_fix_default">Teste as propriedades de compatibilidade padrão, 240 x 320 e um renderizador básico.</string>
+    <string name="helper_fix_fit">Ajuste a imagem, preserve as proporções e centralize-a.</string>
+    <string name="helper_expert_hide">Ocultar configurações avançadas</string>
+    <string name="helper_fix_renderer">Teste outro renderizador com desenho imediato.</string>
+    <string name="helper_keep">Manter</string>
+    <string name="helper_expert">Configurações avançadas</string>
+    <string name="helper_launch_failed">Não foi possível iniciar o jogo. As configurações anteriores foram mantidas.</string>
+    <string name="helper_restart_failed">Não foi possível reiniciar o jogo. As configurações anteriores foram mantidas.</string>
+    <string name="helper_settings_failed">Não foi possível preparar as configurações</string>
+    <string name="helper_mapper_error">Erro</string>
+    <string name="helper_network_setup">Prepare as configurações deste jogo antes de entrar em um jogo em rede.</string>
+    <string name="helper_apply_failed">Não foi possível aplicar as configurações. Usando as configurações salvas.</string>
+    <string name="helper_report_saved">Não foi possível enviar o relatório. Salvo no arquivo:\n%1$s</string>
+    <string name="helper_report_failed">Não foi possível enviar o relatório.</string>
+</resources>

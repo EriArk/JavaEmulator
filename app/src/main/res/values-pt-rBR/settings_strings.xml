@@ -1,0 +1,50 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="settings_title">Configurações</string>
+    <string name="settings_visual_style">Estilo visual</string>
+    <string name="settings_brightness">Brilho</string>
+    <string name="settings_library">Biblioteca</string>
+    <string name="settings_game_folders">Pastas de jogos</string>
+    <string name="settings_library_transfer">Transferência da biblioteca</string>
+    <string name="settings_playing">Durante o jogo</string>
+    <string name="settings_vibration">Vibração do jogo</string>
+    <string name="settings_keep_awake">Manter a tela ligada ao jogar</string>
+    <string name="settings_support">Suporte</string>
+    <string name="settings_diagnostics">Exportar diagnósticos locais</string>
+    <string name="settings_expert">Configurações avançadas</string>
+    <string name="settings_about">Sobre o AbyssME</string>
+    <string name="settings_fluxer_account">Conta do Fluxer</string>
+    <string name="settings_system_files">Arquivos de sistema</string>
+    <string name="settings_system_files_summary">Arquivos necessários para Symbian e N-Gage</string>
+    <string name="folders_scanning">Verificando pasta...</string>
+    <string name="folders_add_failed">Não foi possível adicionar a pasta: %1$s</string>
+    <string name="folders_none_selected">Nenhuma pasta selecionada</string>
+    <plurals name="folders_selected">
+        <item quantity="one">%1$d pasta</item>
+        <item quantity="other">%1$d pastas</item>
+    </plurals>
+    <string name="folders_scan_summary">%1$d adicionados, %2$d já estão na biblioteca</string>
+    <string name="folders_no_games">Nenhum jogo compatível encontrado</string>
+    <plurals name="folders_unreadable">
+        <item quantity="one">Não foi possível ler %1$d pasta</item>
+        <item quantity="other">Não foi possível ler %1$d pastas</item>
+    </plurals>
+    <string name="folders_scan_limit">Limite de verificação atingido. Selecione uma pasta menor para os arquivos restantes.</string>
+    <string name="folders_access_required">Não é possível ler esta pasta. Selecione-a novamente para conceder acesso.</string>
+    <string name="folders_provider_empty">O provedor de arquivos não retornou esta pasta.</string>
+    <string name="folders_provider_loading">Esta pasta ainda está carregando. Aguarde o provedor de arquivos e tente novamente.</string>
+    <string name="folders_read_failed">Não é possível ler esta pasta. %1$s</string>
+    <string name="folders_retry_provider">Selecione-a novamente ou use outro provedor de arquivos.</string>
+    <string name="menu_back">Voltar</string>
+    <string name="menu_close">Fechar</string>
+    <string name="menu_keep">Manter</string>
+    <string name="menu_undo">Desfazer</string>
+    <string name="menu_opacity">Opacidade</string>
+    <string name="menu_percentage">%1$s: %2$d%%</string>
+    <string name="menu_picture_preset">Predefinição de imagem %1$s</string>
+    <string-array name="palette_names">
+        <item>Clássico</item>
+        <item>LCD retrô</item>
+        <item>Alto contraste</item>
+    </string-array>
+</resources>

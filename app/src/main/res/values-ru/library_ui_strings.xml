@@ -1,0 +1,80 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="library_menu_title">Меню библиотеки</string>
+    <string name="library_collection">Коллекция</string>
+    <string name="library_all_games">Все игры</string>
+    <string name="library_recent">Недавние</string>
+    <string name="library_favorites">Избранное</string>
+    <string name="library_all_generations">Все</string>
+    <string name="library_generation">Поколение N-Gage</string>
+    <string name="library_generation_value">Поколение N-Gage: %1$s</string>
+    <string name="library_collection_value">Коллекция: %1$s</string>
+    <string name="library_play_last">Продолжить: %1$s</string>
+    <string name="library_view_value">Вид: %1$s</string>
+    <string name="library_cover_format_value">Формат обложки: %1$s</string>
+    <string name="library_view">Вид</string>
+    <string name="library_cover_format">Формат обложек в галерее</string>
+    <string name="library_gallery">Галерея</string>
+    <string name="library_list">Список</string>
+    <string name="library_grid">Сетка</string>
+    <string name="library_sort">Сортировка</string>
+    <string name="library_sort_by">Сортировать по</string>
+    <string name="library_reverse">Обратный порядок</string>
+    <string name="library_add_game">Добавить игру</string>
+    <string name="library_add_folder">Добавить папку</string>
+    <string name="library_close_search">Закрыть поиск</string>
+    <string name="library_no_matches">Подходящих игр нет</string>
+    <string name="library_no_favorites">В этой коллекции нет избранных игр</string>
+    <string name="library_no_recent">В этой коллекции нет недавно запущенных игр</string>
+    <string name="library_no_platform_games">Нет игр для %1$s</string>
+    <string name="library_no_games">Игр пока нет</string>
+    <string name="library_actions">Действия с игрой</string>
+    <string name="library_play">Играть</string>
+    <string name="library_information">Сведения об игре</string>
+    <string name="library_add_favorite">В избранное</string>
+    <string name="library_remove_favorite">Убрать из избранного</string>
+    <string name="library_edit_card">Изменить карточку</string>
+    <string name="library_card_title">Название</string>
+    <string name="library_game_title">Название игры</string>
+    <string name="library_enter_title">Введите название</string>
+    <string name="library_save_title_failed">Не удалось сохранить название. %1$s</string>
+    <string name="library_save">Сохранить</string>
+    <string name="library_delete_question">Удалить игру?</string>
+    <string name="library_delete_warning">Будут удалены установленная игра, её настройки и сохранения. Исходные файлы останутся.</string>
+    <string name="library_delete">Удалить игру</string>
+    <string name="library_artwork">Оформление</string>
+    <string name="library_icon">Значок</string>
+    <string name="library_cover">Обложка</string>
+    <string name="library_choose_image">Выбрать изображение</string>
+    <string name="library_use_automatic">Подбирать автоматически</string>
+    <string name="library_refresh_art">Обновить автоматическое оформление</string>
+    <string name="library_refresh_art_question">Обновить автоматическое оформление?</string>
+    <string name="library_replace_legacy_art">Заменить прежнее оформление, оставив собственные изображения</string>
+    <string name="library_artwork_failed">Не удалось обновить оформление</string>
+    <string name="library_launch_export">Экспортировать файл запуска</string>
+    <string name="library_launch_exported">Файл запуска экспортирован</string>
+    <string name="library_export_failed">Не удалось выполнить экспорт</string>
+    <string name="library_uninstall_phone">Удалить с телефона</string>
+    <string name="library_settings_load_failed">Не удалось загрузить настройки игры.</string>
+    <string name="library_settings_prepare_failed">Не удалось подготовить настройки.</string>
+    <string-array name="library_collections">
+        <item>@string/library_all_games</item>
+        <item>@string/library_recent</item>
+        <item>@string/library_favorites</item>
+    </string-array>
+    <string-array name="library_view_modes">
+        <item>@string/library_gallery</item>
+        <item>@string/library_list</item>
+        <item>@string/library_grid</item>
+    </string-array>
+    <string-array name="library_generations">
+        <item>@string/library_all_generations</item>
+        <item>Classic</item>
+        <item>2.0</item>
+    </string-array>
+    <string-array name="library_cover_formats">
+        <item>Автоматический</item>
+        <item>Широкий</item>
+        <item>Портретный</item>
+    </string-array>
+</resources>

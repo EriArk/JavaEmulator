@@ -1,0 +1,230 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="game_enhancements_unavailable">Melhorias indisponíveis. Imagem original restaurada.</string>
+    <string name="game_controls_save_failed">Não foi possível salvar os controles</string>
+    <string name="game_touch_controls">Controles de toque</string>
+    <string name="game_restarting">Reiniciando jogo</string>
+    <string name="game_restart_error_title">Não foi possível reiniciar o jogo</string>
+    <string name="game_restart_busy">A sessão anterior não foi encerrada. Saia antes de tentar novamente.</string>
+    <string name="game_menu_title">Menu do jogo</string>
+    <string name="game_settings_title">Configurações do jogo</string>
+    <string name="game_resume">Retomar</string>
+    <string name="game_display">Exibição</string>
+    <string name="game_controls">Controles</string>
+    <string name="game_more">Mais</string>
+    <string name="game_advanced">Avançado</string>
+    <string name="game_keep_changes">Manter alterações</string>
+    <string name="game_undo_changes">Desfazer alterações</string>
+    <string name="game_try_changes">Testar alterações</string>
+    <string name="game_try_in_game">Testar no jogo</string>
+    <string name="game_exit">Sair do jogo</string>
+    <string name="game_exit_question">Sair do jogo?</string>
+    <string name="game_exit_warning">O progresso não salvo pode ser perdido.</string>
+    <string name="game_leave_without_saving">Sair sem salvar</string>
+    <string name="game_restart">Reiniciar jogo</string>
+    <string name="game_restart_question">Reiniciar o jogo?</string>
+    <string name="game_restart_confirm">Reiniciar</string>
+    <string name="game_restart_warning">O progresso não salvo pode ser perdido. As configurações salvas serão usadas.</string>
+    <string name="game_restart_preview_warning">O progresso não salvo pode ser perdido. As configurações salvas serão usadas. Alterações de configuração não confirmadas serão descartadas.</string>
+    <string name="game_restart_network">Volte à sala para reiniciar um jogo em rede.</string>
+    <string name="game_restart_failed">Não foi possível reiniciar o jogo. As configurações anteriores foram mantidas.</string>
+    <string name="game_cancel">Cancelar</string>
+    <string name="game_screenshot">Captura de tela</string>
+    <string name="game_picture_size">Tamanho da imagem</string>
+    <string name="game_smoothing">Suavização</string>
+    <string name="game_rotation">Rotação da imagem</string>
+    <string name="game_orientation">Orientação</string>
+    <string name="game_control_mode">Modo de controle</string>
+    <string name="game_touch_visibility">Botões na tela</string>
+    <string name="game_controller_mapping">Mapeamento do controle</string>
+    <string name="game_touch_layout">Layout de toque</string>
+    <string name="game_feedback">Resposta tátil</string>
+    <string name="game_keypad_placement">Posição do teclado numérico</string>
+    <string name="game_legacy_editor">Editor de layout antigo</string>
+    <string name="game_touch_editor">Editar layout de toque</string>
+    <string name="game_button_theme">Tema dos botões</string>
+    <string name="game_button_size">Tamanho dos botões</string>
+    <string name="game_portrait_position">Posição em retrato</string>
+    <string name="game_landscape_position">Posição em paisagem</string>
+    <string name="game_enhancements">Melhorias</string>
+    <string name="game_enhancements_experimental">Melhorias (experimental)</string>
+    <string name="game_image_preset">Predefinição de imagem</string>
+    <string name="game_interpolation">Interpolação de quadros</string>
+    <string name="game_fine_tuning">Ajustes finos</string>
+    <string name="game_image_fine_tuning">Ajustes finos da imagem</string>
+    <string name="game_capture_image">Imagem da captura</string>
+    <string name="game_cpu_budget">Limite de CPU</string>
+    <string name="game_fsr">Aumento de resolução com FSR 1.0</string>
+    <string name="game_sharpness">Nitidez</string>
+    <string name="game_gpu_required">Requer OpenGL ES sem shader personalizado.</string>
+    <string name="game_retro_gpu_required">FSR, xBRZ e CRT requerem OpenGL ES sem shader personalizado.</string>
+    <string name="game_native_display_hint">O tamanho e a rotação definidos em Desempenho e avançado são aplicados ao retomar.</string>
+    <string name="game_performance_advanced">Desempenho e avançado</string>
+    <string name="game_save_settings_failed">Não foi possível salvar as configurações. Suas configurações anteriores não foram alteradas.</string>
+    <string name="game_preview_failed">Não foi possível pré-visualizar esta imagem. As configurações anteriores foram restauradas.</string>
+    <string name="game_compatibility_settings">Configurações de compatibilidade</string>
+    <string name="game_screen_presets">Predefinições de tela</string>
+    <string name="game_phone_profile">Perfil do telefone</string>
+    <string name="game_profile">Perfil</string>
+    <string name="game_current_settings">Configurações atuais</string>
+    <string name="game_auto_value">Automático (%1$s)</string>
+    <string name="game_phone_restart_warning">É necessário reiniciar. O progresso não salvo do jogo pode ser perdido.</string>
+    <string name="game_restart_try">Reiniciar e testar</string>
+    <string name="game_phone_resolution">Resolução do telefone</string>
+    <string name="game_resolution_value">%1$d x %2$d</string>
+    <string name="game_fps_limit">Limite de quadros por segundo</string>
+    <string name="game_fps_limit_value">Limite de quadros por segundo: %1$s</string>
+    <string name="game_fps_unlimited">Ilimitado</string>
+    <string name="game_fps_value">%1$d FPS</string>
+    <string name="game_screen_effect">Efeito de tela</string>
+    <string name="game_effect_intensity">Intensidade do efeito</string>
+    <string name="game_screenshot_image">Imagem da captura de tela</string>
+    <string name="game_speed">Velocidade de emulação</string>
+    <string name="game_speed_value">Velocidade de emulação: %1$d%%</string>
+    <string name="game_speed_normal">%1$d%% (Normal)</string>
+    <string name="game_percent_value">%1$d%%</string>
+    <string name="game_speed_needs_jar">O JAR original é necessário. Importe este jogo novamente para ativar o controle de velocidade; mantenha os dados salvos existentes.</string>
+    <string name="game_fast_forward">Avanço rápido</string>
+    <string name="game_fast_forward_stop">Parar avanço rápido</string>
+    <string name="game_fast_forward_value">Avanço rápido %1$d%%</string>
+    <string name="game_fast_forward_settings">Configurações de avanço rápido</string>
+    <string name="game_target_speed">Velocidade desejada</string>
+    <string name="game_controller_button">Botão do controle</string>
+    <string name="game_controller_mode">Modo do controle</string>
+    <string name="game_screen_shortcut">Atalho na tela</string>
+    <string name="game_system_keyboard">Teclado do sistema</string>
+    <string name="game_save_log">Salvar registro</string>
+    <string name="game_legacy_controls">Controles antigos</string>
+    <string name="game_finish_editing">Concluir edição</string>
+    <string name="game_move_buttons">Mover botões</string>
+    <string name="game_resize_buttons">Redimensionar botões</string>
+    <string name="game_choose_layout">Escolher layout</string>
+    <string name="game_visible_buttons">Botões visíveis</string>
+    <string name="social_title">Social</string>
+    <string name="social_experimental_notice">Multijogador: experimental, em estágio inicial, com baixa compatibilidade. Apenas jogos Java com Bluetooth; ambos os jogadores precisam da mesma versão do jogo. Algumas redes não permitem a conexão.</string>
+    <string name="social_active_room">Voltar à sala ativa</string>
+    <string name="social_lobbies">Salas</string>
+    <string name="social_friends">Amigos</string>
+    <string name="social_chats">Conversas</string>
+    <string name="social_open_failed">Não foi possível abrir Social.</string>
+    <string-array name="game_picture_sizes">
+        <item>Original</item>
+        <item>Ajustar</item>
+        <item>Esticar</item>
+        <item>Escala inteira</item>
+    </string-array>
+    <string-array name="game_native_picture_sizes">
+        <item>Original</item>
+        <item>Ajustar</item>
+        <item>Esticar</item>
+    </string-array>
+    <string-array name="game_orientations">
+        <item>Automático</item>
+        <item>Retrato</item>
+        <item>Paisagem</item>
+    </string-array>
+    <string-array name="game_control_modes">
+        <item>Automático</item>
+        <item>Toque</item>
+        <item>Controle</item>
+    </string-array>
+    <string-array name="game_touch_visibility_modes">
+        <item>Automático</item>
+        <item>Sempre</item>
+        <item>Desativados</item>
+    </string-array>
+    <string-array name="game_touch_layouts">
+        <item>Telefone</item>
+        <item>Controle</item>
+        <item>Antigo</item>
+    </string-array>
+    <string-array name="game_native_touch_layouts">
+        <item>Telefone</item>
+        <item>Controle</item>
+    </string-array>
+    <string-array name="game_keypad_placements">
+        <item>Separado</item>
+        <item>Sobreposto</item>
+    </string-array>
+    <string-array name="game_button_themes">
+        <item>Seguir o aplicativo</item>
+        <item>Escuro</item>
+        <item>Claro</item>
+    </string-array>
+    <string-array name="game_button_sizes">
+        <item>Padrão</item>
+        <item>Grande</item>
+        <item>Extragrande</item>
+    </string-array>
+    <string-array name="game_touch_positions">
+        <item>Inferior</item>
+        <item>Elevada</item>
+    </string-array>
+    <string-array name="game_capture_modes">
+        <item>Melhorada</item>
+        <item>Original</item>
+    </string-array>
+    <string-array name="game_cpu_budgets">
+        <item>100% (Original)</item>
+        <item>150%</item>
+        <item>200%</item>
+        <item>300%</item>
+    </string-array>
+    <string-array name="game_lcd_effects">
+        <item>Desativado</item>
+        <item>LCD suave</item>
+        <item>LCD clássico</item>
+    </string-array>
+    <string-array name="game_screenshot_modes">
+        <item>Sem efeito</item>
+        <item>Com efeito LCD</item>
+    </string-array>
+    <string-array name="game_forward_buttons">
+        <item>Nenhum</item>
+        <item>L3</item>
+        <item>R3</item>
+        <item>L1</item>
+        <item>R1</item>
+        <item>L2</item>
+        <item>R2</item>
+        <item>A</item>
+        <item>B</item>
+        <item>X</item>
+        <item>Y</item>
+    </string-array>
+    <string-array name="game_forward_modes">
+        <item>Manter pressionado</item>
+        <item>Alternar</item>
+    </string-array>
+    <string-array name="game_image_presets">
+        <item>Pixels nítidos</item>
+        <item>Suave</item>
+        <item>Melhorada (FSR)</item>
+        <item>xBRZ</item>
+        <item>CRT EasyMode</item>
+        <item>Personalizada</item>
+    </string-array>
+    <string-array name="game_software_image_presets">
+        <item>Pixels nítidos</item>
+        <item>Suave</item>
+        <item>Personalizada</item>
+    </string-array>
+    <string-array name="game_display_native_presets">
+        <item>Original</item>
+        <item>LCD suave</item>
+        <item>LCD clássico</item>
+    </string-array>
+    <string-array name="game_display_gpu_presets">
+        <item>Original</item>
+        <item>Pixels nítidos</item>
+        <item>Suave</item>
+        <item>FSR</item>
+        <item>xBRZ</item>
+        <item>CRT</item>
+    </string-array>
+    <string-array name="game_display_software_presets">
+        <item>Original</item>
+        <item>Pixels nítidos</item>
+        <item>Suave</item>
+    </string-array>
+</resources>

@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="helper_fix_game">Исправить игру</string>
+    <string name="helper_engine_missing">В этой сборке нет движка для данной игры</string>
+    <string name="helper_import_unavailable">Не удалось открыть импорт игр</string>
+    <string name="helper_close">Закрыть</string>
+    <string name="helper_opening_game">Открытие игры</string>
+    <string name="helper_cannot_open_game">Не удалось открыть игру</string>
+    <string name="helper_reading_launch">Чтение файла запуска...</string>
+    <string name="helper_retry">Повторить</string>
+    <string name="helper_prepare_failed">Не удалось подготовить игру</string>
+    <string name="helper_exit">Выйти</string>
+    <string name="helper_undo">Отменить</string>
+    <string name="helper_try_in_game">Проверить в игре</string>
+    <string name="helper_try_settings">Проверить настройки?</string>
+    <string name="helper_fix_default">Попробовать стандартные параметры совместимости, разрешение 240 x 320 и базовый рендерер.</string>
+    <string name="helper_fix_fit">Вписать изображение, сохранить пропорции, разместить по центру.</string>
+    <string name="helper_expert_hide">Скрыть экспертные настройки</string>
+    <string name="helper_fix_renderer">Попробовать другой рендерер с немедленной отрисовкой.</string>
+    <string name="helper_keep">Сохранить</string>
+    <string name="helper_expert">Экспертные настройки</string>
+    <string name="helper_launch_failed">Не удалось запустить игру. Прежние настройки сохранены.</string>
+    <string name="helper_restart_failed">Не удалось перезапустить игру. Прежние настройки сохранены.</string>
+    <string name="helper_settings_failed">Не удалось подготовить настройки</string>
+    <string name="helper_mapper_error">Ошибка</string>
+    <string name="helper_network_setup">Настройте эту игру перед подключением к сетевой игре.</string>
+    <string name="helper_apply_failed">Не удалось применить настройки. Используются сохранённые настройки.</string>
+    <string name="helper_report_saved">Не удалось отправить отчёт. Он сохранён в файл:\n%1$s</string>
+    <string name="helper_report_failed">Не удалось отправить отчёт.</string>
+</resources>

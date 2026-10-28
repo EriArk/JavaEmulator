@@ -47,6 +47,8 @@ public class LocalizationAudit {
         try (StandardJavaFileManager manager = ToolProvider.getSystemJavaCompiler().getStandardFileManager(null, null, StandardCharsets.UTF_8)) {
             candidates = scan(manager.getJavaFileObjectsFromPaths(files));
         }
+        List<Candidate> xmlCandidates = scanLayouts(root.resolve("app/src/main/res"));
+        candidates.addAll(xmlCandidates);
         Path report = root.resolve("build/localization-inventory.tsv");
         Files.createDirectories(report.getParent());
         List<String> rows = new ArrayList<>(List.of("file\tline\tcall\ttext"));
@@ -54,10 +56,13 @@ public class LocalizationAudit {
         Files.write(report, rows, StandardCharsets.UTF_8);
         int protectedFailures = (int) candidates.stream().filter(c -> PROTECTED.contains(Path.of(URI.create(c.file)).getFileName().toString())).count();
         System.out.println(files.size() + " Java files; " + candidates.size() + " direct UI literal candidates; "
-                + protectedFailures + " in completed extraction boundaries.");
+                + protectedFailures + " in completed Java extraction boundaries; " + xmlCandidates.size() + " XML literals.");
         System.out.println("Inventory: " + report);
 
         Map<String, Resource> base = resources(root.resolve("app/src/main/res/values"));
+        Set<String> advertised = advertisedLocales(root.resolve("app/src/main/res/xml/app_locales.xml"));
+        Set<String> unchecked = new TreeSet<>(advertised);
+        int missingAdvertised = 0;
         System.out.println("Canonical translatable resources: " + base.size());
         List<String> coverage = new ArrayList<>(List.of("locale\tpresent\tcanonical\tmissing\tstructural_errors"));
         List<String> invalid = new ArrayList<>(List.of("locale\tresource\tproblem"));
@@ -77,13 +82,77 @@ public class LocalizationAudit {
                     }
                 }
                 coverage.add(qualifier + "\t" + present + "\t" + base.size() + "\t" + (base.size() - present) + "\t" + errors);
+                if (advertised.contains(qualifier)) {
+                    unchecked.remove(qualifier);
+                    missingAdvertised += base.size() - present;
+                }
             }
         }
         Files.write(root.resolve("build/localization-coverage.tsv"), coverage, StandardCharsets.UTF_8);
         Files.write(root.resolve("build/localization-invalid.tsv"), invalid, StandardCharsets.UTF_8);
         System.out.println("Coverage: build/localization-coverage.tsv (resource presence only, not language approval).");
         System.out.println("Translation structure errors: " + (invalid.size() - 1));
-        if (Arrays.asList(args).contains("--check") && (protectedFailures != 0 || invalid.size() > 1)) System.exit(1);
+        System.out.println("Advertised locales: " + advertised + "; missing resources: " + missingAdvertised
+                + "; missing locale directories: " + unchecked);
+        if (Arrays.asList(args).contains("--check") && (protectedFailures != 0 || invalid.size() > 1
+                || !xmlCandidates.isEmpty() || missingAdvertised != 0 || !unchecked.isEmpty())) System.exit(1);
+    }
+
+    private static List<Candidate> scanLayouts(Path resources) throws Exception {
+        List<Candidate> found = new ArrayList<>();
+        try (var dirs = Files.list(resources)) {
+            for (Path dir : dirs.filter(Files::isDirectory).sorted().toList()) {
+                if (!dir.getFileName().toString().matches("(?:layout|menu|xml)(?:-.*)?")) continue;
+                try (var files = Files.list(dir)) {
+                    for (Path path : files.filter(p -> p.toString().endsWith(".xml")).sorted().toList())
+                        try (Reader input = Files.newBufferedReader(path)) { found.addAll(scanXml(path.toUri().toString(), input)); }
+                }
+            }
+        }
+        return found;
+    }
+
+    private static List<Candidate> scanXml(String file, Reader source) throws Exception {
+        javax.xml.stream.XMLInputFactory factory = javax.xml.stream.XMLInputFactory.newFactory();
+        factory.setProperty(javax.xml.stream.XMLInputFactory.SUPPORT_DTD, false);
+        factory.setProperty("javax.xml.stream.isSupportingExternalEntities", false);
+        var reader = factory.createXMLStreamReader(source);
+        List<Candidate> result = new ArrayList<>();
+        Set<String> labels = Set.of("text", "hint", "contentDescription", "tooltipText", "title", "summary", "summaryOn", "summaryOff", "prompt");
+        try {
+            while (reader.hasNext()) {
+                if (reader.next() != javax.xml.stream.XMLStreamConstants.START_ELEMENT) continue;
+                for (int i = 0; i < reader.getAttributeCount(); i++) {
+                    String ns = reader.getAttributeNamespace(i), name = reader.getAttributeLocalName(i);
+                    if (!("http://schemas.android.com/apk/res/android".equals(ns)
+                            || "http://schemas.android.com/apk/res-auto".equals(ns)) || !labels.contains(name)) continue;
+                    String value = reader.getAttributeValue(i);
+                    if (value.startsWith("@") || value.startsWith("?") || BRANDS.contains(value)
+                            || value.matches("[0-9]+[xX][0-9]+") || value.codePoints().noneMatch(Character::isLetter)) continue;
+                    result.add(new Candidate(file, reader.getLocation().getLineNumber(), "XML:" + name, value));
+                }
+            }
+        } finally { reader.close(); }
+        return result;
+    }
+
+    private static Set<String> advertisedLocales(Path file) throws Exception {
+        DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
+        factory.setFeature("http://apache.org/xml/features/disallow-doctype-decl", true);
+        var locales = factory.newDocumentBuilder().parse(file.toFile()).getElementsByTagName("locale");
+        Set<String> result = new TreeSet<>();
+        for (int i = 0; i < locales.getLength(); i++) {
+            String tag = ((Element) locales.item(i)).getAttribute("android:name");
+            if (tag.isEmpty()) throw new IOException("Locale without an android:name");
+            if (!tag.equals("en")) result.add(localeDirectory(tag));
+        }
+        return result;
+    }
+
+    private static String localeDirectory(String tag) {
+        if (tag.matches("[a-z]{2}")) return "values-" + tag;
+        if (tag.matches("[a-z]{2}-[A-Z]{2}")) return "values-" + tag.replace("-", "-r");
+        return "values-b+" + tag.replace('-', '+');
     }
 
     private static List<Candidate> scan(Iterable<? extends JavaFileObject> files) throws IOException {
@@ -161,6 +230,10 @@ public class LocalizationAudit {
         Set<String> result = new TreeSet<>(); Matcher matcher = FORMAT.matcher(value);
         int position = 0;
         while (matcher.find()) {
+            // Preset prose such as "100% (Original)" contains a literal percent,
+            // not the otherwise plausible printf flags/conversion "% (O".
+            if (matcher.start() > 0 && Character.isDigit(value.charAt(matcher.start() - 1))
+                    && matcher.start() + 1 < value.length() && Character.isWhitespace(value.charAt(matcher.start() + 1))) continue;
             if (matcher.group(2).equals("%") || matcher.group(2).equals("n")) continue;
             result.add((matcher.group(1) == null ? ++position : Integer.parseInt(matcher.group(1))) + ":" + matcher.group(2));
         }
@@ -193,8 +266,18 @@ public class LocalizationAudit {
         if (scan(List.of(nativeFixture)).size() != 6) throw new AssertionError("Native host label arguments");
         if (!formats("%1$s: %2$d%%").equals(formats("%2$d%% %1$s"))) throw new AssertionError("Numbered reorder");
         if (formats("%1$s").equals(formats("%1$d"))) throw new AssertionError("Argument type");
+        if (!formats("100% (Original)").isEmpty() || !formats("100% (original)").isEmpty()
+                || !formats("Value: % d").equals(Set.of("1:d"))) throw new AssertionError("Literal percent versus format flag");
         if (compatible(new Resource("string-array", "a", List.of("a", "b"), true),
                 new Resource("string-array", "a", List.of("x"), true))) throw new AssertionError("Array size");
+        if (!localeDirectory("es").equals("values-es") || !localeDirectory("pt-BR").equals("values-pt-rBR")
+                || !localeDirectory("zh-Hant-TW").equals("values-b+zh+Hant+TW"))
+            throw new AssertionError("Advertised locale directory mapping");
+        String layout = "<View xmlns:android=\"http://schemas.android.com/apk/res/android\" xmlns:tools=\"http://schemas.android.com/tools\""
+                + " android:text=\"@string/title\" android:contentDescription=\"Forgotten label\" tools:text=\"Preview only\">"
+                + "<View android:text=\"240x320\"/><View android:text=\"AbyssME\"/><View android:text=\"Fix game\"/></View>";
+        if (scanXml("string:///fixture.xml", new StringReader(layout)).size() != 2)
+            throw new AssertionError("XML source labels versus resources, tools and identifiers");
         System.out.println("Localization audit self-tests passed (AST boundaries, argument order/types, array size).");
     }
 }
