@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="social_auth_signed_out">未ログイン</string>
+    <string name="social_auth_unlock_failed">保存済みのログイン情報を復号できませんでした。この端末から削除して、再度ログインしてください。</string>
+    <string name="social_auth_connecting">Fluxer に接続中...</string>
+    <string name="social_auth_service_failed">Fluxer サービスを確認できませんでした。再試行してください。</string>
+    <string name="social_auth_start_failed">ログインを開始できませんでした。再試行してください。</string>
+    <string name="social_auth_invalid_expiry">ログインの有効期限が無効です。再試行してください。</string>
+    <string name="social_auth_expired">ログインコードの有効期限が切れました。再試行してください。</string>
+    <string name="social_auth_approval">Fluxer でこのコードを入力し、ログインを承認してください。</string>
+    <string name="social_auth_busy">Fluxer が混み合っています。しばらく待ってから再試行してください。</string>
+    <string name="social_auth_invalid_session">Fluxer から無効なセッションが返されました。再試行してください。</string>
+    <string name="social_auth_declined">ログインが拒否されました。</string>
+    <string name="social_auth_waiting">Fluxer の応答待ちです。自動で再試行中...</string>
+    <string name="social_auth_complete_failed">ログインを完了できませんでした。再試行してください。</string>
+    <string name="social_auth_checking">アカウントを確認中...</string>
+    <string name="social_auth_session_expired">セッションの有効期限が切れました。再度ログインしてください。</string>
+    <string name="social_auth_verify_failed">アカウントを確認できませんでした。ログイン情報は削除されていません。</string>
+    <string name="social_auth_saved">ログインしました。セッションはこの端末に安全に保存されています。</string>
+    <string name="social_auth_save_failed">現在はログインしていますが、セッションを保存できませんでした。この画面を離れる前に保存を再試行してください。</string>
+    <string name="social_auth_cancelled">ログインをキャンセルしました。</string>
+    <string name="social_auth_signing_out">ログアウト中...</string>
+    <string name="social_auth_signout_failed">Fluxer からログアウトできませんでした。再試行するか、この端末から保存済みのログイン情報を削除してください。</string>
+    <string name="social_auth_remove_failed">保存済みのログイン情報を削除できませんでした。もう一度お試しください。</string>
+</resources>

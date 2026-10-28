@@ -1,0 +1,37 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="native_progress_read_compressed">RAR / 7z アーカイブを読み込み中</string>
+    <string name="native_progress_read_entry">読み込み中: %1$s</string>
+    <string name="native_progress_read_entry_size">読み込み中: %1$s（%2$d MB）</string>
+    <string name="native_selected_files">選択したファイル</string>
+    <string name="native_import_source_error">%1$s: %2$s</string>
+    <string name="native_notice_installed">インストール済み</string>
+    <string name="native_notice_phone_files">携帯電話のファイルが必要</string>
+    <string name="native_notice_choose_phone">携帯電話を選択</string>
+    <string name="native_notice_platform">N-Gage 2.0 が必要</string>
+    <string name="native_notice_component">%1$s が必要</string>
+    <string name="native_notice_guest_installer">N-Gage インストーラーで完了してください</string>
+    <string name="native_notice_retry">中断されました。再試行が必要です</string>
+    <string name="native_notice_saved">インストーラーを保存済み</string>
+    <string name="native_notice_skipped">スキップしました。インストール済みのファイルは削除していません</string>
+    <string name="native_notice_duplicate">重複ファイル</string>
+    <string name="native_notice_alternative">%1$s の別バージョン</string>
+    <string name="native_progress_inspect_system">システムアーカイブを調査中</string>
+    <string name="native_progress_read_system">システムファイルを読み込み中 %1$d%%</string>
+    <string name="native_progress_check_system">システムファイルを確認中 %1$d%%</string>
+    <string name="native_progress_prepare_system">システムを準備中 %1$d/%2$d: %3$s</string>
+    <string name="native_progress_read_input">選択したファイルを読み込み中: %1$d MB</string>
+    <string name="native_progress_inspect_item">調査中 %1$d / %2$d: %3$s</string>
+    <string name="native_progress_import_item">インポート中 %1$d / %2$d: %3$s</string>
+    <string name="native_progress_continue_queue">アーカイブキューを続行中</string>
+    <string name="native_progress_check_components">必要なコンポーネントを確認中</string>
+    <string name="native_progress_install_component">コンポーネントをインストール中: %1$s</string>
+    <string name="native_progress_install_game">%1$s をインストール中</string>
+    <string name="native_import_add">ライブラリに追加</string>
+    <string name="native_import_ready">準備完了</string>
+    <string name="native_import_unavailable">選択したインポートは利用できなくなりました</string>
+    <string name="mophun_installer_title">Mophun インストーラー</string>
+    <string name="mophun_installer_experimental">試験的</string>
+    <string name="mophun_installer_preparing">ゲームを準備中</string>
+    <string name="mophun_installer_failed">ゲームをインポートできませんでした</string>
+</resources>

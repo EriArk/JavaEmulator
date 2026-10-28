@@ -10,6 +10,25 @@ stated otherwise. **Experimental** in older checkpoints means local/private
 combined builds; released experimental features are explicitly identified.
 **Released** means an actual GitHub release asset.
 
+## 2026-10-28 - Japanese and Simplified Chinese (Public Source, Unreleased)
+
+- Add Japanese and Simplified Chinese to the in-app and Android language lists,
+  using native names. Each covers 1517 canonical resources, including imports,
+  firmware guidance, game menus, controls, transfers and Social messages.
+- Extend layout checks for CJK text and large fonts, scroll/select the new
+  picker entries, check cross-process updates without recreating the probe,
+  and exercise cold-update persistence for each new language.
+- Prevent shared game menus from resizing a detached window during Activity
+  recreation. Preserve pending placement and finish preview cleanup only once.
+- Verify the combined Debug build, 419 JVM tests, 75 focused checks on Retroid
+  and 75 on Android 11, plus cold-update persistence for both new languages
+  on each target. Resource completeness is not native-speaker approval.
+- Keep English canonical, user/game content and saved identifiers unchanged.
+  Further language expansion is deferred at the maintainer's request; this
+  does not remove inherited translations or imply full diagnostic coverage.
+- Development source and local Debug only; no new signed APK or release update.
+  [Verification and limits](docs/checks/2026-10-28-japanese-chinese-localization.md).
+
 ## 2026-10-28 - French, German and Responsive Localized Panels (Public Source, Unreleased)
 
 - Add French and German to the in-app and Android language lists. All five

@@ -33,7 +33,7 @@ public class LobbyPresentationTest {
     @Test public void compactAndLargeTextSeatsFitWithoutClipping(){
         InstrumentationRegistry.getInstrumentation().runOnMainSync(()->{
             Context base=InstrumentationRegistry.getInstrumentation().getTargetContext();
-            for(String locale:new String[]{"en","es","pt-BR","ru","fr","de","en-XA","ar-XB"})
+            for(String locale:new String[]{"en","es","pt-BR","ru","fr","de","ja","zh-CN","en-XA","ar-XB"})
             for(int width:new int[]{320,393,480,540,720})for(float font:new float[]{1f,1.5f,2f})for(int night:new int[]{Configuration.UI_MODE_NIGHT_NO,Configuration.UI_MODE_NIGHT_YES}){
                 Configuration config=new Configuration(base.getResources().getConfiguration());config.screenWidthDp=width;config.fontScale=font;
                 config.setLocales(android.os.LocaleList.forLanguageTags(locale));

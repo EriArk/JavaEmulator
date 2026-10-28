@@ -1,0 +1,230 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="game_enhancements_unavailable">增强功能不可用。已恢复原始画面。</string>
+    <string name="game_controls_save_failed">无法保存操控设置</string>
+    <string name="game_touch_controls">触屏操控</string>
+    <string name="game_restarting">正在重新启动游戏</string>
+    <string name="game_restart_error_title">无法重新启动游戏</string>
+    <string name="game_restart_busy">上一次会话尚未停止。请先退出后再重试。</string>
+    <string name="game_menu_title">游戏菜单</string>
+    <string name="game_settings_title">游戏设置</string>
+    <string name="game_resume">继续游戏</string>
+    <string name="game_display">显示</string>
+    <string name="game_controls">操控</string>
+    <string name="game_more">更多</string>
+    <string name="game_advanced">高级</string>
+    <string name="game_keep_changes">保留更改</string>
+    <string name="game_undo_changes">撤销更改</string>
+    <string name="game_try_changes">试用更改</string>
+    <string name="game_try_in_game">在游戏中试用</string>
+    <string name="game_exit">退出游戏</string>
+    <string name="game_exit_question">要退出游戏吗？</string>
+    <string name="game_exit_warning">未保存的进度可能会丢失。</string>
+    <string name="game_leave_without_saving">不保存并离开</string>
+    <string name="game_restart">重新启动游戏</string>
+    <string name="game_restart_question">要重新启动游戏吗？</string>
+    <string name="game_restart_confirm">重新启动</string>
+    <string name="game_restart_warning">未保存的进度可能会丢失。将使用已保存的设置。</string>
+    <string name="game_restart_preview_warning">未保存的进度可能会丢失。将使用已保存的设置，并丢弃尚未确认的设置更改。</string>
+    <string name="game_restart_network">请返回房间以重新启动联机游戏。</string>
+    <string name="game_restart_failed">无法重新启动游戏。已保留原设置。</string>
+    <string name="game_cancel">取消</string>
+    <string name="game_screenshot">截图</string>
+    <string name="game_picture_size">画面大小</string>
+    <string name="game_smoothing">平滑处理</string>
+    <string name="game_rotation">画面旋转</string>
+    <string name="game_orientation">屏幕方向</string>
+    <string name="game_control_mode">操控模式</string>
+    <string name="game_touch_visibility">屏幕按键</string>
+    <string name="game_controller_mapping">手柄映射</string>
+    <string name="game_touch_layout">触屏布局</string>
+    <string name="game_feedback">触觉反馈</string>
+    <string name="game_keypad_placement">键盘位置</string>
+    <string name="game_legacy_editor">旧版布局编辑器</string>
+    <string name="game_touch_editor">编辑触屏布局</string>
+    <string name="game_button_theme">按键主题</string>
+    <string name="game_button_size">按键大小</string>
+    <string name="game_portrait_position">竖屏位置</string>
+    <string name="game_landscape_position">横屏位置</string>
+    <string name="game_enhancements">增强</string>
+    <string name="game_enhancements_experimental">增强（实验性）</string>
+    <string name="game_image_preset">画面预设</string>
+    <string name="game_interpolation">帧插值</string>
+    <string name="game_fine_tuning">微调</string>
+    <string name="game_image_fine_tuning">画面微调</string>
+    <string name="game_capture_image">截图画面</string>
+    <string name="game_cpu_budget">CPU 预算</string>
+    <string name="game_fsr">FSR 1.0 超分辨率</string>
+    <string name="game_sharpness">锐度</string>
+    <string name="game_gpu_required">需要使用 OpenGL ES，且不能启用自定义着色器。</string>
+    <string name="game_retro_gpu_required">FSR、xBRZ 和 CRT 需要使用 OpenGL ES，且不能启用自定义着色器。</string>
+    <string name="game_native_display_hint">在“性能和高级设置”中调整的大小和旋转将在继续游戏时生效。</string>
+    <string name="game_performance_advanced">性能和高级设置</string>
+    <string name="game_save_settings_failed">无法保存设置。原设置未更改。</string>
+    <string name="game_preview_failed">无法预览此画面。已恢复原设置。</string>
+    <string name="game_compatibility_settings">兼容性设置</string>
+    <string name="game_screen_presets">屏幕预设</string>
+    <string name="game_phone_profile">手机配置</string>
+    <string name="game_profile">配置文件</string>
+    <string name="game_current_settings">当前设置</string>
+    <string name="game_auto_value">自动（%1$s）</string>
+    <string name="game_phone_restart_warning">需要重新启动。未保存的游戏进度可能会丢失。</string>
+    <string name="game_restart_try">重新启动并试用</string>
+    <string name="game_phone_resolution">手机分辨率</string>
+    <string name="game_resolution_value">%1$d x %2$d</string>
+    <string name="game_fps_limit">帧率上限</string>
+    <string name="game_fps_limit_value">帧率上限：%1$s</string>
+    <string name="game_fps_unlimited">无限制</string>
+    <string name="game_fps_value">%1$d FPS</string>
+    <string name="game_screen_effect">屏幕效果</string>
+    <string name="game_effect_intensity">效果强度</string>
+    <string name="game_screenshot_image">截图画面</string>
+    <string name="game_speed">模拟速度</string>
+    <string name="game_speed_value">模拟速度：%1$d%%</string>
+    <string name="game_speed_normal">%1$d%%（正常）</string>
+    <string name="game_percent_value">%1$d%%</string>
+    <string name="game_speed_needs_jar">需要原始 JAR。请重新导入此游戏以启用速度控制，并保留现有存档。</string>
+    <string name="game_fast_forward">快进</string>
+    <string name="game_fast_forward_stop">停止快进</string>
+    <string name="game_fast_forward_value">快进 %1$d%%</string>
+    <string name="game_fast_forward_settings">快进设置</string>
+    <string name="game_target_speed">目标速度</string>
+    <string name="game_controller_button">手柄按钮</string>
+    <string name="game_controller_mode">手柄模式</string>
+    <string name="game_screen_shortcut">屏幕快捷按钮</string>
+    <string name="game_system_keyboard">系统键盘</string>
+    <string name="game_save_log">保存日志</string>
+    <string name="game_legacy_controls">旧版操控</string>
+    <string name="game_finish_editing">完成编辑</string>
+    <string name="game_move_buttons">移动按键</string>
+    <string name="game_resize_buttons">调整按键大小</string>
+    <string name="game_choose_layout">选择布局</string>
+    <string name="game_visible_buttons">可见按键</string>
+    <string name="social_title">社交</string>
+    <string name="social_experimental_notice">联机游戏：早期实验性功能，兼容性较低。仅支持 Java 蓝牙游戏；双方需要相同的游戏版本。部分网络可能无法连接。</string>
+    <string name="social_active_room">返回当前房间</string>
+    <string name="social_lobbies">大厅</string>
+    <string name="social_friends">好友</string>
+    <string name="social_chats">聊天</string>
+    <string name="social_open_failed">无法打开社交界面。</string>
+    <string-array name="game_picture_sizes">
+        <item>原始大小</item>
+        <item>适应窗口</item>
+        <item>拉伸</item>
+        <item>整数倍</item>
+    </string-array>
+    <string-array name="game_native_picture_sizes">
+        <item>原始大小</item>
+        <item>适应窗口</item>
+        <item>拉伸</item>
+    </string-array>
+    <string-array name="game_orientations">
+        <item>自动</item>
+        <item>竖屏</item>
+        <item>横屏</item>
+    </string-array>
+    <string-array name="game_control_modes">
+        <item>自动</item>
+        <item>触屏</item>
+        <item>手柄</item>
+    </string-array>
+    <string-array name="game_touch_visibility_modes">
+        <item>自动</item>
+        <item>始终显示</item>
+        <item>关闭</item>
+    </string-array>
+    <string-array name="game_touch_layouts">
+        <item>手机键盘</item>
+        <item>手柄</item>
+        <item>旧版</item>
+    </string-array>
+    <string-array name="game_native_touch_layouts">
+        <item>手机键盘</item>
+        <item>手柄</item>
+    </string-array>
+    <string-array name="game_keypad_placements">
+        <item>分离</item>
+        <item>叠加</item>
+    </string-array>
+    <string-array name="game_button_themes">
+        <item>跟随应用</item>
+        <item>深色</item>
+        <item>浅色</item>
+    </string-array>
+    <string-array name="game_button_sizes">
+        <item>标准</item>
+        <item>大</item>
+        <item>特大</item>
+    </string-array>
+    <string-array name="game_touch_positions">
+        <item>底部</item>
+        <item>上移</item>
+    </string-array>
+    <string-array name="game_capture_modes">
+        <item>增强</item>
+        <item>原始</item>
+    </string-array>
+    <string-array name="game_cpu_budgets">
+        <item>100%（原始）</item>
+        <item>150%</item>
+        <item>200%</item>
+        <item>300%</item>
+    </string-array>
+    <string-array name="game_lcd_effects">
+        <item>关闭</item>
+        <item>柔和 LCD</item>
+        <item>经典 LCD</item>
+    </string-array>
+    <string-array name="game_screenshot_modes">
+        <item>无效果</item>
+        <item>带 LCD 效果</item>
+    </string-array>
+    <string-array name="game_forward_buttons">
+        <item>无</item>
+        <item>L3</item>
+        <item>R3</item>
+        <item>L1</item>
+        <item>R1</item>
+        <item>L2</item>
+        <item>R2</item>
+        <item>A</item>
+        <item>B</item>
+        <item>X</item>
+        <item>Y</item>
+    </string-array>
+    <string-array name="game_forward_modes">
+        <item>按住</item>
+        <item>切换</item>
+    </string-array>
+    <string-array name="game_image_presets">
+        <item>清晰像素</item>
+        <item>平滑</item>
+        <item>增强（FSR）</item>
+        <item>xBRZ</item>
+        <item>CRT EasyMode</item>
+        <item>自定义</item>
+    </string-array>
+    <string-array name="game_software_image_presets">
+        <item>清晰像素</item>
+        <item>平滑</item>
+        <item>自定义</item>
+    </string-array>
+    <string-array name="game_display_native_presets">
+        <item>原始</item>
+        <item>柔和 LCD</item>
+        <item>经典 LCD</item>
+    </string-array>
+    <string-array name="game_display_gpu_presets">
+        <item>原始</item>
+        <item>清晰像素</item>
+        <item>平滑</item>
+        <item>FSR</item>
+        <item>xBRZ</item>
+        <item>CRT</item>
+    </string-array>
+    <string-array name="game_display_software_presets">
+        <item>原始</item>
+        <item>清晰像素</item>
+        <item>平滑</item>
+    </string-array>
+</resources>

@@ -3,7 +3,8 @@
 Issue [#43](https://github.com/EriArk/JavaEmulator/issues/43), checkpoint 2026-10-28.
 English remains the canonical source/fallback and the public APK's advertised UI.
 Unreleased source now includes Settings > Language, System default, English,
-Spanish, Brazilian Portuguese, Russian, French and German. Other inherited locale folders remain
+Spanish, Brazilian Portuguese, Russian, French, German, Japanese and Simplified
+Chinese. Other inherited locale folders remain
 partial translations; their presence is not whole-app support. This work has not
 been published in a new signed APK.
 
@@ -15,6 +16,8 @@ been published in a new signed APK.
 | Russian | 1517 / 1517 | Selectable in unreleased source / local Debug |
 | French | 1517 / 1517 | Selectable in unreleased source / local Debug |
 | German | 1517 / 1517 | Selectable in unreleased source / local Debug |
+| Japanese | 1517 / 1517 | Selectable in unreleased source / local Debug |
+| Simplified Chinese (`zh-CN`) | 1517 / 1517 | Selectable in unreleased source / local Debug |
 | Other inherited locales | Partial | Not advertised by the picker |
 
 Counts include strings, plurals and arrays; they do not certify translation
@@ -22,6 +25,10 @@ quality or every low-level diagnostic. The [first language batch record](checks/
 separates source, device/emulator checks and remaining acceptance.
 The [French/German batch](checks/2026-10-28-french-german-localization.md) adds
 network-preparation messages and shared long-word/large-font layout repairs.
+The [Japanese/Chinese batch](checks/2026-10-28-japanese-chinese-localization.md)
+extends the selectable list and CJK layout/lifecycle checks. On 2026-10-28 the
+maintainer paused further language expansion after these two: Indonesian,
+Hindi and the second wave remain deferred, not delivered or removed.
 
 ## Language Selection
 
@@ -164,8 +171,8 @@ not the number of locale directories or keys alone.
 ## Next Boundaries
 
 1. Finish remaining backend/helper diagnostics.
-2. Expand reviewed language batches: Simplified Chinese,
-   Japanese, Indonesian and Hindi. Keep the issue's wider language list open.
+2. Keep Indonesian, Hindi and the wider language list deferred until the
+   maintainer resumes expansion. Do not infer support from inherited folders.
 3. Verify long-running native/network sessions and translated journeys before
    publishing a multilingual APK. Arabic/Hebrew still require explicit RTL QA.
 
@@ -204,15 +211,15 @@ and the [earlier settings checks](checks/2026-10-28-audio-lifecycle-settings.md)
 user text, URLs and identifiers. `SystemRequirementsLocalizationTest` checks
 phone generations and distinguishes firmware from the N-Gage 2.0 installer.
 `LobbyPresentationTest` exercises seat layout across English, Spanish, Brazilian
-Portuguese, Russian and expanded/RTL pseudolocales, three font scales, five
-widths and both themes (180 cases). This is bounded
+Portuguese, Russian, French, German, Japanese, Simplified Chinese and expanded/RTL
+pseudolocales, three font scales, five widths and both themes (300 cases). This is bounded
 layout evidence, not full RTL navigation or live network acceptance.
 See the [Social/system verification record](checks/2026-10-28-social-system-localization.md).
 
 `SystemTransferLocalizationTest` checks every typed backup/removal error,
 version-specific warnings, raw paths/causes, component versions, cancellation,
-queue callbacks and layout across 288 locale/font/viewport/theme/state cases in
-the expanded first-language batch (144 in the earlier native-transfer record).
+queue callbacks and layout across 480 locale/font/viewport/theme/state cases in
+the Japanese/Chinese batch (144 in the earlier native-transfer record).
 Archive controls stack for narrow/large-font layouts and keep their actions
 independent of display labels. This does not prove all firmware/backend errors
 are localized or all RTL navigation is ready.
@@ -229,6 +236,6 @@ preserves already imported phones. See the
 reset, old contact journals and wire-format separation. `SocialLocalizationTest`
 also checks contact keys, raw rejection codes and player names. `InfoContentTest`
 checks current help, attribution/support links, unchanged game metadata,
-36 locale/font/viewport/content layouts and About/More/Help close callbacks.
+60 locale/font/viewport/content layouts and About/More/Help close callbacks.
 These are offline checks, not live multiplayer or full translation acceptance.
 See the [room/help checks](checks/2026-10-28-social-help-localization.md).

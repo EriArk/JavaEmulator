@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="quick_rotate_image">映像を回転</string>
+    <string name="quick_rotation_value">映像の回転: %1$d\u00b0</string>
+    <string name="display_save_failed">表示設定を保存できませんでした。</string>
+    <plurals name="library_games"><item quantity="other">%d本のゲーム</item></plurals>
+    <string name="mapper_title">操作</string>
+    <string name="mapper_controller">ゲームパッド</string>
+    <string name="mapper_phone">携帯電話のキー</string>
+    <string name="mapper_detect">ボタンを識別</string>
+    <string name="mapper_undo">直前の変更を元に戻す</string>
+    <string name="mapper_listening">入力待ち...</string>
+    <string name="mapper_save">保存して再開</string>
+    <string name="mapper_unbind">割り当てを解除</string>
+    <string name="mapper_duplicate">プロファイルを複製</string>
+    <string name="mapper_unbound">未割り当て</string>
+    <string name="mapper_combined">2方向</string>
+    <string name="mapper_save_failed">操作設定を保存できませんでした。変更内容はまだ編集画面に残っています。</string>
+</resources>

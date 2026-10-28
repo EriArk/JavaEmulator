@@ -1,0 +1,37 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="native_progress_read_compressed">正在读取 RAR / 7z 压缩包</string>
+    <string name="native_progress_read_entry">正在读取：%1$s</string>
+    <string name="native_progress_read_entry_size">正在读取：%1$s（%2$d MB）</string>
+    <string name="native_selected_files">所选文件</string>
+    <string name="native_import_source_error">%1$s：%2$s</string>
+    <string name="native_notice_installed">已安装</string>
+    <string name="native_notice_phone_files">需要手机文件</string>
+    <string name="native_notice_choose_phone">请选择手机</string>
+    <string name="native_notice_platform">需要 N-Gage 2.0</string>
+    <string name="native_notice_component">需要 %1$s</string>
+    <string name="native_notice_guest_installer">请在 N-Gage 安装程序中完成安装</string>
+    <string name="native_notice_retry">已中断；需要重试</string>
+    <string name="native_notice_saved">安装程序已保存</string>
+    <string name="native_notice_skipped">已跳过；未移除已安装的文件</string>
+    <string name="native_notice_duplicate">重复文件</string>
+    <string name="native_notice_alternative">%1$s 的另一版本</string>
+    <string name="native_progress_inspect_system">正在检查系统压缩包</string>
+    <string name="native_progress_read_system">正在读取系统文件 %1$d%%</string>
+    <string name="native_progress_check_system">正在检查系统文件 %1$d%%</string>
+    <string name="native_progress_prepare_system">正在准备系统 %1$d/%2$d：%3$s</string>
+    <string name="native_progress_read_input">正在读取所选文件：%1$d MB</string>
+    <string name="native_progress_inspect_item">正在检查 %1$d / %2$d：%3$s</string>
+    <string name="native_progress_import_item">正在导入 %1$d / %2$d：%3$s</string>
+    <string name="native_progress_continue_queue">正在继续处理压缩包队列</string>
+    <string name="native_progress_check_components">正在检查所需组件</string>
+    <string name="native_progress_install_component">正在安装组件：%1$s</string>
+    <string name="native_progress_install_game">正在安装 %1$s</string>
+    <string name="native_import_add">添加到游戏库</string>
+    <string name="native_import_ready">就绪</string>
+    <string name="native_import_unavailable">所选导入项已不可用</string>
+    <string name="mophun_installer_title">Mophun 安装程序</string>
+    <string name="mophun_installer_experimental">实验性</string>
+    <string name="mophun_installer_preparing">正在准备游戏</string>
+    <string name="mophun_installer_failed">无法导入游戏</string>
+</resources>

@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string-array name="appearance_entries">
+        <item>システム設定に従う</item>
+        <item>ライト</item>
+        <item>ダーク</item>
+    </string-array>
+</resources>

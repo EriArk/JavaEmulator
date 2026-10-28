@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="product_about">&lt;b>AbyssME&lt;/b>&lt;br>バージョン %1$s&lt;br>&lt;br>スマートフォンと携帯ゲーム機向けの、独立した J2ME Loader のフォークです。&lt;br>&lt;br>&lt;a href="https://github.com/EriArk/JavaEmulator">プロジェクトとソースコード&lt;/a>&lt;br>&lt;a href="https://github.com/EriArk/JavaEmulator/issues">問題を報告&lt;/a>&lt;br>&lt;a href="https://github.com/EriArk/JavaEmulator/blob/main/docs/LOCALIZATION.md">翻訳の進捗&lt;/a>&lt;br>&lt;br>統合配布物: GPL-3.0-only。各コンポーネントには、それぞれの告知が引き続き適用されます。「ライセンス」を参照してください。&lt;br>&lt;br>J2ME Loader、MIDPShell、JL-Mod を基に開発されています。&lt;br>J2ME Loader: Copyright 2017-2024 Nikita Shakarun.&lt;br>&lt;a href="https://github.com/nikita36078/J2ME-Loader">開発元の J2ME Loader&lt;/a></string>
+    <string name="product_overview_combined">AbyssME は、Android スマートフォンや携帯ゲーム機で Java ME、Mophun、および試験的に Symbian / N-Gage のゲームを実行します。ゲームと携帯電話のシステムファイルは含まれていません。</string>
+    <string name="product_overview_java">AbyssME は、Android スマートフォンや携帯ゲーム機で Java ME と Mophun のゲームを実行します。このビルドに Symbian / N-Gage エンジンは含まれていません。ゲームも含まれていません。</string>
+    <string name="product_help_library">ライブラリ\nゲームファイルを追加するか、ゲームフォルダーを選択してください。ゲームを選ぶとプレイできます。操作メニューには操作設定、表示設定、アートワークがあります。互換性はゲームとその版によって異なります。</string>
+    <string name="product_help_controls">操作\n物理コントローラー、または画面上の携帯電話キー・ゲームパッドを使用できます。「操作」を開くと、現在のゲームのテンプレートを選んだり、割り当てを変更したりできます。プレイ中にコントローラーの Select を長押しすると、割り当て画面が開きます。</string>
+    <string name="product_help_picture">画質とパフォーマンス\nゲームメニューから「表示」を開いてください。変更は試してから確定できます。画質プリセットで動作が遅くなる場合は、より軽いプリセットに戻してください。画面の変更後に映像が表示されなくなった場合は、ゲームを再起動できます。ただし、未保存の進行状況が失われる場合があります。</string>
+    <string name="product_help_transfer">ゲームとセーブデータ\n「ライブラリの移行」で AbyssME ライブラリのバックアップ・復元や、J2ME Loader からのインポートができます。データを移行する前にバックアップを作成してください。ゲームのスクリーンショットはセーブデータではありません。</string>
+    <string name="product_help_systems">Symbian / N-Gage\n「システムファイル」で、ご自身が所有する対応携帯電話のシステムファイルを追加してください。一部のゲームには N-Gage 2.0 プラットフォームインストーラーやコンポーネントも必要です。インポート画面に不足しているものが表示されます。ゲームアーカイブは携帯電話のシステムダンプではありません。</string>
+    <string name="product_help_online">オンラインプレイ\nFluxer のルームと、インターネット経由の Java Bluetooth プレイは、互換性が低い試験的な初期機能です。両プレイヤーに、同じ版の対応ゲームが必要です。ロビーが利用可能でも、ゲームやネットワークの動作は保証されません。</string>
+    <string name="game_info_external">プラットフォーム: %1$s\n携帯電話: %2$s</string>
+    <string name="game_info_mophun">プラットフォーム: Mophun\nバージョン: %1$s</string>
+    <string name="game_info_java">プラットフォーム: Java ME\nバージョン: %1$s\nベンダー: %2$s</string>
+    <string name="game_info_unreadable">プラットフォーム: Java ME\nバージョン: 不明\nインストール済みのゲーム情報を読み取れませんでした。</string>
+    <string name="game_info_missing">情報なし</string>
+</resources>

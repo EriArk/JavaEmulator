@@ -61,7 +61,7 @@ public class LocalizationJourneyTest {
                 R.array.library_collections, R.array.library_view_modes, R.array.library_generations,
                 R.array.library_cover_formats, R.array.transfer_folder_titles, R.array.transfer_folder_hints};
         int[] counts = {4,3,3,3,3,3,2,2,3,3,2,2,4,3,2,4,11,2,6,3,3,6,3,3,3,3,3,3,3};
-        for (String language : new String[]{"en", "es", "pt-BR", "en-XA", "ar-XB", "ru", "fr", "de", "ja"}) {
+        for (String language : new String[]{"en", "es", "pt-BR", "en-XA", "ar-XB", "ru", "fr", "de", "ja", "zh-CN"}) {
             Context context = localized(base, language, 1);
             for (int i = 0; i < arrays.length; i++) {
                 String[] values = context.getResources().getStringArray(arrays[i]);
@@ -169,7 +169,7 @@ public class LocalizationJourneyTest {
 
     @Test public void translatedConfirmationKeepsEngineCallbacksSeparate() {
         try (ActivityScenario<SettingsActivity> scenario = ActivityScenario.launch(SettingsActivity.class)) {
-          for(String tag:new String[]{"en-XA","fr","de"}) {
+          for(String tag:new String[]{"en-XA","fr","de","ja","zh-CN"}) {
             scenario.onActivity(activity -> {
                 GameMenuDialog menu = new GameMenuDialog(localized(activity, tag, 1), "Guest title");
                 menu.show(); final int[] exits = {0};
@@ -218,6 +218,61 @@ public class LocalizationJourneyTest {
                         assertEquals(LinearLayout.HORIZONTAL,row.getOrientation());
                     assertEquals(0,spinner.getSelectedItemPosition());
                 } finally {menu.dismiss();}
+            });
+        }
+    }
+
+    @Test public void cjkChoiceLabelsWrapWithoutClippingOrChangingSelection() {
+        try(ActivityScenario<SettingsActivity> scenario=ActivityScenario.launch(SettingsActivity.class)) {
+            for(String tag:new String[]{"ja","zh-CN"})
+            for(int widthDp:new int[]{320,480,720})
+            for(float font:new float[]{1f,1.5f,2f}) {
+                scenario.onActivity(activity -> {
+                    Context context=localized(activity,tag,font);
+                    GameMenuDialog menu=new GameMenuDialog(context,"Guest title / 50%");menu.show();
+                    try {
+                        String label=context.getString(R.string.settings_keep_awake);
+                        menu.choice(label,new String[]{"100%","200%"},1,index->fail("Layout must not change selection"));
+                        Spinner spinner=(Spinner)description(menu.getWindow().getDecorView(),label);
+                        LinearLayout row=(LinearLayout)spinner.getParent();
+                        int width=Math.round(widthDp*context.getResources().getDisplayMetrics().density);
+                        row.measure(View.MeasureSpec.makeMeasureSpec(width,View.MeasureSpec.EXACTLY),
+                                View.MeasureSpec.makeMeasureSpec(0,View.MeasureSpec.UNSPECIFIED));
+                        row.layout(0,0,width,row.getMeasuredHeight());
+                        TextView name=(TextView)row.getChildAt(0);
+                        android.text.Layout layout=name.getLayout();
+                        assertNotNull(tag,layout);
+                        assertEquals(label,name.getText().toString());
+                        assertTrue(tag,layout.getHeight()<=name.getHeight()-name.getCompoundPaddingTop()-name.getCompoundPaddingBottom());
+                        for(int line=0;line<layout.getLineCount();line++) {
+                            assertEquals(tag,0,layout.getEllipsisCount(line));
+                            assertTrue(tag,layout.getLineWidth(line)<=layout.getWidth()+1);
+                        }
+                        assertTrue(tag,spinner.getRight()<=width);
+                        assertEquals(1,spinner.getSelectedItemPosition());
+                    } finally {menu.dismiss();}
+                });
+                InstrumentationRegistry.getInstrumentation().waitForIdleSync();
+            }
+        }
+    }
+
+    @Test public void dismissAfterHostRecreationFinishesPreviewOnlyOnce() {
+        GameMenuDialog[] menu={null};int[] cleanups={0};
+        try(ActivityScenario<SettingsActivity> scenario=ActivityScenario.launch(SettingsActivity.class)) {
+            scenario.onActivity(activity -> {
+                menu[0]=new GameMenuDialog(activity,"Guest title");
+                menu[0].useEdgePanel();menu[0].show();
+                menu[0].setPageCleanup(()->cleanups[0]++);
+            });
+            InstrumentationRegistry.getInstrumentation().waitForIdleSync();
+            scenario.recreate();
+            scenario.onActivity(activity -> {
+                assertFalse(menu[0].getWindow().getDecorView().isAttachedToWindow());
+                assertFalse(menu[0].isShowing());
+                assertEquals(1,cleanups[0]);
+                menu[0].dismiss();menu[0].dismiss();
+                assertEquals(1,cleanups[0]);
             });
         }
     }

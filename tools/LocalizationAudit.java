@@ -281,6 +281,7 @@ public class LocalizationAudit {
                 new Resource("string-array", "a", List.of("Ajuster"), true)))
             throw new AssertionError("Inline translated array label");
         if (!localeDirectory("es").equals("values-es") || !localeDirectory("pt-BR").equals("values-pt-rBR")
+                || !localeDirectory("ja").equals("values-ja") || !localeDirectory("zh-CN").equals("values-zh-rCN")
                 || !localeDirectory("zh-Hant-TW").equals("values-b+zh+Hant+TW"))
             throw new AssertionError("Advertised locale directory mapping");
         String layout = "<View xmlns:android=\"http://schemas.android.com/apk/res/android\" xmlns:tools=\"http://schemas.android.com/tools\""

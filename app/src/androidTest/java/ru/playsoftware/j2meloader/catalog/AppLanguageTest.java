@@ -52,6 +52,17 @@ public class AppLanguageTest {
             Bundle spanish=await("screen","Ajustes");
             assertEquals(starts,spanish.getInt("starts"));assertEquals(guest,spanish.getString("guest"));
             assertEquals("es",spanish.getString("selected"));await("title","Ajustes");
+            for(String tag:new String[]{"ja","zh-CN"}) {
+                choose(tag);
+                String title=context.getString(R.string.settings_title);
+                assertNotEquals("Settings",title);
+                Bundle translated=await("screen",title);
+                assertEquals(starts,translated.getInt("starts"));
+                assertEquals(guest,translated.getString("guest"));
+                assertEquals(tag,translated.getString("selected"));
+                await("title",title);
+            }
+            choose("es");await("screen","Ajustes");
             probe("finish");
             long deadline=SystemClock.uptimeMillis()+7000;
             while(scenario.getState()!=androidx.lifecycle.Lifecycle.State.RESUMED
@@ -131,6 +142,8 @@ public class AppLanguageTest {
                         found=true;
                         assertNotNull("French remains recognizable",find(root,"Français"));
                         assertNotNull("German remains recognizable",find(root,"Deutsch"));
+                        assertNotNull("Japanese remains recognizable",find(root,"日本語"));
+                        assertNotNull("Simplified Chinese remains recognizable",find(root,"简体中文"));
                         android.widget.Button spanish=(android.widget.Button)find(root,"Español");
                         assertEquals(0,english.getCompoundDrawablesRelative()[0].getAlpha());
                         assertEquals(255,spanish.getCompoundDrawablesRelative()[0].getAlpha());
@@ -141,6 +154,57 @@ public class AppLanguageTest {
                 assertTrue("Always possible to return to English",found);
             });
         } finally { choose(original); }
+    }
+
+    @Test public void cjkPickerChoicesCanBeScrolledIntoViewAndSelected() {
+        String original=AppLanguage.selected(context);
+        try(ActivityScenario<SettingsActivity> scenario=ActivityScenario.launch(SettingsActivity.class)) {
+            String[] tags={"ja","zh-CN"};
+            int[] names={R.string.language_japanese,R.string.language_chinese_simplified};
+            for(int i=0;i<tags.length;i++) {
+                String tag=tags[i],label=context.getString(names[i]);
+                scenario.onActivity(activity -> {
+                    ru.playsoftware.j2meloader.settings.SettingsFragment fragment=
+                            (ru.playsoftware.j2meloader.settings.SettingsFragment)activity.getSupportFragmentManager().getFragments().get(0);
+                    fragment.findPreference("pref_language").performClick();
+                });
+                InstrumentationRegistry.getInstrumentation().waitForIdleSync();
+                android.view.View[] choice={null};
+                InstrumentationRegistry.getInstrumentation().runOnMainSync(() -> {
+                    for(android.view.View root:android.view.inspector.WindowInspector.getGlobalWindowViews()) {
+                        android.view.View match=find(root,label);
+                        if(match!=null)choice[0]=match;
+                    }
+                    assertNotNull(label,choice[0]);
+                });
+                long deadline=SystemClock.uptimeMillis()+7000;
+                boolean[] ready={false};
+                do {
+                    InstrumentationRegistry.getInstrumentation().runOnMainSync(() ->
+                            ready[0]=choice[0].isLaidOut() && choice[0].hasWindowFocus());
+                    if(!ready[0])SystemClock.sleep(50);
+                } while(!ready[0] && SystemClock.uptimeMillis()<deadline);
+                assertTrue("Picker is ready for input",ready[0]);
+                InstrumentationRegistry.getInstrumentation().runOnMainSync(() -> {
+                    choice[0].requestFocusFromTouch();
+                    choice[0].requestRectangleOnScreen(new android.graphics.Rect(0,0,choice[0].getWidth(),choice[0].getHeight()),true);
+                });
+                InstrumentationRegistry.getInstrumentation().waitForIdleSync();
+                capture(tag+"-language-picker.png");
+                InstrumentationRegistry.getInstrumentation().runOnMainSync(() -> {
+                    android.graphics.Rect visible=new android.graphics.Rect();
+                    assertTrue(label,choice[0].getGlobalVisibleRect(visible));
+                    assertEquals(label,choice[0].getHeight(),visible.height());
+                    choice[0].performClick();
+                });
+                awaitApplied(tag);
+                scenario.onActivity(activity -> {
+                    ru.playsoftware.j2meloader.settings.SettingsFragment fragment=
+                            (ru.playsoftware.j2meloader.settings.SettingsFragment)activity.getSupportFragmentManager().getFragments().get(0);
+                    assertEquals(label,fragment.findPreference("pref_language").getSummary());
+                });
+            }
+        } finally {choose(original);}
     }
 
     private static android.view.View find(android.view.View view,String label) {

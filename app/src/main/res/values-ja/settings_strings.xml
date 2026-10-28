@@ -1,0 +1,40 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="settings_title">設定</string>
+    <string name="settings_visual_style">外観</string>
+    <string name="settings_brightness">明るさ</string>
+    <string name="settings_library">ライブラリ</string>
+    <string name="settings_game_folders">ゲームフォルダー</string>
+    <string name="settings_library_transfer">ライブラリの移行</string>
+    <string name="settings_playing">プレイ</string>
+    <string name="settings_vibration">ゲームの振動</string>
+    <string name="settings_keep_awake">プレイ中は画面をスリープさせない</string>
+    <string name="settings_support">サポート</string>
+    <string name="settings_diagnostics">ローカルの診断情報をエクスポート</string>
+    <string name="settings_expert">上級者向け設定</string>
+    <string name="settings_about">AbyssME について</string>
+    <string name="settings_fluxer_account">Fluxer アカウント</string>
+    <string name="settings_system_files">システムファイル</string>
+    <string name="settings_system_files_summary">Symbian と N-Gage に必要なファイル</string>
+    <string name="folders_scanning">フォルダーをスキャン中...</string>
+    <string name="folders_add_failed">フォルダーを追加できませんでした: %1$s</string>
+    <string name="folders_none_selected">フォルダーが選択されていません</string>
+    <plurals name="folders_selected"><item quantity="other">%1$d個のフォルダー</item></plurals>
+    <string name="folders_scan_summary">%1$d件を追加、%2$d件は登録済み</string>
+    <string name="folders_no_games">対応するゲームが見つかりません</string>
+    <plurals name="folders_unreadable"><item quantity="other">%1$d個のフォルダーを読み取れませんでした</item></plurals>
+    <string name="folders_scan_limit">スキャンの上限に達しました。残りのファイルには、より小さいフォルダーを選択してください。</string>
+    <string name="folders_access_required">このフォルダーを読み取れません。再度選択してアクセスを許可してください。</string>
+    <string name="folders_provider_empty">ファイルプロバイダーからこのフォルダーを取得できませんでした。</string>
+    <string name="folders_provider_loading">このフォルダーはまだ読み込み中です。ファイルプロバイダーの読み込みを待ってから再試行してください。</string>
+    <string name="folders_read_failed">このフォルダーを読み取れません。%1$s</string>
+    <string name="folders_retry_provider">再度選択するか、別のファイルプロバイダーを使用してください。</string>
+    <string name="menu_back">戻る</string>
+    <string name="menu_close">閉じる</string>
+    <string name="menu_keep">適用を確定</string>
+    <string name="menu_undo">元に戻す</string>
+    <string name="menu_opacity">不透明度</string>
+    <string name="menu_percentage">%1$s: %2$d%%</string>
+    <string name="menu_picture_preset">%1$sの画質プリセット</string>
+    <string-array name="palette_names"><item>クラシック</item><item>レトロ LCD</item><item>高コントラスト</item></string-array>
+</resources>

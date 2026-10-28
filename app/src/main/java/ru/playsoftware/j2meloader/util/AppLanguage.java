@@ -24,7 +24,7 @@ import java.util.WeakHashMap;
 
 /** Platform/AppCompat own UI locale changes; the provider persists pre-33 choices across processes. */
 public final class AppLanguage {
-    public static final String[] TAGS = {"", "en", "es", "pt-BR", "ru", "fr", "de"};
+    public static final String[] TAGS = {"", "en", "es", "pt-BR", "ru", "fr", "de", "ja", "zh-CN"};
     private static final Set<Activity> activities = Collections.newSetFromMap(new WeakHashMap<>());
     private static Application application;
     private static ContentObserver observer;

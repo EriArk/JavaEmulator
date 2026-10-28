@@ -37,7 +37,7 @@ public class InfoContentTest {
         return wrapper;
     }
     @Test public void supportLinksAndAttributionRemainIntactInEveryLocale() {
-        for(String tag:new String[]{"en","en-XA","ar-XB","ru","ja"}) {
+        for(String tag:new String[]{"en","en-XA","ar-XB","ru","ja","zh-CN"}) {
             Spanned about=(Spanned)InfoContent.about(context(tag,1));
             Set<String> links=new HashSet<>();for(URLSpan link:about.getSpans(0,about.length(),URLSpan.class))links.add(link.getURL());
             assertEquals(new HashSet<>(Arrays.asList("https://github.com/EriArk/JavaEmulator",
@@ -46,6 +46,10 @@ public class InfoContentTest {
                     "https://github.com/nikita36078/J2ME-Loader")),links);
             assertTrue(about.toString().contains(BuildConfig.VERSION_NAME));
             if(tag.equals("en"))assertTrue(about.toString().contains("Copyright 2017-2024 Nikita Shakarun"));
+            if(tag.equals("ja") || tag.equals("zh-CN")) {
+                assertTrue(about.toString().contains("2017-2024 Nikita Shakarun"));
+                assertTrue(about.toString().contains("GPL-3.0-only"));
+            }
             assertFalse(about.toString().contains("j2me.loader@mail.ru"));
         }
     }
@@ -79,7 +83,7 @@ public class InfoContentTest {
     }
     @Test public void longHelpAndAboutScrollAcrossCompactAndExpandedLayouts() {
         InstrumentationRegistry.getInstrumentation().runOnMainSync(()->{
-            for(String tag:new String[]{"en","en-XA","ar-XB"})for(float font:new float[]{1,2})
+            for(String tag:new String[]{"en","en-XA","ar-XB","ja","zh-CN"})for(float font:new float[]{1,2})
                 for(int[] size:new int[][]{{320,640},{540,540},{720,400}})for(boolean about:new boolean[]{false,true}) {
                     Context context=context(tag,font);float density=context.getResources().getDisplayMetrics().density;
                     ScrollView scroll=InfoContent.view(context,about?InfoContent.about(context):InfoContent.help(context));
@@ -92,6 +96,8 @@ public class InfoContentTest {
                     for(int line=0;line<text.getLayout().getLineCount();line++)assertEquals(0,text.getLayout().getEllipsisCount(line));
                     if(font==2&&!about){assertTrue(text.getHeight()>h);scroll.scrollTo(0,text.getHeight());assertTrue(scroll.getScrollY()>0);scroll.scrollTo(0,0);}
                     if(size[0]==540&&font==1&&tag.equals("en"))capture(scroll,(about?"about":"help")+"-dark-square.png");
+                    if(size[0]==320&&font==1&&(tag.equals("ja")||tag.equals("zh-CN")))
+                        capture(scroll,tag+"-"+(about?"about":"help")+"-dark-portrait.png");
                     if(size[0]==320&&font==2&&tag.equals("en-XA")&&!about)capture(scroll,"help-expanded-portrait.png");
                 }
         });

@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="network_game_library_unavailable">ゲームライブラリを利用できません。ライブラリを開き直して再試行してください。</string>
+    <string name="network_game_lookup_cancelled">ゲームの検索をキャンセルしました。</string>
+    <string name="network_game_adapter_unsupported">このゲームアダプターには対応していません。</string>
+    <string name="network_game_outside_library">ライブラリからインストール済みのゲームを選択してください。</string>
+    <string name="network_game_edition_differs">インストール済みのゲームがルームのものと異なります。同じ版を選択してください。</string>
+    <string name="network_game_changed">インストール済みのゲームが変更されています。再度選択してファイルを検証してください。</string>
+    <string name="network_game_files_invalid">インストール済みのゲームファイルが見つからないか無効です。ゲームを再インストールして再試行してください。</string>
+    <string name="network_game_manifest_invalid">ゲームのマニフェストが見つからないか無効です。ゲームを再インストールして再試行してください。</string>
+    <string name="network_game_entry_differs">インストール済みのゲーム項目がアーカイブと異なります。ゲームを再インストールして再試行してください。</string>
+    <string name="network_game_single_midlet">MIDlet エントリが1つのゲームを選択してください。</string>
+    <string name="network_game_setup_required">ライブラリからこのゲームを一度開いて設定を完了してから、ここで選択してください。</string>
+    <string name="network_game_prepare_failed">このゲームを準備できませんでした。ライブラリから開き直して再試行してください。</string>
+</resources>

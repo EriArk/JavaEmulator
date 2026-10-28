@@ -1,0 +1,80 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="library_menu_title">游戏库菜单</string>
+    <string name="library_collection">集合</string>
+    <string name="library_all_games">全部游戏</string>
+    <string name="library_recent">最近游玩</string>
+    <string name="library_favorites">收藏</string>
+    <string name="library_all_generations">全部</string>
+    <string name="library_generation">N-Gage 世代</string>
+    <string name="library_generation_value">N-Gage 世代：%1$s</string>
+    <string name="library_collection_value">集合：%1$s</string>
+    <string name="library_play_last">继续上次游戏：%1$s</string>
+    <string name="library_view_value">视图：%1$s</string>
+    <string name="library_cover_format_value">封面格式：%1$s</string>
+    <string name="library_view">视图</string>
+    <string name="library_cover_format">画廊封面格式</string>
+    <string name="library_gallery">画廊</string>
+    <string name="library_list">列表</string>
+    <string name="library_grid">网格</string>
+    <string name="library_sort">排序</string>
+    <string name="library_sort_by">排序依据</string>
+    <string name="library_reverse">倒序</string>
+    <string name="library_add_game">添加游戏</string>
+    <string name="library_add_folder">添加文件夹</string>
+    <string name="library_close_search">关闭搜索</string>
+    <string name="library_no_matches">没有匹配的游戏</string>
+    <string name="library_no_favorites">此集合中没有收藏的游戏</string>
+    <string name="library_no_recent">此集合中没有最近玩过的游戏</string>
+    <string name="library_no_platform_games">没有 %1$s 游戏</string>
+    <string name="library_no_games">暂无游戏</string>
+    <string name="library_actions">游戏操作</string>
+    <string name="library_play">开始游戏</string>
+    <string name="library_information">游戏信息</string>
+    <string name="library_add_favorite">添加收藏</string>
+    <string name="library_remove_favorite">取消收藏</string>
+    <string name="library_edit_card">编辑卡片</string>
+    <string name="library_card_title">标题</string>
+    <string name="library_game_title">游戏标题</string>
+    <string name="library_enter_title">输入标题</string>
+    <string name="library_save_title_failed">无法保存标题。%1$s</string>
+    <string name="library_save">保存</string>
+    <string name="library_delete_question">要删除游戏吗？</string>
+    <string name="library_delete_warning">这将删除已安装的游戏及其设置和存档。原始源文件将保留。</string>
+    <string name="library_delete">删除游戏</string>
+    <string name="library_artwork">图片</string>
+    <string name="library_icon">图标</string>
+    <string name="library_cover">封面</string>
+    <string name="library_choose_image">选择图片</string>
+    <string name="library_use_automatic">使用自动图片</string>
+    <string name="library_refresh_art">刷新自动图片</string>
+    <string name="library_refresh_art_question">要刷新自动图片吗？</string>
+    <string name="library_replace_legacy_art">替换旧版图片，保留自定义图片</string>
+    <string name="library_artwork_failed">无法更新图片</string>
+    <string name="library_launch_export">导出启动文件</string>
+    <string name="library_launch_exported">启动文件已导出</string>
+    <string name="library_export_failed">导出失败</string>
+    <string name="library_uninstall_phone">从手机中卸载</string>
+    <string name="library_settings_load_failed">无法加载游戏设置。</string>
+    <string name="library_settings_prepare_failed">无法准备设置。</string>
+    <string-array name="library_collections">
+        <item>@string/library_all_games</item>
+        <item>@string/library_recent</item>
+        <item>@string/library_favorites</item>
+    </string-array>
+    <string-array name="library_view_modes">
+        <item>@string/library_gallery</item>
+        <item>@string/library_list</item>
+        <item>@string/library_grid</item>
+    </string-array>
+    <string-array name="library_generations">
+        <item>@string/library_all_generations</item>
+        <item>初代</item>
+        <item>2.0</item>
+    </string-array>
+    <string-array name="library_cover_formats">
+        <item>自动</item>
+        <item>横版</item>
+        <item>竖版</item>
+    </string-array>
+</resources>

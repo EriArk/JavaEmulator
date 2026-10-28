@@ -1,0 +1,71 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="controls_use_mapping">使用映射</string>
+    <string name="controls_reset_layout">重置布局</string>
+    <string name="controls_use_layout">使用布局</string>
+    <string name="controls_preview">预览</string>
+    <string name="controls_layout">布局</string>
+    <string name="controls_position">位置</string>
+    <string name="controls_style">样式</string>
+    <string name="controls_tab">%1$s 标签页</string>
+    <string name="controls_block">按键组</string>
+    <string name="controls_block_size">按键组大小</string>
+    <string name="controls_block_size_value">按键组大小：%1$d%%</string>
+    <string name="controls_move_left">左移</string>
+    <string name="controls_move_up">上移</string>
+    <string name="controls_move_down">下移</string>
+    <string name="controls_move_right">右移</string>
+    <string name="controls_touch_preview">触屏布局预览</string>
+    <string name="controls_show_game">显示游戏按键</string>
+    <string name="controls_profile">操控配置</string>
+    <string name="controls_buttons">按钮</string>
+    <string name="controls_dpad">方向键</string>
+    <string name="controls_stick">摇杆</string>
+    <string name="controls_keypad">键盘</string>
+    <string name="controls_navigation">导航</string>
+    <string name="controls_shoulders">肩键和系统键</string>
+    <string name="controls_left_stick">左摇杆</string>
+    <string name="controls_dpad_direction">方向键 %1$s</string>
+    <string name="controls_stick_direction">摇杆 %1$s</string>
+    <string name="controls_preset_arrows">方向键</string>
+    <string name="controls_preset_numbers">数字键移动</string>
+    <string name="controls_preset_eight_way">八方向数字键</string>
+    <string name="controls_preset_diagonals">数字键斜向移动</string>
+    <string name="controls_preset_actions">动作数字键</string>
+    <string name="controls_soft_left">左软键</string>
+    <string name="controls_soft_right">右软键</string>
+    <string name="controls_up">上</string>
+    <string name="controls_down">下</string>
+    <string name="controls_left">左</string>
+    <string name="controls_right">右</string>
+    <string name="controls_fire">确认 / 发射</string>
+    <string name="controls_clear">清除</string>
+    <string name="controls_end_call">挂断</string>
+    <string name="controls_menu">菜单</string>
+    <string name="controls_phone_key">手机按键 %1$s</string>
+    <string name="controls_preview_seconds">%1$d秒</string>
+    <plurals name="controls_preview_remaining">
+        <item quantity="other">设置预览：剩余 %1$d 秒</item>
+    </plurals>
+    <string-array name="controls_preview_orientations">
+        <item>竖屏</item>
+        <item>横屏</item>
+    </string-array>
+    <string-array name="controls_phone_blocks">
+        <item>键盘</item>
+    </string-array>
+    <string-array name="controls_gamepad_blocks">
+        <item>方向键</item>
+        <item>动作键</item>
+    </string-array>
+    <string-array name="controls_directions">
+        <item>上</item>
+        <item>下</item>
+        <item>左</item>
+        <item>右</item>
+        <item>左上</item>
+        <item>右上</item>
+        <item>左下</item>
+        <item>右下</item>
+    </string-array>
+</resources>

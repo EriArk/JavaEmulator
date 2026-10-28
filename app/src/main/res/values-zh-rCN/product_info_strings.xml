@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="product_about">&lt;b&gt;AbyssME&lt;/b&gt;&lt;br&gt;版本 %1$s&lt;br&gt;&lt;br&gt;面向手机和游戏掌机的独立 J2ME Loader 分支。&lt;br&gt;&lt;br&gt;&lt;a href="https://github.com/EriArk/JavaEmulator"&gt;项目和源代码&lt;/a&gt;&lt;br&gt;&lt;a href="https://github.com/EriArk/JavaEmulator/issues"&gt;报告问题&lt;/a&gt;&lt;br&gt;&lt;a href="https://github.com/EriArk/JavaEmulator/blob/main/docs/LOCALIZATION.md"&gt;翻译进度&lt;/a&gt;&lt;br&gt;&lt;br&gt;组合发行版采用 GPL-3.0-only。各组件保留各自的声明；详见“许可证”。&lt;br&gt;&lt;br&gt;基于 J2ME Loader、MIDPShell 和 JL-Mod。&lt;br&gt;J2ME Loader: Copyright 2017-2024 Nikita Shakarun.&lt;br&gt;&lt;a href="https://github.com/nikita36078/J2ME-Loader"&gt;上游 J2ME Loader&lt;/a&gt;</string>
+    <string name="product_overview_combined">AbyssME 可在 Android 手机和游戏掌机上运行 Java ME、Mophun 以及实验性支持的 Symbian / N-Gage 游戏。不包含游戏和手机系统文件。</string>
+    <string name="product_overview_java">AbyssME 可在 Android 手机和游戏掌机上运行 Java ME 和 Mophun 游戏。此构建版本不包含 Symbian / N-Gage 引擎。不包含游戏。</string>
+    <string name="product_help_library">游戏库\n添加游戏文件或选择游戏文件夹。选择游戏即可游玩；游戏操作中包含操控、显示设置和图片选项。兼容性因游戏及其版本而异。</string>
+    <string name="product_help_controls">操控\n使用实体手柄或屏幕上的手机键盘 / 手柄。打开“操控”，为当前游戏选择模板或更改按键绑定。游玩时长按手柄上的 Select 键可打开映射设置。</string>
+    <string name="product_help_picture">画面和性能\n打开游戏菜单中的“显示”设置。先试用更改，再决定是否保留。如果某个画面预设运行过慢，请切换到更简单的预设。如果更改屏幕设置后画面变黑，可使用“重新启动游戏”；未保存的进度可能会丢失。</string>
+    <string name="product_help_transfer">游戏和存档\n使用“游戏库迁移”备份或恢复 AbyssME 游戏库，也可从 J2ME Loader 导入。移动数据前请先备份。游戏截图不是游戏存档。</string>
+    <string name="product_help_systems">Symbian / N-Gage\n在“系统文件”中添加您自己的兼容手机系统文件。某些游戏还需要 N-Gage 2.0 平台安装程序或组件。导入界面会说明缺少的内容；游戏压缩包不是手机系统转储。</string>
+    <string name="product_help_online">联机游玩\nFluxer 房间和通过互联网进行的 Java 蓝牙联机属于早期实验性功能，兼容性较低。双方需要相同且受支持的游戏版本。大厅可用并不保证游戏或网络能够正常运行。</string>
+    <string name="game_info_external">平台：%1$s\n手机：%2$s</string>
+    <string name="game_info_mophun">平台：Mophun\n版本：%1$s</string>
+    <string name="game_info_java">平台：Java ME\n版本：%1$s\n厂商：%2$s</string>
+    <string name="game_info_unreadable">平台：Java ME\n版本：不可用\n无法读取已安装游戏的信息。</string>
+    <string name="game_info_missing">未提供</string>
+</resources>

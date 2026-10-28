@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="helper_fix_game">ゲームの不具合を調整</string>
+    <string name="helper_engine_missing">このビルドには、このゲームのエンジンが含まれていません</string>
+    <string name="helper_import_unavailable">ゲームのインポート画面を開けません</string>
+    <string name="helper_close">閉じる</string>
+    <string name="helper_opening_game">ゲームを開いています</string>
+    <string name="helper_cannot_open_game">ゲームを開けません</string>
+    <string name="helper_reading_launch">起動ファイルを読み込み中...</string>
+    <string name="helper_retry">再試行</string>
+    <string name="helper_prepare_failed">ゲームを準備できませんでした</string>
+    <string name="helper_exit">終了</string>
+    <string name="helper_undo">元に戻す</string>
+    <string name="helper_try_in_game">ゲーム内で試す</string>
+    <string name="helper_try_settings">設定を試しますか？</string>
+    <string name="helper_fix_default">既定の互換性プロパティ、240 x 320、基本レンダラーを試します。</string>
+    <string name="helper_fix_fit">縦横比を保って画面内に収め、中央に表示します。</string>
+    <string name="helper_expert_hide">上級者向け設定を隠す</string>
+    <string name="helper_fix_renderer">別のレンダラーで即時描画を試します。</string>
+    <string name="helper_keep">適用を確定</string>
+    <string name="helper_expert">上級者向け設定</string>
+    <string name="helper_launch_failed">ゲームを起動できませんでした。以前の設定を保持しました。</string>
+    <string name="helper_restart_failed">ゲームを再起動できませんでした。以前の設定を保持しました。</string>
+    <string name="helper_settings_failed">設定を準備できませんでした</string>
+    <string name="helper_mapper_error">エラー</string>
+    <string name="helper_network_setup">ネットワークゲームに参加する前に、このゲームの設定を準備してください。</string>
+    <string name="helper_apply_failed">設定を適用できませんでした。保存済みの設定を使用します。</string>
+    <string name="helper_report_saved">レポートを送信できませんでした。次のファイルに保存しました:\n%1$s</string>
+    <string name="helper_report_failed">レポートを送信できませんでした。</string>
+</resources>

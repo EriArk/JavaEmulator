@@ -1,0 +1,67 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
+    <string name="system_files_title">系统文件</string>
+    <string name="system_original_ngage">初代 N-Gage</string>
+    <string name="system_legacy_s60">Symbian S60 第 1 / 2 版</string>
+    <string name="system_modern_s60">Symbian S60 第 3 版及更高版本</string>
+    <string name="system_no_extra">无需额外文件</string>
+    <string name="system_phone_needed">需要手机文件</string>
+    <string name="system_phone_added">已添加手机文件</string>
+    <string name="system_setup_added">已添加安装文件</string>
+    <string name="system_checked_on_import">导入时检查</string>
+    <string name="system_java_help">Java 游戏（.jar / .jad）和 Mophun 游戏（.mpn）不需要手机固件。</string>
+    <string name="system_ngage_help">手机：Nokia N-Gage 或 N-Gage QD。\n\n所需文件：为 EKA2L1 准备的手机转储，可使用 ZIP/7z 压缩包，或 .rom 文件及其匹配的 .rpkg（如有需要）。\n\nN-Gage 2.0 安装程序用于另一平台，不能替代这些文件。</string>
+    <string name="system_legacy_help">手机：与游戏匹配的 S60 第 1/2 版机型，例如 Nokia 3650 或 6600。\n\n所需文件：EKA2L1 手机转储，可使用 ZIP/7z 压缩包，或 .rom 文件及其匹配的 .rpkg（如有需要）。游戏 .sis 文件不是手机固件。</string>
+    <string name="system_modern_help">手机：游戏所需的 Symbian 世代，例如 S60 第 3 版可使用 Nokia N95。\n\n所需文件：EKA2L1 手机转储，可使用 ZIP/7z 压缩包，或 .rom 文件及其匹配的 .rpkg（如有需要）。不同世代的 Symbian 不能互换。</string>
+    <string name="system_ngage2_help">手机：推荐 Nokia N95（S60 第 3 版）。\n\n%1$s\n\n%2$s\n\n请使用 N-Gage 2.0 平台安装程序（.sis 或 ZIP），而不是 .n-gage 游戏。已保存的文件可重复使用；添加游戏时会检查平台是否已安装。</string>
+    <string name="system_dump_added">手机转储：已添加。</string>
+    <string name="system_dump_needed">手机转储：需要（.rom + 匹配的 .rpkg，或准备好的 ZIP/7z）。</string>
+    <string name="system_platform_saved">N-Gage 2.0 应用：安装程序已保存。</string>
+    <string name="system_platform_needed">N-Gage 2.0 应用：如果手机上尚未安装，则需要安装程序。</string>
+    <string name="system_needed_card">此游戏需要初代 <xliff:g id="phone" xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">Nokia N-Gage / N-Gage QD</xliff:g> 系统文件。</string>
+    <string name="system_needed_ngage2">此游戏需要 S60 第 3 版系统文件（推荐 <xliff:g id="phone" xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">N95</xliff:g>）和 <xliff:g id="platform" xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">N-Gage 2.0</xliff:g> 平台安装程序。</string>
+    <string name="system_needed_legacy">此游戏需要受支持的 Symbian S60 第 1/2 版手机的系统文件。</string>
+    <string name="system_needed_modern">此游戏需要对应 Symbian 世代的系统文件（S60 第 3 版或更高版本）。</string>
+    <string name="system_formats_help"><xliff:g id="emulator" xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">EKA2L1</xliff:g> 手机转储包含手机的操作系统，不包含游戏。请添加含有一个 <xliff:g id="rom" xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">.rom</xliff:g> 及其匹配的 <xliff:g id="package" xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">.rpkg</xliff:g> 的 <xliff:g id="archive" xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">ZIP/7z</xliff:g>，或同时选择这两个文件。支持子文件夹和大写扩展名。两个文件必须来自同一份手机转储；不要在此压缩包中混放多部手机或游戏。也支持准备好的 <xliff:g id="folder" xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">ROM + Z-folder</xliff:g> 压缩包。\n\n请使用您有权使用的文件。不包含固件和游戏。</string>
+    <string name="system_needed_help">%1$s\n\n%2$s\n\n您的游戏已保留，导入后将继续处理。</string>
+    <string name="system_pending_import">待处理导入</string>
+    <string name="system_archive_queue">压缩包队列</string>
+    <string name="system_add_files">添加系统文件</string>
+    <string name="system_what_files">需要哪些文件？</string>
+    <string name="system_phone_files">手机系统文件</string>
+    <string name="system_installed_phones">已安装的手机</string>
+    <string name="system_phone_backups">手机备份</string>
+    <string name="system_saved_components">已保存的组件</string>
+    <string name="system_add_game">添加游戏</string>
+    <string name="system_phone_tools">手机工具</string>
+    <string name="system_library">游戏库</string>
+    <string name="system_back_library">返回游戏库</string>
+    <string name="system_add_ngage2">添加 N-Gage 2.0 安装程序</string>
+    <string name="system_add_another_phone">添加另一部手机</string>
+    <string name="system_add_phone_files">添加手机文件</string>
+    <string name="system_about_dumps">关于手机转储</string>
+    <string name="system_back">返回</string>
+    <string name="system_close">关闭</string>
+    <string name="system_later">稍后</string>
+    <string name="system_retry">重试</string>
+    <string name="system_cancel">取消</string>
+    <string name="system_remove">移除</string>
+    <string name="system_could_not_finish">无法完成</string>
+    <string name="system_needed_title">需要系统文件</string>
+    <string name="system_ngage2_needed_title">需要 N-Gage 2.0</string>
+    <string name="system_ngage2_needed_body">手机系统文件已就绪。请添加 N-Gage 2.0 平台安装程序（SIS 或 ZIP），而不是游戏。AbyssME 会保留一份副本供以后的游戏使用。</string>
+    <string name="system_add_platform">添加平台</string>
+    <string name="system_interrupted_title">安装已中断</string>
+    <string name="system_interrupted_body">上次安装未完成。您的游戏已保留。重试可能会在所选手机上重新安装文件。</string>
+    <string name="system_component_needed">需要组件</string>
+    <string name="system_component_help">%1$s\n\n请添加此组件的 SIS/SISX 安装程序，或包含该安装程序的 ZIP。请使用适合此 Symbian 手机的版本。您的游戏已保留；添加文件后将继续安装。安装程序会保存下来供以后的游戏使用。</string>
+    <string name="system_add_installer">添加安装程序</string>
+    <string name="system_install_complete">安装完成</string>
+    <string name="system_installed_body">已安装的游戏可在游戏库中找到。</string>
+    <string name="system_continue_import">继续导入</string>
+    <string name="system_remove_import">移除待处理导入</string>
+    <string name="system_remove_import_title">要移除待处理导入吗？</string>
+    <string name="system_remove_import_body">仅移除保留的导入项。原始文件、已安装的游戏和存档均不受影响。</string>
+    <string name="system_removing_import">正在移除待处理导入</string>
+    <string name="system_continuing_import">正在继续导入</string>
+</resources>

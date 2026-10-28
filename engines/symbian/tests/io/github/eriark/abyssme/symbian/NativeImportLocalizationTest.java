@@ -55,6 +55,8 @@ public class NativeImportLocalizationTest {
             assertEquals(notice,item.notice);assertEquals(notice.fallback("Owner component 100%"),item.detail);
             assertEquals(item.detail,SystemTransferText.detail(locale("en"),item));
             assertNotEquals(item.detail,SystemTransferText.detail(locale("en-XA"),item));
+            for(String tag:new String[]{"ja","zh-CN"})
+                assertNotEquals(tag+":"+notice,item.detail,SystemTransferText.detail(locale(tag),item));
             ArchiveBatch.Batch copy=ArchiveBatch.snapshot(batch);
             assertEquals(SystemTransferText.detail(locale("ar-XB"),item),SystemTransferText.detail(locale("ar-XB"),copy.items.get(0)));
             assertTrue(copy.selectedFiles);assertEquals(hash,item.hash);assertEquals("Owner game 100%.sisx",item.name);

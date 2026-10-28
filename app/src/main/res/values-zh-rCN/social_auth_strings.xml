@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="social_auth_signed_out">未登录</string>
+    <string name="social_auth_unlock_failed">无法解锁已保存的登录信息。请从此设备移除后重新登录。</string>
+    <string name="social_auth_connecting">正在连接 Fluxer...</string>
+    <string name="social_auth_service_failed">无法验证 Fluxer 服务。请重试。</string>
+    <string name="social_auth_start_failed">无法开始登录。请重试。</string>
+    <string name="social_auth_invalid_expiry">登录有效期无效。请重试。</string>
+    <string name="social_auth_expired">登录代码已过期。请重试。</string>
+    <string name="social_auth_approval">请在 Fluxer 中输入此代码并批准登录。</string>
+    <string name="social_auth_busy">Fluxer 繁忙。请稍后重试。</string>
+    <string name="social_auth_invalid_session">Fluxer 返回了无效会话。请重试。</string>
+    <string name="social_auth_declined">登录被拒绝。</string>
+    <string name="social_auth_waiting">正在等待 Fluxer。将自动重试...</string>
+    <string name="social_auth_complete_failed">无法完成登录。请重试。</string>
+    <string name="social_auth_checking">正在检查您的账号...</string>
+    <string name="social_auth_session_expired">会话已过期。请重新登录。</string>
+    <string name="social_auth_verify_failed">无法验证您的账号。登录信息未被移除。</string>
+    <string name="social_auth_saved">已登录。会话已安全保存在此设备上。</string>
+    <string name="social_auth_save_failed">当前已登录，但无法保存会话。请在离开前重试保存。</string>
+    <string name="social_auth_cancelled">已取消登录。</string>
+    <string name="social_auth_signing_out">正在退出登录...</string>
+    <string name="social_auth_signout_failed">无法退出 Fluxer。请重试，或从此设备移除已保存的登录信息。</string>
+    <string name="social_auth_remove_failed">无法移除已保存的登录信息。请重试。</string>
+</resources>

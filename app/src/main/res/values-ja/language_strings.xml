@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="settings_language">言語</string>
+    <string name="language_system">システムの既定</string>
+    <string name="language_failed">言語を保存できませんでした。もう一度お試しください。</string>
+</resources>

@@ -129,6 +129,8 @@ public class SettingsFragment extends PreferenceFragmentCompat {
         if (tag.equals("ru")) return getString(R.string.language_russian);
         if (tag.equals("fr")) return getString(R.string.language_french);
         if (tag.equals("de")) return getString(R.string.language_german);
+        if (tag.equals("ja")) return getString(R.string.language_japanese);
+        if (tag.equals("zh-CN")) return getString(R.string.language_chinese_simplified);
         return java.util.Locale.forLanguageTag(tag).getDisplayName(java.util.Locale.forLanguageTag(tag));
     }
 

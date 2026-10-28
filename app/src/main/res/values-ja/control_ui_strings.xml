@@ -1,0 +1,52 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="controls_use_mapping">割り当てを適用</string>
+    <string name="controls_reset_layout">配置をリセット</string>
+    <string name="controls_use_layout">配置を適用</string>
+    <string name="controls_preview">プレビュー</string>
+    <string name="controls_layout">配置</string>
+    <string name="controls_position">位置</string>
+    <string name="controls_style">スタイル</string>
+    <string name="controls_tab">%1$sタブ</string>
+    <string name="controls_block">ブロック</string>
+    <string name="controls_block_size">ブロックのサイズ</string>
+    <string name="controls_block_size_value">ブロックのサイズ: %1$d%%</string>
+    <string name="controls_move_left">左へ移動</string>
+    <string name="controls_move_up">上へ移動</string>
+    <string name="controls_move_down">下へ移動</string>
+    <string name="controls_move_right">右へ移動</string>
+    <string name="controls_touch_preview">タッチ操作の配置プレビュー</string>
+    <string name="controls_show_game">ゲームの操作ボタンを表示</string>
+    <string name="controls_profile">操作プロファイル</string>
+    <string name="controls_buttons">ボタン</string>
+    <string name="controls_dpad">方向パッド</string>
+    <string name="controls_stick">スティック</string>
+    <string name="controls_keypad">キーパッド</string>
+    <string name="controls_navigation">ナビゲーション</string>
+    <string name="controls_shoulders">ショルダー・システムボタン</string>
+    <string name="controls_left_stick">左スティック</string>
+    <string name="controls_dpad_direction">方向パッド %1$s</string>
+    <string name="controls_stick_direction">スティック %1$s</string>
+    <string name="controls_preset_arrows">方向キー</string>
+    <string name="controls_preset_numbers">数字キーで移動</string>
+    <string name="controls_preset_eight_way">数字キーで8方向移動</string>
+    <string name="controls_preset_diagonals">テンキーの斜め方向</string>
+    <string name="controls_preset_actions">数字キーでアクション</string>
+    <string name="controls_soft_left">左ソフトキー</string>
+    <string name="controls_soft_right">右ソフトキー</string>
+    <string name="controls_up">上</string>
+    <string name="controls_down">下</string>
+    <string name="controls_left">左</string>
+    <string name="controls_right">右</string>
+    <string name="controls_fire">決定 / 発射</string>
+    <string name="controls_clear">クリア</string>
+    <string name="controls_end_call">終話</string>
+    <string name="controls_menu">メニュー</string>
+    <string name="controls_phone_key">携帯電話キー %1$s</string>
+    <string name="controls_preview_seconds">%1$d秒</string>
+    <plurals name="controls_preview_remaining"><item quantity="other">設定のプレビュー: 残り%1$d秒</item></plurals>
+    <string-array name="controls_preview_orientations"><item>縦向き</item><item>横向き</item></string-array>
+    <string-array name="controls_phone_blocks"><item>キーパッド</item></string-array>
+    <string-array name="controls_gamepad_blocks"><item>方向</item><item>アクション</item></string-array>
+    <string-array name="controls_directions"><item>上</item><item>下</item><item>左</item><item>右</item><item>左上</item><item>右上</item><item>左下</item><item>右下</item></string-array>
+</resources>

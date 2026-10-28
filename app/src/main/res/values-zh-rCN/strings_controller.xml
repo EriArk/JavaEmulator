@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="quick_rotate_image">旋转画面</string>
+    <string name="quick_rotation_value">旋转画面：%1$d\u00b0</string>
+    <string name="display_save_failed">无法保存显示设置。</string>
+    <plurals name="library_games">
+        <item quantity="other">%d 款游戏</item>
+    </plurals>
+    <string name="mapper_title">操控</string>
+    <string name="mapper_controller">手柄</string>
+    <string name="mapper_phone">手机按键</string>
+    <string name="mapper_detect">识别按钮</string>
+    <string name="mapper_undo">撤销上次更改</string>
+    <string name="mapper_listening">正在等待输入...</string>
+    <string name="mapper_save">保存并继续游戏</string>
+    <string name="mapper_unbind">解除绑定</string>
+    <string name="mapper_duplicate">复制配置文件</string>
+    <string name="mapper_unbound">未绑定</string>
+    <string name="mapper_combined">两个方向</string>
+    <string name="mapper_save_failed">无法保存操控设置。当前更改仍保留在编辑界面中。</string>
+</resources>

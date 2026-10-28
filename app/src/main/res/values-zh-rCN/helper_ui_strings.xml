@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="helper_fix_game">修复游戏</string>
+    <string name="helper_engine_missing">此构建版本未包含此游戏所需的引擎</string>
+    <string name="helper_import_unavailable">无法打开游戏导入工具</string>
+    <string name="helper_close">关闭</string>
+    <string name="helper_opening_game">正在打开游戏</string>
+    <string name="helper_cannot_open_game">无法打开游戏</string>
+    <string name="helper_reading_launch">正在读取启动文件...</string>
+    <string name="helper_retry">重试</string>
+    <string name="helper_prepare_failed">无法准备游戏</string>
+    <string name="helper_exit">退出</string>
+    <string name="helper_undo">撤销</string>
+    <string name="helper_try_in_game">在游戏中试用</string>
+    <string name="helper_try_settings">要试用这些设置吗？</string>
+    <string name="helper_fix_default">尝试默认兼容性属性、240 x 320 分辨率和基础渲染器。</string>
+    <string name="helper_fix_fit">让画面适应窗口、保持比例并居中显示。</string>
+    <string name="helper_expert_hide">隐藏专家设置</string>
+    <string name="helper_fix_renderer">尝试其他渲染器并启用即时绘制。</string>
+    <string name="helper_keep">保留</string>
+    <string name="helper_expert">专家设置</string>
+    <string name="helper_launch_failed">无法启动游戏。已保留原设置。</string>
+    <string name="helper_restart_failed">无法重新启动游戏。已保留原设置。</string>
+    <string name="helper_settings_failed">无法准备设置</string>
+    <string name="helper_mapper_error">错误</string>
+    <string name="helper_network_setup">加入联机游戏前，请先完成此游戏的设置。</string>
+    <string name="helper_apply_failed">无法应用设置。正在使用已保存的设置。</string>
+    <string name="helper_report_saved">无法发送报告。已保存到文件：\n%1$s</string>
+    <string name="helper_report_failed">无法发送报告。</string>
+</resources>

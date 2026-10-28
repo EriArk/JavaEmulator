@@ -40,6 +40,10 @@ public final class GameMenuDialog extends Dialog {
     private Runnable pageCleanup;
     private boolean picturePreview;
     private boolean confirmation;
+    private final androidx.lifecycle.Lifecycle hostLifecycle;
+    private final androidx.lifecycle.LifecycleEventObserver hostObserver = (source, event) -> {
+        if (event == androidx.lifecycle.Lifecycle.Event.ON_DESTROY) dismiss();
+    };
     public void setPageCleanup(Runnable cleanup) {
         pageCleanup = cleanup; picturePreview = cleanup != null;
         if (isShowing()) { updateWindowLayout(); getWindow().getDecorView().requestLayout(); }
@@ -77,8 +81,23 @@ public final class GameMenuDialog extends Dialog {
     }
     public GameMenuDialog(Context context, String game) {
         super(context); this.game = game;
+        Context host = context;
+        while (host instanceof android.content.ContextWrapper
+                && !(host instanceof androidx.lifecycle.LifecycleOwner)) {
+            host = ((android.content.ContextWrapper) host).getBaseContext();
+        }
+        hostLifecycle = host instanceof androidx.lifecycle.LifecycleOwner
+                ? ((androidx.lifecycle.LifecycleOwner) host).getLifecycle() : null;
         ru.playsoftware.j2meloader.ui.AppPalette.apply(getContext());
         requestWindowFeature(Window.FEATURE_NO_TITLE);
+    }
+    @Override protected void onStart() {
+        super.onStart();
+        if (hostLifecycle != null) hostLifecycle.addObserver(hostObserver);
+    }
+    @Override protected void onStop() {
+        if (hostLifecycle != null) hostLifecycle.removeObserver(hostObserver);
+        super.onStop();
     }
     public String text(@androidx.annotation.StringRes int id, Object... args) {
         return getContext().getString(id, args);
@@ -213,7 +232,15 @@ public final class GameMenuDialog extends Dialog {
             return false;
         });
     }
+    @Override public void onAttachedToWindow() {
+        super.onAttachedToWindow();
+        updateWindowLayout();
+    }
     private void updateWindowLayout() {
+        // Keep pending geometry, but do not resize a detached window during Activity recreation.
+        Window current = getWindow();
+        if (current == null) return;
+        boolean canApply = !isShowing() || current.getDecorView().isAttachedToWindow();
         if (edgePanel || confirmation) {
             Window window = getWindow();
             WindowManager.LayoutParams attributes = window.getAttributes();
@@ -231,7 +258,7 @@ public final class GameMenuDialog extends Dialog {
             attributes.dimAmount = picturePreview ? 0 : .4f;
             attributes.height = WindowManager.LayoutParams.WRAP_CONTENT;
             attributes.y = 0;
-            window.setAttributes(attributes);
+            if (canApply) window.setAttributes(attributes);
             return;
         }
         boolean bottom = !ru.playsoftware.j2meloader.BuildConfig.HANDHELD_MODE
@@ -243,7 +270,7 @@ public final class GameMenuDialog extends Dialog {
         attributes.y = bottom ? dp(12) : 0;
         attributes.width = Math.min(dp(440), getContext().getResources().getDisplayMetrics().widthPixels-dp(24));
         attributes.height = WindowManager.LayoutParams.WRAP_CONTENT;
-        window.setAttributes(attributes);
+        if (canApply) window.setAttributes(attributes);
     }
     public void page(String title) {
         finishPagePreview();

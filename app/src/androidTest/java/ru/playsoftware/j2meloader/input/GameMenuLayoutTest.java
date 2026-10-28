@@ -108,7 +108,7 @@ public class GameMenuLayoutTest {
     }
     @Test public void socialUsesExistingDestinationsAndBackKeepsThePanelAlive() {
         withActivity((instrumentation, activity) -> instrumentation.runOnMainSync(() -> {
-            GameMenuDialog menu = new GameMenuDialog(activity, "Fixture"); menu.useEdgePanel(); menu.show();
+            GameMenuDialog menu = testMenu(activity, "Fixture"); menu.useEdgePanel(); menu.show();
             java.util.List<Intent> launches = new java.util.ArrayList<>();
             try {
                 SocialMenuPages.show(menu, activity, () -> menu.page("Game menu"), launches::add);
@@ -142,7 +142,7 @@ public class GameMenuLayoutTest {
                     more.requestFocusFromTouch(); more.performClick();
                 });
                 instrumentation.waitForIdleSync();
-                instrumentation.runOnMainSync(() -> find(menu[0].getWindow().getDecorView(),"Back").performClick());
+                instrumentation.runOnMainSync(() -> find(menu[0].getWindow().getDecorView(),menu[0].text(R.string.menu_back)).performClick());
                 instrumentation.waitForIdleSync(); android.os.SystemClock.sleep(100);
                 instrumentation.runOnMainSync(() -> assertEquals("More",((Button)menu[0].getCurrentFocus()).getText().toString()));
             } finally { instrumentation.runOnMainSync(() -> {if(menu[0]!=null)menu[0].dismiss();}); }
@@ -168,7 +168,7 @@ public class GameMenuLayoutTest {
 
     @Test public void commonGamePagesKeepPauseDuringExitAndResumeFirstDuringPreview() {
         withActivity((instrumentation, activity) -> instrumentation.runOnMainSync(() -> {
-            GameMenuDialog menu = new GameMenuDialog(activity, "Fixture");
+            GameMenuDialog menu = testMenu(activity, "Fixture");
             AtomicInteger exits = new AtomicInteger();
             AtomicInteger screenshots = new AtomicInteger();
             AtomicInteger restarts = new AtomicInteger();
@@ -220,7 +220,7 @@ public class GameMenuLayoutTest {
 
     @Test public void unsupportedScreenshotIsNotOfferedAndResumeClosesMenu() {
         withActivity((instrumentation, activity) -> instrumentation.runOnMainSync(() -> {
-            GameMenuDialog menu = new GameMenuDialog(activity, "Form fixture");
+            GameMenuDialog menu = testMenu(activity, "Form fixture");
             menu.show();
             try {
                 new GameMenuPages(menu, new GameMenuPages.Host() {
@@ -346,7 +346,7 @@ public class GameMenuLayoutTest {
 
     @Test public void headerProvidesTouchBackAndCloseAndControllerBack() {
         withActivity((instrumentation, activity) -> instrumentation.runOnMainSync(() -> {
-            GameMenuDialog menu = new GameMenuDialog(activity, "Fixture");
+            GameMenuDialog menu = testMenu(activity, "Fixture");
             menu.show();
             try {
                 AtomicInteger backs = new AtomicInteger();
@@ -371,6 +371,7 @@ public class GameMenuLayoutTest {
         withActivity((instrumentation, activity) -> instrumentation.runOnMainSync(() -> {
             ContextThemeWrapper context = new ContextThemeWrapper(activity, R.style.AppTheme);
             Configuration config = new Configuration(activity.getResources().getConfiguration());
+            config.setLocales(android.os.LocaleList.forLanguageTags("en"));
             config.fontScale = 1.5f;
             context.applyOverrideConfiguration(config);
             GameMenuDialog menu = new GameMenuDialog(context, "A long game title that should stay on one line");
@@ -402,6 +403,15 @@ public class GameMenuLayoutTest {
                 }
             } finally { menu.dismiss(); }
         }));
+    }
+
+    private GameMenuDialog testMenu(MainActivity activity, String title) {
+        // These layout fixtures use English labels without changing the user's app language.
+        ContextThemeWrapper context = new ContextThemeWrapper(activity, R.style.AppTheme);
+        Configuration override = new Configuration();
+        override.setLocales(android.os.LocaleList.forLanguageTags("en"));
+        context.applyOverrideConfiguration(override);
+        return new GameMenuDialog(context, title);
     }
 
     private interface Check { void run(Instrumentation instrumentation, MainActivity activity); }
