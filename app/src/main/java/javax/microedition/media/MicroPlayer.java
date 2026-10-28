@@ -55,10 +55,17 @@ public class MicroPlayer extends BasePlayer implements MediaPlayer.OnCompletionL
 	}
 
 	public void doPrefetch() throws IOException {
+		player.prepare();
 		MediaMetadataRetriever retriever = new MediaMetadataRetriever();
-		retriever.setDataSource(source.getLocator());
-		metadata.updateMetaData(retriever);
-		retriever.release();
+		try {
+			retriever.setDataSource(source.getLocator());
+			metadata.updateMetaData(retriever);
+		} catch (RuntimeException e) {
+			// Optional tags may be unsupported even when Android can play the audio.
+			android.util.Log.d("MicroPlayer", "Audio metadata unavailable", e);
+		} finally {
+			retriever.release();
+		}
 	}
 
 	public void doStart() {
@@ -80,7 +87,7 @@ public class MicroPlayer extends BasePlayer implements MediaPlayer.OnCompletionL
 	}
 
 	public void doSetMediaTime(long usec) {
-		int time = (int) usec / 1000;
+		int time = (int) Math.max(0L, Math.min(Integer.MAX_VALUE, usec / 1000L));
 		player.seekTo(time);
 	}
 

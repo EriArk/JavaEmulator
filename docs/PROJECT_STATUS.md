@@ -93,7 +93,7 @@ older 0.3 builds, not the current release series.
 | Channel | Current identifier | Availability |
 | --- | --- | --- |
 | Public download | `0.6.0-beta.1-r1`, code 312 | One signed adaptive APK on the existing Beta 1 page; centered confirmations, shape-adaptive panels and 29 dark screenshots. Corresponding r1 app source reuses unchanged dependency/peer and Symbian bundles. Early experimental Java Bluetooth multiplayer retains its limits. |
-| Development source | Unreleased audio, Phone chrome and per-game touch mapping after r1 | Nokia Sound gain, move/hide handle and independent opacity; graphical Gamepad button mapping with templates and reversible per-game saving. Debug Retroid checks only, not a new public APK. Exact #41 quiet-music reports and Treasure Towers remain unverified. [Audio/chrome](checks/2026-10-28-audio-and-phone-controls.md), [mapping](checks/2026-10-28-touch-gamepad-mapping.md) |
+| Development source | Unreleased audio, Phone chrome and per-game touch mapping after r1 | Nokia gain plus shared audio load/copy/seek/replay repairs and original-rate ADPCM conversion; move/hide handle, independent opacity and graphical Gamepad mapping. Debug Retroid checks only, not a new public APK. Exact #41 quiet-music reports and Treasure Towers remain unverified. [Audio pipeline](checks/2026-10-28-audio-pipeline.md), [audio/chrome](checks/2026-10-28-audio-and-phone-controls.md), [mapping](checks/2026-10-28-touch-gamepad-mapping.md) |
 | Private historical snapshot | `0.1.0-beta.2-experimental.15`, 2026-10-11 | Old Java/Mophun test build, not the current beta |
 | Local-only material | Game fixtures, firmware, diagnostics, device data and signing keys | Not in Git or public release assets; describing testing does not authorize redistribution |
 
@@ -113,6 +113,17 @@ game, subjective audio or gesture-navigation acceptance.
 Locally available Avatar 1.0.6 and Cops 1.2.1 use MMAPI, not the repaired Nokia
 path. Their captured music starts at level 100. The reported 1.1.6/1.2.3 quiet
 music therefore remains open; no global boost or game-name workaround was added.
+
+The subsequent audio batch repairs shared stream copying, failed-load recovery,
+prefetch, seek/reset and cached duration; ADPCM keeps its original sample rate.
+Its existing 8-bit conversion remains an explicit compact-dependency limitation.
+**398 JVM, 20 Retroid audio checks and two additional private MIDI comparisons
+pass**, lint zero errors / 447 warnings. Cops 1.2.1, Bounce Tales and Splinter Cell
+MIDI samples closely match direct Android playback; that is not original-phone
+synth equivalence or acceptance of the reported editions. Five additional games
+are installed in Debug only, with Rayman 3 reaching gameplay. Official app/data
+are untouched. [Audio evidence and remaining work](checks/2026-10-28-audio-pipeline.md).
+
 The next batch implements **#45's general virtual Gamepad mapper** in the existing
 Touch layout editor: select a drawn button, choose a phone key, or use the Native
 arrows / Numpad template. Directions, fire, soft keys, action buttons and explicit

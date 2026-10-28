@@ -10,6 +10,24 @@ stated otherwise. **Experimental** in older checkpoints means local/private
 combined builds; released experimental features are explicitly identified.
 **Released** means an actual GitHub release asset.
 
+## 2026-10-28 - Audio Pipeline Recovery and MIDI Measurements (Public Source, Unreleased)
+
+- Fix incomplete/incorrect audio stream copies, failed-load recovery, stale seek
+  positions, long-track seek overflow and lost duration after playback ends.
+- Prepare audio during prefetch; report real failures without entering a false
+  playing state. Keep optional metadata failures separate from playback.
+- Stop forcing ADPCM audio down to 16 kHz. The compact decoder still outputs
+  8-bit PCM; a 16-bit upgrade is not included or claimed.
+- Verify independent music/effect volume, mute/resume, finite loops, tone
+  replacement and playback speed on Retroid. 398 JVM checks, 20 audio device
+  checks and two additional private MIDI comparisons pass; lint has zero errors.
+- Cops 1.2.1, Bounce Tales and Splinter Cell 2 MIDI samples match direct Android
+  output closely. No global boost or authored MIDI changes. This does not close
+  the quiet-music reports for Avatar 1.1.6 / Cops 1.2.3.
+- Install five additional owner-supplied games in the separate Debug library;
+  Rayman 3 reaches gameplay. Preserve the official app and its data. No public
+  APK update. [Evidence and limits](docs/checks/2026-10-28-audio-pipeline.md).
+
 ## 2026-10-28 - Per-Game Touch Gamepad Mapping (Public Source, Unreleased)
 
 - Add a Buttons tab to the graphical touch-layout editor, with a phone-key

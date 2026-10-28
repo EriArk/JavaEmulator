@@ -33,6 +33,7 @@ public class AndroidPlayer extends MediaPlayer {
 	private String path;
 	private float leftVolume, rightVolume;
 	private int timePos;
+	private int duration;
 	private boolean looping;
 
 	public AndroidPlayer() {
@@ -58,12 +59,15 @@ public class AndroidPlayer extends MediaPlayer {
 	}
 
 	@Override
-	public void setDataSource(String path) throws IOException, IllegalArgumentException, IllegalStateException, SecurityException {
+	public synchronized void setDataSource(String path) throws IOException, IllegalArgumentException, IllegalStateException, SecurityException {
+		if (released || loaded) throw new IllegalStateException("Reset before replacing audio source");
 		this.path = path;
+		duration = 0;
 	}
 
 	@Override
-	public void seekTo(int msec) throws IllegalStateException {
+	public synchronized void seekTo(int msec) throws IllegalStateException {
+		msec = Math.max(0, msec);
 		if (loaded) {
 			super.seekTo(msec);
 		}
@@ -71,7 +75,7 @@ public class AndroidPlayer extends MediaPlayer {
 	}
 
 	@Override
-	public int getCurrentPosition() {
+	public synchronized int getCurrentPosition() {
 		if (loaded) {
 			return super.getCurrentPosition();
 		} else {
@@ -80,16 +84,16 @@ public class AndroidPlayer extends MediaPlayer {
 	}
 
 	@Override
-	public int getDuration() {
+	public synchronized int getDuration() {
 		if (loaded) {
 			return super.getDuration();
 		} else {
-			return 0;
+			return duration;
 		}
 	}
 
 	@Override
-	public void setLooping(boolean looping) {
+	public synchronized void setLooping(boolean looping) {
 		if (loaded) {
 			super.setLooping(looping);
 		}
@@ -97,7 +101,7 @@ public class AndroidPlayer extends MediaPlayer {
 	}
 
 	@Override
-	public void setVolume(float leftVolume, float rightVolume) {
+	public synchronized void setVolume(float leftVolume, float rightVolume) {
 		if (loaded) {
 			super.setVolume(leftVolume, rightVolume);
 		}
@@ -107,7 +111,11 @@ public class AndroidPlayer extends MediaPlayer {
 
 	@Override
 	public synchronized void start() throws IllegalStateException {
-		load();
+		try {
+			load();
+		} catch (IOException e) {
+			throw new IllegalStateException("Cannot prepare audio", e);
+		}
 		timePos = 0;
 		super.start();
 		applySpeed();
@@ -123,25 +131,31 @@ public class AndroidPlayer extends MediaPlayer {
 
 	@Override
 	public synchronized void reset() {
-		if (loaded) {
-			super.reset();
-			loaded = false;
-		}
+		super.reset();
+		loaded = false;
+		timePos = 0;
 		audioSpeed.reset();
 	}
 
-	private void load() {
+	@Override public synchronized void prepare() throws IOException { load(); }
+
+	private void load() throws IOException {
+		if (released) throw new IllegalStateException("Audio player is released");
 		if (!loaded) {
 			try {
 				super.setDataSource(path);
 				super.prepare();
+				duration = super.getDuration();
 				super.setVolume(leftVolume, rightVolume);
 				super.setLooping(looping);
 				super.seekTo(timePos);
-			} catch (IOException e) {
-				e.printStackTrace();
+				loaded = true;
+			} catch (IOException | RuntimeException e) {
+				// Failed prepare may leave Android in Initialized or Error, not Idle.
+				super.reset();
+				audioSpeed.reset();
+				throw e;
 			}
-			loaded = true;
 		}
 	}
 }

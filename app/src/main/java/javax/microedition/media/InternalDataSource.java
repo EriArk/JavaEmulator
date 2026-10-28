@@ -29,7 +29,7 @@ import com.arthenica.mobileffmpeg.StreamInformation;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
-import java.io.RandomAccessFile;
+import java.io.FileOutputStream;
 
 import javax.microedition.media.protocol.DataSource;
 import javax.microedition.media.protocol.SourceStream;
@@ -48,34 +48,23 @@ public class InternalDataSource extends DataSource {
 		this.mediaFile = File.createTempFile("media", extension, ContextHolder.getCacheDir());
 		this.type = type;
 
-		final RandomAccessFile raf = new RandomAccessFile(mediaFile, "rw");
-
 		final String name = mediaFile.getName();
 		Log.d(TAG, "Starting media pipe: " + name);
-
-		int length = stream.available();
-		if (length >= 0) {
-			raf.setLength(length);
-			Log.d(TAG, "Changing file size to " + length + " bytes: " + name);
-		}
-
-		byte[] buf = new byte[0x10000];
-		int read;
-		try {
-			while (true) {
-				read = stream.read(buf);
-				if (read > 0) {
-					raf.write(buf, 0, read);
-				} else if (read < 0) {
-					break;
-				}
+		// available() is a non-blocking hint, not the length of a guest resource.
+		try (InputStream input = stream; FileOutputStream output = new FileOutputStream(mediaFile)) {
+			byte[] buf = new byte[0x10000];
+			int read;
+			while ((read = input.read(buf)) != -1) {
+				if (read == 0) {
+					int value = input.read();
+					if (value == -1) break;
+					output.write(value);
+				} else output.write(buf, 0, read);
 			}
-			raf.close();
 			Log.d(TAG, "Media pipe closed: " + name);
-		} catch (IOException e) {
-			Log.d(TAG, "Media pipe failure: " + e.toString());
-		} finally {
-			stream.close();
+		} catch (IOException | RuntimeException e) {
+			mediaFile.delete();
+			throw e;
 		}
 
 		try {
@@ -88,17 +77,21 @@ public class InternalDataSource extends DataSource {
 
 	private void convert() {
 		MediaInformation mediaInformation = FFprobe.getMediaInformation(mediaFile.getPath());
-		if (mediaInformation != null) {
+		if (mediaInformation != null && mediaInformation.getStreams() != null
+				&& !mediaInformation.getStreams().isEmpty()) {
 			StreamInformation streamInformation = mediaInformation.getStreams().get(0);
-			if (streamInformation.getCodec().contains("adpcm")) {
+			String codec = streamInformation.getCodec();
+			if (codec != null && codec.contains("adpcm")) {
 				String newName = mediaFile.getPath() + ".wav";
-				String cmd = "-i " + mediaFile.getPath() + " -acodec pcm_u8 -ar 16000 " + newName;
-				int rc = FFmpeg.execute(cmd);
+				// The compact FFmpeg dependency only encodes pcm_u8. Keep the original sample rate.
+				int rc = FFmpeg.execute(new String[]{"-y", "-i", mediaFile.getPath(),
+						"-acodec", "pcm_u8", newName});
 				if (rc == Config.RETURN_CODE_SUCCESS) {
 					Log.i(TAG, "Command execution completed successfully.");
 					mediaFile.delete();
 					mediaFile = new File(newName);
 				} else {
+					new File(newName).delete();
 					Log.i(TAG, String.format(
 							"Command execution failed with rc=%d and the output below.", rc));
 				}

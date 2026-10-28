@@ -139,7 +139,7 @@ public class BasePlayer implements Player, VolumeControl, PanControl {
 			try {
 				doPrefetch();
 			} catch (Exception e) {
-				e.printStackTrace();
+				throw new MediaException(e.toString());
 			}
 			state = PREFETCHED;
 		}
@@ -150,7 +150,11 @@ public class BasePlayer implements Player, VolumeControl, PanControl {
 		prefetch();
 
 		if (state == PREFETCHED) {
-			doStart();
+			try {
+				doStart();
+			} catch (IllegalStateException e) {
+				throw new MediaException(e.toString());
+			}
 
 			state = STARTED;
 			postEvent(PlayerListener.STARTED, new Long(getMediaTime()));
@@ -357,6 +361,7 @@ public class BasePlayer implements Player, VolumeControl, PanControl {
 
 	@Override
 	public int setPan(int pan) {
+		if (state == CLOSED) return this.pan;
 		if (pan < -100) {
 			pan = -100;
 		} else if (pan > 100) {

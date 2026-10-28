@@ -7,6 +7,14 @@ for availability and the dated evidence behind each result.
 
 ## 1. Java audio (#41)
 
+**Further unreleased work, 2026-10-28:** shared stream/load/prefetch/seek/replay
+repairs, retained duration, and original-rate ADPCM conversion. 20 Retroid audio
+checks plus two additional private MIDI comparisons pass. Three game samples
+match direct Android MIDI output closely; this does not establish original-phone
+synth balance or fix the exact reported editions. Five more games installed in
+Debug only. Compact FFmpeg still outputs 8-bit PCM; 16-bit conversion and direct
+MIDI player isolation remain open. [Evidence](checks/2026-10-28-audio-pipeline.md).
+
 - Repair API-level gain/mute defects without game-name exceptions or a global
   boost that changes every title's sound balance.
 - Keep Nokia Sound, MMAPI MIDI files, direct MIDI, WAV and tone paths distinct.
