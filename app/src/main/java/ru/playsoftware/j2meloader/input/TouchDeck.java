@@ -32,8 +32,18 @@ public final class TouchDeck {
         public final RectF bounds;
         public final String label;
         public final int[] codes;
-        Key(RectF bounds, String label, int... codes) {
-            this.bounds = bounds; this.label = label; this.codes = codes;
+        public final String id;
+        private final int[] defaults;
+        Key(RectF bounds, String label, String id, int[] defaults, int[] codes) {
+            this.bounds = bounds; this.label = label; this.id = id;
+            this.defaults = defaults; this.codes = codes;
+        }
+        public boolean isLayoutSwitch() { return defaults[0] == NUMBERS; }
+        public boolean isMappable() { return TouchMappings.index(id) >= 0; }
+        public String displayLabel() {
+            if (java.util.Arrays.equals(defaults, codes)) return label;
+            return codes.length == 1 ? TouchMappings.glyph(codes[0])
+                    : TouchMappings.glyph(codes[0]) + "+" + TouchMappings.glyph(codes[1]);
         }
     }
     private final ProfileModel settings;
@@ -229,7 +239,19 @@ public final class TouchDeck {
         for (int i = 0; i < 12; i++) key(x + i % 3 * w, y + i / 3 * h, w, h, labels[i], labels[i].charAt(0));
     }
     private void key(float x, float y, float w, float h, String label, int... codes) {
-        keys.add(new Key(new RectF(x, y, x+w, y+h), label, codes));
+        String id = "literal:" + codes[0];
+        if (style() == GAMEPAD) {
+            if (codes.length == 2) id = (codes[0] == -1 ? "up" : "down") + (codes[1] == -3 ? "_left" : "_right");
+            else if (codes[0] < 0) {
+                String[] names = {"up", "down", "left", "right", "fire", "soft_left", "soft_right"};
+                id = names[-codes[0] - 1];
+            } else if (!numbers && codes[0] != NUMBERS) {
+                id = codes[0] == 49 ? "action_top" : codes[0] == 42 ? "action_left"
+                        : codes[0] == 53 ? "action_right" : "action_bottom";
+            }
+        }
+        int[] resolved = TouchMappings.index(id) < 0 ? codes.clone() : TouchMappings.resolve(settings.touchGamepadMappings, id);
+        keys.add(new Key(new RectF(x, y, x+w, y+h), label, id, codes, resolved));
     }
     private Key at(float x, float y) {
         for (Key key : keys) if (key.bounds.contains(x,y)) return key;
@@ -239,7 +261,7 @@ public final class TouchDeck {
         Key key = at(x,y);
         if (key == null) return false;
         boolean fresh = !pointers.containsValue(key);
-        if (key.codes[0] == NUMBERS) {
+        if (key.isLayoutSwitch()) {
             numbers = !numbers; layout(width,height);
             pointers.put(pointer, null);
         } else {
@@ -251,7 +273,7 @@ public final class TouchDeck {
     public synchronized boolean move(int pointer, float x, float y) {
         if (!pointers.containsKey(pointer)) return false;
         Key old = pointers.get(pointer), next = at(x,y);
-        if (next != null && next.codes[0] == NUMBERS) next = null;
+        if (next != null && next.isLayoutSwitch()) next = null;
         if (old != next) {
             boolean fresh = next != null && !pointers.containsValue(next);
             pointers.put(pointer,next); syncHeld(); sink.invalidate();
@@ -307,8 +329,8 @@ public final class TouchDeck {
             float labelScale = Math.min(1, key.bounds.height() / dp(48));
             boolean pressed = pointers.containsValue(key);
             boolean dpad = cross && isDpad(key);
-            if (dpad && key.codes.length == 1) pressed = held.get(key.codes[0]) > 0;
-            boolean action = style() == GAMEPAD && !numbers && key.codes[0] > 0 && key.codes[0] != NUMBERS;
+            if (dpad && key.defaults.length == 1) pressed = held.get(key.codes[0]) > 0;
+            boolean action = style() == GAMEPAD && !numbers && key.defaults[0] > 0 && !key.isLayoutSwitch();
             int opacity = 100;
             paint.setColor(pressed ? accent : button);
             paint.setAlpha(opacity * 255 / 100);
@@ -329,16 +351,17 @@ public final class TouchDeck {
                 canvas.drawRoundRect(rect,dp(6),dp(6),paint);
             }
             paint.setStyle(Paint.Style.STROKE); paint.setStrokeWidth(dp(1));
-            paint.setColor(pressed ? accent : action ? (key.codes[0] == 53 ? accent : secondaryAccent) : line);
+            paint.setColor(pressed ? accent : action ? (key.defaults[0] == 53 ? accent : secondaryAccent) : line);
             if (action) canvas.drawOval(rect,paint);
             else if (!dpad) canvas.drawRoundRect(rect,dp(6),dp(6),paint);
             paint.setStyle(Paint.Style.FILL);
             paint.setColor(pressed ? onAccent : text);
-            paint.setTextSize(dp(dpad && key.codes.length > 1 ? 13 : key.label.length() > 2 ? 14 : 20) * labelScale);
-            if (dpad && key.codes.length > 1 && !pressed) paint.setColor(muted);
-            boolean digit = (style() == PHONE || numbers) && key.codes.length == 1 && key.codes[0] >= 48 && key.codes[0] <= 57;
+            String label = key.displayLabel();
+            paint.setTextSize(dp(dpad && key.defaults.length > 1 ? 13 : label.length() > 2 ? 14 : 20) * labelScale);
+            if (dpad && key.defaults.length > 1 && !pressed) paint.setColor(muted);
+            boolean digit = (style() == PHONE || numbers) && key.defaults.length == 1 && key.defaults[0] >= 48 && key.defaults[0] <= 57;
             if (digit) paint.setTextSize(dp(23) * labelScale);
-            canvas.drawText(key.label,rect.centerX(),rect.centerY()-(paint.ascent()+paint.descent())/2-(digit ? dp(5) * labelScale : 0),paint);
+            canvas.drawText(label,rect.centerX(),rect.centerY()-(paint.ascent()+paint.descent())/2-(digit ? dp(5) * labelScale : 0),paint);
             if (digit) {
                 paint.setTextSize(dp(9) * labelScale);
                 paint.setColor(pressed ? onAccent : muted);
@@ -380,12 +403,12 @@ public final class TouchDeck {
     }
 
     private boolean isDpad(Key key) {
-        return key.codes[0] >= -5 && key.codes[0] <= -1;
+        return key.defaults[0] >= -5 && key.defaults[0] <= -1;
     }
 
     private void drawDpadBase(Canvas canvas) {
         Key center = null;
-        for (Key key : keys) if (key.codes.length == 1 && key.codes[0] == -5) center = key;
+        for (Key key : keys) if (key.defaults.length == 1 && key.defaults[0] == -5) center = key;
         if (center == null) return;
         RectF c = center.bounds;
         float u = c.width(), inset = dp(3);

@@ -984,6 +984,40 @@ public class CanvasLifecycleTest {
         }
     }
 
+    @Test public void remappedTouchKeysReachGuestCanvasCallbacksInBothOrientations() throws Exception {
+        List<String> inputs = Collections.synchronizedList(new ArrayList<>());
+        Screen[] target = new Screen[1];
+        InstrumentationRegistry.getInstrumentation().runOnMainSync(() -> target[0] = new Screen() {
+            protected void keyPressed(int code) { inputs.add("+" + code); }
+            protected void keyReleased(int code) { inputs.add("-" + code); }
+        });
+        display.setCurrent(target[0]); Display.setForeground(true); drain();
+        ru.playsoftware.j2meloader.config.ProfileModel profile = new ru.playsoftware.j2meloader.config.ProfileModel();
+        profile.touchLayout = 1; profile.touchGamepadMappings = new java.util.HashMap<>();
+        for (int[] size : new int[][]{{360,640},{640,360}}) {
+            for (int code : new int[]{-1,-2,-3,-4,-5,-6,-7,48,49,50,51,52,53,54,55,56,57,42,35}) {
+                inputs.clear(); profile.touchGamepadMappings.put("action_top", code);
+                InstrumentationRegistry.getInstrumentation().runOnMainSync(() -> {
+                    ru.playsoftware.j2meloader.input.TouchDeck deck = new ru.playsoftware.j2meloader.input.TouchDeck(profile,1,
+                            new ru.playsoftware.j2meloader.input.TouchDeck.Sink() {
+                        public void press(int key) { target[0].postKeyPressed(key); }
+                        public void release(int key) { target[0].postKeyReleased(key); }
+                        public void repeat(int key) { target[0].postKeyRepeated(key); }
+                        public void feedback() { } public void invalidate() { }
+                    });
+                    deck.layout(size[0],size[1]);
+                    for (ru.playsoftware.j2meloader.input.TouchDeck.Key key : deck.getKeys()) if ("action_top".equals(key.id)) {
+                        deck.down(0,key.bounds.centerX(),key.bounds.centerY()); deck.up(0);
+                    }
+                    deck.cancel();
+                });
+                drain();
+                int expected = javax.microedition.lcdui.keyboard.KeyMapper.convertKeyCode(code);
+                assertEquals(java.util.Arrays.asList("+" + expected,"-" + expected), inputs);
+            }
+        }
+    }
+
     @Test public void gameCanvasKeepsHeldKeysAndIndependentAliases() throws Exception {
         javax.microedition.lcdui.game.GameCanvas canvas = gameCanvas(true);
         int left = javax.microedition.lcdui.game.GameCanvas.LEFT_PRESSED;

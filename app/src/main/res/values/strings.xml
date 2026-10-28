@@ -330,4 +330,20 @@
     <string name="touch_contrast_opacity">High contrast keeps buttons fully opaque.</string>
     <string name="screenshot_gallery_saved">Screenshot saved to Pictures/AbyssME</string>
     <string name="screenshot_failed">Could not save screenshot</string>
+    <string name="touch_mapping_tab">Buttons</string>
+    <string name="touch_mapping_reset">Reset button mappings</string>
+    <string name="touch_positions_reset">Reset layout positions</string>
+    <string name="touch_mapping_template">Template</string>
+    <string name="touch_mapping_button">Button</string>
+    <string name="touch_mapping_default">Default</string>
+    <string name="touch_mapping_default_description">Default mapping; diagonals follow directions</string>
+    <string-array name="touch_mapping_templates">
+        <item>Native arrows</item><item>Numpad 2/4/6/8 + 5</item><item>Custom</item>
+    </string-array>
+    <string-array name="touch_mapping_buttons">
+        <item>Up</item><item>Down</item><item>Left</item><item>Right</item><item>OK / Fire</item>
+        <item>Up + Left</item><item>Up + Right</item><item>Down + Left</item><item>Down + Right</item>
+        <item>Soft left</item><item>Soft right</item><item>Action top</item><item>Action left</item>
+        <item>Action right</item><item>Action bottom</item>
+    </string-array>
 </resources>

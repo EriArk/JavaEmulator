@@ -29,12 +29,15 @@ public final class TouchLayoutEditor extends Dialog {
     private final boolean handleMode;
     private Preview preview;
     private LinearLayout controls, body;
+    private LinearLayout tabs;
     private ScrollView settings;
     private SeekBar scale;
     private TextView scaleLabel;
     private boolean landscape;
     private int selected;
     private int tab;
+    private String selectedButton = "up";
+    private ImageButton reset;
 
     public TouchLayoutEditor(Context context, ProfileModel target, Runnable done) {
         this(context, target, done, false);
@@ -61,10 +64,14 @@ public final class TouchLayoutEditor extends Dialog {
         TextView title = label(handleMode ? getContext().getString(R.string.game_handle_editor) : "Touch layout", 18); title.setTypeface(null, android.graphics.Typeface.BOLD);
         title.setSingleLine(true); title.setEllipsize(android.text.TextUtils.TruncateAt.END);
         header.addView(title, new LinearLayout.LayoutParams(0, -2, 1));
-        icon(header, "Reset layout", R.drawable.ic_restore, () -> {
+        reset = icon(header, "Reset layout", R.drawable.ic_restore, () -> {
             if (handleMode) {
                 if (landscape) draft.gameHandleLandscape = null; else draft.gameHandlePortrait = null;
                 preview.invalidate(); return;
+            }
+            if (tab == 3) {
+                draft.touchGamepadMappings = null;
+                preview.rebuild(); buildControls(); return;
             }
             if (draft.touchPlacements != null) for (int i=0;i<2;i++) draft.touchPlacements.remove(preview.deck.placementId(i));
             draft.touchSize = 0;
@@ -76,6 +83,8 @@ public final class TouchLayoutEditor extends Dialog {
             dismiss(); done.run();
         });
         root.addView(header, new LinearLayout.LayoutParams(-1, dp(48)));
+        tabs = new LinearLayout(getContext());
+        if (!handleMode) root.addView(tabs, new LinearLayout.LayoutParams(-1,dp(48)));
         body = new LinearLayout(getContext()); body.setOrientation(LinearLayout.VERTICAL);
         preview = new Preview(getContext()); body.addView(preview, new LinearLayout.LayoutParams(-1, 0, 2));
         settings = new ScrollView(getContext()); controls = new LinearLayout(getContext());
@@ -98,6 +107,7 @@ public final class TouchLayoutEditor extends Dialog {
         to.touchTheme = copy.touchTheme; to.touchOpacity = copy.touchOpacity;
         to.touchPortraitReach = copy.touchPortraitReach; to.touchLandscapeReach = copy.touchLandscapeReach;
         to.touchPlacements = copy.touchPlacements;
+        to.touchGamepadMappings = copy.touchGamepadMappings;
     }
     public static void copyHandle(ProfileModel from, ProfileModel to) {
         ProfileModel copy = ProfilesManager.copy(from);
@@ -115,6 +125,7 @@ public final class TouchLayoutEditor extends Dialog {
         state.putString("touchDraft",new com.google.gson.Gson().toJson(draft));
         state.putBoolean("landscape",landscape); state.putInt("tab",tab); state.putInt("block",selected);
         state.putBoolean("handleMode", handleMode);
+        state.putString("touchButton", selectedButton);
         return state;
     }
     @Override public void onRestoreInstanceState(Bundle state) {
@@ -125,7 +136,9 @@ public final class TouchLayoutEditor extends Dialog {
                 if(restored!=null) { copyLayout(restored,draft); copyHandle(restored,draft); }
             } catch(RuntimeException ignored) { }
         }
-        landscape=state.getBoolean("landscape",landscape); tab=Math.max(0,Math.min(2,state.getInt("tab")));
+        landscape=state.getBoolean("landscape",landscape); tab=Math.max(0,Math.min(3,state.getInt("tab")));
+        String button = state.getString("touchButton", "up");
+        selectedButton = TouchMappings.index(button) >= 0 ? button : "up";
         preview.rebuild(); selected=Math.max(0,Math.min(preview.deck.groupCount()-1,state.getInt("block")));
         buildControls();
     }
@@ -139,6 +152,8 @@ public final class TouchLayoutEditor extends Dialog {
         return super.dispatchKeyEvent(event);
     }
     private void buildControls() {
+        int scroll = settings.getScrollY();
+        settings.post(() -> settings.scrollTo(0, scroll));
         controls.removeAllViews();
         scale = null;
         if (handleMode) {
@@ -148,18 +163,20 @@ public final class TouchLayoutEditor extends Dialog {
             addMoveButtons();
             return;
         }
-        LinearLayout tabs = new LinearLayout(getContext());
-        String[] names = {"Layout", "Position", "Style"};
+        tabs.removeAllViews();
+        String resetLabel = getContext().getString(tab == 3 ? R.string.touch_mapping_reset : R.string.touch_positions_reset);
+        reset.setContentDescription(resetLabel); reset.setTooltipText(resetLabel);
+        String[] names = {"Layout", "Position", "Style", getContext().getString(R.string.touch_mapping_tab)};
         for (int i=0;i<names.length;i++) {
             final int index=i;
             TextView button=label(names[i],14); button.setGravity(Gravity.CENTER);
             button.setSingleLine(true); button.setEllipsize(android.text.TextUtils.TruncateAt.END);
-            button.setBackgroundResource(R.drawable.bg_phone_mode); button.setSelected(tab==i);
+            ru.playsoftware.j2meloader.ui.ConsoleSurface.apply(button, ru.playsoftware.j2meloader.ui.ConsoleSurface.Kind.TAB);
+            button.setSelected(tab==i);
             button.setFocusable(true); button.setClickable(true); button.setContentDescription(names[i]+" tab");
-            button.setOnClickListener(v->{tab=index; buildControls();});
+            button.setOnClickListener(v->{tab=index; settings.scrollTo(0,0); buildControls(); preview.invalidate();});
             tabs.addView(button,new LinearLayout.LayoutParams(0,dp(48),1));
         }
-        controls.addView(tabs);
         if (tab == 0) {
         choice("Layout", new String[]{"Phone", "Gamepad"}, draft.touchLayout == null ? 0 : Math.min(1,draft.touchLayout), i -> {
             draft.touchLayout=i; selected=0; preview.rebuild(); buildControls();
@@ -183,6 +200,8 @@ public final class TouchLayoutEditor extends Dialog {
             preview.rebuild(); scaleLabel.setText("Block size: " + (value+70) + "%");
         }); updateScale();
         addMoveButtons();
+        } else if (tab == 3) {
+            buildMapping();
         } else {
         choice("Button theme",new String[]{"Follow app","Dark","Light"},Math.max(0,Math.min(2,draft.touchTheme)), i->{draft.touchTheme=i; preview.rebuild();});
         TextView opacity=label(getContext().getString(R.string.touch_button_opacity_value, draft.touchOpacity),14); controls.addView(opacity);
@@ -190,6 +209,70 @@ public final class TouchLayoutEditor extends Dialog {
         slider(getContext().getString(R.string.touch_button_opacity),100-minimum,Math.max(0,Math.min(100-minimum,draft.touchOpacity-minimum)),v->{draft.touchOpacity=v+minimum; opacity.setText(getContext().getString(R.string.touch_button_opacity_value,v+minimum)); preview.invalidate();});
         if ("contrast".equals(AppPalette.selected(getContext()))) controls.addView(label(getContext().getString(R.string.touch_contrast_opacity),14));
         }
+    }
+    private void buildMapping() {
+        if (draft.touchLayout == null || draft.touchLayout != TouchDeck.GAMEPAD) {
+            choice("Layout", new String[]{"Phone", "Gamepad"}, 0,
+                    i -> { draft.touchLayout = i; preview.rebuild(); buildControls(); });
+            return;
+        }
+        int preset = draft.touchGamepadMappings == null || draft.touchGamepadMappings.isEmpty() ? 0
+                : draft.touchGamepadMappings.equals(TouchMappings.template(true)) ? 1 : 2;
+        choice(getContext().getString(R.string.touch_mapping_template),
+                getContext().getResources().getStringArray(R.array.touch_mapping_templates), preset, i -> {
+                    if (i == 2) return;
+                    draft.touchGamepadMappings = TouchMappings.template(i == 1);
+                    preview.rebuild(); buildControls();
+                });
+        String[] names = getContext().getResources().getStringArray(R.array.touch_mapping_buttons);
+        String[] assignments = new String[names.length];
+        for (int i = 0; i < names.length; i++) assignments[i] = names[i] + " : " + assignment(TouchMappings.IDS[i]);
+        choice(getContext().getString(R.string.touch_mapping_button), assignments, TouchMappings.index(selectedButton),
+                i -> { selectedButton = TouchMappings.IDS[i]; buildControls(); preview.invalidate(); });
+        // Keep the digit keys in the familiar telephone order below the navigation pad.
+        int[][] rows = {{-6,-1,-7}, {-3,-5,-4}, {-2}, {49,50,51}, {52,53,54}, {55,56,57}, {42,48,35}};
+        Integer assigned = draft.touchGamepadMappings == null ? null : draft.touchGamepadMappings.get(selectedButton);
+        for (int[] rowCodes : rows) {
+            LinearLayout row = new LinearLayout(getContext()); row.setGravity(Gravity.CENTER);
+            for (int code : rowCodes) {
+                TextView key = mappingButton(TouchMappings.glyph(code), assigned != null && assigned == code, () -> {
+                    if (draft.touchGamepadMappings == null) draft.touchGamepadMappings = new java.util.HashMap<>();
+                    draft.touchGamepadMappings.put(selectedButton, code);
+                    preview.rebuild(); buildControls();
+                });
+                key.setContentDescription(TouchMappings.glyph(code) + " (" + code + ")");
+                LinearLayout.LayoutParams params = new LinearLayout.LayoutParams(0, dp(48), 1);
+                params.setMargins(dp(2), 0, dp(2), 0); row.addView(key, params);
+            }
+            if (rowCodes.length == 1) {
+                TextView automatic = mappingButton(getContext().getString(R.string.touch_mapping_default),
+                        assigned == null, () -> {
+                            if (draft.touchGamepadMappings != null) draft.touchGamepadMappings.remove(selectedButton);
+                            preview.rebuild(); buildControls();
+                        });
+                automatic.setContentDescription(getContext().getString(R.string.touch_mapping_default_description));
+                LinearLayout.LayoutParams params = new LinearLayout.LayoutParams(0, dp(48), 2);
+                params.setMargins(dp(2), 0, dp(2), 0); row.addView(automatic, params);
+            }
+            controls.addView(row);
+        }
+    }
+    private String assignment(String id) {
+        int[] codes = TouchMappings.resolve(draft.touchGamepadMappings, id);
+        StringBuilder text = new StringBuilder();
+        for (int code : codes) {
+            if (text.length() > 0) text.append(" + ");
+            text.append(TouchMappings.glyph(code)).append(" (").append(code).append(")");
+        }
+        return text.toString();
+    }
+    private TextView mappingButton(String text, boolean selected, Runnable action) {
+        TextView button = label(text, 16); button.setGravity(Gravity.CENTER);
+        ru.playsoftware.j2meloader.ui.ConsoleSurface.apply(button, ru.playsoftware.j2meloader.ui.ConsoleSurface.Kind.KEY);
+        button.setSelected(selected);
+        button.setTextColor(color(selected ? R.color.accent : R.color.text_primary));
+        button.setFocusable(true); button.setClickable(true); button.setOnClickListener(v -> action.run());
+        return button;
     }
     private void addMoveButtons() {
         LinearLayout move = new LinearLayout(getContext()); move.setGravity(Gravity.CENTER);
@@ -244,12 +327,13 @@ public final class TouchLayoutEditor extends Dialog {
             }
         }); spinner.setMinimumHeight(dp(48)); row.addView(spinner,new LinearLayout.LayoutParams(0,-2,1.4f)); controls.addView(row);
     }
-    private void icon(LinearLayout parent,String name,int resource,Runnable action) {
+    private ImageButton icon(LinearLayout parent,String name,int resource,Runnable action) {
         ImageButton button=new ImageButton(getContext()); button.setImageResource(resource);
         button.setImageTintList(android.content.res.ColorStateList.valueOf(color(R.color.accent)));
         button.setBackgroundResource(R.drawable.bg_library_tab); button.setPadding(dp(12),dp(12),dp(12),dp(12));
         button.setContentDescription(name); button.setTooltipText(name); button.setOnClickListener(v->action.run());
         parent.addView(button,new LinearLayout.LayoutParams(dp(48),dp(48)));
+        return button;
     }
     private TextView label(String text,int size) {
         TextView label=new TextView(getContext()); label.setText(text); label.setTextSize(size);
@@ -303,7 +387,10 @@ public final class TouchLayoutEditor extends Dialog {
                 icon.draw(canvas);
             }
             paint.setStyle(Paint.Style.STROKE); paint.setStrokeWidth(2/zoom); paint.setColor(color(R.color.accent));
-            canvas.drawRoundRect(handleMode ? handleBounds() : deck.groupBounds(selected),5,5,paint); paint.setStyle(Paint.Style.FILL);
+            if (!handleMode && tab == 3) {
+                for (TouchDeck.Key key : deck.getKeys()) if (selectedButton.equals(key.id)) canvas.drawRoundRect(key.bounds,5,5,paint);
+            } else canvas.drawRoundRect(handleMode ? handleBounds() : deck.groupBounds(selected),5,5,paint);
+            paint.setStyle(Paint.Style.FILL);
             canvas.restore();
         }
         @Override public boolean onTouchEvent(MotionEvent event) {
@@ -314,6 +401,14 @@ public final class TouchLayoutEditor extends Dialog {
                     if (!handleBounds().contains(x, y)) return false;
                     pointer = event.getPointerId(0); lastX = x; lastY = y;
                     getParent().requestDisallowInterceptTouchEvent(true); return true;
+                }
+                if (tab == 3) {
+                    for (TouchDeck.Key key : deck.getKeys()) if (key.bounds.contains(x,y)) {
+                        if (key.isLayoutSwitch()) { deck.down(0,x,y); deck.up(0); }
+                        else if (key.isMappable()) { selectedButton = key.id; buildControls(); }
+                        invalidate(); return true;
+                    }
+                    return true;
                 }
                 for(int i=0;i<deck.groupCount();i++) if(deck.groupBounds(i).contains(x,y)) {
                     boolean changed=selected!=i;

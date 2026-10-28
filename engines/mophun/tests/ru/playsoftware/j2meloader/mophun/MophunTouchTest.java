@@ -12,6 +12,25 @@ import wolphun.Screen;
 import static org.junit.Assert.*;
 
 public class MophunTouchTest {
+    @Test public void remappedGamepadReachesNativeKeypadAndButtonMask() {
+        InstrumentationRegistry.getInstrumentation().runOnMainSync(() -> {
+            Screen screen = new Screen(101,80,1);
+            ProfileModel profile = profile(TouchDeck.GAMEPAD);
+            profile.touchGamepadMappings = ru.playsoftware.j2meloader.input.TouchMappings.template(true);
+            profile.touchGamepadMappings.put("down_left",55);
+            MophunTouchControls controls = new MophunTouchControls(profile,1,8,
+                    new MophunInput(() -> screen).newSource(), () -> {}, () -> fail("Guest key opened menu"), () -> {});
+            for (int[] size : new int[][]{{360,640},{640,360}}) {
+                controls.layout(size[0],size[1]);
+                at(controls,MotionEvent.ACTION_DOWN,"\u2191");
+                assertTrue(screen.keypadPressed('2')); assertEquals(Screen.UP,screen.getButtons());
+                controls.cancel(); assertFalse(screen.keypadPressed('2'));
+                at(controls,MotionEvent.ACTION_DOWN,"\u2199");
+                assertTrue(screen.keypadPressed('7')); assertEquals(Screen.DOWN | Screen.LEFT,screen.getButtons());
+                controls.cancel(); assertEquals(0,screen.getButtons());
+            }
+        });
+    }
     private ProfileModel profile(int layout) {
         ProfileModel result = new ProfileModel(new File("touch-test"));
         result.touchLayout = layout;

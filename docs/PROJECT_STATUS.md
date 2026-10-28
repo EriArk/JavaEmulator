@@ -93,7 +93,7 @@ older 0.3 builds, not the current release series.
 | Channel | Current identifier | Availability |
 | --- | --- | --- |
 | Public download | `0.6.0-beta.1-r1`, code 312 | One signed adaptive APK on the existing Beta 1 page; centered confirmations, shape-adaptive panels and 29 dark screenshots. Corresponding r1 app source reuses unchanged dependency/peer and Symbian bundles. Early experimental Java Bluetooth multiplayer retains its limits. |
-| Development source | Unreleased audio gain and Phone handle/opacity changes after r1 | Nokia Sound gain now works; Java's menu handle can move/hide per game, with independent shortcut opacity and meaningful touch-button opacity. Debug Retroid checks only, not a new public APK. Quiet music in the exact #41 game editions is not yet fixed/verified. [Evidence](checks/2026-10-28-audio-and-phone-controls.md) |
+| Development source | Unreleased audio, Phone chrome and per-game touch mapping after r1 | Nokia Sound gain, move/hide handle and independent opacity; graphical Gamepad button mapping with templates and reversible per-game saving. Debug Retroid checks only, not a new public APK. Exact #41 quiet-music reports and Treasure Towers remain unverified. [Audio/chrome](checks/2026-10-28-audio-and-phone-controls.md), [mapping](checks/2026-10-28-touch-gamepad-mapping.md) |
 | Private historical snapshot | `0.1.0-beta.2-experimental.15`, 2026-10-11 | Old Java/Mophun test build, not the current beta |
 | Local-only material | Game fixtures, firmware, diagnostics, device data and signing keys | Not in Git or public release assets; describing testing does not authorize redistribution |
 
@@ -113,8 +113,21 @@ game, subjective audio or gesture-navigation acceptance.
 Locally available Avatar 1.0.6 and Cops 1.2.1 use MMAPI, not the repaired Nokia
 path. Their captured music starts at level 100. The reported 1.1.6/1.2.3 quiet
 music therefore remains open; no global boost or game-name workaround was added.
-#45 and #43 are queued, not implemented. New labels in this batch use English
-resources where introduced; this is not whole-app localization.
+The next batch implements **#45's general virtual Gamepad mapper** in the existing
+Touch layout editor: select a drawn button, choose a phone key, or use the Native
+arrows / Numpad template. Directions, fire, soft keys, action buttons and explicit
+diagonal overrides are per game, shared across orientations. Literal Phone keys
+and the Gamepad's 123 bank stay unchanged; physical bindings stay separate.
+Positions and assignments reset independently. Try/Keep/Undo and profile reload
+are covered, along with Java guest callbacks and native input adapters. Final
+checks: **398 JVM passes, 72 Android passes on Retroid**, lint zero errors / 447
+warnings. ADB-driven UI verifies Keep and relaunch, plus Avatar menu navigation;
+this is not a complete-game or physical-button acceptance claim.
+Treasure Towers was not found in the local filename search and is **not yet
+reproduced**. #45 stays open for that acceptance gap and touch-phone accessibility
+checks. #43 remains queued. New mapping labels use English resources; this is
+not whole-app localization. No new signed APK or public release assets.
+[Mapping evidence and local captures](checks/2026-10-28-touch-gamepad-mapping.md).
 [Changes, measurements, fixture identities and remaining checks](checks/2026-10-28-audio-and-phone-controls.md).
 
 Public release asset names were rechecked on 2026-10-28; the signed r1 APK and

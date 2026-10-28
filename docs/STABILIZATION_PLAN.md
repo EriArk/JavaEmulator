@@ -27,6 +27,13 @@ for availability and the dated evidence behind each result.
 
 ## 3. Per-game touch gamepad mapping (#45)
 
+**Implemented in unreleased source, 2026-10-28:** graphical Buttons tab,
+Native/Numpad templates, stable identities, explicit diagonals, per-game
+serialization and reversible trials. 398 JVM / 72 Retroid Android passes.
+The Phone keypad and 123 bank remain literal recovery surfaces. Treasure Towers
+is not yet reproduced; physical touch-phone/accessibility acceptance remains
+open. [Evidence](checks/2026-10-28-touch-gamepad-mapping.md).
+
 - Extend the existing editor with stable semantic button identities, a visible
   phone-key target picker and simple Native/Numpad templates.
 - Keep mappings separate from physical controllers and per-orientation geometry.

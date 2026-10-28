@@ -10,6 +10,26 @@ stated otherwise. **Experimental** in older checkpoints means local/private
 combined builds; released experimental features are explicitly identified.
 **Released** means an actual GitHub release asset.
 
+## 2026-10-28 - Per-Game Touch Gamepad Mapping (Public Source, Unreleased)
+
+- Add a Buttons tab to the graphical touch-layout editor, with a phone-key
+  picker, selected-button preview and Native arrows / Numpad 2/4/6/8 + 5 templates.
+- Remap directions, OK/fire, soft keys and four action buttons per installed
+  game. Diagonals follow the mapped directions or use an explicit single key.
+  Keep literal Phone and 123 keys available without altering physical bindings.
+- Preserve button shapes after remapping, balanced press/release/repeat and
+  multi-touch ownership. Release held keys on layout changes and hiding controls.
+- Keep mappings separate from portrait/landscape positions; add independent
+  resets, detached drafts, rotation restore and existing Try/Keep/Undo persistence.
+- Use Soft Console tabs and key faces; keep tabs outside the scrolling panel.
+  The complete target keypad fits the tested Retroid layout without scrolling.
+- 398 JVM and 72 Retroid Android tests pass, including Java Canvas callbacks,
+  Mophun keypad/button masks and Symbian scan codes. Lint has zero errors and
+  447 warnings. Manual ADB UI checks confirm mapping, Keep, relaunch and Avatar
+  menu navigation. [Evidence](docs/checks/2026-10-28-touch-gamepad-mapping.md).
+- Treasure Towers is not yet reproduced. No claimed quiet-music repair beyond
+  the earlier Nokia API fix, no new platforms, no public APK/release update.
+
 ## 2026-10-28 - Audio Gain and Phone Handle Controls (Public Source, Unreleased)
 
 - Implement Nokia Sound gain, exact 0..255 readback, mute and gain retention

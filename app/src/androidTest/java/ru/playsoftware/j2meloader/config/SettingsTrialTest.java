@@ -51,6 +51,26 @@ public class SettingsTrialTest {
         assertEquals(0, new ProfileModel().touchTheme);
     }
 
+    @Test public void touchMappingsKeepUndoRestartAndInterruptedTrialAreIndependent() throws Exception {
+        ProfileModel draft = ProfilesManager.copy(model);
+        draft.touchGamepadMappings = ru.playsoftware.j2meloader.input.TouchMappings.template(true);
+        draft.touchGamepadMappings.put("down_left", 55);
+        SettingsTrial.stage(draft); SettingsTrial.claim(model);
+        assertEquals(Integer.valueOf(55), model.touchGamepadMappings.get("down_left"));
+        assertFalse(ProfilesManager.previewNeedsRestart(model));
+        assertTrue(ProfilesManager.saveConfig(model));
+        assertNull(ProfilesManager.loadConfig(dir).touchGamepadMappings);
+        ProfileModel interrupted = ProfilesManager.loadConfig(dir); SettingsTrial.claim(interrupted);
+        assertNull(interrupted.touchGamepadMappings);
+        assertTrue(ProfilesManager.keepPreview(model));
+        ProfileModel restarted = ProfilesManager.loadConfig(dir);
+        assertEquals(Integer.valueOf(50), restarted.touchGamepadMappings.get("up"));
+        assertEquals(Integer.valueOf(55), restarted.touchGamepadMappings.get("down_left"));
+        ProfilesManager.beginPreview(restarted); restarted.touchGamepadMappings.clear();
+        ProfilesManager.undoPreview(restarted);
+        assertEquals(Integer.valueOf(55), restarted.touchGamepadMappings.get("down_left"));
+    }
+
     @Test public void frameLimitKeepUndoAndRelaunchRetainConfirmedValue() {
         int original = model.fpsLimit;
         ProfilesManager.beginPreview(model); model.fpsLimit = 20;

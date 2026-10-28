@@ -6,6 +6,30 @@ import ru.playsoftware.j2meloader.input.ControllerInput;
 import static org.junit.Assert.*;
 
 public final class SymbianControlsTest {
+    @Test public void remappedTouchGamepadReachesNativeScanCodesAndReleasesOnRotation() {
+        androidx.test.platform.app.InstrumentationRegistry.getInstrumentation().runOnMainSync(() -> {
+            Set<Integer> held = new HashSet<>();
+            SymbianInput input = new SymbianInput((scan,down) -> { if(down) held.add(scan); else held.remove(scan); });
+            ControllerInput.Sink sink = input.source();
+            ru.playsoftware.j2meloader.config.ProfileModel p = new ru.playsoftware.j2meloader.config.ProfileModel();
+            p.touchLayout = 1; p.touchGamepadMappings = ru.playsoftware.j2meloader.input.TouchMappings.template(true);
+            p.touchGamepadMappings.put("action_top",-7);
+            ru.playsoftware.j2meloader.input.TouchDeck deck = new ru.playsoftware.j2meloader.input.TouchDeck(p,1,
+                    new ru.playsoftware.j2meloader.input.TouchDeck.Sink() {
+                public void press(int key) { sink.press(key); } public void release(int key) { sink.release(key); }
+                public void repeat(int key) { sink.repeat(key); } public void feedback() { } public void invalidate() { }
+            });
+            for(int[] size : new int[][]{{360,640},{640,360}}) {
+                deck.layout(size[0],size[1]); assertTrue(held.isEmpty());
+                for(ru.playsoftware.j2meloader.input.TouchDeck.Key key : deck.getKeys()) {
+                    if("up".equals(key.id)) deck.down(0,key.bounds.centerX(),key.bounds.centerY());
+                    if("action_top".equals(key.id)) deck.down(1,key.bounds.centerX(),key.bounds.centerY());
+                }
+                assertEquals(new HashSet<>(Arrays.asList(50,165)),held);
+            }
+            deck.cancel(); assertTrue(held.isEmpty());
+        });
+    }
     @Test public void phoneKeysTranslateToScanCodes() {
         int[] input = {-1,-2,-3,-4,-5,-6,-7,-8,-10,-11,'0','5','9','*','#'};
         int[] expected = {16,17,14,15,167,164,165,1,196,197,48,53,57,42,35};
