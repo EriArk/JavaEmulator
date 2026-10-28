@@ -18,11 +18,11 @@ users of the former Phone app can use the menu-based
 > **Project status:** Beta. AbyssME is usable, but compatibility automation and
 > launcher integration still need testing across more games and devices.
 
-[Download 0.7.0 Beta 1](https://github.com/EriArk/JavaEmulator/releases/download/v0.7.0-beta.1/AbyssME-0.7.0-beta.1.apk)
+[Download 0.7.0 Beta 1 Revision 1](https://github.com/EriArk/JavaEmulator/releases/download/v0.7.0-beta.1/AbyssME-0.7.0-beta.1-r1.apk)
 
 **[Setup & FAQ](docs/FAQ.md)** — step-by-step help with Java ME, Mophun, Symbian/N-Gage firmware and game installation, touchscreen controls, physical controller mapping, backups and troubleshooting.
 
-Use the **0.7.0-beta.1** APK (code 313). It updates the official unified app in place;
+Use the **0.7.0-beta.1-r1** APK (code 314). It updates the official unified app in place;
 older releases remain available for reference.
 
 ## Current Beta
@@ -33,6 +33,11 @@ For website copy, progress posts and handoffs, start with the
 explicitly separated from public downloads. The
 [0.7.0 Beta 1 notes](docs/releases/v0.7.0-beta.1.md) include the combined-engine scope,
 verification limits and source downloads.
+
+**Revision 1** centers game names in Grid and Gallery, while List keeps its
+leading alignment. It replaces the APK on the same Beta 1 page.
+[Focused checks](docs/releases/v0.7.0-beta.1-r1-checks.md) and
+[before/after captures](screenshots/releases/v0.7.0-beta.1-r1/README.md).
 
 **New in 0.7:** choose from eight UI languages in Settings, map virtual gamepad
 buttons per game, and adjust the Phone menu handle and button opacity. Java audio

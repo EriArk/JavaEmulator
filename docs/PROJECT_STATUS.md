@@ -37,7 +37,17 @@ remains canonical; game text and user content are not translated.
 
 ## Availability: Do Not Mix These Channels
 
-**Current public beta: [0.7.0 Beta 1](https://github.com/EriArk/JavaEmulator/releases/tag/v0.7.0-beta.1)**,
+**Current public beta: [0.7.0 Beta 1 Revision 1](https://github.com/EriArk/JavaEmulator/releases/tag/v0.7.0-beta.1)**,
+code **314**, APK uploaded **2026-10-28 at 21:08:31 UTC**. At the maintainer's
+request this replaces code 313 on the same release page. Grid/Gallery game names
+are centered; List stays start-aligned. Two focused Retroid tests and signed
+three-view checks pass. All five asset digests/sizes and public APK/manifest
+downloads match. Runtime/app-source tag `v0.7.0-beta.1-r1` identifies `d660ec38`.
+[Revision checks](releases/v0.7.0-beta.1-r1-checks.md),
+[current checksums](releases/v0.7.0-beta.1-r1/SHA256SUMS.txt),
+[before/after captures](../screenshots/releases/v0.7.0-beta.1-r1/README.md).
+
+**Original 0.7 Beta 1 baseline:**
 code **313**, published **2026-10-28 at 20:51:18 UTC**. It includes the audio, touch
 mapping and eight-language UI work below, plus the [#47 installer preflight
 repair](checks/2026-10-28-ngage-platform-preflight.md). All 1518 canonical
@@ -53,9 +63,8 @@ Java, Mophun and Snakes startup/menu smoke checks pass in the signed APK.
 [checksums](releases/v0.7.0-beta.1/SHA256SUMS.txt). Historical checkpoint text below
 records availability at the time; these implementation batches are now released.
 
-**Not included: #46 centered card titles.** Grid/Gallery names are still
-start-aligned in 0.7 Beta 1. This polish item was missed during release scope
-review and remains open; it is not part of the menu-positioning repair.
+**#46 centered card titles is included in Revision 1.** It was missed in the
+original code-313 APK, now replaced. This is separate from menu positioning.
 
 **Previous public beta: [0.6.0-beta.1-r1](https://github.com/EriArk/JavaEmulator/releases/tag/v0.6.0-beta.1)**,
 code **312**, uploaded **2026-10-26 at 18:01 UTC** to the existing Beta 1 page.
@@ -114,8 +123,8 @@ older 0.3 builds, not the current release series.
 
 | Channel | Current identifier | Availability |
 | --- | --- | --- |
-| Public download | `0.7.0-beta.1`, code 313 | One signed adaptive ARM64 APK; eight-language UI, audio lifecycle/gain repairs, touch gamepad mapping, menu handle/opacity and N-Gage partial-update preflight fix. Matching app source and unchanged dependency/peer and Symbian source bundles. Early experimental Java Bluetooth multiplayer retains its limits. |
-| Development source | Runtime `4c0aacd1` plus publication documentation | The audio, Phone control and language batches are included in 0.7, not unreleased. All 1518 canonical resources exist per advertised translated locale. Exact #41 quiet-music reports, Treasure Towers and independent translation review remain open. #46 card-title centering is not implemented; #44 new platforms and further languages are deferred. [Release evidence](releases/v0.7.0-beta.1-checks.md), [language evidence](checks/2026-10-28-japanese-chinese-localization.md), [audio](checks/2026-10-28-audio-isolation.md), [mapping](checks/2026-10-28-touch-gamepad-mapping.md) |
+| Public download | `0.7.0-beta.1-r1`, code 314 | One signed adaptive ARM64 APK; centered Grid/Gallery titles plus eight-language UI, audio lifecycle/gain repairs, touch gamepad mapping, menu handle/opacity and N-Gage partial-update preflight fix. Matching r1 app source and unchanged dependency/peer and Symbian source bundles. Early experimental Java Bluetooth multiplayer retains its limits. |
+| Development source | Runtime `d660ec38` plus publication documentation | The audio, Phone control and language batches are included in 0.7, not unreleased. All 1518 canonical resources exist per advertised translated locale. Exact #41 quiet-music reports, Treasure Towers and independent translation review remain open. #46 is included in r1; #44 new platforms and further languages are deferred. [Revision evidence](releases/v0.7.0-beta.1-r1-checks.md), [baseline evidence](releases/v0.7.0-beta.1-checks.md), [language evidence](checks/2026-10-28-japanese-chinese-localization.md), [audio](checks/2026-10-28-audio-isolation.md), [mapping](checks/2026-10-28-touch-gamepad-mapping.md) |
 | Private historical snapshot | `0.1.0-beta.2-experimental.15`, 2026-10-11 | Old Java/Mophun test build, not the current beta |
 | Local-only material | Game fixtures, firmware, diagnostics, device data and signing keys | Not in Git or public release assets; describing testing does not authorize redistribution |
 
@@ -128,7 +137,7 @@ mapping -> #43 localization**. **#44 new platforms is deferred**.
 The implementation batches below are included in 0.7 Beta 1. Their original
 checkpoint wording does not override the current release record. Remaining
 acceptance: exact #41 games, #45 Treasure Towers, #43 low-level diagnostics and
-translation review, and #47 reporter-specific confirmation. #46 remains undone.
+translation review, and #47 reporter-specific confirmation. #46 is delivered in r1.
 
 The first development batch repairs Nokia Sound gain and implements movable,
 hideable Java Phone chrome plus independent opacity. It preserves existing

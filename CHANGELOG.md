@@ -10,13 +10,16 @@ stated otherwise. **Experimental** in older checkpoints means local/private
 combined builds; released experimental features are explicitly identified.
 **Released** means an actual GitHub release asset.
 
-## 2026-10-28 - Centered Library Card Titles (#46)
+## 2026-10-28 - Centered Library Card Titles (Released, Revision 1)
 
 - Center Grid/Gallery game names below artwork; keep List names start-aligned.
   Reset alignment on every bind so recycled rows cannot retain another mode's
   alignment. Preserve card geometry, line limits, artwork and focus behavior.
-- Prepare `0.7.0-beta.1-r1`, code 314, to replace the APK on the existing Beta 1
+- Publish `0.7.0-beta.1-r1`, code 314, replacing the APK on the existing Beta 1
   page at the maintainer's request. No new release page or engine changes.
+- Two focused Retroid tests and signed Grid/Gallery/List visual checks pass.
+  Matching r1 app source and updated checksums are published; all five asset
+  digests and public APK/manifest downloads match. #46 is now delivered.
   [Focused verification and publication state](docs/releases/v0.7.0-beta.1-r1-checks.md).
 
 ## 2026-10-28 - 0.7.0 Beta 1 (Released)

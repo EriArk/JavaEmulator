@@ -10,8 +10,9 @@ are included in [0.7.0 Beta 1](releases/v0.7.0-beta.1-checks.md), together with
 #47's partial-update installer repair. Earlier "unreleased"/"started" paragraphs
 below are historical checkpoints, not current availability. Exact quiet-music
 editions, Treasure Towers and full translation review remain open. **#46 centered
-Grid/Gallery card names was missed and is not implemented in this APK.** Keep
-that distinction separate from centered game-menu confirmations. #44 stays deferred.
+Grid/Gallery card names is included in Revision 1**, after being missed in the
+original code-313 APK. Keep that distinction separate from centered game-menu
+confirmations. [Revision checks](releases/v0.7.0-beta.1-r1-checks.md). #44 stays deferred.
 
 ## 1. Java audio (#41)
 

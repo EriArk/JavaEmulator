@@ -2,7 +2,7 @@
 
 *Java ME • Mophun • Symbian • N-Gage • Android phones & gaming handhelds*
 
-**Guide for the current public release: AbyssME 0.7.0 Beta 1 (Android 10+, ARM64). Updated October 28, 2026.** AbyssME is still in beta. Not every game, phone firmware or network combination will work yet.
+**Guide for the current public release: AbyssME 0.7.0 Beta 1 Revision 1 (Android 10+, ARM64). Updated October 28, 2026.** AbyssME is still in beta. Not every game, phone firmware or network combination will work yet.
 
 **New here?** Start with [What files do I need?](#what-files-do-i-need), then follow the section for your platform. **Having trouble with buttons?** Jump to [Touchscreen controls](#7-touchscreen-controls) or [Physical controllers](#8-physical-controllers). If you're stuck, the [Troubleshooting](#12-troubleshooting) section tells you what to check.
 
@@ -20,7 +20,7 @@ It is an independent J2ME Loader fork and uses an integrated Symbian/N-Gage engi
 - **Official APK and release notes:** https://github.com/EriArk/JavaEmulator/releases
 - **Questions, game reports and help:** https://discord.gg/xBN9DXt8Q
 
-Download the latest **signed APK** from an official link. The current public unified build is `AbyssME-0.7.0-beta.1.apk`. Android may ask you to allow installation from your browser or file manager.
+Download the latest **signed APK** from an official link. The current public unified build is `AbyssME-0.7.0-beta.1-r1.apk`. Android may ask you to allow installation from your browser or file manager.
 
 **Requirements:** Android 10 or newer and a **64-bit ARM (ARM64)** device. The app adapts to touchscreens and gaming handhelds. A controller is optional.
 
