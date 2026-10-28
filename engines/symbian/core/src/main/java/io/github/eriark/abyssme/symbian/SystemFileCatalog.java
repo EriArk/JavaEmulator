@@ -160,7 +160,7 @@ final class SystemFileCatalog {
         final List<String> failures = new ArrayList<>();
         int reused;
         String summary() {
-            return (entries.size() - reused) + " systems added, " + reused + " already available"
+            return "Added: " + (entries.size() - reused) + " / Already available: " + reused
                     + (failures.isEmpty() ? "" : "\nNot imported:\n" + String.join("\n", failures));
         }
     }

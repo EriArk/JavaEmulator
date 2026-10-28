@@ -72,8 +72,10 @@ longer determine resolution values, transfer idle state, Play styling or shader
 swatches. Account/chats/friends, lobby directory/room actions and system-file
 requirements now use resources too. Notice enums and explicit content kinds
 keep behavior and user text independent of translated labels. No language picker
-or new translated language is enabled. Archive/backup/component subflows,
-room/publication/contact backend notices, helpers and backend errors remain open,
+or new translated language is enabled. Native host/queue/backup/component menus,
+uninstall warnings and 55 app-owned backup/removal errors now have resource-backed
+presentation too. Persisted archive details, remaining firmware/component backend
+errors, room/publication/contact backend notices and helpers remain open,
 followed by process-safe language selection and reviewed language batches.
 [Extraction scope and contributor glossary](LOCALIZATION.md).
 

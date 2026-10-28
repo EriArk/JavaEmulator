@@ -95,7 +95,7 @@ public final class SymbianActivity extends Activity implements Emulator.Host, In
                 checkImportOpen();
                 int code = kind == GameImport.Kind.CARD ? Emulator.installNGageGame(file.getAbsolutePath())
                         : Emulator.installApp(file.getAbsolutePath());
-                if (code != 0) throw new IOException("Installation failed (" + code + "). Your game import has been kept.");
+                if (code != 0) throw new IOException(getString(R.string.native_install_failed, code));
                 Emulator.prepare(runtimeRoot.getAbsolutePath());
                 // A batch may switch phones before refresh(), so publish each completed installation.
                 libraryIndex.publish(installingPhone,Emulator.getLibraryApps(),true);
@@ -103,11 +103,11 @@ public final class SymbianActivity extends Activity implements Emulator.Host, In
             @Override public void stage(File file, String hash) throws Exception {
                 checkImportOpen();
                 String drive = Emulator.driveE();
-                if (drive == null) throw new IOException("This system has no memory card");
+                if (drive == null) throw new IOException(getString(R.string.native_no_card));
                 String name = hash + ".n-gage";
                 File destination = new File(drive, "n-gage/" + name);
                 if (!destination.exists()) SymbianFiles.stageCardPackage(runtimeRoot, new File(drive), file, name);
-                else if (!SystemFileCatalog.hash(destination).equals(hash)) throw new IOException("The staged game package has changed");
+                else if (!SystemFileCatalog.hash(destination).equals(hash)) throw new IOException(getString(R.string.native_staged_changed));
             }
         }, platforms, components);
         archives=new ArchiveBatch(new File(getFilesDir(),"symbian-archive-import"));
@@ -118,10 +118,10 @@ public final class SymbianActivity extends Activity implements Emulator.Host, In
         inputManager = (InputManager) getSystemService(INPUT_SERVICE);
         inputManager.registerInputDeviceListener(this, null);
         library();
-        task("Preparing Symbian", () -> {
+        task(getString(R.string.native_preparing), () -> {
             if(getIntent().getBooleanExtra(SymbianLibraryIndex.REMOVE_EXTRA,false)
                     && sessionOwner!=null && sessionOwner.running)
-                throw new IOException("Close the running Symbian game before uninstalling. No game was stopped or removed");
+                throw new IOException(getString(R.string.native_close_running_removal));
             Emulator.stopSession();
             sessionOwner = this;
             Emulator.host = this;
@@ -153,9 +153,9 @@ public final class SymbianActivity extends Activity implements Emulator.Host, In
                     boolean found = false;
                     String[] installed = Emulator.getLibraryApps();
                     for (int i = 0; i + 2 < installed.length; i += 3) found |= installed[i].equals(Long.toString(uid));
-                    if (!found) throw new IOException("This game is no longer installed on its selected phone");
+                    if (!found) throw new IOException(getString(R.string.native_game_not_installed));
                     directLaunch = true;
-                    refresh("Starting game");
+                    refresh(getString(R.string.native_starting_game));
                     afterTask = () -> play((int) uid);
                 } else refresh();
                 return;
@@ -172,7 +172,7 @@ public final class SymbianActivity extends Activity implements Emulator.Host, In
                 }
                 SymbianFiles.prepareAssets(this, runtimeRoot);
                 Emulator.prepare(runtimeRoot.getAbsolutePath());
-                refresh("Inspecting selected file");
+                refresh(getString(R.string.native_inspecting_selected));
                 afterTask = () -> importInputs(4, Collections.emptyList(), incoming, name);
                 return;
             }
@@ -262,21 +262,21 @@ public final class SymbianActivity extends Activity implements Emulator.Host, In
         hideBars();
     }
     private void savedComponents() {
-        task("Reading saved components",() -> {
+        task(getString(R.string.native_reading_components),() -> {
             List<ComponentStore.Item> saved=components.list();
             afterTask=() -> {
-                status.setText(saved.isEmpty() ? "No saved component installers" : saved.size()+" saved component installer"+(saved.size()==1 ? "" : "s"));
+                status.setText(saved.isEmpty() ? getString(R.string.native_no_components) : getResources().getQuantityString(R.plurals.native_components_count,saved.size(),saved.size()));
                 GameMenuDialog menu=dialog(getString(R.string.system_saved_components));
-                menu.message(saved.isEmpty() ? "No component installers saved. Games will ask for the ones they need."
-                        : "Installers are reused when a game needs them. Removing a saved installer does not uninstall it from any phone.");
+                menu.message(saved.isEmpty() ? getString(R.string.native_components_empty)
+                        : getString(R.string.native_components_help));
                 menu.action(getString(R.string.system_add_installer),android.R.drawable.ic_input_add,() -> { menu.dismiss(); pick(6,false); });
                 for(ComponentStore.Item item:saved) menu.action(item.metadata.name+"  "+item.metadata.version,android.R.drawable.ic_menu_delete,() -> {
-                    menu.dismiss(); notice("Remove saved installer?",item.metadata.name+"\nInstalled games and saves stay untouched.",
-                            getString(R.string.system_remove),() -> task("Removing saved installer",() -> { components.remove(item.hash); refresh("Saved installer removed"); }),getString(R.string.system_cancel));
+                    menu.dismiss(); notice(getString(R.string.native_remove_component_title),getString(R.string.native_remove_component_body,item.metadata.name),
+                            getString(R.string.system_remove),() -> task(getString(R.string.native_removing_component),() -> { components.remove(item.hash); refresh(getString(R.string.native_component_removed)); }),getString(R.string.system_cancel));
                 });
-                menu.action("Remove saved installers",android.R.drawable.ic_menu_delete,() -> {
-                    menu.dismiss(); notice("Remove saved installers?","Only saved component installers are removed. Installed phones, games and saves stay untouched.",
-                            getString(R.string.system_remove),() -> task("Removing saved installers",() -> { components.clear(); refresh("Saved installers removed"); }),getString(R.string.system_cancel));
+                menu.action(getString(R.string.native_remove_components),android.R.drawable.ic_menu_delete,() -> {
+                    menu.dismiss(); notice(getString(R.string.native_remove_components_title),getString(R.string.native_remove_components_body),
+                            getString(R.string.system_remove),() -> task(getString(R.string.native_removing_components),() -> { components.clear(); refresh(getString(R.string.native_components_removed)); }),getString(R.string.system_cancel));
                 });
                 menu.action(getString(R.string.system_close),0,menu::dismiss);
             };
@@ -333,9 +333,10 @@ public final class SymbianActivity extends Activity implements Emulator.Host, In
                 android.util.Log.e("AbyssSymbian", text, error);
                 runOnUiThread(() -> { if (!closing) {
                     if (!running) { hasPendingImport = pendingImport.exists(); library(); }
-                    status.setText(error.getMessage());
+                    String message=SystemFailureText.message(this,error);
+                    status.setText(message);
                     if (!(error instanceof java.io.InterruptedIOException))
-                        notice(getString(R.string.system_could_not_finish), error.getMessage() == null ? text : error.getMessage(), getString(R.string.system_close), null, null);
+                        notice(getString(R.string.system_could_not_finish), message == null ? text : message, getString(R.string.system_close), null, null);
                 } });
             } finally { runOnUiThread(() -> {
                 busy = false;
@@ -368,35 +369,33 @@ public final class SymbianActivity extends Activity implements Emulator.Host, In
         runOnUiThread(() -> {
             if (closing) return;
             library();
-            status.setText(message != null ? message : systems.isEmpty() ? "No phone files added"
-                    : systems.size() == 1 ? "1 phone available" : systems.size() + " phones available");
+            status.setText(message != null ? message : systems.isEmpty() ? getString(R.string.native_no_phones)
+                    : getResources().getQuantityString(R.plurals.native_phones_count,systems.size(),systems.size()));
         });
     }
     private void systemFiles() {
         GameMenuDialog menu = dialog(getString(R.string.system_installed_phones));
         for (SystemFileCatalog.Entry entry : systems) menu.action(entry.label(),0,() -> {
-            menu.dismiss(); task("Opening system", () -> { openSystem(entry); refresh(); });
+            menu.dismiss(); task(getString(R.string.native_opening_phone), () -> { openSystem(entry); refresh(); });
         });
         menu.action(getString(R.string.system_add_files),android.R.drawable.ic_input_add,() -> { menu.dismiss(); pick(1,true); });
         menu.action(getString(R.string.system_close),0,menu::dismiss);
     }
     private void phoneBackups() {
         GameMenuDialog menu = dialog(getString(R.string.system_phone_backups));
-        menu.message("Transfer a whole Symbian / N-Gage phone with its games, saves and controls. Java and Mophun use Library transfer.");
-        if (!systems.isEmpty()) menu.action("Back up phone",android.R.drawable.ic_menu_save,() -> {
-            menu.dismiss(); GameMenuDialog choose=dialog("Choose phone to back up");
+        menu.message(getString(R.string.native_backups_help));
+        if (!systems.isEmpty()) menu.action(getString(R.string.native_backup_phone),android.R.drawable.ic_menu_save,() -> {
+            menu.dismiss(); GameMenuDialog choose=dialog(getString(R.string.native_backup_choose));
             for(SystemFileCatalog.Entry entry:systems) choose.action(entry.label(),0,() -> {
                 choose.dismiss(); requestPhoneBackup(entry);
             });
             choose.action(getString(R.string.system_cancel),0,choose::dismiss);
         });
-        menu.action("Restore phone backup",android.R.drawable.ic_menu_revert,() -> { menu.dismiss(); pick(RESTORE_PHONE,false); });
+        menu.action(getString(R.string.native_restore_backup),android.R.drawable.ic_menu_revert,() -> { menu.dismiss(); pick(RESTORE_PHONE,false); });
         menu.action(getString(R.string.system_close),0,menu::dismiss);
     }
     private void requestPhoneBackup(SystemFileCatalog.Entry entry) {
-        notice("Back up phone",entry.label()
-                + "\n\nIncludes system files, installed games, saves and game settings. Keep this archive private."
-                + "\n\nThe game must be closed. This is not an in-game save state.","Choose where to save",() -> {
+        notice(getString(R.string.native_backup_phone),getString(R.string.native_backup_preview,entry.label()),getString(R.string.native_save_location),() -> {
             backupSystem=entry.id;
             Intent intent=new Intent(Intent.ACTION_CREATE_DOCUMENT).addCategory(Intent.CATEGORY_OPENABLE).setType("application/zip")
                     .putExtra(Intent.EXTRA_TITLE,"AbyssME-phone-"+entry.firmware+"-"
@@ -406,16 +405,21 @@ public final class SymbianActivity extends Activity implements Emulator.Host, In
     }
     private PreparedSystemArchive.Progress transferProgress() {
         final long[] last={0};
-        return text -> {
-            if(closing) throw new java.io.InterruptedIOException("Phone transfer cancelled. Existing phones are unchanged.");
-            long now=android.os.SystemClock.uptimeMillis();
-            if(now-last[0]>=150) { last[0]=now; runOnUiThread(() -> { if(!closing) status.setText(text); }); }
+        return new PreparedSystemArchive.Progress() {
+            public void update(SystemProgress step,Object... arguments) throws IOException {
+                update(SystemTransferText.progress(SymbianActivity.this,step,arguments));
+            }
+            public void update(String text) throws IOException {
+                if(closing) throw new java.io.InterruptedIOException(getString(R.string.native_transfer_cancelled));
+                long now=android.os.SystemClock.uptimeMillis();
+                if(now-last[0]>=150) { last[0]=now; runOnUiThread(() -> { if(!closing) status.setText(text); }); }
+            }
         };
     }
     private void exportPhone(Uri destination) {
         String selected=backupSystem; backupSystem=null;
-        task("Backing up phone",() -> {
-            if(running || selected==null) throw new IOException("Close the game and select the phone again");
+        task(getString(R.string.native_backing_up),() -> {
+            if(running || selected==null) throw new IOException(getString(R.string.native_close_select_phone));
             File archive=File.createTempFile("phone-backup-",".zip",getCacheDir());
             boolean saved=false;
             try {
@@ -424,28 +428,28 @@ public final class SymbianActivity extends Activity implements Emulator.Host, In
                 PreparedSystemArchive.Progress progress=transferProgress();
                 PhoneLibraryTitles.migrate(getFilesDir(),entry.id,getSharedPreferences("symbian-library-presentation",MODE_PRIVATE));
                 new PhoneBackup(getFilesDir()).exportPhone(entry,archive,Emulator.portablePhoneSettings(catalog.runtime(entry).getAbsolutePath()),progress);
-                progress.update("Saving backup to selected location");
+                progress.update(getString(R.string.native_saving_backup));
                 try(java.io.InputStream input=new java.io.FileInputStream(archive);
                     java.io.OutputStream output=getContentResolver().openOutputStream(destination,"wt")) {
-                    if(output==null) throw new IOException("Cannot write to the selected location");
+                    if(output==null) throw new IOException(getString(R.string.native_cannot_write));
                     byte[] bytes=new byte[65536]; long copied=0;
-                    for(int n;(n=input.read(bytes))!=-1;) { progress.update("Saving backup: "+copied/(1024*1024)+" MB"); output.write(bytes,0,n); copied+=n; }
+                    for(int n;(n=input.read(bytes))!=-1;) { progress.update(getString(R.string.native_saving_megabytes,copied/(1024*1024))); output.write(bytes,0,n); copied+=n; }
                     output.flush();
                 }
                 saved=true;
-                afterTask=() -> notice("Backup saved","Your phone, installed games, saves and game settings are in the selected ZIP. Use Phone backups > Restore phone backup on the other device.",getString(R.string.system_close),null,null);
+                afterTask=() -> notice(getString(R.string.native_backup_saved),getString(R.string.native_backup_saved_body),getString(R.string.system_close),null,null);
             } finally {
                 Files.deleteIfExists(archive.toPath());
                 if(!saved) {
                     try { android.provider.DocumentsContract.deleteDocument(getContentResolver(),destination); }
                     catch(Exception ignored) { android.util.Log.w("AbyssSymbian","Incomplete backup may remain at the selected location"); }
                 }
-                if(!closing) refreshStopped(saved?"Backup saved":null);
+                if(!closing) refreshStopped(saved?getString(R.string.native_backup_saved):null);
             }
         });
     }
     private void inspectRestore(Uri source) {
-        task("Reading phone backup",() -> {
+        task(getString(R.string.native_reading_backup),() -> {
             File archive=SymbianFiles.stage(this,source,PhoneBackup.MAX_INPUT,transferProgress());
             try { previewRestore(archive); }
             catch(Exception error) { Files.deleteIfExists(archive.toPath()); throw error; }
@@ -458,8 +462,8 @@ public final class SymbianActivity extends Activity implements Emulator.Host, In
         catch(IOException error) { removeTransfer(retained); throw error; }
         restoreArchive=retained;
         afterTask=() -> {
-            GameMenuDialog menu=dialog("Restore phone backup"); menu.message(preview.description());
-            menu.action("Restore as new phone",android.R.drawable.ic_menu_revert,() -> {
+            GameMenuDialog menu=dialog(getString(R.string.native_restore_backup)); menu.message(SystemTransferText.backup(this,preview));
+            menu.action(getString(R.string.native_restore_new),android.R.drawable.ic_menu_revert,() -> {
                 restoreArchive=null; menu.dismiss(); restorePhone(retained);
             });
             menu.action(getString(R.string.system_cancel),0,menu::dismiss);
@@ -469,8 +473,8 @@ public final class SymbianActivity extends Activity implements Emulator.Host, In
         };
     }
     private void restorePhone(File archive) {
-        task("Restoring phone",() -> {
-            if(running) throw new IOException("Close the game before restoring a phone");
+        task(getString(R.string.native_restoring),() -> {
+            if(running) throw new IOException(getString(R.string.native_close_before_restore));
             File previous=runtimeRoot;
             try {
                 Emulator.stopSession();
@@ -484,12 +488,12 @@ public final class SymbianActivity extends Activity implements Emulator.Host, In
                         String[] info=Emulator.getDeviceInfo();
                         if(info==null || info.length!=3 || !info[0].equals(metadata.getString("firmware"))
                                 || !info[1].equals(metadata.getString("model")) || !info[2].equals(metadata.getString("os")))
-                            throw new IOException("The restored phone does not match its backup");
+                            throw new IOException(getString(R.string.native_restore_mismatch));
                         Emulator.getLibraryApps();
                     } finally { Emulator.stopSession(); }
                 },transferProgress());
-                openSystem(restored); refresh("Phone restored. Existing phones are unchanged.");
-                afterTask=() -> notice("Phone restored","Games from the restored copy are now in your library. Your previous phones and saves were kept.",getString(R.string.system_library),this::finish,getString(R.string.system_close));
+                openSystem(restored); refresh(getString(R.string.native_restored_status));
+                afterTask=() -> notice(getString(R.string.native_restored),getString(R.string.native_restored_body),getString(R.string.system_library),this::finish,getString(R.string.system_close));
             } catch(Exception error) {
                 Emulator.stopSession(); runtimeRoot=previous;
                 if(!closing) refreshStopped(null);
@@ -523,7 +527,7 @@ public final class SymbianActivity extends Activity implements Emulator.Host, In
         GameRemoval removal=removal(entry);
         removal.recover();
         if(removal.pending() && !removalReview)
-            throw new IOException("An uninstall is incomplete on this phone. Retry it from the game's actions or restore a phone backup before making further changes");
+            throw new IOException(getString(R.string.native_pending_removal));
     }
     private GameRemoval removal(SystemFileCatalog.Entry entry) throws IOException {
         String runtime=catalog.runtime(entry).getAbsolutePath();
@@ -532,7 +536,7 @@ public final class SymbianActivity extends Activity implements Emulator.Host, In
             public String[] apps() { return Emulator.getLibraryApps(); }
             public void remove(long uid,long owner,int index) throws Exception {
                 checkImportOpen();
-                if(running) throw new IOException("Close the game before uninstalling");
+                if(running) throw new IOException(getString(R.string.native_close_before_removal));
                 Emulator.uninstallGame(uid,owner,index,runtime);
             }
             public void reload() { Emulator.prepare(runtime); }
@@ -542,35 +546,34 @@ public final class SymbianActivity extends Activity implements Emulator.Host, In
     }
     private void reviewRemoval(SystemFileCatalog.Entry entry,long uid) throws Exception {
         GameRemoval.Plan plan=removal(entry).inspect(uid);
-        refreshStopped("Review uninstall");
+        refreshStopped(getString(R.string.native_review_removal));
         afterTask=() -> {
-            GameMenuDialog menu=dialog("Uninstall from phone?");
-            menu.confirmationPage("Uninstall from phone?");
-            menu.message(plan.description(entry.label()+" ["+entry.id.substring(0,8)+"]"));
+            GameMenuDialog menu=dialog(getString(R.string.native_removal_title));
+            menu.confirmationPage(getString(R.string.native_removal_title));
+            menu.message(SystemTransferText.removal(this,plan,entry.label()+" ["+entry.id.substring(0,8)+"]"));
             menu.setBackAction(() -> { menu.dismiss(); finish(); });
             menu.action(getString(R.string.system_cancel),0,() -> { menu.dismiss(); finish(); });
-            menu.action("Back up this phone",android.R.drawable.ic_menu_save,() -> { menu.dismiss(); requestPhoneBackup(entry); });
-            menu.action("Uninstall",android.R.drawable.ic_menu_delete,() -> {
-                menu.dismiss(); task("Uninstalling from phone",() -> {
-                    if(running) throw new IOException("Close the game before uninstalling");
+            menu.action(getString(R.string.native_backup_this_phone),android.R.drawable.ic_menu_save,() -> { menu.dismiss(); requestPhoneBackup(entry); });
+            menu.action(getString(R.string.native_uninstall),android.R.drawable.ic_menu_delete,() -> {
+                menu.dismiss(); task(getString(R.string.native_uninstalling),() -> {
+                    if(running) throw new IOException(getString(R.string.native_close_before_removal));
                     openSystem(entry,true);
                     removal(entry).remove(plan);
-                    refresh("Uninstalled from " + entry.displayName());
-                    afterTask=() -> notice("Uninstalled", "The package was removed from " + entry.displayName()
-                            + ". Other phones are unchanged.",getString(R.string.system_library),this::finish,getString(R.string.system_close));
+                    refresh(getString(R.string.native_uninstalled_from,entry.displayName()));
+                    afterTask=() -> notice(getString(R.string.native_uninstalled), getString(R.string.native_uninstalled_body,entry.displayName()),getString(R.string.system_library),this::finish,getString(R.string.system_close));
                 });
             });
         };
     }
     private void checkImportOpen() throws java.io.InterruptedIOException {
-        if (closing) throw new java.io.InterruptedIOException("Import paused. Continue it from Pending import.");
+        if (closing) throw new java.io.InterruptedIOException(getString(R.string.native_import_paused));
     }
     private void openArchive() {
-        task("Reading archive queue",this::showArchive);
+        task(getString(R.string.native_reading_queue),this::showArchive);
     }
     private void showArchive() throws Exception {
         ArchiveBatch.Batch batch=archives.read();
-        refresh("Archive import saved");
+        refresh(getString(R.string.native_queue_saved));
         if(batch!=null) afterTask=()->archiveScreen(batch);
     }
     private void archiveScreen(ArchiveBatch.Batch batch) {
@@ -589,7 +592,7 @@ public final class SymbianActivity extends Activity implements Emulator.Host, In
             public void start() {
                 if(busy) return; pauseArchive=false;
                 ArchiveBatch.Batch snapshot=ArchiveBatch.snapshot(batch);
-                task("Importing selected files",()-> {
+                task(getString(R.string.native_importing_selected),()-> {
                     if(!snapshot.started) archives.save(snapshot);
                     else if(!pendingImport.exists() && snapshot.items.stream().noneMatch(i->i.state==ArchiveBatch.State.READY || i.state==ArchiveBatch.State.ACTIVE))
                         for(ArchiveBatch.Item item:snapshot.items) if(item.state==ArchiveBatch.State.WAITING) {archiveQueue.retry(item.id);break;}
@@ -598,17 +601,17 @@ public final class SymbianActivity extends Activity implements Emulator.Host, In
             }
             public void others() {
                 if(busy) return; pauseArchive=false;
-                task("Continuing other files",()-> { archiveQueue.defer(); runArchive(null,false); });
+                task(getString(R.string.native_continuing_others),()-> { archiveQueue.defer(); runArchive(null,false); });
             }
             public void close() { onBackPressed(); }
             public void done() {
                 if(busy)return;
-                task("Finishing archive import",()-> {archiveQueue.discard(); refresh(); afterTask=SymbianActivity.this::finish;});
+                task(getString(R.string.native_finishing_queue),()-> {archiveQueue.discard(); refresh(); afterTask=SymbianActivity.this::finish;});
             }
             public void remove() {
                 if(busy) return;
-                notice("Remove archive queue?","Only retained queue files are removed. Original archives, installed games and saves stay untouched.",
-                        getString(R.string.system_remove),()->task("Removing archive queue",()-> { archiveQueue.discard(); refresh(); }),getString(R.string.system_cancel));
+                notice(getString(R.string.native_remove_queue_title),getString(R.string.native_remove_queue_body),
+                        getString(R.string.system_remove),()->task(getString(R.string.native_removing_queue),()-> { archiveQueue.discard(); refresh(); }),getString(R.string.system_cancel));
             }
         });
         status=view.status; progressBar=view.progress;
@@ -618,19 +621,19 @@ public final class SymbianActivity extends Activity implements Emulator.Host, In
     private void archiveItem(ArchiveBatch.Item item,boolean started) {
         GameMenuDialog menu=dialog(item.label());
         menu.message(item.name+"\n\n"+(!item.problem.isEmpty() ? item.problem : item.detail.isEmpty()
-                ? item.role==ArchiveBatch.Role.GAME ? "Install as a game." : "Save this installer for games that need it." : item.detail));
+                ? item.role==ArchiveBatch.Role.GAME ? getString(R.string.native_install_game_help) : getString(R.string.native_save_component_help) : item.detail));
         if(started && item.problem.isEmpty() && (item.state==ArchiveBatch.State.WAITING || item.state==ArchiveBatch.State.FAILED))
             menu.action(getString(R.string.system_retry),android.R.drawable.ic_menu_rotate,()-> {
-                menu.dismiss(); notice("Retry this file?","An interrupted installation may have written files. Retry may reinstall them on the same phone.",
-                        getString(R.string.system_retry),()->task("Retrying queued file",()-> { pauseArchive=false; archiveQueue.retry(item.id); runArchive(null,true); }),getString(R.string.system_cancel));
+                menu.dismiss(); notice(getString(R.string.native_retry_file_title),getString(R.string.native_retry_file_body),
+                        getString(R.string.system_retry),()->task(getString(R.string.native_retrying_file),()-> { pauseArchive=false; archiveQueue.retry(item.id); runArchive(null,true); }),getString(R.string.system_cancel));
             });
         if(started && item.state!=ArchiveBatch.State.DONE && item.state!=ArchiveBatch.State.SKIPPED)
-            menu.action("Skip",android.R.drawable.ic_media_next,()-> { menu.dismiss(); task("Skipping queued file",()-> { archiveQueue.skip(item.id); showArchive(); }); });
+            menu.action(getString(R.string.native_skip),android.R.drawable.ic_media_next,()-> { menu.dismiss(); task(getString(R.string.native_skipping_file),()-> { archiveQueue.skip(item.id); showArchive(); }); });
         menu.action(getString(R.string.system_close),0,menu::dismiss);
     }
     private void runArchive(String selected,boolean retry) throws Exception {
         GameInstallFlow.Result result=archiveQueue.run(selected,retry,message-> {
-            checkImportOpen(); if(pauseArchive) throw new java.io.InterruptedIOException("Archive queue paused. Continue it from Archive queue.");
+            checkImportOpen(); if(pauseArchive) throw new java.io.InterruptedIOException(getString(R.string.native_queue_paused));
             runOnUiThread(()-> { if(!closing) status.setText(message); });
         });
         if(result==null) showArchive(); else showImportResult(result);
@@ -647,7 +650,7 @@ public final class SymbianActivity extends Activity implements Emulator.Host, In
             if(result.action==GameInstallFlow.Action.DONE) { runArchive(null,false); return; }
         }
         PendingGameImport.Entry job = pendingImport.read();
-        refresh(result.action == GameInstallFlow.Action.DONE ? getString(R.string.system_install_complete) : "Import saved: " + job.name);
+        refresh(result.action == GameInstallFlow.Action.DONE ? getString(R.string.system_install_complete) : getString(R.string.native_import_saved,job.name));
         afterTask = () -> {
             switch (result.action) {
                 case SYSTEM:
@@ -665,7 +668,7 @@ public final class SymbianActivity extends Activity implements Emulator.Host, In
                             getString(R.string.system_retry), () -> resumeImport(null,true), getString(R.string.system_later));
                     break;
                 case COMPONENT:
-                    notice(getString(R.string.system_component_needed),getString(R.string.system_component_help,result.component.description()),
+                    notice(getString(R.string.system_component_needed),getString(R.string.system_component_help,SystemTransferText.component(this,result.component)),
                             getString(R.string.system_add_installer),() -> pick(5,false),getString(R.string.system_later));
                     break;
                 case OPEN_PLATFORM: installingInGuest = true; play(GameInstallFlow.PLATFORM_UID); break;
@@ -716,22 +719,22 @@ public final class SymbianActivity extends Activity implements Emulator.Host, In
         else action.run();
     }
     private void importInputs(int request, List<Uri> uris, String incoming, String incomingName) {
-        task(request == 1 ? "Adding system files" : request == 3 ? "Adding N-Gage 2.0" : request>=5 ? "Adding component" : "Inspecting game", () -> {
+        task(request == 1 ? getString(R.string.native_adding_systems) : request == 3 ? getString(R.string.native_adding_platform) : request>=5 ? getString(R.string.native_adding_component) : getString(R.string.native_inspecting_game), () -> {
             List<File> staged = new ArrayList<>();
             GameImport game = null;
             try {
                 PreparedSystemArchive.Progress progress = text -> {
-                    if (closing) throw new java.io.InterruptedIOException("Import cancelled");
+                    if (closing) throw new java.io.InterruptedIOException(getString(R.string.native_import_cancelled));
                     runOnUiThread(() -> { if (!closing) status.setText(text); });
                 };
                 if (incoming != null) staged.add(SymbianFiles.claimStaged(this, incoming));
                 else {
-                    if(uris.size()>256) throw new IOException("Select up to 256 files at a time");
+                    if(uris.size()>256) throw new IOException(getString(R.string.native_selection_limit));
                     long total=0;
                     for(Uri uri:uris) {
                         File file=SymbianFiles.stage(this,uri,request==1 ? PreparedSystemArchive.MAX_INPUT : ArchiveBatch.LIMIT,progress);
                         staged.add(file); total+=file.length();
-                        if(request==2 && total>ArchiveBatch.LIMIT) throw new IOException("Selected games exceed 1 GB");
+                        if(request==2 && total>ArchiveBatch.LIMIT) throw new IOException(getString(R.string.native_games_too_large));
                     }
                 }
                 for(int i=0;i<staged.size();i++) {
@@ -742,7 +745,7 @@ public final class SymbianActivity extends Activity implements Emulator.Host, In
                     }
                 }
                 if(request==2 && staged.size()>1) {
-                    if(pendingImport.exists()) throw new IOException("Finish or remove the pending game first");
+                    if(pendingImport.exists()) throw new IOException(getString(R.string.native_finish_pending));
                     List<String> names=new ArrayList<>(); for(Uri uri:uris) names.add(SymbianFiles.name(this,uri));
                     archives.beginFiles(staged,names,progress); showArchive(); return;
                 }
@@ -756,7 +759,7 @@ public final class SymbianActivity extends Activity implements Emulator.Host, In
                 int route = request;
                 if (route == 4) {
                     ImportKind.Kind kind = ImportKind.inspect(staged.get(0), incomingName == null ? incoming : incomingName);
-                    if (kind == ImportKind.Kind.EXISTING) throw new IOException("This archive contains Java / Mophun files. Select their JAR / MPN files or a ZIP from the library.");
+                    if (kind == ImportKind.Kind.EXISTING) throw new IOException(getString(R.string.native_java_archive));
                     route = kind == ImportKind.Kind.SYSTEM ? 1 : kind == ImportKind.Kind.PLATFORM ? 3 : 2;
                     if(kind==ImportKind.Kind.BACKUP) {
                         File archive=staged.get(0); previewRestore(archive); staged.remove(0); return;
@@ -780,9 +783,9 @@ public final class SymbianActivity extends Activity implements Emulator.Host, In
                                     ? catalog.addArchive(this, inputs.get(0), progress) : null;
                             if (imported == null) {
                                 last = catalog.add(this, inputs);
-                                reports.add(last.label() + " ready");
+                                reports.add(getString(R.string.native_phone_ready,last.label()));
                             } else {
-                                reports.add(imported.summary());
+                                reports.add(SystemTransferText.imported(this,imported));
                                 importWarnings |= !imported.failures.isEmpty();
                                 if (!imported.entries.isEmpty()) last = imported.entries.get(0);
                             }
@@ -791,11 +794,11 @@ public final class SymbianActivity extends Activity implements Emulator.Host, In
                             Emulator.stopSession(); runtimeRoot = previous;
                             Emulator.prepare(runtimeRoot.getAbsolutePath());
                         } else openSystem(last);
-                        refresh(last == null ? "No systems added" : "System files updated");
+                        refresh(last == null ? getString(R.string.native_no_systems_added) : getString(R.string.native_systems_updated));
                         String report = String.join("\n\n", reports);
                         boolean resume = pendingImport.exists();
                         if (resume && last != null && !importWarnings) afterTask = () -> resumeImport(null, false);
-                        else afterTask = () -> notice("System import",report,resume ? getString(R.string.system_continue_import) : getString(R.string.system_close), () -> {
+                        else afterTask = () -> notice(getString(R.string.native_system_import),report,resume ? getString(R.string.system_continue_import) : getString(R.string.system_close), () -> {
                                     if (resume) resumeImport(null, false);
                                 }, null);
                     } catch (Exception error) {
@@ -807,11 +810,11 @@ public final class SymbianActivity extends Activity implements Emulator.Host, In
                     }
                 } else {
                     if(route==2 && staged.size()==1 && ArchiveBatch.multiple(staged.get(0))) {
-                        if(pendingImport.exists()) throw new IOException("Finish or remove the pending game first");
+                        if(pendingImport.exists()) throw new IOException(getString(R.string.native_finish_pending));
                         archives.beginZip(staged.get(0),incoming==null ? SymbianFiles.name(this,uris.get(0)) : incomingName,progress);
                         showArchive(); return;
                     }
-                    if (staged.size() != 1) throw new IOException("Select one installer or game");
+                    if (staged.size() != 1) throw new IOException(getString(R.string.native_select_one));
                     game = GameImport.inspect(staged.get(0));
                     checkImportOpen();
                     if(route==5) showImportResult(installFlow.addComponent(game));
@@ -820,8 +823,8 @@ public final class SymbianActivity extends Activity implements Emulator.Host, In
                         PendingGameImport.Entry job=pendingImport.read();
                         if(job!=null && job.step==PendingGameImport.Step.COMPONENT) showImportResult(installFlow.resume(null,false));
                         else {
-                            refresh("Saved component: "+metadata.name);
-                            afterTask=() -> notice("Component saved",metadata.name+"\nThe installer is ready for games that need it. Installed phones were not changed.",getString(R.string.system_close),null,null);
+                            refresh(getString(R.string.native_saved_component,metadata.name));
+                            afterTask=() -> notice(getString(R.string.native_component_saved),getString(R.string.native_component_saved_body,metadata.name),getString(R.string.system_close),null,null);
                         }
                     }
                     else if (route == 3) {
@@ -830,8 +833,8 @@ public final class SymbianActivity extends Activity implements Emulator.Host, In
                         if (job != null && job.kind == GameImport.Kind.NGAGE2)
                             showImportResult(installFlow.resume(null, false));
                         else {
-                            refresh("N-Gage 2.0 installer saved");
-                            afterTask = () -> notice("N-Gage platform saved", "The installer is ready for games that need it. Existing phones and games were not changed.",getString(R.string.system_close),null,null);
+                            refresh(getString(R.string.native_platform_saved_status));
+                            afterTask = () -> notice(getString(R.string.native_platform_saved), getString(R.string.native_platform_saved_body),getString(R.string.system_close),null,null);
                         }
                     }
                     else {
@@ -852,26 +855,26 @@ public final class SymbianActivity extends Activity implements Emulator.Host, In
         if (failure != null) throw failure;
     }
     private void chooseSystem(List<SystemFileCatalog.Entry> matches) {
-        systemChoice = dialog("Choose system for this game");
+        systemChoice = dialog(getString(R.string.native_choose_phone));
         GameMenuDialog choice = systemChoice;
         boolean queued;
         try {queued=archiveQueue.ownsPending();}catch(IOException error){queued=false;}
         final boolean archive=queued; final boolean[] reuse={true};
-        choice.message("More than one phone matches this game's format. The choice is saved for this game; installed games and saves are unchanged.");
-        if(archive)choice.toggle("Reuse for this package type in this archive",true,value->reuse[0]=value);
+        choice.message(getString(R.string.native_choose_phone_help));
+        if(archive)choice.toggle(getString(R.string.native_reuse_phone),true,value->reuse[0]=value);
         for (SystemFileCatalog.Entry entry : matches) choice.action(entry.model + " (" + entry.firmware + ")",0,() -> {
                     if (busy || closing) return;
                     choice.dismiss();
-                    if(archive)task("Choosing archive phone",()-> {archiveQueue.rememberPhone(entry.id,reuse[0]);runArchive(entry.id,false);});
+                    if(archive)task(getString(R.string.native_choosing_phone),()-> {archiveQueue.rememberPhone(entry.id,reuse[0]);runArchive(entry.id,false);});
                     else resumeImport(entry.id, false);
                 });
         choice.action(getString(R.string.system_later),0,choice::dismiss);
         choice.setOnDismissListener(d -> systemChoice = null);
     }
     public void play(int uid) {
-        task("Starting game", () -> {
+        task(getString(R.string.native_starting_game), () -> {
             Emulator.lastGuestExit = null;
-            if (!Emulator.startSession()) throw new IOException("The phone could not start");
+            if (!Emulator.startSession()) throw new IOException(getString(R.string.native_phone_start_failed));
             runOnUiThread(() -> {
                 if (closing) return;
                 sessionGeneration++;
@@ -891,7 +894,7 @@ public final class SymbianActivity extends Activity implements Emulator.Host, In
                         if (pendingUid != 0) {
                             int uid = pendingUid; pendingUid = 0;
                             if (!Emulator.launchGame(uid)) {
-                                Emulator.lastGuestExit = "The game could not start";
+                                Emulator.lastGuestExit = getString(R.string.native_game_start_failed);
                                 returnToLibrary();
                             }
                         }
@@ -906,7 +909,7 @@ public final class SymbianActivity extends Activity implements Emulator.Host, In
                     }
                 });
                 try {
-                    String identity = "legacy", title = "Symbian game";
+                    String identity = "legacy", title = getString(R.string.native_game_fallback);
                     for (SystemFileCatalog.Entry entry : systems) if (catalog.runtime(entry).equals(runtimeRoot)) identity = entry.id;
                     for (int i = 0; i + 1 < apps.length; i += 2) if (Long.parseLong(apps[i]) == Integer.toUnsignedLong(uid)) title = apps[i + 1];
                     sessionUi = new SymbianSessionUi(this, surface, identity, Integer.toUnsignedLong(uid), title, new SymbianSessionUi.Host() {
@@ -936,7 +939,7 @@ public final class SymbianActivity extends Activity implements Emulator.Host, In
                             try {
                                 if (!Emulator.saveScreenshotTo(png.getAbsolutePath())) return null;
                                 android.graphics.Bitmap bitmap = android.graphics.BitmapFactory.decodeFile(png.getAbsolutePath());
-                                if (bitmap == null) throw new IOException("The engine did not write a valid screenshot");
+                                if (bitmap == null) throw new IOException(getString(R.string.native_screenshot_failed));
                                 return bitmap;
                             } finally { Files.deleteIfExists(png.toPath()); }
                         }
@@ -1007,7 +1010,7 @@ public final class SymbianActivity extends Activity implements Emulator.Host, In
     }
     @Override public void onBackPressed() {
         if(archivePage) {
-            if(busy) { pauseArchive=true; status.setText("Pausing after the current file"); }
+            if(busy) { pauseArchive=true; status.setText(getString(R.string.native_pausing_queue)); }
             else library();
             return;
         }
@@ -1016,10 +1019,10 @@ public final class SymbianActivity extends Activity implements Emulator.Host, In
         if (menuOpen) return;
         menuOpen = true;
         releaseKeys(); Emulator.pauseSession(true);
-        new AlertDialog.Builder(this).setTitle("Leave game?")
-                .setMessage("Unsaved progress will be lost.")
+        new AlertDialog.Builder(this).setTitle(getString(R.string.native_leave_title))
+                .setMessage(getString(R.string.native_leave_body))
                 .setPositiveButton(getString(R.string.system_library), (d, w) -> returnToLibrary())
-                .setNegativeButton("Resume", (d, w) -> resumeGame())
+                .setNegativeButton(getString(R.string.native_resume), (d, w) -> resumeGame())
                 .setOnCancelListener(d -> resumeGame()).show();
     }
     private void resumeGame() { menuOpen = false; if (running && attached && !closing) Emulator.pauseSession(!resumed); }
@@ -1029,7 +1032,7 @@ public final class SymbianActivity extends Activity implements Emulator.Host, In
         if (sessionUi != null) { sessionUi.close(); sessionUi = null; }
         detach(); running = false; menuOpen = false; pendingUid = 0;
         library();
-        task("Restarting game", () -> {
+        task(getString(R.string.native_restarting), () -> {
             Emulator.stopSession();
             Emulator.prepare(runtimeRoot.getAbsolutePath());
             Emulator.lastGuestExit = null;
@@ -1044,32 +1047,32 @@ public final class SymbianActivity extends Activity implements Emulator.Host, In
         if (sessionUi != null) { sessionUi.close(); sessionUi = null; }
         menuOpen = false;
         detach(); running = false; library();
-        task("Closing game", () -> {
+        task(getString(R.string.native_closing), () -> {
             Emulator.stopSession();
             File log = new File(runtimeRoot, "EKA2L1.log");
             if (log.isFile()) Files.copy(log.toPath(), new File(runtimeRoot, "last-session.log").toPath(),
                     java.nio.file.StandardCopyOption.REPLACE_EXISTING);
             Emulator.prepare(runtimeRoot.getAbsolutePath());
-            refresh(Emulator.lastGuestExit == null ? null : "Game stopped: " + Emulator.lastGuestExit);
+            refresh(Emulator.lastGuestExit == null ? null : getString(R.string.native_game_stopped,Emulator.lastGuestExit));
             if (directLaunch) {
                 directLaunch = false;
                 afterTask = () -> {
                     if (Emulator.lastGuestExit != null && !Emulator.lastGuestExit.startsWith("Kill (0)"))
-                        Toast.makeText(this, "Game stopped: " + Emulator.lastGuestExit, Toast.LENGTH_LONG).show();
+                        Toast.makeText(this, getString(R.string.native_game_stopped,Emulator.lastGuestExit), Toast.LENGTH_LONG).show();
                     finish();
                 };
                 return;
             }
             if (installingInGuest) {
                 installingInGuest = false;
-                afterTask = () -> notice("N-Gage installation",
-                        "Did N-Gage finish installing the game? Keep the import to return to the installer later.",
-                        "Finished",() -> task("Finishing import", () -> {
+                afterTask = () -> notice(getString(R.string.native_ngage_installation),
+                        getString(R.string.native_platform_finished_question),
+                        getString(R.string.native_finished),() -> task(getString(R.string.native_finishing_import), () -> {
                             if(archiveQueue.ownsPending()) {
                                 PendingGameImport.Entry job=pendingImport.read(); pendingImport.update(job,job.system,PendingGameImport.Step.COMPLETE);
                                 archiveQueue.accept(new GameInstallFlow.Result(GameInstallFlow.Action.DONE)); runArchive(null,false);
                             } else { pendingImport.discard(); refresh(); }
-                        }),"Keep for later");
+                        }),getString(R.string.native_keep_later));
             }
         });
     }
@@ -1120,7 +1123,7 @@ public final class SymbianActivity extends Activity implements Emulator.Host, In
             EditText edit = new EditText(this); edit.setText(text);
             edit.setFilters(new InputFilter[]{new InputFilter.LengthFilter(Math.max(0, maxLength))});
             inputDialog = new AlertDialog.Builder(this).setView(edit)
-                    .setPositiveButton("OK", (d, w) -> Emulator.submitInput(edit.getText().toString()))
+                    .setPositiveButton(getString(R.string.native_ok), (d, w) -> Emulator.submitInput(edit.getText().toString()))
                     .setNegativeButton(getString(R.string.system_cancel), (d, w) -> Emulator.submitInput(""))
                     .setOnCancelListener(d -> Emulator.submitInput("")).show();
         });

@@ -16,7 +16,12 @@ import java.util.zip.CRC32;
 final class PreparedSystemArchive {
     static final long MAX_INPUT = 4L * 1024 * 1024 * 1024;
     private static final long MAX_EXPANDED = 8L * 1024 * 1024 * 1024;
-    interface Progress { void update(String text) throws IOException; }
+    interface Progress {
+        void update(String text) throws IOException;
+        default void update(SystemProgress step, Object... arguments) throws IOException {
+            update(step.fallback(arguments));
+        }
+    }
     static final class Dump {
         final String hint;
         final File rom, z;

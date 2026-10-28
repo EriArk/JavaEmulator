@@ -10,6 +10,23 @@ stated otherwise. **Experimental** in older checkpoints means local/private
 combined builds; released experimental features are explicitly identified.
 **Released** means an actual GitHub release asset.
 
+## 2026-10-28 - Native Transfer and Recovery Localization Preparation (Public Source, Unreleased)
+
+- Extract Symbian/N-Gage host actions, archive queues, saved components,
+  backup/restore and uninstall warnings into canonical English resources.
+  Version-specific backup contents and destructive-action warnings stay intact.
+- Give 55 app-owned backup/removal failures stable keys and retain English
+  diagnostics, original causes and user paths. Backup progress supports localized
+  presentation without changing cancellation or legacy callbacks.
+- Adapt archive actions and role selectors to narrow screens and large fonts;
+  keep the Import action disabled while work is running. Count summaries use
+  label/value wording that does not produce singular/plural mismatches.
+- Add resource, callback, cancellation and 144-case queue layout coverage.
+  Fix lint findings in progress formatting and the preceding chat-state diff.
+  [Verification and limitations](docs/checks/2026-10-28-native-transfer-localization.md).
+- Full localization remains open: more helper/backend messages, language
+  selection and reviewed translations are still needed. No public APK update.
+
 ## 2026-10-28 - Social and System-File Localization Preparation (Public Source, Unreleased)
 
 - Move account sign-in/recovery, chat/friend actions, lobby directory and room

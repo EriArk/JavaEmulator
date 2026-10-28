@@ -37,6 +37,14 @@ language batch has shipped in this checkpoint.
   requirements, phone-dump help and pending-import decisions. Rendering uses
   import kind/readiness, not English title comparisons. Technical identifiers
   in help are protected with XLIFF placeholders.
+- `values/native_transfer_strings.xml`: Symbian host actions, saved components,
+  phone backup/restore and uninstall confirmations, archive queue labels/states,
+  import summaries and transfer progress. Complete warnings preserve the
+  distinctions between backup versions, removal and keeping installed phones.
+- `values/native_error_strings.xml`: 55 typed app-owned backup/removal failures.
+  Core errors remain `IOException` subclasses with English diagnostics and
+  preserved causes; presentation uses keys, not matching English messages.
+  Unknown/native/OS errors and user-provided paths stay verbatim.
 
 Display resolution is selected by numeric dimensions, not by parsing translated
 labels. Phone profile IDs and stored mapping names remain stable; built-in
@@ -44,9 +52,9 @@ mapping names have separate display aliases. Transfer idle state is semantic,
 not an English string comparison. Play styling and image-preset swatches are
 explicit properties, not label comparisons.
 
-This is still source preparation, not whole-app localization. System archive,
-backup/component subflows, room/publication/contact backend notices,
-game-information helpers, backend errors and inherited About/Help still need
+This is still source preparation, not whole-app localization. Persisted archive
+details, remaining firmware/component backend errors, room/publication/contact
+backend notices, game-information helpers and inherited About/Help still need
 extraction or review. No new locale is enabled or guest language modified as a
 side effect. English actor fallback fields are retained for diagnostics and
 non-Android tests; UI decisions must use typed keys, not translated labels.
@@ -126,3 +134,11 @@ phone generations and distinguishes firmware from the N-Gage 2.0 installer.
 pseudolocales, three font scales, five widths and both themes. This is bounded
 layout evidence, not full RTL navigation or live network acceptance.
 See the [Social/system verification record](checks/2026-10-28-social-system-localization.md).
+
+`SystemTransferLocalizationTest` checks every typed backup/removal error,
+version-specific warnings, raw paths/causes, component versions, cancellation,
+queue callbacks and layout across 144 locale/font/viewport/theme/state cases.
+Archive controls stack for narrow/large-font layouts and keep their actions
+independent of display labels. This does not prove all firmware/backend errors
+are localized or all RTL navigation is ready.
+See the [native transfer checks](checks/2026-10-28-native-transfer-localization.md).

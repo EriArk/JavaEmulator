@@ -22,7 +22,8 @@ public class LocalizationAudit {
             "SocialMenuPages.java", "DisplayPanel.java", "FastForwardControl.java", "AppsListFragment.java",
             "LibraryImportActivity.java", "InstallerDialog.java", "ControllerMapperView.java", "MapperDialog.java",
             "TouchLayoutEditor.java", "SettingsPreviewBar.java", "GameChrome.java",
-            "FluxerChatsActivity.java", "LobbyDirectoryActivity.java", "LobbyRoomActivity.java");
+            "FluxerChatsActivity.java", "LobbyDirectoryActivity.java", "LobbyRoomActivity.java",
+            "SymbianActivity.java", "ArchiveBatchView.java");
     private static final Set<String> BRANDS = Set.of("AbyssME", "Java ME", "Mophun", "Symbian", "N-Gage", "J2ME Loader");
     private record Candidate(String file, long line, String call, String text) { }
     private record Resource(String type, String name, List<String> values, boolean translated) { }
@@ -90,11 +91,23 @@ public class LocalizationAudit {
             @Override public Void visitMethodInvocation(MethodInvocationTree node, Void unused) {
                 String call = node.getMethodSelect().toString();
                 String name = call.substring(call.lastIndexOf('.') + 1);
+                String file = unit.getSourceFile().getName();
+                boolean nativeHost = file.endsWith("SymbianActivity.java");
+                boolean archive = file.endsWith("ArchiveBatchView.java");
                 int argument = name.equals("makeText") ? 1 : 0;
+                if (nativeHost && name.equals("action") && call.equals("action")) argument = 1;
                 if ((LABEL_CALLS.contains(name) || name.equals("makeText")) && node.getArguments().size() > argument) {
                     collect(node.getArguments().get(argument), call);
                     if (name.equals("choice") && node.getArguments().size() > 1) collect(node.getArguments().get(1), call);
                 }
+                if (nativeHost && name.equals("notice")) {
+                    for (int index : new int[]{0, 1, 2, 4})
+                        if (node.getArguments().size() > index) collect(node.getArguments().get(index), call);
+                }
+                if ((nativeHost && Set.of("task", "dialog", "refresh", "refreshStopped", "text",
+                        "setMessage", "setPositiveButton", "setNegativeButton").contains(name)
+                        || archive && Set.of("text", "icon").contains(name)) && !node.getArguments().isEmpty())
+                    collect(node.getArguments().get(0), call);
                 return super.visitMethodInvocation(node, unused);
             }
             private void collect(Tree expression, String call) {
@@ -167,6 +180,13 @@ public class LocalizationAudit {
             }
         };
         if (scan(List.of(fixture)).size() != 6) throw new AssertionError("AST UI argument boundary");
+        JavaFileObject nativeFixture = new SimpleJavaFileObject(URI.create("string:///SymbianActivity.java"), JavaFileObject.Kind.SOURCE) {
+            public CharSequence getCharContent(boolean ignored) {
+                return "class SymbianActivity { void f() { notice(\"Remove\", \"Warning\", \"Confirm\", () -> use(\"id\"), \"Cancel\");"
+                        + " task(\"Importing\", () -> use(\"key\")); action(list, \"Start\", () -> use(\"key\")); } }";
+            }
+        };
+        if (scan(List.of(nativeFixture)).size() != 6) throw new AssertionError("Native host label arguments");
         if (!formats("%1$s: %2$d%%").equals(formats("%2$d%% %1$s"))) throw new AssertionError("Numbered reorder");
         if (formats("%1$s").equals(formats("%1$d"))) throw new AssertionError("Argument type");
         if (compatible(new Resource("string-array", "a", List.of("a", "b"), true),

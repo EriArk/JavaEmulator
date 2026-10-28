@@ -292,7 +292,7 @@ public final class FluxerChatsActivity extends CompactSettingsActivity {
     private final class MessageAdapter extends ListAdapter<FluxerChats.Message,Row> {
         MessageAdapter(){super(new DiffUtil.ItemCallback<FluxerChats.Message>(){
             public boolean areItemsTheSame(FluxerChats.Message a,FluxerChats.Message b){return a.id.equals(b.id);}
-            public boolean areContentsTheSame(FluxerChats.Message a,FluxerChats.Message b){return a.author.equals(b.author)&&a.text.equals(b.text)&&a.time.equals(b.time)&&a.deliveryCode==b.deliveryCode&&a.contentKind==b.contentKind&&a.retryable==b.retryable&&a.mine==b.mine;}
+            public boolean areContentsTheSame(FluxerChats.Message a,FluxerChats.Message b){return a.author.equals(b.author)&&a.text.equals(b.text)&&a.time.equals(b.time)&&java.util.Objects.equals(a.deliveryCode,b.deliveryCode)&&java.util.Objects.equals(a.contentKind,b.contentKind)&&a.retryable==b.retryable&&a.mine==b.mine;}
         });}
         public Row onCreateViewHolder(ViewGroup parent,int type){return new Row(false);}
         public void onBindViewHolder(Row r,int position){FluxerChats.Message m=getItem(position);r.top.setText(m.mine?getString(R.string.social_you):m.author);r.body.setText(SocialText.content(FluxerChatsActivity.this,m));

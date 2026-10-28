@@ -104,7 +104,7 @@ public final class SymbianRuntimeTest {
         clickExact(ui, "Add system files");
         // The external device driver selects the private fixture in Android's real SAF picker.
         waitText(ui, "System import", 180000);
-        assertNotNull(waitText(ui, "1 already available", 5000));
+        assertNotNull(waitText(ui, "Already available: 1", 5000));
         saveScreen(ui, context, "symbian-collection-import.png");
         assertTrue(waitText(ui, "Close", 5000).performAction(AccessibilityNodeInfo.ACTION_CLICK));
         clickExact(ui, "Installed phones");
