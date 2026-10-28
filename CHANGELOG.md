@@ -10,6 +10,26 @@ stated otherwise. **Experimental** in older checkpoints means local/private
 combined builds; released experimental features are explicitly identified.
 **Released** means an actual GitHub release asset.
 
+## 2026-10-28 - 0.7.0 Beta 1 (Released)
+
+- Publish one signed adaptive ARM64 APK, code 313, with Java, Mophun and
+  experimental Symbian/N-Gage. Existing official installs update in place.
+- Include eight UI languages and offline language selection, per-game virtual
+  gamepad mapping, Phone menu-handle/opacity controls, Java audio repairs and
+  clearer localized menus/import recovery. Games and user content are unchanged.
+- Fix shared SIS partial-update preflight (#47) and a reproduced menu-rotation
+  placement race. Preserve conflicting-installer rejection and pending games.
+- Verify 419 JVM tests, 45 focused Retroid checks, 28 optimized installer checks
+  and a final 216-case Retroid regression run. Upgrade retains 329 readable
+  external file hashes; internal/inaccessible data is outside that hash check.
+- Publish matching app/dependency/Symbian sources and SHA-256 manifest. All five
+  asset digests/sizes and public APK/manifest downloads match. Actions stays off.
+- #46 centered Grid/Gallery names was missed and is **not included**. Exact
+  quiet-music game reports and Treasure Towers remain unverified. Do not read
+  this release as closing every issue or guaranteeing all N-Gage installers.
+  [Release notes](docs/releases/v0.7.0-beta.1.md),
+  [verification and availability](docs/releases/v0.7.0-beta.1-checks.md).
+
 ## 2026-10-28 - N-Gage Platform Preflight (0.7.0 Beta 1 Preparation)
 
 - Preserve distinct same-UID partial updates and all embedded dependency ranges

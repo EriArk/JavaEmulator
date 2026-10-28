@@ -5,6 +5,14 @@ New platforms in **#44 are deferred**. This is not a release promise or a claim
 that all acceptance checks are complete. See [current status](PROJECT_STATUS.md)
 for availability and the dated evidence behind each result.
 
+**Publication update, 2026-10-28:** the implementation batches for #41/#42/#45/#43
+are included in [0.7.0 Beta 1](releases/v0.7.0-beta.1-checks.md), together with
+#47's partial-update installer repair. Earlier "unreleased"/"started" paragraphs
+below are historical checkpoints, not current availability. Exact quiet-music
+editions, Treasure Towers and full translation review remain open. **#46 centered
+Grid/Gallery card names was missed and is not implemented in this APK.** Keep
+that distinction separate from centered game-menu confirmations. #44 stays deferred.
+
 ## 1. Java audio (#41)
 
 **Further unreleased work, 2026-10-28:** shared stream/load/prefetch/seek/replay

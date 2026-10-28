@@ -1,23 +1,23 @@
 # Localization Workstream
 
 Issue [#43](https://github.com/EriArk/JavaEmulator/issues/43), checkpoint 2026-10-28.
-English remains the canonical source/fallback and the public APK's advertised UI.
-Unreleased source now includes Settings > Language, System default, English,
+English remains the canonical source/fallback. Published 0.7.0 Beta 1
+includes Settings > Language, System default, English,
 Spanish, Brazilian Portuguese, Russian, French, German, Japanese and Simplified
 Chinese. Other inherited locale folders remain
-partial translations; their presence is not whole-app support. This work has not
-been published in a new signed APK.
+partial translations; their presence is not whole-app support. See the
+[signed release checks](releases/v0.7.0-beta.1-checks.md).
 
 | Locale | Canonical resource coverage | Availability |
 | --- | --- | --- |
 | English | 1518 source entries | Canonical fallback |
-| Spanish | 1518 / 1518 | Included in the 0.7.0 Beta 1 candidate |
-| Brazilian Portuguese | 1518 / 1518 | Included in the 0.7.0 Beta 1 candidate |
-| Russian | 1518 / 1518 | Included in the 0.7.0 Beta 1 candidate |
-| French | 1518 / 1518 | Included in the 0.7.0 Beta 1 candidate |
-| German | 1518 / 1518 | Included in the 0.7.0 Beta 1 candidate |
-| Japanese | 1518 / 1518 | Included in the 0.7.0 Beta 1 candidate |
-| Simplified Chinese (`zh-CN`) | 1518 / 1518 | Included in the 0.7.0 Beta 1 candidate |
+| Spanish | 1518 / 1518 | Released in 0.7.0 Beta 1 |
+| Brazilian Portuguese | 1518 / 1518 | Released in 0.7.0 Beta 1 |
+| Russian | 1518 / 1518 | Released in 0.7.0 Beta 1 |
+| French | 1518 / 1518 | Released in 0.7.0 Beta 1 |
+| German | 1518 / 1518 | Released in 0.7.0 Beta 1 |
+| Japanese | 1518 / 1518 | Released in 0.7.0 Beta 1 |
+| Simplified Chinese (`zh-CN`) | 1518 / 1518 | Released in 0.7.0 Beta 1 |
 | Other inherited locales | Partial | Not advertised by the picker |
 
 Counts include strings, plurals and arrays; they do not certify translation

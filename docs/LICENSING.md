@@ -103,7 +103,7 @@ codec switches. The source bundle must include its source, build scripts and
 native dependency provenance. This does not claim a bit-for-bit reproduction of
 every upstream third-party binary.
 
-The unreleased direct-MIDI/ADPCM bridge calls these existing pinned native
+The direct-MIDI/ADPCM bridge, released in 0.7.0 Beta 1, calls these existing pinned native
 libraries; it introduces no replacement synthesizer, bank or prebuilt codec.
 Public EAS/FFmpeg headers retain their Apache/LGPL notices and original contents,
 except an original Android public-header configuration file. The original bridge

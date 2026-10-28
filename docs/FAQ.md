@@ -2,7 +2,7 @@
 
 *Java ME • Mophun • Symbian • N-Gage • Android phones & gaming handhelds*
 
-**Guide for the current public release: AbyssME 0.6.0 Beta 1 Revision 1 (Android 10+, ARM64). Updated October 28, 2026.** AbyssME is still in beta. Not every game, phone firmware or network combination will work yet.
+**Guide for the current public release: AbyssME 0.7.0 Beta 1 (Android 10+, ARM64). Updated October 28, 2026.** AbyssME is still in beta. Not every game, phone firmware or network combination will work yet.
 
 **New here?** Start with [What files do I need?](#what-files-do-i-need), then follow the section for your platform. **Having trouble with buttons?** Jump to [Touchscreen controls](#7-touchscreen-controls) or [Physical controllers](#8-physical-controllers). If you're stuck, the [Troubleshooting](#12-troubleshooting) section tells you what to check.
 
@@ -20,7 +20,7 @@ It is an independent J2ME Loader fork and uses an integrated Symbian/N-Gage engi
 - **Official APK and release notes:** https://github.com/EriArk/JavaEmulator/releases
 - **Questions, game reports and help:** https://discord.gg/xBN9DXt8Q
 
-Download the latest **signed APK** from an official link. The current public unified build is `AbyssME-0.6.0-beta.1-r1.apk`. Android may ask you to allow installation from your browser or file manager.
+Download the latest **signed APK** from an official link. The current public unified build is `AbyssME-0.7.0-beta.1.apk`. Android may ask you to allow installation from your browser or file manager.
 
 **Requirements:** Android 10 or newer and a **64-bit ARM (ARM64)** device. The app adapts to touchscreens and gaming handhelds. A controller is optional.
 
@@ -221,7 +221,7 @@ Some old Java games use numeric `2/4/6/8` for movement and `5` for action rather
 
 - Try the **Phone Keypad** so you can press those actual digits.
 - With a **physical controller**, use **Controller mapping** and the built-in **Numpad 2/4/6/8** preset.
-- On the **current public 0.6.0 Beta 1 R1**, the Phone/Gamepad touch editor lets you **move/resize** controls but **does not yet offer per-button functional remapping**. This is being developed for a later release — don't search for an unpublished **Buttons** mapping tab in R1.
+- For the **virtual gamepad**, open **Controls > Edit touch layout > Buttons**. Select a drawn button, then choose the phone key it sends, or start with an arrow/numpad template. Select **Use layout**, then **Try changes** and **Keep** to save it for that game. Cancel/Undo leaves the previous mapping intact; physical-controller mappings are separate.
 
 The wrong-key symptom can also be caused by a phone-specific keyboard layout or a particular game edition. A new mapping preset might help, but is **not a guaranteed fix**.
 
@@ -371,7 +371,7 @@ Even if the problem seems tiny, **please tell us**. Fixing one specific game oft
 
 ## 14. Feature availability and useful links
 
-**This FAQ describes the public 0.6.0 Beta 1 Revision 1 build.** Several improvements are already being worked on in source, but **are not in that APK**. In particular, a **Buttons** tab for per-game virtual Gamepad remapping, expanded phone shortcut controls, and **Settings → Language** with Spanish, Brazilian Portuguese and Russian are in unreleased development builds as of this guide's date. Their public availability must be checked against the next signed release before updating this FAQ.
+**This FAQ describes the public 0.7.0 Beta 1 build.** It includes per-game virtual Gamepad remapping, movable/hideable phone menu handles, opacity settings and **Settings > Language**. Choose System default, English, Spanish, Brazilian Portuguese, Russian, French, German, Japanese or Simplified Chinese. This changes emulator menus, not the game's language. Some low-level diagnostics may still appear in English. Java audio and N-Gage 2.0 installer fixes are included; see the [release notes and limits](releases/v0.7.0-beta.1.md).
 
 - **AbyssME website:** https://abysstail.art/en/projects/abyssme
 - **APK, release notes and matching source:** https://github.com/EriArk/JavaEmulator/releases
