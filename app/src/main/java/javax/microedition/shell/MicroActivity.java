@@ -531,6 +531,14 @@ public class MicroActivity extends AppCompatActivity {
 		if (handleQuickMapKeyEvent(event)) {
 			return true;
 		}
+		if (key == KeyEvent.KEYCODE_BACK && microLoader != null && !microLoader.getTouchSettings().gameHandleVisible) {
+			if (event.getAction() == KeyEvent.ACTION_DOWN) {
+				if (event.getRepeatCount() == 0) event.startTracking();
+				else if (event.isLongPress()) onKeyLongPress(key, event);
+			} else if (event.getAction() == KeyEvent.ACTION_UP
+					&& (event.getFlags() & (KeyEvent.FLAG_LONG_PRESS | KeyEvent.FLAG_CANCELED)) == 0) openOptionsMenu();
+			return true;
+		}
 		if ((current instanceof Canvas || fastForward != null && fastForward.binding() == key) && event.getKeyCode() != menuKey
 				&& (KeyEvent.isGamepadButton(event.getKeyCode()) || ControllerInput.direction(event.getKeyCode()) != 0)) {
 			controllerInput.key(event.getDeviceId(), event.getKeyCode(),
@@ -969,6 +977,8 @@ public class MicroActivity extends AppCompatActivity {
 		gameMenu.action(getString(R.string.on_screen_shortcuts), R.drawable.ic_baseline_tune_24,
 				() -> ru.playsoftware.j2meloader.util.GameShortcuts.page(this, gameMenu, true,
 						this::updateScreenshotButton, this::showMorePage));
+		if (!BuildConfig.HANDHELD_MODE) gameMenu.action(getString(R.string.game_shortcut_appearance), R.drawable.ic_baseline_tune_24,
+				() -> settingsPages().gameShortcuts(this::showMorePage));
 		gameMenu.action("System keyboard", R.drawable.ic_action_keyboard, () -> {
 			gameMenu.dismiss();
 			inputMethodManager.toggleSoftInputFromWindow(binding.displayableContainer.getWindowToken(),
@@ -1064,7 +1074,8 @@ public class MicroActivity extends AppCompatActivity {
 
 	@Override
 	public void onBackPressed() {
-		// Intentionally overridden by empty due to support for back-key remapping.
+		// Keep a system-gesture escape path when the explicit touch handle is hidden.
+		if (microLoader != null && !microLoader.getTouchSettings().gameHandleVisible) openOptionsMenu();
 	}
 
 	@Override

@@ -109,7 +109,7 @@ public final class TouchDeck {
         return separateGameArea(w, h);
     }
     private boolean overlay() { return style() == PHONE && settings.touchKeypadOverlay; }
-    private int opacity() { return Math.max(overlay() ? 20 : 80, Math.min(100, settings.touchOpacity)); }
+    private int opacity() { return TouchAppearance.opacity(themeContext, settings.touchOpacity); }
     private RectF separateGameArea(float w, float h) {
         if (!enabled) return new RectF(0, 0, w, h);
         float unit = unit(w, h);
@@ -295,6 +295,9 @@ public final class TouchDeck {
             canvas.drawRect(0,0,viewport.left,height,paint);
             canvas.drawRect(viewport.right,0,width,height,paint);
         } else if (!overlay()) canvas.drawRect(0,viewport.bottom,width,height,paint);
+        // Composite the complete keys once, including action faces, borders and labels.
+        int alpha = opacity() * 255 / 100;
+        int layer = alpha == 255 ? canvas.save() : canvas.saveLayerAlpha(0, 0, width, height, alpha);
         boolean cross = style() == GAMEPAD || width > height;
         if (cross) drawDpadBase(canvas);
         paint.setTextAlign(Paint.Align.CENTER);
@@ -306,7 +309,7 @@ public final class TouchDeck {
             boolean dpad = cross && isDpad(key);
             if (dpad && key.codes.length == 1) pressed = held.get(key.codes[0]) > 0;
             boolean action = style() == GAMEPAD && !numbers && key.codes[0] > 0 && key.codes[0] != NUMBERS;
-            int opacity = opacity();
+            int opacity = 100;
             paint.setColor(pressed ? accent : button);
             paint.setAlpha(opacity * 255 / 100);
             if (action) {
@@ -346,6 +349,7 @@ public final class TouchDeck {
                 }
             }
         }
+        canvas.restoreToCount(layer);
     }
 
     private void drawPhoneKey(Canvas canvas, RectF face, boolean pressed, int opacity) {
@@ -393,7 +397,7 @@ public final class TouchDeck {
         vertical.op(horizontal, Path.Op.UNION);
         paint.setStyle(Paint.Style.FILL);
         paint.setColor(button);
-        paint.setAlpha(opacity() * 255 / 100);
+        paint.setAlpha(255);
         canvas.drawPath(vertical, paint);
         paint.setStyle(Paint.Style.STROKE);
         paint.setStrokeWidth(dp(1.5f));

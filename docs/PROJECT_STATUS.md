@@ -1,6 +1,6 @@
 # AbyssME - Current Product and Development Status
 
-**Last updated: 2026-10-26.** Verification dates are recorded per section.
+**Last updated: 2026-10-28.** Verification dates are recorded per section.
 This is the starting point for website copy,
 announcements, progress posts and project handoffs. It includes work that exists
 only in local experiments or private test builds. Describing that work here
@@ -93,9 +93,32 @@ older 0.3 builds, not the current release series.
 | Channel | Current identifier | Availability |
 | --- | --- | --- |
 | Public download | `0.6.0-beta.1-r1`, code 312 | One signed adaptive APK on the existing Beta 1 page; centered confirmations, shape-adaptive panels and 29 dark screenshots. Corresponding r1 app source reuses unchanged dependency/peer and Symbian bundles. Early experimental Java Bluetooth multiplayer retains its limits. |
-| Development source | Same r1 runtime plus documentation handoff | No additional unreleased runtime at this checkpoint. Bluetooth game evidence includes BT Biplanes, Dogfight, Constructo and Absorbed on Retroid/emulator. Sustained gameplay and different-network acceptance remain open. Shared directory quotas and effects/defaults are unchanged. [Game checks](BLUETOOTH_GAME_SELECTION.md) |
+| Development source | Unreleased audio gain and Phone handle/opacity changes after r1 | Nokia Sound gain now works; Java's menu handle can move/hide per game, with independent shortcut opacity and meaningful touch-button opacity. Debug Retroid checks only, not a new public APK. Quiet music in the exact #41 game editions is not yet fixed/verified. [Evidence](checks/2026-10-28-audio-and-phone-controls.md) |
 | Private historical snapshot | `0.1.0-beta.2-experimental.15`, 2026-10-11 | Old Java/Mophun test build, not the current beta |
 | Local-only material | Game fixtures, firmware, diagnostics, device data and signing keys | Not in Git or public release assets; describing testing does not authorize redistribution |
+
+## Stabilization Queue (2026-10-28)
+
+Approved order: **#41 audio -> #42 menu handle/opacity -> #45 touch gamepad
+mapping -> #43 localization**. **#44 new platforms is deferred**.
+[Scope and acceptance boundaries](STABILIZATION_PLAN.md).
+
+The first development batch repairs Nokia Sound gain and implements movable,
+hideable Java Phone chrome plus independent opacity. It preserves existing
+defaults, game pixels, physical mappings and Try/Keep/Undo. 395 JVM tests pass;
+Retroid's focused run has 59 passes and one optional capture skip. Eight audio
+tests include a real Android session-output measurement. These are not complete
+game, subjective audio or gesture-navigation acceptance.
+
+Locally available Avatar 1.0.6 and Cops 1.2.1 use MMAPI, not the repaired Nokia
+path. Their captured music starts at level 100. The reported 1.1.6/1.2.3 quiet
+music therefore remains open; no global boost or game-name workaround was added.
+#45 and #43 are queued, not implemented. New labels in this batch use English
+resources where introduced; this is not whole-app localization.
+[Changes, measurements, fixture identities and remaining checks](checks/2026-10-28-audio-and-phone-controls.md).
+
+Public release asset names were rechecked on 2026-10-28; the signed r1 APK and
+release tags were not changed. Asset hashes were not reverified in this pass.
 
 ## Library Refresh (#40, Released Scope and History)
 

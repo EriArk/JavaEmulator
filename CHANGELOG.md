@@ -1,7 +1,7 @@
 # AbyssME Changelog
 
 User-facing development history, reconstructed from commits, release notes and
-local/private build records through **2026-10-26**. This is not a claim that all
+local/private build records through **2026-10-28**. This is not a claim that all
 listed work is in a public APK. See [current status](docs/PROJECT_STATUS.md) for
 availability, verification, known limits and screenshot guidance.
 
@@ -9,6 +9,29 @@ Labels: **Public source** means implemented on `main` but unreleased unless
 stated otherwise. **Experimental** in older checkpoints means local/private
 combined builds; released experimental features are explicitly identified.
 **Released** means an actual GitHub release asset.
+
+## 2026-10-28 - Audio Gain and Phone Handle Controls (Public Source, Unreleased)
+
+- Implement Nokia Sound gain, exact 0..255 readback, mute and gain retention
+  across player replacement/resume. Preserve the MMAPI volume curve and default
+  loudness. Add opt-in bounded Debug diagnostics without game-data capture.
+- Add per-game move/hide controls for Java's floating menu handle, independent
+  portrait/landscape positions, safe bounds and an Android Back fallback.
+  Reuse the visual editor and Try/Keep/Undo instead of saving a drag immediately.
+- Add separate shortcut opacity. Let Phone/Gamepad buttons use 20..100% opacity
+  in Separate and Overlay layouts, including previously opaque gamepad parts.
+  High contrast stays fully opaque; gameplay pixels and hitboxes are unchanged.
+- Prevent moved handles from covering the temporary Keep/Undo panel. Preserve
+  existing screenshot/display visibility and five-second shortcut collapse.
+- Record the approved stabilization order **#41 -> #42 -> #45 -> #43**; new
+  platforms (#44) are deferred. Touch gamepad remapping/localization are queued,
+  not delivered by this batch.
+- 395 JVM passes; Retroid focused suite: 59 passes, one optional capture skip.
+  Eight audio cases include measured output. Lint: zero errors, 446 warnings.
+  [Evidence and limits](docs/checks/2026-10-28-audio-and-phone-controls.md).
+- **Not a fix claim for reported Avatar 1.1.6/Cops 1.2.3 quiet music.** Available
+  older editions use MMAPI and request full gain on captured tracks; further
+  synth/output comparison is needed. No signed APK or release assets changed.
 
 ## 2026-10-26 - Beta 1 Revision 1 (Released)
 

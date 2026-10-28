@@ -89,6 +89,8 @@ public final class GameSettingsPages {
         menu.action("Controller mapping", R.drawable.ic_action_keyboard, () -> host.mapping(draft, this::controls));
         menu.action("Fast-forward", android.R.drawable.ic_media_ff, () -> fastForward(this::controls));
         if (!BuildConfig.HANDHELD_MODE) {
+            if (javaGame) menu.action(menu.getContext().getString(R.string.game_shortcut_appearance), R.drawable.ic_baseline_tune_24,
+                    () -> gameShortcuts(this::controls));
             int layout = draft.touchLayout == null ? 0 : clamp(draft.touchLayout, javaGame ? 3 : 2);
             menu.choice("Touch layout", javaGame ? new String[]{"Phone", "Gamepad", "Legacy"} : new String[]{"Phone", "Gamepad"}, layout, i -> {
                 draft.touchLayout = i; controls();
@@ -104,15 +106,34 @@ public final class GameSettingsPages {
                     menu.editTouchLayout(draft, this::controls));
             menu.choice("Button theme", new String[]{"Follow app", "Dark", "Light"}, clamp(draft.touchTheme, 3), i -> draft.touchTheme = i);
             menu.choice("Button size", new String[]{"Standard", "Large", "Extra large"}, clamp(draft.touchSize, 3), i -> draft.touchSize = i);
-            menu.percentage("Opacity", Math.max(draft.touchKeypadOverlay && layout == 0 ? 20 : 80,
-                    Math.min(100, draft.touchOpacity)), draft.touchKeypadOverlay && layout == 0 ? 20 : 80,
+            menu.percentage(menu.getContext().getString(R.string.touch_button_opacity), Math.max(20, Math.min(100, draft.touchOpacity)), 20,
                     v -> draft.touchOpacity = v);
+            contrastOpacityNotice();
             menu.choice("Portrait position", new String[]{"Bottom", "Raised"}, draft.touchPortraitReach > 0 ? 1 : 0,
                     i -> draft.touchPortraitReach = i);
             menu.choice("Landscape position", new String[]{"Bottom", "Raised"}, draft.touchLandscapeReach > 0 ? 1 : 0,
                     i -> draft.touchLandscapeReach = i);
         }
         controlsFooter();
+    }
+
+    public void gameShortcuts(Runnable back) {
+        menu.page(menu.getContext().getString(R.string.game_shortcut_appearance));
+        menu.toggle(menu.getContext().getString(R.string.game_handle_visible), draft.gameHandleVisible, value -> {
+            draft.gameHandleVisible = value; gameShortcuts(back);
+        });
+        if (!draft.gameHandleVisible) menu.message(menu.getContext().getString(R.string.game_handle_back_hint));
+        menu.action(menu.getContext().getString(R.string.game_handle_move), R.drawable.ic_baseline_tune_24, () ->
+                menu.editGameHandle(draft, () -> gameShortcuts(back)));
+        menu.percentage(menu.getContext().getString(R.string.game_shortcut_opacity), Math.max(20, Math.min(100, draft.gameShortcutOpacity)), 20,
+                value -> draft.gameShortcutOpacity = value);
+        contrastOpacityNotice();
+        trialAction(); menu.setBackAction(back);
+    }
+
+    private void contrastOpacityNotice() {
+        if ("contrast".equals(ru.playsoftware.j2meloader.ui.AppPalette.selected(menu.getContext())))
+            menu.message(menu.getContext().getString(R.string.touch_contrast_opacity));
     }
 
     public void enhancements() {

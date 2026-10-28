@@ -37,6 +37,12 @@ public final class GameChrome {
         handle.setTooltipText("Show game controls");
         handle.setOnClickListener(view -> reveal());
         root.addView(handle, new FrameLayout.LayoutParams(dp(48), dp(48), Gravity.TOP | Gravity.END));
+        root.getViewTreeObserver().addOnGlobalLayoutListener(this::render);
+        root.addOnLayoutChangeListener((view, l, t, r, b, ol, ot, or, ob) -> positionHandle());
+        androidx.core.view.ViewCompat.setOnApplyWindowInsetsListener(handle, (view, insets) -> {
+            handle.post(this::positionHandle);
+            return insets;
+        });
         for (View button : new View[]{display, screenshot, menu, fastForward}) {
             if (button == null) continue;
             button.setOnTouchListener((view, event) -> {
@@ -78,12 +84,55 @@ public final class GameChrome {
     }
 
     public void render() {
-        visible(handle, available && !expanded);
+        positionHandle();
+        visible(handle, available && !expanded && profile.gameHandleVisible && !previewCoversHandle());
         visible(display, available && expanded && displayEnabled);
         visible(screenshot, available && expanded && screenshotEnabled);
         visible(menu, available && expanded);
         visible(fastForward, available && profile.fastForwardOnScreen
                 && (expanded || fastForward != null && fastForward.isSelected()));
+    }
+
+    private boolean previewCoversHandle() {
+        FrameLayout.LayoutParams params = (FrameLayout.LayoutParams) handle.getLayoutParams();
+        android.graphics.Rect bounds = new android.graphics.Rect(params.leftMargin, params.topMargin,
+                params.leftMargin + params.width, params.topMargin + params.height);
+        for (int i = 0; i < root.getChildCount(); i++) {
+            View child = root.getChildAt(i);
+            if (child instanceof SettingsPreviewBar && child.getVisibility() == View.VISIBLE) {
+                android.graphics.Rect preview = new android.graphics.Rect(); child.getHitRect(preview);
+                if (android.graphics.Rect.intersects(bounds, preview)) return true;
+            }
+        }
+        return false;
+    }
+
+    private void positionHandle() {
+        if (root.getWidth() == 0 || root.getHeight() == 0) return;
+        android.graphics.RectF safe = new android.graphics.RectF(root.getPaddingLeft(), root.getPaddingTop(),
+                root.getWidth() - root.getPaddingRight(), root.getHeight() - root.getPaddingBottom());
+        androidx.core.view.WindowInsetsCompat insets = androidx.core.view.ViewCompat.getRootWindowInsets(root);
+        if (insets != null) {
+            androidx.core.graphics.Insets edges = insets.getInsets(androidx.core.view.WindowInsetsCompat.Type.systemBars()
+                    | androidx.core.view.WindowInsetsCompat.Type.displayCutout()
+                    | androidx.core.view.WindowInsetsCompat.Type.mandatorySystemGestures());
+            int[] origin = new int[2]; root.getLocationInWindow(origin);
+            safe.left = Math.max(safe.left, edges.left - origin[0]);
+            safe.top = Math.max(safe.top, edges.top - origin[1]);
+            safe.right = Math.min(safe.right, root.getRootView().getWidth() - edges.right - origin[0]);
+            safe.bottom = Math.min(safe.bottom, root.getRootView().getHeight() - edges.bottom - origin[1]);
+        }
+        safe.right = Math.max(safe.left, safe.right); safe.bottom = Math.max(safe.top, safe.bottom);
+        android.graphics.RectF rect = GameHandlePlacement.bounds(profile, root.getWidth() > root.getHeight(), safe, dp(48));
+        FrameLayout.LayoutParams params = (FrameLayout.LayoutParams) handle.getLayoutParams();
+        int left = Math.round(rect.left), top = Math.round(rect.top);
+        int width = Math.round(rect.width()), height = Math.round(rect.height());
+        if (params.gravity != (Gravity.TOP | Gravity.LEFT) || params.leftMargin != left
+                || params.topMargin != top || params.width != width || params.height != height) {
+            params.gravity = Gravity.TOP | Gravity.LEFT;
+            params.leftMargin = left; params.topMargin = top; params.width = width; params.height = height;
+            handle.setLayoutParams(params);
+        }
     }
 
     private static void visible(View view, boolean visible) {

@@ -174,6 +174,14 @@ public class ProfileModel {
 	public int touchTheme;
 	@SerializedName("touchOpacity")
 	public int touchOpacity = 100;
+	@SerializedName("gameHandleVisible")
+	public boolean gameHandleVisible = true;
+	@SerializedName("gameShortcutOpacity")
+	public int gameShortcutOpacity = 100;
+	@SerializedName("gameHandlePortrait")
+	public ru.playsoftware.j2meloader.input.TouchPlacement gameHandlePortrait;
+	@SerializedName("gameHandleLandscape")
+	public ru.playsoftware.j2meloader.input.TouchPlacement gameHandleLandscape;
 	@SerializedName("touchPortraitReach")
 	public float touchPortraitReach;
 	@SerializedName("touchLandscapeReach")

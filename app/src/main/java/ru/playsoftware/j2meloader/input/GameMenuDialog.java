@@ -54,15 +54,21 @@ public final class GameMenuDialog extends Dialog {
     /** Opt in screen by screen; does not change emulator pause/input ownership. */
     public void useEdgePanel() { edgePanel = true; if (isShowing()) updateWindowLayout(); }
     public void editTouchLayout(ru.playsoftware.j2meloader.config.ProfileModel draft, Runnable done) {
+        editTouchLayout(draft, done, false);
+    }
+    public void editGameHandle(ru.playsoftware.j2meloader.config.ProfileModel draft, Runnable done) {
+        editTouchLayout(draft, done, true);
+    }
+    private void editTouchLayout(ru.playsoftware.j2meloader.config.ProfileModel draft, Runnable done, boolean handle) {
         if (editor != null) editor.dismiss();
-        editor = new TouchLayoutEditor(getContext(), draft, done);
+        editor = new TouchLayoutEditor(getContext(), draft, done, handle);
         editor.setOnDismissListener(d -> editor = null);
         editor.show();
     }
     public Bundle saveTouchEditor() { return editor == null ? null : editor.onSaveInstanceState(); }
     public void restoreTouchEditor(Bundle state, ru.playsoftware.j2meloader.config.ProfileModel draft, Runnable done) {
         if (state == null) return;
-        editTouchLayout(draft, done); editor.onRestoreInstanceState(state);
+        editTouchLayout(draft, done, state.getBoolean("handleMode")); editor.onRestoreInstanceState(state);
     }
     @Override public void dismiss() {
         finishPagePreview();

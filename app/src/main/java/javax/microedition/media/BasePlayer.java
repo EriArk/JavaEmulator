@@ -291,7 +291,26 @@ public class BasePlayer implements Player, VolumeControl, PanControl {
 		}
 
 		doSetVolume(left, right);
+		traceVolume("volume", left, right);
 		postEvent(PlayerListener.VOLUME_CHANGED, this);
+	}
+
+	protected final void traceVolume(String action, float left, float right) {
+		if (ru.playsoftware.j2meloader.BuildConfig.DEBUG
+				&& android.util.Log.isLoggable("J2MEAudio", android.util.Log.DEBUG)) {
+			String record = action + " player=" + System.identityHashCode(this)
+					+ " type=" + doGetContentType() + " state=" + state + " level=" + level
+					+ " mute=" + mute + " pan=" + pan + " gain=" + left + "," + right;
+			android.util.Log.d("J2MEAudio", record);
+			// Some handheld firmware discards debug logcat; keep the opt-in trace private and bounded.
+			synchronized (BasePlayer.class) {
+				java.io.File file = new java.io.File(javax.microedition.util.ContextHolder.getAppContext()
+						.getCacheDir(), "j2me-audio-trace.txt");
+				try (java.io.FileWriter writer = new java.io.FileWriter(file, file.length() < 262144)) {
+					writer.write(android.os.SystemClock.elapsedRealtime() + " " + record + "\n");
+				} catch (IOException ignored) { /* Diagnostics must not interrupt playback. */ }
+			}
+		}
 	}
 
 	@Override

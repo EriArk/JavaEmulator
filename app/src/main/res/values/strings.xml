@@ -319,6 +319,15 @@
     <string name="screenshot_button">Screenshot button</string>
     <string name="display_button">Display button</string>
     <string name="on_screen_shortcuts">On-screen shortcuts</string>
+    <string name="game_shortcut_appearance">Handle &amp; opacity</string>
+    <string name="game_handle_visible">Show controls handle</string>
+    <string name="game_handle_move">Move handle</string>
+    <string name="game_handle_editor">Menu handle</string>
+    <string name="game_handle_back_hint">Use Android Back to open the game menu. Swipe from the screen edge if navigation is hidden.</string>
+    <string name="game_shortcut_opacity">Shortcut opacity</string>
+    <string name="touch_button_opacity">Touch button opacity</string>
+    <string name="touch_button_opacity_value">Touch button opacity: %1$d%%</string>
+    <string name="touch_contrast_opacity">High contrast keeps buttons fully opaque.</string>
     <string name="screenshot_gallery_saved">Screenshot saved to Pictures/AbyssME</string>
     <string name="screenshot_failed">Could not save screenshot</string>
 </resources>

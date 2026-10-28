@@ -34,6 +34,7 @@ public final class TouchAppearance {
         for (int id : new int[]{R.id.game_display_button, R.id.game_screenshot_button, R.id.game_menu_button, R.id.game_controls_handle, R.id.game_fast_forward_button}) {
             ImageButton button = root.findViewById(id);
             if (button == null) continue;
+            button.setAlpha(opacity(root.getContext(), profile.gameShortcutOpacity) / 100f);
             ViewCompat.setBackgroundTintList(button, null);
             android.graphics.drawable.Drawable background = palette.getDrawable(R.drawable.bg_touch_shortcut);
             if (id == R.id.game_controls_handle) background = new android.graphics.drawable.InsetDrawable(
@@ -45,5 +46,10 @@ public final class TouchAppearance {
             }
             ImageViewCompat.setImageTintList(button, ColorStateList.valueOf(ru.playsoftware.j2meloader.ui.AppPalette.color(palette, R.color.text_primary)));
         }
+    }
+
+    public static int opacity(Context context, int value) {
+        return context != null && "contrast".equals(ru.playsoftware.j2meloader.ui.AppPalette.selected(context))
+                ? 100 : Math.max(20, Math.min(100, value));
     }
 }

@@ -24,6 +24,7 @@ import javax.microedition.media.Manager;
 import javax.microedition.media.MediaException;
 import javax.microedition.media.Player;
 import javax.microedition.media.PlayerListener;
+import javax.microedition.media.control.VolumeControl;
 import javax.microedition.media.tone.MidiToneConstants;
 import javax.microedition.media.tone.ToneManager;
 
@@ -45,6 +46,7 @@ public class Sound {
 			8618, 9130, 9673, 10249, 10858, 11504, 12188, 12912
 	};
 	private Player player;
+	private int gain = 255;
 	private int state;
 	private SoundListener soundListener;
 	private PlayerListener playerListener = (player, event, eventData) -> {
@@ -69,15 +71,15 @@ public class Sound {
 		return new int[]{FORMAT_TONE, FORMAT_WAV};
 	}
 
-	public int getGain() {
-		return -1;
+	public synchronized int getGain() {
+		return gain;
 	}
 
 	public int getState() {
 		return state;
 	}
 
-	public void init(int freq, long duration) {
+	public synchronized void init(int freq, long duration) {
 		if (duration <= 0) {
 			throw new IllegalArgumentException("duration = " + duration);
 		}
@@ -91,13 +93,15 @@ public class Sound {
 			}
 			int note = convertFreqToNote(freq);
 			player = ToneManager.createPlayer(note, (int) duration, MidiToneConstants.TONE_MAX_VOLUME);
+			applyGain();
+			player.addPlayerListener(playerListener);
 			state = SOUND_STOPPED;
 		} catch (MediaException e) {
 			e.printStackTrace();
 		}
 	}
 
-	public void init(byte[] data, int type) {
+	public synchronized void init(byte[] data, int type) {
 		try {
 			String mime;
 			switch (type) {
@@ -115,6 +119,7 @@ public class Sound {
 				player.close();
 			}
 			player = Manager.createPlayer(new ByteArrayInputStream(data), mime);
+			applyGain();
 			player.addPlayerListener(playerListener);
 			state = SOUND_STOPPED;
 		} catch (IOException e) {
@@ -138,7 +143,7 @@ public class Sound {
 		}
 	}
 
-	public void release() {
+	public synchronized void release() {
 		player.close();
 		postEvent(SOUND_UNINITIALIZED);
 	}
@@ -152,7 +157,16 @@ public class Sound {
 		}
 	}
 
-	public void setGain(int i) {
+	public synchronized void setGain(int gain) {
+		this.gain = Math.max(0, Math.min(255, gain));
+		applyGain();
+	}
+
+	private void applyGain() {
+		if (player instanceof VolumeControl && player.getState() != Player.CLOSED) {
+			// Preserve exact Nokia readback; any positive gain must remain audible.
+			((VolumeControl) player).setLevel((gain * 100 + 254) / 255);
+		}
 	}
 
 	public void setSoundListener(SoundListener soundListener) {

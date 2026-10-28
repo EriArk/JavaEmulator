@@ -62,6 +62,7 @@ public class MicroPlayer extends BasePlayer implements MediaPlayer.OnCompletionL
 	}
 
 	public void doStart() {
+		traceVolume("start", Float.NaN, Float.NaN);
 		player.start();
 	}
 

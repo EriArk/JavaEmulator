@@ -26,6 +26,7 @@ import ru.playsoftware.j2meloader.ui.AppPalette;
 public final class TouchLayoutEditor extends Dialog {
     private final ProfileModel target, draft;
     private final Runnable done;
+    private final boolean handleMode;
     private Preview preview;
     private LinearLayout controls, body;
     private ScrollView settings;
@@ -36,8 +37,12 @@ public final class TouchLayoutEditor extends Dialog {
     private int tab;
 
     public TouchLayoutEditor(Context context, ProfileModel target, Runnable done) {
+        this(context, target, done, false);
+    }
+    public TouchLayoutEditor(Context context, ProfileModel target, Runnable done, boolean handleMode) {
         super(context, R.style.AppTheme_NoActionBar);
         this.target = target; this.draft = ProfilesManager.copy(target); this.done = done;
+        this.handleMode = handleMode;
         landscape = context.getResources().getConfiguration().orientation == 2;
         AppPalette.apply(getContext());
     }
@@ -53,17 +58,22 @@ public final class TouchLayoutEditor extends Dialog {
         root.setOrientation(LinearLayout.VERTICAL); root.setBackgroundColor(color(R.color.background));
         LinearLayout header = new LinearLayout(getContext()); header.setGravity(Gravity.CENTER_VERTICAL);
         icon(header, "Cancel", androidx.appcompat.R.drawable.abc_ic_ab_back_material, this::dismiss);
-        TextView title = label("Touch layout", 18); title.setTypeface(null, android.graphics.Typeface.BOLD);
+        TextView title = label(handleMode ? getContext().getString(R.string.game_handle_editor) : "Touch layout", 18); title.setTypeface(null, android.graphics.Typeface.BOLD);
         title.setSingleLine(true); title.setEllipsize(android.text.TextUtils.TruncateAt.END);
         header.addView(title, new LinearLayout.LayoutParams(0, -2, 1));
         icon(header, "Reset layout", R.drawable.ic_restore, () -> {
+            if (handleMode) {
+                if (landscape) draft.gameHandleLandscape = null; else draft.gameHandlePortrait = null;
+                preview.invalidate(); return;
+            }
             if (draft.touchPlacements != null) for (int i=0;i<2;i++) draft.touchPlacements.remove(preview.deck.placementId(i));
             draft.touchSize = 0;
             if (landscape) draft.touchLandscapeReach = 0; else draft.touchPortraitReach = 0;
             preview.rebuild(); buildControls();
         });
         icon(header, "Use layout", R.drawable.ic_check, () -> {
-            copyLayout(draft, target); dismiss(); done.run();
+            if (handleMode) copyHandle(draft, target); else copyLayout(draft, target);
+            dismiss(); done.run();
         });
         root.addView(header, new LinearLayout.LayoutParams(-1, dp(48)));
         body = new LinearLayout(getContext()); body.setOrientation(LinearLayout.VERTICAL);
@@ -89,6 +99,11 @@ public final class TouchLayoutEditor extends Dialog {
         to.touchPortraitReach = copy.touchPortraitReach; to.touchLandscapeReach = copy.touchLandscapeReach;
         to.touchPlacements = copy.touchPlacements;
     }
+    public static void copyHandle(ProfileModel from, ProfileModel to) {
+        ProfileModel copy = ProfilesManager.copy(from);
+        to.gameHandlePortrait = copy.gameHandlePortrait;
+        to.gameHandleLandscape = copy.gameHandleLandscape;
+    }
     @Override public void show() {
         super.show(); getWindow().setLayout(-1,-1);
         androidx.core.view.WindowInsetsControllerCompat bars = androidx.core.view.WindowCompat.getInsetsController(getWindow(), getWindow().getDecorView());
@@ -99,6 +114,7 @@ public final class TouchLayoutEditor extends Dialog {
         Bundle state=super.onSaveInstanceState();
         state.putString("touchDraft",new com.google.gson.Gson().toJson(draft));
         state.putBoolean("landscape",landscape); state.putInt("tab",tab); state.putInt("block",selected);
+        state.putBoolean("handleMode", handleMode);
         return state;
     }
     @Override public void onRestoreInstanceState(Bundle state) {
@@ -106,7 +122,7 @@ public final class TouchLayoutEditor extends Dialog {
         String json=state.getString("touchDraft");
         if(json!=null) {
             try { ProfileModel restored=new com.google.gson.Gson().fromJson(json,ProfileModel.class);
-                if(restored!=null) copyLayout(restored,draft);
+                if(restored!=null) { copyLayout(restored,draft); copyHandle(restored,draft); }
             } catch(RuntimeException ignored) { }
         }
         landscape=state.getBoolean("landscape",landscape); tab=Math.max(0,Math.min(2,state.getInt("tab")));
@@ -125,6 +141,13 @@ public final class TouchLayoutEditor extends Dialog {
     private void buildControls() {
         controls.removeAllViews();
         scale = null;
+        if (handleMode) {
+            choice("Preview", new String[]{"Portrait", "Landscape"}, landscape ? 1 : 0, i -> {
+                landscape = i == 1; preview.rebuild(); buildControls();
+            });
+            addMoveButtons();
+            return;
+        }
         LinearLayout tabs = new LinearLayout(getContext());
         String[] names = {"Layout", "Position", "Style"};
         for (int i=0;i<names.length;i++) {
@@ -159,6 +182,16 @@ public final class TouchLayoutEditor extends Dialog {
             preview.deck.placement(selected).scale = (value+70)/100f;
             preview.rebuild(); scaleLabel.setText("Block size: " + (value+70) + "%");
         }); updateScale();
+        addMoveButtons();
+        } else {
+        choice("Button theme",new String[]{"Follow app","Dark","Light"},Math.max(0,Math.min(2,draft.touchTheme)), i->{draft.touchTheme=i; preview.rebuild();});
+        TextView opacity=label(getContext().getString(R.string.touch_button_opacity_value, draft.touchOpacity),14); controls.addView(opacity);
+        int minimum = 20;
+        slider(getContext().getString(R.string.touch_button_opacity),100-minimum,Math.max(0,Math.min(100-minimum,draft.touchOpacity-minimum)),v->{draft.touchOpacity=v+minimum; opacity.setText(getContext().getString(R.string.touch_button_opacity_value,v+minimum)); preview.invalidate();});
+        if ("contrast".equals(AppPalette.selected(getContext()))) controls.addView(label(getContext().getString(R.string.touch_contrast_opacity),14));
+        }
+    }
+    private void addMoveButtons() {
         LinearLayout move = new LinearLayout(getContext()); move.setGravity(Gravity.CENTER);
         icon(move,"Move left",androidx.appcompat.R.drawable.abc_ic_ab_back_material,()->move(-8,0));
         icon(move,"Move up",R.drawable.ic_arrow_up,()->move(0,-8));
@@ -166,14 +199,12 @@ public final class TouchLayoutEditor extends Dialog {
         icon(move,"Move right",androidx.appcompat.R.drawable.abc_ic_ab_back_material,()->move(8,0));
         ((ImageButton) move.getChildAt(3)).setRotation(180);
         controls.addView(move);
-        } else {
-        choice("Button theme",new String[]{"Follow app","Dark","Light"},Math.max(0,Math.min(2,draft.touchTheme)), i->{draft.touchTheme=i; preview.rebuild();});
-        TextView opacity=label("Opacity: " + draft.touchOpacity + "%",14); controls.addView(opacity);
-        int minimum = draft.touchKeypadOverlay && (draft.touchLayout == null || draft.touchLayout == TouchDeck.PHONE) ? 20 : 80;
-        slider("Opacity",100-minimum,Math.max(0,Math.min(100-minimum,draft.touchOpacity-minimum)),v->{draft.touchOpacity=v+minimum; opacity.setText("Opacity: "+(v+minimum)+"%"); preview.invalidate();});
-        }
     }
-    private void move(float x,float y) { preview.deck.moveGroup(selected,x,y); preview.invalidate(); }
+    private void move(float x,float y) {
+        if (handleMode) GameHandlePlacement.move(draft, landscape, preview.safeArea(), 48, x, y);
+        else preview.deck.moveGroup(selected,x,y);
+        preview.invalidate();
+    }
     private void updateScale() {
         if(scale==null) return;
         TouchPlacement p = draft.touchPlacements == null ? null : draft.touchPlacements.get(preview.deck.placementId(selected));
@@ -248,6 +279,8 @@ public final class TouchLayoutEditor extends Dialog {
             return (landscape ? Math.min(metrics.widthPixels,metrics.heightPixels) : Math.max(metrics.widthPixels,metrics.heightPixels))/metrics.density;
         }
         void rebuild() { deck.setTheme(getContext()); deck.layout(logicalWidth(),logicalHeight()); invalidate(); }
+        private RectF safeArea() { return new RectF(0, 0, logicalWidth(), logicalHeight()); }
+        private RectF handleBounds() { return GameHandlePlacement.bounds(draft, landscape, safeArea(), 48); }
         @Override protected void onSizeChanged(int w,int h,int oldw,int oldh) { super.onSizeChanged(w,h,oldw,oldh); rebuild(); }
         @Override protected void onDraw(Canvas canvas) {
             float w=logicalWidth(),h=logicalHeight();
@@ -259,14 +292,29 @@ public final class TouchLayoutEditor extends Dialog {
             paint.setColor(color(R.color.mapper_lcd_text)); paint.setTextAlign(Paint.Align.CENTER); paint.setTextSize(20);
             canvas.drawText("AbyssME",game.centerX(),game.centerY(),paint);
             deck.draw(canvas);
+            if (handleMode) {
+                RectF handle = handleBounds();
+                android.graphics.drawable.Drawable icon = getContext().getDrawable(R.drawable.ic_arrow_down).mutate();
+                paint.setColor(color(R.color.touch_button));
+                canvas.drawRoundRect(handle, 6, 6, paint);
+                icon.setTint(color(R.color.accent));
+                icon.setBounds(Math.round(handle.left + 4), Math.round(handle.top + 4),
+                        Math.round(handle.right - 4), Math.round(handle.bottom - 4));
+                icon.draw(canvas);
+            }
             paint.setStyle(Paint.Style.STROKE); paint.setStrokeWidth(2/zoom); paint.setColor(color(R.color.accent));
-            canvas.drawRoundRect(deck.groupBounds(selected),5,5,paint); paint.setStyle(Paint.Style.FILL);
+            canvas.drawRoundRect(handleMode ? handleBounds() : deck.groupBounds(selected),5,5,paint); paint.setStyle(Paint.Style.FILL);
             canvas.restore();
         }
         @Override public boolean onTouchEvent(MotionEvent event) {
             int index=event.findPointerIndex(pointer);
             if(event.getActionMasked()==MotionEvent.ACTION_DOWN) {
                 float x=(event.getX()-offsetX)/zoom,y=(event.getY()-offsetY)/zoom;
+                if (handleMode) {
+                    if (!handleBounds().contains(x, y)) return false;
+                    pointer = event.getPointerId(0); lastX = x; lastY = y;
+                    getParent().requestDisallowInterceptTouchEvent(true); return true;
+                }
                 for(int i=0;i<deck.groupCount();i++) if(deck.groupBounds(i).contains(x,y)) {
                     boolean changed=selected!=i;
                     selected=i; pointer=event.getPointerId(0); lastX=x; lastY=y;
@@ -278,7 +326,7 @@ public final class TouchLayoutEditor extends Dialog {
             }
             if(event.getActionMasked()==MotionEvent.ACTION_MOVE && index>=0) {
                 float x=(event.getX(index)-offsetX)/zoom,y=(event.getY(index)-offsetY)/zoom;
-                deck.moveGroup(selected,x-lastX,y-lastY); lastX=x; lastY=y; invalidate(); return true;
+                move(x-lastX,y-lastY); lastX=x; lastY=y; return true;
             }
             if(event.getActionMasked()==MotionEvent.ACTION_UP || event.getActionMasked()==MotionEvent.ACTION_CANCEL
                     || event.getActionMasked()==MotionEvent.ACTION_POINTER_UP && event.getPointerId(event.getActionIndex())==pointer) {
