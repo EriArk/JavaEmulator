@@ -4,6 +4,8 @@ import android.graphics.*;
 
 /** Original, frame-independent LCD optical mask. No guest-frame readback or history. */
 public final class LcdEffect {
+    // At most 512 KiB of line vertices, well beyond a phone-sized pixel grid.
+    private static final int MAX_GRID_FLOATS = 131072;
     public static final String[] NAMES = {"Off", "LCD Soft", "LCD Classic"};
     private final Paint wash = new Paint(), gaps = new Paint();
     private float[] grid = new float[0];
@@ -21,7 +23,9 @@ public final class LcdEffect {
                      int rotation, int effect, int strength) {
         effect = mode(effect); strength = intensity(strength);
         if (effect == 0 || strength == 0 || sourceWidth <= 0 || sourceHeight <= 0
-                || bounds.isEmpty()) return;
+                || bounds.isEmpty() || !Float.isFinite(bounds.left) || !Float.isFinite(bounds.top)
+                || !Float.isFinite(bounds.right) || !Float.isFinite(bounds.bottom)
+                || !Float.isFinite(bounds.width()) || !Float.isFinite(bounds.height())) return;
         int angle = Math.floorMod(rotation / 90, 4) * 90;
         boolean quarter = angle % 180 != 0;
         float width = quarter ? bounds.height() : bounds.width();
@@ -35,7 +39,7 @@ public final class LcdEffect {
         canvas.translate(-width / 2, -height / 2);
         wash.setColor(Color.argb(Math.round((effect == 1 ? 8 : 17) * strength / 100f),128,128,128));
         canvas.drawRect(0, 0, width, height, wash);
-        if (visibility > 0) {
+        if (visibility > 0 && 4L * ((long) sourceWidth + sourceHeight) <= MAX_GRID_FLOATS) {
             prepare(width, height, sourceWidth, sourceHeight);
             gaps.setColor(Color.argb(Math.round((effect == 1 ? 48 : 96) * visibility * strength / 100f),0,0,0));
             gaps.setStrokeWidth(1);

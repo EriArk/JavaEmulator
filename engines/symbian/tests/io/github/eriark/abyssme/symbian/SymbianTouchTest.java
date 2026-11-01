@@ -88,12 +88,18 @@ public final class SymbianTouchTest {
                 try { current[0]=new SymbianSessionUi(activity,surface,system,1,"Touch fixture",host); }
                 catch(IOException error){throw new AssertionError(error);}
                 SymbianSessionUi session=current[0];
+                session.profile.touchVisibility=ru.playsoftware.j2meloader.input.DeviceControls.ALWAYS;
                 boolean cameraVisible=ru.playsoftware.j2meloader.util.Screenshots.isButtonVisible(activity);
                 try {
                     for (boolean show:new boolean[]{false,true,false}) {
                         session.visible(false);
                         ru.playsoftware.j2meloader.util.Screenshots.setButtonVisible(activity,show);
                         session.visible(true);
+                        if (!BuildConfig.HANDHELD_MODE) {
+                            View handle=session.root.findViewById(ru.playsoftware.j2meloader.R.id.game_controls_handle);
+                            assertEquals(View.VISIBLE,handle.getVisibility());
+                            handle.performClick();
+                        }
                         assertEquals(show?View.VISIBLE:View.GONE,session.root.findViewById(ru.playsoftware.j2meloader.R.id.game_screenshot_button).getVisibility());
                         assertEquals(View.VISIBLE,session.root.findViewById(ru.playsoftware.j2meloader.R.id.game_menu_button).getVisibility());
                     }

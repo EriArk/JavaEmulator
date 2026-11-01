@@ -19,6 +19,62 @@ public final class SymbianSessionUiTest {
     private final Instrumentation instrumentation = InstrumentationRegistry.getInstrumentation();
     private final Context context = instrumentation.getTargetContext();
     private UiAutomation ui;
+    @Test public void lcdPreviewUsesLastFrameWithoutCallingPausedGuest() throws Exception {
+        MainActivity activity = (MainActivity) instrumentation.startActivitySync(new Intent(context, MainActivity.class)
+                .addFlags(Intent.FLAG_ACTIVITY_NEW_TASK));
+        String seed = UUID.randomUUID().toString().replace("-", ""), system = seed + seed;
+        SymbianSessionUi[] current = {null};
+        int[][] available = {new int[]{10,20,490,660,240,320}};
+        int[] reads = {0};
+        try {
+            instrumentation.runOnMainSync(() -> {
+                try {
+                    current[0] = new SymbianSessionUi(activity,new TextureView(activity),system,1,"LCD",new SymbianSessionUi.Host() {
+                        public int[] displayGeometry() { reads[0]++; return available[0]; }
+                        public android.graphics.RectF touchBounds() { return null; }
+                        public void touch(int x,int y,int pressure,int action,int pointer) { }
+                        public void key(int scan,boolean down) { }
+                        public void pause(boolean value) { }
+                        public void display(int scale) { }
+                        public void frameRate(int value) { }
+                        public void leave() { } public void restart() { } public Bitmap capture() { return null; }
+                    });
+                    activity.setContentView(current[0].root);
+                    java.lang.reflect.Field cache = SymbianSessionUi.class.getDeclaredField("lcdGeometry");
+                    cache.setAccessible(true);
+                    current[0].profile.screenEffect = 0;
+                    current[0].frameAvailable();
+                    assertEquals(1, reads[0]); // Warm the geometry even with LCD off.
+                    int[] snapshot = (int[]) cache.get(current[0]);
+                    assertArrayEquals(available[0], snapshot);
+                    assertEquals(new android.graphics.RectF(10,20,490,660), current[0].touchBounds());
+                    available[0][4] = 0;
+                    assertEquals(240, snapshot[4]); // Snapshot ownership, not a mutable host buffer.
+                    for (int effect : new int[]{1,2,0,2,1,0}) {
+                        current[0].profile.screenEffect = effect;
+                        int before = reads[0];
+                        current[0].previewPicture();
+                        assertEquals(before, reads[0]);
+                        current[0].frameAvailable();
+                        assertSame(snapshot, cache.get(current[0])); // Invalid/busy sample must not erase it.
+                        available[0] = null;
+                    }
+                    available[0] = new int[]{0,0,640,480,320,240};
+                    current[0].previewPicture(); current[0].frameAvailable();
+                    assertArrayEquals(available[0], (int[])cache.get(current[0]));
+                    current[0].apply(); assertNull(cache.get(current[0])); // Resize invalidates old viewport.
+                    assertNull(current[0].touchBounds());
+                    current[0].close(); int before = reads[0]; current[0].frameAvailable();
+                    assertEquals(before, reads[0]);
+                    for (int[] invalid : new int[][]{null, {}, {0,0,0,1,1,1}, {0,0,1,1,-1,1}})
+                        assertFalse(SymbianSessionUi.validGeometry(invalid));
+                } catch (Exception error) { throw new AssertionError(error); }
+            });
+        } finally {
+            instrumentation.runOnMainSync(() -> { if (current[0] != null) current[0].close(); activity.finish(); });
+            ru.playsoftware.j2meloader.util.FileUtils.deleteDirectory(PhoneBackup.profiles(context.getFilesDir(),system));
+        }
+    }
     @Test public void fastForwardUsesSharedInputAndRestoresNativeHostOnFocusLoss() throws Exception {
         MainActivity activity = (MainActivity) instrumentation.startActivitySync(new Intent(context, MainActivity.class)
                 .addFlags(Intent.FLAG_ACTIVITY_NEW_TASK));

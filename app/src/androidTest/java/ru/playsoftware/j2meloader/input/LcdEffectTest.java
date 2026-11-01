@@ -10,6 +10,26 @@ import ru.playsoftware.j2meloader.ui.LcdEffect;
 import static org.junit.Assert.*;
 
 public class LcdEffectTest {
+    @Test public void malformedAndHugeGeometryCannotAllocateUnboundedGrid() throws Exception {
+        LcdEffect effect = new LcdEffect();
+        Bitmap bitmap = Bitmap.createBitmap(64,64,Bitmap.Config.ARGB_8888);
+        Canvas canvas = new Canvas(bitmap);
+        try {
+            bitmap.eraseColor(Color.WHITE);
+            for (RectF invalid : new RectF[]{new RectF(0,0,Float.NaN,64),
+                    new RectF(0,0,64,Float.POSITIVE_INFINITY),
+                    new RectF(-Float.MAX_VALUE,0,Float.MAX_VALUE,64), new RectF()})
+                effect.draw(canvas,invalid,8,8,0,2,70);
+            assertEquals(Color.WHITE,bitmap.getPixel(20,20));
+            for (int size : new int[]{100000, Integer.MAX_VALUE})
+                effect.draw(canvas,new RectF(0,0,1e12f,1e12f),size,size,0,2,70);
+            java.lang.reflect.Field grid = LcdEffect.class.getDeclaredField("grid");
+            grid.setAccessible(true); assertEquals(0,((float[])grid.get(effect)).length);
+            effect.draw(canvas,new RectF(0,0,64,64),8,8,0,2,70);
+            assertEquals(64,((float[])grid.get(effect)).length);
+            assertEquals(1,canvas.getSaveCount());
+        } finally { bitmap.recycle(); }
+    }
     @Test public void integerGridMatchesRotatedSourceCellsAtOddOffsets() {
         Bitmap source=Bitmap.createBitmap(7,9,Bitmap.Config.ARGB_8888);
         for(int y=0;y<9;y++) for(int x=0;x<7;x++) source.setPixel(x,y,(x+y)%2==0?Color.RED:Color.BLUE);

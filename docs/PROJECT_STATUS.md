@@ -1,6 +1,6 @@
 # AbyssME - Current Product and Development Status
 
-**Last updated: 2026-10-28.** Verification dates are recorded per section.
+**Last updated: 2026-11-01.** Verification dates are recorded per section.
 This is the starting point for website copy,
 announcements, progress posts and project handoffs. It includes work that exists
 only in local experiments or private test builds. Describing that work here
@@ -36,6 +36,15 @@ remains canonical; game text and user content are not translated.
   full-game compatibility.
 
 ## Availability: Do Not Mix These Channels
+
+**Unreleased source work (2026-11-01, #48):** native LCD preset previews no longer
+query the paused guest. Nonblocking geometry snapshots preserve the last valid
+viewport, including touch fallback; malformed/oversized LCD grids are bounded.
+21 focused Android tests, 3 Snakes UI/export scenarios and native ARM64 checks
+pass on Retroid. The old build also passes the Snakes preset scenario: the
+community's exact N95/N-Gage 2.0 freeze is not reproduced and #48 remains open.
+Only the separate Debug app was updated; the public APK below is unchanged.
+[Verification and limits](checks/2026-11-01-native-lcd-preview.md).
 
 **Current public beta: [0.7.0 Beta 1 Revision 1](https://github.com/EriArk/JavaEmulator/releases/tag/v0.7.0-beta.1)**,
 code **314**, APK uploaded **2026-10-28 at 21:08:31 UTC**. At the maintainer's

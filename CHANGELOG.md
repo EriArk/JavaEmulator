@@ -1,7 +1,7 @@
 # AbyssME Changelog
 
 User-facing development history, reconstructed from commits, release notes and
-local/private build records through **2026-10-28**. This is not a claim that all
+local/private build records through **2026-11-01**. This is not a claim that all
 listed work is in a public APK. See [current status](docs/PROJECT_STATUS.md) for
 availability, verification, known limits and screenshot guidance.
 
@@ -9,6 +9,19 @@ Labels: **Public source** means implemented on `main` but unreleased unless
 stated otherwise. **Experimental** in older checkpoints means local/private
 combined builds; released experimental features are explicitly identified.
 **Released** means an actual GitHub release asset.
+
+## 2026-11-01 - Native LCD Preview Safety (Public Source, Unreleased)
+
+- Remove paused-guest geometry reads from Symbian/N-Gage live picture presets.
+  Sample the viewport without waiting for native locks; keep the last valid
+  snapshot during contention and share it with touch/screenshot presentation.
+- Bound LCD line storage and reject non-finite geometry without removing valid
+  LCD Soft/Classic choices or changing guest speed and imported phone data.
+- Retroid checks pass: 21 focused Android cases, 3 Snakes menu/export scenarios,
+  and native ARM64 regressions including deliberately busy geometry locks.
+  The exact community N95/N-Gage 2.0 failure is not reproduced; #48 stays open.
+- Update only the separate local Debug install. The public 0.7.0 Beta 1 Revision
+  1 APK is unchanged. [Evidence and limits](docs/checks/2026-11-01-native-lcd-preview.md).
 
 ## 2026-10-28 - Centered Library Card Titles (Released, Revision 1)
 

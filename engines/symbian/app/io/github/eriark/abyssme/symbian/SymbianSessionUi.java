@@ -54,14 +54,23 @@ final class SymbianSessionUi {
     private int[] lcdGeometry;
     private long nextLcdGeometry;
     void frameAvailable() {
-        if (closed || profile.screenEffect == 0) return;
+        if (closed) return;
         long now = SystemClock.uptimeMillis();
         if (now < nextLcdGeometry) return;
         nextLcdGeometry = now + 200;
         int[] geometry = host.displayGeometry();
-        if (!java.util.Arrays.equals(geometry, lcdGeometry)) {
-            lcdGeometry = geometry; deckView.invalidate();
+        if (validGeometry(geometry) && !java.util.Arrays.equals(geometry, lcdGeometry)) {
+            lcdGeometry = geometry.clone(); deckView.invalidate();
         }
+    }
+    static boolean validGeometry(int[] geometry) {
+        return geometry != null && geometry.length == 6 && geometry[2] > geometry[0]
+                && geometry[3] > geometry[1] && geometry[4] > 0 && geometry[5] > 0;
+    }
+    RectF touchBounds() {
+        RectF bounds = host.touchBounds();
+        if (bounds != null || lcdGeometry == null) return bounds;
+        return new RectF(lcdGeometry[0],lcdGeometry[1],lcdGeometry[2],lcdGeometry[3]);
     }
     private final Runnable holdSelect = this::heldSelect;
     private void heldSelect() { if (selectDown) { selectDown = false; showMapping(profile); } }
@@ -238,7 +247,6 @@ final class SymbianSessionUi {
     }
     void previewPicture() {
         // LCD is a host overlay: keep the paused native surface and guest timing untouched.
-        lcdGeometry = host.displayGeometry();
         nextLcdGeometry = 0;
         deckView.invalidate();
     }
@@ -298,9 +306,9 @@ final class SymbianSessionUi {
         if (bitmap == null) { retryScreenshot(remaining); return; }
         int rotation = Math.floorMod(profile.screenRotation / 90,4)*90;
         ru.playsoftware.j2meloader.util.ScreenshotEffect effect = new ru.playsoftware.j2meloader.util.ScreenshotEffect(profile);
-        int[] geometry = host.displayGeometry();
-        int guestWidth = geometry != null && geometry.length == 6 ? geometry[4] : bitmap.getWidth();
-        int guestHeight = geometry != null && geometry.length == 6 ? geometry[5] : bitmap.getHeight();
+        int[] geometry = lcdGeometry;
+        int guestWidth = geometry != null ? geometry[4] : bitmap.getWidth();
+        int guestHeight = geometry != null ? geometry[5] : bitmap.getHeight();
         disk.execute(() -> {
             Bitmap output = bitmap; boolean saved = false;
             try {
@@ -362,7 +370,7 @@ final class SymbianSessionUi {
             if (!BuildConfig.HANDHELD_MODE && deck.down(id,event.getX(index),event.getY(index))) return;
             point(event,index);
             if (point[0] < 0 || point[1] < 0 || point[0] >= surface.getWidth() || point[1] >= surface.getHeight()) return;
-            touch.down(id,point[0],point[1],event.getPressure(index),host.touchBounds());
+            touch.down(id,point[0],point[1],event.getPressure(index),touchBounds());
         }
         @Override protected void onDraw(Canvas canvas) {
             if (lcdGeometry != null && lcdGeometry.length == 6) {
