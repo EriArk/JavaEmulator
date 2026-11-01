@@ -48,6 +48,7 @@ public final class Emulator {
 
     public static native void prepare(String directory);
     public static native String[] portablePhoneSettings(String directory) throws java.io.IOException;
+    public static native String[] inspectEka2l1Phones(String registration) throws java.io.IOException;
     public static native boolean startSession();
     public static native void stopSession();
     public static native void pauseSession(boolean paused);

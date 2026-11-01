@@ -38,6 +38,41 @@ on its own. This review survives Activity recreation; after process death the
 source is rescanned, not imported automatically. Closing the transfer screen or
 choosing a new source may require selecting the source again.
 
+## From EKA2L1 (Unreleased Main)
+
+Choose **Import from EKA2L1** in Library transfer, or in **Phone backups**.
+Close EKA2L1 first and select its complete accessible folder or a ZIP snapshot.
+The importer finds `devices.yml`, its sibling `roms/` and `drives/` folders,
+including a `data/` folder inside an outer export directory. Choose a registered
+virtual phone, review its size, and confirm **Copy phone**.
+
+This copies a coherent phone instead of reinstalling each SIS or scanning only
+`.app` files. It retains installed components, C/E drive files, saves, guest
+Java data and the selected ROM/Z drive. Old shared C/E drives become isolated
+drives for the selected phone. If several phones share those drives, their shared
+contents travel together; this is not a game-by-game filter. Phones are selected
+one at a time. Standalone E-drive folders are not enough for a complete migration.
+
+Source files are read-only. A private staging copy is validated before atomic
+addition to the system catalog. Existing phones are never merged or overwritten;
+repeating the same snapshot reuses the previously imported phone without replacing
+newer saves. A changed snapshot is a separate phone, not an update or merge.
+Cancellation/failure before commit removes the pending copy. After closing or
+recreating the transfer screen, select the source again; no import starts silently.
+
+When the enclosing `config.yml` is available, portable identity/settings such
+as IMEI and memory-card identity are retained. Host paths, networking and scripts
+are not imported. Data-only exports use defaults for missing settings. External
+memory-card mounts are not followed: include their data in the selected `drives`
+tree before import. Android private-storage restrictions are not bypassed; an
+exported folder/ZIP is required when the provider cannot expose the full tree.
+
+Mophun loaders installed *inside* the Symbian phone remain guest applications;
+this does not convert their games into native Mophun library entries. The transfer
+does not promise compatibility for every game, nor provision missing firmware.
+Limits: 4 GiB ZIP input, 8 GiB expanded data, 100,000 entries, 64-level depth.
+Temporary free space is needed for the snapshot and the new phone together.
+
 ## Between AbyssME installations
 
 1. Exit the running game, then choose **Back up library** in Library transfer.

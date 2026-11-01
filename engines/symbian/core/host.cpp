@@ -180,6 +180,55 @@ Java_com_github_eka2l1_emu_Emulator_displayGeometry(JNIEnv *env, jclass) {
 
 // Portable snapshots retain guest identity/settings, never host paths, network secrets or scripts.
 extern "C" JNIEXPORT jobjectArray JNICALL
+Java_com_github_eka2l1_emu_Emulator_inspectEka2l1Phones(JNIEnv *env, jclass, jstring registration) {
+    try {
+        if (!registration || env->GetStringUTFLength(registration) > 131072)
+            throw std::runtime_error("Invalid phone registration size");
+        const char *raw = env->GetStringUTFChars(registration, nullptr);
+        std::string text(raw); env->ReleaseStringUTFChars(registration, raw);
+        auto devices = YAML::Load(text);
+        if (!devices.IsMap() || devices.size() == 0 || devices.size() > 64)
+            throw std::runtime_error("Invalid phone collection");
+        std::vector<std::string> rows, identities;
+        for (auto pair : devices) {
+            const auto firmware = pair.first.as<std::string>();
+            if (firmware.empty() || firmware.size() > 64 || firmware.find_first_not_of(
+                    "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789-_") != std::string::npos)
+                throw std::runtime_error("Invalid firmware identity");
+            auto folded = eka2l1::common::lowercase_string(firmware);
+            if (std::find(identities.begin(), identities.end(), folded) != identities.end())
+                throw std::runtime_error("Duplicate phone registration");
+            identities.push_back(folded);
+            auto device = pair.second;
+            if (!device.IsMap()) throw std::runtime_error("Invalid phone registration");
+            if (device["pending-deletion"].as<bool>(false)) continue;
+            YAML::Node clean(YAML::NodeType::Map);
+            for (const auto *key : {"platver", "manufacturer", "model"}) {
+                if (!device[key].IsScalar() || device[key].Scalar().empty() || device[key].Scalar().size() > 256)
+                    throw std::runtime_error("Invalid phone registration field");
+                clean[firmware][key] = device[key].Scalar();
+            }
+            const auto uid = device["machine-uid"].as<std::int64_t>(0);
+            if (uid < INT32_MIN || uid > UINT32_MAX) throw std::runtime_error("Invalid phone UID");
+            clean[firmware]["machine-uid"] = static_cast<std::uint32_t>(uid);
+            clean[firmware]["firmcode"] = firmware;
+            clean[firmware]["isolated-drives"] = true;
+            YAML::Emitter output; output << clean;
+            rows.insert(rows.end(), {firmware, device["model"].as<std::string>(), device["platver"].as<std::string>(),
+                device["isolated-drives"].as<bool>(false) ? "true" : "false", output.c_str()});
+        }
+        auto result = env->NewObjectArray(rows.size(), env->FindClass("java/lang/String"), nullptr);
+        for (std::size_t i = 0; i < rows.size(); ++i) {
+            auto value = env->NewStringUTF(rows[i].c_str());
+            env->SetObjectArrayElement(result, i, value); env->DeleteLocalRef(value);
+        }
+        return result;
+    } catch (const std::exception &error) {
+        env->ThrowNew(env->FindClass("java/io/IOException"), error.what()); return nullptr;
+    }
+}
+
+extern "C" JNIEXPORT jobjectArray JNICALL
 Java_com_github_eka2l1_emu_Emulator_portablePhoneSettings(JNIEnv *env, jclass, jstring directory) {
     try {
         if (os_thread_obj || gr_thread_obj) throw std::runtime_error("Close the game before transferring its phone");

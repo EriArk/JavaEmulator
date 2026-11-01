@@ -10,6 +10,23 @@ stated otherwise. **Experimental** in older checkpoints means local/private
 combined builds; released experimental features are explicitly identified.
 **Released** means an actual GitHub release asset.
 
+## 2026-11-01 - Import Virtual Phones from EKA2L1 (Public Source, Unreleased)
+
+- Import a complete accessible EKA2L1 folder or ZIP from Library transfer or
+  Phone backups. Choose a registered phone, review its size and confirm a separate
+  copy of its installed games, components and saves; no SIS reinstallation needed.
+- Convert shared C/E storage to isolated phone storage, retain portable identity,
+  reject incomplete/unsafe input and roll back uncommitted copies. Reimporting
+  the same snapshot reuses the earlier destination without replacing newer saves.
+- Preserve source files and existing phones. Clarify external-card/private-storage
+  limits and retain the eight-language UI. Transfer/restore completion returns to
+  the shared library rather than the preceding transfer menu.
+- Stop deleting native backup output documents after export failure. Final
+  provider writes remain non-atomic; use a new filename and retain an older backup.
+- Retroid: focused storage/localization checks, real native phone-copy validation
+  and the Android picker/preview/cancel/import path. No public APK or release bump.
+  [Verification and limits](docs/checks/2026-11-01-eka2l1-transfer.md).
+
 ## 2026-11-01 - Safer Backups and Retryable Library Transfers (Public Source, Unreleased)
 
 - Retry only failed or unprocessed games after a partial import or cancellation.

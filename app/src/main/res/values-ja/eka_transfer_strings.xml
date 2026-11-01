@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="eka_transfer_title">EKA2L1からインポート</string>
+    <string name="eka_transfer_help">先にEKA2L1を終了してください。data/devices.yml、roms、drivesを含む完全なフォルダーまたはZIPを選択します。ゲーム、導入済みコンポーネント、セーブデータをまとめてコピーします。外部にマウントしたメモリーカードは含まれません。その内容を選択するdrivesフォルダー内に含めてください。Androidが別アプリの専用フォルダーへのアクセスを拒否する場合は、エクスポートしたコピーを使用してください。</string>
+    <string name="eka_transfer_folder">フォルダーを選択</string>
+    <string name="eka_transfer_zip">ZIPを選択</string>
+    <string name="eka_transfer_reading">EKA2L1のコピーを読み込み中…</string>
+    <string name="eka_transfer_incomplete">読み取り可能なEKA2L1の完全なフォルダーが必要です。Eドライブやゲーム単体では不十分です。Androidがサブフォルダーを制限する場合は、フォルダー全体をエクスポートしてください。</string>
+    <string name="eka_transfer_choose">仮想端末を選択</string>
+    <string name="eka_transfer_selection">端末は1台ずつコピーします。共有C/Eドライブは選択した端末専用になります。他の端末と元のフォルダーは変更しません。</string>
+    <string name="eka_transfer_preview">%1$s\n端末データ：%2$d MB\n\nゲームとセーブデータを別の端末として追加します。既存の端末との統合や上書きはしません。同じコピーを再インポートしても、移行先の新しいセーブデータは保持されます。</string>
+    <string name="eka_transfer_copy">端末をコピー</string>
+    <string name="eka_transfer_done">端末の転送完了</string>
+    <string name="eka_transfer_done_body">コピーした端末をライブラリで利用できます。元のファイルは変更していません。他の端末は個別にインポートしてください。ゲームの互換性は保証されません。</string>
+</resources>

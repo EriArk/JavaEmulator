@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="eka_transfer_title">Импорт из EKA2L1</string>
+    <string name="eka_transfer_help">Сначала закройте EKA2L1. Выберите его полную папку или ZIP с data/devices.yml, roms и drives. Игры, установленные компоненты и сохранения копируются вместе. Внешние карты памяти не включаются: их содержимое должно быть внутри выбранной папки drives. Если Android блокирует личную папку другого приложения, используйте экспортированную копию.</string>
+    <string name="eka_transfer_folder">Выбрать папку</string>
+    <string name="eka_transfer_zip">Выбрать ZIP</string>
+    <string name="eka_transfer_reading">Чтение копии EKA2L1…</string>
+    <string name="eka_transfer_incomplete">Нужна полная доступная папка EKA2L1, а не только диск E или отдельные игры. Экспортируйте всю папку, если Android блокирует вложенные папки.</string>
+    <string name="eka_transfer_choose">Выбрать виртуальный телефон</string>
+    <string name="eka_transfer_selection">Телефоны копируются по одному. Общие диски C/E становятся отдельными для выбранного телефона. Другие телефоны и исходная папка не меняются.</string>
+    <string name="eka_transfer_preview">%1$s\nДанные телефона: %2$d МБ\n\nИгры и сохранения будут добавлены отдельным телефоном. Существующие телефоны не объединяются и не перезаписываются. Повторный импорт этой же копии сохраняет более новые сохранения в AbyssME.</string>
+    <string name="eka_transfer_copy">Копировать телефон</string>
+    <string name="eka_transfer_done">Перенос телефона завершён</string>
+    <string name="eka_transfer_done_body">Копия телефона доступна в библиотеке. Исходные файлы не изменены. При необходимости импортируйте другие телефоны отдельно. Совместимость игр не гарантируется.</string>
+</resources>

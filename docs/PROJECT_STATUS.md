@@ -37,6 +37,17 @@ remains canonical; game text and user content are not translated.
 
 ## Availability: Do Not Mix These Channels
 
+**Unreleased EKA2L1 phone transfer (2026-11-01):** Library transfer and Phone
+backups now offer folder/ZIP import of a registered virtual phone, including its
+installed games, components and saves. Preview and confirm the copy; shared C/E
+drives become private to it. Existing phones/source files are not overwritten,
+and reimporting the same snapshot keeps newer destination saves. All eight UI
+languages include the new flow. Retroid checks cover failure/rollback boundaries,
+the native Snakes phone snapshot and the document-picker/cancel/import/library
+path. This is unreleased source/Debug work, not complete EKA2L1 collection or
+game compatibility acceptance. One phone per import; external mounts and Android
+private-storage restrictions remain explicit limits. [Evidence](checks/2026-11-01-eka2l1-transfer.md).
+
 **Unreleased library-transfer recovery (2026-11-01):** interrupted and partially
 failed Java/Mophun library transfers now retain the remaining selection for
 Retry > review > Import/Restore. Completed games and their newer destination

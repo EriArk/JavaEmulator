@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="eka_transfer_title">Importar desde EKA2L1</string>
+    <string name="eka_transfer_help">Cierra EKA2L1 primero. Elige su carpeta completa o un ZIP con data/devices.yml, roms y drives. Se copian juntos juegos, componentes instalados y partidas. Las tarjetas montadas externamente no se incluyen: su contenido debe estar en la carpeta drives seleccionada. Si Android bloquea la carpeta privada de otra app, usa una copia exportada.</string>
+    <string name="eka_transfer_folder">Elegir carpeta</string>
+    <string name="eka_transfer_zip">Elegir ZIP</string>
+    <string name="eka_transfer_reading">Leyendo copia de EKA2L1…</string>
+    <string name="eka_transfer_incomplete">Se necesita una carpeta completa y accesible de EKA2L1, no solo la unidad E ni juegos sueltos. Exporta toda la carpeta si Android bloquea las subcarpetas.</string>
+    <string name="eka_transfer_choose">Elegir teléfono virtual</string>
+    <string name="eka_transfer_selection">Se copia un teléfono a la vez. Las unidades C/E compartidas pasan a ser privadas para ese teléfono. Los demás teléfonos y el origen no cambian.</string>
+    <string name="eka_transfer_preview">%1$s\nDatos del teléfono: %2$d MB\n\nLos juegos y partidas se añaden como otro teléfono. No se combinan ni sobrescriben teléfonos existentes. Reimportar esta misma copia conserva las partidas más recientes del destino.</string>
+    <string name="eka_transfer_copy">Copiar teléfono</string>
+    <string name="eka_transfer_done">Transferencia completada</string>
+    <string name="eka_transfer_done_body">El teléfono copiado está disponible en la biblioteca. Los archivos originales no cambian. Importa otros teléfonos por separado. La compatibilidad de los juegos no está garantizada.</string>
+</resources>

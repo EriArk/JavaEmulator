@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="eka_transfer_title">Importer depuis EKA2L1</string>
+    <string name="eka_transfer_help">Fermez d’abord EKA2L1. Choisissez son dossier complet ou un ZIP contenant data/devices.yml, roms et drives. Jeux, composants et sauvegardes sont copiés ensemble. Les cartes montées à l’extérieur ne sont pas incluses : leur contenu doit être dans le dossier drives sélectionné. Si Android bloque le dossier privé, utilisez une copie exportée.</string>
+    <string name="eka_transfer_folder">Choisir un dossier</string>
+    <string name="eka_transfer_zip">Choisir un ZIP</string>
+    <string name="eka_transfer_reading">Lecture de la copie EKA2L1…</string>
+    <string name="eka_transfer_incomplete">Un dossier EKA2L1 complet et lisible est nécessaire, pas seulement le lecteur E ou des jeux isolés. Exportez tout le dossier si Android bloque les sous-dossiers.</string>
+    <string name="eka_transfer_choose">Choisir un téléphone virtuel</string>
+    <string name="eka_transfer_selection">Un téléphone est copié à la fois. Les lecteurs C/E partagés deviennent privés pour ce téléphone. Les autres téléphones et la source restent inchangés.</string>
+    <string name="eka_transfer_preview">%1$s\nDonnées du téléphone : %2$d Mo\n\nJeux et sauvegardes seront ajoutés comme téléphone distinct. Aucun téléphone existant n’est fusionné ni écrasé. Réimporter cette même copie conserve les sauvegardes plus récentes de la destination.</string>
+    <string name="eka_transfer_copy">Copier le téléphone</string>
+    <string name="eka_transfer_done">Transfert terminé</string>
+    <string name="eka_transfer_done_body">Le téléphone copié est disponible dans la bibliothèque. Les fichiers d’origine sont inchangés. Importez les autres téléphones séparément. La compatibilité des jeux n’est pas garantie.</string>
+</resources>

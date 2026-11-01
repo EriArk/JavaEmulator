@@ -70,7 +70,8 @@ public final class SymbianActivity extends Activity implements Emulator.Host, In
     private String platformError;
     private String backupSystem;
     private File restoreArchive;
-    private static final int SAVE_PHONE = 10, RESTORE_PHONE = 11;
+    private Eka2l1Transfer ekaTransfer;
+    private static final int SAVE_PHONE = 10, RESTORE_PHONE = 11, EKA_FOLDER = 12, EKA_ZIP = 13;
 
     @Override public void onCreate(Bundle saved) {
         super.onCreate(saved);
@@ -133,10 +134,15 @@ public final class SymbianActivity extends Activity implements Emulator.Host, In
             catalog.recoverInterruptedImports();
             File[] interruptedTransfers=getCacheDir().listFiles(f -> f.getName().startsWith("phone-backup-") || f.getName().startsWith("phone-restore-"));
             if(interruptedTransfers!=null) for(File file:interruptedTransfers) removeTransfer(file);
+            File[] interruptedEka=getCacheDir().listFiles(f -> f.getName().startsWith("eka-transfer-"));
+            if(interruptedEka!=null) for(File file:interruptedEka) Eka2l1Transfer.remove(file);
             pendingImport.recover();
             archives.recover();
             CompressedGameArchive.recover(new File(SymbianFiles.root(this),"imports"));
             runtimeRoot = catalog.activeRoot(runtimeRoot);
+            if(getIntent().getBooleanExtra("symbian.ekaTransfer",false)) {
+                getIntent().removeExtra("symbian.ekaTransfer"); refreshStopped(null); afterTask=this::chooseEkaSource; return;
+            }
             if(getIntent().getBooleanExtra("symbian.backups",false)) {
                 getIntent().removeExtra("symbian.backups"); refreshStopped(null); afterTask=this::phoneBackups; return;
             }
@@ -398,6 +404,7 @@ public final class SymbianActivity extends Activity implements Emulator.Host, In
             choose.action(getString(R.string.system_cancel),0,choose::dismiss);
         });
         menu.action(getString(R.string.native_restore_backup),android.R.drawable.ic_menu_revert,() -> { menu.dismiss(); pick(RESTORE_PHONE,false); });
+        menu.action(getString(R.string.eka_transfer_title),android.R.drawable.ic_menu_upload,() -> { menu.dismiss(); chooseEkaSource(); });
         menu.action(getString(R.string.system_close),0,menu::dismiss);
     }
     private void requestPhoneBackup(SystemFileCatalog.Entry entry) {
@@ -446,10 +453,7 @@ public final class SymbianActivity extends Activity implements Emulator.Host, In
                 afterTask=() -> notice(getString(R.string.native_backup_saved),getString(R.string.native_backup_saved_body),getString(R.string.system_close),null,null);
             } finally {
                 Files.deleteIfExists(archive.toPath());
-                if(!saved) {
-                    try { android.provider.DocumentsContract.deleteDocument(getContentResolver(),destination); }
-                    catch(Exception ignored) { android.util.Log.w("AbyssSymbian","Incomplete backup may remain at the selected location"); }
-                }
+                // A provider can return an existing document; never delete it on failure.
                 if(!closing) refreshStopped(saved?getString(R.string.native_backup_saved):null);
             }
         });
@@ -460,6 +464,100 @@ public final class SymbianActivity extends Activity implements Emulator.Host, In
             try { previewRestore(archive); }
             catch(Exception error) { Files.deleteIfExists(archive.toPath()); throw error; }
         });
+    }
+    private void chooseEkaSource() {
+        GameMenuDialog menu=dialog(getString(R.string.eka_transfer_title));
+        menu.message(getString(R.string.eka_transfer_help));
+        menu.action(getString(R.string.eka_transfer_folder),android.R.drawable.ic_menu_upload,() -> {
+            menu.dismiss(); startActivityForResult(new Intent(Intent.ACTION_OPEN_DOCUMENT_TREE)
+                    .addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION),EKA_FOLDER);
+        });
+        menu.action(getString(R.string.eka_transfer_zip),android.R.drawable.ic_menu_upload,() -> { menu.dismiss(); pick(EKA_ZIP,false); });
+        menu.action(getString(R.string.system_cancel),0,menu::dismiss);
+    }
+    private void inspectEka(Uri source,boolean folder) {
+        task(getString(R.string.eka_transfer_reading),() -> {
+            if(running) throw new IOException(getString(R.string.native_close_before_restore));
+            Emulator.stopSession();
+            Eka2l1Transfer transfer=new Eka2l1Transfer(getCacheDir(),transferProgress());
+            try {
+                if(folder) transfer.readFolder(this,source);
+                else {
+                    File archive=SymbianFiles.stage(this,source,PhoneBackup.MAX_INPUT,transferProgress());
+                    try { transfer.readZip(archive); } finally { removeTransfer(archive); }
+                }
+                ekaTransfer=transfer; afterTask=() -> chooseEkaPhone(transfer);
+            } catch(Exception error) {
+                closeEka(transfer);
+                if(error instanceof java.io.InterruptedIOException) throw error;
+                throw new IOException(getString(R.string.eka_transfer_incomplete)+"\n\n"+SystemFailureText.message(this,error),error);
+            }
+        });
+    }
+    private void chooseEkaPhone(Eka2l1Transfer transfer) {
+        GameMenuDialog menu=dialog(getString(R.string.eka_transfer_choose));
+        menu.message(getString(R.string.eka_transfer_selection));
+        for(Eka2l1Transfer.Phone phone:transfer.phones) menu.action(phone.label(),0,() -> {
+            menu.setOnDismissListener(null); menu.dismiss();
+            task(getString(R.string.eka_transfer_reading),() -> {
+                try {
+                    long size=transfer.size(phone);
+                    afterTask=() -> confirmEkaPhone(transfer,phone,size);
+                } catch(Exception error) { closeEka(transfer); ekaTransfer=null; throw error; }
+            });
+        });
+        menu.action(getString(R.string.system_cancel),0,menu::dismiss);
+        menu.setOnDismissListener(d -> { ekaTransfer=null; worker.execute(() -> closeEka(transfer)); });
+    }
+    private void confirmEkaPhone(Eka2l1Transfer transfer,Eka2l1Transfer.Phone phone,long size) {
+        GameMenuDialog menu=dialog(getString(R.string.eka_transfer_title));
+        menu.message(getString(R.string.eka_transfer_preview,phone.label(),(size+1048575)/1048576));
+        menu.action(getString(R.string.eka_transfer_copy),android.R.drawable.ic_menu_save,() -> {
+            menu.setOnDismissListener(null); menu.dismiss(); importEkaPhone(transfer,phone);
+        });
+        menu.action(getString(R.string.system_cancel),0,menu::dismiss);
+        menu.setOnDismissListener(d -> { ekaTransfer=null; worker.execute(() -> closeEka(transfer)); });
+    }
+    private void importEkaPhone(Eka2l1Transfer transfer,Eka2l1Transfer.Phone phone) {
+        task(getString(R.string.native_restoring),() -> {
+            File previous=runtimeRoot;
+            try {
+                Emulator.stopSession();
+                SystemFileCatalog.Entry imported=transfer.install(getFilesDir(),phone,this::validateTransferredPhone);
+                checkImportOpen(); openSystem(imported); refresh(getString(R.string.eka_transfer_done));
+                afterTask=() -> notice(getString(R.string.eka_transfer_done),getString(R.string.eka_transfer_done_body),
+                        getString(R.string.system_library),this::openSharedLibrary,getString(R.string.system_close));
+            } catch(Exception error) {
+                Emulator.stopSession(); runtimeRoot=previous;
+                if(!closing) refreshStopped(null);
+                throw error;
+            } finally { ekaTransfer=null; closeEka(transfer); }
+        });
+    }
+    private static void closeEka(Eka2l1Transfer transfer) {
+        try { if(transfer!=null) transfer.close(); }
+        catch(IOException error) { android.util.Log.w("AbyssSymbian","Cannot remove temporary EKA2L1 copy",error); }
+    }
+    private void openSharedLibrary() {
+        startActivity(new Intent(this,ru.playsoftware.j2meloader.MainActivity.class)
+                .addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP|Intent.FLAG_ACTIVITY_SINGLE_TOP));
+        finish();
+    }
+    private void validateTransferredPhone(File runtime,org.json.JSONObject metadata) throws Exception {
+        checkImportOpen();
+        String[] settings=Emulator.portablePhoneSettings(runtime.getAbsolutePath());
+        Files.write(new File(runtime,"config.yml").toPath(),settings[0].getBytes(java.nio.charset.StandardCharsets.UTF_8));
+        Files.write(new File(runtime,"data/devices.yml").toPath(),settings[1].getBytes(java.nio.charset.StandardCharsets.UTF_8));
+        SymbianFiles.prepareAssets(this,runtime);
+        try {
+            Emulator.prepare(runtime.getAbsolutePath());
+            String[] info=Emulator.getDeviceInfo();
+            if(info==null || info.length!=3 || !info[0].equals(metadata.getString("firmware"))
+                    || !info[1].equals(metadata.getString("model")) || !info[2].equals(metadata.getString("os")))
+                throw new IOException(getString(R.string.native_restore_mismatch));
+            Emulator.getLibraryApps();
+        } finally { Emulator.stopSession(); }
+        checkImportOpen();
     }
     private void previewRestore(File archive) throws IOException {
         PhoneBackup.Preview preview=PhoneBackup.inspect(archive);
@@ -484,22 +582,9 @@ public final class SymbianActivity extends Activity implements Emulator.Host, In
             File previous=runtimeRoot;
             try {
                 Emulator.stopSession();
-                SystemFileCatalog.Entry restored=new PhoneBackup(getFilesDir()).restore(archive,(runtime,metadata) -> {
-                    String[] settings=Emulator.portablePhoneSettings(runtime.getAbsolutePath());
-                    Files.write(new File(runtime,"config.yml").toPath(),settings[0].getBytes(java.nio.charset.StandardCharsets.UTF_8));
-                    Files.write(new File(runtime,"data/devices.yml").toPath(),settings[1].getBytes(java.nio.charset.StandardCharsets.UTF_8));
-                    SymbianFiles.prepareAssets(this,runtime);
-                    try {
-                        Emulator.prepare(runtime.getAbsolutePath());
-                        String[] info=Emulator.getDeviceInfo();
-                        if(info==null || info.length!=3 || !info[0].equals(metadata.getString("firmware"))
-                                || !info[1].equals(metadata.getString("model")) || !info[2].equals(metadata.getString("os")))
-                            throw new IOException(getString(R.string.native_restore_mismatch));
-                        Emulator.getLibraryApps();
-                    } finally { Emulator.stopSession(); }
-                },transferProgress());
+                SystemFileCatalog.Entry restored=new PhoneBackup(getFilesDir()).restore(archive,this::validateTransferredPhone,transferProgress());
                 openSystem(restored); refresh(getString(R.string.native_restored_status));
-                afterTask=() -> notice(getString(R.string.native_restored),getString(R.string.native_restored_body),getString(R.string.system_library),this::finish,getString(R.string.system_close));
+                afterTask=() -> notice(getString(R.string.native_restored),getString(R.string.native_restored_body),getString(R.string.system_library),this::openSharedLibrary,getString(R.string.system_close));
             } catch(Exception error) {
                 Emulator.stopSession(); runtimeRoot=previous;
                 if(!closing) refreshStopped(null);
@@ -704,6 +789,12 @@ public final class SymbianActivity extends Activity implements Emulator.Host, In
     }
     @Override protected void onActivityResult(int request, int result, Intent data) {
         super.onActivityResult(request, result, data);
+        if(request==EKA_FOLDER || request==EKA_ZIP) {
+            if(result==RESULT_OK && data!=null && data.getData()!=null)
+                whenReady(() -> inspectEka(data.getData(),request==EKA_FOLDER));
+            else whenReady(this::chooseEkaSource);
+            return;
+        }
         if(request==SAVE_PHONE || request==RESTORE_PHONE) {
             if(result==RESULT_OK && data!=null && data.getData()!=null) {
                 Uri uri=data.getData();
@@ -1116,6 +1207,7 @@ public final class SymbianActivity extends Activity implements Emulator.Host, In
         worker.execute(() -> {
             if (sessionOwner == this) { Emulator.stopSession(); sessionOwner = null; }
             removeTransfer(restoreArchive); restoreArchive=null;
+            closeEka(ekaTransfer); ekaTransfer=null;
         });
         super.onDestroy();
     }

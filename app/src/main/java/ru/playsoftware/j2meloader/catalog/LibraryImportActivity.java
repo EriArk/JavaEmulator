@@ -113,6 +113,9 @@ public class LibraryImportActivity extends CompactSettingsActivity {
         choices.addView(button(getString(R.string.transfer_import_loader), R.drawable.ic_setting_folder, this::showImportSources), actionParams());
         choices.addView(button(getString(R.string.transfer_move_phone), android.R.drawable.ic_menu_revert, this::showPhoneMigration), actionParams());
         if (ru.playsoftware.j2meloader.BuildConfig.SYMBIAN_EXPERIMENT) {
+            choices.addView(button(getString(R.string.eka_transfer_title), R.drawable.ic_setting_folder, () ->
+                    startActivity(new Intent().setClassName(this,"io.github.eriark.abyssme.symbian.SymbianActivity")
+                            .putExtra("symbian.ekaTransfer",true))), actionParams());
             choices.addView(button(getString(R.string.transfer_native_backups), android.R.drawable.ic_menu_save, () ->
                     startActivity(new Intent().setClassName(this,"io.github.eriark.abyssme.symbian.SymbianActivity")
                             .putExtra("symbian.backups",true))), actionParams());

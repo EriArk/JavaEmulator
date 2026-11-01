@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="eka_transfer_title">从 EKA2L1 导入</string>
+    <string name="eka_transfer_help">请先关闭 EKA2L1。选择包含 data/devices.yml、roms 和 drives 的完整文件夹或 ZIP。游戏、已安装组件和存档会一起复制。外部挂载的存储卡不会包含在内，其内容必须放在所选 drives 文件夹中。如果 Android 禁止访问其他应用的私有文件夹，请使用导出的副本。</string>
+    <string name="eka_transfer_folder">选择文件夹</string>
+    <string name="eka_transfer_zip">选择 ZIP</string>
+    <string name="eka_transfer_reading">正在读取 EKA2L1 副本…</string>
+    <string name="eka_transfer_incomplete">需要完整且可读取的 EKA2L1 文件夹，而不只是 E 盘或单个游戏。如果 Android 阻止访问子文件夹，请导出整个文件夹。</string>
+    <string name="eka_transfer_choose">选择虚拟手机</string>
+    <string name="eka_transfer_selection">每次复制一部手机。共享的 C/E 盘将独立用于所选手机。其他手机和原始文件夹不会改变。</string>
+    <string name="eka_transfer_preview">%1$s\n手机数据：%2$d MB\n\n游戏和存档将作为独立手机添加。不会合并或覆盖现有手机。重新导入同一副本会保留目标位置更新的存档。</string>
+    <string name="eka_transfer_copy">复制手机</string>
+    <string name="eka_transfer_done">手机迁移完成</string>
+    <string name="eka_transfer_done_body">复制的手机已可在游戏库中使用。原始文件未更改。如需迁移其他手机，请分别导入。不保证所有游戏都兼容。</string>
+</resources>
