@@ -10,6 +10,22 @@ stated otherwise. **Experimental** in older checkpoints means local/private
 combined builds; released experimental features are explicitly identified.
 **Released** means an actual GitHub release asset.
 
+## 2026-11-01 - Native Symbian Screen Orientation Trials (Public Source, Unreleased)
+
+- Try the virtual phone's native Portrait or Landscape geometry per game on
+  Symbian 9, separately from rotating or stretching the Android picture.
+- Require restart confirmation; consume trial settings before native boot.
+  Keep saves them, while Undo restarts the confirmed setup. Original stays default.
+- Accept only dimensions already advertised by the phone. Keep EKA1 and unknown
+  phone generations on their original geometry, with the existing Fit/Stretch
+  and image-rotation controls. Preserve source phones and saves.
+- Remove arbitrary-size experimental presets after device checks exposed broken
+  output. This is not universal widescreen or higher-resolution 3D rendering.
+- Retroid: native geometry/row-pitch and startup-capture checks, original-phone
+  hash preservation, guarded legacy behavior and focused settings/input tests.
+  All eight languages include the new controls. No release APK update; #50 stays
+  open. [Evidence and limits](docs/checks/2026-11-01-symbian-screen-orientation.md).
+
 ## 2026-11-01 - Import Virtual Phones from EKA2L1 (Public Source, Unreleased)
 
 - Import a complete accessible EKA2L1 folder or ZIP from Library transfer or

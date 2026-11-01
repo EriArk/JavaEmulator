@@ -37,6 +37,17 @@ remains canonical; game text and user content are not translated.
 
 ## Availability: Do Not Mix These Channels
 
+**Unreleased Symbian screen-orientation trials (2026-11-01):** Symbian 9 phones
+offer Original / Portrait / Landscape in their native screen dimensions, with
+explicit restart confirmation and per-game Try/Keep/Undo. The engine accepts
+only dimensions advertised by the supplied phone; EKA1/unknown generations
+retain Original and the existing presentation controls. Retroid N95 checks
+confirm real panel/mode/pitch changes between 320 x 240 and 240 x 320 and native
+startup captures; Snakes checks confirm the EKA1 guard and unchanged original
+phone files. This is **not arbitrary resolution or universal widescreen**:
+unsafe experimental sizes were removed, and #50 stays open. No public APK has
+been updated. [Evidence and limitations](checks/2026-11-01-symbian-screen-orientation.md).
+
 **Unreleased EKA2L1 phone transfer (2026-11-01):** Library transfer and Phone
 backups now offer folder/ZIP import of a registered virtual phone, including its
 installed games, components and saves. Preview and confirm the copy; shared C/E

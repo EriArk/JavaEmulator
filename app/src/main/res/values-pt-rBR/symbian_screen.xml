@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="symbian_screen_unavailable">Este telefone não conseguiu usar esse modo de tela emulada. Selecione Original nas configurações de tela.</string>
+    <string name="symbian_screen_legacy">Apenas a tela emulada original está disponível para este telefone. O tamanho da imagem e a rotação continuam disponíveis.</string>
+    <string name="symbian_screen_title">Tela emulada (experimental)</string>
+    <string name="symbian_screen_hint">Altera a tela do telefone virtual, não a escala da imagem. Jogos com layout fixo podem não se adaptar. O modo original é o mais seguro.</string>
+    <string name="symbian_screen_restart">Reiniciar o jogo para testar este tamanho? O progresso não salvo pode ser perdido. Mantenha as alterações para salvar; desfazer reinicia com as configurações anteriores.</string>
+    <string-array name="symbian_screen_presets">
+        <item>Original (do telefone)</item>
+        <item>Retrato (dimensões do telefone)</item>
+        <item>Paisagem (dimensões do telefone)</item>
+    </string-array>
+</resources>

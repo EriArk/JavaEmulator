@@ -118,6 +118,11 @@ public class ProfileModel {
 	// Null preserves the native engines' historical default; zero explicitly means unlimited.
 	@SerializedName("NativeFpsLimit")
 	public Integer nativeFpsLimit;
+	@SerializedName("SymbianScreenPreset")
+	public int symbianScreenPreset;
+	public int getSymbianScreenPreset() {
+		return symbianScreenPreset >= 0 && symbianScreenPreset <= 2 ? symbianScreenPreset : 0;
+	}
 	@SerializedName("EmulationSpeed")
 	public int emulationSpeed = 100;
 	@SerializedName("FastForwardSpeed")

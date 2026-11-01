@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="symbian_screen_unavailable">この端末では指定したエミュレート画面モードを使用できませんでした。表示設定で元の設定を選択してください。</string>
+    <string name="symbian_screen_legacy">この端末では元のエミュレート画面のみ使用できます。画像サイズと回転は引き続き変更できます。</string>
+    <string name="symbian_screen_title">エミュレート画面（実験的）</string>
+    <string name="symbian_screen_hint">画像の拡大ではなく、仮想端末の画面サイズを変更します。固定レイアウトのゲームは対応しない場合があります。元の設定が最も安全です。</string>
+    <string name="symbian_screen_restart">この画面サイズを試すためにゲームを再起動しますか？未保存の進行状況は失われる場合があります。変更を保持すると保存され、元に戻すと以前の設定で再起動します。</string>
+    <string-array name="symbian_screen_presets">
+        <item>元の設定（端末の標準）</item>
+        <item>縦向き（端末の寸法）</item>
+        <item>横向き（端末の寸法）</item>
+    </string-array>
+</resources>

@@ -970,6 +970,13 @@ public final class SymbianActivity extends Activity implements Emulator.Host, In
     }
     public void play(int uid) {
         task(getString(R.string.native_starting_game), () -> {
+            String identity = "legacy";
+            for (SystemFileCatalog.Entry entry : systems) if (catalog.runtime(entry).equals(runtimeRoot)) identity = entry.id;
+            ru.playsoftware.j2meloader.config.ProfileModel preparedProfile =
+                    SymbianSessionUi.loadSessionProfile(this, identity, Integer.toUnsignedLong(uid));
+            Emulator.stopSession();
+            try { Emulator.prepareGame(runtimeRoot.getAbsolutePath(), preparedProfile.getSymbianScreenPreset()); }
+            catch (IOException error) { throw new IOException(getString(R.string.symbian_screen_unavailable), error); }
             Emulator.lastGuestExit = null;
             if (!Emulator.startSession()) throw new IOException(getString(R.string.native_phone_start_failed));
             runOnUiThread(() -> {
@@ -1006,10 +1013,9 @@ public final class SymbianActivity extends Activity implements Emulator.Host, In
                     }
                 });
                 try {
-                    String identity = "legacy", title = getString(R.string.native_game_fallback);
-                    for (SystemFileCatalog.Entry entry : systems) if (catalog.runtime(entry).equals(runtimeRoot)) identity = entry.id;
+                    String title = getString(R.string.native_game_fallback);
                     for (int i = 0; i + 1 < apps.length; i += 2) if (Long.parseLong(apps[i]) == Integer.toUnsignedLong(uid)) title = apps[i + 1];
-                    sessionUi = new SymbianSessionUi(this, surface, identity, Integer.toUnsignedLong(uid), title, new SymbianSessionUi.Host() {
+                    sessionUi = new SymbianSessionUi(this, surface, preparedProfile, title, new SymbianSessionUi.Host() {
                         public int[] displayGeometry() {
                             return running && attached && !closing ? Emulator.displayGeometry() : null;
                         }
@@ -1124,14 +1130,13 @@ public final class SymbianActivity extends Activity implements Emulator.Host, In
     }
     private void resumeGame() { menuOpen = false; if (running && attached && !closing) Emulator.pauseSession(!resumed); }
     private void restartGame(int uid) {
-        if (closing || !running || busy) return;
+        if (closing || !running || busy) throw new IllegalStateException("Game is not ready to restart");
         sessionGeneration++;
         if (sessionUi != null) { sessionUi.close(); sessionUi = null; }
         detach(); running = false; menuOpen = false; pendingUid = 0;
         library();
         task(getString(R.string.native_restarting), () -> {
             Emulator.stopSession();
-            Emulator.prepare(runtimeRoot.getAbsolutePath());
             Emulator.lastGuestExit = null;
             afterTask = () -> play(uid);
         });

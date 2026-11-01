@@ -76,13 +76,16 @@ final class SymbianSessionUi {
     private void heldSelect() { if (selectDown) { selectDown = false; showMapping(profile); } }
 
     SymbianSessionUi(Activity activity, TextureView surface, String system, long uid, String title, Host host) throws IOException {
+        this(activity, surface, loadSessionProfile(activity, system, uid), title, host);
+    }
+    static ProfileModel loadSessionProfile(Activity activity, String system, long uid) throws IOException {
+        ProfileModel profile = SymbianGameSettings.load(activity.getFilesDir(), system, uid);
+        SettingsTrial.claim(profile);
+        return profile;
+    }
+    SymbianSessionUi(Activity activity, TextureView surface, ProfileModel preparedProfile, String title, Host host) throws IOException {
         this.activity = activity; this.surface = surface; this.title = title; this.host = host;
-        profile = SymbianGameSettings.load(activity.getFilesDir(), system, uid);
-        try { SettingsTrial.claim(profile); }
-        catch (IOException error) {
-            android.util.Log.w("AbyssSymbian", "Could not apply settings draft", error);
-            Toast.makeText(activity, activity.getString(ru.playsoftware.j2meloader.R.string.helper_apply_failed), Toast.LENGTH_LONG).show();
-        }
+        profile = preparedProfile;
         mappings = KeyMapper.resolveMappings(profile.getActiveKeyMappings());
         keys = new SymbianInput(host); input = new ControllerInput(key -> mappings.get(key, 0), keys.source());
         root = new FrameLayout(activity) {
@@ -222,7 +225,7 @@ final class SymbianSessionUi {
             public void exit() { close(); host.leave(); }
             public void restart() {
                 if (ProfilesManager.isPreview(profile)) undo();
-                host.restart();
+                if (!closed) host.restart();
             }
         }, this::screenshot, fastForward);
     }
@@ -251,7 +254,8 @@ final class SymbianSessionUi {
         deckView.invalidate();
     }
     private void advancedDisplayPage() {
-        pages().nativePhoneDisplay();
+        pages().nativePhoneDisplay(SymbianGameSettings.supportsGuestScreen(activity.getFilesDir(),
+                profile.dir.getParentFile().getName()));
     }
     private GameSettingsPages pages() {
         return new GameSettingsPages(menu, profile, true, false, new GameSettingsPages.Host() {
@@ -276,6 +280,20 @@ final class SymbianSessionUi {
         mapper.show(); pause();
     }
     private void trySettings(ProfileModel draft) {
+        if (profile.getSymbianScreenPreset() != draft.getSymbianScreenPreset()) {
+            if (menu == null) showMenu();
+            menu.page(activity.getString(R.string.symbian_screen_title));
+            menu.message(activity.getString(R.string.symbian_screen_restart));
+            menu.action(activity.getString(R.string.game_restart_try), android.R.drawable.ic_media_play, () -> {
+                try { SettingsTrial.launch(draft, host::restart); }
+                catch (IOException | RuntimeException error) {
+                    android.util.Log.w("AbyssSymbian", "Cannot stage screen trial", error);
+                    Toast.makeText(activity, R.string.helper_apply_failed, Toast.LENGTH_LONG).show();
+                }
+            });
+            menu.setBackAction(this::advancedDisplayPage);
+            return;
+        }
         ProfilesManager.beginPreview(profile); ProfilesManager.copyInto(draft,profile); apply();
         if (menu != null) menu.dismiss(); preview.start(); pause();
     }
@@ -283,7 +301,12 @@ final class SymbianSessionUi {
         if (!ProfilesManager.keepPreview(profile)) { Toast.makeText(activity,activity.getString(R.string.game_save_settings_failed),Toast.LENGTH_LONG).show(); return; }
         preview.stop(); if (menu != null) home();
     }
-    private void undo() { ProfilesManager.undoPreview(profile); apply(); preview.stop(); if (menu != null) home(); }
+    private void undo() {
+        int previous = profile.getSymbianScreenPreset();
+        ProfilesManager.undoPreview(profile); preview.stop();
+        if (previous != profile.getSymbianScreenPreset()) { host.restart(); return; }
+        apply(); if (menu != null) home();
+    }
     void screenshot() {
         if (closed || screenshotPending) return;
         screenshotPending = true; camera.setEnabled(false);

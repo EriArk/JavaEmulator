@@ -66,8 +66,18 @@ public final class GameSettingsPages {
     }
 
     /** Native phone renderer capabilities, shared by pre-game and in-game panels. */
-    public void nativePhoneDisplay() {
+    public void nativePhoneDisplay() { nativePhoneDisplay(false); }
+
+    public void nativePhoneDisplay(boolean guestScreenSupported) {
         menu.page(menu.text(R.string.game_display));
+        if (guestScreenSupported) {
+            menu.choice(menu.text(R.string.symbian_screen_title), menu.labels(R.array.symbian_screen_presets),
+                    draft.getSymbianScreenPreset(), i -> draft.symbianScreenPreset = i);
+            menu.message(menu.text(R.string.symbian_screen_hint));
+        } else {
+            draft.symbianScreenPreset = 0;
+            menu.message(menu.text(R.string.symbian_screen_legacy));
+        }
         frameRateChoice(menu, draft, false);
         speedChoice(menu, draft);
         menu.choice(menu.text(R.string.game_picture_size), menu.labels(R.array.game_native_picture_sizes), clamp(draft.screenScaleType, 3),

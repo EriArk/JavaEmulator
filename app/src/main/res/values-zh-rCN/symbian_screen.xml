@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="symbian_screen_unavailable">此手机无法使用该模拟屏幕模式。请在显示设置中选择原始模式。</string>
+    <string name="symbian_screen_legacy">此手机仅支持原始模拟屏幕。仍可调整图像大小和旋转。</string>
+    <string name="symbian_screen_title">模拟屏幕（实验性）</string>
+    <string name="symbian_screen_hint">更改虚拟手机的屏幕尺寸，而非图像缩放。固定布局的游戏可能无法适应。原始设置最稳妥。</string>
+    <string name="symbian_screen_restart">重新启动游戏以试用此屏幕尺寸？未保存的进度可能丢失。保留更改即可保存；撤销将以之前的设置重新启动。</string>
+    <string-array name="symbian_screen_presets">
+        <item>原始（手机默认）</item>
+        <item>纵向（手机尺寸）</item>
+        <item>横向（手机尺寸）</item>
+    </string-array>
+</resources>

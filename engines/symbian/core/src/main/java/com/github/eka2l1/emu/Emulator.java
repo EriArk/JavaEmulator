@@ -47,6 +47,9 @@ public final class Emulator {
     public static boolean isExternalStoragePreservedLegacy() { return false; }
 
     public static native void prepare(String directory);
+    public static native void prepareGame(String directory, int screenPreset) throws java.io.IOException;
+    /** Physical panel, active mode, framebuffer pitch and mode count; never host-scaled pixels. */
+    public static native int[] guestScreenInfo();
     public static native String[] portablePhoneSettings(String directory) throws java.io.IOException;
     public static native String[] inspectEka2l1Phones(String registration) throws java.io.IOException;
     public static native boolean startSession();

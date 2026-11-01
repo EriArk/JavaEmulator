@@ -23,6 +23,38 @@ public final class SymbianGameSettingsTest {
     private final File files = InstrumentationRegistry.getInstrumentation().getTargetContext().getFilesDir();
     private String identity() { String id = UUID.randomUUID().toString().replace("-", ""); return id + id; }
 
+    @Test public void legacyAndUnknownPhonesDoNotOfferGuestOverrides() {
+        for (String os : new String[]{null,"","epoc6","epoc70","epoc80","epoc81a","unknown"})
+            assertFalse(SymbianGameSettings.supportsGuestScreen(os));
+        for (String os : new String[]{"epoc93fp1","epoc94","epoc95"})
+            assertTrue(SymbianGameSettings.supportsGuestScreen(os));
+    }
+
+    @Test public void guestScreenDraftIsConsumedBeforeBootWithoutReplacingConfirmedSettings() throws Exception {
+        String system = identity();
+        try {
+            ProfileModel baseline = SymbianGameSettings.load(files, system, 1);
+            assertEquals(0, baseline.getSymbianScreenPreset());
+            ProfileModel draft = ProfilesManager.copy(baseline);
+            draft.symbianScreenPreset = 2;
+            SettingsTrial.stage(draft);
+            ProfileModel boot = SymbianGameSettings.load(files, system, 1);
+            SettingsTrial.claim(boot);
+            assertEquals(2, boot.getSymbianScreenPreset());
+            assertTrue(ProfilesManager.isPreview(boot));
+            assertEquals(0, SymbianGameSettings.load(files, system, 1).getSymbianScreenPreset());
+            ProfileModel retry = SymbianGameSettings.load(files, system, 1);
+            SettingsTrial.claim(retry);
+            assertEquals("A failed boot must not replay the trial", 0, retry.getSymbianScreenPreset());
+            assertTrue(ProfilesManager.keepPreview(boot));
+            assertEquals(2, SymbianGameSettings.load(files, system, 1).getSymbianScreenPreset());
+            assertEquals(0, SymbianGameSettings.load(files, system, 2).getSymbianScreenPreset());
+            boot.symbianScreenPreset = -1; assertEquals(0, boot.getSymbianScreenPreset());
+            boot.symbianScreenPreset = 4; assertEquals(0, boot.getSymbianScreenPreset());
+            boot.symbianScreenPreset = 3; assertEquals(0, boot.getSymbianScreenPreset());
+        } finally { FileUtils.deleteDirectory(PhoneBackup.profiles(files, system)); }
+    }
+
     @Test public void identityValidationPreventsEscapingThePhoneProfileStore() throws Exception {
         for (String id : new String[]{null, "", "../elsewhere", "LEGACY", "a"}) {
             try { SymbianGameSettings.load(files, id, 1); fail("Accepted invalid phone identity"); }
@@ -52,6 +84,7 @@ public final class SymbianGameSettingsTest {
         String system = identity(), other = identity();
         SymbianSessionUi[] session = {null};
         int[] scale = {-1};
+        int[] restarts = {0};
         SymbianSessionUi.Host host = new SymbianSessionUi.Host() {
             public RectF touchBounds() { return null; }
             public void touch(int x, int y, int pressure, int action, int pointer) { }
@@ -60,7 +93,7 @@ public final class SymbianGameSettingsTest {
             public void display(int value) { scale[0] = value; }
             public void frameRate(int fps) { }
             public void leave() { }
-            public void restart() { }
+            public void restart() { restarts[0]++; }
             public Bitmap capture() { return null; }
         };
         try (ActivityScenario<SettingsActivity> scenario = ActivityScenario.launch(SettingsActivity.class)) {
@@ -69,6 +102,7 @@ public final class SymbianGameSettingsTest {
                 ProfileModel draft = ProfilesManager.copy(baseline);
                 draft.screenRotation = 180; draft.screenScaleType = 2; draft.touchLayout = TouchDeck.GAMEPAD;
                 draft.nativeFpsLimit = 30;
+                draft.symbianScreenPreset = 2;
                 SettingsTrial.stage(draft);
                 // Reading from the library must not consume another process's pending trial.
                 assertEquals(0, SymbianGameSettings.load(files, system, 1).screenRotation);
@@ -82,6 +116,8 @@ public final class SymbianGameSettingsTest {
                         find(session[0].root, decision).performClick();
                         assertFalse(ProfilesManager.isPreview(session[0].profile));
                         assertEquals(decision.equals("Keep") ? 180 : 0, session[0].profile.screenRotation);
+                        assertEquals(decision.equals("Keep") ? 2 : 0, session[0].profile.getSymbianScreenPreset());
+                        assertEquals("Undo a guest-screen trial requires one restart", 1, restarts[0]);
                         session[0].close(); session[0] = null;
                     } catch (IOException error) { throw new AssertionError(error); }
                 });

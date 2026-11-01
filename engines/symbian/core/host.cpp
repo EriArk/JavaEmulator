@@ -41,6 +41,7 @@
 #include "frame_rate.h"
 #include "emulation_speed.h"
 #include "display_geometry.h"
+#include "guest_screen.h"
 
 extern "C" JNIEXPORT void JNICALL
 Java_com_github_eka2l1_emu_Emulator_setEmulationSpeed(JNIEnv *, jclass, jint percent) {
@@ -175,6 +176,26 @@ Java_com_github_eka2l1_emu_Emulator_displayGeometry(JNIEnv *env, jclass) {
             [] { return state->winserv->get_current_focus_screen(); }, geometry)) return nullptr;
     auto result = env->NewIntArray(6);
     if (result) env->SetIntArrayRegion(result, 0, 6, geometry.data());
+    return result;
+}
+
+// Engine diagnostics distinguish physical/logical pixels from host-scaled screenshots.
+extern "C" JNIEXPORT jintArray JNICALL
+Java_com_github_eka2l1_emu_Emulator_guestScreenInfo(JNIEnv *env, jclass) {
+    if (!state || !state->symsys || !state->winserv) return nullptr;
+    auto *kernel = state->symsys->get_kernel_system();
+    std::unique_lock<eka2l1::kernel_system> lock(*kernel, std::try_to_lock);
+    if (!lock.owns_lock()) return nullptr;
+    auto *screen = state->winserv->get_current_focus_screen();
+    if (!screen) return nullptr;
+    std::unique_lock<std::mutex> screen_lock(screen->screen_mutex, std::try_to_lock);
+    if (!screen_lock.owns_lock()) return nullptr;
+    const auto panel = screen->size();
+    const auto mode = screen->current_mode().size;
+    jint info[] = {panel.x, panel.y, mode.x, mode.y,
+        static_cast<jint>(screen->screen_buffer_byte_width()), screen->total_screen_mode()};
+    auto result = env->NewIntArray(6);
+    if (result) env->SetIntArrayRegion(result, 0, 6, info);
     return result;
 }
 
@@ -654,8 +675,7 @@ Java_com_github_eka2l1_emu_Emulator_driveE(JNIEnv *env, jclass) {
     return env->NewStringUTF(absolute.c_str());
 }
 
-extern "C" JNIEXPORT void JNICALL
-Java_com_github_eka2l1_emu_Emulator_prepare(JNIEnv *env, jclass, jstring directory) {
+static void prepare_guest(JNIEnv *env, jstring directory, int screen_preset) {
     if (os_thread_obj || gr_thread_obj) {
         env->ThrowNew(env->FindClass("java/lang/IllegalStateException"), "Stop the active Symbian session first");
         return;
@@ -672,6 +692,8 @@ Java_com_github_eka2l1_emu_Emulator_prepare(JNIEnv *env, jclass, jstring directo
         state->symsys.reset();
         state.reset();
     }
+    abyss::guest_screen::requested.store(screen_preset);
+    abyss::guest_screen::applied.store(false);
     const char *path = env->GetStringUTFChars(directory, nullptr);
     eka2l1::common::set_current_directory(path);
     env->ReleaseStringUTFChars(directory, path);
@@ -699,6 +721,25 @@ Java_com_github_eka2l1_emu_Emulator_prepare(JNIEnv *env, jclass, jstring directo
                 }
             }
         }
+    }
+}
+
+extern "C" JNIEXPORT void JNICALL
+Java_com_github_eka2l1_emu_Emulator_prepare(JNIEnv *env, jclass, jstring directory) {
+    prepare_guest(env, directory, 0);
+}
+
+extern "C" JNIEXPORT void JNICALL
+Java_com_github_eka2l1_emu_Emulator_prepareGame(JNIEnv *env, jclass, jstring directory, jint preset) {
+    if (!abyss::guest_screen::valid(preset)) {
+        env->ThrowNew(env->FindClass("java/lang/IllegalArgumentException"), "Invalid emulated screen preset");
+        return;
+    }
+    prepare_guest(env, directory, preset);
+    if (!env->ExceptionCheck() && preset != 0 && state && state->symsys) {
+        if (state->winserv) state->winserv->get_screen(0);
+        if (!abyss::guest_screen::applied.load())
+            env->ThrowNew(env->FindClass("java/io/IOException"), "The phone does not support this emulated screen orientation");
     }
 }
 

@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="symbian_screen_unavailable">This phone could not use that emulated screen mode. Select Original in Display settings.</string>
+    <string name="symbian_screen_legacy">Only the original emulated screen is available for this phone. Picture size and Rotation still work.</string>
+    <string name="symbian_screen_title">Emulated screen (experimental)</string>
+    <string name="symbian_screen_hint">Changes the virtual phone display, not image scaling. Games with fixed layouts may not adapt. Original is the safest choice.</string>
+    <string name="symbian_screen_restart">Restart the game to try this screen size? Unsaved progress may be lost. Keep changes to save it; Undo restarts with the previous settings.</string>
+    <string-array name="symbian_screen_presets">
+        <item>Original (phone default)</item>
+        <item>Portrait (phone dimensions)</item>
+        <item>Landscape (phone dimensions)</item>
+    </string-array>
+</resources>

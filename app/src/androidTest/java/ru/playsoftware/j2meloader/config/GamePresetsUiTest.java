@@ -80,6 +80,35 @@ public class GamePresetsUiTest {
         });
     }
 
+    @Test public void nativeScreenOrientationIsAnExplicitDraftNotImageRotation() throws Exception {
+        scenario.onActivity(a -> pages.nativePhoneDisplay(true)); idle();
+        choose("Emulated screen (experimental)", 1);
+        scenario.onActivity(a -> {
+            assertEquals(0, source.getSymbianScreenPreset()); assertNull(applied);
+            assertEquals(0, pages.draft().screenRotation);
+            assertEquals(1, pages.draft().getSymbianScreenPreset());
+            assertEquals(3, ((Spinner)find((View)find(root(), TextView.class,
+                    "Emulated screen (experimental)").getParent(), Spinner.class, null)).getCount());
+        });
+        if ("true".equals(InstrumentationRegistry.getArguments().getString("guestScreenUi"))) {
+            android.graphics.Bitmap image=InstrumentationRegistry.getInstrumentation().getUiAutomation().takeScreenshot();
+            assertNotNull(image);
+            java.io.File file=new java.io.File(InstrumentationRegistry.getInstrumentation().getTargetContext()
+                    .getExternalFilesDir(null),"guest-screen-menu.png");
+            try(java.io.FileOutputStream out=new java.io.FileOutputStream(file)) {
+                assertTrue(image.compress(android.graphics.Bitmap.CompressFormat.PNG,100,out));
+            } finally { image.recycle(); }
+        }
+        scenario.onActivity(a -> {
+            find(root(),TextView.class,"Try changes").performClick();
+            assertEquals(1,applied.getSymbianScreenPreset());
+            assertEquals(0,applied.screenRotation);
+            pages.nativePhoneDisplay(false);
+            assertNull(find(root(),TextView.class,"Emulated screen (experimental)"));
+            assertEquals(0,pages.draft().getSymbianScreenPreset());
+        });
+    }
+
     @Test public void standaloneRetroPresetsHideConflictingControlsAndRequireTry() {
         scenario.onActivity(a -> {
             pages.draft().screenEffect=2; pages.draft().fsrUpscaling=true;
