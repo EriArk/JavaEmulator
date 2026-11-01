@@ -10,6 +10,25 @@ stated otherwise. **Experimental** in older checkpoints means local/private
 combined builds; released experimental features are explicitly identified.
 **Released** means an actual GitHub release asset.
 
+## 2026-11-01 - Symbian File and Memory Fault Safety (Public Source, Unreleased)
+
+- Give duplicated Symbian file handles independent positions and lifetimes;
+  preserve non-truncating writes, guest mode fields and failure rollback.
+  Reject invalid adopted/internal file handles instead of using them blindly.
+- Fix cleared/missing-permission TLB entries matching guest page zero. Stop
+  translated execution after unrecovered memory access, and correct the ARM64
+  abort check's load width so the halt word does not cause an alignment fault.
+- Ten native ARM64 regression executables pass on Retroid. The actual-CPU test
+  reproduces a host crash before the repair and passes zero-page permissions,
+  read/write fault containment, recoverable reads and subsequent execution.
+- Snakes passes live movement checks across Resume, LCD Soft, LCD Classic and
+  Original on the final Debug build. Fifteen focused LCD/session checks also
+  pass; six unrelated opt-in fixture cases are skipped.
+- Keep the N95/Asphalt problem open. The final build reaches a race, but its
+  post-Resume movement check fails and a second cold launch stalls before the
+  menu. Neither establishes a completed LCD fix. No release asset or
+  version is changed. [Evidence and limits](docs/checks/2026-11-01-symbian-file-and-fault-safety.md).
+
 ## 2026-11-01 - Native LCD Preview Safety (Public Source, Unreleased)
 
 - Remove paused-guest geometry reads from Symbian/N-Gage live picture presets.

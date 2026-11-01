@@ -193,11 +193,85 @@ abyss_patch_source(epoc "src/software.cpp" "${software_original}" "${software_pa
 unset(software_original)
 unset(software_patched)
 
+# Zero is a valid page number, not an invalid TLB permission tag. A cleared
+# entry must miss even for an access near nullptr instead of dereferencing it.
+file(READ "${EKA2L1_SOURCE_DIR}/src/external/dynarmic/src/dynarmic/interface/tlb.h" tlb_header)
+foreach(access read write execute)
+    abyss_replace_once(tlb_header "    VAddr ${access}_addr = 0;" "    VAddr ${access}_addr = ~VAddr{0};")
+    abyss_replace_once(tlb_header "            entry.${access}_addr = 0;" "            entry.${access}_addr = ~VAddr{0};")
+endforeach()
+abyss_replace_once(tlb_header "            std::memset(&entry, 0, sizeof(TLBEntry));" "            entry = TLBEntry{};")
+file(CONFIGURE OUTPUT "${CMAKE_CURRENT_BINARY_DIR}/patched/include/dynarmic/interface/tlb.h" CONTENT "${tlb_header}" @ONLY)
+target_include_directories(dynarmic BEFORE PUBLIC "${CMAKE_CURRENT_BINARY_DIR}/patched/include")
+unset(tlb_header)
+
+get_target_property(jit_source_dir dynarmic SOURCE_DIR)
+file(READ "${jit_source_dir}/backend/arm64/emit_arm64_a32.cpp" jit_original)
+set(jit_patched "${jit_original}")
+# The halt word is uint32_t and is not necessarily aligned for a 64-bit LDAR.
+abyss_replace_once(jit_patched "    code.LDAR(Xscratch0, Xhalt);" "    code.LDAR(Wscratch0, Xhalt);")
+abyss_replace_once(jit_patched "    code.TST(Xscratch0, static_cast<u32>(HaltReason::MemoryAbort));"
+    "    code.TST(Wscratch0, static_cast<u32>(HaltReason::MemoryAbort));")
+abyss_patch_source(dynarmic "backend/arm64/emit_arm64_a32.cpp" "${jit_original}" "${jit_patched}")
+unset(jit_original)
+unset(jit_patched)
+
+get_target_property(cpu_source_dir cpu SOURCE_DIR)
+file(READ "${cpu_source_dir}/src/arm_dynarmic.cpp" cpu_original)
+set(cpu_patched "${cpu_original}")
+abyss_replace_once(cpu_patched "        config.define_unpredictable_behaviour = true;"
+    "        config.define_unpredictable_behaviour = true;\n        config.check_halt_on_memory_access = true;")
+abyss_replace_once(cpu_patched
+    "            return parent.exception_handler(is_read ? exception_type_access_violation_read : exception_type_access_violation_write, addr);"
+    [=[            const bool retry = parent.exception_handler(is_read ? exception_type_access_violation_read : exception_type_access_violation_write, addr);
+            // A killed guest may have unmapped its pages. Do not execute the rest
+            // of this translated block against that now-invalid address space.
+            if (!retry) parent.jit->HaltExecution(Dynarmic::HaltReason::MemoryAbort);
+            return retry;]=])
+abyss_patch_source(cpu "src/arm_dynarmic.cpp" "${cpu_original}" "${cpu_patched}")
+unset(cpu_original)
+unset(cpu_patched)
+
 get_target_property(fs_source_dir epocservs SOURCE_DIR)
 file(READ "${fs_source_dir}/src/fs/files.cpp" fs_original)
 set(fs_patched "${fs_original}")
 abyss_replace_once(fs_patched "#include <services/fs/fs.h>"
-    "#include <services/fs/fs.h>\n#include \"file_transfer.h\"")
+    "#include <services/fs/fs.h>\n#include \"file_transfer.h\"\n#include \"file_duplicate.h\"")
+abyss_replace_once(fs_patched [=[        const epoc::handle dup_handle = obj_table_.add(node);
+
+        file *f = reinterpret_cast<file *>(node->vfs_node.get());]=]
+    [=[        if (node->vfs_node->type != io_component_type::file) {
+            ctx->complete(epoc::error_bad_handle); return;
+        }
+        file *f = reinterpret_cast<file *>(node->vfs_node.get());
+        auto stream = abyssme::duplicate_file_stream(*f, READ_MODE, file_seek_mode::beg,
+            [ctx](const std::u16string &path, int mode) {
+                return ctx->sys->get_io_system()->open_file(path, mode);
+            });
+        if (!stream) { ctx->complete(epoc::error_general); return; }
+        auto *copy = server<fs_server>()->make_new<fs_node>();
+        copy->vfs_node = std::move(stream);
+        copy->serv = node->serv;
+        copy->mix_mode = node->mix_mode;
+        copy->open_mode = node->open_mode;
+        copy->process = node->process;
+        copy->temporary = node->temporary;
+        const epoc::handle dup_handle = obj_table_.add(copy);]=])
+abyss_replace_once(fs_patched [=[        LOG_TRACE(SERVICE_EFSRV, "Fs::FileAdopt stubbed");
+
+        ctx->write_data_to_descriptor_argument<std::uint32_t>(3, ctx->get_argument_value<std::uint32_t>(0).value());]=]
+    [=[        // Duplicate/adopt use the same unmangled handle convention in this engine.
+        auto handle = ctx->get_argument_value<std::int32_t>(0);
+        auto *node = handle ? get_file_node(*handle) : nullptr;
+        if (!node || node->vfs_node->type != io_component_type::file) {
+            ctx->complete(epoc::error_bad_handle); return;
+        }
+        ctx->write_data_to_descriptor_argument<std::int32_t>(3, *handle);]=])
+abyss_replace_once(fs_patched
+    "        return reinterpret_cast<eka2l1::file *>(ss->get_file_node(static_cast<int>(handle))->vfs_node.get());"
+    [=[        auto *node = ss->get_file_node(static_cast<int>(handle));
+        return node && node->vfs_node->type == io_component_type::file
+            ? static_cast<eka2l1::file *>(node->vfs_node.get()) : nullptr;]=])
 abyss_replace_once(fs_patched
     "new_node->vfs_node = io->open_file(name, access_mode);"
     "extern void abyss_prepare_ngage_metadata(io_system *, const std::u16string &);\n        if (!(access_mode & WRITE_MODE) && !temporary) abyss_prepare_ngage_metadata(io, name);\n        new_node->vfs_node = io->open_file(name, access_mode);")

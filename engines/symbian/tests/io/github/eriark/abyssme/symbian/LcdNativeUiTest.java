@@ -24,6 +24,9 @@ public class LcdNativeUiTest {
         boolean platform = "true".equals(InstrumentationRegistry.getArguments().getString("lcdViaPlatform"));
         ru.playsoftware.j2meloader.config.ProfileModel original = SymbianGameSettings.load(context.getFilesDir(), game.system,
                 platform ? GameInstallFlow.PLATFORM_UID : game.uid);
+        boolean externalReady = "true".equals(InstrumentationRegistry.getArguments().getString("lcdWaitForReady"));
+        File ready = new File(context.getExternalFilesDir(null), "lcd-frames-ready");
+        if (externalReady && ready.exists()) assertTrue(ready.delete());
         try {
         if (platform) new SymbianRuntimeTest().prepareModernLcdFixture();
         else {
@@ -33,7 +36,16 @@ public class LcdNativeUiTest {
                 .putExtra(SymbianLibraryIndex.UID_EXTRA, game.uid));
         await("Show game controls", 60000);
         // Allow the external fixture driver to enter gameplay before sampling.
-        SystemClock.sleep(Long.parseLong(InstrumentationRegistry.getArguments().getString("lcdFrameSetupMillis", "15000")));
+        if (!externalReady) SystemClock.sleep(Long.parseLong(InstrumentationRegistry.getArguments().getString("lcdFrameSetupMillis", "15000")));
+        }
+        if (externalReady) {
+            long deadline = SystemClock.uptimeMillis() + 300000;
+            while (!ready.exists() && SystemClock.uptimeMillis() < deadline) {
+                assertFixtureForeground(context);
+                SystemClock.sleep(250);
+            }
+            assertTrue("Fixture driver did not signal gameplay readiness", ready.isFile());
+            assertTrue(ready.delete());
         }
         // Sample only the central game area, never the menu or chrome animation.
         assertMovingFrames(context, "before-pause");
@@ -46,14 +58,26 @@ public class LcdNativeUiTest {
         }
         tap("Show game controls"); tap("Game menu"); tap("Exit game"); tap("Leave without saving");
         if (platform) tap("Finished");
-        } finally { assertTrue(ru.playsoftware.j2meloader.config.ProfilesManager.saveConfig(original)); }
+        } finally {
+            if (externalReady && ready.exists()) assertTrue(ready.delete());
+            assertTrue(ru.playsoftware.j2meloader.config.ProfilesManager.saveConfig(original));
+        }
     }
     private void assertMovingFrames(Context context, String name) throws Exception {
-        SystemClock.sleep(5500);
-        assertFixtureForeground(context);
-        Bitmap previous = ui.takeScreenshot(); assertNotNull(previous);
-        int changed = 0;
+        int heldKey = Integer.parseInt(InstrumentationRegistry.getArguments().getString("lcdFrameHeldKey", "0"));
+        long keyDown = SystemClock.uptimeMillis();
+        Bitmap previous = null;
+        boolean keyPressed = false;
         try {
+            assertFixtureForeground(context);
+            if (heldKey != 0) {
+                injectHeldKey(keyDown, heldKey, KeyEvent.ACTION_DOWN);
+                keyPressed = true;
+            }
+            SystemClock.sleep(5500);
+            assertFixtureForeground(context);
+            previous = ui.takeScreenshot(); assertNotNull(previous);
+            int changed = 0;
             for (int sample = 0; sample < 8; sample++) {
                 SystemClock.sleep(750);
                 assertFixtureForeground(context);
@@ -69,7 +93,14 @@ public class LcdNativeUiTest {
             }
             capture(context, name);
             assertTrue("Native game frames stopped: " + name + " (changed samples=" + changed + ")", changed >= 3);
-        } finally { previous.recycle(); }
+        } finally {
+            if (previous != null) previous.recycle();
+            if (keyPressed) injectHeldKey(keyDown, heldKey, KeyEvent.ACTION_UP);
+        }
+    }
+    private void injectHeldKey(long downTime, int code, int action) {
+        assertTrue(ui.injectInputEvent(new KeyEvent(downTime, SystemClock.uptimeMillis(), action,
+                code, 0, 0, -1, 0, 0, InputDevice.SOURCE_GAMEPAD), true));
     }
     private void assertFixtureForeground(Context context) {
         AccessibilityNodeInfo root = ui.getRootInActiveWindow();

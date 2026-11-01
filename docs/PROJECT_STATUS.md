@@ -37,6 +37,19 @@ remains canonical; game text and user content are not translated.
 
 ## Availability: Do Not Mix These Channels
 
+**Unreleased Symbian runtime repairs (2026-11-01):** duplicated file handles now
+keep independent cursors, without truncating created files or losing the donor
+on failure. Invalid adoption/internal lookup is guarded. Dynarmic no longer
+treats a cleared TLB slot as a valid zero-page mapping; unrecovered memory
+callbacks stop the translated block, with a correctly sized ARM64 halt load.
+Ten native ARM64 regression executables pass on Retroid, including an actual
+CPU fixture that crashed before the repair. On the final Debug APK, Snakes
+passes moving-frame checks across Resume, LCD Soft, LCD Classic and Original;
+15 focused LCD/session checks pass (six optional cases skipped). Asphalt reaches
+a race, but its post-Resume movement check fails and a second cold launch stalls
+before the menu. This is not a complete startup or #48 fix. The public APK is unchanged.
+[Verification, unsuccessful runs and limits](checks/2026-11-01-symbian-file-and-fault-safety.md).
+
 **Unreleased source work (2026-11-01, #48):** native LCD preset previews no longer
 query the paused guest. Nonblocking geometry snapshots preserve the last valid
 viewport, including touch fallback; malformed/oversized LCD grids are bounded.
