@@ -83,9 +83,26 @@ abyss_patch_source(drivers "src/audio/backend/cubeb/stream_cubeb.cpp" "${audio_o
 
 # Menu pause does not destroy the TextureView. Only surfaceDestroyed may detach it;
 # clearing it here leaves Resume rendering to EGL_NO_SURFACE until a real resize.
-abyss_patch_source(native-lib "src/thread.cpp"
+get_target_property(android_source_dir native-lib SOURCE_DIR)
+target_include_directories(native-lib PRIVATE "${CMAKE_CURRENT_SOURCE_DIR}")
+file(READ "${android_source_dir}/src/thread.cpp" thread_original)
+set(thread_patched "${thread_original}")
+abyss_replace_once(thread_patched "#include <android/thread.h>"
+    "#include <android/thread.h>\n#include \"pause_wait.h\"")
+abyss_replace_once(thread_patched
     "                state.graphics_driver->update_surface(nullptr);\n                state.pause_graphics_sema.wait();"
-    "                state.pause_graphics_sema.wait();")
+    "                abyssme::wait_for_resume(state.should_graphics_pause, state.should_emu_quit, state.pause_graphics_sema);")
+abyss_replace_once(thread_patched "                state.pause_sema.wait();"
+    "                abyssme::wait_for_resume(state.should_emu_pause, state.should_emu_quit, state.pause_sema);")
+abyss_replace_once(thread_patched [=[        state.should_emu_pause = false;
+        state.should_graphics_pause = false;
+        state.pause_graphics_sema.notify();
+        state.pause_sema.notify();]=]
+    [=[        abyssme::resume_worker(state.should_graphics_pause, state.pause_graphics_sema);
+        abyssme::resume_worker(state.should_emu_pause, state.pause_sema);]=])
+abyss_patch_source(native-lib "src/thread.cpp" "${thread_original}" "${thread_patched}")
+unset(thread_original)
+unset(thread_patched)
 # A resize acquires another native-window reference, even for the same Java Surface.
 abyss_patch_source(native-lib "src/native-lib.cpp" [=[    s_surf = ANativeWindow_fromSurface(env, surface);
     state->window->surface_changed(s_surf, width, height);]=] [=[    auto *previous_surface = s_surf;

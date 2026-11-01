@@ -37,6 +37,17 @@ remains canonical; game text and user content are not translated.
 
 ## Availability: Do Not Mix These Channels
 
+**Unreleased Symbian pause repair (2026-11-01):** repeated Resume callbacks no
+longer accumulate wakeups that can escape a newer pause. OS and graphics workers
+recheck pause/quit state after each wake. Ten native helper executables and the
+actual CPU/Dynarmic regression pass on Retroid. Final Debug Snakes passes moving
+frames across Resume and three LCD choices; 12 focused Android checks pass,
+including three restarts and background returns. N95/Asphalt cold launch still
+fails before pause in the new retry. This is a shared runtime fix, not a completed
+#48 compatibility fix. Only the separate Debug install changes; public assets
+are unchanged and were not revalidated in this follow-up.
+[Verification and limits](checks/2026-11-01-symbian-pause-wakeup.md).
+
 **Unreleased Symbian runtime repairs (2026-11-01):** duplicated file handles now
 keep independent cursors, without truncating created files or losing the donor
 on failure. Invalid adoption/internal lookup is guarded. Dynarmic no longer

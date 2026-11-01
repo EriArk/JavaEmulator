@@ -10,6 +10,21 @@ stated otherwise. **Experimental** in older checkpoints means local/private
 combined builds; released experimental features are explicitly identified.
 **Released** means an actual GitHub release asset.
 
+## 2026-11-01 - Symbian Pause and Resume Ownership (Public Source, Unreleased)
+
+- Prevent old or redundant Resume signals from letting the guest or graphics
+  worker continue through a newer pause. Recheck current state on every wake,
+  notify only on a paused-to-running transition, and retain stop-from-pause.
+- Add a native regression reproducing the old failure and checking stale
+  wakeups, repeated Resume, 200 threaded races and shutdown. Ten native helper
+  executables plus the actual CPU/Dynarmic regression pass on Retroid.
+- Snakes passes moving-frame checks before pause and after Resume, LCD Soft,
+  LCD Classic and Original. Twelve focused Android checks pass, including three
+  restarts and returns from Home. Update obsolete test menu routes to More.
+- Keep #48 open: N95/Asphalt still fails cold startup before pause. No game data,
+  firmware, public APK or release version is changed.
+  [Evidence and limits](docs/checks/2026-11-01-symbian-pause-wakeup.md).
+
 ## 2026-11-01 - Symbian File and Memory Fault Safety (Public Source, Unreleased)
 
 - Give duplicated Symbian file handles independent positions and lifetimes;

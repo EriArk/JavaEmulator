@@ -520,6 +520,7 @@ public final class SymbianSessionUiTest {
     private void assertPublishedGamePicture(int minimumColors) throws Exception {
         Set<Long> before=screenshots();
         click("Game menu"); waitNode("Resume",5000);
+        click("More");
         AccessibilityNodeInfo captureAction=null;
         for(AccessibilityNodeInfo node:ui.getRootInActiveWindow().findAccessibilityNodeInfosByText("Screenshot"))
             if(node.getText()!=null && "Screenshot".contentEquals(node.getText()))captureAction=node;
@@ -555,7 +556,7 @@ public final class SymbianSessionUiTest {
             // Startup logos can be monochrome; count guest pixels, not Android chrome.
             assertPublishedGamePicture(1);
             for (int attempt = 0; attempt < 3; attempt++) {
-                click("Game menu"); click("Restart game"); click("Restart");
+                click("Game menu"); click("More"); click("Restart game"); click("Restart");
                 waitNode("Game menu", 20000);
                 SystemClock.sleep(8000);
                 assertPublishedGamePicture(1);

@@ -4,6 +4,7 @@
 #include <android/log.h>
 #include <android/state.h>
 #include <android/thread.h>
+#include "pause_wait.h"
 #include <android/launcher.h>
 #include <common/android/jniutils.h>
 #include <common/android/storage.h>
@@ -665,7 +666,7 @@ Java_com_github_eka2l1_emu_Emulator_startSession(JNIEnv *, jclass) {
             state->symsys->loop();
             if (state->should_emu_pause && !state->should_emu_quit) {
                 state->symsys->pause();
-                state->pause_sema.wait();
+                abyssme::wait_for_resume(state->should_emu_pause, state->should_emu_quit, state->pause_sema);
                 state->symsys->unpause();
             }
         }

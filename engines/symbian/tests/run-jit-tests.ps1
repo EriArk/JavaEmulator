@@ -21,7 +21,7 @@ foreach ($library in @('src/emu/cpu/libcpu.a', 'src/emu/common/libcommon.a', 'sr
 $arguments += @('-Wl,--end-group', '-llog', '-ldl', '-landroid', '-o', $output)
 & $clang @arguments
 if ($LASTEXITCODE -ne 0) { throw 'JIT regression compilation failed' }
-& $adb -s $Serial push $output /data/local/tmp/abyss-jit-memory-test
+& $adb -s $Serial push -q $output /data/local/tmp/abyss-jit-memory-test
 if ($LASTEXITCODE -ne 0) { throw 'JIT test transfer failed' }
 & $adb -s $Serial shell chmod 700 /data/local/tmp/abyss-jit-memory-test
 if ($LASTEXITCODE -ne 0) { throw 'JIT test setup failed' }
