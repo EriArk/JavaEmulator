@@ -17,6 +17,10 @@ combined builds; released experimental features are explicitly identified.
   snapshot during contention and share it with touch/screenshot presentation.
 - Bound LCD line storage and reject non-finite geometry without removing valid
   LCD Soft/Classic choices or changing guest speed and imported phone data.
+- Preserve the native output surface during menu pause; only actual surface
+  destruction detaches it. A new Retroid Snakes check verifies changing frames
+  after Resume, Soft, Classic and Original. N95/Asphalt cold-start failures occur
+  before filtering and remain unresolved; no N95 after-pause pass is claimed.
 - Retroid checks pass: 21 focused Android cases, 3 Snakes menu/export scenarios,
   and native ARM64 regressions including deliberately busy geometry locks.
   The exact community N95/N-Gage 2.0 failure is not reproduced; #48 stays open.

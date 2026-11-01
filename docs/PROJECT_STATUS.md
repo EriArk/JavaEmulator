@@ -40,6 +40,10 @@ remains canonical; game text and user content are not translated.
 **Unreleased source work (2026-11-01, #48):** native LCD preset previews no longer
 query the paused guest. Nonblocking geometry snapshots preserve the last valid
 viewport, including touch fallback; malformed/oversized LCD grids are bounded.
+Menu pause also preserves the live native surface instead of queuing a detach
+that Resume does not reverse. A new Snakes moving-frame check passes across
+Resume / Soft / Classic / Original; N95/Asphalt startup failures prevented a
+passing equivalent check and remain separate from LCD acceptance.
 21 focused Android tests, 3 Snakes UI/export scenarios and native ARM64 checks
 pass on Retroid. The old build also passes the Snakes preset scenario: the
 community's exact N95/N-Gage 2.0 freeze is not reproduced and #48 remains open.

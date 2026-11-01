@@ -13,6 +13,70 @@ import static org.junit.Assert.*;
 
 public class LcdNativeUiTest {
     private UiAutomation ui;
+    @Test public void runningNativeFramesSurviveMenuPause() throws Exception {
+        Assume.assumeTrue("true".equals(InstrumentationRegistry.getArguments().getString("lcdRunningFrames")));
+        Context context = InstrumentationRegistry.getInstrumentation().getTargetContext();
+        ui = InstrumentationRegistry.getInstrumentation().getUiAutomation();
+        String title = InstrumentationRegistry.getArguments().getString("lcdNativeTitle", "Snakes");
+        SymbianLibraryIndex.Entry game = new SymbianLibraryIndex(context).read().stream()
+                .filter(e -> e.title.equals(title)).findFirst().orElse(null);
+        assertNotNull("Provision the private animated fixture", game);
+        boolean platform = "true".equals(InstrumentationRegistry.getArguments().getString("lcdViaPlatform"));
+        ru.playsoftware.j2meloader.config.ProfileModel original = SymbianGameSettings.load(context.getFilesDir(), game.system,
+                platform ? GameInstallFlow.PLATFORM_UID : game.uid);
+        try {
+        if (platform) new SymbianRuntimeTest().prepareModernLcdFixture();
+        else {
+        context.startActivity(new Intent(context, SymbianActivity.class)
+                .addFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK)
+                .putExtra(SymbianLibraryIndex.SYSTEM_EXTRA, game.system)
+                .putExtra(SymbianLibraryIndex.UID_EXTRA, game.uid));
+        await("Show game controls", 60000);
+        // Allow the external fixture driver to enter gameplay before sampling.
+        SystemClock.sleep(Long.parseLong(InstrumentationRegistry.getArguments().getString("lcdFrameSetupMillis", "15000")));
+        }
+        // Sample only the central game area, never the menu or chrome animation.
+        assertMovingFrames(context, "before-pause");
+        for (String preset : new String[]{"Resume", "LCD Soft", "LCD Classic", "Original"}) {
+            tap("Show game controls"); tap("Game menu");
+            if (!preset.equals("Resume")) { tap("Display"); tap(preset); tap("Keep"); }
+            SystemClock.sleep(1500);
+            tap("Resume");
+            assertMovingFrames(context, "after-pause-" + preset.replace(' ', '-'));
+        }
+        tap("Show game controls"); tap("Game menu"); tap("Exit game"); tap("Leave without saving");
+        if (platform) tap("Finished");
+        } finally { assertTrue(ru.playsoftware.j2meloader.config.ProfilesManager.saveConfig(original)); }
+    }
+    private void assertMovingFrames(Context context, String name) throws Exception {
+        SystemClock.sleep(5500);
+        assertFixtureForeground(context);
+        Bitmap previous = ui.takeScreenshot(); assertNotNull(previous);
+        int changed = 0;
+        try {
+            for (int sample = 0; sample < 8; sample++) {
+                SystemClock.sleep(750);
+                assertFixtureForeground(context);
+                Bitmap current = ui.takeScreenshot(); assertNotNull(current);
+                int different = 0, total = 0;
+                for (int y = current.getHeight() / 4; y < current.getHeight() * 3 / 4; y += 4)
+                    for (int x = current.getWidth() / 3; x < current.getWidth() * 2 / 3; x += 4) {
+                        if (current.getPixel(x,y) != previous.getPixel(x,y)) different++;
+                        total++;
+                    }
+                if (different > total / 100) changed++;
+                previous.recycle(); previous = current;
+            }
+            capture(context, name);
+            assertTrue("Native game frames stopped: " + name + " (changed samples=" + changed + ")", changed >= 3);
+        } finally { previous.recycle(); }
+    }
+    private void assertFixtureForeground(Context context) {
+        AccessibilityNodeInfo root = ui.getRootInActiveWindow();
+        assertNotNull("Native fixture window closed", root);
+        assertEquals("Native fixture lost the foreground", context.getPackageName(), String.valueOf(root.getPackageName()));
+        assertNotNull("Native fixture returned to its library", find(root, "Show game controls"));
+    }
     @Test public void livePresetTilesRemainResponsiveWhileNativeGameIsPaused() throws Exception {
         Assume.assumeTrue("true".equals(InstrumentationRegistry.getArguments().getString("lcdNativePresets")));
         Context context = InstrumentationRegistry.getInstrumentation().getTargetContext();
@@ -68,7 +132,10 @@ public class LcdNativeUiTest {
     private AccessibilityNodeInfo await(String text,long timeout) {
         long end=SystemClock.uptimeMillis()+timeout;
         do {
-            AccessibilityNodeInfo node=find(ui.getRootInActiveWindow(),text);
+            AccessibilityNodeInfo root=ui.getRootInActiveWindow();
+            String target=InstrumentationRegistry.getInstrumentation().getTargetContext().getPackageName();
+            AccessibilityNodeInfo node=root != null && target.contentEquals(root.getPackageName() == null ? "" : root.getPackageName())
+                    ? find(root,text) : null;
             if(node!=null) return node;
             SystemClock.sleep(100);
         } while(SystemClock.uptimeMillis()<end);

@@ -77,3 +77,60 @@ not physical-button testing. No new release asset, source tag or version code
 was published for this batch. Public release state was rechecked on 2026-11-01:
 the existing page still contains 0.7.0 Beta 1 Revision 1 (code 314).
 Retroid was returned to the unchanged official app's library after testing.
+
+## Follow-up: Preserve the Surface Across Menu Pause
+
+A second shared defect was found in the pinned Android graphics display hook:
+when `should_graphics_pause` was set, it queued `update_surface(nullptr)` before
+waiting. Menu pause leaves the TextureView alive, and `start_threads()` does not
+reattach it. A later swapchain bind could therefore consume the null surface
+without a matching resize/attach event. The generated `thread.cpp` patch removes
+that detach from pause. Real `surfaceDestroyed()` still pauses, releases the
+native-window reference and queues the null surface; its behavior is unchanged.
+This is a source-identified failure path, not a reproduced community incident.
+
+Follow-up verification on the same Retroid / separate Debug package:
+
+- Combined Debug/AndroidTest build passes (4m24s); final test-only build passes
+  (4s). FFmpeg's local build required the existing MSYS utilities on PATH.
+- A new opt-in moving-frame test passes on Snakes (86.531s). It samples the
+  central game area before pause and after Resume, LCD Soft, LCD Classic and
+  Original. Each phase requires changes in at least three of eight samples;
+  menu/chrome animation is excluded. This run uses the animated Snakes menu,
+  not a completed level or an FPS benchmark. Captures are local under
+  `build/issue48/pause-fixed-snakes/`.
+- All eight native ARM64 test executables pass again, including geometry locks,
+  audio/speed, frame-rate, capture, card identity and file-transfer checks.
+- The UI test now rejects another package's foreground window, so a guest exit
+  cannot silently continue testing the separately installed official app.
+- A broader UI run exposed outdated FPS/restart test routes. Update them to
+  enter Display > Performance & advanced before choosing the frame limit and
+  More before Restart game; production navigation is unchanged.
+- The final combined Android run completes without failures in 43.472s:
+  `OK (26 tests)`, comprising 20 executed cases and six unrequested opt-in
+  fixtures skipped by assumptions. It covers LCD geometry, cached previews,
+  touch ownership, fast-forward/focus state, per-game settings, restart/undo,
+  system-file guidance and live Snakes presets including Home/return.
+  Log: `build/issue48/pause-final-focused-tests.log`.
+
+### N95 / N-Gage 2.0 Outcome
+
+The new opt-in private fixture reuses an isolated N95/RM-320 phone, installs the
+platform if absent, and can continue the normal pending-import route without
+replacing another pending job. No ROM or game is included in source control.
+
+Asphalt 3 installed and reached a moving race with LCD Classic through the
+N-Gage platform on the earlier Debug APK. This does not reproduce #48. Direct
+cold launch on the updated APK instead exits the guest before any filter change:
+the native log records KERN-EXEC 3 / a read at address 0x8. The guarded test
+correctly fails when the Debug window disappears. A subsequent platform-route
+attempt also fails the pre-pause animation check (only two changing samples),
+so **there is no passing N95 after-pause regression result** in this follow-up.
+Keep startup/bootstrap investigation separate from LCD acceptance; do not
+present either failure as proof that the LCD preset caused it.
+
+Local evidence: `build/issue48/n95-cold-failure.log`,
+`n95-frames-fixed.log`, `n95-platform-frames-fixed.log`,
+`n95-race-before.png` and `n95-baseline-moving-*.png`.
+The official APK and phone data were not replaced or cleared. No release asset
+or version change is made by this follow-up; #48 remains open.

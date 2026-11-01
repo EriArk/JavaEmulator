@@ -414,12 +414,13 @@ public final class SymbianSessionUiTest {
             assertEquals(30,com.github.eka2l1.emu.Emulator.getFrameRateLimit());
             click("Undo"); assertEquals(15,com.github.eka2l1.emu.Emulator.getFrameRateLimit());
             instrumentation.runOnMainSync(() -> current[0].showMenu());
-            click("Display"); click("Frame rate limit"); click("Unlimited"); click("Try changes");
+            click("Display"); click(context.getString(ru.playsoftware.j2meloader.R.string.game_performance_advanced));
+            click("Frame rate limit"); click("Unlimited"); click("Try changes");
             waitNode("Keep",5000); assertEquals(0,com.github.eka2l1.emu.Emulator.getFrameRateLimit());
             click("Keep");
             assertEquals(0,ProfilesManager.loadConfig(current[0].profile.dir).getNativeFpsLimit());
             instrumentation.runOnMainSync(() -> current[0].showMenu());
-            click("Restart game"); click("Cancel");
+            click("More"); click("Restart game"); click("Cancel");
             assertFalse(events.contains("restart"));
             instrumentation.runOnMainSync(() -> {
                 ProfilesManager.beginPreview(current[0].profile);

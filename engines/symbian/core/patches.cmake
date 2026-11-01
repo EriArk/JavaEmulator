@@ -81,6 +81,11 @@ abyss_replace_once(audio_patched "        if (cubeb_stream_start(stream_) == CUB
     "        if (rate_) rate_->reset();\n        if (cubeb_stream_start(stream_) == CUBEB_OK) {")
 abyss_patch_source(drivers "src/audio/backend/cubeb/stream_cubeb.cpp" "${audio_original}" "${audio_patched}")
 
+# Menu pause does not destroy the TextureView. Only surfaceDestroyed may detach it;
+# clearing it here leaves Resume rendering to EGL_NO_SURFACE until a real resize.
+abyss_patch_source(native-lib "src/thread.cpp"
+    "                state.graphics_driver->update_surface(nullptr);\n                state.pause_graphics_sema.wait();"
+    "                state.pause_graphics_sema.wait();")
 # A resize acquires another native-window reference, even for the same Java Surface.
 abyss_patch_source(native-lib "src/native-lib.cpp" [=[    s_surf = ANativeWindow_fromSurface(env, surface);
     state->window->surface_changed(s_surf, width, height);]=] [=[    auto *previous_surface = s_surf;

@@ -15,6 +15,56 @@ import org.junit.Assume;
 import static org.junit.Assert.*;
 
 public final class SymbianRuntimeTest {
+    @Test public void prepareModernLcdFixture() throws Exception {
+        Assume.assumeTrue("true".equals(InstrumentationRegistry.getArguments().getString("modernLcdFixture")));
+        Context context = InstrumentationRegistry.getInstrumentation().getTargetContext();
+        assertTrue("Private fixture setup is debug-only", context.getPackageName().endsWith(".debug"));
+        SystemFileCatalog catalog = new SystemFileCatalog(context);
+        SystemFileCatalog.Entry phone = catalog.add(context,
+                java.util.Collections.singletonList(permittedInput(context, "n95.zip")));
+        assertEquals("RM-320", phone.firmware);
+        try (GameImport game = GameImport.inspect(permittedInput(context, "asphalt3.n-gage"))) {
+            Emulator.prepare(catalog.runtime(phone).getAbsolutePath());
+            if (!java.util.Arrays.asList(Emulator.getCatalogApps()).contains("536902457")) {
+                assertEquals(0, Emulator.installApp(permittedInput(context, "ngage2.sis").getAbsolutePath()));
+                Emulator.prepare(catalog.runtime(phone).getAbsolutePath());
+            }
+            assertTrue(java.util.Arrays.asList(Emulator.getCatalogApps()).contains("536902457"));
+            String[] apps = Emulator.getLibraryApps();
+            boolean installed = false;
+            for (int i = 0; i + 2 < apps.length; i += 3)
+                installed |= apps[i + 1].toLowerCase(java.util.Locale.ROOT).contains("asphalt");
+            if (!installed) {
+                File drive = new File(Emulator.driveE());
+                String name = game.hash + ".n-gage";
+                File destination = new File(drive, "n-gage/" + name);
+                if (!destination.exists()) SymbianFiles.stageCardPackage(catalog.runtime(phone), drive, game.file, name);
+                assertEquals(game.hash, SystemFileCatalog.hash(destination));
+            }
+            if ("true".equals(InstrumentationRegistry.getArguments().getString("openModernPlatform"))) {
+                PendingGameImport pending = new PendingGameImport(new File(context.getFilesDir(), "symbian-game-import"));
+                if (pending.exists()) {
+                    assertEquals("Do not replace another import", game.hash, pending.read().hash);
+                    assertEquals(phone.id, pending.read().system);
+                    assertEquals(PendingGameImport.Step.GUEST, pending.read().step);
+                } else {
+                    pending.begin(game, "Asphalt 3");
+                    pending.update(pending.read(), phone.id, PendingGameImport.Step.GUEST);
+                }
+            }
+            catalog.bind(game.hash, phone);
+            new SymbianLibraryIndex(context).publish(phone, apps, false);
+        } finally { Emulator.stopSession(); }
+        if ("true".equals(InstrumentationRegistry.getArguments().getString("openModernPlatform"))) {
+            context.startActivity(new Intent(context, SymbianActivity.class)
+                    .addFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK)
+                    .putExtra(SymbianLibraryIndex.SYSTEM_EXTRA, phone.id));
+            UiAutomation ui = InstrumentationRegistry.getInstrumentation().getUiAutomation();
+            waitText(ui, "Pending import", 30000);
+            clickExact(ui, "Pending import"); clickExact(ui, "Continue import");
+            SystemClock.sleep(Long.parseLong(InstrumentationRegistry.getArguments().getString("modernFixtureWait", "5000")));
+        }
+    }
     @Test public void retainedNgageImportOpensPlatformWithoutRestaging() throws Exception {
         Assume.assumeTrue("true".equals(InstrumentationRegistry.getArguments().getString("handoffUi")));
         Context context = InstrumentationRegistry.getInstrumentation().getTargetContext();
