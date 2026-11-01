@@ -23,6 +23,34 @@ public final class LibraryArchive {
 
     public LibraryArchive(AtomicBoolean cancelled) { this.cancelled = cancelled; }
 
+    interface Destination { OutputStream open() throws IOException; }
+
+    /** Do all source validation before opening (and potentially truncating) a provider document. */
+    int export(File root, List<AppItem> games, File cache, Destination destination) throws IOException {
+        File staged = File.createTempFile("library-export-", ".zip", cache);
+        try {
+            int count;
+            try (OutputStream output = new FileOutputStream(staged)) {
+                count = write(root, games, output);
+            }
+            check();
+            try (InputStream input = new FileInputStream(staged);
+                 OutputStream output = destination.open()) {
+                if (output == null) throw new IOException("Cannot write backup");
+                byte[] buffer = new byte[65536];
+                int n;
+                while ((n = input.read(buffer)) != -1) {
+                    check();
+                    output.write(buffer, 0, n);
+                }
+                output.flush();
+            }
+            return count;
+        } finally {
+            if (!staged.delete()) staged.deleteOnExit();
+        }
+    }
+
     public int write(File root, List<AppItem> games, OutputStream output) throws IOException {
         bytes = 0; files = 0;
         JsonObject manifest = new JsonObject(), hashes = new JsonObject(), catalog = new JsonObject();

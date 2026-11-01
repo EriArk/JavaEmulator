@@ -114,6 +114,78 @@ public class CompactSettingsTest {
             });
         }
     }
+
+    @Test public void partialResultOffersReviewBeforeRetryAndSurvivesRecreation() {
+        LibraryImporter.Preview remaining = new LibraryImporter.Preview();
+        LibraryImporter.Entry entry = new LibraryImporter.Entry();
+        entry.title = "Sudoku"; entry.vendor = "Test"; entry.version = "1";
+        entry.selected = true; entry.hasSaves = true; remaining.entries.add(entry);
+        try (ActivityScenario<LibraryImportActivity> scenario = ActivityScenario.launch(LibraryImportActivity.class)) {
+            scenario.onActivity(activity -> new ViewModelProvider(activity).get(LibraryImportModel.class).state.setValue(
+                    new LibraryImportModel.State(false, "Finished. 1 imported, 1 failed", 2, 2, remaining,
+                            Arrays.asList("First game\nImported with saves", "Sudoku\nSource could not be read"))));
+            idle(); scenario.recreate(); idle();
+            scenario.onActivity(activity -> {
+                View root = activity.getWindow().getDecorView();
+                assertTrue(find(root, "Retry").isShown()); assertTrue(find(root, "Done").isShown());
+                assertFalse(find(root, "Select all").isShown());
+            });
+            capture("transfer-partial-result.png");
+            scenario.onActivity(activity -> click(activity.getWindow().getDecorView(), "Retry"));
+            idle();
+            scenario.onActivity(activity -> {
+                LibraryImportModel.State state = new ViewModelProvider(activity).get(LibraryImportModel.class).state.getValue();
+                assertFalse(state.busy); assertNull(state.results); assertSame(remaining, state.preview);
+                assertTrue(find(activity.getWindow().getDecorView(), "Import (1)").isEnabled());
+                assertFalse(find(activity.getWindow().getDecorView(), "Retry").isShown());
+            });
+            capture("transfer-retry-review.png");
+        }
+    }
+
+    @Test public void sharedOnlyRetryRemainsAvailableWithoutGameSelection() {
+        LibraryImporter.Preview remaining = new LibraryImporter.Preview(); remaining.sharedFiles = true;
+        try (ActivityScenario<LibraryImportActivity> scenario = ActivityScenario.launch(LibraryImportActivity.class)) {
+            scenario.onActivity(activity -> {
+                new ViewModelProvider(activity).get(LibraryImportModel.class).state.setValue(
+                        new LibraryImportModel.State(false, "Shared files could not be copied", 1, 1,
+                                remaining, Arrays.asList("Fixture\nImported with saves")));
+                click(activity.getWindow().getDecorView(), "Retry");
+            });
+            idle();
+            scenario.onActivity(activity -> {
+                View root = activity.getWindow().getDecorView();
+                String shared = activity.getString(R.string.transfer_shared_files);
+                assertTrue(find(root, shared).isShown()); assertTrue(find(root, shared).isEnabled());
+                assertFalse(find(root, "Select all").isShown());
+            });
+        }
+    }
+
+    @Test public void cancelledEmptyResultDoesNotRenderPendingGamesAsResultRows() {
+        LibraryImporter.Preview remaining = new LibraryImporter.Preview();
+        LibraryImporter.Entry entry = new LibraryImporter.Entry(); entry.title = "Pending"; entry.selected = true;
+        remaining.entries.add(entry);
+        try (ActivityScenario<LibraryImportActivity> scenario = ActivityScenario.launch(LibraryImportActivity.class)) {
+            scenario.onActivity(activity -> new ViewModelProvider(activity).get(LibraryImportModel.class).state.setValue(
+                    new LibraryImportModel.State(false, "Stopped", 0, 1, remaining, java.util.Collections.emptyList())));
+            idle();
+            scenario.onActivity(activity -> {
+                assertEquals(0, recycler(activity.findViewById(R.id.settings_content)).getAdapter().getItemCount());
+                assertTrue(find(activity.getWindow().getDecorView(), "Retry").isShown());
+            });
+        }
+    }
+
+    private void capture(String name) {
+        android.graphics.Bitmap screenshot = InstrumentationRegistry.getInstrumentation().getUiAutomation().takeScreenshot();
+        assertNotNull(screenshot);
+        java.io.File file = new java.io.File(InstrumentationRegistry.getInstrumentation().getTargetContext().getExternalFilesDir(null), name);
+        try (java.io.FileOutputStream out = new java.io.FileOutputStream(file)) {
+            assertTrue(screenshot.compress(android.graphics.Bitmap.CompressFormat.PNG, 100, out));
+        } catch (java.io.IOException e) { throw new AssertionError(e); }
+        finally { screenshot.recycle(); }
+    }
     @Test public void folderAccessRecoverySurvivesRecreationAndShowsFullMessage() {
         android.net.Uri tree = android.provider.DocumentsContract.buildTreeDocumentUri("fixture.library", "root");
         LibraryImporter.FolderAccessRequired request = new LibraryImporter.FolderAccessRequired(

@@ -30,6 +30,14 @@ saves are retained. Duplicate imports are skipped, and same-title variants are
 not silently substituted. Optional shared filesystem import copies missing
 files only and reports conflicts without replacing existing files.
 
+On unreleased `main`, a partially completed or canceled import retains its
+remaining selection. **Retry** opens that selection for review; **Import** or
+**Restore** starts the next attempt. Successfully transferred games are excluded,
+including their newer destination saves. A failed shared-files step can be retried
+on its own. This review survives Activity recreation; after process death the
+source is rescanned, not imported automatically. Closing the transfer screen or
+choosing a new source may require selecting the source again.
+
 ## Between AbyssME installations
 
 1. Exit the running game, then choose **Back up library** in Library transfer.
@@ -47,6 +55,15 @@ Archive paths, declared sizes and SHA-256 hashes are checked before preview.
 Malformed archives fail without installation. Limits: 2 GiB uncompressed,
 50,000 files, 16 MiB metadata. Export is blocked while this installation has an
 active Java game process. Third-party games should also be closed before import.
+
+On unreleased `main`, export first builds a complete ZIP in local cache, then
+opens the chosen document for writing. Source errors and cancellation during
+preparation cannot truncate or delete that document. Temporary free space for
+the ZIP is required. The app no longer deletes the chosen document on failure.
+Android document providers do not offer a universal atomic replacement: a write,
+close or cancellation failure during the final copy can still leave an incomplete
+output. Use a new filename and retain an earlier backup until the new ZIP opens
+successfully for restore preview.
 
 ## Verification and limits
 

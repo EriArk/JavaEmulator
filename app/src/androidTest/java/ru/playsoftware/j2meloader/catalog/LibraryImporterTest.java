@@ -256,6 +256,166 @@ public class LibraryImporterTest {
 		assertFalse(new File(destination, "converted").exists());
 	}
 
+	private LibraryImporter.Preview twoGames() throws Exception {
+		File second = new File(source, "converted/second-folder"); assertTrue(second.mkdirs());
+		for (String name : new String[]{"res.jar", "converted.dex.conf"})
+			Files.copy(new File(source, "converted/old-folder/" + name).toPath(), new File(second, name).toPath());
+		return importer.scan(DocumentFile.fromFile(source));
+	}
+
+	@Test public void partialBatchRetriesOnlyFailureAndPreservesCommittedSave() throws Exception {
+		LibraryImporter.Preview preview = twoGames();
+		LibraryImporter.Entry first = preview.entries.stream().filter(e -> e.hasSaves).findFirst().get();
+		File jar = new File(source, "converted/second-folder/res.jar");
+		byte[] original = Files.readAllBytes(jar.toPath());
+		Files.write(jar.toPath(), new byte[]{1, 2, 3});
+		LibraryImporter.BatchResult result = importer.importSelected(preview, false, (e, n, total) -> {});
+		assertEquals(1, result.imported); assertEquals(1, result.failed); assertEquals(2, result.processed());
+		assertEquals(1, result.remaining.entries.size()); assertTrue(result.canRetry());
+		assertFalse(result.remaining.entries.contains(first));
+		String id = catalog.bySource(first.sourceKey).getPath();
+		write(destination, "data/" + id + "/sudoku.rms", "new progress after import");
+		Files.write(jar.toPath(), original);
+		LibraryImporter.BatchResult retry = importer.importSelected(result.remaining, false, (e, n, total) -> {});
+		assertEquals(1, retry.imported); assertEquals(0, retry.failed); assertFalse(retry.canRetry());
+		assertEquals(id, catalog.bySource(first.sourceKey).getPath());
+		assertEquals("new progress after import", new String(Files.readAllBytes(
+				new File(destination, "data/" + id + "/sudoku.rms").toPath()), StandardCharsets.UTF_8));
+	}
+
+	@Test public void cancelledBatchRetriesUnprocessedEntriesOnly() throws Exception {
+		LibraryImporter.Preview preview = twoGames();
+		LibraryImporter.BatchResult result = importer.importSelected(preview, false, (e, n, total) -> {
+			if (n == 1) cancel.set(true);
+		});
+		assertEquals(1, result.imported); assertEquals(0, result.failed); assertEquals(1, result.processed());
+		assertEquals(1, result.remaining.entries.size());
+		cancel.set(false);
+		LibraryImporter.BatchResult retry = importer.importSelected(result.remaining, false, (e, n, total) -> {});
+		assertEquals(1, retry.imported); assertFalse(retry.canRetry());
+	}
+
+	@Test public void cancelledBeforeFirstEntryRetainsWholeSelection() throws Exception {
+		LibraryImporter.Preview preview = twoGames(); cancel.set(true);
+		LibraryImporter.BatchResult result = importer.importSelected(preview, false, (e, n, total) -> fail());
+		assertEquals(0, result.processed()); assertEquals(2, result.remaining.entries.size());
+		assertTrue(result.results.isEmpty()); assertTrue(result.canRetry());
+	}
+
+	@Test public void sharedFileFailureCanRetryWithoutReimportingGames() throws Exception {
+		write(source, "fs/c/shared.txt", "shared");
+		LibraryImporter.Preview preview = importer.scan(DocumentFile.fromFile(source));
+		// An unsupported link fails the shared phase after the game is committed.
+		write(destination, "shared-target/keep.txt", "keep original");
+		Files.createSymbolicLink(new File(destination, "fs").toPath(), new File(destination, "shared-target").toPath());
+		LibraryImporter.BatchResult result = importer.importSelected(preview, true, (e, n, total) -> {});
+		assertEquals(1, result.imported); assertEquals(1, result.processed()); assertEquals(1, result.total);
+		assertNotNull(result.sharedFailure); assertTrue(result.canRetry());
+		assertTrue(result.remaining.entries.isEmpty()); assertTrue(result.remaining.sharedFiles);
+		assertTrue(new File(destination, "fs").delete());
+		LibraryImporter.BatchResult retry = importer.importSelected(result.remaining, true, (e, n, total) -> fail());
+		assertEquals(0, retry.processed()); assertNull(retry.sharedFailure); assertFalse(retry.canRetry());
+		assertEquals("shared", new String(Files.readAllBytes(new File(destination, "fs/c/shared.txt").toPath()), StandardCharsets.UTF_8));
+		assertEquals("keep original", new String(Files.readAllBytes(new File(destination, "shared-target/keep.txt").toPath()), StandardCharsets.UTF_8));
+	}
+
+	@Test public void stalePreviewDuplicateRejectedBeforeReadingSource() throws Exception {
+		LibraryImporter.Entry entry = entry(); importer.importEntry(entry);
+		String id = catalog.bySource(entry.sourceKey).getPath();
+		write(destination, "data/" + id + "/sudoku.rms", "keep newer save");
+		assertTrue(new File(source, "converted/old-folder/res.jar").delete());
+		try { importer.importEntry(entry); fail(); }
+		catch (java.io.IOException expected) { assertTrue(expected.getMessage().startsWith("Already imported")); }
+		assertEquals("keep newer save", new String(Files.readAllBytes(
+				new File(destination, "data/" + id + "/sudoku.rms").toPath()), StandardCharsets.UTF_8));
+	}
+
+	@Test public void failedGameDoesNotPublishSharedFilesButRetryCanRecoverBoth() throws Exception {
+		write(source, "fs/c/shared.txt", "shared");
+		LibraryImporter.Preview preview = importer.scan(DocumentFile.fromFile(source));
+		File jar = new File(source, "converted/old-folder/res.jar");
+		byte[] original = Files.readAllBytes(jar.toPath()); Files.write(jar.toPath(), new byte[]{0});
+		LibraryImporter.BatchResult result = importer.importSelected(preview, true, (e, n, total) -> {});
+		assertEquals(0, result.imported); assertEquals(1, result.failed);
+		assertTrue(result.remaining.sharedFiles); assertFalse(new File(destination, "fs").exists());
+		Files.write(jar.toPath(), original);
+		LibraryImporter.BatchResult retry = importer.importSelected(result.remaining, true, (e, n, total) -> {});
+		assertEquals(1, retry.imported); assertFalse(retry.canRetry());
+		assertEquals(1, retry.processed()); assertEquals(2, retry.results.size());
+		assertTrue(new File(destination, "fs/c/shared.txt").isFile());
+	}
+
+	private java.util.List<AppItem> backupGames() {
+		return java.util.Collections.singletonList(new AppItem("old-folder", "Fixture", "Tests", "1"));
+	}
+
+	private File exportCache() throws Exception {
+		return Files.createTempDirectory(context.getCacheDir().toPath(), "export-test-").toFile();
+	}
+
+	@Test public void failedBackupPreparationNeverOpensExistingDestination() throws Exception {
+		File cache = exportCache();
+		File target = new File(destination, "existing.zip"); Files.write(target.toPath(), new byte[]{9, 8, 7});
+		assertTrue(new File(source, "converted/old-folder/res.jar").delete());
+		try {
+			new LibraryArchive(cancel).export(source, backupGames(), cache, () -> {
+				fail("Destination must not be opened before successful preparation");
+				return new java.io.FileOutputStream(target);
+			}); fail();
+		} catch (java.io.IOException expected) { }
+		assertArrayEquals(new byte[]{9, 8, 7}, Files.readAllBytes(target.toPath()));
+		assertEquals(0, cache.list().length);
+	}
+
+	@Test public void cancelledBackupNeverOpensDestination() throws Exception {
+		File cache = exportCache(); cancel.set(true);
+		try {
+			new LibraryArchive(cancel).export(source, backupGames(), cache, () -> {
+				fail("Cancelled preparation must not open destination"); return null;
+			}); fail();
+		} catch (CancellationException expected) { }
+		assertEquals(0, cache.list().length);
+	}
+
+	@Test public void stagedBackupRoundTripIncludesSavesAndCleansTemporaryZip() throws Exception {
+		File cache = exportCache();
+		java.io.ByteArrayOutputStream output = new java.io.ByteArrayOutputStream();
+		assertEquals(1, new LibraryArchive(cancel).export(source, backupGames(), cache, () -> output));
+		assertEquals(0, cache.list().length);
+		File unpacked = new LibraryArchive(cancel).unpack(new java.io.ByteArrayInputStream(output.toByteArray()), cache);
+		assertEquals(SourceIdentity.sha256(new File(source, "data/old-folder/sudoku.rms")),
+				SourceIdentity.sha256(new File(unpacked, "data/old-folder/sudoku.rms")));
+		LibraryArchive.remove(unpacked);
+	}
+
+	@Test public void providerOpenFailureCleansStaging() throws Exception {
+		File cache = exportCache();
+		try {
+			new LibraryArchive(cancel).export(source, backupGames(), cache, () -> { throw new java.io.IOException("provider offline"); }); fail();
+		} catch (java.io.IOException expected) { assertEquals("provider offline", expected.getMessage()); }
+		assertEquals(0, cache.list().length);
+	}
+
+	@Test public void providerCloseFailureIsNotReportedAsSaved() throws Exception {
+		File cache = exportCache();
+		try {
+			new LibraryArchive(cancel).export(source, backupGames(), cache, () -> new java.io.ByteArrayOutputStream() {
+				@Override public void close() throws java.io.IOException { throw new java.io.IOException("commit failed"); }
+			}); fail();
+		} catch (java.io.IOException expected) { assertEquals("commit failed", expected.getMessage()); }
+		assertEquals(0, cache.list().length);
+	}
+
+	@Test public void providerWriteFailureCleansStagingAndReportsFailure() throws Exception {
+		File cache = exportCache();
+		try {
+			new LibraryArchive(cancel).export(source, backupGames(), cache, () -> new java.io.OutputStream() {
+				@Override public void write(int b) throws java.io.IOException { throw new java.io.IOException("storage full"); }
+			}); fail();
+		} catch (java.io.IOException expected) { assertEquals("storage full", expected.getMessage()); }
+		assertEquals(0, cache.list().length);
+	}
+
 	@Test public void missingJarIsReportedAndSharedFsIsNotSilentlyImported() throws Exception {
 		assertTrue(new File(source, "converted/old-folder/res.jar").delete());
 		write(source, "fs/c/shared.txt", "shared");

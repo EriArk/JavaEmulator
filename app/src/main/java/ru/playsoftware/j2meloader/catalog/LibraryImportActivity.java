@@ -33,6 +33,7 @@ public class LibraryImportActivity extends CompactSettingsActivity {
     private TextView homeStatus;
     private Button allowAccess;
     private Button start;
+    private Button retry;
     private CheckBox select;
     private ProgressBar progress;
     private ImageButton options;
@@ -130,6 +131,9 @@ public class LibraryImportActivity extends CompactSettingsActivity {
             adapter.notifyDataSetChanged(); updateSelection();
         });
         footer.addView(select, new LinearLayout.LayoutParams(0, -2, 1));
+        retry = button(getString(R.string.compatibility_test_retry), android.R.drawable.ic_menu_rotate,
+                () -> model.reviewRemaining());
+        footer.addView(retry, new LinearLayout.LayoutParams(0, -2, 1));
         start = button(getString(R.string.transfer_import), android.R.drawable.ic_media_play, this::startOrCancel);
         footer.addView(start, new LinearLayout.LayoutParams(0, -2, 1)); root.addView(footer);
         screenContent.addView(root);
@@ -196,7 +200,9 @@ public class LibraryImportActivity extends CompactSettingsActivity {
                 dialog.action(getString(R.string.transfer_add_saves), android.R.drawable.ic_menu_save, () -> { dialog.dismiss(); selectSinglePart(1); });
                 dialog.action(getString(R.string.transfer_add_settings), R.drawable.ic_baseline_tune_24, () -> { dialog.dismiss(); selectSinglePart(2); });
             }
-            if (current.preview.sharedFiles) dialog.toggle(getString(R.string.transfer_shared_files), includeShared, value -> includeShared = value);
+            if (current.preview.sharedFiles) dialog.toggle(getString(R.string.transfer_shared_files), includeShared, value -> {
+                includeShared = value; updateSelection();
+            });
         }
     }
     private void render(LibraryImportModel.State state) {
@@ -217,11 +223,12 @@ public class LibraryImportActivity extends CompactSettingsActivity {
         progress.setVisibility(state.busy ? View.VISIBLE : View.GONE);
         progress.setIndeterminate(state.total == 0);
         if (state.total > 0) { progress.setMax(state.total); progress.setProgress(state.completed); }
-        select.setVisibility(preview && !state.busy ? View.VISIBLE : View.GONE);
+        select.setVisibility(preview && !results && !state.busy && !state.preview.entries.isEmpty() ? View.VISIBLE : View.GONE);
+        retry.setVisibility(results && preview && !state.busy ? View.VISIBLE : View.GONE);
         adapter.entries = preview ? state.preview.entries : new ArrayList<>();
-        adapter.results = results ? state.results : new ArrayList<>();
+        adapter.results = results ? state.results : null;
         adapter.notifyDataSetChanged(); updateSelection();
-        int stage = state.busy ? 2 : preview ? 1 : results ? 3 : state.access != null ? 4 : 0;
+        int stage = state.busy ? 2 : results ? 3 : preview ? 1 : state.access != null ? 4 : 0;
         if (displayedStage != stage) { displayedStage = stage; focusContentWhenReady(); }
     }
     private void updateSelection() {
@@ -241,9 +248,10 @@ public class LibraryImportActivity extends CompactSettingsActivity {
         }
         updatingSelection = true; select.setChecked(available > 0 && count == available); updatingSelection = false;
         select.setEnabled(available > 0);
-        start.setText(count > 0 ? getString(restoring ? R.string.transfer_restore_count : R.string.transfer_import_count, count)
+        boolean sharedOnly = current.preview != null && current.preview.sharedFiles && adapter.entries.isEmpty() && includeShared;
+        start.setText(sharedOnly ? getString(R.string.transfer_shared_files) : count > 0 ? getString(restoring ? R.string.transfer_restore_count : R.string.transfer_import_count, count)
                 : getString(restoring ? R.string.transfer_restore : R.string.transfer_import));
-        start.setEnabled(count > 0);
+        start.setEnabled(count > 0 || sharedOnly);
     }
     private void startOrCancel() {
         if (current == null) return;
@@ -293,8 +301,8 @@ public class LibraryImportActivity extends CompactSettingsActivity {
     }
     private TextView text(int size, int color) { TextView view = new TextView(this); view.setTextSize(size); view.setTextColor(color); return view; }
     private final class Entries extends RecyclerView.Adapter<Row> {
-        List<LibraryImporter.Entry> entries = new ArrayList<>(); List<String> results = new ArrayList<>();
-        @Override public int getItemCount() { return results.isEmpty() ? entries.size() : results.size(); }
+        List<LibraryImporter.Entry> entries = new ArrayList<>(); List<String> results;
+        @Override public int getItemCount() { return results == null ? entries.size() : results.size(); }
         @Override public Row onCreateViewHolder(ViewGroup parent, int viewType) {
             LinearLayout row = new LinearLayout(LibraryImportActivity.this); row.setGravity(Gravity.CENTER_VERTICAL);
             row.setMinimumHeight(dp(64)); row.setPadding(0, dp(8), 0, dp(8)); row.setFocusable(true);
@@ -308,7 +316,8 @@ public class LibraryImportActivity extends CompactSettingsActivity {
         }
         @Override public void onBindViewHolder(Row row, int position) {
             row.check.setOnCheckedChangeListener(null);
-            if (!results.isEmpty()) {
+            row.itemView.setPadding(results != null ? dp(12) : 0, dp(8), dp(12), dp(8));
+            if (results != null) {
                 row.check.setVisibility(View.GONE); row.label.setText(results.get(position));
                 row.itemView.setOnClickListener(null); row.itemView.setFocusable(true); return;
             }

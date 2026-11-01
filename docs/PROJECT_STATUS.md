@@ -37,6 +37,18 @@ remains canonical; game text and user content are not translated.
 
 ## Availability: Do Not Mix These Channels
 
+**Unreleased library-transfer recovery (2026-11-01):** interrupted and partially
+failed Java/Mophun library transfers now retain the remaining selection for
+Retry > review > Import/Restore. Completed games and their newer destination
+saves are excluded; shared-file failures can be retried separately. Backup
+export prepares the ZIP locally before opening the selected document, and no
+longer deletes that document on failure. Thirty-nine focused Android checks pass
+on Retroid, including 15 new cases; final dark-theme result/retry screenshots were
+inspected. Final provider writes are not atomic;
+keep an earlier backup and use a new filename. See the
+[implementation and verification record](checks/2026-11-01-library-transfer-recovery.md).
+This is source/Debug work, not a new release or an EKA2L1 whole-library migration.
+
 **Unreleased shared workflow repairs (2026-11-01):** settings trials now count
 only active trial time, not menu/focus transitions or time in the background.
 Failed Java restart handoff preserves the running trial; rejected pre-launch

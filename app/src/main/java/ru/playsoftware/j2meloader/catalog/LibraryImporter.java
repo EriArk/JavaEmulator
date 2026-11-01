@@ -76,6 +76,52 @@ public final class LibraryImporter {
 		private DocumentFile shared;
 	}
 
+	static final class BatchResult {
+
+		final List<String> results = new ArrayList<>();
+		final Preview remaining = new Preview();
+		int imported, failed, total;
+		String sharedFailure;
+		int processed() { return imported + failed; }
+		boolean canRetry() { return !remaining.entries.isEmpty() || remaining.sharedFiles; }
+	}
+
+	interface Progress { void importing(Entry entry, int completed, int total); }
+
+	BatchResult importSelected(Preview source, boolean includeShared, Progress progress) {
+		BatchResult result = new BatchResult();
+		for (Entry entry : source.entries)
+			if (entry.selected && entry.problem == null) result.remaining.entries.add(entry);
+		result.total = result.remaining.entries.size();
+		result.remaining.shared = source.shared;
+		result.remaining.sharedFiles = includeShared && source.sharedFiles;
+		for (Entry entry : new ArrayList<>(result.remaining.entries)) {
+			if (cancelled.get()) break;
+			progress.importing(entry, result.processed(), result.total);
+			try {
+				result.results.add(entry.title + "\n" + importEntry(entry));
+				result.imported++;
+				result.remaining.entries.remove(entry);
+			} catch (CancellationException e) { break; }
+			catch (Exception e) {
+				result.failed++;
+				result.results.add(context.getString(ru.playsoftware.j2meloader.R.string.transfer_not_imported,
+						entry.title, e.getMessage()));
+			}
+		}
+		if (!cancelled.get() && result.remaining.sharedFiles && (result.imported > 0 || result.total == 0)) {
+			try {
+				result.results.add(importSharedFiles(source));
+				result.remaining.sharedFiles = false;
+			} catch (Exception e) {
+				result.sharedFailure = context.getString(ru.playsoftware.j2meloader.R.string.transfer_not_imported,
+						context.getString(ru.playsoftware.j2meloader.R.string.transfer_shared_files), e.getMessage());
+				result.results.add(result.sharedFailure);
+			}
+		}
+		return result;
+	}
+
 	private static final long MAX_BYTES = 256L * 1024 * 1024;
 	private static final int MAX_FILES = 10000;
 	private static final Set<String> active = new HashSet<>();
@@ -247,6 +293,7 @@ public final class LibraryImporter {
 	public String importEntry(Entry entry) throws Exception {
 		checkCancelled();
 		if (entry.problem != null) throw new IOException(entry.problem);
+		if (catalog.bySource(entry.sourceKey) != null) throw new IOException("Already imported; no files replaced");
 		copied = 0; files = 0;
 		String transaction = "import-" + UUID.randomUUID();
 		String id = entry.nativeId == null ? transaction : entry.nativeId;
@@ -333,7 +380,13 @@ public final class LibraryImporter {
 			// A pending marker is kept if cleanup fails so startup can retry safely.
 			synchronized (LibraryImporter.class) {
 				try {
-					if (committed || !new File(stage, "pending").exists() || !hasPublished(destination, id)) delete(stage);
+					if (committed || !new File(stage, "pending").exists() || !hasPublished(destination, id)) {
+						try { delete(stage); }
+						catch (IOException e) {
+							if (!committed) throw e;
+							android.util.Log.w("LibraryImporter", "Committed import; staging cleanup will retry at startup", e);
+						}
+					}
 				} finally { active.remove(transaction); }
 			}
 		}

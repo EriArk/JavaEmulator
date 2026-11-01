@@ -10,6 +10,24 @@ stated otherwise. **Experimental** in older checkpoints means local/private
 combined builds; released experimental features are explicitly identified.
 **Released** means an actual GitHub release asset.
 
+## 2026-11-01 - Safer Backups and Retryable Library Transfers (Public Source, Unreleased)
+
+- Retry only failed or unprocessed games after a partial import or cancellation.
+  Review the remaining selection before continuing; completed games and newer
+  destination saves are not reimported. A failed shared-files step can be retried
+  separately, without selecting games again.
+- Prepare backup ZIPs in local cache before opening the chosen document. Source
+  validation/cancellation failures no longer truncate or delete an existing
+  document. Final provider-write failures remain possible; retain an earlier
+  backup until the new archive has been checked.
+- Keep progress counts scoped to games rather than extra shared-file result
+  rows. Reject duplicate-source retries before copying/conversion, and do not
+  report a committed import as failed solely because staging cleanup failed.
+- Preserve the result/review distinction across screen recreation and an early
+  cancellation with no completed games. Reuse the existing localized actions.
+- Evidence and limits: [transfer recovery checks](docs/checks/2026-11-01-library-transfer-recovery.md).
+  No release APK, firmware, game payload or signing material is published here.
+
 ## 2026-11-01 - Reliable Trials, Restart and Menu Cancellation (Public Source, Unreleased)
 
 - Preserve the full settings-trial time when opening menus, losing focus or

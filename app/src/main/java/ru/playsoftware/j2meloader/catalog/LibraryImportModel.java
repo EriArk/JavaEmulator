@@ -9,7 +9,6 @@ import androidx.lifecycle.AndroidViewModel;
 import androidx.lifecycle.MutableLiveData;
 
 import java.io.File;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.CancellationException;
 import java.util.concurrent.ExecutorService;
@@ -196,33 +195,38 @@ public class LibraryImportModel extends AndroidViewModel {
 	public void start(boolean includeSharedFiles) {
 		if (busy || preview == null) return;
 		LibraryImporter.Preview source = preview;
-		List<LibraryImporter.Entry> selected = new ArrayList<>();
-		for (LibraryImporter.Entry entry : preview.entries) if (entry.selected && entry.problem == null) selected.add(entry);
-		if (selected.isEmpty()) return;
+		int selected = 0;
+		for (LibraryImporter.Entry entry : source.entries) if (entry.selected && entry.problem == null) selected++;
+		if (selected == 0 && !(includeSharedFiles && source.sharedFiles && source.entries.isEmpty())) return;
 		busy = true; cancelled.set(false);
-		state.setValue(new State(true, getApplication().getString(R.string.transfer_prepare), 0, selected.size(), null, null));
+		state.setValue(new State(true, getApplication().getString(R.string.transfer_prepare), 0, selected, null, null));
 		executor.execute(() -> {
-			List<String> results = new ArrayList<>();
-			int imported = 0;
-			for (LibraryImporter.Entry entry : selected) {
-				if (cancelled.get()) break;
-				state.postValue(new State(true, getApplication().getString(R.string.transfer_importing, entry.title), results.size(), selected.size(), null, null));
-				try {
-					results.add(entry.title + "\n" + importer.importEntry(entry)); imported++;
-				} catch (CancellationException e) { break; }
-				catch (Exception e) { results.add(getApplication().getString(R.string.transfer_not_imported, entry.title, e.getMessage())); }
+			try {
+				LibraryImporter.BatchResult result = importer.importSelected(source, includeSharedFiles,
+						(entry, completed, total) -> state.postValue(new State(true,
+								getApplication().getString(R.string.transfer_importing, entry.title), completed, total, null, null)));
+				preview = result.canRetry() ? result.remaining : null;
+				if (preview == null) try { cleanBackup(); } catch (java.io.IOException ignored) { }
+				String summary = getApplication().getString(cancelled.get() ? R.string.transfer_stopped : R.string.transfer_finished,
+						result.imported, result.failed, result.total - result.processed());
+				if (result.sharedFailure != null) summary += "\n" + result.sharedFailure;
+				busy = false;
+				state.postValue(new State(false, summary, result.processed(), result.total, preview, result.results));
+			} catch (Exception e) {
+				busy = false;
+				scanFailed(e);
 			}
-			int processed = results.size(), failed = processed - imported;
-			if (!cancelled.get() && imported > 0 && includeSharedFiles && source.sharedFiles) {
-				try { results.add(importer.importSharedFiles(source)); }
-				catch (Exception e) { results.add(e.getMessage()); }
-			}
-			state.postValue(new State(false, getApplication().getString(cancelled.get() ? R.string.transfer_stopped : R.string.transfer_finished,
-					imported, failed, selected.size() - processed),
-					results.size(), selected.size(), null, results));
-			preview = null; busy = false;
-			try { cleanBackup(); } catch (java.io.IOException ignored) { }
 		});
+	}
+
+	public void reviewRemaining() {
+		State current = state.getValue();
+		if (busy || current == null || current.preview == null) return;
+		preview = current.preview;
+		String label = preview.entries.isEmpty() ? getApplication().getString(R.string.transfer_shared_files)
+				: getApplication().getResources().getQuantityString(R.plurals.transfer_games_found,
+						preview.entries.size(), preview.entries.size());
+		state.setValue(new State(false, label, 0, 0, preview, null));
 	}
 
 	public void exportBackup(Uri uri) {
@@ -232,26 +236,24 @@ public class LibraryImportModel extends AndroidViewModel {
 		busy = true; cancelled.set(false); preview = null;
 		state.setValue(new State(true, getApplication().getString(R.string.transfer_saving), 0, 0, null, null));
 		executor.execute(() -> {
-			boolean success = false;
 			try {
 				cleanBackup();
 				android.app.ActivityManager manager = getApplication().getSystemService(android.app.ActivityManager.class);
-				for (android.app.ActivityManager.RunningAppProcessInfo process : manager.getRunningAppProcesses())
+				List<android.app.ActivityManager.RunningAppProcessInfo> processes = manager.getRunningAppProcesses();
+				if (processes != null) for (android.app.ActivityManager.RunningAppProcessInfo process : processes)
 					if (process.processName.equals(getApplication().getPackageName() + ":midlet"))
 						throw new java.io.IOException(getApplication().getString(R.string.transfer_exit_before_backup));
-				int count;
-				try (java.io.OutputStream out = getApplication().getContentResolver().openOutputStream(uri, "wt")) {
+				int count = new LibraryArchive(cancelled).export(new File(Config.getEmulatorDir()),
+						repository.getAll().firstOrError().blockingGet(), getApplication().getCacheDir(), () -> {
+					java.io.OutputStream out = getApplication().getContentResolver().openOutputStream(uri, "wt");
 					if (out == null) throw new java.io.IOException(getApplication().getString(R.string.transfer_cannot_write_backup));
-					count = new LibraryArchive(cancelled).write(new File(Config.getEmulatorDir()),
-							repository.getAll().firstOrError().blockingGet(), out);
-				}
-				success = true;
+					return out;
+				});
+				busy = false;
 				state.postValue(new State(false, getApplication().getResources().getQuantityString(R.plurals.transfer_backup_saved, count, count), 0, 0, null, null));
 			} catch (Exception e) {
-				state.postValue(new State(false, getApplication().getString(R.string.transfer_backup_failed, e.getMessage()), 0, 0, null, null));
-			} finally {
-				if (!success) try { android.provider.DocumentsContract.deleteDocument(getApplication().getContentResolver(), uri); } catch (Exception ignored) { }
 				busy = false;
+				state.postValue(new State(false, getApplication().getString(R.string.transfer_backup_failed, e.getMessage()), 0, 0, null, null));
 			}
 		});
 	}
