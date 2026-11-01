@@ -931,11 +931,9 @@ public class ConfigActivity extends BaseActivity implements View.OnClickListener
 						return;
 					}
 					try {
-						SettingsTrial.stage(params);
-						undo.run();
+						SettingsTrial.launch(params, () -> { undo.run(); startMIDlet(); });
 						needShow = false;
-						startMIDlet();
-					} catch (IOException e) {
+					} catch (IOException | RuntimeException e) {
 						undo.run();
 						Toast.makeText(this, R.string.display_save_failed, Toast.LENGTH_LONG).show();
 					}

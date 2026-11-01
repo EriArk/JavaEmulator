@@ -21,6 +21,51 @@ import ru.playsoftware.j2meloader.R;
 import static org.junit.Assert.*;
 
 public class GameMenuLayoutTest {
+    @Test public void busyPageCannotBeDismissedByControllerTouchOrSystemBack() {
+        withActivity((instrumentation, activity) -> instrumentation.runOnMainSync(() -> {
+            GameMenuDialog menu = testMenu(activity, "Fixture");
+            AtomicInteger cancelled = new AtomicInteger(), backs = new AtomicInteger();
+            menu.setCancelable(false); menu.setOnCancelListener(d -> cancelled.incrementAndGet()); menu.show();
+            try {
+                menu.page("Restarting");
+                View close = find(menu.getWindow().getDecorView(), "Close");
+                assertFalse(close.isEnabled());
+                close.performClick(); menu.onBackPressed();
+                for (int code : new int[]{KeyEvent.KEYCODE_BACK, KeyEvent.KEYCODE_BUTTON_B}) {
+                    menu.dispatchKeyEvent(new KeyEvent(KeyEvent.ACTION_DOWN, code));
+                    menu.dispatchKeyEvent(new KeyEvent(KeyEvent.ACTION_UP, code));
+                }
+                assertTrue(menu.isShowing()); assertEquals(0, cancelled.get());
+                menu.setBackAction(backs::incrementAndGet);
+                assertTrue(close.isEnabled()); menu.onBackPressed();
+                assertEquals(1, backs.get()); assertTrue(menu.isShowing());
+                menu.page("Ready"); menu.setCancelable(true);
+                assertTrue(close.isEnabled()); menu.onBackPressed();
+                assertFalse(menu.isShowing());
+            } finally { menu.dismiss(); }
+        }));
+    }
+
+    @Test public void cancelledControllerReleaseCannotConfirmOrNavigate() {
+        withActivity((instrumentation, activity) -> instrumentation.runOnMainSync(() -> {
+            GameMenuDialog menu = testMenu(activity, "Fixture"); menu.show();
+            AtomicInteger actions = new AtomicInteger(), backs = new AtomicInteger();
+            try {
+                menu.page("Confirmation");
+                Button action = menu.action("Restart", 0, actions::incrementAndGet);
+                menu.setBackAction(backs::incrementAndGet);
+                for (int code : new int[]{KeyEvent.KEYCODE_BUTTON_A, KeyEvent.KEYCODE_BUTTON_B, KeyEvent.KEYCODE_BACK}) {
+                    menu.dispatchKeyEvent(new KeyEvent(KeyEvent.ACTION_DOWN, code));
+                    menu.dispatchKeyEvent(KeyEvent.changeFlags(new KeyEvent(KeyEvent.ACTION_UP, code), KeyEvent.FLAG_CANCELED));
+                }
+                assertEquals(0, actions.get()); assertEquals(0, backs.get()); assertTrue(menu.isShowing());
+                action.setEnabled(false);
+                menu.dispatchKeyEvent(new KeyEvent(KeyEvent.ACTION_UP, KeyEvent.KEYCODE_BUTTON_A));
+                assertEquals("Disabled action must not be confirmed", 0, actions.get());
+            } finally { menu.dismiss(); }
+        }));
+    }
+
     @Test public void confirmationCentersWithoutDismissingOrLeakingIntoNextPage() {
         withActivity((instrumentation, activity) -> {
             GameMenuDialog[] dialog = {null};

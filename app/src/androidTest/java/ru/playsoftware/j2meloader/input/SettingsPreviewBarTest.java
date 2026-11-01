@@ -14,6 +14,62 @@ import org.junit.Test;
 import static org.junit.Assert.*;
 
 public class SettingsPreviewBarTest {
+    @Test public void repeatedMenuAndFocusTransitionsDoNotSpendTrialTime() {
+        main(() -> {
+            long[] now = {1000}; int[] undone = {0};
+            SettingsPreviewBar bar = new SettingsPreviewBar(context(false, 1), () -> {}, () -> undone[0]++, () -> now[0]);
+            try {
+                bar.start();
+                for (int n = 0; n < 50; n++) {
+                    bar.suspend(); now[0] += 60000; bar.suspend(); bar.resume(); bar.resume();
+                }
+                assertEquals("20s", ((TextView) bar.getChildAt(0)).getText().toString());
+                assertEquals(0, undone[0]);
+                now[0] += 19999; bar.suspend(); now[0] += 60000; bar.resume();
+                assertEquals("1s", ((TextView) bar.getChildAt(0)).getText().toString());
+                now[0]++; bar.suspend(); bar.resume();
+                assertEquals(1, undone[0]); assertEquals(View.GONE, bar.getVisibility());
+                bar.resume(); bar.suspend(); bar.resume();
+                assertEquals("Expiry runs once even when host does not stop the bar", 1, undone[0]);
+            } finally { bar.stop(); }
+        });
+    }
+
+    @Test public void restartingTrialResetsBudgetButStopCannotBeResumed() {
+        main(() -> {
+            long[] now = {0}; int[] undone = {0};
+            SettingsPreviewBar bar = new SettingsPreviewBar(context(false, 1), () -> {}, () -> undone[0]++, () -> now[0]);
+            try {
+                bar.start(); now[0] += 15000; bar.suspend(); bar.resume();
+                assertEquals("5s", ((TextView) bar.getChildAt(0)).getText().toString());
+                bar.start(); assertEquals("20s", ((TextView) bar.getChildAt(0)).getText().toString());
+                bar.stop(); now[0] += 60000; bar.resume();
+                assertEquals(View.GONE, bar.getVisibility()); assertEquals(0, undone[0]);
+            } finally { bar.stop(); }
+        });
+    }
+
+    @Test public void reattachingPreservesRunningOrSuspendedTrial() {
+        try (androidx.test.core.app.ActivityScenario<ru.playsoftware.j2meloader.MainActivity> scenario =
+                     androidx.test.core.app.ActivityScenario.launch(ru.playsoftware.j2meloader.MainActivity.class)) {
+            scenario.onActivity(activity -> {
+                long[] now = {0};
+                FrameLayout root = new FrameLayout(activity); activity.setContentView(root);
+                SettingsPreviewBar bar = new SettingsPreviewBar(activity, () -> {}, () -> {}, () -> now[0]);
+                bar.attachTo(root);
+                try {
+                    bar.start(); now[0] += 4000;
+                    root.removeView(bar); now[0] += 60000; bar.attachTo(root);
+                    assertEquals(View.VISIBLE, bar.getVisibility());
+                    assertEquals("16s", ((TextView) bar.getChildAt(0)).getText().toString());
+                    bar.suspend(); root.removeView(bar); now[0] += 60000; bar.attachTo(root);
+                    assertEquals(View.GONE, bar.getVisibility());
+                    bar.resume(); assertEquals("16s", ((TextView) bar.getChildAt(0)).getText().toString());
+                } finally { bar.stop(); }
+            });
+        }
+    }
+
     private void main(Runnable action) { InstrumentationRegistry.getInstrumentation().runOnMainSync(action); }
     private int dp(Context context, int value) { return Math.round(value * context.getResources().getDisplayMetrics().density); }
     private Context context(boolean dark, float fontScale) {

@@ -66,6 +66,13 @@ public class InstallerDialogTest {
                             .findViewById(R.id.installer_title)).getText().toString());
                     assertTrue(((TextView) dialog.requireDialog().findViewById(R.id.installer_message)).length() > 0);
                     assertFalse(dialog.requireDialog().findViewById(R.id.button_install).isShown());
+                    dialog.requireDialog().findViewById(R.id.button_close).requestFocusFromTouch();
+                    for (int code : new int[]{KeyEvent.KEYCODE_BUTTON_A, KeyEvent.KEYCODE_BUTTON_B, KeyEvent.KEYCODE_BACK}) {
+                        dialog.requireDialog().dispatchKeyEvent(new KeyEvent(KeyEvent.ACTION_DOWN, code));
+                        dialog.requireDialog().dispatchKeyEvent(KeyEvent.changeFlags(
+                                new KeyEvent(KeyEvent.ACTION_UP, code), KeyEvent.FLAG_CANCELED));
+                    }
+                    assertTrue("Interrupted key presses must preserve the error screen", dialog.requireDialog().isShowing());
                     key(dialog, KeyEvent.KEYCODE_BUTTON_B);
                 });
                 i.waitForIdleSync(); assertFalse(dialog.isAdded());

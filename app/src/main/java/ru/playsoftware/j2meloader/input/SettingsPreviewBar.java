@@ -17,20 +17,28 @@ public final class SettingsPreviewBar extends LinearLayout {
     private final Handler handler = new Handler(Looper.getMainLooper());
     private final TextView label;
     private final Runnable undo;
-    private int seconds;
+    private final java.util.function.LongSupplier clock;
+    private long remainingMillis;
+    private long deadline;
     private boolean active;
     private boolean suspended;
+    private boolean resumeOnAttach;
     private final Runnable tick = new Runnable() {
         public void run() {
-            if (seconds <= 0) { undo.run(); return; }
+            if (!active || suspended) return;
+            remainingMillis = Math.max(0, deadline - clock.getAsLong());
+            if (remainingMillis == 0) { stop(); undo.run(); return; }
+            int seconds = (int) ((remainingMillis + 999) / 1000);
             label.setText(getContext().getString(R.string.controls_preview_seconds, seconds));
             label.setContentDescription(getResources().getQuantityString(R.plurals.controls_preview_remaining, seconds, seconds));
-            seconds--;
-            handler.postDelayed(this, 1000);
+            handler.postDelayed(this, Math.min(1000, remainingMillis));
         }
     };
     public SettingsPreviewBar(Context context, Runnable keep, Runnable undo) {
-        super(context); this.undo = undo;
+        this(context, keep, undo, android.os.SystemClock::uptimeMillis);
+    }
+    SettingsPreviewBar(Context context, Runnable keep, Runnable undo, java.util.function.LongSupplier clock) {
+        super(context); this.undo = undo; this.clock = clock;
         setOrientation(HORIZONTAL); setGravity(Gravity.CENTER_VERTICAL);
         Configuration config = new Configuration(getResources().getConfiguration());
         config.uiMode = (config.uiMode & ~Configuration.UI_MODE_NIGHT_MASK) | Configuration.UI_MODE_NIGHT_YES;
@@ -64,13 +72,24 @@ public final class SettingsPreviewBar extends LinearLayout {
         button.setBackgroundTintList(null); button.setOnClickListener(v -> action.run());
         LayoutParams lp = new LayoutParams(dp(48), dp(48)); lp.setMarginStart(dp(4)); addView(button, lp);
     }
-    public void start() { stop(); active = true; seconds = 20; resume(); }
-    public void suspend() { suspended = true; handler.removeCallbacks(tick); setVisibility(GONE); }
+    public void start() { stop(); active = true; suspended = true; remainingMillis = 20000; resume(); }
+    public void suspend() {
+        if (active && !suspended) remainingMillis = Math.max(0, deadline - clock.getAsLong());
+        suspended = true; handler.removeCallbacks(tick); setVisibility(GONE);
+    }
     public void resume() {
         if (!active || (!suspended && getVisibility() == VISIBLE)) return;
-        suspended = false; setVisibility(VISIBLE); tick.run();
+        suspended = false; deadline = clock.getAsLong() + remainingMillis;
+        setVisibility(VISIBLE); tick.run();
     }
-    public void stop() { active = false; suspended = false; handler.removeCallbacks(tick); setVisibility(GONE); }
-    @Override protected void onDetachedFromWindow() { handler.removeCallbacks(tick); super.onDetachedFromWindow(); }
+    public void stop() { active = false; suspended = false; resumeOnAttach = false; handler.removeCallbacks(tick); setVisibility(GONE); }
+    @Override protected void onDetachedFromWindow() {
+        resumeOnAttach = active && !suspended;
+        suspend(); super.onDetachedFromWindow();
+    }
+    @Override protected void onAttachedToWindow() {
+        super.onAttachedToWindow();
+        if (resumeOnAttach) { resumeOnAttach = false; resume(); }
+    }
     private int dp(int value) { return Math.round(value * getResources().getDisplayMetrics().density); }
 }

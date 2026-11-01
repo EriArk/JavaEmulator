@@ -1188,8 +1188,8 @@ public class AppsListFragment extends Fragment implements AppsListAdapter.Listen
                 new ru.playsoftware.j2meloader.config.GameSettingsPages.Host() {
                     public void preview(ru.playsoftware.j2meloader.config.ProfileModel draft) {
                         try {
-                            ru.playsoftware.j2meloader.config.SettingsTrial.stage(draft);
-                            dialog.dismiss(); startApp(item, false);
+                            ru.playsoftware.j2meloader.config.SettingsTrial.launch(draft, () -> startApp(item, false));
+                            dialog.dismiss();
                         } catch (Exception error) { dialog.message(getString(R.string.library_settings_prepare_failed)); }
                     }
                     public void mapping(ru.playsoftware.j2meloader.config.ProfileModel draft, Runnable back) {

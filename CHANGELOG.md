@@ -10,6 +10,24 @@ stated otherwise. **Experimental** in older checkpoints means local/private
 combined builds; released experimental features are explicitly identified.
 **Released** means an actual GitHub release asset.
 
+## 2026-11-01 - Reliable Trials, Restart and Menu Cancellation (Public Source, Unreleased)
+
+- Preserve the full settings-trial time when opening menus, losing focus or
+  returning from the background. Reattached preview controls resume their
+  remaining budget instead of losing the timer; timeout fires once.
+- Keep Java's running trial intact when Restart/Undo cannot hand off to a new
+  process. Remove failed pre-launch drafts so a later normal Play does not
+  unexpectedly use them. Apply the shared cleanup to library-card settings,
+  standalone settings and the compatibility helper; keep launch errors visible.
+- Respect noncancelable menu states for touch close, controller B and system
+  Back. Ignore canceled key releases and disabled menu actions, including
+  interrupted installer confirmation/close presses.
+- Retroid: 79 focused Android checks plus three installed-game scenarios pass.
+  Absorbed covers speed/screen trials and restart; Deep Abyss covers speed trials
+  and exit; Snakes covers repeated restart/background return. These are bounded
+  UI/startup checks, not complete-game acceptance. No public APK/version change.
+  [Evidence and limits](docs/checks/2026-11-01-workflow-recovery.md).
+
 ## 2026-11-01 - Symbian Pause and Resume Ownership (Public Source, Unreleased)
 
 - Prevent old or redundant Resume signals from letting the guest or graphics

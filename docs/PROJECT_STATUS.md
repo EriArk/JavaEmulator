@@ -37,6 +37,17 @@ remains canonical; game text and user content are not translated.
 
 ## Availability: Do Not Mix These Channels
 
+**Unreleased shared workflow repairs (2026-11-01):** settings trials now count
+only active trial time, not menu/focus transitions or time in the background.
+Failed Java restart handoff preserves the running trial; rejected pre-launch
+handoffs remove their temporary settings file and retain a retryable UI.
+Controller/header Back respects noncancelable game-menu states, and canceled
+key releases cannot confirm actions or close the installer. On Retroid, 79
+focused checks and three installed-game scenarios pass (Absorbed, Deep Abyss,
+Snakes). No full-game or new compatibility claim; Asphalt/N95 work is deferred.
+Only the separate Debug app is updated; no public release assets change.
+[Evidence and limits](checks/2026-11-01-workflow-recovery.md).
+
 **Unreleased Symbian pause repair (2026-11-01):** repeated Resume callbacks no
 longer accumulate wakeups that can escape a newer pause. OS and graphics workers
 recheck pause/quit state after each wake. Ten native helper executables and the

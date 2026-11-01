@@ -40,6 +40,7 @@ public final class GameMenuDialog extends Dialog {
     private Runnable pageCleanup;
     private boolean picturePreview;
     private boolean confirmation;
+    private boolean cancelAllowed = true;
     private int layoutOrientation = -1;
     private int layoutWidth = -1;
     private int layoutHeight = -1;
@@ -226,16 +227,16 @@ public final class GameMenuDialog extends Dialog {
         updateWindowLayout();
         setOnKeyListener((d,key,event) -> {
             if (key == KeyEvent.KEYCODE_BUTTON_B || key == KeyEvent.KEYCODE_BACK) {
-                if (event.getAction() == KeyEvent.ACTION_UP) {
+                if (event.getAction() == KeyEvent.ACTION_UP && !event.isCanceled()) {
                     navigateBack();
                 }
                 return true;
             }
             if (key == KeyEvent.KEYCODE_BUTTON_A) {
-                if (event.getAction() == KeyEvent.ACTION_UP) {
+                if (event.getAction() == KeyEvent.ACTION_UP && !event.isCanceled()) {
                     View focus = getCurrentFocus();
                     if (pendingDefaultFocus != null || focus == null || !focus.isClickable()) focus = defaultAction;
-                    if (focus != null) focus.performClick();
+                    if (focus != null && focus.isShown() && focus.isEnabled()) focus.performClick();
                 }
                 return true;
             }
@@ -332,6 +333,7 @@ public final class GameMenuDialog extends Dialog {
     }
     public void setBackAction(Runnable action) {
         backAction = action;
+        navigation.setEnabled(action != null || cancelAllowed);
         navigation.setImageResource(action == null ? android.R.drawable.ic_menu_close_clear_cancel
                 : androidx.appcompat.R.drawable.abc_ic_ab_back_material);
         navigation.setContentDescription(getContext().getString(action == null ? R.string.menu_close : R.string.menu_back));
@@ -396,7 +398,16 @@ public final class GameMenuDialog extends Dialog {
             lp.setMargins(dp(3), 0, dp(3), 0); decisions.addView(button, lp);
         }
     }
-    private void navigateBack() { if (backAction != null) backAction.run(); else dismiss(); }
+    @Override public void setCancelable(boolean cancelable) {
+        super.setCancelable(cancelable);
+        cancelAllowed = cancelable;
+        if (navigation != null) navigation.setEnabled(backAction != null || cancelAllowed);
+    }
+    @Override public void onBackPressed() { navigateBack(); }
+    private void navigateBack() {
+        if (backAction != null) backAction.run();
+        else if (cancelAllowed) cancel();
+    }
     public android.widget.EditText textInput(String label, String value) {
         android.widget.EditText input = new android.widget.EditText(getContext());
         input.setSingleLine(true);

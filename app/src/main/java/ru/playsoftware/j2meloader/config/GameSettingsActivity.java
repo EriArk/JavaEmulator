@@ -44,9 +44,8 @@ public final class GameSettingsActivity extends AppCompatActivity {
         pages = new GameSettingsPages(menu, profile, false, !getIntent().getBooleanExtra("native_settings", false), new GameSettingsPages.Host() {
             public void preview(ProfileModel draft) {
                 try {
-                    SettingsTrial.stage(draft);
-                    Config.startApp(GameSettingsActivity.this, title, app.getPath(), false,
-                            getIntent().getStringExtra(KEY_START_ARGUMENTS));
+                    SettingsTrial.launch(draft, () -> Config.startApp(GameSettingsActivity.this, title, app.getPath(), false,
+                            getIntent().getStringExtra(KEY_START_ARGUMENTS)));
                     finish();
                 } catch (Exception e) { Toast.makeText(GameSettingsActivity.this, getString(ru.playsoftware.j2meloader.R.string.helper_settings_failed), Toast.LENGTH_LONG).show(); }
             }

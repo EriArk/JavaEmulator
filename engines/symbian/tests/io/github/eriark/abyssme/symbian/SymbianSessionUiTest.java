@@ -140,10 +140,11 @@ public final class SymbianSessionUiTest {
         if (controllerMenu) { SystemClock.sleep(5000); key(KeyEvent.KEYCODE_BACK, 80); }
         else { waitNode("Game menu", 20000); SystemClock.sleep(2500); click("Game menu"); }
         waitNode("Resume", 5000);
-        for (String label : new String[]{"Display", "Controls", "Screenshot", "More", "Exit game"})
+        for (String label : new String[]{"Display", "Controls", "More", "Exit game"})
             assertFalse(label, ui.getRootInActiveWindow().findAccessibilityNodeInfosByText(label).isEmpty());
         capture(screenshot);
-        click("More"); click("Back"); waitNode("Resume", 5000);
+        click("More"); waitNode("Screenshot", 5000); waitNode("Restart game", 5000);
+        click("Back"); waitNode("Resume", 5000);
         if ("true".equals(InstrumentationRegistry.getArguments().getString("fastForwardTrials"))) fastForwardTrials(screenshot);
         if ("true".equals(InstrumentationRegistry.getArguments().getString("unifiedControlsTrials"))) {
             for (String visibility : new String[]{"Always", "Off", "Auto"}) {
@@ -203,7 +204,7 @@ public final class SymbianSessionUiTest {
                 if (controllerMenu) key(KeyEvent.KEYCODE_BACK, 80); else click("Game menu");
                 waitNode("Resume", 5000);
             }
-            click("Restart game"); click("Restart"); SystemClock.sleep(8000);
+            click("More"); click("Restart game"); click("Restart"); SystemClock.sleep(8000);
             capture("java-trial-restarted.png");
             if (controllerMenu) key(KeyEvent.KEYCODE_BACK, 80); else click("Game menu");
             waitNode("Resume", 5000);

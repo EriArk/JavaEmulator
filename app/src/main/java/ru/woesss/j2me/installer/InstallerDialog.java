@@ -161,12 +161,12 @@ public class InstallerDialog extends DialogFragment {
 		btnRun = binding.buttonStart;
 		mDialog.setOnKeyListener((dialog, key, event) -> {
 			if (key == KeyEvent.KEYCODE_BUTTON_B || key == KeyEvent.KEYCODE_BACK) {
-				if (event.getAction() == KeyEvent.ACTION_UP && btnClose.isShown()) btnClose.performClick();
+				if (event.getAction() == KeyEvent.ACTION_UP && !event.isCanceled() && btnClose.isShown()) btnClose.performClick();
 				return true;
 			}
 			if (key == KeyEvent.KEYCODE_BUTTON_A) {
 				View focus = mDialog.getCurrentFocus();
-				if (event.getAction() == KeyEvent.ACTION_UP && focus != null && focus.isShown()
+				if (event.getAction() == KeyEvent.ACTION_UP && !event.isCanceled() && focus != null && focus.isShown()
 						&& focus.isEnabled() && focus.isClickable()) focus.performClick();
 				return true;
 			}

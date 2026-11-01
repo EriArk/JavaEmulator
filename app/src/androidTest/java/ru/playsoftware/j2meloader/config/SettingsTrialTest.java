@@ -37,6 +37,57 @@ public class SettingsTrialTest {
         ProfilesManager.undoPreview(model); assertEquals(240, model.screenWidth);
     }
 
+    @Test public void failedRestartHandoffRetainsRunningTrialAndConfirmedFile() throws Exception {
+        ProfilesManager.beginPreview(model); model.screenWidth = 128;
+        for (boolean newDraft : new boolean[]{false, true}) {
+            ProfileModel draft = newDraft ? ProfilesManager.copy(model) : null;
+            if (draft != null) draft.screenWidth = 176;
+            try {
+                SettingsTrial.prepareRestart(model, draft, () -> { throw new IllegalStateException("Handoff refused"); });
+                fail();
+            } catch (IllegalStateException expected) { }
+            assertTrue(ProfilesManager.isPreview(model)); assertEquals(128, model.screenWidth);
+            assertEquals(240, ProfilesManager.loadConfig(dir).screenWidth);
+            assertFalse(new File(dir, "settings-trial.json").exists());
+        }
+        ProfilesManager.undoPreview(model); assertEquals(240, model.screenWidth);
+    }
+
+    @Test public void acceptedRestartDiscardsTrialOnlyAfterHandoff() throws Exception {
+        ProfilesManager.beginPreview(model); model.screenWidth = 128;
+        SettingsTrial.prepareRestart(model, null, () -> {
+            assertTrue(ProfilesManager.isPreview(model)); assertEquals(128, model.screenWidth);
+        });
+        assertFalse(ProfilesManager.isPreview(model)); assertEquals(240, model.screenWidth);
+        assertEquals(240, ProfilesManager.loadConfig(dir).screenWidth);
+    }
+
+    @Test public void acceptedNewDraftIsClaimedOnceWithoutSavingRunningTrial() throws Exception {
+        ProfilesManager.beginPreview(model); model.screenWidth = 128;
+        ProfileModel draft = ProfilesManager.copy(model); draft.screenWidth = 176;
+        SettingsTrial.prepareRestart(model, draft, () -> assertTrue(new File(dir, "settings-trial.json").exists()));
+        assertTrue(ProfilesManager.isPreview(model)); assertEquals(128, model.screenWidth);
+        ProfileModel next = ProfilesManager.loadConfig(dir); SettingsTrial.claim(next);
+        assertEquals(176, next.screenWidth); assertTrue(ProfilesManager.isPreview(next));
+        ProfilesManager.undoPreview(next); assertEquals(240, next.screenWidth);
+        assertEquals(240, ProfilesManager.loadConfig(dir).screenWidth);
+        assertFalse(new File(dir, "settings-trial.json").exists());
+    }
+
+    @Test public void failedPrelaunchTrialCannotAffectLaterNormalLaunch() throws Exception {
+        ProfileModel draft = ProfilesManager.copy(model); draft.screenWidth = 128;
+        for (RuntimeException failure : new RuntimeException[]{new android.content.ActivityNotFoundException(), new SecurityException()}) {
+            try { SettingsTrial.launch(draft, () -> { throw failure; }); fail(); }
+            catch (RuntimeException expected) { assertSame(failure, expected); }
+            ProfileModel later = ProfilesManager.loadConfig(dir); SettingsTrial.claim(later);
+            assertEquals(240, later.screenWidth); assertFalse(ProfilesManager.isPreview(later));
+            assertEquals("User draft remains available for retry", 128, draft.screenWidth);
+        }
+        SettingsTrial.launch(draft, () -> {});
+        ProfileModel retried = ProfilesManager.loadConfig(dir); SettingsTrial.claim(retried);
+        assertEquals(128, retried.screenWidth); assertTrue(ProfilesManager.isPreview(retried));
+    }
+
     @Test public void touchThemeCanBeTriedUndoneAndKeptPerGame() {
         ProfilesManager.beginPreview(model); model.touchTheme = 1;
         assertFalse(ProfilesManager.previewNeedsRestart(model));

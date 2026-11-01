@@ -13,6 +13,26 @@ public final class SettingsTrial {
     private static AtomicFile file(File dir) { return new AtomicFile(new File(dir, "settings-trial.json")); }
     public static void discard(File dir) { file(dir).delete(); }
 
+    /** Keep the running trial intact until the next-process handoff is accepted. */
+    public static void prepareRestart(ProfileModel current, ProfileModel draft, Runnable handoff) throws IOException {
+        if (draft != null) launch(draft, handoff);
+        else {
+            handoff.run();
+            ProfilesManager.undoPreview(current);
+        }
+    }
+
+    /** A rejected launch must not leave a trial for an unrelated later Play action. */
+    public static void launch(ProfileModel draft, Runnable handoff) throws IOException {
+        try {
+            stage(draft);
+            handoff.run();
+        } catch (IOException | RuntimeException error) {
+            discard(draft.dir);
+            throw error;
+        }
+    }
+
     public static void stage(ProfileModel draft) throws IOException {
         AtomicFile file = file(draft.dir);
         FileOutputStream out = null;

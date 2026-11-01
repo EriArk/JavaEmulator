@@ -732,12 +732,11 @@ public class MicroActivity extends AppCompatActivity {
 		if (microLoader == null || !ProfilesManager.isPreview(microLoader.getTouchSettings())) return;
 		controllerInput.clear();
 		boolean restart = ProfilesManager.previewNeedsRestart(microLoader.getTouchSettings());
-		ProfilesManager.undoPreview(microLoader.getTouchSettings());
 		if (restart) {
-			settingsPreview.stop();
 			restartGame(null);
 			return;
 		}
+		ProfilesManager.undoPreview(microLoader.getTouchSettings());
 		microLoader.applyPreviewSettings();
 		VirtualKeyboard vk = ContextHolder.getVk();
 		if (vk != null) vk.refreshTouchLayout();
@@ -922,7 +921,6 @@ public class MicroActivity extends AppCompatActivity {
 			public void keep() { keepSettingsPreview(); }
 			public void undo() { undoSettingsPreview(); }
 			public void restart() {
-				ProfilesManager.undoPreview(microLoader.getTouchSettings());
 				restartGame(null);
 			}
 			public void exit() {
@@ -1002,11 +1000,10 @@ public class MicroActivity extends AppCompatActivity {
 			return;
 		}
 		try {
-			if (draft != null) ru.playsoftware.j2meloader.config.SettingsTrial.stage(draft);
-			ru.playsoftware.j2meloader.config.GameRestartActivity.prepare(this, appName, appPath,
-					getIntent().getStringExtra(KEY_START_ARGUMENTS), microLoader.getTouchSettings().dir);
+			ru.playsoftware.j2meloader.config.SettingsTrial.prepareRestart(microLoader.getTouchSettings(), draft,
+					() -> ru.playsoftware.j2meloader.config.GameRestartActivity.prepare(this, appName, appPath,
+							getIntent().getStringExtra(KEY_START_ARGUMENTS), microLoader.getTouchSettings().dir));
 		} catch (Exception e) {
-			ru.playsoftware.j2meloader.config.SettingsTrial.discard(microLoader.getTouchSettings().dir);
 			Toast.makeText(this, getString(R.string.game_restart_failed), Toast.LENGTH_LONG).show();
 			return;
 		}
