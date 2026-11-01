@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
+    <string name="symbian_screen_pending">Available screen modes will be detected when you launch a game on this phone. Original is available now.</string>
     <string name="symbian_screen_unavailable">This phone could not use that emulated screen mode. Select Original in Display settings.</string>
     <string name="symbian_screen_legacy">Only the original emulated screen is available for this phone. Picture size and Rotation still work.</string>
     <string name="symbian_screen_title">Emulated screen (experimental)</string>

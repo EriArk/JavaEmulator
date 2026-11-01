@@ -254,7 +254,7 @@ final class SymbianSessionUi {
         deckView.invalidate();
     }
     private void advancedDisplayPage() {
-        pages().nativePhoneDisplay(SymbianGameSettings.supportsGuestScreen(activity.getFilesDir(),
+        pages().nativePhoneDisplay(PhoneScreenOptions.read(activity.getFilesDir(),
                 profile.dir.getParentFile().getName()));
     }
     private GameSettingsPages pages() {

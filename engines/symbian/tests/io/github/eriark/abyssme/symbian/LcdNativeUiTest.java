@@ -13,6 +13,35 @@ import static org.junit.Assert.*;
 
 public class LcdNativeUiTest {
     private UiAutomation ui;
+    @Test public void screenOptionsReachTheRealMenuAndSurviveReturnToLibrary() throws Exception {
+        Assume.assumeTrue("true".equals(InstrumentationRegistry.getArguments().getString("phoneScreenOptions")));
+        Context context = InstrumentationRegistry.getInstrumentation().getTargetContext();
+        ui = InstrumentationRegistry.getInstrumentation().getUiAutomation();
+        String title = InstrumentationRegistry.getArguments().getString("lcdNativeTitle", "Asphalt3");
+        SymbianLibraryIndex.Entry game = new SymbianLibraryIndex(context).read().stream()
+                .filter(e -> e.title.equals(title)).findFirst().orElse(null);
+        assertNotNull("Provision the permitted phone fixture", game);
+        SystemFileCatalog.Entry phone = new SystemFileCatalog(context).read(game.system);
+        int expected = SymbianGameSettings.supportsGuestScreen(phone.os) ? 7 : 1;
+        context.startActivity(new Intent(context, SymbianActivity.class)
+                .addFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK)
+                .putExtra(SymbianLibraryIndex.SYSTEM_EXTRA, game.system)
+                .putExtra(SymbianLibraryIndex.UID_EXTRA, game.uid));
+        await("Show game controls", 60000); SystemClock.sleep(1500);
+        assertEquals(expected, PhoneScreenOptions.read(context.getFilesDir(), game.system));
+        tap("Show game controls"); tap("Game menu"); tap("Display");
+        tap(context.getString(ru.playsoftware.j2meloader.R.string.game_performance_advanced));
+        await(context.getString(expected == 1 ? ru.playsoftware.j2meloader.R.string.symbian_screen_legacy
+                : ru.playsoftware.j2meloader.R.string.symbian_screen_title), 5000);
+        await(PhoneLibraryTitles.read(context.getFilesDir(), game.system).getJSONObject("titles")
+                .optString(Long.toString(game.uid), title), 5000);
+        capture(context, "screen-options-" + title);
+        assertTrue(ui.performGlobalAction(android.accessibilityservice.AccessibilityService.GLOBAL_ACTION_BACK));
+        tap("Exit game"); tap("Leave without saving");
+        SystemClock.sleep(1500);
+        assertEquals("Library process can reuse discovered modes", expected,
+                PhoneScreenOptions.read(context.getFilesDir(), game.system));
+    }
     @Test public void runningNativeFramesSurviveMenuPause() throws Exception {
         Assume.assumeTrue("true".equals(InstrumentationRegistry.getArguments().getString("lcdRunningFrames")));
         Context context = InstrumentationRegistry.getInstrumentation().getTargetContext();

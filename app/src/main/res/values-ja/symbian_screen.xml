@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
+    <string name="symbian_screen_pending">この端末でゲームを起動すると、利用可能な画面モードが検出されます。現在は元の設定を使用できます。</string>
     <string name="symbian_screen_unavailable">この端末では指定したエミュレート画面モードを使用できませんでした。表示設定で元の設定を選択してください。</string>
     <string name="symbian_screen_legacy">この端末では元のエミュレート画面のみ使用できます。画像サイズと回転は引き続き変更できます。</string>
     <string name="symbian_screen_title">エミュレート画面（実験的）</string>

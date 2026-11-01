@@ -694,6 +694,7 @@ static void prepare_guest(JNIEnv *env, jstring directory, int screen_preset) {
     }
     abyss::guest_screen::requested.store(screen_preset);
     abyss::guest_screen::applied.store(false);
+    abyss::guest_screen::available.store(1);
     const char *path = env->GetStringUTFChars(directory, nullptr);
     eka2l1::common::set_current_directory(path);
     env->ReleaseStringUTFChars(directory, path);
@@ -727,6 +728,14 @@ static void prepare_guest(JNIEnv *env, jstring directory, int screen_preset) {
 extern "C" JNIEXPORT void JNICALL
 Java_com_github_eka2l1_emu_Emulator_prepare(JNIEnv *env, jclass, jstring directory) {
     prepare_guest(env, directory, 0);
+}
+
+// Called on the serialized engine worker before launch; never initialize a live guest here.
+extern "C" JNIEXPORT jint JNICALL
+Java_com_github_eka2l1_emu_Emulator_guestScreenOptions(JNIEnv *, jclass) {
+    if (!state || !state->symsys || !state->winserv) return 1;
+    if (!os_thread_obj && !gr_thread_obj) state->winserv->get_screen(0);
+    return abyss::guest_screen::available.load();
 }
 
 extern "C" JNIEXPORT void JNICALL

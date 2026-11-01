@@ -10,6 +10,21 @@ stated otherwise. **Experimental** in older checkpoints means local/private
 combined builds; released experimental features are explicitly identified.
 **Released** means an actual GitHub release asset.
 
+## 2026-11-01 - Phone-Specific Screen Choices (Public Source, Unreleased)
+
+- Offer only native screen orientations available on the selected Symbian phone,
+  in library settings and during play. Detect them when preparing the phone;
+  keep Original available before discovery. Explain this in all eight languages.
+- Preserve the phone's original capabilities during per-game trials. Discard
+  cached choices when phone metadata or configuration changes, including
+  same-size replacements; keep this disposable data outside games and saves.
+- Show the library game title, including its custom name, in native game menus.
+  N-Gage 2.0 games no longer need to fall back to a generic Symbian label.
+- Retroid: 22 focused Android checks, N95 and EKA1 real-menu paths, native
+  orientation/geometry cycles and source-phone hash preservation pass. Separate
+  Debug installed; no public release update and #50 remains open for widescreen.
+  [Evidence and limits](docs/checks/2026-11-01-symbian-screen-options.md).
+
 ## 2026-11-01 - Native Symbian Screen Orientation Trials (Public Source, Unreleased)
 
 - Try the virtual phone's native Portrait or Landscape geometry per game on

@@ -37,6 +37,16 @@ remains canonical; game text and user content are not translated.
 
 ## Availability: Do Not Mix These Channels
 
+**Unreleased phone-specific screen choices (2026-11-01):** the Symbian display
+menu now offers only orientations discovered from that phone's native screen
+configuration, in both the library and the running game. Capabilities are saved
+separately and invalidated when the supplied configuration changes; unknown
+phones stay on Original until prepared. N-Gage 2.0 game menus also use the
+library title instead of a generic fallback. Retroid checks cover N95 and EKA1
+menus, return to library, native orientation cycles and original-file hashes,
+plus 22 focused Android checks. Separate Debug installed; no public APK update.
+[Evidence and limits](checks/2026-11-01-symbian-screen-options.md).
+
 **Unreleased Symbian screen-orientation trials (2026-11-01):** Symbian 9 phones
 offer Original / Portrait / Landscape in their native screen dimensions, with
 explicit restart confirmation and per-game Try/Keep/Undo. The engine accepts

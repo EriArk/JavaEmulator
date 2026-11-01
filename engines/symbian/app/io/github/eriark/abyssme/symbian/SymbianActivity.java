@@ -375,6 +375,7 @@ public final class SymbianActivity extends Activity implements Emulator.Host, In
         apps = devices.length == 0 ? new String[0] : Emulator.getCatalogApps();
         for (SystemFileCatalog.Entry entry : systems) if (prepared && catalog.runtime(entry).equals(runtimeRoot)) {
             libraryIndex.publish(entry, Emulator.getLibraryApps(), true);
+            PhoneScreenOptions.record(getFilesDir(), entry.id, Emulator.guestScreenOptions());
             break;
         }
         hasPendingImport = pendingImport.exists();
@@ -615,6 +616,7 @@ public final class SymbianActivity extends Activity implements Emulator.Host, In
         SymbianFiles.prepareAssets(this, runtimeRoot);
         Emulator.prepare(runtimeRoot.getAbsolutePath());
         catalog.activate(entry);
+        PhoneScreenOptions.record(getFilesDir(), entry.id, Emulator.guestScreenOptions());
         GameRemoval removal=removal(entry);
         removal.recover();
         if(removal.pending() && !removalReview)
@@ -968,15 +970,29 @@ public final class SymbianActivity extends Activity implements Emulator.Host, In
         choice.action(getString(R.string.system_later),0,choice::dismiss);
         choice.setOnDismissListener(d -> systemChoice = null);
     }
+    private String sessionTitle(String system, long uid) {
+        String title = getString(R.string.native_game_fallback);
+        for (int i = 0; i + 1 < apps.length; i += 2) if (Long.toString(uid).equals(apps[i])) title = apps[i + 1];
+        try {
+            for (SymbianLibraryIndex.Entry entry : libraryIndex.read())
+                if (entry.system.equals(system) && entry.uid == uid) { title = entry.title; break; }
+            title = PhoneLibraryTitles.read(getFilesDir(), system).getJSONObject("titles").optString(Long.toString(uid), title);
+        } catch (IOException | org.json.JSONException error) {
+            android.util.Log.w("AbyssSymbian", "Could not read library title for game menu", error);
+        }
+        return title;
+    }
     public void play(int uid) {
         task(getString(R.string.native_starting_game), () -> {
             String identity = "legacy";
             for (SystemFileCatalog.Entry entry : systems) if (catalog.runtime(entry).equals(runtimeRoot)) identity = entry.id;
+            final String sessionTitle = sessionTitle(identity, Integer.toUnsignedLong(uid));
             ru.playsoftware.j2meloader.config.ProfileModel preparedProfile =
                     SymbianSessionUi.loadSessionProfile(this, identity, Integer.toUnsignedLong(uid));
             Emulator.stopSession();
             try { Emulator.prepareGame(runtimeRoot.getAbsolutePath(), preparedProfile.getSymbianScreenPreset()); }
             catch (IOException error) { throw new IOException(getString(R.string.symbian_screen_unavailable), error); }
+            PhoneScreenOptions.record(getFilesDir(), identity, Emulator.guestScreenOptions());
             Emulator.lastGuestExit = null;
             if (!Emulator.startSession()) throw new IOException(getString(R.string.native_phone_start_failed));
             runOnUiThread(() -> {
@@ -1013,9 +1029,7 @@ public final class SymbianActivity extends Activity implements Emulator.Host, In
                     }
                 });
                 try {
-                    String title = getString(R.string.native_game_fallback);
-                    for (int i = 0; i + 1 < apps.length; i += 2) if (Long.parseLong(apps[i]) == Integer.toUnsignedLong(uid)) title = apps[i + 1];
-                    sessionUi = new SymbianSessionUi(this, surface, preparedProfile, title, new SymbianSessionUi.Host() {
+                    sessionUi = new SymbianSessionUi(this, surface, preparedProfile, sessionTitle, new SymbianSessionUi.Host() {
                         public int[] displayGeometry() {
                             return running && attached && !closing ? Emulator.displayGeometry() : null;
                         }

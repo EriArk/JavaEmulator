@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
+    <string name="symbian_screen_pending">Доступные режимы экрана определятся при запуске игры на этом телефоне. Сейчас доступен исходный режим.</string>
     <string name="symbian_screen_unavailable">Телефон не смог использовать этот режим эмулируемого экрана. Выберите исходный режим в настройках изображения.</string>
     <string name="symbian_screen_legacy">Для этого телефона доступен только исходный эмулируемый экран. Размер изображения и поворот по-прежнему можно менять.</string>
     <string name="symbian_screen_title">Эмулируемый экран (экспериментально)</string>

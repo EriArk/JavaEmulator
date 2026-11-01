@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
+    <string name="symbian_screen_pending">在此手机上启动游戏时，将检测可用的屏幕模式。目前可使用原始模式。</string>
     <string name="symbian_screen_unavailable">此手机无法使用该模拟屏幕模式。请在显示设置中选择原始模式。</string>
     <string name="symbian_screen_legacy">此手机仅支持原始模拟屏幕。仍可调整图像大小和旋转。</string>
     <string name="symbian_screen_title">模拟屏幕（实验性）</string>

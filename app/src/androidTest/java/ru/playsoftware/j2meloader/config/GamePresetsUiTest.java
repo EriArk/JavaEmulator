@@ -81,7 +81,7 @@ public class GamePresetsUiTest {
     }
 
     @Test public void nativeScreenOrientationIsAnExplicitDraftNotImageRotation() throws Exception {
-        scenario.onActivity(a -> pages.nativePhoneDisplay(true)); idle();
+        scenario.onActivity(a -> pages.nativePhoneDisplay(7)); idle();
         choose("Emulated screen (experimental)", 1);
         scenario.onActivity(a -> {
             assertEquals(0, source.getSymbianScreenPreset()); assertNull(applied);
@@ -103,9 +103,34 @@ public class GamePresetsUiTest {
             find(root(),TextView.class,"Try changes").performClick();
             assertEquals(1,applied.getSymbianScreenPreset());
             assertEquals(0,applied.screenRotation);
-            pages.nativePhoneDisplay(false);
+            pages.nativePhoneDisplay(1);
             assertNull(find(root(),TextView.class,"Emulated screen (experimental)"));
             assertEquals(0,pages.draft().getSymbianScreenPreset());
+        });
+    }
+
+    @Test public void nativeScreenChoicesUseStablePresetIdsWhenModesAreMissing() {
+        scenario.onActivity(a -> pages.nativePhoneDisplay(5)); idle();
+        scenario.onActivity(a -> {
+            Spinner options = (Spinner)find((View)find(root(), TextView.class,
+                    "Emulated screen (experimental)").getParent(), Spinner.class, null);
+            assertEquals(2, options.getCount());
+            assertTrue(options.getItemAtPosition(1).toString().startsWith("Landscape"));
+        });
+        choose("Emulated screen (experimental)", 1);
+        scenario.onActivity(a -> {
+            assertEquals(2, pages.draft().getSymbianScreenPreset());
+            assertEquals(0, source.getSymbianScreenPreset());
+            pages.nativePhoneDisplay(3);
+            assertEquals(0, pages.draft().getSymbianScreenPreset());
+        }); idle();
+        choose("Emulated screen (experimental)", 1);
+        scenario.onActivity(a -> {
+            assertEquals(1, pages.draft().getSymbianScreenPreset());
+            pages.nativePhoneDisplay(-1);
+            assertEquals(0, pages.draft().getSymbianScreenPreset());
+            assertNull(find(root(), TextView.class, "Emulated screen (experimental)"));
+            assertNotNull(find(root(), TextView.class, a.getString(ru.playsoftware.j2meloader.R.string.symbian_screen_pending)));
         });
     }
 

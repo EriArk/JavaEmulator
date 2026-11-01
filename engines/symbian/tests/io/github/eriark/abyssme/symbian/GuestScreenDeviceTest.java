@@ -51,6 +51,7 @@ public final class GuestScreenDeviceTest {
             activity[0]=instrumentation.startActivitySync(new Intent(context,MainActivity.class)
                     .addFlags(Intent.FLAG_ACTIVITY_NEW_TASK|Intent.FLAG_ACTIVITY_CLEAR_TASK));
             int[] nativeSize=null;
+            int originalOptions = -1;
             for(int preset:new int[]{0,1,2,0}) {
                 if(!supported && preset!=0) {
                     try {Emulator.prepareGame(copy.getAbsolutePath(),preset);fail("Legacy screen override accepted");}
@@ -59,6 +60,10 @@ public final class GuestScreenDeviceTest {
                     continue;
                 }
                 Emulator.prepareGame(copy.getAbsolutePath(),preset);
+                int options = Emulator.guestScreenOptions();
+                if (originalOptions == -1) originalOptions = options;
+                assertEquals("Trial must not change the phone capability snapshot", originalOptions, options);
+                assertEquals("Fixture orientations", supported ? 7 : 1, options);
                 Emulator.getApps();
                 assertTrue(Emulator.startSession());
                 Emulator.lastGuestExit=null;
@@ -96,7 +101,7 @@ public final class GuestScreenDeviceTest {
                         (width==info[2] && height==info[3]) || (width==info[3] && height==info[2]));
                 assertTrue(info[4]>=info[2]);
                 android.os.Bundle report=new android.os.Bundle();
-                report.putString("stream",title+" preset="+preset+" panel/mode/pitch/count="+Arrays.toString(info)+"\n");
+                report.putString("stream",title+" preset="+preset+" options="+options+" panel/mode/pitch/count="+Arrays.toString(info)+"\n");
                 instrumentation.sendStatus(0,report);
                 File frame=new File(context.getExternalFilesDir(null),"guest-screen-"+game.uid+"-"+preset+".png");
                 assertTrue(Emulator.saveScreenshotTo(frame.getAbsolutePath()));

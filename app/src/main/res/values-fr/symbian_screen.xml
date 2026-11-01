@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
+    <string name="symbian_screen_pending">Les modes d’écran disponibles seront détectés au lancement d’un jeu sur ce téléphone. Le mode Original est disponible.</string>
     <string name="symbian_screen_unavailable">Ce téléphone n’a pas pu utiliser ce mode d’écran émulé. Sélectionnez Original dans les réglages d’affichage.</string>
     <string name="symbian_screen_legacy">Seul l’écran émulé original est disponible pour ce téléphone. La taille de l’image et la rotation restent disponibles.</string>
     <string name="symbian_screen_title">Écran émulé (expérimental)</string>

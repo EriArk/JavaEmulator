@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
+    <string name="symbian_screen_pending">Verfügbare Bildschirmmodi werden beim Start eines Spiels auf diesem Telefon ermittelt. Original ist bereits verfügbar.</string>
     <string name="symbian_screen_unavailable">Dieses Telefon konnte den emulierten Bildschirmmodus nicht verwenden. Wähle Original in den Anzeigeeinstellungen.</string>
     <string name="symbian_screen_legacy">Für dieses Telefon ist nur der ursprüngliche emulierte Bildschirm verfügbar. Bildgröße und Drehung bleiben verfügbar.</string>
     <string name="symbian_screen_title">Emulierter Bildschirm (experimentell)</string>

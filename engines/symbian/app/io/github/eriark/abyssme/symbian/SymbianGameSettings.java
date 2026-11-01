@@ -13,12 +13,6 @@ import ru.playsoftware.j2meloader.input.TouchDeck;
 
 /** Shared by library and runtime; loading a draft does not initialize the native engine. */
 final class SymbianGameSettings {
-    static boolean supportsGuestScreen(File files, String system) {
-        try {
-            SystemFileCatalog.Entry phone = new SystemFileCatalog(new File(files, "symbian-systems")).read(system);
-            return phone != null && supportsGuestScreen(phone.os);
-        } catch (IOException error) { return false; }
-    }
     static boolean supportsGuestScreen(String os) {
         return os != null && os.matches("epoc9[0-9a-z]*");
     }

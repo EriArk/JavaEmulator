@@ -7,10 +7,12 @@ namespace abyss::guest_screen {
 // Set only while replacing a stopped guest. Never resize a live framebuffer.
 inline std::atomic<int> requested{0};
 inline std::atomic<bool> applied{false};
+// Original is always available. Snapshot before a trial rewrites the modes.
+inline std::atomic<int> available{1};
 inline bool valid(int preset) { return preset >= 0 && preset <= 2; }
 
 template <typename Screen>
-bool configure(Screen &screen, int preset) {
+bool supports(const Screen &screen, int preset) {
     if (!valid(preset) || preset == 0 || screen.screen_number != 0 || screen.modes.empty()) return false;
     auto panel = std::find_if(screen.modes.begin(), screen.modes.end(),
         [](const auto &mode) { return mode.rotation == 0; });
@@ -19,9 +21,23 @@ bool configure(Screen &screen, int preset) {
     if (width <= 0 || height <= 0 || width > 1024 || height > 1024) return false;
     if (preset == 1) { width = std::min(panel->size.x, panel->size.y); height = std::max(panel->size.x, panel->size.y); }
     if (preset == 2) { width = std::max(panel->size.x, panel->size.y); height = std::min(panel->size.x, panel->size.y); }
-    if (std::none_of(screen.modes.begin(), screen.modes.end(), [&](const auto &mode) {
+    return std::any_of(screen.modes.begin(), screen.modes.end(), [&](const auto &mode) {
             return mode.size.x == width && mode.size.y == height;
-        })) return false;
+        });
+}
+
+template <typename Screen>
+int options(const Screen &screen) {
+    return 1 | (supports(screen, 1) ? 2 : 0) | (supports(screen, 2) ? 4 : 0);
+}
+
+template <typename Screen>
+bool configure(Screen &screen, int preset) {
+    if (!supports(screen, preset)) return false;
+    auto panel = std::find_if(screen.modes.begin(), screen.modes.end(),
+        [](const auto &mode) { return mode.rotation == 0; });
+    int width = preset == 1 ? std::min(panel->size.x, panel->size.y) : std::max(panel->size.x, panel->size.y);
+    int height = preset == 1 ? std::max(panel->size.x, panel->size.y) : std::min(panel->size.x, panel->size.y);
     // Keep mode IDs and hardware-state references intact, including rotated modes.
     for (auto &mode : screen.modes) {
         const bool quarter = mode.rotation % 180 != 0;

@@ -66,17 +66,27 @@ public final class GameSettingsPages {
     }
 
     /** Native phone renderer capabilities, shared by pre-game and in-game panels. */
-    public void nativePhoneDisplay() { nativePhoneDisplay(false); }
+    public void nativePhoneDisplay() { nativePhoneDisplay(1); }
 
-    public void nativePhoneDisplay(boolean guestScreenSupported) {
+    public void nativePhoneDisplay(int supportedModes) {
         menu.page(menu.text(R.string.game_display));
-        if (guestScreenSupported) {
-            menu.choice(menu.text(R.string.symbian_screen_title), menu.labels(R.array.symbian_screen_presets),
-                    draft.getSymbianScreenPreset(), i -> draft.symbianScreenPreset = i);
+        int mask = supportedModes >= 1 && supportedModes <= 7 && (supportedModes & 1) != 0 ? supportedModes : 1;
+        if ((mask & (1 << draft.getSymbianScreenPreset())) == 0) draft.symbianScreenPreset = 0;
+        if (mask != 1) {
+            String[] all = menu.labels(R.array.symbian_screen_presets);
+            String[] labels = new String[Integer.bitCount(mask)];
+            int[] presets = new int[labels.length];
+            int selected = 0, count = 0;
+            for (int preset = 0; preset < 3; preset++) if ((mask & (1 << preset)) != 0) {
+                presets[count] = preset; labels[count] = all[preset];
+                if (preset == draft.getSymbianScreenPreset()) selected = count;
+                count++;
+            }
+            menu.choice(menu.text(R.string.symbian_screen_title), labels,
+                    selected, i -> draft.symbianScreenPreset = presets[i]);
             menu.message(menu.text(R.string.symbian_screen_hint));
         } else {
-            draft.symbianScreenPreset = 0;
-            menu.message(menu.text(R.string.symbian_screen_legacy));
+            menu.message(menu.text(supportedModes == -1 ? R.string.symbian_screen_pending : R.string.symbian_screen_legacy));
         }
         frameRateChoice(menu, draft, false);
         speedChoice(menu, draft);

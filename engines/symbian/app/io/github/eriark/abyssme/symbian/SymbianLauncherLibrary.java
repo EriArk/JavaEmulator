@@ -62,7 +62,7 @@ public final class SymbianLauncherLibrary implements ExternalLibrary.Provider {
             return SymbianGameSettings.load(files, entry.system, entry.uid);
         }
         @Override public void displaySettings(ru.playsoftware.j2meloader.config.GameSettingsPages pages) {
-            pages.nativePhoneDisplay(SymbianGameSettings.supportsGuestScreen(files, entry.system));
+            pages.nativePhoneDisplay(PhoneScreenOptions.read(files, entry.system));
         }
         @Override public void uninstall(Activity activity) {
             activity.startActivity(new Intent(activity,SymbianActivity.class)

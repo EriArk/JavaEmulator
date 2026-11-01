@@ -444,7 +444,7 @@ set(window_patched "${window_original}")
 abyss_replace_once(window_patched "#include <services/window/window.h>"
     "#include <services/window/window.h>\n#include \"capture_cleanup.h\"\n#include \"capture_routing.h\"\n#include \"frame_rate.h\"\n#include \"guest_screen.h\"")
 abyss_replace_once(window_patched "            screen_configs.push_back(scr);"
-    "            if (!kern->is_eka1() && scr.screen_number == 0) abyss::guest_screen::applied.store(abyss::guest_screen::configure(scr, abyss::guest_screen::requested.load()));\n            screen_configs.push_back(scr);")
+    "            if (!kern->is_eka1() && scr.screen_number == 0) {\n                abyss::guest_screen::available.store(abyss::guest_screen::options(scr));\n                abyss::guest_screen::applied.store(abyss::guest_screen::configure(scr, abyss::guest_screen::requested.load()));\n            }\n            screen_configs.push_back(scr);")
 string(REPLACE "schedule_event(DIRECT_FRAMEBUFFER_REFRESH_INTERVAL_US, direct_framebuffer_refresh_evt_, 0)"
     "schedule_event(abyss::frame_rate::poll_interval(DIRECT_FRAMEBUFFER_REFRESH_INTERVAL_US), direct_framebuffer_refresh_evt_, 0)"
     window_patched "${window_patched}")
