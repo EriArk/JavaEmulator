@@ -61,7 +61,8 @@ def noticeFiles = [
         }
     }
     tasks.configureEach {
-        if (name == "merge${variant}Assets" || name == "package${variant}Assets") dependsOn notices
+        if (name == "merge${variant}Assets" || name == "package${variant}Assets" ||
+                (name.contains(variant) && name.toLowerCase().contains('lint'))) dependsOn notices
     }
 }
 
