@@ -10,6 +10,29 @@ stated otherwise. **Experimental** in older checkpoints means local/private
 combined builds; released experimental features are explicitly identified.
 **Released** means an actual GitHub release asset.
 
+## 2026-11-02 - 0.7.0 Beta 2 Published (Released)
+
+- Publish one adaptive signed ARM64 APK, version `0.7.0-beta.2`, code 315.
+  Includes all maintenance work below since Beta 1 Revision 1: Java conversion,
+  uncommon sizes and center-button fixes; Symbian native modes, sensors, pause,
+  file/memory safety; EKA2L1 phone import, transfer retries and launch recovery.
+- Fresh release assembly, payload guards and 424 JVM tests pass. Release lint:
+  zero errors, 803 warnings. Signature matches the prior official app. All five
+  uploaded asset sizes/digests and public APK/checksum downloads match staging.
+- Retroid was reserved for another project at the owner's request. No final
+  signed Beta 2 installation or smoke test was performed; earlier Debug sample
+  and workflow results remain dated device evidence. Known Symbian rendering,
+  touch/tilt and N95/Asphalt issues remain, with no universal widescreen claim.
+- Publish matching app source and verified unchanged dependency/Symbian sources;
+  preserve earlier releases, tags and APKs. GitHub Actions remains disabled.
+  [Release](https://github.com/EriArk/JavaEmulator/releases/tag/v0.7.0-beta.2),
+  [notes](docs/releases/v0.7.0-beta.2.md),
+  [verification](docs/releases/v0.7.0-beta.2-checks.md).
+
+The following development entries retain their original pre-release availability
+and test dates. Their code through `42a94d08` is now included in Beta 2; this does
+not turn their limited observations into complete-game acceptance.
+
 ## 2026-11-02 - Representative Game Sample and Shared Repairs (Public Source, Unreleased)
 
 - Recognize explicit uncommon Java screen dimensions without treating arbitrary

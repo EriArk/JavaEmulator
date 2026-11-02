@@ -37,6 +37,26 @@ remains canonical; game text and user content are not translated.
 
 ## Availability: Do Not Mix These Channels
 
+**Current public beta: [0.7.0 Beta 2](https://github.com/EriArk/JavaEmulator/releases/tag/v0.7.0-beta.2)**,
+code **315**, published **2026-11-02 at 17:59:24 UTC**. One signed adaptive ARM64
+APK includes the Java/Symbian compatibility repairs, EKA2L1 phone import,
+transfer recovery, native screen choices and launch recovery described below.
+Runtime/app-source tag `v0.7.0-beta.2` identifies `cc698da3`. Fresh assembly,
+production payload guards and **424 JVM tests** pass; release lint has zero
+errors and 803 warnings. Signature continuity and all five asset sizes/digests
+are verified; unauthenticated APK/checksum downloads match local hashes.
+The final signed APK was **not installed or smoke-tested on Retroid** because
+the owner reserved it for another project. Earlier Debug results remain dated
+device evidence. Known black/incomplete scenes, touch/tilt and N95/Asphalt
+problems remain; this is not universal Symbian widescreen or full compatibility.
+[Notes](releases/v0.7.0-beta.2.md), [verification](releases/v0.7.0-beta.2-checks.md),
+[checksums](releases/v0.7.0-beta.2/SHA256SUMS.txt).
+
+**Checkpoint note:** the dated entries between here and the previous beta record
+describe the pre-release state when each batch was tested. Their code through
+`42a94d08` is now in Beta 2. Phrases such as "unreleased" or "no public APK update"
+in those historical checkpoints do not describe current download availability.
+
 **Unreleased representative-game repairs (2026-11-02):** a Retroid sample of ten
 Java JARs and ten Symbian packages exposed shared defects in uncommon Java size
 hints, DPAD_CENTER input, legacy boolean-return conversion and Android sensor
@@ -170,7 +190,7 @@ community's exact N95/N-Gage 2.0 freeze is not reproduced and #48 remains open.
 Only the separate Debug app was updated; the public APK below is unchanged.
 [Verification and limits](checks/2026-11-01-native-lcd-preview.md).
 
-**Current public beta: [0.7.0 Beta 1 Revision 1](https://github.com/EriArk/JavaEmulator/releases/tag/v0.7.0-beta.1)**,
+**Previous public beta: [0.7.0 Beta 1 Revision 1](https://github.com/EriArk/JavaEmulator/releases/tag/v0.7.0-beta.1)**,
 code **314**, APK uploaded **2026-10-28 at 21:08:31 UTC**. At the maintainer's
 request this replaces code 313 on the same release page. Grid/Gallery game names
 are centered; List stays start-aligned. Two focused Retroid tests and signed
@@ -256,8 +276,8 @@ older 0.3 builds, not the current release series.
 
 | Channel | Current identifier | Availability |
 | --- | --- | --- |
-| Public download | `0.7.0-beta.1-r1`, code 314 | One signed adaptive ARM64 APK; centered Grid/Gallery titles plus eight-language UI, audio lifecycle/gain repairs, touch gamepad mapping, menu handle/opacity and N-Gage partial-update preflight fix. Matching r1 app source and unchanged dependency/peer and Symbian source bundles. Early experimental Java Bluetooth multiplayer retains its limits. |
-| Development source | Runtime `d660ec38` plus publication documentation | The audio, Phone control and language batches are included in 0.7, not unreleased. All 1518 canonical resources exist per advertised translated locale. Exact #41 quiet-music reports, Treasure Towers and independent translation review remain open. #46 is included in r1; #44 new platforms and further languages are deferred. [Revision evidence](releases/v0.7.0-beta.1-r1-checks.md), [baseline evidence](releases/v0.7.0-beta.1-checks.md), [language evidence](checks/2026-10-28-japanese-chinese-localization.md), [audio](checks/2026-10-28-audio-isolation.md), [mapping](checks/2026-10-28-touch-gamepad-mapping.md) |
+| Public download | `0.7.0-beta.2`, code 315 | One signed adaptive ARM64 APK, with shared Java/Symbian compatibility, transfer, screen-mode and launch-recovery repairs. Matching app source and verified unchanged dependency/peer and Symbian source bundles. Earlier UI/audio/mapping features remain included. Experimental platforms and multiplayer retain their compatibility limits. |
+| Development source | Runtime `cc698da3` plus publication documentation | Maintenance work through `42a94d08` is included in Beta 2. Fresh 424 JVM tests, release lint and artifact checks pass; the final signed APK has no fresh device smoke test because Retroid was reserved. Earlier Debug evidence is not signed-device acceptance. Remaining sample rendering/touch/tilt problems and N95/Asphalt reliability are deferred; no universal widescreen claim. [Release evidence](releases/v0.7.0-beta.2-checks.md), [sample matrix](checks/2026-11-02-game-sample.md) |
 | Private historical snapshot | `0.1.0-beta.2-experimental.15`, 2026-10-11 | Old Java/Mophun test build, not the current beta |
 | Local-only material | Game fixtures, firmware, diagnostics, device data and signing keys | Not in Git or public release assets; describing testing does not authorize redistribution |
 
