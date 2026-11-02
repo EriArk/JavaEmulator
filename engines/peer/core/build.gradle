@@ -24,7 +24,6 @@ android {
         consumerProguardFiles 'consumer-rules.pro'
     }
     externalNativeBuild { cmake { path 'CMakeLists.txt'; version '3.22.1' } }
-    sourceSets.main.assets.srcDir layout.buildDirectory.dir('peer-assets')
     compileOptions {
         sourceCompatibility JavaVersion.VERSION_1_8
         targetCompatibility JavaVersion.VERSION_1_8
@@ -46,13 +45,18 @@ def noticeFiles = [
         'libdatachannel/deps/usrsctp/LICENSE.md': 'usrsctp-BSD.txt',
         'mbedtls/LICENSE': 'mbedtls-LICENSE.txt']
 ['Debug', 'Release'].each { variant ->
-    def notices = tasks.register("peer${variant}Notices") {
+    def assetsDirectory = layout.buildDirectory.dir("peer-assets/${variant.toLowerCase()}")
+    android.sourceSets[variant.toLowerCase()].assets.srcDir assetsDirectory
+    def notices = tasks.register("peer${variant}Notices", Sync) {
         dependsOn "externalNativeBuild${variant}"
-        doLast {
+        into assetsDirectory.map { it.dir('licenses/peer') }
+        noticeFiles.each { source, targetName ->
+            from(rootProject.file("build/peer-sources/${source}")) { rename { targetName } }
+        }
+        doFirst {
             noticeFiles.each { source, name ->
                 def origin = rootProject.file("build/peer-sources/${source}")
                 if (!origin.isFile()) throw new GradleException("Missing peer notice: ${source}")
-                copy { from origin; into layout.buildDirectory.dir('peer-assets/licenses/peer'); rename { name } }
             }
         }
     }
