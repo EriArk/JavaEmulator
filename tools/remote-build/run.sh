@@ -49,7 +49,7 @@ fi
 test -f "$root/symbian/ABYSS_REVISION" || {
   echo 'Incomplete source restoration retained; inspect it before retrying' >&2; exit 2;
 }
-python3 "$root/repo/tools/restore-symbian-sources.py" "$root/sources/unpacked" "$root/symbian" --repair-permissions
+python3 "$root/repo/tools/restore-symbian-sources.py" "$root/sources/unpacked" "$root/symbian" --prepare-posix
 image=abyssme-builder:android34-jdk21-v1
 docker build -t "$image" "$root/repo/tools/remote-build"
 run="$(date -u +%Y%m%dT%H%M%SZ)-${revision:0:12}-$mode"

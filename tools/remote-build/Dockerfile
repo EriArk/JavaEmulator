@@ -16,5 +16,6 @@ RUN curl --fail --location --retry 3 -o /tmp/tools.zip \
 RUN yes | sdkmanager --licenses >/dev/null; test ${PIPESTATUS[1]} -eq 0
 RUN sdkmanager 'platforms;android-34' 'build-tools;34.0.0' \
     'cmake;3.22.1' 'ndk;22.1.7171670' 'ndk;28.2.13676358'
+RUN sdkmanager 'platform-tools'
 ENV GRADLE_USER_HOME=/cache/gradle HOME=/cache/home
 WORKDIR /work

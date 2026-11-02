@@ -53,6 +53,7 @@ class SignApk {
             List<String> command = new ArrayList<>(signer);
             command.addAll(List.of("sign", "--ks", store.toString(), "--ks-key-alias", props.getProperty("keyAlias"),
                     "--ks-pass", "env:ABYSSME_STORE_PASS", "--key-pass", "env:ABYSSME_KEY_PASS",
+                    "--v4-signing-enabled", "false",
                     "--out", signed.toString(), aligned.toString()));
             execute(command, Map.of("ABYSSME_STORE_PASS", props.getProperty("storePassword"),
                     "ABYSSME_KEY_PASS", props.getProperty("keyPassword")));

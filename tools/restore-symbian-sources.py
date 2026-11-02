@@ -11,11 +11,11 @@ def main():
     parser = argparse.ArgumentParser()
     parser.add_argument("bundle", type=pathlib.Path, help="Directory containing sources.json and component ZIPs")
     parser.add_argument("destination", type=pathlib.Path)
-    parser.add_argument("--repair-permissions", action="store_true",
-                        help="Restore executable bits in an existing verified source tree without replacing files")
+    parser.add_argument("--prepare-posix", action="store_true",
+                        help="Restore executable bits and script line endings in an existing verified source tree")
     args = parser.parse_args()
     root = args.destination.resolve()
-    if not args.repair_permissions and root.exists() and any(root.iterdir()):
+    if not args.prepare_posix and root.exists() and any(root.iterdir()):
         raise RuntimeError("Choose an empty destination; existing checkouts are never overwritten")
     lock = json.loads((args.bundle / "sources.json").read_text(encoding="utf-8"))
     for item in lock["components"]:
@@ -31,20 +31,29 @@ def main():
             for entry in archive.infolist():
                 if not (target / entry.filename).resolve().is_relative_to(root):
                     raise RuntimeError("Unsafe archive path")
-            if not args.repair_permissions:
+            if not args.prepare_posix:
                 archive.extractall(target)
             if os.name == "posix":
                 for entry in archive.infolist():
-                    if entry.is_dir() or not (entry.external_attr >> 16) & 0o111:
+                    if entry.is_dir():
                         continue
-                    executable = target / entry.filename
-                    if executable.is_symlink() or not executable.is_file():
-                        raise RuntimeError("Missing or unsafe executable: " + entry.filename)
-                    if args.repair_permissions and executable.read_bytes() != archive.read(entry):
-                        raise RuntimeError("Modified executable retained: " + entry.filename)
-                    executable.chmod(executable.stat().st_mode | ((entry.external_attr >> 16) & 0o111))
-    if args.repair_permissions:
-        print("Restored archive executable permissions without replacing source files")
+                    original = archive.read(entry)
+                    path = target / entry.filename
+                    script = original.startswith(b"#!") or path.name == "Makefile" or path.suffix in (".sh", ".mak", ".mk")
+                    bits = (entry.external_attr >> 16) & 0o111
+                    if not script and not bits:
+                        continue
+                    normalized = original.replace(b"\r\n", b"\n") if script else original
+                    if path.is_symlink() or not path.is_file():
+                        raise RuntimeError("Missing or unsafe build input: " + entry.filename)
+                    current = path.read_bytes()
+                    if current not in (original, normalized):
+                        raise RuntimeError("Modified build input retained: " + entry.filename)
+                    if current != normalized:
+                        path.write_bytes(normalized)
+                    path.chmod(path.stat().st_mode | bits)
+    if args.prepare_posix:
+        print("Prepared verified archive scripts for POSIX; unrelated files preserved")
         return
     (root / "ABYSS_REVISION").write_text(lock["eka2l1"] + "\n", encoding="ascii")
     # Upstream's Android copy command still names these unused banks. Empty build
