@@ -1,0 +1,4 @@
+5d52cefeb09469d45665b7703bdb86b9e0aace3d003056fb021a8d18f544d3b2  AbyssME-0.7.0-beta.2.apk
+b70bec40d8c663cc1320d14c0552ebfdf41f965cd1514fc73a7002576dd5f3ab  AbyssME-0.7.0-beta.2-app-source.zip
+6f51a714f9e82b06bf7ec1619d1267861dd78859f77825519a7e11322f7d1ede  AbyssME-0.7.0-beta.1-dependency-sources.zip
+2128b3019b5e2c8adbc0c57f4fd71e576b5d2707a18e3715da49aebf258b5c55  AbyssME-0.7.0-beta.1-symbian-sources.zip
