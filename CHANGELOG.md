@@ -10,6 +10,23 @@ stated otherwise. **Experimental** in older checkpoints means local/private
 combined builds; released experimental features are explicitly identified.
 **Released** means an actual GitHub release asset.
 
+## 2026-11-02 - Server Build Migration (Public Source, Infrastructure)
+
+- Move heavy Android compilation to a manually invoked, isolated Linux builder.
+  SDK, native outputs and Gradle caches stay on the server; verified APKs,
+  reports and R8 crash mappings are retrieved to the project drive. Signing
+  keys stay local and certificate continuity is checked before accepting output.
+- Fix Windows-to-Linux source restoration (executable permissions and line
+  endings) and incremental peer-notice packaging without deleting native caches.
+- Verify the combined Java/Mophun/Symbian build, production-payload guards,
+  424 JVM tests, six source-restoration tests and three configuration guards.
+  A second warm run passes; the first full Gradle build took 32m 43s, later
+  warm Gradle runs took 30s and 20s, excluding setup/guard overhead.
+- This does not replace the published Beta 2 APK, enable GitHub Actions or
+  establish device compatibility. Retroid was reserved and untouched; existing
+  shared Windows caches were not deleted.
+  [Workflow](docs/REMOTE_BUILDS.md), [verification](docs/checks/2026-11-02-remote-build.md).
+
 ## 2026-11-02 - 0.7.0 Beta 2 Published (Released)
 
 - Publish one adaptive signed ARM64 APK, version `0.7.0-beta.2`, code 315.

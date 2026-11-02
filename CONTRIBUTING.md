@@ -55,7 +55,7 @@ supported. Publication also requires the source/notice and artifact checks.
 
 ### Build and checks
 
-Maintainer builds can run on the isolated Linux builder using the manual
+Maintainer APK builds use the isolated Linux builder by default through the manual
 [remote build workflow](docs/REMOTE_BUILDS.md). Heavy SDK, Gradle and native
 compilation caches stay on the server; release signing remains local. This does
 not enable GitHub Actions or replace emulator/device checks.

@@ -3,6 +3,9 @@
 Manual SSH builds use a dedicated Docker environment. They do not enable GitHub
 Actions, publish a release, replace a device installation or move signing keys.
 The current public Beta 2 remains the Windows-built, verified release.
+This is now the default maintainer APK build path. Keep the local contributor
+workflow available, but do not silently fall back to a heavy Windows build when
+the server is unavailable; report the problem and preserve the local disk space.
 
 ## Layout and Limits
 
@@ -91,9 +94,15 @@ for Ubuntu package updates or all third-party prebuilts.
 
 ## Verification
 
-Server bootstrap is complete as of 2026-11-02. Six Linux source-restoration
-checks pass (executable permissions, line endings, retained edits, archive
-hashes, path traversal and refusal to overwrite an existing tree).
-The first complete combined APK build and local-signing round trip remain
-pending. Do not treat an available SSH session or a built image as a working
-Android build pipeline.
+The full combined build, production-payload guard, verified download and local
+signing round trip passed on 2026-11-02. All 424 JVM tests, six Linux restoration
+tests and three negative build-configuration checks pass. A second warm run
+also passed without cleaning native caches. First full Gradle build: 32m 43s;
+warm Gradle runs: 30s and 20s. These timings exclude setup/source/guard overhead
+and are observations, not future performance guarantees.
+
+Peer notice generation was repaired for incremental builds and separate
+Debug/Release outputs. Signed-output preservation and wrong-certificate
+rejection were tested. No server-built APK was installed or runtime-tested;
+Retroid was reserved by its owner. The published Beta 2 was not replaced.
+See the [dated verification record](checks/2026-11-02-remote-build.md).

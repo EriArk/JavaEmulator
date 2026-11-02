@@ -22,3 +22,9 @@ published history merely to expand old commit messages.
 Keep app UI and repository documentation in English. Read `CONTRIBUTING.md`
 and `docs/LICENSING.md` before implementation, publication or licensing work.
 GitHub Actions remains disabled; do not add automatic publishing as a side effect.
+
+For maintainer APK builds, use the server workflow in `docs/REMOTE_BUILDS.md`
+by default (`tools/remote-build/Invoke-RemoteBuild.ps1`). Keep heavy SDK, Gradle
+and native compilation caches on the server, and signing keys on the Windows
+machine. Do not silently fall back to a heavy local build if the server is
+unavailable. Remote build success is not device or release acceptance.
