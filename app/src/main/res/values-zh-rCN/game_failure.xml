@@ -1,0 +1,4 @@
+<resources>
+    <string name="game_failure_title">游戏无法运行</string>
+    <string name="game_failure_body">可以退出或使用已保存的设置重试。未保存的设置更改将被丢弃。</string>
+</resources>

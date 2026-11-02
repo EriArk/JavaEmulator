@@ -36,6 +36,7 @@ public class MidletStartupTest {
     private static class Host extends MicroActivity {
         volatile boolean visible = true;
         volatile Displayable selected;
+        volatile String failure;
         Host(Context context) {
             attachBaseContext(new android.view.ContextThemeWrapper(context, R.style.AppTheme));
             binding = ActivityMicroBinding.inflate(LayoutInflater.from(getBaseContext()));
@@ -43,6 +44,7 @@ public class MidletStartupTest {
         @Override public boolean isVisible() { return visible; }
         @Override public void setCurrent(Displayable value) { selected = value; }
         @Override public Displayable getCurrent() { return selected; }
+        @Override void showErrorDialog(String message) { failure = message; }
     }
 
     private static class Screen extends Canvas {
@@ -56,7 +58,7 @@ public class MidletStartupTest {
         final CountDownLatch entered = new CountDownLatch(1), finished = new CountDownLatch(1);
         final CountDownLatch paused = new CountDownLatch(1);
         boolean sawVisible, sawFrame, constructorWasHidden;
-        boolean refuse, selfPause, hold;
+        boolean refuse, selfPause, hold, crash;
         Guest() {
             Display.getDisplay(this).setCurrent(screen);
             constructorWasHidden = !screen.isShown();
@@ -72,6 +74,7 @@ public class MidletStartupTest {
                 if (hold) release.await(5, TimeUnit.SECONDS);
                 if (selfPause) notifyPaused();
                 if (refuse) throw new MIDletStateChangeException("Startup refusal fixture");
+                if (crash) throw new IllegalStateException("Startup failure fixture");
             } catch (InterruptedException e) { Thread.currentThread().interrupt(); }
             finally { finished.countDown(); }
         }
@@ -98,9 +101,15 @@ public class MidletStartupTest {
     }
 
     private void create() throws Exception {
+        create(false);
+    }
+    private void create(boolean constructorFailure) throws Exception {
         Context context = InstrumentationRegistry.getInstrumentation().getTargetContext();
         MicroLoader loader = new MicroLoader(context, context.getCacheDir() + "/startup-fixture/app") {
-            @Override MIDlet loadMIDlet(String name) { return guest; }
+            @Override MIDlet loadMIDlet(String name) {
+                if (constructorFailure) throw new IllegalArgumentException("Constructor failure fixture");
+                return guest;
+            }
         };
         MidletThread.create(loader, "fixture");
         thread = (MidletThread) field(MidletThread.class, "instance").get(null);
@@ -136,6 +145,23 @@ public class MidletStartupTest {
         guest.refuse = true; create(); MidletThread.resumeApp();
         assertTrue(guest.finished.await(5, TimeUnit.SECONDS)); barrier();
         assertTrue(guest.sawVisible); assertFalse(guest.screen.isShown());
+    }
+
+    @Test public void constructorFailureIsReportedAndNeverResumedInBrokenVm() throws Exception {
+        create(true);
+        assertTrue(host.failure.contains("Constructor failure fixture"));
+        MidletThread.resumeApp(); barrier();
+        assertEquals(1, guest.entered.getCount());
+        assertFalse(guest.screen.isShown());
+    }
+
+    @Test public void startFailureIsReportedWithoutCrashingLifecycleThread() throws Exception {
+        guest.crash = true; create(); MidletThread.resumeApp();
+        assertTrue(guest.finished.await(5, TimeUnit.SECONDS)); barrier();
+        assertTrue(host.failure.contains("Startup failure fixture"));
+        assertFalse(guest.screen.isShown());
+        host.failure = null; MidletThread.resumeApp(); barrier();
+        assertNull("Focus return must not restart the failed guest", host.failure);
     }
 
     @Test public void immediateEventsStillAllowStartupToObserveAFrame() throws Exception {

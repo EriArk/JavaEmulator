@@ -37,6 +37,19 @@ remains canonical; game text and user content are not translated.
 
 ## Availability: Do Not Mix These Channels
 
+**Unreleased launch-error recovery (2026-11-02):** caught Java, Mophun and
+Symbian game-launch failures now share a centered console-style screen with
+the game title, technical reason, manual Retry and Exit game. Retry uses saved
+settings instead of keeping a failed trial; it waits for a fresh Java VM or a
+stopped native session. Java constructor/startApp failures and Mophun worker
+failures no longer rely only on an uncaught exception or disappearing toast.
+Symbian Try Original remains a separate recovery action. Eight-language copy
+is included. Retroid: 22 focused/lifecycle/UI checks plus two native UI flows
+pass; the Snakes retry reaches its startup screen. Debug installed separately;
+no public APK update. Native process crashes/hangs and arbitrary black screens
+are not intercepted by this feature.
+[Evidence and limits](checks/2026-11-02-launch-error-recovery.md).
+
 **Unreleased screen-mode recovery (2026-11-02):** a rejected native Symbian
 screen mode now offers Try Original directly from a centered confirmation.
 Recovery changes only the screen preset as an unsaved preview; Keep saves it,

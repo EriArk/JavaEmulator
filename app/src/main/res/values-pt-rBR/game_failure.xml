@@ -1,0 +1,4 @@
+<resources>
+    <string name="game_failure_title">Não foi possível executar o jogo</string>
+    <string name="game_failure_body">Você pode sair ou tentar novamente com as configurações salvas. As alterações não salvas serão descartadas.</string>
+</resources>

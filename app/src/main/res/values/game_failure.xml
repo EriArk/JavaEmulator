@@ -1,0 +1,4 @@
+<resources>
+    <string name="game_failure_title">Game could not run</string>
+    <string name="game_failure_body">You can exit or try again with the saved settings. Unsaved setting changes will not be kept.</string>
+</resources>

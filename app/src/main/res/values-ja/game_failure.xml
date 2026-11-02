@@ -1,0 +1,4 @@
+<resources>
+    <string name="game_failure_title">ゲームを実行できませんでした</string>
+    <string name="game_failure_body">終了するか、保存済みの設定で再試行できます。未保存の設定変更は破棄されます。</string>
+</resources>

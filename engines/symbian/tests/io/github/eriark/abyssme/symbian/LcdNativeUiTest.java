@@ -13,6 +13,45 @@ import static org.junit.Assert.*;
 
 public class LcdNativeUiTest {
     private UiAutomation ui;
+    @Test public void failedDraftCanRetryConfirmedGameWithoutSaving() throws Exception {
+        Assume.assumeTrue("true".equals(InstrumentationRegistry.getArguments().getString("launchRecovery")));
+        Context context = InstrumentationRegistry.getInstrumentation().getTargetContext();
+        ui = InstrumentationRegistry.getInstrumentation().getUiAutomation();
+        SymbianLibraryIndex.Entry game = new SymbianLibraryIndex(context).read().stream()
+                .filter(e -> e.title.equals("Snakes")).findFirst().orElse(null);
+        assertNotNull("Provision the private Snakes fixture", game);
+        ru.playsoftware.j2meloader.config.ProfileModel profile = SymbianGameSettings.load(context.getFilesDir(), game.system, game.uid);
+        assertEquals("Fixture must use the supported Original screen", 0, profile.getSymbianScreenPreset());
+        File draft = new File(profile.dir, "settings-trial.json");
+        assertFalse("Do not replace a user trial", draft.exists());
+        File config = new File(profile.dir, ru.playsoftware.j2meloader.config.Config.MIDLET_CONFIG_FILE);
+        byte[] saved = config.exists() ? java.nio.file.Files.readAllBytes(config.toPath()) : null;
+        try {
+            assertTrue(profile.dir.isDirectory() || profile.dir.mkdirs());
+            java.nio.file.Files.write(draft.toPath(), "{broken".getBytes(java.nio.charset.StandardCharsets.UTF_8));
+            context.startActivity(new Intent(context, SymbianActivity.class)
+                    .addFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK)
+                    .putExtra(SymbianLibraryIndex.SYSTEM_EXTRA, game.system)
+                    .putExtra(SymbianLibraryIndex.UID_EXTRA, game.uid));
+            await("Game could not run", 60000); await("Retry", 10000);
+            assertFalse("Failed draft must be consumed", draft.exists());
+            assertNull(find(ui.getRootInActiveWindow(), "Try Original"));
+            SystemClock.sleep(500); capture(context, "launch-failure-symbian");
+            tap("Retry"); await("Show game controls", 60000); SystemClock.sleep(1500);
+            assertNull(find(ui.getRootInActiveWindow(), "Keep"));
+            if (saved == null) assertFalse(config.exists());
+            else assertArrayEquals(saved, java.nio.file.Files.readAllBytes(config.toPath()));
+            capture(context, "launch-failure-symbian-retried");
+            tap("Show game controls"); tap("Game menu"); tap("Exit game"); tap("Leave without saving");
+        } finally {
+            ru.playsoftware.j2meloader.config.SettingsTrial.discard(profile.dir);
+            android.app.ActivityManager manager = (android.app.ActivityManager) context.getSystemService(Context.ACTIVITY_SERVICE);
+            for (android.app.ActivityManager.AppTask task : manager.getAppTasks()) {
+                android.content.ComponentName top = task.getTaskInfo().topActivity;
+                if (top != null && top.getClassName().equals(SymbianActivity.class.getName())) task.finishAndRemoveTask();
+            }
+        }
+    }
     @Test public void rejectedScreenCanRetryOriginalWithoutSavingUntilKeep() throws Exception {
         Assume.assumeTrue("true".equals(InstrumentationRegistry.getArguments().getString("screenRecovery")));
         Context context = InstrumentationRegistry.getInstrumentation().getTargetContext();

@@ -447,14 +447,43 @@ public class MicroActivity extends AppCompatActivity {
 		builder.show();
 	}
 
+	private boolean launchFailed;
+	private ru.playsoftware.j2meloader.input.GameMenuDialog launchFailureDialog;
 	void showErrorDialog(String message) {
-		AlertDialog.Builder builder = new AlertDialog.Builder(this)
-				.setIcon(android.R.drawable.ic_dialog_alert)
-				.setTitle(R.string.error)
-				.setMessage(message)
-				.setPositiveButton(android.R.string.ok, (d, w) -> MidletThread.notifyDestroyed());
-		builder.setOnCancelListener(dialogInterface -> MidletThread.notifyDestroyed());
-		builder.show();
+		runOnUiThread(() -> {
+			if (isFinishing() || isDestroyed() || launchFailed) return;
+			launchFailed = true;
+			if (getSupportActionBar() != null) getSupportActionBar().hide();
+			binding.toolbar.setVisibility(View.GONE);
+			hideSystemUI();
+			LaunchDiagnostics.record(this, "launch_failed", appName, message);
+			MidletThread.pauseApp();
+			cancelQuickMapTrigger();
+			hideQuickSettingsOverlay();
+			if (fastForward != null) fastForward.stop();
+			if (gameMenu != null) { gameMenu.setOnDismissListener(null); gameMenu.dismiss(); }
+			if (settingsMapper != null) { settingsMapper.setOnDismissListener(null); settingsMapper.dismiss(); }
+			controllerInput.clear();
+			if (settingsPreview != null) settingsPreview.stop();
+			if (networkClient != null) { returnToNetworkRoom(message); return; }
+			showLaunchFailure(message);
+		});
+	}
+	private void showLaunchFailure(String message) {
+		launchFailureDialog = ru.playsoftware.j2meloader.input.GameFailureDialog.show(this, appName, message,
+				appPath == null || microLoader == null || microLoader.getTouchSettings() == null ? null : () -> {
+					try {
+						ProfileModel profile = microLoader.getTouchSettings();
+						ru.playsoftware.j2meloader.config.GameRestartActivity.prepare(this, appName, appPath,
+								getIntent().getStringExtra(KEY_START_ARGUMENTS), profile.dir);
+						ProfilesManager.undoPreview(profile);
+						ru.playsoftware.j2meloader.config.SettingsTrial.discard(profile.dir);
+						MidletThread.destroyApp();
+					} catch (RuntimeException error) {
+						android.util.Log.e("MicroActivity", "Failed launch retry", error);
+						showLaunchFailure(getString(R.string.game_restart_failed));
+					}
+				}, MidletThread::notifyDestroyed);
 	}
 
 	private int getToolBarHeight() {
@@ -500,7 +529,7 @@ public class MicroActivity extends AppCompatActivity {
 	}
 
 	public boolean isVisible() {
-		return visible;
+		return visible && !launchFailed;
 	}
 
 	public void showExitConfirmation() {
@@ -871,7 +900,7 @@ public class MicroActivity extends AppCompatActivity {
 
 	@Override
 	public void openOptionsMenu() {
-		if (microLoader == null || isQuickMapVisible() || (gameMenu != null && gameMenu.isShowing())
+		if (launchFailed || microLoader == null || isQuickMapVisible() || (gameMenu != null && gameMenu.isShowing())
 				|| (settingsMapper != null && settingsMapper.isShowing())) return;
 		cancelQuickMapTrigger();
 		if (settingsPreview != null) settingsPreview.suspend();
@@ -1327,6 +1356,7 @@ public class MicroActivity extends AppCompatActivity {
 
 	@Override
 	protected void onDestroy() {
+		if (launchFailureDialog != null) launchFailureDialog.dismiss();
 		if (networkClient != null) networkClient.close();
 		if (fastForward != null) fastForward.cancel();
 		if (settingsPreview != null) settingsPreview.stop();

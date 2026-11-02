@@ -160,9 +160,38 @@ public final class MophunGameActivity extends Activity {
             if (getIntent().getBooleanExtra("controls", false)) showControls();
             session.start();
         } catch (Exception failure) {
-            Toast.makeText(this, failure.getMessage(), Toast.LENGTH_LONG).show();
-            finish();
+            showLaunchFailure(failure);
         }
+    }
+
+    private boolean launchFailed;
+    private void showLaunchFailure(Throwable failure) {
+        if (isFinishing() || isDestroyed()) return;
+        android.util.Log.e("Mophun", "Game failed", failure);
+        launchFailed = true;
+        if (previewBar != null) previewBar.stop();
+        if (session != null) session.stop();
+        if (menu != null) { menu.setOnDismissListener(null); menu.dismiss(); }
+        menu = ru.playsoftware.j2meloader.input.GameFailureDialog.show(this, title, failure.toString(),
+                directory == null ? null : this::retryFailedLaunch, this::leaveGame);
+        pauseState();
+    }
+
+    private void retryFailedLaunch() {
+        if (restarting || isFinishing()) return;
+        restarting = true;
+        if (profile != null) {
+            ProfilesManager.undoPreview(profile);
+            ru.playsoftware.j2meloader.config.SettingsTrial.discard(profile.dir);
+        }
+        disk.execute(() -> {
+            try {
+                if (session != null) session.close();
+                runOnUiThread(() -> { if (!isFinishing() && !isDestroyed()) recreate(); });
+            } catch (Exception error) {
+                runOnUiThread(() -> { restarting = false; showLaunchFailure(error); });
+            }
+        });
     }
 
     private int dp(int value) { return Math.round(value * getResources().getDisplayMetrics().density); }
@@ -254,7 +283,7 @@ public final class MophunGameActivity extends Activity {
 
     private void pauseState() {
         updateScreenshotButton();
-        boolean paused = !visible || isFinishing() || mapper != null || menu != null
+        boolean paused = launchFailed || !visible || isFinishing() || mapper != null || menu != null
                 || (settingsMapper != null && settingsMapper.isShowing()) || !hasWindowFocus()
                 || (devices != null && devices.resumeRequired());
         if (paused) clearInput();
@@ -510,12 +539,12 @@ public final class MophunGameActivity extends Activity {
 
     private void leaveGame() {
             visible = false;
-            session.stop();
+            if (session != null) session.stop();
             if (!getIntent().getBooleanExtra("externalLaunch", false))
                 startActivity(android.content.Intent.makeRestartActivityTask(new android.content.ComponentName(
                         this, ru.playsoftware.j2meloader.MainActivity.class)));
             finish();
-            menu.dismiss();
+            if (menu != null) menu.dismiss();
     }
 
     private void cancelSelect() {
@@ -740,7 +769,7 @@ public final class MophunGameActivity extends Activity {
             if (touch != null) touch.draw(canvas);
             if (session.error() != null && !errorShown) {
                 errorShown = true;
-                Toast.makeText(getContext(), session.error().toString(), Toast.LENGTH_LONG).show();
+                post(() -> showLaunchFailure(session.error()));
             }
             if (visible && !session.finished()) postInvalidateOnAnimation();
         }

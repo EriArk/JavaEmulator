@@ -1,0 +1,4 @@
+<resources>
+    <string name="game_failure_title">Не удалось запустить игру</string>
+    <string name="game_failure_body">Можно выйти или повторить запуск с сохранёнными настройками. Несохранённые изменения настроек будут отменены.</string>
+</resources>

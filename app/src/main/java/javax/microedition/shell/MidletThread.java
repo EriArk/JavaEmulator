@@ -144,7 +144,7 @@ public class MidletThread extends HandlerThread implements Handler.Callback {
 					midlet = microLoader.loadMIDlet(this.mainClass);
 					state = PAUSED;
 				} catch (Throwable t) {
-					throw new RuntimeException("Init midlet failed", t);
+					launchFailed("Init midlet failed", t);
 				}
 				break;
 			case START:
@@ -165,9 +165,7 @@ public class MidletThread extends HandlerThread implements Handler.Callback {
 					Display.setForeground(false);
 					Log.w(TAG, "Midlet doesn't want to start!", e);
 				} catch (Throwable t) {
-					state = DESTROYED;
-					Display.setForeground(false);
-					throw new RuntimeException("Failed startApp", t);
+					launchFailed("Failed startApp", t);
 				}
 				break;
 			case PAUSE:
@@ -204,5 +202,15 @@ public class MidletThread extends HandlerThread implements Handler.Callback {
 				break;
 		}
 		return true;
+	}
+
+	private void launchFailed(String stage, Throwable error) {
+		state = DESTROYED;
+		foregroundRequested = false;
+		Display.setForeground(false);
+		Log.e(TAG, stage, error);
+		MicroActivity activity = ContextHolder.getActivity();
+		if (activity != null) activity.showErrorDialog(error.toString());
+		else notifyDestroyed();
 	}
 }

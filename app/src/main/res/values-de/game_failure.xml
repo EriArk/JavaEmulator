@@ -1,0 +1,4 @@
+<resources>
+    <string name="game_failure_title">Spiel konnte nicht ausgeführt werden</string>
+    <string name="game_failure_body">Du kannst das Spiel verlassen oder es mit den gespeicherten Einstellungen erneut versuchen. Nicht gespeicherte Änderungen werden verworfen.</string>
+</resources>

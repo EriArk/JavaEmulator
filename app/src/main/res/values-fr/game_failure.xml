@@ -1,0 +1,4 @@
+<resources>
+    <string name="game_failure_title">Impossible de lancer le jeu</string>
+    <string name="game_failure_body">Vous pouvez quitter ou réessayer avec les paramètres enregistrés. Les modifications non enregistrées seront abandonnées.</string>
+</resources>

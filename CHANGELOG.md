@@ -10,6 +10,23 @@ stated otherwise. **Experimental** in older checkpoints means local/private
 combined builds; released experimental features are explicitly identified.
 **Released** means an actual GitHub release asset.
 
+## 2026-11-02 - Shared Game Launch Recovery (Public Source, Unreleased)
+
+- Show caught Java, Mophun and Symbian launch failures in the same centered
+  console-style screen: game name, technical reason, Retry and Exit game.
+  Include new copy in all eight supported languages.
+- Route Java constructor/startApp exceptions and Mophun worker errors into
+  this screen. Hide the legacy Java toolbar even before a game displays a frame.
+- Retry only on user action, using confirmed settings. Wait for the old Java
+  process or native worker to stop; prevent duplicate button actions. Preserve
+  the separate network-room flow and Symbian Try Original/Keep/Undo recovery.
+- Retroid: 22 focused/lifecycle/UI checks plus two native UI flows pass. Confirm
+  Java PID replacement, Mophun worker replacement, unchanged confirmed settings
+  and fixture save sentinels, and Snakes startup after a rejected draft.
+- Separate Debug installed, no public release update. This is launch recovery,
+  not a general native-crash, hang or black-screen fix.
+  [Evidence](docs/checks/2026-11-02-launch-error-recovery.md).
+
 ## 2026-11-02 - Recover from a Rejected Phone Screen Mode (Public Source, Unreleased)
 
 - Offer Try Original directly when native Symbian preparation rejects a chosen

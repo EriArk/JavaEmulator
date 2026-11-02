@@ -347,7 +347,8 @@ public final class SymbianActivity extends Activity implements Emulator.Host, In
                     if (!running) { hasPendingImport = pendingImport.exists(); library(); }
                     String message=SystemFailureText.message(this,error);
                     status.setText(message);
-                    if (error instanceof ScreenLaunchFailure) showScreenRecovery((ScreenLaunchFailure)error);
+                    if (error instanceof ScreenLaunchFailure) afterTask = () -> showScreenRecovery((ScreenLaunchFailure)error);
+                    else if (error instanceof GameLaunchFailure) afterTask = () -> showLaunchFailure((GameLaunchFailure)error);
                     else if (!(error instanceof java.io.InterruptedIOException))
                         notice(getString(R.string.system_could_not_finish), message == null ? text : message, getString(R.string.system_close), null, null);
                 } });
@@ -983,13 +984,42 @@ public final class SymbianActivity extends Activity implements Emulator.Host, In
         }
         return title;
     }
-    private static final class ScreenLaunchFailure extends IOException {
+    private static class GameLaunchFailure extends IOException {
         final File phone;
         final int uid;
         final String title;
-        ScreenLaunchFailure(String message, IOException cause, File phone, int uid, String title) {
+        GameLaunchFailure(String message, Exception cause, File phone, int uid, String title) {
             super(message, cause); this.phone = phone; this.uid = uid; this.title = title;
         }
+    }
+    private static final class ScreenLaunchFailure extends GameLaunchFailure {
+        ScreenLaunchFailure(String message, IOException cause, File phone, int uid, String title) {
+            super(message, cause, phone, uid, title);
+        }
+    }
+    private GameMenuDialog launchFailureDialog;
+    private void showLaunchFailure(GameLaunchFailure failure) {
+        if (closing) return;
+        if (launchFailureDialog != null) launchFailureDialog.dismiss();
+        launchFailureDialog = ru.playsoftware.j2meloader.input.GameFailureDialog.show(this,
+                failure.title, failure.getMessage(), () -> {
+                    if (!closing && !busy && !running && failure.phone.equals(runtimeRoot)) play(failure.uid);
+                }, () -> { if (directLaunch) finish(); });
+    }
+    private void failRunningLaunch(int uid, String title, Exception error) {
+        if (closing || !running) return;
+        returnRequested = false;
+        sessionGeneration++;
+        if (sessionUi != null) { sessionUi.close(); sessionUi = null; }
+        detach(); running = false; pendingUid = 0; menuOpen = false;
+        library();
+        Runnable stop = () -> task(getString(R.string.native_closing), () -> {
+            Emulator.stopSession();
+            Emulator.lastGuestExit = null;
+            afterTask = () -> showLaunchFailure(new GameLaunchFailure(
+                    SystemFailureText.message(this, error), error, runtimeRoot, uid, title));
+        });
+        if (busy) afterTask = stop; else stop.run();
     }
     private void showScreenRecovery(ScreenLaunchFailure failure) {
         GameMenuDialog menu = new GameMenuDialog(this, failure.title);
@@ -1008,90 +1038,95 @@ public final class SymbianActivity extends Activity implements Emulator.Host, In
             String identity = "legacy";
             for (SystemFileCatalog.Entry entry : systems) if (catalog.runtime(entry).equals(runtimeRoot)) identity = entry.id;
             final String sessionTitle = sessionTitle(identity, Integer.toUnsignedLong(uid));
-            ru.playsoftware.j2meloader.config.ProfileModel preparedProfile =
-                    originalScreen ? SymbianGameSettings.originalScreenTrial(getFilesDir(), identity, Integer.toUnsignedLong(uid))
-                            : SymbianSessionUi.loadSessionProfile(this, identity, Integer.toUnsignedLong(uid));
-            Emulator.stopSession();
-            try { Emulator.prepareGame(runtimeRoot.getAbsolutePath(), preparedProfile.getSymbianScreenPreset()); }
-            catch (IOException error) {
+            try {
+                ru.playsoftware.j2meloader.config.ProfileModel preparedProfile =
+                        originalScreen ? SymbianGameSettings.originalScreenTrial(getFilesDir(), identity, Integer.toUnsignedLong(uid))
+                                : SymbianSessionUi.loadSessionProfile(this, identity, Integer.toUnsignedLong(uid));
                 Emulator.stopSession();
-                if (preparedProfile.getSymbianScreenPreset() != 0)
-                    throw new ScreenLaunchFailure(getString(R.string.symbian_screen_unavailable), error,
-                            runtimeRoot, uid, sessionTitle);
-                throw error;
-            }
-            PhoneScreenOptions.record(getFilesDir(), identity, Emulator.guestScreenOptions());
-            Emulator.lastGuestExit = null;
-            if (!Emulator.startSession()) throw new IOException(getString(R.string.native_phone_start_failed));
-            runOnUiThread(() -> {
-                if (closing) return;
-                sessionGeneration++;
-                running = true; pendingUid = uid;
-                TextureView sessionSurface = new TextureView(this);
-                surface = sessionSurface;
-                sessionSurface.setSurfaceTextureListener(new TextureView.SurfaceTextureListener() {
-                    private Surface output;
-                    @Override public void onSurfaceTextureAvailable(android.graphics.SurfaceTexture texture, int w, int height) {
-                        output = new Surface(texture); onSurfaceTextureSizeChanged(texture,w,height);
-                    }
-                    @Override public void onSurfaceTextureSizeChanged(android.graphics.SurfaceTexture texture, int w, int height) {
-                        if (surface != sessionSurface || !running || closing) return;
-                        Emulator.setScreenParams(Color.BLACK, 100, sessionUi == null ? 1 : sessionUi.scale(), 2, "", 0, true);
-                        Emulator.surfaceChanged(output, w, height); attached = true;
-                        Emulator.pauseSession(!resumed || menuOpen);
-                        if (pendingUid != 0) {
-                            int uid = pendingUid; pendingUid = 0;
-                            if (!Emulator.launchGame(uid)) {
-                                Emulator.lastGuestExit = getString(R.string.native_game_start_failed);
-                                returnToLibrary();
+                try { Emulator.prepareGame(runtimeRoot.getAbsolutePath(), preparedProfile.getSymbianScreenPreset()); }
+                catch (IOException error) {
+                    Emulator.stopSession();
+                    if (preparedProfile.getSymbianScreenPreset() != 0)
+                        throw new ScreenLaunchFailure(getString(R.string.symbian_screen_unavailable), error,
+                                runtimeRoot, uid, sessionTitle);
+                    throw error;
+                }
+                PhoneScreenOptions.record(getFilesDir(), identity, Emulator.guestScreenOptions());
+                Emulator.lastGuestExit = null;
+                if (!Emulator.startSession()) throw new IOException(getString(R.string.native_phone_start_failed));
+                runOnUiThread(() -> {
+                    if (closing) return;
+                    sessionGeneration++;
+                    running = true; pendingUid = uid;
+                    TextureView sessionSurface = new TextureView(this);
+                    surface = sessionSurface;
+                    sessionSurface.setSurfaceTextureListener(new TextureView.SurfaceTextureListener() {
+                        private Surface output;
+                        @Override public void onSurfaceTextureAvailable(android.graphics.SurfaceTexture texture, int w, int height) {
+                            output = new Surface(texture); onSurfaceTextureSizeChanged(texture,w,height);
+                        }
+                        @Override public void onSurfaceTextureSizeChanged(android.graphics.SurfaceTexture texture, int w, int height) {
+                            if (surface != sessionSurface || !running || closing) return;
+                            Emulator.setScreenParams(Color.BLACK, 100, sessionUi == null ? 1 : sessionUi.scale(), 2, "", 0, true);
+                            Emulator.surfaceChanged(output, w, height); attached = true;
+                            Emulator.pauseSession(!resumed || menuOpen);
+                            if (pendingUid != 0) {
+                                int uid = pendingUid; pendingUid = 0;
+                                if (!Emulator.launchGame(uid)) {
+                                    failRunningLaunch(uid, sessionTitle, new IOException(getString(R.string.native_game_start_failed)));
+                                }
                             }
                         }
-                    }
-                    @Override public boolean onSurfaceTextureDestroyed(android.graphics.SurfaceTexture texture) {
-                        if (surface == sessionSurface) detach();
-                        if (output != null) output.release();
-                        output = null; return true;
-                    }
-                    @Override public void onSurfaceTextureUpdated(android.graphics.SurfaceTexture texture) {
-                        if (surface == sessionSurface && sessionUi != null) sessionUi.frameAvailable();
-                    }
+                        @Override public boolean onSurfaceTextureDestroyed(android.graphics.SurfaceTexture texture) {
+                            if (surface == sessionSurface) detach();
+                            if (output != null) output.release();
+                            output = null; return true;
+                        }
+                        @Override public void onSurfaceTextureUpdated(android.graphics.SurfaceTexture texture) {
+                            if (surface == sessionSurface && sessionUi != null) sessionUi.frameAvailable();
+                        }
+                    });
+                    try {
+                        sessionUi = new SymbianSessionUi(this, surface, preparedProfile, sessionTitle, new SymbianSessionUi.Host() {
+                            public int[] displayGeometry() {
+                                return running && attached && !closing ? Emulator.displayGeometry() : null;
+                            }
+                            public android.graphics.RectF touchBounds() {
+                                if (!running || !attached || closing || menuOpen) return null;
+                                int[] bounds = Emulator.touchBounds();
+                                return bounds == null ? null : new android.graphics.RectF(bounds[0],bounds[1],bounds[2],bounds[3]);
+                            }
+                            public void touch(int x, int y, int pressure, int action, int pointer) {
+                                if (running && attached && !closing) Emulator.touchScreen(x,y,pressure,action,pointer);
+                            }
+                            public void key(int scan, boolean down) { if (running && attached && !closing) Emulator.pressKey(scan, down ? 0 : 1); }
+                            public void pause(boolean paused) { menuOpen = paused; if (running && attached && !closing) Emulator.pauseSession(!resumed || paused); }
+                            public void display(int scale) { if (running && attached && !closing) Emulator.setScreenParams(Color.BLACK,100,scale,2,"",0,true); }
+                            public void frameRate(int fps) { if (running && !closing) Emulator.setFrameRateLimit(fps); }
+                            public void speed(int percent) { if (running && !closing) Emulator.setEmulationSpeed(percent); }
+                            public void leave() { returnToLibrary(); }
+                            public void restart() { restartGame(uid); }
+                            public android.graphics.Bitmap capture() throws IOException {
+                                if (!running || !attached || closing || menuOpen) return null;
+                                // The upstream capture queues GPU readback. Keep pause/teardown on this
+                                // same UI thread until it returns; gallery storage happens off-thread.
+                                File png = File.createTempFile("symbian-frame-", ".png", getCacheDir());
+                                try {
+                                    if (!Emulator.saveScreenshotTo(png.getAbsolutePath())) return null;
+                                    android.graphics.Bitmap bitmap = android.graphics.BitmapFactory.decodeFile(png.getAbsolutePath());
+                                    if (bitmap == null) throw new IOException(getString(R.string.native_screenshot_failed));
+                                    return bitmap;
+                                } finally { Files.deleteIfExists(png.toPath()); }
+                            }
+                        }, originalScreen);
+                        setContentView(sessionUi.root); hideBars();
+                    } catch (IOException error) { failRunningLaunch(uid, sessionTitle, error); }
                 });
-                try {
-                    sessionUi = new SymbianSessionUi(this, surface, preparedProfile, sessionTitle, new SymbianSessionUi.Host() {
-                        public int[] displayGeometry() {
-                            return running && attached && !closing ? Emulator.displayGeometry() : null;
-                        }
-                        public android.graphics.RectF touchBounds() {
-                            if (!running || !attached || closing || menuOpen) return null;
-                            int[] bounds = Emulator.touchBounds();
-                            return bounds == null ? null : new android.graphics.RectF(bounds[0],bounds[1],bounds[2],bounds[3]);
-                        }
-                        public void touch(int x, int y, int pressure, int action, int pointer) {
-                            if (running && attached && !closing) Emulator.touchScreen(x,y,pressure,action,pointer);
-                        }
-                        public void key(int scan, boolean down) { if (running && attached && !closing) Emulator.pressKey(scan, down ? 0 : 1); }
-                        public void pause(boolean paused) { menuOpen = paused; if (running && attached && !closing) Emulator.pauseSession(!resumed || paused); }
-                        public void display(int scale) { if (running && attached && !closing) Emulator.setScreenParams(Color.BLACK,100,scale,2,"",0,true); }
-                        public void frameRate(int fps) { if (running && !closing) Emulator.setFrameRateLimit(fps); }
-                        public void speed(int percent) { if (running && !closing) Emulator.setEmulationSpeed(percent); }
-                        public void leave() { returnToLibrary(); }
-                        public void restart() { restartGame(uid); }
-                        public android.graphics.Bitmap capture() throws IOException {
-                            if (!running || !attached || closing || menuOpen) return null;
-                            // The upstream capture queues GPU readback. Keep pause/teardown on this
-                            // same UI thread until it returns; gallery storage happens off-thread.
-                            File png = File.createTempFile("symbian-frame-", ".png", getCacheDir());
-                            try {
-                                if (!Emulator.saveScreenshotTo(png.getAbsolutePath())) return null;
-                                android.graphics.Bitmap bitmap = android.graphics.BitmapFactory.decodeFile(png.getAbsolutePath());
-                                if (bitmap == null) throw new IOException(getString(R.string.native_screenshot_failed));
-                                return bitmap;
-                            } finally { Files.deleteIfExists(png.toPath()); }
-                        }
-                    }, originalScreen);
-                    setContentView(sessionUi.root); hideBars();
-                } catch (IOException error) { Toast.makeText(this,error.getMessage(),Toast.LENGTH_LONG).show(); returnToLibrary(); }
-            });
+            } catch (Exception error) {
+                Emulator.stopSession();
+                if (error instanceof ScreenLaunchFailure) throw error;
+                throw new GameLaunchFailure(SystemFailureText.message(this, error), error, runtimeRoot, uid, sessionTitle);
+            }
         });
     }
     private void releaseKeys() {
@@ -1245,6 +1280,7 @@ public final class SymbianActivity extends Activity implements Emulator.Host, In
     }
     @Override protected void onDestroy() {
         closing = true;
+        if (launchFailureDialog != null) launchFailureDialog.dismiss();
         sessionGeneration++;
         if (sessionUi != null) { sessionUi.close(); sessionUi = null; }
         detach(); running = false;
