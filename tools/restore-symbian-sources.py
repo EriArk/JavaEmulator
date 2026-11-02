@@ -42,11 +42,14 @@ def main():
                     bits = (entry.external_attr >> 16) & 0o111
                     normalized = original
                     if b"\r\n" in original and b"\0" not in original:
-                        try:
-                            original.decode("utf-8")
+                        if original.startswith(b"#!") or path.name == "Makefile" or path.suffix in (".sh", ".mak", ".mk"):
                             normalized = original.replace(b"\r\n", b"\n")
-                        except UnicodeDecodeError:
-                            pass
+                        else:
+                            try:
+                                original.decode("utf-8")
+                                normalized = original.replace(b"\r\n", b"\n")
+                            except UnicodeDecodeError:
+                                pass
                     if original == normalized and not bits:
                         continue
                     if path.is_symlink() or not path.is_file():

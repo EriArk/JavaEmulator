@@ -33,6 +33,7 @@ class RestoreSourcesTest(unittest.TestCase):
             stream.writestr("Makefile", "all:\r\n\ttrue\r\n")
             stream.writestr("list.c", "extern int codec;\r\n")
             stream.writestr("binary.bin", b"\0\r\n\xff")
+            stream.writestr("latin.sh", b"#!/bin/sh\r\n# caf\xe9\r\n")
         lock = {"eka2l1": "test-revision", "components": [{"archive": archive.name,
                 "path": component, "sha256": hashlib.sha256(archive.read_bytes()).hexdigest()}]}
         (self.bundle / "sources.json").write_text(json.dumps(lock))
@@ -62,6 +63,7 @@ class RestoreSourcesTest(unittest.TestCase):
         self.assertNotIn(b"\r", (self.dest / "Makefile").read_bytes())
         self.assertNotIn(b"\r", (self.dest / "list.c").read_bytes())
         self.assertEqual((self.dest / "binary.bin").read_bytes(), b"\0\r\n\xff")
+        self.assertEqual((self.dest / "latin.sh").read_bytes(), b"#!/bin/sh\n# caf\xe9\n")
 
     @unittest.skipUnless(os.name == "posix", "Unix executable bits")
     def test_modified_script_is_preserved(self):
