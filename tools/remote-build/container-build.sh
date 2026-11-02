@@ -13,6 +13,8 @@ export JAVA_TOOL_OPTIONS="${JAVA_TOOL_OPTIONS:-} -Duser.home=$HOME -Djava.io.tmp
 export ANDROID_USER_HOME="$HOME/.android"
 revision=$(git rev-parse HEAD)
 test -z "$(git status --porcelain --untracked-files=normal)" || { echo 'Source checkout is dirty' >&2; exit 2; }
+python3 tools/test_restore_symbian_sources.py
+bash tools/remote-build/verify-build-guards.sh
 bash ./gradlew --no-daemon --console=plain --max-workers=1 \
   '-Dorg.gradle.jvmargs=-Xmx1536m -XX:MaxMetaspaceSize=512m -Djava.io.tmpdir=/tmp' \
   -PsymbianRelease=true -PsymbianSourceDir=/sources/symbian -PnativeBuildJobs=1 \
@@ -28,6 +30,10 @@ assert len(meta['elements']) == 1
 source = folder / meta['elements'][0]['outputFile']
 target = pathlib.Path('/out') / source.name
 shutil.copy2(source, target)
+mapping = pathlib.Path('app/build/symbian-release/outputs/mapping/fdroidRelease/mapping.txt')
+if mode == 'unsigned':
+    assert mapping.is_file(), 'Missing release deobfuscation mapping'
+    shutil.copy2(mapping, pathlib.Path('/out/mapping.txt'))
 counts = dict(tests=0, failures=0, errors=0, skipped=0)
 for folder in ('app/build/symbian-release/test-results/testFdroidDebugUnitTest',
                'dexlib/build/test-results/testDebugUnitTest'):
@@ -44,6 +50,7 @@ pathlib.Path('/out/SHA256SUMS.txt').write_text(f'{digest}  {target.name}\n')
 pathlib.Path('/out/BUILD-INFO.json').write_text(json.dumps(dict(
     revision=revision, mode=mode, apk=target.name, sha256=digest,
     applicationId=meta['applicationId'], version=meta['elements'][0]['versionName'],
+    versionCode=meta['elements'][0]['versionCode'], size=target.stat().st_size,
     tests=counts, device_tested=False, production_signed=False), indent=2) + '\n')
 print(json.dumps(counts))
 PY
