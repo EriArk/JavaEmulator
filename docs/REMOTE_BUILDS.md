@@ -35,6 +35,11 @@ the launcher does not change host keys or enable password/key forwarding.
 The server fetches the exact full Git SHA from the public origin. Dirty remote
 checkouts are rejected rather than reset. Cached native sources are restored from
 the hash-pinned published source bundle, never from a phone/game collection.
+On Linux, restoration retains ZIP executable bits and normalizes CRLF in UTF-8
+text inputs, including C headers scanned by FFmpeg's configure script. Binary
+files are unchanged. Existing inputs must match the archive or its normalized
+equivalent; modified files are not silently replaced. The original source
+archives remain byte-identical and hash-verified.
 Every run builds all three engines and runs app/converter JVM tests; unsigned
 Release also runs the production-payload guard. It exports the APK, checksum,
 test XML, build log and `BUILD-INFO.json`. Downloads are verified locally under
@@ -84,5 +89,9 @@ for Ubuntu package updates or all third-party prebuilts.
 
 ## Verification
 
-Server bootstrap and the first real combined build are pending. Do not treat
-an available SSH session or a built image as a working Android build pipeline.
+Server bootstrap is complete as of 2026-11-02. Six Linux source-restoration
+checks pass (executable permissions, line endings, retained edits, archive
+hashes, path traversal and refusal to overwrite an existing tree).
+The first complete combined APK build and local-signing round trip remain
+pending. Do not treat an available SSH session or a built image as a working
+Android build pipeline.

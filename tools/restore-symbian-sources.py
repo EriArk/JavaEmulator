@@ -12,7 +12,7 @@ def main():
     parser.add_argument("bundle", type=pathlib.Path, help="Directory containing sources.json and component ZIPs")
     parser.add_argument("destination", type=pathlib.Path)
     parser.add_argument("--prepare-posix", action="store_true",
-                        help="Restore executable bits and script line endings in an existing verified source tree")
+                        help="Restore executable bits and text line endings in an existing verified source tree")
     args = parser.parse_args()
     root = args.destination.resolve()
     if not args.prepare_posix and root.exists() and any(root.iterdir()):
@@ -39,11 +39,16 @@ def main():
                         continue
                     original = archive.read(entry)
                     path = target / entry.filename
-                    script = original.startswith(b"#!") or path.name == "Makefile" or path.suffix in (".sh", ".mak", ".mk")
                     bits = (entry.external_attr >> 16) & 0o111
-                    if not script and not bits:
+                    normalized = original
+                    if b"\r\n" in original and b"\0" not in original:
+                        try:
+                            original.decode("utf-8")
+                            normalized = original.replace(b"\r\n", b"\n")
+                        except UnicodeDecodeError:
+                            pass
+                    if original == normalized and not bits:
                         continue
-                    normalized = original.replace(b"\r\n", b"\n") if script else original
                     if path.is_symlink() or not path.is_file():
                         raise RuntimeError("Missing or unsafe build input: " + entry.filename)
                     current = path.read_bytes()
@@ -53,7 +58,7 @@ def main():
                         path.write_bytes(normalized)
                     path.chmod(path.stat().st_mode | bits)
     if args.prepare_posix:
-        print("Prepared verified archive scripts for POSIX; unrelated files preserved")
+        print("Prepared verified archive text for POSIX; binary files and local edits preserved")
         return
     (root / "ABYSS_REVISION").write_text(lock["eka2l1"] + "\n", encoding="ascii")
     # Upstream's Android copy command still names these unused banks. Empty build

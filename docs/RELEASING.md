@@ -1,7 +1,9 @@
 # Manual release checklist
 
-GitHub Actions is disabled. Releases are prepared locally and published manually
-by a maintainer; this document does not enable any automation.
+GitHub Actions is disabled. Releases are prepared by a maintainer and published
+manually; this document does not enable automatic publishing. Compilation can
+use the isolated [remote builder](REMOTE_BUILDS.md); signing keys stay local and
+all artifact/source/runtime checks below still apply.
 
 ## Artifact policy
 

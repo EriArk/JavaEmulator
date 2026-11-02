@@ -31,6 +31,8 @@ class RestoreSourcesTest(unittest.TestCase):
             stream.writestr(info, "#!/bin/sh\nexit 0\n")
             stream.writestr("src/emu/drivers/resources/README", "fixture")
             stream.writestr("Makefile", "all:\r\n\ttrue\r\n")
+            stream.writestr("list.c", "extern int codec;\r\n")
+            stream.writestr("binary.bin", b"\0\r\n\xff")
         lock = {"eka2l1": "test-revision", "components": [{"archive": archive.name,
                 "path": component, "sha256": hashlib.sha256(archive.read_bytes()).hexdigest()}]}
         (self.bundle / "sources.json").write_text(json.dumps(lock))
@@ -58,6 +60,8 @@ class RestoreSourcesTest(unittest.TestCase):
         self.assertTrue(script.stat().st_mode & 0o111)
         self.assertEqual(script.read_bytes(), original)
         self.assertNotIn(b"\r", (self.dest / "Makefile").read_bytes())
+        self.assertNotIn(b"\r", (self.dest / "list.c").read_bytes())
+        self.assertEqual((self.dest / "binary.bin").read_bytes(), b"\0\r\n\xff")
 
     @unittest.skipUnless(os.name == "posix", "Unix executable bits")
     def test_modified_script_is_preserved(self):
