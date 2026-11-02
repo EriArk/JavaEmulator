@@ -10,8 +10,18 @@ root=$(realpath "$root")
 [[ "$root" != / && "$root" != "$HOME" ]] || exit 2
 exec 9>"$root/build.lock"
 flock -n 9 || { echo 'An AbyssME build already holds the lock' >&2; exit 2; }
-available=$(awk '/MemAvailable:/ {print $2}' /proc/meminfo)
-(( available >= 4608000 )) || { echo 'Need 4.5 GiB available RAM; live services take priority' >&2; exit 2; }
+wait_for_memory() {
+  for ((attempt=0; attempt<30; attempt++)); do
+    local available
+    available=$(awk '/MemAvailable:/ {print $2}' /proc/meminfo)
+    (( available >= 4608000 )) && return 0
+    echo 'Waiting for 4.5 GiB available RAM; live services take priority (maximum 10 minutes).'
+    sleep 20
+  done
+  echo 'Insufficient host memory; retry later' >&2
+  return 2
+}
+wait_for_memory
 mkdir -p "$root/cache/gradle" "$root/cache/home" "$root/tmp" "$root/sources" "$root/out"
 if [[ ! -d "$root/repo/.git" ]]; then
   git init "$root/repo"
@@ -45,8 +55,7 @@ run="$(date -u +%Y%m%dT%H%M%SZ)-${revision:0:12}-$mode"
 out="$root/out/$run"
 mkdir "$out"
 docker image inspect "$image" --format '{{.Id}}' > "$out/IMAGE-ID.txt"
-available=$(awk '/MemAvailable:/ {print $2}' /proc/meminfo)
-(( available >= 4608000 )) || { echo 'Host memory dropped during setup; retry later' >&2; exit 2; }
+wait_for_memory
 docker run --rm --name abyssme-build-run --cpus=2 --memory=4g --memory-swap=4g \
   --pids-limit=512 --cap-drop=ALL --security-opt=no-new-privileges --read-only \
   --user "$(id -u):$(id -g)" \

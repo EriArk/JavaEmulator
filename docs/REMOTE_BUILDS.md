@@ -14,8 +14,9 @@ host account UID with dropped capabilities and a read-only root filesystem.
 
 Only one build may hold the account's lock. Compilation is limited to two CPUs,
 4 GiB RAM with no additional swap, one Gradle worker and one native compile job.
-The launcher requires 4.5 GiB available host RAM before starting; live services
-take priority. The initial SDK image installation is separate from compilation.
+The launcher waits up to ten minutes for 4.5 GiB available host RAM before
+starting and checks again after setup; live services take priority. The initial
+SDK image installation is separate from compilation.
 No existing image, volume, service or Windows cache is automatically deleted.
 Output and cache retention is explicit, not an unattended cleanup job.
 
