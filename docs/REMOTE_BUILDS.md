@@ -53,6 +53,24 @@ the downloaded APK before following [RELEASING](RELEASING.md). Never place the
 keystore in the public checkout, builder image or SSH upload. APK signing, source
 bundles, runtime testing and publication remain explicit release steps.
 
+`SignApk.java` performs alignment, signing and certificate validation locally
+using Java's Properties parser for the existing signing configuration. Passwords
+are child-process environment values, not command-line arguments or log output.
+It refuses an existing output and removes only its own failed output/temp file.
+
+```powershell
+& 'C:/Program Files/Android/Android Studio/jbr/bin/java.exe' `
+  tools/remote-build/SignApk.java path/to/remote-release-unsigned.apk `
+  path/to/new-signed.apk keystore.properties `
+  "$env:LOCALAPPDATA/Android/Sdk/build-tools/34.0.0" `
+  722b6f8e74090bd3895eb0bc76433333c637e881758fc10ac276dd214499c38f
+```
+
+The final argument is the existing official certificate fingerprint. Contributors
+using their own keys must supply their own expected fingerprint; those APKs are
+not official updates. Signing a server build does not authorize replacing an
+existing public version/tag with different bytes.
+
 ## Toolchain
 
 The Dockerfile pins the Temurin 21 base image digest and Google command-line-tools
