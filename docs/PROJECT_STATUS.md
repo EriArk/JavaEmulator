@@ -52,6 +52,15 @@ problems remain; this is not universal Symbian widescreen or full compatibility.
 [Notes](releases/v0.7.0-beta.2.md), [verification](releases/v0.7.0-beta.2-checks.md),
 [checksums](releases/v0.7.0-beta.2/SHA256SUMS.txt).
 
+**Server build migration (2026-11-02, public source; verification in progress):**
+manual SSH builds now have a dedicated Linux Docker environment with bounded
+CPU/RAM, pinned Android tools, a separate cache and exact-commit checkout.
+Source restoration handles Windows line endings and Unix executable bits;
+six Linux restoration checks pass. Signing keys remain local and no automatic
+publishing or device installation is added. The first combined APK/signing
+round trip is still pending. Beta 2 remains the existing Windows-built APK;
+Retroid is reserved for another project. [Workflow](REMOTE_BUILDS.md).
+
 **Checkpoint note:** the dated entries between here and the previous beta record
 describe the pre-release state when each batch was tested. Their code through
 `42a94d08` is now in Beta 2. Phrases such as "unreleased" or "no public APK update"

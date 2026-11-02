@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 set -euo pipefail
 # These negative checks run before compilation and never have signing keys.
-base=(--offline --no-daemon --console=plain --max-workers=1
+base=(--no-daemon --console=plain --max-workers=1
   '-Dorg.gradle.jvmargs=-Xmx1536m -XX:MaxMetaspaceSize=512m -Djava.io.tmpdir=/tmp'
   -PsymbianRelease=true -PsymbianSourceDir=/sources/symbian)
 expect_failure() {

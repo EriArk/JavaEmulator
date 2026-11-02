@@ -40,9 +40,11 @@ text inputs, including C headers scanned by FFmpeg's configure script. Binary
 files are unchanged. Existing inputs must match the archive or its normalized
 equivalent; modified files are not silently replaced. The original source
 archives remain byte-identical and hash-verified.
-Every run builds all three engines and runs app/converter JVM tests; unsigned
+Every run checks source restoration and signing/mode/resource validation,
+builds all three engines and runs app/converter JVM tests; unsigned
 Release also runs the production-payload guard. It exports the APK, checksum,
-test XML, build log and `BUILD-INFO.json`. Downloads are verified locally under
+test XML, guard logs, build log and `BUILD-INFO.json`; unsigned Release also
+retains the R8 crash-deobfuscation mapping. Downloads are verified locally under
 `build/remote-artifacts`, on the project drive rather than a temporary C: folder.
 
 ## Signing Boundary
