@@ -8,6 +8,9 @@ case "$mode" in
 esac
 test ! -e keystore.properties || { echo 'Signing configuration must not enter the builder' >&2; exit 2; }
 mkdir -p "$HOME" "$GRADLE_USER_HOME" /out
+# Java resolves UID 1000 through /etc/passwd, independently of the HOME variable.
+export JAVA_TOOL_OPTIONS="${JAVA_TOOL_OPTIONS:-} -Duser.home=$HOME -Djava.io.tmpdir=/tmp"
+export ANDROID_USER_HOME="$HOME/.android"
 revision=$(git rev-parse HEAD)
 test -z "$(git status --porcelain --untracked-files=normal)" || { echo 'Source checkout is dirty' >&2; exit 2; }
 bash ./gradlew --no-daemon --console=plain --max-workers=1 \
