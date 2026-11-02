@@ -37,6 +37,24 @@ remains canonical; game text and user content are not translated.
 
 ## Availability: Do Not Mix These Channels
 
+**Unreleased representative-game repairs (2026-11-02):** a Retroid sample of ten
+Java JARs and ten Symbian packages exposed shared defects in uncommon Java size
+hints, DPAD_CENTER input, legacy boolean-return conversion and Android sensor
+queue initialization. Repairs do not identify individual game titles. Installed
+Java games rebuild executable cache on demand without replacing originals or
+saves. SimCity Metropolis now reaches its new-game introduction instead of an
+ART verifier error; Labyrinth Touch's sensor registration failure is gone but
+its level scene remains incomplete. Five JVM and 46 focused Retroid tests pass.
+Game-by-game observations are not full compatibility acceptance; touch/tilt and
+native rendering issues remain. Symbian Landscape is a phone-native mode, not
+universal widescreen. Orientation trials now select an existing initial mode
+instead of rewriting the phone's mode dimensions (including compatibility
+modes); the physical panel is unchanged and games may override the initial
+choice. Fruitz's reproduced Portrait startup panic is gone; Fruitaholic reaches
+its game board through touch. N95/EKA1 mode cycles preserve source-phone hashes.
+Separate local Debug installed; no release APK update.
+[Sample matrix, resolution behavior and limits](checks/2026-11-02-game-sample.md).
+
 **Unreleased launch-error recovery (2026-11-02):** caught Java, Mophun and
 Symbian game-launch failures now share a centered console-style screen with
 the game title, technical reason, manual Retry and Exit game. Retry uses saved

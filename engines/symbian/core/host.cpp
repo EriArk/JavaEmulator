@@ -647,6 +647,7 @@ Java_com_github_eka2l1_emu_Emulator_environmentReport(JNIEnv *env, jclass) {
     if (!state || !state->symsys) return env->NewStringUTF("Not prepared");
     auto *sys = state->symsys.get();
     report << "Language: " << state->conf.language << "\n";
+    report << "Sensor event loop: " << (eka2l1::common::jni::main_looper ? "ready" : "unavailable") << "\n";
     auto *io = sys->get_io_system();
     for (auto drv : {drive_c, drive_e, drive_z}) {
         if (auto drive = io->get_drive_entry(drv)) report << static_cast<int>(drv) << ": " << drive->real_path << "\n";
@@ -726,7 +727,17 @@ static void prepare_guest(JNIEnv *env, jstring directory, int screen_preset) {
 }
 
 extern "C" JNIEXPORT void JNICALL
-Java_com_github_eka2l1_emu_Emulator_prepare(JNIEnv *env, jclass, jstring directory) {
+Java_com_github_eka2l1_emu_Emulator_bindSensorLooper(JNIEnv *env, jclass) {
+    auto *looper = ALooper_forThread();
+    if (!looper) {
+        env->ThrowNew(env->FindClass("java/lang/IllegalStateException"), "Bind sensors on the Android main looper");
+        return;
+    }
+    eka2l1::common::jni::main_looper = looper;
+}
+
+extern "C" JNIEXPORT void JNICALL
+Java_com_github_eka2l1_emu_Emulator_prepareNative(JNIEnv *env, jclass, jstring directory) {
     prepare_guest(env, directory, 0);
 }
 
@@ -739,7 +750,7 @@ Java_com_github_eka2l1_emu_Emulator_guestScreenOptions(JNIEnv *, jclass) {
 }
 
 extern "C" JNIEXPORT void JNICALL
-Java_com_github_eka2l1_emu_Emulator_prepareGame(JNIEnv *env, jclass, jstring directory, jint preset) {
+Java_com_github_eka2l1_emu_Emulator_prepareGameNative(JNIEnv *env, jclass, jstring directory, jint preset) {
     if (!abyss::guest_screen::valid(preset)) {
         env->ThrowNew(env->FindClass("java/lang/IllegalArgumentException"), "Invalid emulated screen preset");
         return;

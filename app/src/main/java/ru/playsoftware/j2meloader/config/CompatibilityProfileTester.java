@@ -62,6 +62,8 @@ final class CompatibilityProfileTester {
 			"(?:https?://|www\\.)\\S+|\\b[a-z0-9-]+(?:\\.[a-z0-9-]+)*\\.[a-z]{2,24}(?:/\\S*)?");
 	private static final Pattern RESOLUTION_PATTERN = Pattern.compile(
 			"(?<!\\d)(128|160|176|208|220|240|320|352|360|416|480|640|800|854)\\s*[x*,_ -]\\s*(128|160|176|208|220|240|320|352|360|416|480|640|800|854)(?!\\d)");
+	private static final Pattern DECLARED_RESOLUTION_PATTERN = Pattern.compile(
+			"(?<![\\d.+-])(\\d{2,4})\\s*[x*,_ -]\\s*(\\d{2,4})(?![\\d.])");
 
 	private CompatibilityProfileTester() {
 	}
@@ -185,10 +187,10 @@ final class CompatibilityProfileTester {
 		String stem = withoutWebAddresses(name.substring(0, name.lastIndexOf('.'))
 				.toLowerCase(Locale.US).replace('_', ' '));
 		// Only explicit WxH filename labels, not pairs of numbers in release identifiers.
-		Matcher sizes = Pattern.compile("(?<!\\d)(\\d{3})\\s*x\\s*(\\d{3})(?!\\d)").matcher(stem);
+		Matcher sizes = Pattern.compile("(?<![\\d.+])(\\d{3})\\s*x\\s*(\\d{3})(?![\\d.])").matcher(stem);
 		while (sizes.find()) {
 			int w = Integer.parseInt(sizes.group(1)), h = Integer.parseInt(sizes.group(2));
-			if (isKnownJ2meResolution(w, h)) {
+			if (validScreenSize(w, h)) {
 				rememberScreenCandidate(probe, w, h, 550);
 				probe.filenameHasSize = true;
 			}
@@ -346,7 +348,8 @@ final class CompatibilityProfileTester {
 	}
 
 	private static void readResolutionHints(Probe probe, String text, int bonus) {
-		Matcher matcher = RESOLUTION_PATTERN.matcher(text);
+		// Declared display metadata is stronger evidence than an artwork-size guess.
+		Matcher matcher = (bonus >= 1000 ? DECLARED_RESOLUTION_PATTERN : RESOLUTION_PATTERN).matcher(text);
 		while (matcher.find()) {
 			try {
 				int width = Integer.parseInt(matcher.group(1));
@@ -358,12 +361,16 @@ final class CompatibilityProfileTester {
 	}
 
 	private static void rememberScreenCandidate(Probe probe, int width, int height, int score) {
-		if (width < 96 || height < 96 || width > 854 || height > 854) {
+		if (!validScreenSize(width, height)) {
 			return;
 		}
 		String key = width + "x" + height;
 		Integer previous = probe.screens.get(key);
 		probe.screens.put(key, previous == null ? score : Math.max(previous, score));
+	}
+
+	private static boolean validScreenSize(int width, int height) {
+		return width >= 96 && height >= 96 && width <= 854 && height <= 854;
 	}
 
 	private static int scoreScreenCandidate(String name, int width, int height) {

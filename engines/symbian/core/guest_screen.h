@@ -2,12 +2,13 @@
 #pragma once
 #include <algorithm>
 #include <atomic>
+#include <iterator>
 
 namespace abyss::guest_screen {
 // Set only while replacing a stopped guest. Never resize a live framebuffer.
 inline std::atomic<int> requested{0};
 inline std::atomic<bool> applied{false};
-// Original is always available. Snapshot before a trial rewrites the modes.
+// Original is always available. A trial must never rewrite the phone's mode table.
 inline std::atomic<int> available{1};
 inline bool valid(int preset) { return preset >= 0 && preset <= 2; }
 
@@ -32,18 +33,17 @@ int options(const Screen &screen) {
 }
 
 template <typename Screen>
-bool configure(Screen &screen, int preset) {
-    if (!supports(screen, preset)) return false;
+int initial_mode(const Screen &screen, int preset) {
+    if (!supports(screen, preset)) return 0;
     auto panel = std::find_if(screen.modes.begin(), screen.modes.end(),
         [](const auto &mode) { return mode.rotation == 0; });
     int width = preset == 1 ? std::min(panel->size.x, panel->size.y) : std::max(panel->size.x, panel->size.y);
     int height = preset == 1 ? std::max(panel->size.x, panel->size.y) : std::min(panel->size.x, panel->size.y);
-    // Keep mode IDs and hardware-state references intact, including rotated modes.
-    for (auto &mode : screen.modes) {
-        const bool quarter = mode.rotation % 180 != 0;
-        mode.size.x = quarter ? height : width;
-        mode.size.y = quarter ? width : height;
-    }
-    return true;
+    // Games and Avkon refer to these modes by index. Changing their dimensions can
+    // corrupt framebuffer users even when every individual dimension is valid.
+    auto mode = std::find_if(screen.modes.begin(), screen.modes.end(), [&](const auto &candidate) {
+        return candidate.size.x == width && candidate.size.y == height;
+    });
+    return static_cast<int>(std::distance(screen.modes.begin(), mode));
 }
 }

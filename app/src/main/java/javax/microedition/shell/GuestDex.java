@@ -18,7 +18,8 @@ final class GuestDex {
         try (ZipFile zip = new ZipFile(jar)) {
             if (zip.stream().noneMatch(e -> e.getName().endsWith(".class"))) return original;
         }
-        File directory = new File(cache, "guest-time-v1");
+        // v2 also normalizes legacy boolean returns for Android's verifier.
+        File directory = new File(cache, "guest-code-v2");
         Files.createDirectories(directory.toPath());
         File result = new File(directory, SourceIdentity.sha256(jar) + ".dex");
         if (result.isFile() && result.length() > 0) { GuestTime.available(true); return result; }

@@ -64,6 +64,12 @@ public final class GuestScreenDeviceTest {
                 if (originalOptions == -1) originalOptions = options;
                 assertEquals("Trial must not change the phone capability snapshot", originalOptions, options);
                 assertEquals("Fixture orientations", supported ? 7 : 1, options);
+                int[] boot = Emulator.guestScreenInfo(); assertNotNull(boot);
+                if (nativeSize == null) nativeSize = boot.clone();
+                assertEquals("Physical panel width is immutable", nativeSize[0], boot[0]);
+                assertEquals("Physical panel height is immutable", nativeSize[1], boot[1]);
+                if (preset == 1) assertTrue("Portrait boot mode", boot[2] <= boot[3]);
+                if (preset == 2) assertTrue("Landscape boot mode", boot[2] >= boot[3]);
                 Emulator.getApps();
                 assertTrue(Emulator.startSession());
                 Emulator.lastGuestExit=null;
@@ -93,11 +99,9 @@ public final class GuestScreenDeviceTest {
                 int[] info=null;
                 for(int tries=0;tries<100 && info==null;tries++) {info=Emulator.guestScreenInfo();SystemClock.sleep(20);}
                 assertNotNull(info);
-                if(nativeSize==null)nativeSize=info.clone();
-                int width=preset==0?nativeSize[0]:preset==1?Math.min(nativeSize[0],nativeSize[1]):Math.max(nativeSize[0],nativeSize[1]);
-                int height=preset==0?nativeSize[1]:preset==1?Math.max(nativeSize[0],nativeSize[1]):Math.min(nativeSize[0],nativeSize[1]);
+                int width=nativeSize[0], height=nativeSize[1];
                 assertEquals(width,info[0]);assertEquals(height,info[1]);
-                assertTrue("Active mode must use the requested pixels, possibly rotated",
+                assertTrue("Game may select another native mode, never rewritten dimensions",
                         (width==info[2] && height==info[3]) || (width==info[3] && height==info[2]));
                 assertTrue(info[4]>=info[2]);
                 android.os.Bundle report=new android.os.Bundle();

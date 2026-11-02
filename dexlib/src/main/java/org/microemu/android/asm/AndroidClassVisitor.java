@@ -42,7 +42,7 @@ public class AndroidClassVisitor extends ClassVisitor {
 	@Override
 	public MethodVisitor visitMethod(int access, String name, String desc, String signature, String[] exceptions) {
 		desc = desc.replace("java/util/Timer", "javax/microedition/shell/custom/Timer");
-		return new AndroidMethodVisitor(super.visitMethod(access, name, desc, signature, exceptions));
+		return new AndroidMethodVisitor(super.visitMethod(access, name, desc, signature, exceptions), desc.endsWith(")Z"));
 	}
 
 	@Override

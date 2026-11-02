@@ -38,9 +38,25 @@ import java.util.ArrayList;
 public class AndroidMethodVisitor extends MethodVisitor {
 	static boolean USE_PANIC_LOGGING = false;
 	private final ArrayList<Label> exceptionHandlers = new ArrayList<>();
+	private final boolean returnsBoolean;
 
 	public AndroidMethodVisitor(MethodVisitor methodVisitor) {
+		this(methodVisitor, false);
+	}
+
+	AndroidMethodVisitor(MethodVisitor methodVisitor, boolean returnsBoolean) {
 		super(ASM9, methodVisitor);
+		this.returnsBoolean = returnsBoolean;
+	}
+
+	@Override
+	public void visitInsn(int opcode) {
+		if (opcode == IRETURN && returnsBoolean) {
+			// JVM ireturn narrows boolean results to their low bit; ART requires that type explicitly.
+			mv.visitInsn(ICONST_1);
+			mv.visitInsn(IAND);
+		}
+		mv.visitInsn(opcode);
 	}
 
 	@Override

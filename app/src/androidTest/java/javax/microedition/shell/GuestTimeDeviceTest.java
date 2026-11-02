@@ -20,19 +20,29 @@ public class GuestTimeDeviceTest {
         writer.visit(V1_5, ACC_PUBLIC, "ClockFixture", null, "java/lang/Object", null);
         MethodVisitor method = writer.visitMethod(ACC_PUBLIC | ACC_STATIC, "read", "()J", null, null);
         method.visitCode(); method.visitMethodInsn(INVOKESTATIC, "java/lang/System", "currentTimeMillis", "()J", false);
-        method.visitInsn(LRETURN); method.visitMaxs(2,0); method.visitEnd(); writer.visitEnd();
+        method.visitInsn(LRETURN); method.visitMaxs(2,0); method.visitEnd();
+        method = writer.visitMethod(ACC_PUBLIC | ACC_STATIC, "legacyBoolean", "(I)Z", null, null);
+        method.visitCode(); method.visitVarInsn(ILOAD, 0); method.visitInsn(I2S); method.visitInsn(IRETURN);
+        method.visitMaxs(1, 1); method.visitEnd(); writer.visitEnd();
         try (JarOutputStream output = new JarOutputStream(new FileOutputStream(jar))) {
             output.putNextEntry(new JarEntry("ClockFixture.class")); output.write(writer.toByteArray()); output.closeEntry();
         }
         byte[] original = Files.readAllBytes(jar.toPath());
         File oldDex = new File(root, "old.dex"); Files.write(oldDex.toPath(), new byte[]{1,2,3});
+        File oldCache = new File(root, "guest-time-v1"); assertTrue(oldCache.mkdirs());
+        File stale = new File(oldCache, ru.playsoftware.j2meloader.catalog.SourceIdentity.sha256(jar) + ".dex");
+        Files.write(stale.toPath(), new byte[]{4,5,6});
         try {
             File dex = GuestDex.prepare(root, root, oldDex);
+            assertEquals("guest-code-v2", dex.getParentFile().getName());
+            assertArrayEquals(new byte[]{4,5,6}, Files.readAllBytes(stale.toPath()));
             assertNotEquals(oldDex, dex); assertEquals(dex, GuestDex.prepare(root, root, oldDex));
             assertArrayEquals(original, Files.readAllBytes(jar.toPath()));
             assertArrayEquals(new byte[]{1,2,3}, Files.readAllBytes(oldDex.toPath()));
             assertTrue(dex.setReadOnly());
             Class<?> fixture = new dalvik.system.DexClassLoader(dex.getPath(), root.getPath(), null, getClass().getClassLoader()).loadClass("ClockFixture");
+            for (int value : new int[]{0, 1, 2, 3, -1, -2, 32767, 32768, 65535})
+                assertEquals((value & 1) != 0, fixture.getMethod("legacyBoolean", int.class).invoke(null, value));
             for (int speed : new int[]{50,100,200,300,400}) {
                 GuestTime.speed(speed);
                 long guest = (Long)fixture.getMethod("read").invoke(null), real = SystemClock.elapsedRealtime();

@@ -46,8 +46,34 @@ public final class Emulator {
     public static boolean contentUriFileExists(String uri) { return false; }
     public static boolean isExternalStoragePreservedLegacy() { return false; }
 
-    public static native void prepare(String directory);
-    public static native void prepareGame(String directory, int screenPreset) throws java.io.IOException;
+    private static volatile boolean sensorLooperReady;
+    private static void prepareSensorLooper() {
+        if (sensorLooperReady) return;
+        Runnable bind = () -> {
+            if (!sensorLooperReady) { bindSensorLooper(); sensorLooperReady = true; }
+        };
+        if (android.os.Looper.myLooper() == android.os.Looper.getMainLooper()) {
+            bind.run(); return;
+        }
+        // Loading the library on an import/engine worker does not provide a polled looper.
+        java.util.concurrent.FutureTask<Void> task = new java.util.concurrent.FutureTask<>(bind, null);
+        if (!new android.os.Handler(android.os.Looper.getMainLooper()).post(task))
+            throw new IllegalStateException("Cannot initialize Symbian sensor events");
+        try { task.get(10, java.util.concurrent.TimeUnit.SECONDS); }
+        catch (InterruptedException error) {
+            task.cancel(false); Thread.currentThread().interrupt();
+            throw new IllegalStateException("Symbian sensor initialization interrupted", error);
+        } catch (java.util.concurrent.ExecutionException | java.util.concurrent.TimeoutException error) {
+            task.cancel(false); throw new IllegalStateException("Cannot initialize Symbian sensor events", error);
+        }
+    }
+    private static native void bindSensorLooper();
+    private static native void prepareNative(String directory);
+    private static native void prepareGameNative(String directory, int screenPreset) throws java.io.IOException;
+    public static void prepare(String directory) { prepareSensorLooper(); prepareNative(directory); }
+    public static void prepareGame(String directory, int screenPreset) throws java.io.IOException {
+        prepareSensorLooper(); prepareGameNative(directory, screenPreset);
+    }
     /** Physical panel, active mode, framebuffer pitch and mode count; never host-scaled pixels. */
     public static native int[] guestScreenInfo();
     public static native int guestScreenOptions();

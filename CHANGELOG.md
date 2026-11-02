@@ -10,6 +10,31 @@ stated otherwise. **Experimental** in older checkpoints means local/private
 combined builds; released experimental features are explicitly identified.
 **Released** means an actual GitHub release asset.
 
+## 2026-11-02 - Representative Game Sample and Shared Repairs (Public Source, Unreleased)
+
+- Recognize explicit uncommon Java screen dimensions without treating arbitrary
+  artwork sizes as display settings. Preserve manual custom-size support.
+- Make the physical D-pad center key use Java Fire by default; preserve custom
+  mappings and disabled bindings.
+- Normalize legacy boolean returns during Java conversion and invalidate only
+  the executable cache, so retained JARs benefit without reinstalling games or
+  replacing saves. SimCity Metropolis passes its former ART verifier failure
+  and reaches the new-game introduction on Retroid.
+- Initialize Symbian sensor delivery on the Android main looper even when the
+  engine loads on a worker. Labyrinth Touch no longer hits the reproduced sensor
+  registration error, but its incomplete scene remains an open rendering issue.
+- Stop rewriting Symbian screen-mode dimensions for Portrait/Landscape trials.
+  Select an existing initial mode instead, preserving the physical panel,
+  compatibility modes and mode IDs. Games may still choose their own orientation;
+  this is not a universal widescreen override.
+  Fruitz's Portrait startup panic is gone; Fruitaholic reaches its board through
+  touch. Copied N95/EKA1 mode-cycle tests retain the original phone-file hashes.
+- Add opt-in, disposable-phone/game observation harnesses. Cover ten Java JARs
+  and ten Symbian packages, keeping startup, menus and gameplay distinct. Five
+  JVM tests and 46 focused Retroid checks pass. No full-game, physical tilt,
+  universal widescreen or audio-quality acceptance; no release APK update.
+  [Evidence and remaining problems](docs/checks/2026-11-02-game-sample.md).
+
 ## 2026-11-02 - Shared Game Launch Recovery (Public Source, Unreleased)
 
 - Show caught Java, Mophun and Symbian launch failures in the same centered

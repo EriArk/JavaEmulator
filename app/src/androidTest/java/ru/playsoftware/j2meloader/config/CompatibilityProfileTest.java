@@ -21,6 +21,28 @@ import java.util.zip.ZipOutputStream;
 import static org.junit.Assert.*;
 
 public class CompatibilityProfileTest {
+    @Test public void declaredUncommonSizesAndExplicitFilenameLabelsAreNotArtworkGuesses() throws Exception {
+        for (String size : new String[]{"240x400", "400x240", "240,432", "96x65", "999x320"}) {
+            manifest("Nokia-MIDlet-Original-Display-Size: " + size + "\n");
+            ProfileModel model = run();
+            String[] dimensions = size.split("[x,]");
+            int w = Integer.parseInt(dimensions[0]), h = Integer.parseInt(dimensions[1]);
+            assertEquals(size, w >= 96 && h >= 96 && w <= 854 && h <= 854 ? w : 0, model.detectedScreenWidth);
+        }
+        manifest("");
+        ru.playsoftware.j2meloader.catalog.SourceHints.write(root, "Game_240x400.jar");
+        assertEquals(400, run().screenHeight);
+        ru.playsoftware.j2meloader.catalog.SourceHints.write(root, "Game-240x400.jar");
+        assertEquals(400, run().screenHeight);
+        ru.playsoftware.j2meloader.catalog.SourceHints.write(root, "Game.jar");
+        images(false, "title.png:240:400");
+        assertEquals("Unknown artwork geometry is not a declared screen", 0, run().detectedScreenWidth);
+        for (String bad : new String[]{"-240x400", "1240x400", "240x400.5", "240px400"}) {
+            manifest("Screen-Size: " + bad + "\n");
+            assertEquals(bad, 0, run().detectedScreenWidth);
+        }
+    }
+
     @Test public void originalCanvasWinsOverPhoneScalingDestination() throws Exception {
         manifest("Nokia-MIDlet-Original-Display-Size: 176,208\nNokia-MIDlet-Target-Display-Size: 240,320\n");
         ProfileModel model = run();
@@ -169,7 +191,7 @@ public class CompatibilityProfileTest {
         assertEquals(240, model.screenWidth);
         assertEquals(320, model.screenHeight);
         assertEquals(0, model.detectedScreenWidth);
-        assertEquals(ru.playsoftware.j2meloader.BuildConfig.HANDHELD_MODE ? 2 : 1, model.screenGravity);
+        assertEquals(ru.playsoftware.j2meloader.input.DeviceControls.connected(context) ? 2 : 1, model.screenGravity);
         assertTrue(model.systemProperties.contains("microedition.platform: J2ME-Loader/Auto"));
     }
 
