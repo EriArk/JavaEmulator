@@ -1,5 +1,8 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
+    <string name="symbian_screen_recovery_title">Bildschirmmodus konnte nicht gestartet werden</string>
+    <string name="symbian_screen_try_original">Original ausprobieren</string>
+    <string name="symbian_screen_recovery_body">Probiere den ursprünglichen Bildschirm des Telefons. Gespeicherte Einstellungen und Spielstände bleiben unverändert. Wähle nach dem Start %1$s, um diese Bildschirmeinstellung zu speichern.</string>
     <string name="symbian_screen_pending">Verfügbare Bildschirmmodi werden beim Start eines Spiels auf diesem Telefon ermittelt. Original ist bereits verfügbar.</string>
     <string name="symbian_screen_unavailable">Dieses Telefon konnte den emulierten Bildschirmmodus nicht verwenden. Wähle Original in den Anzeigeeinstellungen.</string>
     <string name="symbian_screen_legacy">Für dieses Telefon ist nur der ursprüngliche emulierte Bildschirm verfügbar. Bildgröße und Drehung bleiben verfügbar.</string>

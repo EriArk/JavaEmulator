@@ -1,5 +1,8 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
+    <string name="symbian_screen_recovery_title">画面モードを開始できませんでした</string>
+    <string name="symbian_screen_try_original">元の設定で試す</string>
+    <string name="symbian_screen_recovery_body">端末本来の画面で試します。保存済みの設定とゲームのセーブデータは変更されません。起動後に「%1$s」を選ぶと、この画面設定を保存できます。</string>
     <string name="symbian_screen_pending">この端末でゲームを起動すると、利用可能な画面モードが検出されます。現在は元の設定を使用できます。</string>
     <string name="symbian_screen_unavailable">この端末では指定したエミュレート画面モードを使用できませんでした。表示設定で元の設定を選択してください。</string>
     <string name="symbian_screen_legacy">この端末では元のエミュレート画面のみ使用できます。画像サイズと回転は引き続き変更できます。</string>

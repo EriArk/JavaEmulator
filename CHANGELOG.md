@@ -1,7 +1,7 @@
 # AbyssME Changelog
 
 User-facing development history, reconstructed from commits, release notes and
-local/private build records through **2026-11-01**. This is not a claim that all
+local/private build records through **2026-11-02**. This is not a claim that all
 listed work is in a public APK. See [current status](docs/PROJECT_STATUS.md) for
 availability, verification, known limits and screenshot guidance.
 
@@ -9,6 +9,20 @@ Labels: **Public source** means implemented on `main` but unreleased unless
 stated otherwise. **Experimental** in older checkpoints means local/private
 combined builds; released experimental features are explicitly identified.
 **Released** means an actual GitHub release asset.
+
+## 2026-11-02 - Recover from a Rejected Phone Screen Mode (Public Source, Unreleased)
+
+- Offer Try Original directly when native Symbian preparation rejects a chosen
+  screen mode. Use a centered confirmation with the game title in all eight languages.
+- Retry from confirmed settings with only the emulated screen reset, as an
+  unsaved preview. Keep saves it; Undo returns to the library. Failed trials
+  cannot silently replace unrelated confirmed settings.
+- Do not time out recovery into the known-bad configuration. Preserve normal
+  20-second rollback for ordinary settings trials. Never retry automatically.
+- Retroid: 32 focused checks and the real error/recovery flow pass, including
+  Close, waiting beyond 20 seconds, Undo and Keep. Debug installed separately;
+  no public release update. This is not a generic black-screen or crash fix.
+  [Evidence](docs/checks/2026-11-02-symbian-screen-recovery.md).
 
 ## 2026-11-01 - Phone-Specific Screen Choices (Public Source, Unreleased)
 

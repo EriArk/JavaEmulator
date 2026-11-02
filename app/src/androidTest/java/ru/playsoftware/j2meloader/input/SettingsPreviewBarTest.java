@@ -14,6 +14,21 @@ import org.junit.Test;
 import static org.junit.Assert.*;
 
 public class SettingsPreviewBarTest {
+    @Test public void recoveryWaitsForUserButOrdinaryTrialsStillExpire() {
+        main(() -> {
+            long[] now = {0}; int[] undone = {0};
+            SettingsPreviewBar bar = new SettingsPreviewBar(context(false, 1), () -> {}, () -> undone[0]++, () -> now[0]);
+            try {
+                bar.startWithoutTimeout();
+                now[0] += 60000; bar.suspend(); bar.resume();
+                assertEquals(0, undone[0]); assertEquals(View.VISIBLE, bar.getVisibility());
+                assertEquals(View.GONE, bar.getChildAt(0).getVisibility());
+                bar.start(); assertEquals(View.VISIBLE, bar.getChildAt(0).getVisibility());
+                now[0] += 20000; bar.suspend(); bar.resume();
+                assertEquals(1, undone[0]); assertEquals(View.GONE, bar.getVisibility());
+            } finally { bar.stop(); }
+        });
+    }
     @Test public void repeatedMenuAndFocusTransitionsDoNotSpendTrialTime() {
         main(() -> {
             long[] now = {1000}; int[] undone = {0};

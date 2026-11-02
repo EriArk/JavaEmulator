@@ -50,6 +50,7 @@ final class SymbianSessionUi {
     private GameMenuDialog menu;
     private MapperDialog mapper;
     private boolean closed, visible = true, focused = true, selectDown, screenshotPending;
+    private boolean screenRecovery;
     private int selectDevice;
     private int[] lcdGeometry;
     private long nextLcdGeometry;
@@ -84,7 +85,12 @@ final class SymbianSessionUi {
         return profile;
     }
     SymbianSessionUi(Activity activity, TextureView surface, ProfileModel preparedProfile, String title, Host host) throws IOException {
+        this(activity, surface, preparedProfile, title, host, false);
+    }
+    SymbianSessionUi(Activity activity, TextureView surface, ProfileModel preparedProfile, String title, Host host,
+                     boolean screenRecovery) throws IOException {
         this.activity = activity; this.surface = surface; this.title = title; this.host = host;
+        this.screenRecovery = screenRecovery;
         profile = preparedProfile;
         mappings = KeyMapper.resolveMappings(profile.getActiveKeyMappings());
         keys = new SymbianInput(host); input = new ControllerInput(key -> mappings.get(key, 0), keys.source());
@@ -110,7 +116,7 @@ final class SymbianSessionUi {
             pause();
         });
         apply();
-        if (ProfilesManager.isPreview(profile)) preview.start();
+        if (ProfilesManager.isPreview(profile)) startPreview();
     }
     private int dp(int n) { return Math.round(n * activity.getResources().getDisplayMetrics().density); }
     private ImageButton icon(String label, int resource, Runnable action) {
@@ -295,15 +301,20 @@ final class SymbianSessionUi {
             return;
         }
         ProfilesManager.beginPreview(profile); ProfilesManager.copyInto(draft,profile); apply();
-        if (menu != null) menu.dismiss(); preview.start(); pause();
+        if (menu != null) menu.dismiss(); startPreview(); pause();
+    }
+    private void startPreview() {
+        if (screenRecovery) preview.startWithoutTimeout(); else preview.start();
     }
     private void keep() {
         if (!ProfilesManager.keepPreview(profile)) { Toast.makeText(activity,activity.getString(R.string.game_save_settings_failed),Toast.LENGTH_LONG).show(); return; }
+        screenRecovery = false;
         preview.stop(); if (menu != null) home();
     }
     private void undo() {
         int previous = profile.getSymbianScreenPreset();
         ProfilesManager.undoPreview(profile); preview.stop();
+        if (screenRecovery) { screenRecovery = false; host.leave(); return; }
         if (previous != profile.getSymbianScreenPreset()) { host.restart(); return; }
         apply(); if (menu != null) home();
     }

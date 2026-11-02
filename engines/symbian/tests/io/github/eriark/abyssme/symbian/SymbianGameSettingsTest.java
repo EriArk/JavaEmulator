@@ -66,6 +66,44 @@ public final class SymbianGameSettingsTest {
         }
     }
 
+    @Test public void originalScreenRecoveryOnlyPreviewsGeometryAndNeverReplaysFailedDraft() throws Exception {
+        String system = identity();
+        try {
+            ProfileModel confirmed = SymbianGameSettings.load(files, system, 1);
+            confirmed.symbianScreenPreset = 2; confirmed.screenRotation = 180;
+            confirmed.nativeFpsLimit = 30; confirmed.screenScaleType = 2;
+            confirmed.screenEffect = 1; confirmed.emulationSpeed = 125;
+            assertTrue(ProfilesManager.saveConfig(confirmed));
+            byte[] saved = java.nio.file.Files.readAllBytes(new File(confirmed.dir, Config.MIDLET_CONFIG_FILE).toPath());
+            File save = new File(confirmed.dir, "save-fixture.bin");
+            java.nio.file.Files.write(save.toPath(), new byte[]{7,8,9});
+            ProfileModel failed = ProfilesManager.copy(confirmed);
+            failed.screenRotation = 90; failed.nativeFpsLimit = 15;
+            SettingsTrial.stage(failed);
+            ProfileModel recovery = SymbianGameSettings.originalScreenTrial(files, system, 1);
+            assertTrue(ProfilesManager.isPreview(recovery));
+            assertEquals(0, recovery.getSymbianScreenPreset());
+            assertEquals(180, recovery.screenRotation); assertEquals(30, recovery.getNativeFpsLimit());
+            assertEquals(2, recovery.screenScaleType); assertEquals(1, recovery.screenEffect);
+            assertEquals(125, recovery.getEmulationSpeed());
+            assertEquals(confirmed.activeKeyMappingProfile, recovery.activeKeyMappingProfile);
+            assertTrue(ProfilesManager.saveConfig(recovery));
+            assertArrayEquals(saved, java.nio.file.Files.readAllBytes(new File(confirmed.dir, Config.MIDLET_CONFIG_FILE).toPath()));
+            ProfileModel retry = SymbianGameSettings.load(files, system, 1);
+            SettingsTrial.claim(retry);
+            assertFalse(ProfilesManager.isPreview(retry)); assertEquals(2, retry.getSymbianScreenPreset());
+            ProfilesManager.undoPreview(recovery);
+            assertEquals(2, recovery.getSymbianScreenPreset());
+            recovery = SymbianGameSettings.originalScreenTrial(files, system, 1);
+            assertTrue(ProfilesManager.keepPreview(recovery));
+            ProfileModel kept = SymbianGameSettings.load(files, system, 1);
+            assertEquals(0, kept.getSymbianScreenPreset()); assertEquals(180, kept.screenRotation);
+            assertEquals(30, kept.getNativeFpsLimit()); assertEquals(125, kept.getEmulationSpeed());
+            assertArrayEquals(new byte[]{7,8,9}, java.nio.file.Files.readAllBytes(save.toPath()));
+            assertEquals(0, SymbianGameSettings.load(files, system, 2).getSymbianScreenPreset());
+        } finally { FileUtils.deleteDirectory(PhoneBackup.profiles(files, system)); }
+    }
+
     @Test public void openingSettingsDoesNotSaveAndPreservesNativeDefaults() throws Exception {
         String system = identity();
         try {

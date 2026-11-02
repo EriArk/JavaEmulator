@@ -23,9 +23,11 @@ public final class SettingsPreviewBar extends LinearLayout {
     private boolean active;
     private boolean suspended;
     private boolean resumeOnAttach;
+    private boolean automaticUndo = true;
     private final Runnable tick = new Runnable() {
         public void run() {
             if (!active || suspended) return;
+            if (!automaticUndo) return;
             remainingMillis = Math.max(0, deadline - clock.getAsLong());
             if (remainingMillis == 0) { stop(); undo.run(); return; }
             int seconds = (int) ((remainingMillis + 999) / 1000);
@@ -72,7 +74,14 @@ public final class SettingsPreviewBar extends LinearLayout {
         button.setBackgroundTintList(null); button.setOnClickListener(v -> action.run());
         LayoutParams lp = new LayoutParams(dp(48), dp(48)); lp.setMarginStart(dp(4)); addView(button, lp);
     }
-    public void start() { stop(); active = true; suspended = true; remainingMillis = 20000; resume(); }
+    public void start() { start(true); }
+    /** Recovery must not automatically restart a configuration already known to fail. */
+    public void startWithoutTimeout() { start(false); }
+    private void start(boolean automaticUndo) {
+        stop(); this.automaticUndo = automaticUndo;
+        label.setVisibility(automaticUndo ? VISIBLE : GONE);
+        active = true; suspended = true; remainingMillis = 20000; resume();
+    }
     public void suspend() {
         if (active && !suspended) remainingMillis = Math.max(0, deadline - clock.getAsLong());
         suspended = true; handler.removeCallbacks(tick); setVisibility(GONE);

@@ -13,6 +13,68 @@ import static org.junit.Assert.*;
 
 public class LcdNativeUiTest {
     private UiAutomation ui;
+    @Test public void rejectedScreenCanRetryOriginalWithoutSavingUntilKeep() throws Exception {
+        Assume.assumeTrue("true".equals(InstrumentationRegistry.getArguments().getString("screenRecovery")));
+        Context context = InstrumentationRegistry.getInstrumentation().getTargetContext();
+        ui = InstrumentationRegistry.getInstrumentation().getUiAutomation();
+        SymbianLibraryIndex.Entry game = new SymbianLibraryIndex(context).read().stream()
+                .filter(e -> e.title.equals("Snakes")).findFirst().orElse(null);
+        assertNotNull("Provision the permitted EKA1 fixture", game);
+        assertFalse(SymbianGameSettings.supportsGuestScreen(new SystemFileCatalog(context).read(game.system).os));
+        ru.playsoftware.j2meloader.config.ProfileModel original = SymbianGameSettings.load(context.getFilesDir(), game.system, game.uid);
+        File file = new File(original.dir, ru.playsoftware.j2meloader.config.Config.MIDLET_CONFIG_FILE);
+        byte[] before = file.isFile() ? java.nio.file.Files.readAllBytes(file.toPath()) : null;
+        assertFalse("Do not consume an owner's pending trial", new File(original.dir, "settings-trial.json").exists());
+        try {
+            ru.playsoftware.j2meloader.config.ProfileModel rejected = ru.playsoftware.j2meloader.config.ProfilesManager.copy(original);
+            rejected.symbianScreenPreset = 2; rejected.nativeFpsLimit = 30;
+            assertTrue(ru.playsoftware.j2meloader.config.ProfilesManager.saveConfig(rejected));
+            byte[] confirmed = java.nio.file.Files.readAllBytes(file.toPath());
+            Intent intent = new Intent(context, SymbianActivity.class)
+                    .addFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK)
+                    .putExtra(SymbianLibraryIndex.SYSTEM_EXTRA, game.system)
+                    .putExtra(SymbianLibraryIndex.UID_EXTRA, game.uid);
+            context.startActivity(intent);
+            await("Try Original", 60000);
+            SystemClock.sleep(600);
+            capture(context, "screen-recovery-error");
+            tap("Close"); SystemClock.sleep(500);
+            assertArrayEquals(confirmed, java.nio.file.Files.readAllBytes(file.toPath()));
+            assertNull(find(ui.getRootInActiveWindow(), "Show game controls"));
+            context.startActivity(intent);
+            await("Try Original", 60000); tap("Try Original");
+            await("Keep", 60000);
+            SystemClock.sleep(21000);
+            await("Keep", 2000);
+            assertArrayEquals("Recovery must not silently save settings", confirmed, java.nio.file.Files.readAllBytes(file.toPath()));
+            capture(context, "screen-recovery-preview");
+            tap("Undo"); SystemClock.sleep(1000);
+            assertArrayEquals("Undo must leave the confirmed profile intact", confirmed, java.nio.file.Files.readAllBytes(file.toPath()));
+            assertNull(find(ui.getRootInActiveWindow(), "Try Original"));
+            assertNull(find(ui.getRootInActiveWindow(), "Show game controls"));
+            context.startActivity(intent);
+            await("Try Original", 60000); tap("Try Original"); await("Keep", 60000);
+            tap("Keep");
+            ru.playsoftware.j2meloader.config.ProfileModel kept = SymbianGameSettings.load(context.getFilesDir(), game.system, game.uid);
+            assertEquals(0, kept.getSymbianScreenPreset()); assertEquals(30, kept.getNativeFpsLimit());
+            assertEquals(original.screenRotation, kept.screenRotation);
+            assertEquals(original.screenScaleType, kept.screenScaleType);
+            tap("Show game controls"); tap("Game menu"); tap("Exit game"); tap("Leave without saving");
+        } finally {
+            for (ActivityManager.AppTask task : context.getSystemService(ActivityManager.class).getAppTasks()) {
+                android.content.ComponentName top = task.getTaskInfo().topActivity;
+                if (top != null && top.getClassName().equals(SymbianActivity.class.getName())) task.finishAndRemoveTask();
+            }
+            SystemClock.sleep(500);
+            android.util.AtomicFile config = new android.util.AtomicFile(file);
+            if (before == null) config.delete();
+            else {
+                FileOutputStream output = config.startWrite();
+                try { output.write(before); config.finishWrite(output); }
+                catch (IOException error) { config.failWrite(output); throw error; }
+            }
+        }
+    }
     @Test public void screenOptionsReachTheRealMenuAndSurviveReturnToLibrary() throws Exception {
         Assume.assumeTrue("true".equals(InstrumentationRegistry.getArguments().getString("phoneScreenOptions")));
         Context context = InstrumentationRegistry.getInstrumentation().getTargetContext();

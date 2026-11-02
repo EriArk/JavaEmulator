@@ -1,5 +1,8 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
+    <string name="symbian_screen_recovery_title">Impossible de démarrer ce mode d’écran</string>
+    <string name="symbian_screen_try_original">Essayer Original</string>
+    <string name="symbian_screen_recovery_body">Essayez l’écran d’origine du téléphone. Vos paramètres enregistrés et vos sauvegardes restent inchangés. Sélectionnez %1$s après le lancement pour enregistrer ce réglage d’écran.</string>
     <string name="symbian_screen_pending">Les modes d’écran disponibles seront détectés au lancement d’un jeu sur ce téléphone. Le mode Original est disponible.</string>
     <string name="symbian_screen_unavailable">Ce téléphone n’a pas pu utiliser ce mode d’écran émulé. Sélectionnez Original dans les réglages d’affichage.</string>
     <string name="symbian_screen_legacy">Seul l’écran émulé original est disponible pour ce téléphone. La taille de l’image et la rotation restent disponibles.</string>

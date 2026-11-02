@@ -1,5 +1,8 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
+    <string name="symbian_screen_recovery_title">No se pudo iniciar este modo de pantalla</string>
+    <string name="symbian_screen_try_original">Probar Original</string>
+    <string name="symbian_screen_recovery_body">Prueba la pantalla original del teléfono. Los ajustes guardados y las partidas no cambiarán. Selecciona %1$s después del inicio para guardar este ajuste de pantalla.</string>
     <string name="symbian_screen_pending">Los modos de pantalla disponibles se detectarán al iniciar un juego en este teléfono. Original está disponible ahora.</string>
     <string name="symbian_screen_unavailable">Este teléfono no pudo usar ese modo de pantalla emulada. Selecciona Original en los ajustes de pantalla.</string>
     <string name="symbian_screen_legacy">Solo está disponible la pantalla emulada original para este teléfono. El tamaño de imagen y la rotación siguen disponibles.</string>

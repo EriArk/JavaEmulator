@@ -1,6 +1,6 @@
 # AbyssME - Current Product and Development Status
 
-**Last updated: 2026-11-01.** Verification dates are recorded per section.
+**Last updated: 2026-11-02.** Verification dates are recorded per section.
 This is the starting point for website copy,
 announcements, progress posts and project handoffs. It includes work that exists
 only in local experiments or private test builds. Describing that work here
@@ -36,6 +36,16 @@ remains canonical; game text and user content are not translated.
   full-game compatibility.
 
 ## Availability: Do Not Mix These Channels
+
+**Unreleased screen-mode recovery (2026-11-02):** a rejected native Symbian
+screen mode now offers Try Original directly from a centered confirmation.
+Recovery changes only the screen preset as an unsaved preview; Keep saves it,
+Close leaves settings untouched, and Undo returns to the library. Recovery has
+no timeout that could restart the rejected mode; ordinary previews still expire.
+All eight languages are included. Retroid: 32 focused checks and the real
+EKA1 error/Close/recover/wait/Undo/recover/Keep path pass. Separate Debug installed,
+no public APK update. This does not repair arbitrary black screens or crashes.
+[Evidence and limits](checks/2026-11-02-symbian-screen-recovery.md).
 
 **Unreleased phone-specific screen choices (2026-11-01):** the Symbian display
 menu now offers only orientations discovered from that phone's native screen

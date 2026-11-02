@@ -1,5 +1,8 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
+    <string name="symbian_screen_recovery_title">无法启动此屏幕模式</string>
+    <string name="symbian_screen_try_original">尝试原始模式</string>
+    <string name="symbian_screen_recovery_body">尝试手机的原始屏幕。已保存的设置和游戏存档不会改变。启动后选择“%1$s”以保存此屏幕设置。</string>
     <string name="symbian_screen_pending">在此手机上启动游戏时，将检测可用的屏幕模式。目前可使用原始模式。</string>
     <string name="symbian_screen_unavailable">此手机无法使用该模拟屏幕模式。请在显示设置中选择原始模式。</string>
     <string name="symbian_screen_legacy">此手机仅支持原始模拟屏幕。仍可调整图像大小和旋转。</string>

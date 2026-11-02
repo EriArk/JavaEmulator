@@ -9,12 +9,21 @@ import java.nio.file.Files;
 import javax.microedition.lcdui.keyboard.KeyMapper;
 import ru.playsoftware.j2meloader.config.ProfileModel;
 import ru.playsoftware.j2meloader.config.ProfilesManager;
+import ru.playsoftware.j2meloader.config.SettingsTrial;
 import ru.playsoftware.j2meloader.input.TouchDeck;
 
 /** Shared by library and runtime; loading a draft does not initialize the native engine. */
 final class SymbianGameSettings {
     static boolean supportsGuestScreen(String os) {
         return os != null && os.matches("epoc9[0-9a-z]*");
+    }
+
+    static ProfileModel originalScreenTrial(File files, String system, long uid) throws IOException {
+        ProfileModel confirmed = load(files, system, uid);
+        SettingsTrial.discard(confirmed.dir);
+        ProfilesManager.beginPreview(confirmed);
+        confirmed.symbianScreenPreset = 0;
+        return confirmed;
     }
 
     static ProfileModel load(File files, String system, long uid) throws IOException {

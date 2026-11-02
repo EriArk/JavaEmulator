@@ -1,5 +1,8 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
+    <string name="symbian_screen_recovery_title">Screen mode could not start</string>
+    <string name="symbian_screen_try_original">Try Original</string>
+    <string name="symbian_screen_recovery_body">Try the phone’s original screen. Your saved settings and game saves stay unchanged. Select %1$s after launch to save this screen setting.</string>
     <string name="symbian_screen_pending">Available screen modes will be detected when you launch a game on this phone. Original is available now.</string>
     <string name="symbian_screen_unavailable">This phone could not use that emulated screen mode. Select Original in Display settings.</string>
     <string name="symbian_screen_legacy">Only the original emulated screen is available for this phone. Picture size and Rotation still work.</string>

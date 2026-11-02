@@ -347,7 +347,8 @@ public final class SymbianActivity extends Activity implements Emulator.Host, In
                     if (!running) { hasPendingImport = pendingImport.exists(); library(); }
                     String message=SystemFailureText.message(this,error);
                     status.setText(message);
-                    if (!(error instanceof java.io.InterruptedIOException))
+                    if (error instanceof ScreenLaunchFailure) showScreenRecovery((ScreenLaunchFailure)error);
+                    else if (!(error instanceof java.io.InterruptedIOException))
                         notice(getString(R.string.system_could_not_finish), message == null ? text : message, getString(R.string.system_close), null, null);
                 } });
             } finally { runOnUiThread(() -> {
@@ -982,16 +983,43 @@ public final class SymbianActivity extends Activity implements Emulator.Host, In
         }
         return title;
     }
-    public void play(int uid) {
+    private static final class ScreenLaunchFailure extends IOException {
+        final File phone;
+        final int uid;
+        final String title;
+        ScreenLaunchFailure(String message, IOException cause, File phone, int uid, String title) {
+            super(message, cause); this.phone = phone; this.uid = uid; this.title = title;
+        }
+    }
+    private void showScreenRecovery(ScreenLaunchFailure failure) {
+        GameMenuDialog menu = new GameMenuDialog(this, failure.title);
+        menu.useEdgePanel(); menu.show();
+        menu.confirmationPage(getString(R.string.symbian_screen_recovery_title));
+        menu.message(getString(R.string.symbian_screen_recovery_body, getString(R.string.menu_keep)));
+        menu.action(getString(R.string.symbian_screen_try_original), android.R.drawable.ic_media_play, () -> {
+            if (busy || closing || running || !failure.phone.equals(runtimeRoot)) return;
+            menu.dismiss(); play(failure.uid, true);
+        });
+        menu.action(getString(R.string.system_close), 0, menu::dismiss);
+    }
+    public void play(int uid) { play(uid, false); }
+    private void play(int uid, boolean originalScreen) {
         task(getString(R.string.native_starting_game), () -> {
             String identity = "legacy";
             for (SystemFileCatalog.Entry entry : systems) if (catalog.runtime(entry).equals(runtimeRoot)) identity = entry.id;
             final String sessionTitle = sessionTitle(identity, Integer.toUnsignedLong(uid));
             ru.playsoftware.j2meloader.config.ProfileModel preparedProfile =
-                    SymbianSessionUi.loadSessionProfile(this, identity, Integer.toUnsignedLong(uid));
+                    originalScreen ? SymbianGameSettings.originalScreenTrial(getFilesDir(), identity, Integer.toUnsignedLong(uid))
+                            : SymbianSessionUi.loadSessionProfile(this, identity, Integer.toUnsignedLong(uid));
             Emulator.stopSession();
             try { Emulator.prepareGame(runtimeRoot.getAbsolutePath(), preparedProfile.getSymbianScreenPreset()); }
-            catch (IOException error) { throw new IOException(getString(R.string.symbian_screen_unavailable), error); }
+            catch (IOException error) {
+                Emulator.stopSession();
+                if (preparedProfile.getSymbianScreenPreset() != 0)
+                    throw new ScreenLaunchFailure(getString(R.string.symbian_screen_unavailable), error,
+                            runtimeRoot, uid, sessionTitle);
+                throw error;
+            }
             PhoneScreenOptions.record(getFilesDir(), identity, Emulator.guestScreenOptions());
             Emulator.lastGuestExit = null;
             if (!Emulator.startSession()) throw new IOException(getString(R.string.native_phone_start_failed));
@@ -1060,7 +1088,7 @@ public final class SymbianActivity extends Activity implements Emulator.Host, In
                                 return bitmap;
                             } finally { Files.deleteIfExists(png.toPath()); }
                         }
-                    });
+                    }, originalScreen);
                     setContentView(sessionUi.root); hideBars();
                 } catch (IOException error) { Toast.makeText(this,error.getMessage(),Toast.LENGTH_LONG).show(); returnToLibrary(); }
             });
