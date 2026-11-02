@@ -9,6 +9,7 @@ dependencies {
 
 def upstream = rootProject.file(providers.gradleProperty('symbianSourceDir').orElse('local-games/eka2l1-audit/upstream').get())
 def msys = providers.gradleProperty('symbianMsys').orElse("${System.getProperty('user.home')}/msys64").get().replace('\\', '/')
+def windowsHost = System.getProperty('os.name').toLowerCase().contains('windows')
 android {
     namespace 'io.github.eriark.abyssme.symbian.core'
     compileSdk 34
@@ -21,9 +22,16 @@ android {
                 arguments "-DEKA2L1_SOURCE_DIR=${upstream.absolutePath.replace('\\', '/')}",
                         '-DEKA2L1_BUILD_TOOLS=OFF', '-DEKA2L1_BUILD_TESTS=OFF',
                         '-DEKA2L1_BUILD_VULKAN_BACKEND=OFF', '-DEKA2L1_SCRIPTING_LUA=OFF',
-                        "-DEKA2L1_FFMPEG_BASH=${msys}/usr/bin/bash.exe",
-                        "-DEKA2L1_FFMPEG_MAKE=${msys}/usr/bin/make.exe",
                         '-DCMAKE_BUILD_TYPE=Release', '-DANDROID_STL=c++_shared'
+                if (windowsHost) {
+                    arguments "-DEKA2L1_FFMPEG_BASH=${msys}/usr/bin/bash.exe",
+                            "-DEKA2L1_FFMPEG_MAKE=${msys}/usr/bin/make.exe"
+                }
+                if (rootProject.nativeBuildJobs != null) {
+                    arguments "-DEKA2L1_FFMPEG_JOBS=${rootProject.nativeBuildJobs}",
+                            "-DCMAKE_JOB_POOLS=abyss_compile=${rootProject.nativeBuildJobs};abyss_link=1",
+                            '-DCMAKE_JOB_POOL_COMPILE=abyss_compile', '-DCMAKE_JOB_POOL_LINK=abyss_link'
+                }
                 targets 'native-lib'
             }
         }

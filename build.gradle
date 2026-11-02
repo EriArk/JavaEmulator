@@ -9,6 +9,11 @@ task clean(type: Delete) {
 }
 
 ext {
+    def requestedJobs = providers.gradleProperty('nativeBuildJobs').orNull
+    if (requestedJobs != null && !(requestedJobs ==~ /[1-8]/)) {
+        throw new GradleException('nativeBuildJobs must be an integer from 1 to 8')
+    }
+    nativeBuildJobs = requestedJobs
     COMPILE_SDK = 34
     MIN_SDK = 29
     TARGET_SDK = 34

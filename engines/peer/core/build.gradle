@@ -6,12 +6,19 @@ android {
     ndkVersion '28.2.13676358'
     defaultConfig {
         minSdk 29
+        if (providers.gradleProperty('symbianRelease').orNull == 'true') {
+            ndk { abiFilters 'arm64-v8a' }
+        }
         testInstrumentationRunner 'androidx.test.runner.AndroidJUnitRunner'
         externalNativeBuild {
             cmake {
                 arguments '-DANDROID_STL=c++_static', "-DPEER_OFFLINE=${gradle.startParameter.offline ? 'ON' : 'OFF'}",
                         "-DPEER_SOURCE_ROOT=${rootProject.file('build/peer-sources').absolutePath.replace('\\', '/')}"
                 targets 'abyss-peer'
+                if (rootProject.nativeBuildJobs != null) {
+                    arguments "-DCMAKE_JOB_POOLS=abyss_compile=${rootProject.nativeBuildJobs};abyss_link=1",
+                            '-DCMAKE_JOB_POOL_COMPILE=abyss_compile', '-DCMAKE_JOB_POOL_LINK=abyss_link'
+                }
             }
         }
         consumerProguardFiles 'consumer-rules.pro'

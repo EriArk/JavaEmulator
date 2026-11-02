@@ -12,3 +12,6 @@ test-games/sudoku-j2me/*.zip -text
 /screenshots export-ignore
 /test-screenshots export-ignore
 /design-concepts export-ignore
+
+/tools/remote-build/*.sh text eol=lf
+/tools/remote-build/Dockerfile text eol=lf

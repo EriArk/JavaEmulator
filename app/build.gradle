@@ -9,6 +9,10 @@ def symbianExperiment = providers.gradleProperty('symbianExperiment').orNull == 
 def symbianRelease = providers.gradleProperty('symbianRelease').orNull == 'true'
 def symbianReleaseCheck = providers.gradleProperty('symbianReleaseCheck').orNull == 'true'
 def symbianEnabled = symbianExperiment || symbianRelease || symbianReleaseCheck
+def unsignedRelease = providers.gradleProperty('unsignedRelease').orNull == 'true'
+if (unsignedRelease && (m3gReleaseCheck || symbianReleaseCheck)) {
+    throw new GradleException('Unsigned export and debug-signed rehearsal are separate modes')
+}
 if (symbianEnabled && m3gExperiment != null) {
     throw new GradleException('Run Symbian and M3G research builds separately')
 }
@@ -58,17 +62,20 @@ android {
                 arguments += ["room.schemaLocation": "$projectDir/schemas".toString()]
             }
         }
+        if (rootProject.nativeBuildJobs != null) {
+            externalNativeBuild.ndkBuild.arguments "-j${rootProject.nativeBuildJobs}"
+        }
     }
 
     signingConfigs {
         release {
-            if (System.getenv()['BITRISE_IO']) {
+            if (!unsignedRelease && System.getenv()['BITRISE_IO']) {
                 keyAlias System.getenv('BITRISEIO_ANDROID_KEYSTORE_ALIAS')
                 keyPassword System.getenv('BITRISEIO_ANDROID_KEYSTORE_PRIVATE_KEY_PASSWORD')
                 def keystoreName = System.getenv('BITRISEIO_ANDROID_KEYSTORE_NAME')
                 if (keystoreName) storeFile rootProject.file(keystoreName)
                 storePassword System.getenv('BITRISEIO_ANDROID_KEYSTORE_PASSWORD')
-            } else if (m3gExperiment == null && rootProject.file('keystore.properties').isFile()) {
+            } else if (!unsignedRelease && m3gExperiment == null && rootProject.file('keystore.properties').isFile()) {
                 Properties keystoreProps = new Properties()
                 rootProject.file('keystore.properties').withInputStream { keystoreProps.load(it) }
                 keyAlias keystoreProps['keyAlias']
@@ -84,7 +91,8 @@ android {
             minifyEnabled true
             shrinkResources true
             // Rehearsals are deliberately debug-signed and never use production IDs/keys.
-            signingConfig = (m3gReleaseCheck || symbianReleaseCheck) ? signingConfigs.debug : signingConfigs.release
+            signingConfig = unsignedRelease ? null :
+                    ((m3gReleaseCheck || symbianReleaseCheck) ? signingConfigs.debug : signingConfigs.release)
         }
         debug {
             applicationIdSuffix '.debug'
@@ -184,7 +192,7 @@ android {
         }
         def baseName = flavorName == 'midlet' ? "${midletArchivesBaseName}-" : "${rootProject.name}-"
         outputs.all {
-            outputFileName = "${baseName}${versionName}-${dirName}-${buildType.name}.apk"
+            outputFileName = "${baseName}${versionName}-${dirName}-${buildType.name}${unsignedRelease && buildType.name == 'release' ? '-unsigned' : ''}.apk"
                     .replaceAll('--+', '-').replaceAll(' +', '_')
         }
     }
@@ -239,7 +247,7 @@ def validateReleaseCredentials = tasks.register('validateReleaseCredentials') {
 }
 apply from: rootProject.file('tools/release-inventory.gradle')
 android.applicationVariants.all { variant ->
-    if (variant.buildType.name == 'release' && !m3gReleaseCheck && !symbianReleaseCheck) {
+    if (variant.buildType.name == 'release' && !unsignedRelease && !m3gReleaseCheck && !symbianReleaseCheck) {
         variant.preBuildProvider.configure { dependsOn validateReleaseCredentials }
     }
 }
