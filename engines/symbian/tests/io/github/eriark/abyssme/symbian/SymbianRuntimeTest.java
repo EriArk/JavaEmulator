@@ -63,6 +63,9 @@ public final class SymbianRuntimeTest {
             waitText(ui, "Pending import", 30000);
             clickExact(ui, "Pending import"); clickExact(ui, "Continue import");
             SystemClock.sleep(Long.parseLong(InstrumentationRegistry.getArguments().getString("modernFixtureWait", "5000")));
+            // Provisioning alone is not launch acceptance: the separate native process may die.
+            waitText(ui, ru.playsoftware.j2meloader.BuildConfig.HANDHELD_MODE
+                    ? "Game menu" : "Show game controls", 5000);
         }
     }
     @Test public void retainedNgageImportOpensPlatformWithoutRestaging() throws Exception {

@@ -10,6 +10,19 @@ stated otherwise. **Experimental** in older checkpoints means local/private
 combined builds; released experimental features are explicitly identified.
 **Released** means an actual GitHub release asset.
 
+## 2026-11-10 - Real-game Emulator Checks (Local Only)
+
+- Continue without the handheld using exact private Java/Mophun samples. Record
+  launch/menu/level observations separately from complete-game acceptance.
+- Add an isolated Mophun lifecycle test for pause/resume, save-preserving reimport
+  and fresh activity launch. Deep Abyss 1.4 preserves two generated save files;
+  the 1.1 run creates none and does not establish persistence.
+- Make Java input injection explicit and checked. Make N95 fixture startup fail
+  if its separate game process disappears after preparation; native startup on
+  this x86_64 emulator encounters unsupported ARM translation instructions.
+- [Evidence and boundaries](docs/checks/2026-11-10-real-games.md). No production
+  runtime change, physical-device acceptance, public source push or APK publication.
+
 ## 2026-11-10 - Combined Functionality Candidate (Local Only)
 
 - Assemble combined Debug/test and optimized unsigned Release after the approved

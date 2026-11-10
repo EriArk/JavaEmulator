@@ -76,6 +76,23 @@ lint remains zero errors and 804 warnings after indentation cleanup.
 Discord still needs a valid official destination, and physical tests await ADB
 authorization. No new source or APK has been published.
 
+## Real-game Emulator Follow-up (2026-11-10, Local Only)
+
+The maintainer requested continued work while away from the handheld. Four exact
+Java editions and Deep Abyss 1.4/1.1 have now been observed on the combined candidate
+in an API 30 emulator. Diamond Rush and both Deep Abyss editions reach gameplay;
+SimCity reaches the city view with a manual 320×240 profile and the two Crash editions reach menus/intro scenes.
+Mophun lifecycle tests cover background pause, resume, duplicate import and a fresh
+activity launch. Version 1.4's two generated save files survive reimport unchanged;
+1.1 creates none in the short run, so its persistence remains unverified.
+
+N95 platform startup is blocked by unsupported ARM instructions in the emulator's
+translation layer, including an interpreter-mode experiment. No fresh N95/LCD
+acceptance or #52 fix is claimed. A preparation helper now detects loss of the
+separate native process; Java injected-input checks are also strengthened.
+[Exact editions, failures and limits](checks/2026-11-10-real-games.md).
+Physical testing is deferred at the owner's request. No new source or APK is published.
+
 ## Product in Plain Language
 
 AbyssME runs old mobile Java games, Mophun and experimental Symbian/N-Gage

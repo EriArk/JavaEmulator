@@ -73,3 +73,11 @@ key mismatch. Physical controller/TalkBack and real-game testing remain next.
 No real games were run during this functionality checkpoint. Public release state
 was last reconciled in the earlier November 10 documentation review; it was not
 rechecked or changed by these local builds.
+
+## Subsequent emulator game work
+
+The maintainer subsequently requested continued work while away from the handheld.
+[The November 10 real-game checkpoint](2026-11-10-real-games.md) records Java/Mophun
+observations and the N95 ARM-translation blocker. It supersedes the handoff's
+pending-game status, without changing this earlier build's evidence or establishing
+physical-device acceptance.

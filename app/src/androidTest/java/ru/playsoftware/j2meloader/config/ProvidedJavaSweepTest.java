@@ -37,7 +37,10 @@ public class ProvidedJavaSweepTest {
         File game = new File(Config.getAppDir(), id), profileDir = new File(Config.getConfigsDir(), id);
         File saves = new File(Config.getDataDir(), id);
         File output = new File(context.getExternalFilesDir(null), "sweep/java/" + name + "-captures");
-        assertTrue(game.mkdirs()); assertTrue(profileDir.mkdirs()); assertTrue(output.isDirectory() || output.mkdirs());
+        // A failed rerun must not leave earlier final/step captures looking like fresh evidence.
+        if (output.exists()) FileUtils.deleteDirectory(output);
+        assertTrue(output.mkdirs());
+        assertTrue(game.mkdirs()); assertTrue(profileDir.mkdirs());
         try {
             try (ZipFile zip = new ZipFile(source); InputStream manifest = zip.getInputStream(zip.getEntry("META-INF/MANIFEST.MF"))) {
                 Files.copy(manifest, new File(game, Config.MIDLET_MANIFEST_FILE).toPath());
@@ -65,14 +68,22 @@ public class ProvidedJavaSweepTest {
                 String[] parts = action.split(":"); long now = SystemClock.uptimeMillis();
                 if (parts[0].equals("key")) {
                     int key = Integer.parseInt(parts[1]);
-                    i.getUiAutomation().injectInputEvent(new KeyEvent(now, now, KeyEvent.ACTION_DOWN, key, 0), true);
+                    assertTrue("Key down must be injected", i.getUiAutomation().injectInputEvent(
+                            new KeyEvent(now, now, KeyEvent.ACTION_DOWN, key, 0), true));
                     SystemClock.sleep(150);
-                    i.getUiAutomation().injectInputEvent(new KeyEvent(now, SystemClock.uptimeMillis(), KeyEvent.ACTION_UP, key, 0), true);
+                    assertTrue("Key up must be injected", i.getUiAutomation().injectInputEvent(
+                            new KeyEvent(now, SystemClock.uptimeMillis(), KeyEvent.ACTION_UP, key, 0), true));
                 } else if (parts[0].equals("tap")) {
                     float x = Float.parseFloat(parts[1]), y = Float.parseFloat(parts[2]);
                     MotionEvent down = MotionEvent.obtain(now, now, MotionEvent.ACTION_DOWN, x, y, 0);
                     MotionEvent up = MotionEvent.obtain(now, now+100, MotionEvent.ACTION_UP, x, y, 0);
-                    try { i.getUiAutomation().injectInputEvent(down, true); SystemClock.sleep(100); i.getUiAutomation().injectInputEvent(up, true); }
+                    down.setSource(android.view.InputDevice.SOURCE_TOUCHSCREEN);
+                    up.setSource(android.view.InputDevice.SOURCE_TOUCHSCREEN);
+                    try {
+                        assertTrue("Touch down must be injected", i.getUiAutomation().injectInputEvent(down, true));
+                        SystemClock.sleep(100);
+                        assertTrue("Touch up must be injected", i.getUiAutomation().injectInputEvent(up, true));
+                    }
                     finally { down.recycle(); up.recycle(); }
                 } else if (parts[0].equals("wait")) SystemClock.sleep(Math.min(15000, Integer.parseInt(parts[1])));
                 else throw new IllegalArgumentException(action);
