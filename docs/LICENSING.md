@@ -55,23 +55,24 @@ corresponding-source archive is included inside the dependency source bundle;
 Symbian sources remain a separate bundle. No games, firmware or credentials are
 included. See [0.6 verification](releases/v0.6.0-beta.1-checks.md).
 
-The unreleased multiplayer temporary-contact actor is a Java adaptation of the
+The multiplayer temporary-contact actor is a Java adaptation of the
 owner's GPLv3 TrainerOS implementation at `d69e50dc`, not a Qt library linked into
 Android. The adaptation retains a GPL-3.0-only source header and its protocol/
 modification provenance in [MULTIPLAYER](MULTIPLAYER.md). It introduces no new
 binary dependency, credentials, bundled service or license change.
 
-The unreleased directory reader also adapts TrainerOS's directory/community flow
+The directory reader also adapts TrainerOS's directory/community flow
 reviewed at `e7b24ba6`, with automatic admission, strict v2 product/capability
 filtering and bounded Android lifecycle handling. It reuses public service IDs,
 not bot credentials. [Directory provenance and limits](LOBBY_DIRECTORY.md) records
 the separate GPLv3 shared-service extension. No Qt code is linked into Android.
 
-The unreleased room workflow continues that GPL-3.0-only Java adaptation: host
+The room workflow continues that GPL-3.0-only Java adaptation: host
 admission, expiring invitations, incarnation fencing and generation-bound Ready.
 It uses an isolated AbyssME message namespace, not TrainerOS cross-play. See
-[room provenance, modifications and verification](LOBBY_ROOMS.md). The companion
-service result extension stays in the separate TrainerOS PR until deployment.
+[room provenance, modifications and verification](LOBBY_ROOMS.md). The companion service rollout is recorded in the
+[October 24 deployment checkpoint](FLUXER_PUBLIC_DIRECTORY_CHECKPOINT.md);
+that record does not establish current live-service health.
 
 The subsequent [room-contact integration](LOBBY_CONTACTS.md) also adapts the
 TrainerOS manual-friend ownership boundary, with an Android asynchronous lease.
@@ -81,13 +82,13 @@ The [virtual Java Bluetooth adapter](VIRTUAL_BLUETOOTH.md) is original
 GPL-3.0-only code. It delegates from inherited Apache-2.0 JSR-82 wrappers without
 removing their headers. Its first checkpoint introduced no transport dependency.
 
-The subsequent unreleased [secure peer core](SECURE_PEER_TRANSPORT.md) adds
+The [secure peer core](SECURE_PEER_TRANSPORT.md) adds
 libdatachannel/libjuice (MPL-2.0), usrsctp (BSD-3-Clause), plog (MIT) and Mbed TLS
 (Apache-2.0 selected from its dual license). Upstream source files are unmodified;
 the original JNI/Java wrapper is GPL-3.0-only. Exact revisions, retained notices,
 build configuration and the corresponding-source task are documented in
 [engines/peer](../engines/peer/README.md). APK component license assets and the
-additional source archive are required for any later release containing this core.
+additional source archive remain required for releases containing this core.
 
 `tools/release-inventory.gradle` inventories the actual resolved release graph,
 records artifact hashes and POM declarations, and collects available source JARs.

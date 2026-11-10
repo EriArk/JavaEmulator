@@ -1,7 +1,9 @@
 # Local regression checks
 
-GitHub Actions is intentionally disabled. Set up the SDK/JDK and local signing
-setup in [Contributing](../CONTRIBUTING.md) first.
+GitHub Actions is intentionally disabled. Maintainer APK builds use the
+[manual remote workflow](REMOTE_BUILDS.md); SDK/native/Gradle caches stay on the
+server. The commands below are for contributor/local checks. See
+[Contributing](../CONTRIBUTING.md); Debug needs no private signing configuration.
 Property-free commands below build the Java/Mophun developer variants. Public
 Symbian source and combined-build instructions are in [the engine guide](../engines/symbian/README.md).
 
@@ -12,22 +14,25 @@ Symbian source and combined-build instructions are in [the engine guide](../engi
 ./gradlew :app:testPhoneDebugUnitTest --rerun :app:testFdroidDebugUnitTest --rerun
 ```
 
-On Windows use `gradlew.bat`. As of October 18, the JVM suite has 29 tests per
-variant: source identity, controller transitions, frame pacing, game information
-and library layout. Dated sections below preserve their historical counts.
+On Windows use `gradlew.bat`. The current distribution is adaptive `fdroid`;
+`phone` remains for legacy migration checks. The November 2 server/release record
+reports 424 JVM tests; this is dated evidence, not a new run or a permanent suite
+size. See [the exact scope](checks/2026-11-02-remote-build.md). Dated sections below
+preserve historical subset counts, including the October 18 29-test baseline.
 
 ## Android instrumentation
 
-Use an explicit emulator/device serial. Example for `emulator-5554` and beta.4
-development filenames (adjust filenames when the version changes):
+Use an explicit emulator/device serial and matching app/test artifacts from the
+same build. The paths below are placeholders for your downloaded/generated APKs;
+they do not refer to historical release filenames. The legacy Phone pair is optional.
 
 ```shell
-adb -s emulator-5554 install -r -d app/build/outputs/apk/phone/debug/AbyssME-0.3.0-beta.4-phone-debug.apk
-adb -s emulator-5554 install -r -d app/build/outputs/apk/androidTest/phone/debug/app-phone-debug-androidTest.apk
+adb -s emulator-5554 install -r path/to/phone-debug.apk
+adb -s emulator-5554 install -r path/to/phone-debug-androidTest.apk
 adb -s emulator-5554 shell am instrument -w -e package ru.playsoftware.j2meloader io.github.eriark.abyssme.phone.debug.test/androidx.test.runner.AndroidJUnitRunner
 
-adb -s emulator-5554 install -r -d app/build/outputs/apk/fdroid/debug/AbyssME-0.3.0-beta.4-debug.apk
-adb -s emulator-5554 install -r -d app/build/outputs/apk/androidTest/fdroid/debug/app-fdroid-debug-androidTest.apk
+adb -s emulator-5554 install -r path/to/fdroid-debug.apk
+adb -s emulator-5554 install -r path/to/fdroid-debug-androidTest.apk
 adb -s emulator-5554 shell am instrument -w -e package ru.playsoftware.j2meloader io.github.eriark.abyssme.debug.test/androidx.test.runner.AndroidJUnitRunner
 ```
 
@@ -39,7 +44,8 @@ Runtime Canvas/Image tests use the `javax.microedition.lcdui` package, so the
 `-e package ru.playsoftware.j2meloader` examples above do not include them.
 Use an explicit class list or omit that filter for a broader run. Never run
 UI automation against a device concurrently controlled by another task.
-The latest targeted runtime/transfer evidence is [recorded separately](checks/2026-10-18-runtime-transfer.md).
+The October 18 runtime/transfer evidence is [recorded separately](checks/2026-10-18-runtime-transfer.md).
+Use [PROJECT_STATUS](PROJECT_STATUS.md) for subsequent dated checks.
 
 ### Optional real-game lifecycle checks
 

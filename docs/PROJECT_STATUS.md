@@ -1,6 +1,6 @@
 # AbyssME - Current Product and Development Status
 
-**Last updated: 2026-11-02.** Verification dates are recorded per section.
+**Last updated: 2026-11-10.** Verification dates are recorded per section.
 This is the starting point for website copy,
 announcements, progress posts and project handoffs. It includes work that exists
 only in local experiments or private test builds. Describing that work here
@@ -11,6 +11,22 @@ changes, and the linked evidence for detail. This is a maintained snapshot,
 not a live feed. Verify GitHub Releases, recent commits and build notes before
 calling a version "latest" after this date. If local evidence is inaccessible,
 attribute its results to the dated maintainer record below; do not infer a pass.
+
+## Current Issue Review (2026-11-10)
+
+Live GitHub release metadata still identifies 0.7.0 Beta 2 (November 2) as the
+newest published beta. This documentation review did not repeat APK hash/signature,
+build, device, game or live-service checks; their recorded dates remain authoritative.
+
+See [issue status and remaining work](ISSUE_STATUS.md) for the reconciled queue.
+The #41/#42/#45/#43 implementation batches are released, with specific acceptance
+still open. #48 N95 startup/LCD behavior and #50 broader guest-display research
+remain unresolved; #52 is a new, insufficiently identified Crash Bandicoot report.
+#51 is an unimplemented official-link task. #44 new engines remains deferred.
+
+The original #39 reporter confirmed the EKA2L1 transfer in Beta 2 on November 4;
+that accepted whole-phone workflow closes #39. Broader migration stays in #49.
+This is user feedback, not new maintainer device testing or standalone Drive E support.
 
 ## Product in Plain Language
 
@@ -294,7 +310,9 @@ older 0.3 builds, not the current release series.
 | Private historical snapshot | `0.1.0-beta.2-experimental.15`, 2026-10-11 | Old Java/Mophun test build, not the current beta |
 | Local-only material | Game fixtures, firmware, diagnostics, device data and signing keys | Not in Git or public release assets; describing testing does not authorize redistribution |
 
-## Stabilization Queue (2026-10-28)
+<a id="stabilization-queue-2026-10-28"></a>
+
+## Released Stabilization Work (2026-10-28; Remaining Acceptance Reviewed 2026-11-10)
 
 Approved order: **#41 audio -> #42 menu handle/opacity -> #45 touch gamepad
 mapping -> #43 localization**. **#44 new platforms is deferred**.
@@ -559,7 +577,9 @@ Java CRT, keypad Separate/Overlay and persisted selection through the game menu.
 No public APK or release update.
 [Scope, screenshots, evidence and remaining work](RETRO_LIBRARY_REFRESH.md).
 
-## Multiplayer Foundation (Unreleased)
+<a id="multiplayer-foundation-unreleased"></a>
+
+## Multiplayer Foundation (Released in 0.6; Development History)
 
 **Additional Bluetooth games and signaling order, 2026-10-26:** test locally
 supplied 1916 Dogfight, 3D Constructo Combat and Absorbed on Retroid/emulator.
@@ -1409,7 +1429,9 @@ ES-DE or Beacon is fully verified: real cold/warm launch and return testing is
 still tracked in [#7](https://github.com/EriArk/JavaEmulator/issues/7).
 See [beta.2 release notes](releases/v0.1.0-beta.2.md) for the released scope.
 
-## Included in the Current Beta
+<a id="included-in-the-current-beta"></a>
+
+## Historical 0.4 Feature Baseline (Retained in Later Releases)
 
 The 0.4 beta combines phone and controller use in one APK, retaining the shared
 Java/Mophun/Symbian menu and embedded native integration. It requires arm64-v8a and
@@ -1419,7 +1441,7 @@ join the common library. Numeric/Gamepad touch decks, controller mapping,
 display controls, screenshots and whole-phone backups share the same app.
 See [release notes](releases/v0.4.0-beta.2.md) for user-facing details and limits.
 
-The current feature summary includes retained 0.2/0.3 features and the 0.4/0.5 additions:
+This historical feature summary includes retained 0.2/0.3 features and the 0.4/0.5 additions:
 
 | Area | Current development behavior | Evidence / boundary |
 | --- | --- | --- |

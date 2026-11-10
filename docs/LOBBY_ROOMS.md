@@ -1,4 +1,11 @@
-# Rooms, Invitations and Publication (Unreleased)
+# Rooms, Invitations and Publication (Historical Checkpoint)
+
+**Availability review, 2026-11-10:** this implementation was subsequently included
+in experimental [0.6 Beta 1](releases/v0.6.0-beta.1-checks.md) and is retained in
+0.7 Beta 2. The dated text below describes its original development checkpoint;
+"unreleased", "no adapter" or "Release disabled" statements are historical.
+See [current issue status](ISSUE_STATUS.md) for remaining work. This review adds
+no runtime, full-match, different-network or current service-health acceptance.
 
 2026-10-24. Unreleased Android source, now with a deployed shared directory and
 [live public/private two-account evidence](FLUXER_PUBLIC_DIRECTORY_CHECKPOINT.md).

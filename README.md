@@ -216,14 +216,14 @@ Each pack identifies its build and test environment.
 - Live in-game controls for display preset and virtual screen size
 - Android intent entry point for external launchers; ES-DE and Beacon setup notes
 - JAR, JAD, ZIP, and 7Z sources through Android's Storage Access Framework
-- Local-only library and diagnostics; no account, cloud service, or telemetry
+- Offline single-player library; optional Fluxer account for experimental Social and multiplayer
 
 ## Requirements
 
 - Android 10 or newer (API 29+)
-- 64-bit ARM device (arm64-v8a) for the combined 0.4 APK; the Java/Mophun-only
-  [0.2 beta](https://github.com/EriArk/JavaEmulator/releases/tag/v0.2.0-beta.1)
-  remains available for other architectures
+- 64-bit ARM device (arm64-v8a) for the current combined APK. A current ARMv7
+  Java/Mophun distribution is tracked in [#29](https://github.com/EriArk/JavaEmulator/issues/29);
+  older releases are historical alternatives, not current-feature builds
 - A controller is optional; touch layouts are included
 
 The unified app has a rotatable library, a compact portrait layout, direct MIDP
@@ -233,7 +233,7 @@ broader device acceptance remains tracked in [#3](https://github.com/EriArk/Java
 ## Install
 
 1. Open [Releases](https://github.com/EriArk/JavaEmulator/releases).
-2. Download `AbyssME-0.4.0-beta.3.apk` for either a phone or a handheld.
+2. Download `AbyssME-0.7.0-beta.2.apk` for either a phone or a handheld.
 3. Allow installation from your browser or file manager when Android asks.
 4. Install the APK and open AbyssME.
 
@@ -297,22 +297,25 @@ original build made for a common 176x220, 240x320, or 320x240 device profile.
 
 ## Build
 
-See [Contributing](CONTRIBUTING.md) for JDK/SDK versions, signing and verification.
+Maintainer APK builds use the [manual remote workflow](docs/REMOTE_BUILDS.md)
+with heavy SDK/native/Gradle caches on the server and release signing on Windows.
+See [Contributing](CONTRIBUTING.md) for JDK/SDK versions and contributor checks.
 Debug builds use the normal Android debug key without a private signing file.
 The M3G and Mophun sources are included; no private engine checkout is required:
 
 ```shell
-./gradlew :app:assembleFdroidDebug :app:assemblePhoneDebug
+./gradlew :app:assembleFdroidDebug
 ```
 
 On Windows, use `gradlew.bat`. APK output is written under
 `app/build/outputs/apk/`.
-These commands build Java/Mophun only. For the complete 0.3 build, restore the
+These commands build Java/Mophun only. For the complete combined build, restore the
 separate Symbian source bundle, follow its [build prerequisites](engines/symbian/DISTRIBUTION.md),
 and pass `-PsymbianRelease=true`. Combined outputs are under
 `app/build/symbian-release/outputs/apk/`.
-GitHub Actions is intentionally disabled. Builds and checks are run locally,
-and release assets are uploaded manually.
+The `phone` flavor remains available for legacy migration testing, not as a second
+distribution target. GitHub Actions is intentionally disabled; maintainer builds
+use the server and release assets are uploaded manually.
 
 ## Known Limitations
 
@@ -327,7 +330,7 @@ and release assets are uploaded manually.
 - Mophun is experimental; broad compatibility and audio are not established.
 - Symbian/N-Gage is experimental and needs user-supplied system files. Some
   games still fail or require specific phone/component versions; installation
-  success does not guarantee gameplay. See the [current limits](docs/releases/v0.3.0-beta.1.md#known-limits).
+  success does not guarantee gameplay. See the [current limits](docs/releases/v0.7.0-beta.2.md#verification-and-limits).
 
 Please report reproducible problems through
 [GitHub Issues](https://github.com/EriArk/JavaEmulator/issues) and include the
@@ -335,7 +338,7 @@ device model, Android version, game filename, and the symptom shown in AbyssME.
 Do not upload commercial game files.
 
 Current work and unresolved decisions are tracked in
-[Issues](https://github.com/EriArk/JavaEmulator/issues). Contribution instructions
+[issue-status index](docs/ISSUE_STATUS.md) and [GitHub Issues](https://github.com/EriArk/JavaEmulator/issues). Contribution instructions
 and the project layout are in [CONTRIBUTING.md](CONTRIBUTING.md).
 
 ## Credits

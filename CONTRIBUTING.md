@@ -72,8 +72,8 @@ replace the official release apps. If reporting a fresh unit-test run, use
 `--rerun` after each unit-test task so an UP-TO-DATE result is not mistaken for
 new execution.
 
-GitHub Actions is intentionally disabled. Checks and builds run locally;
-maintainers publish signed release assets manually. Do not add workflows or
+GitHub Actions is intentionally disabled. Maintainer APK builds use the server;
+focused checks may run locally. Signed release assets are published manually. Do not add workflows or
 automatic publishing as part of an unrelated contribution.
 New APKs belong only in GitHub Releases, not in the Git tree. Historical tracked
 APKs remain an archive. See the [manual release checklist](docs/RELEASING.md).
@@ -88,7 +88,7 @@ engine for both Debug and Release with normal package IDs (Debug still has its
 build remains a Java/Mophun-only development option. Phone dumps and commercial
 games are never required to compile the application.
 
-Development toward 0.4 uses one adaptive `fdroid` APK. The `phone` flavor remains
+The current distribution uses one adaptive `fdroid` APK. The `phone` flavor remains
 available for migration testing, but is not a second distribution target.
 Check touch and controller use separately, in portrait, landscape and square layouts:
 
@@ -105,9 +105,9 @@ Record the commit, APK variant, commands/results, game identification and
 Android/device or emulator version. Mark untested cases explicitly. Use games
 you are permitted to use, and never attach commercial JARs to reports.
 
-Current local shared-source coverage includes 14 JVM tests and 101 focused Android
-instrumentation cases. Variant/viewport-specific assumptions skip inapplicable
-checks; run the Phone search case in portrait and controller focus on Handheld.
+The November 2 release/server verification records 424 JVM tests. Android checks
+are reported per targeted suite, fixture, variant and viewport; old 14-test/101-case
+baselines are historical subsets. Report fresh execution and skips explicitly.
 See [commands, scope and recorded checks](docs/LOCAL_TESTING.md).
 Passing these is not physical-controller or full-game compatibility acceptance;
 remaining coverage is tracked in [#4](https://github.com/EriArk/JavaEmulator/issues/4).
