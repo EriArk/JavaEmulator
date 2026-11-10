@@ -10,6 +10,19 @@ stated otherwise. **Experimental** in older checkpoints means local/private
 combined builds; released experimental features are explicitly identified.
 **Released** means an actual GitHub release asset.
 
+## 2026-11-10 - Beta 3 Release Preparation (Local Only)
+
+- Prepare version 0.7.0-beta.3 / 316 with multi-phone transfer/retry, localized
+  recovery messages, Ocean/Amber styles and Website actions.
+- Build and sign the combined ARM64 release; verify 424 JVM tests, production
+  guards and source bundles. Lint has zero errors and 806 warnings.
+- Upgrade the official Retroid app without uninstalling; confirm all 36 exported
+  game records and 296 payload hashes survive. Check Beta 2 to Beta 3 separately
+  on API 30 with two games and six saved-data files.
+- Stage the APK, matching app/dependency/Symbian sources and checksums. Publication
+  awaits GitHub CLI authentication; no public release or ARMv7 APK is claimed.
+  [Evidence and limits](docs/releases/v0.7.0-beta.3-checks.md).
+
 ## 2026-11-10 - Retroid Candidate Checks (Local Only)
 
 - Install a separate Debug test variant on the Pocket Classic because the

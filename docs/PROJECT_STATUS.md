@@ -12,6 +12,19 @@ not a live feed. Verify GitHub Releases, recent commits and build notes before
 calling a version "latest" after this date. If local evidence is inaccessible,
 attribute its results to the dated maintainer record below; do not infer a pass.
 
+## Beta 3 Release Preparation (2026-11-10, Local Only)
+
+**0.7.0 Beta 3, code 316, is signed and staged locally, not published.**
+The combined ARM64 APK, matching app source, verified dependency/Symbian source
+bundles and checksums are ready. Fresh build/guards and 424 JVM tests pass;
+release lint has zero errors and 806 warnings. The final signed APK upgrades the
+official Retroid installation from 314 to 316: 36 Java/Mophun game records and
+296 exported payload hashes remain unchanged. Beta 2 to Beta 3 also installs
+on API 30 with a two-game saved-data fixture. These are bounded checks, not
+whole-game acceptance. GitHub CLI authentication is unavailable; source/tag push,
+release upload and publication verification remain pending. Beta 2 remains the
+public beta. [Release verification](releases/v0.7.0-beta.3-checks.md).
+
 ## Current Issue Review (2026-11-10)
 
 Live GitHub release metadata still identifies 0.7.0 Beta 2 (November 2) as the
