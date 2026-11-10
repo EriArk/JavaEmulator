@@ -93,6 +93,24 @@ separate native process; Java injected-input checks are also strengthened.
 [Exact editions, failures and limits](checks/2026-11-10-real-games.md).
 Physical testing is deferred at the owner's request. No new source or APK is published.
 
+### Real-game Save and Backup Follow-up
+
+New opt-in tests exercise the production Java/Mophun archive and importer using
+isolated game-generated saves. They compare all save paths/hashes, reject duplicate
+restore without overwrite, verify profiles/catalog fields and relaunch restored
+payloads; Java code is recompiled during restore.
+
+Deep Abyss 1.4 now creates a nonempty guest resume file through its confirmed
+exit path. After restoration, Resume game reaches Level 1 gameplay with input.
+Diamond Rush preserves four RMS files and can start a level after restoration;
+its New game menu does not establish loaded progress. SimCity's explicit return-
+to-menu save path generates two RMS files that survive restoration; the restored
+Sunny Glen save is recognized and reopens the city/tutorial. Earlier empty-
+save attempts remain documented failures, not passes. These are local emulator
+checkpoints, with no production runtime change or publication. Later-level progress,
+audio, physical hardware and complete-game acceptance remain open.
+[Save/backup evidence and failure history](checks/2026-11-10-real-game-backups.md).
+
 ## Product in Plain Language
 
 AbyssME runs old mobile Java games, Mophun and experimental Symbian/N-Gage

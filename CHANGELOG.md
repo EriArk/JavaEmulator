@@ -10,6 +10,21 @@ stated otherwise. **Experimental** in older checkpoints means local/private
 combined builds; released experimental features are explicitly identified.
 **Released** means an actual GitHub release asset.
 
+## 2026-11-10 - Real-game Save and Backup Checks (Local Only)
+
+- Add isolated opt-in Java/Mophun archive round trips using real game-generated
+  saves, production checksum validation/import, byte preservation, duplicate
+  rejection and fresh launch. Recompile Java DEX on restore and retain profiles.
+- Deep Abyss 1.4 recognizes its nonempty restored resume save and returns to
+  Level 1 gameplay. Diamond Rush preserves four RMS files and starts a level;
+  its New game menu does not prove loaded progress. SimCity's confirmed menu
+  save generates two RMS files that survive export/import and reopen the saved
+  district/tutorial.
+- Retain failed empty-save attempts and corrected guest-input sequences in the
+  [evidence record](docs/checks/2026-11-10-real-game-backups.md). Update #13 without
+  closing broader compatibility work. No production runtime repair, public source
+  push, APK publication, physical-device or complete-game acceptance.
+
 ## 2026-11-10 - Real-game Emulator Checks (Local Only)
 
 - Continue without the handheld using exact private Java/Mophun samples. Record

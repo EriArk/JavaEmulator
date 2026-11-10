@@ -74,21 +74,37 @@ public class ProvidedMophunLifecycleTest {
                 scenario.moveToState(Lifecycle.State.RESUMED);
                 await("Foreground activity must resume frames", () -> session.screen().presentationSerial() > pausedSerial);
                 healthy(session); capture(output, "resumed");
+                keys(scenario, output, InstrumentationRegistry.getArguments().getString("mophunSaveKeys", ""), "save-step-");
             }
             // Activity destruction schedules shutdown; join before reading or deleting saves.
             sessions.get(0).close();
             File saves = new File(Config.getDataDir(), id);
             Map<String, byte[]> before = snapshot(saves);
+            String requiredSave = InstrumentationRegistry.getArguments().getString("mophunRequiredSave");
+            if (requiredSave != null) {
+                assertEquals(new File(requiredSave).getName(), requiredSave);
+                assertTrue("Requested game save must contain data", new File(saves, requiredSave).length() > 0);
+            }
             assertEquals(id, MophunStore.install(context, root, Uri.fromFile(source)).getPath());
             Map<String, byte[]> after = snapshot(saves);
             assertEquals("Reimport must preserve the save tree", before.keySet(), after.keySet());
             for (String path : before.keySet()) assertArrayEquals(path, before.get(path), after.get(path));
+            if ("true".equals(InstrumentationRegistry.getArguments().getString("mophunBackupRoundTrip"))) {
+                ru.playsoftware.j2meloader.catalog.ProvidedBackupRoundTrip.Restored restored =
+                        ru.playsoftware.j2meloader.catalog.ProvidedBackupRoundTrip.restore(context, root,
+                                MophunStore.read(MophunStore.directory(root, id)), new File(root, "backup-work"),
+                                new File(output, "backup.json"), true);
+                assertEquals("Mophun identity survives restore", id, restored.id);
+                init.invoke(null, restored.root.getAbsolutePath());
+            }
             try (ActivityScenario<MophunGameActivity> scenario = ActivityScenario.launch(intent)) {
                 MophunSession session = session(scenario);
                 sessions.add(session);
                 await("Relaunch must present a frame", () -> session.error() != null ||
                         session.screen() != null && session.screen().presentationSerial() > 0);
                 healthy(session); SystemClock.sleep(2000); healthy(session); capture(output, "relaunched");
+                keys(scenario, output, InstrumentationRegistry.getArguments().getString("mophunRelaunchKeys", ""), "restored-step-");
+                healthy(session);
             }
             sessions.get(1).close();
             String report = "Game-generated save files before reimport: " + before.size()
@@ -129,6 +145,15 @@ public class ProvidedMophunLifecycleTest {
         scenario.onActivity(activity -> activity.dispatchKeyEvent(new KeyEvent(KeyEvent.ACTION_DOWN, key)));
         SystemClock.sleep(150);
         scenario.onActivity(activity -> activity.dispatchKeyEvent(new KeyEvent(KeyEvent.ACTION_UP, key)));
+    }
+
+    private void keys(ActivityScenario<MophunGameActivity> scenario, File output, String sequence, String prefix) throws Exception {
+        int step = 0;
+        for (String value : sequence.split(",")) {
+            if (value.isEmpty()) continue;
+            key(scenario, Integer.parseInt(value));
+            SystemClock.sleep(1500); capture(output, prefix + (++step));
+        }
     }
 
     private static Map<String, byte[]> snapshot(File directory) throws Exception {

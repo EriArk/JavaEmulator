@@ -114,3 +114,7 @@ city progression; check real-game backup round trips and broader Mophun saves/au
 Resume N95 startup/LCD work on native ARM64 hardware or a verified compatible
 execution environment. Exact #52 identification, real two-device/network sessions,
 physical controllers/accessibility and native ARMv7 performance remain open.
+
+Follow-up: [real-game backup and restore](2026-11-10-real-game-backups.md) adds
+isolated archive/importer checks, guest-save navigation and fresh-launch evidence.
+The earlier short-run observations above remain unchanged historical results.
