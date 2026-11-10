@@ -42,6 +42,11 @@ This is not signed release-to-release upgrade acceptance.
 Local APKs, matching R8 mapping, hashes and logs are in ignored
 `build/checks/2026-11-10-candidate/BUILD-INFO.json` and its directory. ARMv7
 artifacts remain separately under `build/checks/2026-11-10-armv7/`.
+Switching Gradle targets removed earlier ARMv7 Debug intermediates before they
+were archived. ARMv7 Debug/test APKs were rebuilt after the indentation-only
+cleanup and retained immediately; the 16-library ELF32/ARM check passes again.
+Their manifest records this rebuild explicitly: earlier runtime results apply to
+the same semantic source, not a fresh test run on the rebuilt bytes.
 Debug APKs use this Linux environment's debug key. Unsigned Release APKs are
 not installable release candidates until signed; no production key was used.
 
