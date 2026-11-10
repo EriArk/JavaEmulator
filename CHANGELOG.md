@@ -10,6 +10,24 @@ stated otherwise. **Experimental** in older checkpoints means local/private
 combined builds; released experimental features are explicitly identified.
 **Released** means an actual GitHub release asset.
 
+## 2026-11-10 - Retroid Candidate Checks (Local Only)
+
+- Install a separate Debug test variant on the Pocket Classic because the
+  existing app's certificate differs. Back up the original APK/data; all 8,492
+  checked library, phone and settings files remain unchanged.
+- Verify Deep Abyss lifecycle/resume/real-save backup, Diamond Rush RMS backup,
+  a three-game DocumentsUI journey and seven selected UI regressions on Android 14.
+- Complete native N95 / Asphalt 3 installation and observe a moving race through
+  LCD Soft / LCD Classic Keep/Resume, Original/Undo and library reopening. This
+  leaves full-race and audible/physical-button acceptance open. A separate cold
+  native-process launch stays blank/white on Original with a responsive host menu;
+  retain this concrete #48 failure for diagnosis.
+- Correct test-only window/render synchronization, keyboard-aware picker cancel
+  and exact-name document search; retain initial failures, including the SimCity
+  replay that generated no saves. A manual 236.016s follow-up restores the
+  constructed Townhouse and saved budget with two unchanged RMS files. [Evidence](docs/checks/2026-11-10-retroid.md).
+  No production runtime change, source push or APK publication.
+
 ## 2026-11-10 - Paired Absorbed Lifecycle Check (Local Only)
 
 - Add an opt-in two-emulator fixture using real game processes, encrypted peer

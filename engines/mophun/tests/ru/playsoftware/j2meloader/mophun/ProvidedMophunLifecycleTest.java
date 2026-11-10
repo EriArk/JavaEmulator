@@ -73,6 +73,21 @@ public class ProvidedMophunLifecycleTest {
                 assertEquals("No guest frames while paused", pausedSerial, session.screen().presentationSerial());
                 scenario.moveToState(Lifecycle.State.RESUMED);
                 await("Foreground activity must resume frames", () -> session.screen().presentationSerial() > pausedSerial);
+                // ActivityScenario can resume guest frames before its temporary empty
+                // activity stops covering the game window. Capture the visible game.
+                await("Resumed game must regain window focus", () -> {
+                    java.util.concurrent.atomic.AtomicBoolean focused = new java.util.concurrent.atomic.AtomicBoolean();
+                    scenario.onActivity(activity -> focused.set(activity.hasWindowFocus()));
+                    return focused.get();
+                });
+                await("Foreground window must belong to the game", () -> {
+                    android.view.accessibility.AccessibilityNodeInfo window = instrumentation.getUiAutomation().getRootInActiveWindow();
+                    return window != null && context.getPackageName().contentEquals(window.getPackageName());
+                });
+                long visibleSerial = session.screen().presentationSerial();
+                await("Focused game must present a new frame", () -> session.screen().presentationSerial() > visibleSerial);
+                instrumentation.waitForIdleSync();
+                SystemClock.sleep(250);
                 healthy(session); capture(output, "resumed");
                 keys(scenario, output, InstrumentationRegistry.getArguments().getString("mophunSaveKeys", ""), "save-step-");
             }

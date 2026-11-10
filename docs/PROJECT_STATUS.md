@@ -91,7 +91,8 @@ translation layer, including an interpreter-mode experiment. No fresh N95/LCD
 acceptance or #52 fix is claimed. A preparation helper now detects loss of the
 separate native process; Java injected-input checks are also strengthened.
 [Exact editions, failures and limits](checks/2026-11-10-real-games.md).
-Physical testing is deferred at the owner's request. No new source or APK is published.
+Physical testing was deferred at this checkpoint; the later authorized Retroid
+follow-up is recorded below. No new source or APK is published.
 
 ### Real-game Save and Backup Follow-up
 
@@ -142,6 +143,30 @@ local fixtures. Earlier input failures and an emulator-port collision are retain
 in the report. Sustained synchronization, the observed connection banner/rendering
 artifacts, actual room UI rejoining and physical/different-network acceptance
 remain open. No production runtime repair or publication.
+
+## Retroid Follow-up (2026-11-10, Local Only)
+
+The owner subsequently authorized physical testing. An isolated **AbyssME Retroid
+Check** package is installed on the Pocket Classic (Android 14, native ARM64).
+The original Debug app uses a different signing certificate, so it is backed up
+and retained; 8,492 checked library/phone/settings files remain unchanged. This
+is not an in-place update or public release.
+
+Deep Abyss 1.4 passes lifecycle/save/archive/restore checks with visible resumed
+gameplay; Diamond Rush preserves four RMS files and starts a level. SimCity's
+initial replay fails its no-save guard, then a manual 236.016s scenario restores
+its constructed Townhouse and 28,320 budget with both RMS files unchanged. The mixed
+DocumentsUI journey passes in 34.437s, and seven selected UI regressions pass in
+16.707s. Test helpers now handle keyboard dismissal, populated Downloads and
+foreground/render synchronization. No production runtime change was needed.
+
+Native N95 / Asphalt 3 installation completes and a moving race survives LCD
+Soft / LCD Classic Keep/Resume and Original/Undo checks. Library reopening reaches
+race startup with the native process retained. A separate force-stop/new-process
+launch remains blank/white on Original after about a minute, while the host menu
+responds; #48 cold startup remains reproducible and unresolved.
+Physical buttons, listening, full games and broader #48 acceptance remain open.
+[Exact artifacts, failures and limits](checks/2026-11-10-retroid.md).
 
 ## Product in Plain Language
 

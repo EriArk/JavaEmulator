@@ -64,8 +64,8 @@ public class ProvidedLibraryJourneyTest {
             open(source);
             click(backupLabel());
             waitPicker(); capture("01-create-document");
-            key(KeyEvent.KEYCODE_BACK); // Cancelling DocumentsUI must leave the library untouched.
-            waitApp(); assertTrue(state(s -> !s.busy).idle);
+            cancelPicker(); // Cancelling DocumentsUI must leave the library untouched.
+            assertTrue(state(s -> !s.busy).idle);
             assertEquals(originalBytes, dataHashes(source));
             click(backupLabel()); waitPicker();
             downloads();
@@ -87,7 +87,7 @@ public class ProvidedLibraryJourneyTest {
             // Existing shared-file conflicts must survive restoration.
             write(destination, "fs/shared.txt", "newer destination data");
             open(destination);
-            click(restoreLabel()); waitPicker(); key(KeyEvent.KEYCODE_BACK); waitApp();
+            click(restoreLabel()); waitPicker(); cancelPicker();
             assertTrue(state(s -> !s.busy).idle); assertEquals(0, items(destination).size());
             restore(archiveName);
             LibraryImportModel.State preview = state(s -> !s.busy && s.preview != null);
@@ -240,10 +240,27 @@ public class ProvidedLibraryJourneyTest {
     }
     private void restore(String name) {
         click(restoreLabel()); waitPicker(); downloads();
-        AccessibilityNodeInfo file=waitText(name);
+        // A real Downloads directory may contain enough entries to put the
+        // fixture below the visible rows. Search instead of assuming an empty provider.
+        click("Search");
+        AccessibilityNodeInfo search=waitNode(AccessibilityNodeInfo::isEditable);
+        Bundle query=new Bundle(); query.putCharSequence(AccessibilityNodeInfo.ACTION_ARGUMENT_SET_TEXT_CHARSEQUENCE,name);
+        assertTrue(search.performAction(AccessibilityNodeInfo.ACTION_SET_TEXT,query));
+        key(KeyEvent.KEYCODE_ENTER);
+        AccessibilityNodeInfo file=waitNode(n -> !n.isEditable() && name.contentEquals(n.getText()==null?"":n.getText()));
         while(!file.isFocusable() && file.getParent()!=null) file=file.getParent();
         assertTrue("Focus document row",file.isFocused() || file.performAction(AccessibilityNodeInfo.ACTION_FOCUS));
         key(KeyEvent.KEYCODE_DPAD_CENTER); waitApp();
+    }
+    private void cancelPicker() {
+        // On Android 14 the first Back may dismiss the filename keyboard.
+        // Keep cancellation bounded and stop as soon as our app returns.
+        for (int attempt=0; attempt<3; attempt++) {
+            key(KeyEvent.KEYCODE_BACK); SystemClock.sleep(500);
+            AccessibilityNodeInfo root=ui.getRootInActiveWindow();
+            if (find(root,n -> context.getPackageName().contentEquals(n.getPackageName()))!=null) return;
+        }
+        waitApp();
     }
     private void waitPicker() { waitNode(n -> n.getPackageName()!=null && n.getPackageName().toString().contains("documentsui")); }
     private void waitApp() { waitNode(n -> context.getPackageName().contentEquals(n.getPackageName())); }
@@ -304,6 +321,8 @@ public class ProvidedLibraryJourneyTest {
     }
     private InputStream shell(String command) { return new ParcelFileDescriptor.AutoCloseInputStream(ui.executeShellCommand(command)); }
     private void capture(String name) throws Exception {
+        // Model completion can precede the Activity observer's rendered result.
+        instrumentation.waitForIdleSync(); ui.waitForIdle(500,5000);
         Bitmap bitmap=ui.takeScreenshot(); assertNotNull(bitmap);
         try(OutputStream out=new FileOutputStream(new File(output,name+".png"))) { assertTrue(bitmap.compress(Bitmap.CompressFormat.PNG,100,out)); }
         finally { bitmap.recycle(); }
