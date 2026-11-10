@@ -22,6 +22,31 @@ import ru.playsoftware.j2meloader.ui.AppPalette;
 import static org.junit.Assert.*;
 
 public class SystemTransferLocalizationTest {
+    @Test public void retainedPhoneFailureFollowsCurrentLanguageAndKeepsUnknownDetails() throws Exception {
+        IOException diagnostic=new IOException("fixture storage diagnostic");
+        for(String tag:new String[]{"en","ru","ja"}) {
+            Context context=locale(tag);
+            assertEquals(context.getString(R.string.native_error_import_cannot_read_the_import_queue),
+                    SystemFailureText.message(context,new PhoneTransferQueue.ReadFailure(diagnostic)));
+            assertEquals(context.getString(R.string.native_error_import_cannot_save_the_import_queue),
+                    SystemFailureText.message(context,new PhoneTransferQueue.SaveFailure(diagnostic)));
+        }
+        File root=java.nio.file.Files.createTempDirectory(locale("en").getCacheDir().toPath(),"phone-queue-locale-").toFile();
+        try {
+            PhoneTransferQueue queue=new PhoneTransferQueue(new File(root,"queue.bin"));
+            PhoneTransferQueue.Item item=new PhoneTransferQueue.Item("fixture","Owner phone",1);
+            SystemFailure error=new SystemFailure(SystemFailure.Code.VERIFICATION_FAILED,"Owner file 100%.dat");
+            item.error=error.getMessage(); item.failureRecord=SystemTransferText.phoneFailureRecord(error);
+            item.state=PhoneTransferQueue.State.FAILED; queue.items.add(item); queue.save();
+            item=PhoneTransferQueue.load(queue.file).items.get(0);
+            for(String tag:new String[]{"en","es","pt-BR","ru","fr","de","ja","zh-CN"})
+                assertEquals(SystemFailureText.message(locale(tag),error),SystemTransferText.phoneFailure(locale(tag),item));
+            item.failureRecord="{broken";
+            assertTrue(SystemTransferText.phoneFailure(locale("ru"),item).contains(item.error));
+            item.failureRecord=""; item.error="native diagnostic 100%";
+            assertTrue(SystemTransferText.phoneFailure(locale("ja"),item).endsWith(item.error));
+        } finally { Eka2l1Transfer.remove(root); }
+    }
     private Context locale(String tag) {
         Context base=InstrumentationRegistry.getInstrumentation().getTargetContext();
         Configuration config=new Configuration(base.getResources().getConfiguration());

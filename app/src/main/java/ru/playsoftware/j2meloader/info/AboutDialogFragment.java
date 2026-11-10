@@ -31,7 +31,7 @@ public class AboutDialogFragment extends DialogFragment {
 		AlertDialog.Builder builder = new AlertDialog.Builder(requireActivity());
 		builder.setTitle(R.string.app_name)
 				.setIcon(R.mipmap.ic_launcher)
-				.setView(InfoContent.view(requireContext(),InfoContent.about(requireContext())))
+				.setView(InfoContent.supportView(requireContext(),InfoContent.about(requireContext())))
 				.setNegativeButton(R.string.helper_close,null)
 				.setPositiveButton(R.string.licenses, (dialog, which) -> {
 					LicensesDialogFragment licensesDialogFragment = new LicensesDialogFragment();

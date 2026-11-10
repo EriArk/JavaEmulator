@@ -7,6 +7,21 @@ import ru.playsoftware.j2meloader.R;
 /** Presentation only: manifests, package plans and component identities remain unchanged. */
 final class SystemTransferText {
     private SystemTransferText() { }
+    static String phoneFailureRecord(Exception error) {
+        if(error instanceof SystemFailure) try {
+            org.json.JSONObject record=((SystemFailure)error).record();
+            if(record!=null && record.toString().length()<=16000) return record.toString();
+        } catch(org.json.JSONException ignored) { }
+        return "";
+    }
+    static String phoneFailure(Context context,PhoneTransferQueue.Item item) {
+        if(!item.failureRecord.isEmpty()) try {
+            SystemFailure failure=SystemFailure.recorded(new org.json.JSONObject(item.failureRecord));
+            if(failure!=null) return SystemFailureText.message(context,failure);
+        } catch(org.json.JSONException ignored) { }
+        return context.getString(R.string.system_could_not_finish)+(item.error.isEmpty()?"":"\n"+item.error);
+    }
+
     static String problem(Context context,ArchiveBatch.Item item) {
         return item.problemFailure==null?item.problem:SystemFailureText.message(context,item.problemFailure);
     }

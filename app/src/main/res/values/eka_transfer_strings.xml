@@ -6,10 +6,21 @@
     <string name="eka_transfer_zip">Choose ZIP</string>
     <string name="eka_transfer_reading">Reading EKA2L1 copy…</string>
     <string name="eka_transfer_incomplete">A complete, readable EKA2L1 folder is required, not only Drive E or individual games. Export the whole folder if Android blocks nested folders.</string>
-    <string name="eka_transfer_choose">Choose a virtual phone</string>
-    <string name="eka_transfer_selection">One phone is copied at a time. Shared C/E drives become private to the selected phone. Other phones and the original EKA2L1 folder stay unchanged.</string>
+    <string name="eka_transfer_choose">Choose virtual phones</string>
+    <string name="eka_transfer_selection">Select the phones to copy. Each gets its own writable drives. Completed copies and original files stay unchanged.</string>
     <string name="eka_transfer_preview">%1$s\nPhone data: %2$d MB\n\nGames and saves will be added as a separate phone. Existing phones are not merged or overwritten. Reimporting this same snapshot reuses its previous copy and keeps newer saves.</string>
-    <string name="eka_transfer_copy">Copy phone</string>
+    <string name="eka_transfer_copy">Copy selected phones</string>
     <string name="eka_transfer_done">Phone transfer complete</string>
-    <string name="eka_transfer_done_body">The copied phone is available in the library. Original files are unchanged. Import another phone separately if needed. Game compatibility is not guaranteed.</string>
+    <string name="eka_transfer_done_body">The copied phones are available in the library. Original files are unchanged. Game compatibility is not guaranteed.</string>
+    <string name="eka_batch_saved">A saved phone-transfer queue is available. Review it to continue only unfinished work.</string>
+    <string name="eka_batch_discard">Discard transfer queue</string>
+    <string name="eka_batch_discard_body">Remove this queue and its temporary source copy? Phones already imported and their saves will be kept.</string>
+    <string name="eka_batch_results">Phone transfer results</string>
+    <string name="eka_batch_counts">Completed: %1$d / %2$d · Errors: %3$d</string>
+    <string name="eka_batch_review">Review selected phones</string>
+    <string name="eka_batch_select_remaining">Select all remaining</string>
+    <string name="eka_batch_completed">%1$s — Complete</string>
+    <string name="eka_batch_phone">%1$s · %2$d MB</string>
+    <string name="eka_batch_copied">Phone already copied. Retry will only add it to the library.</string>
+    <string name="eka_batch_preview">Selected phones: %1$d\nPhone data: %2$d MB\n\n%3$s\n\nEach phone is added separately. Existing phones and saves are not replaced. Completed copies will not be repeated. Shared drives may be copied for each selected phone.</string>
 </resources>

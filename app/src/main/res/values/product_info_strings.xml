@@ -14,4 +14,8 @@
     <string name="game_info_java">Platform: Java ME\nVersion: %1$s\nVendor: %2$s</string>
     <string name="game_info_unreadable">Platform: Java ME\nVersion: Unavailable\nInstalled game information could not be read.</string>
     <string name="game_info_missing">Not provided</string>
+    <string name="product_website">AbyssTail Website</string>
+    <string name="product_link_unavailable">Cannot open this link</string>
+    <string name="product_link_help">No app is available to open this address. You can copy it and open it later.\n\n%1$s</string>
+    <string name="product_copy_link">Copy link</string>
 </resources>

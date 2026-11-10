@@ -29,6 +29,27 @@ import ru.playsoftware.j2meloader.settings.SettingsActivity;
 import static org.junit.Assert.*;
 
 public class InfoContentTest {
+    @Test public void officialWebsiteUsesExternalHandlerAndHandlesMissingOrBlockedApps() {
+        Context base=InstrumentationRegistry.getInstrumentation().getTargetContext();
+        android.content.Intent[] launched={null};
+        Context recording=new android.content.ContextWrapper(base) {
+            @Override public void startActivity(android.content.Intent intent) { launched[0]=intent; }
+        };
+        assertTrue(ProductLinks.tryOpen(recording,ProductLinks.WEBSITE));
+        assertEquals(android.content.Intent.ACTION_VIEW,launched[0].getAction());
+        assertEquals("https://abysstail.art/en/projects/abyssme",launched[0].getDataString());
+        assertTrue(launched[0].hasCategory(android.content.Intent.CATEGORY_BROWSABLE));
+        assertEquals(0,launched[0].getFlags() & android.content.Intent.FLAG_ACTIVITY_CLEAR_TASK);
+        for(boolean blocked:new boolean[]{false,true}) {
+            Context unavailable=new android.content.ContextWrapper(base) {
+                @Override public void startActivity(android.content.Intent intent) {
+                    if(blocked)throw new SecurityException("fixture policy");
+                    throw new android.content.ActivityNotFoundException("fixture missing browser");
+                }
+            };
+            assertFalse(ProductLinks.tryOpen(unavailable,ProductLinks.WEBSITE));
+        }
+    }
     private Context context(String tag,float font) {
         Context base=InstrumentationRegistry.getInstrumentation().getTargetContext();
         Configuration config=new Configuration();config.setLocales(LocaleList.forLanguageTags(tag));
@@ -86,12 +107,17 @@ public class InfoContentTest {
             for(String tag:new String[]{"en","en-XA","ar-XB","ja","zh-CN"})for(float font:new float[]{1,2})
                 for(int[] size:new int[][]{{320,640},{540,540},{720,400}})for(boolean about:new boolean[]{false,true}) {
                     Context context=context(tag,font);float density=context.getResources().getDisplayMetrics().density;
-                    ScrollView scroll=InfoContent.view(context,about?InfoContent.about(context):InfoContent.help(context));
+                    ScrollView scroll=InfoContent.supportView(context,about?InfoContent.about(context):InfoContent.help(context));
                     scroll.setBackgroundColor(0xff161a1e);scroll.setLayoutDirection(tag.equals("ar-XB")?View.LAYOUT_DIRECTION_RTL:View.LAYOUT_DIRECTION_LTR);
                     int w=Math.round(size[0]*density),h=Math.round(size[1]*density);
                     scroll.measure(View.MeasureSpec.makeMeasureSpec(w,View.MeasureSpec.EXACTLY),View.MeasureSpec.makeMeasureSpec(h,View.MeasureSpec.EXACTLY));
                     scroll.layout(0,0,w,h);
-                    TextView text=(TextView)scroll.getChildAt(0);assertNotNull(text.getLayout());
+                    android.widget.LinearLayout column=(android.widget.LinearLayout)scroll.getChildAt(0);
+                    TextView text=(TextView)column.getChildAt(0);assertNotNull(text.getLayout());
+                    android.widget.Button website=(android.widget.Button)column.getChildAt(1);
+                    assertEquals(context.getString(R.string.product_website),website.getText().toString());
+                    assertTrue(website.isFocusable()); assertTrue(website.isClickable());
+                    assertTrue(website.getHeight()>=Math.round(48*density));
                     assertTrue(text.getMeasuredWidth()<=w);
                     for(int line=0;line<text.getLayout().getLineCount();line++)assertEquals(0,text.getLayout().getEllipsisCount(line));
                     if(font==2&&!about){assertTrue(text.getHeight()>h);scroll.scrollTo(0,text.getHeight());assertTrue(scroll.getScrollY()>0);scroll.scrollTo(0,0);}

@@ -6,10 +6,21 @@
     <string name="eka_transfer_zip">Elegir ZIP</string>
     <string name="eka_transfer_reading">Leyendo copia de EKA2L1…</string>
     <string name="eka_transfer_incomplete">Se necesita una carpeta completa y accesible de EKA2L1, no solo la unidad E ni juegos sueltos. Exporta toda la carpeta si Android bloquea las subcarpetas.</string>
-    <string name="eka_transfer_choose">Elegir teléfono virtual</string>
-    <string name="eka_transfer_selection">Se copia un teléfono a la vez. Las unidades C/E compartidas pasan a ser privadas para ese teléfono. Los demás teléfonos y el origen no cambian.</string>
+    <string name="eka_transfer_choose">Elige teléfonos virtuales</string>
+    <string name="eka_transfer_selection">Selecciona los teléfonos que quieres copiar. Cada uno tendrá sus propias unidades de escritura. Las copias completadas y los archivos originales no cambian.</string>
     <string name="eka_transfer_preview">%1$s\nDatos del teléfono: %2$d MB\n\nLos juegos y partidas se añaden como otro teléfono. No se combinan ni sobrescriben teléfonos existentes. Reimportar esta misma copia conserva las partidas más recientes del destino.</string>
-    <string name="eka_transfer_copy">Copiar teléfono</string>
+    <string name="eka_transfer_copy">Copiar teléfonos seleccionados</string>
     <string name="eka_transfer_done">Transferencia completada</string>
-    <string name="eka_transfer_done_body">El teléfono copiado está disponible en la biblioteca. Los archivos originales no cambian. Importa otros teléfonos por separado. La compatibilidad de los juegos no está garantizada.</string>
+    <string name="eka_transfer_done_body">Los teléfonos copiados están disponibles en la biblioteca. Los archivos originales no han cambiado. No se garantiza la compatibilidad de los juegos.</string>
+    <string name="eka_batch_saved">Hay una cola de transferencia guardada. Revísala para continuar solo el trabajo pendiente.</string>
+    <string name="eka_batch_discard">Descartar cola de transferencia</string>
+    <string name="eka_batch_discard_body">¿Eliminar esta cola y su copia temporal del origen? Se conservarán los teléfonos ya importados y sus partidas guardadas.</string>
+    <string name="eka_batch_results">Resultados de transferencia</string>
+    <string name="eka_batch_counts">Completados: %1$d / %2$d · Errores: %3$d</string>
+    <string name="eka_batch_review">Revisar teléfonos seleccionados</string>
+    <string name="eka_batch_select_remaining">Seleccionar todos los pendientes</string>
+    <string name="eka_batch_completed">%1$s — Completado</string>
+    <string name="eka_batch_phone">%1$s · %2$d MB</string>
+    <string name="eka_batch_copied">El teléfono ya está copiado. Reintentar solo lo añadirá a la biblioteca.</string>
+    <string name="eka_batch_preview">Teléfonos seleccionados: %1$d\nDatos: %2$d MB\n\n%3$s\n\nCada teléfono se añade por separado. No se sustituyen teléfonos ni partidas existentes. No se repiten las copias completadas. Las unidades compartidas pueden copiarse para cada teléfono seleccionado.</string>
 </resources>

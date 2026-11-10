@@ -18,6 +18,42 @@ public final class Eka2l1UiTest {
     private final Instrumentation instrumentation=InstrumentationRegistry.getInstrumentation();
     private final Context context=instrumentation.getTargetContext();
     private UiAutomation ui;
+    /** Synthetic queue navigation: no firmware, installed game or copy operation. */
+    @Test public void savedSelectionReviewCancelAndDiscardWithoutGames() throws Exception {
+        ui=instrumentation.getUiAutomation();
+        File root=new File(context.getFilesDir(),"symbian-eka-transfer");
+        assertFalse("Use an isolated test install without a user's transfer queue",root.exists());
+        PhoneTransferQueue queue=new PhoneTransferQueue(new File(root,"queue.bin"));
+        PhoneTransferQueue.Item remaining=new PhoneTransferQueue.Item("fixture-pending","Pending fixture",1048576);
+        PhoneTransferQueue.Item done=new PhoneTransferQueue.Item("fixture-complete","Completed fixture",1048576);
+        done.state=PhoneTransferQueue.State.DONE; done.destination=String.format(Locale.ROOT,"%064x",1);
+        queue.items.add(remaining); queue.items.add(done); queue.started=true; queue.save();
+        try {
+            openSavedQueue(); click("Continue queue"); waitText("Phone transfer results",15000);
+            click("Pending fixture · 1 MB"); click("Review selected phones");
+            waitText("Copy selected phones",10000); click("Cancel");
+            PhoneTransferQueue saved=PhoneTransferQueue.load(queue.file);
+            assertEquals(1,saved.selected()); assertEquals(1,saved.completed());
+            click("Close");
+            openSavedQueue(); click("Continue queue"); waitText("Phone transfer results",15000);
+            // Selection survived a fresh Activity. Review remains possible without a new toggle.
+            click("Review selected phones"); waitText("Copy selected phones",10000); click("Cancel");
+            capture("eka-synthetic-queue.png");
+            String discard=context.getString(ru.playsoftware.j2meloader.R.string.eka_batch_discard);
+            click(discard); click(discard); waitText("Choose ZIP",15000);
+            assertFalse(root.exists());
+        } finally {
+            context.startActivity(new Intent(context,ru.playsoftware.j2meloader.MainActivity.class)
+                    .addFlags(Intent.FLAG_ACTIVITY_NEW_TASK|Intent.FLAG_ACTIVITY_CLEAR_TASK));
+            instrumentation.waitForIdleSync(); SystemClock.sleep(500);
+            Eka2l1Transfer.remove(root);
+        }
+    }
+    private void openSavedQueue() {
+        context.startActivity(new Intent(context,SymbianActivity.class).putExtra("symbian.ekaTransfer",true)
+                .addFlags(Intent.FLAG_ACTIVITY_NEW_TASK|Intent.FLAG_ACTIVITY_CLEAR_TASK));
+        waitText(context.getString(ru.playsoftware.j2meloader.R.string.eka_batch_saved),15000);
+    }
     @Test public void pickerPreviewCancelImportAndLibrary() throws Exception {
         Assume.assumeTrue("true".equals(InstrumentationRegistry.getArguments().getString("ekaUi")));
         ui=instrumentation.getUiAutomation();
@@ -40,12 +76,11 @@ public final class Eka2l1UiTest {
             try(OutputStream output=context.getContentResolver().openOutputStream(document)) { assertNotNull(output); Files.copy(fixture.toPath(),output); }
             open(); waitText("Choose ZIP",30000); capture("eka-source.png"); click("Choose ZIP");
             chooseDocument(values.getAsString(MediaStore.MediaColumns.DISPLAY_NAME));
-            waitText("Choose a virtual phone",60000); capture("eka-phones.png"); click(phoneLabel);
-            waitText("Copy phone",10000); capture("eka-preview.png"); click("Cancel");
+            waitText("Choose virtual phones",60000); capture("eka-phones.png"); click(phoneLabel+" · "+phoneSize(fixture)+" MB"); click("Review selected phones");
+            waitText("Copy selected phones",10000); capture("eka-preview.png"); click("Cancel");
             assertEquals(before.size(),catalog.list().size());
-            open(); click("Choose ZIP"); chooseDocument(values.getAsString(MediaStore.MediaColumns.DISPLAY_NAME));
-            waitText("Choose a virtual phone",60000); click(phoneLabel); click("Copy phone");
-            waitText("Phone transfer complete",90000); capture("eka-complete.png");
+            click("Review selected phones"); click("Copy selected phones");
+            waitText("Phone transfer results",90000); capture("eka-complete.png");
             List<SymbianLibraryIndex.Entry> games=new SymbianLibraryIndex(context).read();
             assertTrue(games.stream().anyMatch(e -> !before.contains(e.system) && e.title.equals("Snakes")));
             click("Library"); waitText("All games",15000); capture("eka-library.png");
@@ -59,6 +94,11 @@ public final class Eka2l1UiTest {
                 if(index!=null)for(File file:index)Files.deleteIfExists(file.toPath());
             }
             context.getContentResolver().delete(document,null,null);
+        }
+    }
+    private long phoneSize(File fixture) throws Exception {
+        try(Eka2l1Transfer transfer=new Eka2l1Transfer(context.getCacheDir(),text -> {})) {
+            transfer.readZip(fixture); return (transfer.size(transfer.phones.get(0))+1048575)/1048576;
         }
     }
     private void open() {
@@ -93,6 +133,9 @@ public final class Eka2l1UiTest {
     }
     private void click(String text) {
         AccessibilityNodeInfo node=waitText(text,15000);
+        // Dialog headings can have the same text as their confirmation action.
+        AccessibilityNodeInfo clickable=findClickable(ui.getRootInActiveWindow(),text);
+        if(clickable!=null)node=clickable;
         node.performAction(AccessibilityNodeInfo.AccessibilityAction.ACTION_SHOW_ON_SCREEN.getId()); SystemClock.sleep(200); node.refresh();
         while(!node.isClickable() && node.getParent()!=null)node=node.getParent();
         if(!node.performAction(AccessibilityNodeInfo.ACTION_CLICK)) {
@@ -106,6 +149,15 @@ public final class Eka2l1UiTest {
             }
         }
         SystemClock.sleep(700);
+    }
+    private AccessibilityNodeInfo findClickable(AccessibilityNodeInfo node,String text) {
+        if(node==null)return null;
+        if(node.isClickable() && node.isEnabled() && (text.contentEquals(node.getText()==null?"":node.getText())
+                || text.contentEquals(node.getContentDescription()==null?"":node.getContentDescription())))return node;
+        for(int i=0;i<node.getChildCount();i++) {
+            AccessibilityNodeInfo found=findClickable(node.getChild(i),text); if(found!=null)return found;
+        }
+        return null;
     }
     private void capture(String name) {
         SystemClock.sleep(600);

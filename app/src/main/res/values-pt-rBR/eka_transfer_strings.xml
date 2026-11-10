@@ -6,10 +6,21 @@
     <string name="eka_transfer_zip">Escolher ZIP</string>
     <string name="eka_transfer_reading">Lendo cópia do EKA2L1…</string>
     <string name="eka_transfer_incomplete">É necessária uma pasta completa e acessível do EKA2L1, não apenas a unidade E ou jogos individuais. Exporte toda a pasta se o Android bloquear subpastas.</string>
-    <string name="eka_transfer_choose">Escolher telefone virtual</string>
-    <string name="eka_transfer_selection">Um telefone é copiado por vez. As unidades C/E compartilhadas ficam privadas para o telefone escolhido. Outros telefones e a pasta original não mudam.</string>
+    <string name="eka_transfer_choose">Escolha os telefones virtuais</string>
+    <string name="eka_transfer_selection">Selecione os telefones para copiar. Cada um terá suas próprias unidades graváveis. As cópias concluídas e os arquivos originais não serão alterados.</string>
     <string name="eka_transfer_preview">%1$s\nDados do telefone: %2$d MB\n\nJogos e saves serão adicionados como um telefone separado. Telefones existentes não são mesclados nem sobrescritos. Reimportar a mesma cópia mantém os saves mais recentes do destino.</string>
-    <string name="eka_transfer_copy">Copiar telefone</string>
+    <string name="eka_transfer_copy">Copiar telefones selecionados</string>
     <string name="eka_transfer_done">Transferência concluída</string>
-    <string name="eka_transfer_done_body">O telefone copiado está disponível na biblioteca. Os arquivos originais não mudam. Importe outros telefones separadamente. A compatibilidade dos jogos não é garantida.</string>
+    <string name="eka_transfer_done_body">Os telefones copiados estão disponíveis na biblioteca. Os arquivos originais não foram alterados. A compatibilidade dos jogos não é garantida.</string>
+    <string name="eka_batch_saved">Há uma fila de transferência salva. Revise-a para continuar apenas o trabalho pendente.</string>
+    <string name="eka_batch_discard">Descartar fila de transferência</string>
+    <string name="eka_batch_discard_body">Remover esta fila e sua cópia temporária de origem? Os telefones já importados e seus jogos salvos serão mantidos.</string>
+    <string name="eka_batch_results">Resultados da transferência</string>
+    <string name="eka_batch_counts">Concluídos: %1$d / %2$d · Erros: %3$d</string>
+    <string name="eka_batch_review">Revisar telefones selecionados</string>
+    <string name="eka_batch_select_remaining">Selecionar todos os pendentes</string>
+    <string name="eka_batch_completed">%1$s — Concluído</string>
+    <string name="eka_batch_phone">%1$s · %2$d MB</string>
+    <string name="eka_batch_copied">O telefone já foi copiado. Tentar novamente apenas o adicionará à biblioteca.</string>
+    <string name="eka_batch_preview">Telefones selecionados: %1$d\nDados: %2$d MB\n\n%3$s\n\nCada telefone é adicionado separadamente. Telefones e jogos salvos existentes não são substituídos. Cópias concluídas não são repetidas. Unidades compartilhadas podem ser copiadas para cada telefone selecionado.</string>
 </resources>

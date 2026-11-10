@@ -6,10 +6,21 @@
     <string name="eka_transfer_zip">Выбрать ZIP</string>
     <string name="eka_transfer_reading">Чтение копии EKA2L1…</string>
     <string name="eka_transfer_incomplete">Нужна полная доступная папка EKA2L1, а не только диск E или отдельные игры. Экспортируйте всю папку, если Android блокирует вложенные папки.</string>
-    <string name="eka_transfer_choose">Выбрать виртуальный телефон</string>
-    <string name="eka_transfer_selection">Телефоны копируются по одному. Общие диски C/E становятся отдельными для выбранного телефона. Другие телефоны и исходная папка не меняются.</string>
+    <string name="eka_transfer_choose">Выберите виртуальные телефоны</string>
+    <string name="eka_transfer_selection">Выберите телефоны для копирования. Каждый получит отдельные диски для записи. Завершённые копии и исходные файлы не изменятся.</string>
     <string name="eka_transfer_preview">%1$s\nДанные телефона: %2$d МБ\n\nИгры и сохранения будут добавлены отдельным телефоном. Существующие телефоны не объединяются и не перезаписываются. Повторный импорт этой же копии сохраняет более новые сохранения в AbyssME.</string>
-    <string name="eka_transfer_copy">Копировать телефон</string>
+    <string name="eka_transfer_copy">Копировать выбранные телефоны</string>
     <string name="eka_transfer_done">Перенос телефона завершён</string>
-    <string name="eka_transfer_done_body">Копия телефона доступна в библиотеке. Исходные файлы не изменены. При необходимости импортируйте другие телефоны отдельно. Совместимость игр не гарантируется.</string>
+    <string name="eka_transfer_done_body">Скопированные телефоны доступны в библиотеке. Исходные файлы не изменены. Совместимость игр не гарантируется.</string>
+    <string name="eka_batch_saved">Есть сохранённая очередь переноса телефонов. Просмотрите её, чтобы продолжить только незавершённые операции.</string>
+    <string name="eka_batch_discard">Удалить очередь переноса</string>
+    <string name="eka_batch_discard_body">Удалить эту очередь и временную копию источника? Уже импортированные телефоны и их сохранения останутся.</string>
+    <string name="eka_batch_results">Результаты переноса телефонов</string>
+    <string name="eka_batch_counts">Завершено: %1$d / %2$d · Ошибок: %3$d</string>
+    <string name="eka_batch_review">Проверить выбранные телефоны</string>
+    <string name="eka_batch_select_remaining">Выбрать все оставшиеся</string>
+    <string name="eka_batch_completed">%1$s — Готово</string>
+    <string name="eka_batch_phone">%1$s · %2$d МБ</string>
+    <string name="eka_batch_copied">Телефон уже скопирован. Повтор добавит его в библиотеку без нового копирования.</string>
+    <string name="eka_batch_preview">Выбрано телефонов: %1$d\nДанные телефонов: %2$d МБ\n\n%3$s\n\nКаждый телефон добавляется отдельно. Существующие телефоны и сохранения не заменяются. Завершённые копии не повторяются. Общие диски могут копироваться для каждого выбранного телефона.</string>
 </resources>

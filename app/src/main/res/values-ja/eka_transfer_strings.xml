@@ -7,9 +7,20 @@
     <string name="eka_transfer_reading">EKA2L1のコピーを読み込み中…</string>
     <string name="eka_transfer_incomplete">読み取り可能なEKA2L1の完全なフォルダーが必要です。Eドライブやゲーム単体では不十分です。Androidがサブフォルダーを制限する場合は、フォルダー全体をエクスポートしてください。</string>
     <string name="eka_transfer_choose">仮想端末を選択</string>
-    <string name="eka_transfer_selection">端末は1台ずつコピーします。共有C/Eドライブは選択した端末専用になります。他の端末と元のフォルダーは変更しません。</string>
+    <string name="eka_transfer_selection">コピーする端末を選択してください。各端末に専用の書き込み可能ドライブが作成されます。完了したコピーと元のファイルは変更されません。</string>
     <string name="eka_transfer_preview">%1$s\n端末データ：%2$d MB\n\nゲームとセーブデータを別の端末として追加します。既存の端末との統合や上書きはしません。同じコピーを再インポートしても、移行先の新しいセーブデータは保持されます。</string>
-    <string name="eka_transfer_copy">端末をコピー</string>
+    <string name="eka_transfer_copy">選択した端末をコピー</string>
     <string name="eka_transfer_done">端末の転送完了</string>
-    <string name="eka_transfer_done_body">コピーした端末をライブラリで利用できます。元のファイルは変更していません。他の端末は個別にインポートしてください。ゲームの互換性は保証されません。</string>
+    <string name="eka_transfer_done_body">コピーした端末はライブラリで利用できます。元のファイルは変更されていません。ゲームの互換性は保証されません。</string>
+    <string name="eka_batch_saved">保存された端末転送キューがあります。内容を確認して、未完了の処理のみ再開できます。</string>
+    <string name="eka_batch_discard">転送キューを削除</string>
+    <string name="eka_batch_discard_body">このキューと転送元の一時コピーを削除しますか？インポート済みの端末とセーブデータは保持されます。</string>
+    <string name="eka_batch_results">端末転送の結果</string>
+    <string name="eka_batch_counts">完了：%1$d / %2$d・エラー：%3$d</string>
+    <string name="eka_batch_review">選択した端末を確認</string>
+    <string name="eka_batch_select_remaining">残りをすべて選択</string>
+    <string name="eka_batch_completed">%1$s — 完了</string>
+    <string name="eka_batch_phone">%1$s・%2$d MB</string>
+    <string name="eka_batch_copied">端末はコピー済みです。再試行ではライブラリへの追加のみ行います。</string>
+    <string name="eka_batch_preview">選択した端末：%1$d\n端末データ：%2$d MB\n\n%3$s\n\n各端末は個別に追加されます。既存の端末やセーブデータは置き換えません。完了したコピーは繰り返しません。共有ドライブは選択した各端末にコピーされる場合があります。</string>
 </resources>

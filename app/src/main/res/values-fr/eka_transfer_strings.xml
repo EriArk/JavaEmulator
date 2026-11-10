@@ -6,10 +6,21 @@
     <string name="eka_transfer_zip">Choisir un ZIP</string>
     <string name="eka_transfer_reading">Lecture de la copie EKA2L1…</string>
     <string name="eka_transfer_incomplete">Un dossier EKA2L1 complet et lisible est nécessaire, pas seulement le lecteur E ou des jeux isolés. Exportez tout le dossier si Android bloque les sous-dossiers.</string>
-    <string name="eka_transfer_choose">Choisir un téléphone virtuel</string>
-    <string name="eka_transfer_selection">Un téléphone est copié à la fois. Les lecteurs C/E partagés deviennent privés pour ce téléphone. Les autres téléphones et la source restent inchangés.</string>
+    <string name="eka_transfer_choose">Choisir les téléphones virtuels</string>
+    <string name="eka_transfer_selection">Sélectionnez les téléphones à copier. Chacun aura ses propres lecteurs inscriptibles. Les copies terminées et les fichiers d’origine restent inchangés.</string>
     <string name="eka_transfer_preview">%1$s\nDonnées du téléphone : %2$d Mo\n\nJeux et sauvegardes seront ajoutés comme téléphone distinct. Aucun téléphone existant n’est fusionné ni écrasé. Réimporter cette même copie conserve les sauvegardes plus récentes de la destination.</string>
-    <string name="eka_transfer_copy">Copier le téléphone</string>
+    <string name="eka_transfer_copy">Copier les téléphones sélectionnés</string>
     <string name="eka_transfer_done">Transfert terminé</string>
-    <string name="eka_transfer_done_body">Le téléphone copié est disponible dans la bibliothèque. Les fichiers d’origine sont inchangés. Importez les autres téléphones séparément. La compatibilité des jeux n’est pas garantie.</string>
+    <string name="eka_transfer_done_body">Les téléphones copiés sont disponibles dans la bibliothèque. Les fichiers d’origine sont inchangés. La compatibilité des jeux n’est pas garantie.</string>
+    <string name="eka_batch_saved">Une file de transfert enregistrée est disponible. Consultez-la pour reprendre uniquement les opérations inachevées.</string>
+    <string name="eka_batch_discard">Supprimer la file de transfert</string>
+    <string name="eka_batch_discard_body">Supprimer cette file et sa copie temporaire de la source ? Les téléphones déjà importés et leurs sauvegardes seront conservés.</string>
+    <string name="eka_batch_results">Résultats du transfert</string>
+    <string name="eka_batch_counts">Terminés : %1$d / %2$d · Erreurs : %3$d</string>
+    <string name="eka_batch_review">Vérifier les téléphones sélectionnés</string>
+    <string name="eka_batch_select_remaining">Sélectionner tous les restants</string>
+    <string name="eka_batch_completed">%1$s — Terminé</string>
+    <string name="eka_batch_phone">%1$s · %2$d Mo</string>
+    <string name="eka_batch_copied">Le téléphone est déjà copié. Réessayer l’ajoutera seulement à la bibliothèque.</string>
+    <string name="eka_batch_preview">Téléphones sélectionnés : %1$d\nDonnées : %2$d Mo\n\n%3$s\n\nChaque téléphone est ajouté séparément. Les téléphones et sauvegardes existants ne sont pas remplacés. Les copies terminées ne sont pas répétées. Les lecteurs partagés peuvent être copiés pour chaque téléphone sélectionné.</string>
 </resources>

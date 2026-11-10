@@ -10,6 +10,24 @@ stated otherwise. **Experimental** in older checkpoints means local/private
 combined builds; released experimental features are explicitly identified.
 **Released** means an actual GitHub release asset.
 
+## 2026-11-10 - Multi-Phone Transfer and Website Action (Local Only)
+
+- Add multi-phone EKA2L1 selection, a retained source snapshot and queue,
+  cancellation and retry of unfinished copies/indexing. Completed phones are
+  skipped, preserving newer destination saves and the active phone selection.
+- Render retained known failures in the current language. Add a localized
+  Website action in About/Help and guarded external-link handling. The official
+  Discord invitation has expired; its replacement remains pending.
+- Combined Debug/test APKs assemble; 10 standalone queue checks, 424 JVM tests
+  and 39 targeted Android checks pass. Lint has zero errors and 804 warnings.
+  One test helper confused a dialog title with its button; the corrected scenario
+  passes on rerun. [Detailed evidence](docs/checks/2026-11-10-phone-transfer-queue.md).
+- The checks use synthetic transfer data and an API 30 emulator. Physical handheld
+  authorization is pending; no real-game or complete-collection acceptance is
+  claimed. No source publication, release asset or GitHub Actions change.
+- Record the approved functionality-first sequence; local builds are explicitly
+  permitted for this session, without changing the default server workflow.
+
 ## 2026-11-10 - Documentation and Issue Reconciliation (Documentation Only)
 
 - Reconcile the 33 reviewed issues with released implementation, remaining

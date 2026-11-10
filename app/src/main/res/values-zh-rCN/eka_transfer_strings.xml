@@ -7,9 +7,20 @@
     <string name="eka_transfer_reading">正在读取 EKA2L1 副本…</string>
     <string name="eka_transfer_incomplete">需要完整且可读取的 EKA2L1 文件夹，而不只是 E 盘或单个游戏。如果 Android 阻止访问子文件夹，请导出整个文件夹。</string>
     <string name="eka_transfer_choose">选择虚拟手机</string>
-    <string name="eka_transfer_selection">每次复制一部手机。共享的 C/E 盘将独立用于所选手机。其他手机和原始文件夹不会改变。</string>
+    <string name="eka_transfer_selection">选择要复制的手机。每部手机都会获得独立的可写驱动器。已完成的副本和原始文件保持不变。</string>
     <string name="eka_transfer_preview">%1$s\n手机数据：%2$d MB\n\n游戏和存档将作为独立手机添加。不会合并或覆盖现有手机。重新导入同一副本会保留目标位置更新的存档。</string>
-    <string name="eka_transfer_copy">复制手机</string>
+    <string name="eka_transfer_copy">复制所选手机</string>
     <string name="eka_transfer_done">手机迁移完成</string>
-    <string name="eka_transfer_done_body">复制的手机已可在游戏库中使用。原始文件未更改。如需迁移其他手机，请分别导入。不保证所有游戏都兼容。</string>
+    <string name="eka_transfer_done_body">复制的手机已可在游戏库中使用。原始文件保持不变。不保证游戏兼容性。</string>
+    <string name="eka_batch_saved">有已保存的手机传输队列。查看后可继续未完成的操作。</string>
+    <string name="eka_batch_discard">丢弃传输队列</string>
+    <string name="eka_batch_discard_body">删除此队列及其临时源副本？已导入的手机及其存档会保留。</string>
+    <string name="eka_batch_results">手机传输结果</string>
+    <string name="eka_batch_counts">已完成：%1$d / %2$d · 错误：%3$d</string>
+    <string name="eka_batch_review">检查所选手机</string>
+    <string name="eka_batch_select_remaining">选择所有剩余项</string>
+    <string name="eka_batch_completed">%1$s — 已完成</string>
+    <string name="eka_batch_phone">%1$s · %2$d MB</string>
+    <string name="eka_batch_copied">手机已复制。重试只会将其添加到游戏库。</string>
+    <string name="eka_batch_preview">所选手机：%1$d\n手机数据：%2$d MB\n\n%3$s\n\n每部手机都会单独添加。不会替换现有手机或存档。不会重复已完成的复制。共享驱动器可能会为每部所选手机分别复制。</string>
 </resources>

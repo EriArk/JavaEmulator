@@ -71,6 +71,9 @@ public final class SymbianActivity extends Activity implements Emulator.Host, In
     private String backupSystem;
     private File restoreArchive;
     private Eka2l1Transfer ekaTransfer;
+    private PhoneTransferQueue ekaQueue;
+    private volatile boolean cancelEka;
+    private boolean ekaWorking;
     private static final int SAVE_PHONE = 10, RESTORE_PHONE = 11, EKA_FOLDER = 12, EKA_ZIP = 13;
 
     @Override public void onCreate(Bundle saved) {
@@ -252,6 +255,7 @@ public final class SymbianActivity extends Activity implements Emulator.Host, In
         scroll.addView(list); page.addView(scroll, new LinearLayout.LayoutParams(-1, 0, 1));
         if (hasPendingImport) action(list, getString(R.string.system_pending_import), this::pendingActions);
         if (archives.exists()) action(list,getString(R.string.system_archive_queue),this::openArchive);
+        if (ekaQueueFile().isFile()) action(list,getString(R.string.eka_transfer_title),this::chooseEkaSource);
         action(list, getString(R.string.system_add_files), () -> pick(1,true));
         for (SystemRequirements.Row row : SystemRequirements.rows(systems, platformSaved)) {
             action(list, SystemRequirementsUi.title(this,row) + "\n" + SystemRequirementsUi.status(this,row,platformSaved), () -> requirements(row));
@@ -372,7 +376,7 @@ public final class SymbianActivity extends Activity implements Emulator.Host, In
         systems = catalog.list();
         platformError = null;
         try (GameImport saved = platforms.open()) { platformSaved = saved != null; }
-        catch (IOException error) { platformSaved = false; platformError = error.getMessage(); }
+        catch (IOException error) { platformSaved = false; platformError = SystemFailureText.message(this,error); }
         devices = prepared ? Emulator.getDevices() : new String[0];
         apps = devices.length == 0 ? new String[0] : Emulator.getCatalogApps();
         for (SystemFileCatalog.Entry entry : systems) if (prepared && catalog.runtime(entry).equals(runtimeRoot)) {
@@ -468,28 +472,77 @@ public final class SymbianActivity extends Activity implements Emulator.Host, In
             catch(Exception error) { Files.deleteIfExists(archive.toPath()); throw error; }
         });
     }
-    private void chooseEkaSource() {
-        GameMenuDialog menu=dialog(getString(R.string.eka_transfer_title));
-        menu.message(getString(R.string.eka_transfer_help));
-        menu.action(getString(R.string.eka_transfer_folder),android.R.drawable.ic_menu_upload,() -> {
-            menu.dismiss(); startActivityForResult(new Intent(Intent.ACTION_OPEN_DOCUMENT_TREE)
-                    .addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION),EKA_FOLDER);
+    private File ekaRoot() { return new File(getFilesDir(),"symbian-eka-transfer"); }
+    private File ekaQueueFile() { return new File(ekaRoot(),"queue.bin"); }
+    private File ekaSnapshot() { return new File(ekaRoot(),"snapshot.json"); }
+    private PreparedSystemArchive.Progress ekaProgress() {
+        PreparedSystemArchive.Progress delegate=transferProgress();
+        return SystemTransferText.localize(this,text -> {
+            if(cancelEka) throw new java.io.InterruptedIOException(getString(R.string.native_transfer_cancelled));
+            delegate.update(text);
         });
-        menu.action(getString(R.string.eka_transfer_zip),android.R.drawable.ic_menu_upload,() -> { menu.dismiss(); pick(EKA_ZIP,false); });
-        menu.action(getString(R.string.system_cancel),0,menu::dismiss);
+    }
+    private void ekaTask(String title,Work work) {
+        if(busy || closing) return;
+        cancelEka=false; ekaWorking=true;
+        Button cancel=new Button(this); cancel.setText(R.string.system_cancel);
+        cancel.setOnClickListener(v -> { cancelEka=true; cancel.setEnabled(false); status.setText(R.string.native_pausing_queue); });
+        page.addView(cancel,new LinearLayout.LayoutParams(-1,dp(48)));
+        task(title,() -> {
+            try { work.run(); }
+            finally { runOnUiThread(() -> {
+                ekaWorking=false;
+                if(cancel.getParent() instanceof ViewGroup) ((ViewGroup)cancel.getParent()).removeView(cancel);
+            }); }
+        });
+    }
+    private void chooseEkaSource() {
+        if(busy || closing) return;
+        GameMenuDialog menu=dialog(getString(R.string.eka_transfer_title));
+        if(ekaQueueFile().isFile()) {
+            menu.message(getString(R.string.eka_batch_saved));
+            menu.action(getString(R.string.native_queue_continue),0,() -> {
+                menu.dismiss(); task(getString(R.string.eka_transfer_reading),() -> {
+                    ekaQueue=PhoneTransferQueue.load(ekaQueueFile()); afterTask=this::showEkaQueue;
+                });
+            });
+            menu.action(getString(R.string.eka_batch_discard),0,() -> { menu.dismiss(); confirmDiscardEka(); });
+        } else {
+            menu.message(getString(R.string.eka_transfer_help));
+            menu.action(getString(R.string.eka_transfer_folder),android.R.drawable.ic_menu_upload,() -> {
+                menu.dismiss(); startActivityForResult(new Intent(Intent.ACTION_OPEN_DOCUMENT_TREE)
+                        .addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION),EKA_FOLDER);
+            });
+            menu.action(getString(R.string.eka_transfer_zip),android.R.drawable.ic_menu_upload,() -> { menu.dismiss(); pick(EKA_ZIP,false); });
+        }
+        menu.action(getString(R.string.system_close),0,menu::dismiss);
     }
     private void inspectEka(Uri source,boolean folder) {
-        task(getString(R.string.eka_transfer_reading),() -> {
+        ekaTask(getString(R.string.eka_transfer_reading),() -> {
             if(running) throw new IOException(getString(R.string.native_close_before_restore));
+            if(ekaQueueFile().exists()) { afterTask=this::chooseEkaSource; return; }
             Emulator.stopSession();
-            Eka2l1Transfer transfer=new Eka2l1Transfer(getCacheDir(),transferProgress());
+            Eka2l1Transfer.remove(ekaRoot()); Files.createDirectories(ekaRoot().toPath());
+            Eka2l1Transfer transfer=new Eka2l1Transfer(ekaRoot(),ekaProgress());
             try {
                 if(folder) transfer.readFolder(this,source);
                 else {
-                    File archive=SymbianFiles.stage(this,source,PhoneBackup.MAX_INPUT,transferProgress());
+                    File archive=SymbianFiles.stage(this,source,PhoneBackup.MAX_INPUT,ekaProgress());
                     try { transfer.readZip(archive); } finally { removeTransfer(archive); }
                 }
-                ekaTransfer=transfer; afterTask=() -> chooseEkaPhone(transfer);
+                PhoneTransferQueue queue=new PhoneTransferQueue(ekaQueueFile());
+                for(Eka2l1Transfer.Phone phone:transfer.phones) {
+                    PhoneTransferQueue.Item item;
+                    try { item=new PhoneTransferQueue.Item(phone.firmware,phone.label(),transfer.size(phone)); }
+                    catch(IOException error) {
+                        item=new PhoneTransferQueue.Item(phone.firmware,phone.label(),0);
+                        item.state=PhoneTransferQueue.State.FAILED;
+                        item.error=error.getMessage()==null?"":error.getMessage(); item.failureRecord=SystemTransferText.phoneFailureRecord(error);
+                    }
+                    queue.items.add(item);
+                }
+                transfer.retain(ekaSnapshot()); queue.save();
+                ekaTransfer=transfer; ekaQueue=queue; afterTask=this::showEkaQueue;
             } catch(Exception error) {
                 closeEka(transfer);
                 if(error instanceof java.io.InterruptedIOException) throw error;
@@ -497,44 +550,106 @@ public final class SymbianActivity extends Activity implements Emulator.Host, In
             }
         });
     }
-    private void chooseEkaPhone(Eka2l1Transfer transfer) {
-        GameMenuDialog menu=dialog(getString(R.string.eka_transfer_choose));
+    private void saveEkaSelection() {
+        PhoneTransferQueue queue=ekaQueue;
+        worker.execute(() -> {
+            try { queue.save(); }
+            catch(IOException error) {
+                runOnUiThread(() -> { if(!closing) status.setText(SystemFailureText.message(this,error)); });
+            }
+        });
+    }
+    private void showEkaQueue() {
+        if(closing || ekaQueue==null) return;
+        PhoneTransferQueue queue=ekaQueue;
+        GameMenuDialog menu=dialog(getString(queue.started?R.string.eka_batch_results:R.string.eka_transfer_choose));
         menu.message(getString(R.string.eka_transfer_selection));
-        for(Eka2l1Transfer.Phone phone:transfer.phones) menu.action(phone.label(),0,() -> {
-            menu.setOnDismissListener(null); menu.dismiss();
-            task(getString(R.string.eka_transfer_reading),() -> {
-                try {
-                    long size=transfer.size(phone);
-                    afterTask=() -> confirmEkaPhone(transfer,phone,size);
-                } catch(Exception error) { closeEka(transfer); ekaTransfer=null; throw error; }
+        int failed=0;
+        for(PhoneTransferQueue.Item item:queue.items) if(item.state==PhoneTransferQueue.State.FAILED) failed++;
+        menu.message(getString(R.string.eka_batch_counts,queue.completed(),queue.items.size(),failed));
+        Button review=menu.primaryAction(getString(R.string.eka_batch_review),0,() -> {
+            menu.dismiss(); task(getString(R.string.eka_transfer_reading),() -> {
+                queue.save(); afterTask=this::confirmEkaSelection;
             });
         });
-        menu.action(getString(R.string.system_cancel),0,menu::dismiss);
-        menu.setOnDismissListener(d -> { ekaTransfer=null; worker.execute(() -> closeEka(transfer)); });
-    }
-    private void confirmEkaPhone(Eka2l1Transfer transfer,Eka2l1Transfer.Phone phone,long size) {
-        GameMenuDialog menu=dialog(getString(R.string.eka_transfer_title));
-        menu.message(getString(R.string.eka_transfer_preview,phone.label(),(size+1048575)/1048576));
-        menu.action(getString(R.string.eka_transfer_copy),android.R.drawable.ic_menu_save,() -> {
-            menu.setOnDismissListener(null); menu.dismiss(); importEkaPhone(transfer,phone);
+        review.setEnabled(queue.selected()>0);
+        if(queue.completed()<queue.items.size()) menu.action(getString(R.string.eka_batch_select_remaining),0,() -> {
+            for(PhoneTransferQueue.Item item:queue.items) if(item.state!=PhoneTransferQueue.State.DONE) item.selected=true;
+            saveEkaSelection(); menu.dismiss(); showEkaQueue();
         });
-        menu.action(getString(R.string.system_cancel),0,menu::dismiss);
-        menu.setOnDismissListener(d -> { ekaTransfer=null; worker.execute(() -> closeEka(transfer)); });
+        for(PhoneTransferQueue.Item item:queue.items) {
+            if(item.state==PhoneTransferQueue.State.DONE) menu.message(getString(R.string.eka_batch_completed,item.label));
+            else {
+                menu.toggle(getString(R.string.eka_batch_phone,item.label,(item.bytes+1048575)/1048576),item.selected,value -> {
+                    item.selected=value; review.setEnabled(queue.selected()>0); saveEkaSelection();
+                });
+                if(item.state==PhoneTransferQueue.State.FAILED) menu.message(SystemTransferText.phoneFailure(this,item));
+                if(!item.destination.isEmpty()) menu.message(getString(R.string.eka_batch_copied));
+            }
+        }
+        if(queue.completed()==queue.items.size()) menu.action(getString(R.string.system_library),0,() -> {
+            menu.dismiss(); discardEka(this::openSharedLibrary);
+        });
+        menu.action(getString(R.string.eka_batch_discard),0,() -> { menu.dismiss(); confirmDiscardEka(); });
+        menu.action(getString(R.string.system_close),0,menu::dismiss);
     }
-    private void importEkaPhone(Eka2l1Transfer transfer,Eka2l1Transfer.Phone phone) {
-        task(getString(R.string.native_restoring),() -> {
+    private void confirmEkaSelection() {
+        PhoneTransferQueue queue=ekaQueue;
+        if(queue==null || queue.selected()==0) { showEkaQueue(); return; }
+        long bytes=0; StringBuilder names=new StringBuilder();
+        for(PhoneTransferQueue.Item item:queue.items) if(item.selected && item.state!=PhoneTransferQueue.State.DONE) {
+            names.append(item.label).append('\n'); if(item.destination.isEmpty()) bytes+=item.bytes;
+        }
+        GameMenuDialog menu=dialog(getString(R.string.eka_transfer_title));
+        menu.message(getString(R.string.eka_batch_preview,queue.selected(),(bytes+1048575)/1048576,names.toString().trim()));
+        menu.primaryAction(getString(R.string.eka_transfer_copy),android.R.drawable.ic_menu_save,() -> {
+            menu.dismiss(); importEkaSelection();
+        });
+        menu.setBackAction(() -> { menu.dismiss(); showEkaQueue(); });
+        menu.action(getString(R.string.system_cancel),0,() -> { menu.dismiss(); showEkaQueue(); });
+    }
+    private void importEkaSelection() {
+        ekaTask(getString(R.string.native_restoring),() -> {
             File previous=runtimeRoot;
             try {
                 Emulator.stopSession();
-                SystemFileCatalog.Entry imported=transfer.install(getFilesDir(),phone,this::validateTransferredPhone);
-                checkImportOpen(); openSystem(imported); refresh(getString(R.string.eka_transfer_done));
-                afterTask=() -> notice(getString(R.string.eka_transfer_done),getString(R.string.eka_transfer_done_body),
-                        getString(R.string.system_library),this::openSharedLibrary,getString(R.string.system_close));
-            } catch(Exception error) {
+                if(ekaTransfer==null) ekaTransfer=Eka2l1Transfer.reopen(ekaSnapshot(),ekaProgress());
+                ekaQueue.run(new PhoneTransferQueue.Backend() {
+                    public String copy(PhoneTransferQueue.Item item) throws Exception {
+                        for(Eka2l1Transfer.Phone phone:ekaTransfer.phones) if(phone.firmware.equals(item.firmware))
+                            return ekaTransfer.install(getFilesDir(),phone,SymbianActivity.this::validateTransferredPhone).id;
+                        throw new SystemFailure(SystemFailure.Code.PHONE_METADATA);
+                    }
+                    public void publish(String id) throws Exception {
+                        checkImportOpen();
+                        SystemFileCatalog.Entry entry=catalog.read(id);
+                        File root=catalog.runtime(entry);
+                        try {
+                            Emulator.stopSession(); SymbianFiles.prepareAssets(SymbianActivity.this,root);
+                            Emulator.prepare(root.getAbsolutePath());
+                            libraryIndex.publish(entry,Emulator.getLibraryApps(),true);
+                            PhoneScreenOptions.record(getFilesDir(),entry.id,Emulator.guestScreenOptions());
+                        } finally { Emulator.stopSession(); }
+                    }
+                    public String message(Exception error) { return error.getMessage(); }
+                    public String presentation(Exception error) { return SystemTransferText.phoneFailureRecord(error); }
+                },() -> cancelEka || closing);
+                afterTask=this::showEkaQueue;
+            } finally {
                 Emulator.stopSession(); runtimeRoot=previous;
                 if(!closing) refreshStopped(null);
-                throw error;
-            } finally { ekaTransfer=null; closeEka(transfer); }
+            }
+        });
+    }
+    private void confirmDiscardEka() {
+        notice(getString(R.string.eka_batch_discard),getString(R.string.eka_batch_discard_body),
+                getString(R.string.eka_batch_discard),() -> discardEka(this::chooseEkaSource),getString(R.string.system_cancel));
+    }
+    private void discardEka(Runnable next) {
+        task(getString(R.string.native_removing_queue),() -> {
+            // Only the private source snapshot and queue are removed, never installed phones.
+            Eka2l1Transfer.remove(ekaRoot()); ekaTransfer=null; ekaQueue=null;
+            afterTask=next;
         });
     }
     private static void closeEka(Eka2l1Transfer transfer) {
@@ -680,7 +795,7 @@ public final class SymbianActivity extends Activity implements Emulator.Host, In
                 ArchiveBatch.Batch snapshot=ArchiveBatch.snapshot(batch);
                 worker.execute(()-> {
                     try { archives.save(snapshot); }
-                    catch(IOException error) { runOnUiThread(()-> { if(!closing) status.setText(error.getMessage()); }); }
+                    catch(IOException error) { runOnUiThread(()-> { if(!closing) status.setText(SystemFailureText.message(SymbianActivity.this,error)); }); }
                 });
             }
             public void row(int id) { if(!busy && id>=0 && id<batch.items.size()) archiveItem(batch.items.get(id),batch.started); }
@@ -1189,6 +1304,7 @@ public final class SymbianActivity extends Activity implements Emulator.Host, In
         return super.onGenericMotionEvent(event);
     }
     @Override public void onBackPressed() {
+        if(ekaWorking) { cancelEka=true; status.setText(R.string.native_pausing_queue); return; }
         if(archivePage) {
             if(busy) { pauseArchive=true; status.setText(getString(R.string.native_pausing_queue)); }
             else library();
@@ -1290,7 +1406,8 @@ public final class SymbianActivity extends Activity implements Emulator.Host, In
         worker.execute(() -> {
             if (sessionOwner == this) { Emulator.stopSession(); sessionOwner = null; }
             removeTransfer(restoreArchive); restoreArchive=null;
-            closeEka(ekaTransfer); ekaTransfer=null;
+            // Retained EKA2L1 snapshots and completed results survive Activity/process death.
+            ekaTransfer=null; ekaQueue=null;
         });
         super.onDestroy();
     }

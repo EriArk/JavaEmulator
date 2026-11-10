@@ -32,7 +32,7 @@ public class HelpDialogFragment extends DialogFragment {
 		AlertDialog.Builder builder = new AlertDialog.Builder(requireActivity());
 		builder.setTitle(R.string.help)
 				.setIcon(R.mipmap.ic_launcher)
-				.setView(InfoContent.view(requireContext(),InfoContent.help(requireContext())))
+				.setView(InfoContent.supportView(requireContext(),InfoContent.help(requireContext())))
 				.setPositiveButton(R.string.helper_close,null);
 		return builder.create();
 	}

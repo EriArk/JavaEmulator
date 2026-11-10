@@ -14,4 +14,8 @@
     <string name="game_info_java">Plataforma: Java ME\nVersión: %1$s\nProveedor: %2$s</string>
     <string name="game_info_unreadable">Plataforma: Java ME\nVersión: No disponible\nNo se pudo leer la información del juego instalado.</string>
     <string name="game_info_missing">Sin especificar</string>
+    <string name="product_website">Sitio web de AbyssTail</string>
+    <string name="product_link_unavailable">No se puede abrir este enlace</string>
+    <string name="product_link_help">No hay ninguna aplicación disponible para abrir esta dirección. Puedes copiarla y abrirla más tarde.\n\n%1$s</string>
+    <string name="product_copy_link">Copiar enlace</string>
 </resources>

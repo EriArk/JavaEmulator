@@ -7,6 +7,10 @@ import ru.playsoftware.j2meloader.R;
 final class SystemFailureText {
     private SystemFailureText() { }
     static String message(Context context, Throwable error) {
+        if (error instanceof PhoneTransferQueue.ReadFailure)
+            return context.getString(R.string.native_error_import_cannot_read_the_import_queue);
+        if (error instanceof PhoneTransferQueue.SaveFailure)
+            return context.getString(R.string.native_error_import_cannot_save_the_import_queue);
         if (error instanceof SystemFailure) {
             SystemFailure failure=(SystemFailure)error;
             return context.getString(resource(failure.code),failure.arguments());

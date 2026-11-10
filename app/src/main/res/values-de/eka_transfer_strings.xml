@@ -6,10 +6,21 @@
     <string name="eka_transfer_zip">ZIP wählen</string>
     <string name="eka_transfer_reading">EKA2L1-Kopie wird gelesen…</string>
     <string name="eka_transfer_incomplete">Ein vollständiger, lesbarer EKA2L1-Ordner ist erforderlich, nicht nur Laufwerk E oder einzelne Spiele. Den ganzen Ordner exportieren, wenn Android Unterordner blockiert.</string>
-    <string name="eka_transfer_choose">Virtuelles Telefon wählen</string>
-    <string name="eka_transfer_selection">Telefone werden einzeln kopiert. Geteilte C/E-Laufwerke werden für dieses Telefon isoliert. Andere Telefone und der Quellordner bleiben unverändert.</string>
+    <string name="eka_transfer_choose">Virtuelle Telefone auswählen</string>
+    <string name="eka_transfer_selection">Wähle die zu kopierenden Telefone aus. Jedes erhält eigene beschreibbare Laufwerke. Fertige Kopien und Originaldateien bleiben unverändert.</string>
     <string name="eka_transfer_preview">%1$s\nTelefondaten: %2$d MB\n\nSpiele und Spielstände werden als separates Telefon hinzugefügt. Bestehende Telefone werden nicht zusammengeführt oder überschrieben. Der erneute Import derselben Kopie behält neuere Spielstände am Ziel.</string>
-    <string name="eka_transfer_copy">Telefon kopieren</string>
+    <string name="eka_transfer_copy">Ausgewählte Telefone kopieren</string>
     <string name="eka_transfer_done">Telefonübertragung abgeschlossen</string>
-    <string name="eka_transfer_done_body">Das kopierte Telefon ist in der Bibliothek verfügbar. Originaldateien bleiben unverändert. Weitere Telefone separat importieren. Spielkompatibilität ist nicht garantiert.</string>
+    <string name="eka_transfer_done_body">Die kopierten Telefone sind in der Bibliothek verfügbar. Die Originaldateien bleiben unverändert. Die Spielkompatibilität ist nicht garantiert.</string>
+    <string name="eka_batch_saved">Eine gespeicherte Übertragungswarteschlange ist vorhanden. Prüfe sie, um nur unerledigte Vorgänge fortzusetzen.</string>
+    <string name="eka_batch_discard">Übertragungswarteschlange verwerfen</string>
+    <string name="eka_batch_discard_body">Diese Warteschlange und ihre temporäre Quellkopie entfernen? Bereits importierte Telefone und ihre Spielstände bleiben erhalten.</string>
+    <string name="eka_batch_results">Übertragungsergebnisse</string>
+    <string name="eka_batch_counts">Abgeschlossen: %1$d / %2$d · Fehler: %3$d</string>
+    <string name="eka_batch_review">Ausgewählte Telefone prüfen</string>
+    <string name="eka_batch_select_remaining">Alle übrigen auswählen</string>
+    <string name="eka_batch_completed">%1$s — Abgeschlossen</string>
+    <string name="eka_batch_phone">%1$s · %2$d MB</string>
+    <string name="eka_batch_copied">Das Telefon wurde bereits kopiert. Ein erneuter Versuch fügt es nur zur Bibliothek hinzu.</string>
+    <string name="eka_batch_preview">Ausgewählte Telefone: %1$d\nTelefondaten: %2$d MB\n\n%3$s\n\nJedes Telefon wird separat hinzugefügt. Vorhandene Telefone und Spielstände werden nicht ersetzt. Fertige Kopien werden nicht wiederholt. Gemeinsame Laufwerke können für jedes ausgewählte Telefon kopiert werden.</string>
 </resources>

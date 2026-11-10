@@ -14,4 +14,8 @@
     <string name="game_info_java">平台：Java ME\n版本：%1$s\n厂商：%2$s</string>
     <string name="game_info_unreadable">平台：Java ME\n版本：不可用\n无法读取已安装游戏的信息。</string>
     <string name="game_info_missing">未提供</string>
+    <string name="product_website">AbyssTail 网站</string>
+    <string name="product_link_unavailable">无法打开链接</string>
+    <string name="product_link_help">没有可打开此地址的应用。您可以复制地址，稍后再打开。\n\n%1$s</string>
+    <string name="product_copy_link">复制链接</string>
 </resources>

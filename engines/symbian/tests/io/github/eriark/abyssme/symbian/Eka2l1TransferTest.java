@@ -133,6 +133,80 @@ public final class Eka2l1TransferTest {
             assertTrue(read(catalog().runtime(phone),"config.yml").contains("data-storage: data"));
         }
     }
+    @Test public void retainedZipKeepsOriginalIdentityAndNewerSaves() throws Exception {
+        fixture(false); File archive=new File(root,"retained.zip"), manifest=new File(root,"snapshot.json");
+        // No explicit directory entries: adding them during recovery would change the copy ID.
+        try(ZipOutputStream out=new ZipOutputStream(new FileOutputStream(archive)); java.util.stream.Stream<Path> files=Files.walk(source.toPath())) {
+            for(Path file:(Iterable<Path>)files.filter(Files::isRegularFile)::iterator) {
+                out.putNextEntry(new ZipEntry(source.toPath().relativize(file).toString())); Files.copy(file,out); out.closeEntry();
+            }
+        }
+        Eka2l1Transfer transfer=new Eka2l1Transfer(root,SILENT);
+        try {
+            transfer.readZip(archive); transfer.retain(manifest);
+            SystemFileCatalog.Entry first=transfer.install(destination,transfer.phones.get(0),VALID);
+            write(catalog().runtime(first),"data/drives/rh-29/c/System/Data/save.dat","newer");
+            Eka2l1Transfer restored=Eka2l1Transfer.reopen(manifest,SILENT);
+            SystemFileCatalog.Entry second=restored.install(destination,restored.phones.get(0),(r,m)->fail("Do not validate committed copies again"));
+            assertEquals(first.id,second.id);
+            assertEquals("newer",read(catalog().runtime(second),"data/drives/rh-29/c/System/Data/save.dat"));
+        } finally { transfer.close(); }
+    }
+    @Test public void retainedSnapshotRejectsChangedDataBeforeInstalling() throws Exception {
+        fixture(false); File manifest=new File(root,"snapshot.json");
+        try(Eka2l1Transfer transfer=new Eka2l1Transfer(root,SILENT)) {
+            transfer.readDirectory(source); transfer.retain(manifest);
+            write(transfer.stage,"data/drives/c/System/Data/save.dat","modified-save");
+            try { Eka2l1Transfer.reopen(manifest,SILENT); fail(); } catch(IOException expected) { }
+            assertTrue(catalog().list().isEmpty());
+        }
+    }
+    @Test public void retainedSnapshotRejectsLinkedPayload() throws Exception {
+        fixture(false); File manifest=new File(root,"snapshot.json");
+        try(Eka2l1Transfer transfer=new Eka2l1Transfer(root,SILENT)) {
+            transfer.readDirectory(source); transfer.retain(manifest);
+            Path save=new File(transfer.stage,"data/drives/c/System/Data/save.dat").toPath();
+            Files.delete(save); Files.createSymbolicLink(save,new File(source,"data/drives/c/System/Data/save.dat").toPath());
+            try { Eka2l1Transfer.reopen(manifest,SILENT); fail(); } catch(IOException expected) { }
+            finally { Files.delete(save); }
+            assertEquals("original-save",read(source,"data/drives/c/System/Data/save.dat"));
+        }
+    }
+    @Test public void twoPhoneQueueRetriesOnlyFailedCopy() throws Exception {
+        fixture(true);
+        write(source,"data/devices.yml",registration("RH-29",true)+registration("RM-320",true));
+        write(source,"data/roms/rm-320/SYM.ROM","second-rom");
+        write(source,"data/drives/rm-320/c/save.dat","second-save");
+        try(Eka2l1Transfer transfer=new Eka2l1Transfer(root,SILENT)) {
+            transfer.readDirectory(source);
+            PhoneTransferQueue queue=new PhoneTransferQueue(new File(root,"queue.bin"));
+            for(Eka2l1Transfer.Phone phone:transfer.phones) {
+                PhoneTransferQueue.Item item=new PhoneTransferQueue.Item(phone.firmware,phone.label(),transfer.size(phone));
+                item.selected=true; queue.items.add(item);
+            }
+            boolean[] failSecond={true}; int[] copies={0};
+            PhoneTransferQueue.Backend backend=new PhoneTransferQueue.Backend() {
+                public String copy(PhoneTransferQueue.Item item) throws Exception {
+                    copies[0]++;
+                    for(Eka2l1Transfer.Phone phone:transfer.phones) if(phone.firmware.equals(item.firmware))
+                        return transfer.install(destination,phone,(r,m)-> {
+                            if(phone.firmware.equals("RM-320") && failSecond[0]) throw new IOException("fixture failure");
+                            VALID.validate(r,m);
+                        }).id;
+                    throw new AssertionError();
+                }
+                public void publish(String id) { }
+                public String message(Exception error) { return error.getMessage(); }
+            };
+            queue.run(backend,()->false); assertEquals(1,queue.completed()); assertEquals(1,catalog().list().size());
+            SystemFileCatalog.Entry first=catalog().list().get(0);
+            write(catalog().runtime(first),"data/drives/rh-29/c/System/Data/save.dat","newer");
+            failSecond[0]=false; PhoneTransferQueue restored=PhoneTransferQueue.load(queue.file);
+            restored.run(backend,()->false);
+            assertEquals(2,restored.completed()); assertEquals(3,copies[0]); assertEquals(2,catalog().list().size());
+            assertEquals("newer",read(catalog().runtime(first),"data/drives/rh-29/c/System/Data/save.dat"));
+        }
+    }
     private File zip(String... paths) throws IOException {
         File archive=new File(root,"source.zip");
         try(ZipOutputStream output=new ZipOutputStream(new FileOutputStream(archive))) {

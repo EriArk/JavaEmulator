@@ -22,11 +22,28 @@ See [issue status and remaining work](ISSUE_STATUS.md) for the reconciled queue.
 The #41/#42/#45/#43 implementation batches are released, with specific acceptance
 still open. #48 N95 startup/LCD behavior and #50 broader guest-display research
 remain unresolved; #52 is a new, insufficiently identified Crash Bandicoot report.
-#51 is an unimplemented official-link task. #44 new engines remains deferred.
+#51 has a local Website action; a valid Discord invitation is still needed. #44 new engines remains deferred.
 
 The original #39 reporter confirmed the EKA2L1 transfer in Beta 2 on November 4;
 that accepted whole-phone workflow closes #39. Broader migration stays in #49.
 This is user feedback, not new maintainer device testing or standalone Drive E support.
+
+## Functionality Completion Work (2026-11-10, Local Only)
+
+The maintainer approved [the functionality-first sequence](ISSUE_STATUS.md#development-focus)
+before the next real-game matrix. Multi-phone EKA2L1 transfer now has local
+selection/review, a retained snapshot/queue, cancellation and explicit retry of
+unfinished copy/index operations. Completed copies preserve newer saves. Known
+saved failures follow the current language. About/Help has a local Website action
+with missing-handler recovery; the Discord action awaits a valid invitation.
+
+Combined Debug and test APKs build locally. **10 standalone queue checks, 424 JVM
+tests and 39 targeted Android checks pass**; lint has zero errors and 804 warnings.
+Android checks use an API 30 emulator with ARM64 translation and synthetic transfer
+files. One UI-test selector was corrected and its failing scenario rerun. Physical
+handheld checks await USB-debug authorization. No real-game, whole-collection,
+public-source or release acceptance is claimed. Beta 2 remains the published
+one-phone-per-operation implementation. [Evidence and limits](checks/2026-11-10-phone-transfer-queue.md).
 
 ## Product in Plain Language
 
