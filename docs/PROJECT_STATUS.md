@@ -111,6 +111,14 @@ checkpoints, with no production runtime change or publication. Later-level progr
 audio, physical hardware and complete-game acceptance remain open.
 [Save/backup evidence and failure history](checks/2026-11-10-real-game-backups.md).
 
+The subsequent [mixed-library UI journey](checks/2026-11-10-library-journey.md)
+passes export/restore through actual Android DocumentsUI for two Java games and
+one Mophun game with synthetic saves. Picker cancellation, preview/result
+recreation, cancel/retry before the first entry, catalog/profile preservation,
+shared-file conflicts, newer-save duplicate protection and corrupted-archive
+recovery pass in one 22.335s scenario. No production repair was needed; broader
+provider, upgrade and physical-device acceptance remain open.
+
 ## Product in Plain Language
 
 AbyssME runs old mobile Java games, Mophun and experimental Symbian/N-Gage

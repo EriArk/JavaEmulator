@@ -43,6 +43,9 @@ Physical tests are deferred; these observations do not close #48 or #52.
 [Real-game backup checks](checks/2026-11-10-real-game-backups.md) now cover the
 production archive/importer cycle, save hashes, duplicate rejection and fresh
 Java/Mophun launches. These remain local-only emulator checks.
+The [mixed-library DocumentsUI journey](checks/2026-11-10-library-journey.md)
+adds real picker export/restore, cancel/retry, metadata/shared files and corruption
+recovery using synthetic saves. Upgrade and paired-game checks remain next.
 
 ## Accepted Transfer Outcome
 

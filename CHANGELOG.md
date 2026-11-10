@@ -10,6 +10,17 @@ stated otherwise. **Experimental** in older checkpoints means local/private
 combined builds; released experimental features are explicitly identified.
 **Released** means an actual GitHub release asset.
 
+## 2026-11-10 - Mixed-library DocumentsUI Check (Local Only)
+
+- Add an opt-in whole-library transfer journey through actual Android document
+  pickers, using two Java games, one Mophun game and synthetic save sentinels.
+- Verify cancellation/retry, activity recreation, profiles/favorites/history,
+  shared-file conflicts, duplicate rejection with newer destination saves and
+  recovery after a deliberately corrupted archive. One scenario passes in 22.335s.
+- Preserve earlier test-input failures and their corrections in the
+  [evidence record](docs/checks/2026-11-10-library-journey.md). No production runtime
+  change, physical-device acceptance, source push or APK publication.
+
 ## 2026-11-10 - Real-game Save and Backup Checks (Local Only)
 
 - Add isolated opt-in Java/Mophun archive round trips using real game-generated
