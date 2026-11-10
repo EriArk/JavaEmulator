@@ -2,8 +2,10 @@
 set -euo pipefail
 revision=${1:?Pass a full committed revision}
 mode=${2:-unsigned}
+target=${3:-combined}
 [[ "$revision" =~ ^[0-9a-f]{40}$ ]] || { echo 'Expected full Git SHA' >&2; exit 2; }
 [[ "$mode" == unsigned || "$mode" == debug ]] || exit 2
+[[ "$target" == combined || "$target" == armv7 ]] || exit 2
 root=${ABYSSME_BUILD_ROOT:-"$HOME/abyssme-build"}
 mkdir -p "$root"
 root=$(realpath "$root")
@@ -33,6 +35,7 @@ test -z "$(git -C "$root/repo" status --porcelain --untracked-files=normal)" || 
 git -C "$root/repo" fetch --depth=1 origin "$revision"
 git -C "$root/repo" -c advice.detachedHead=false checkout --detach "$revision"
 test ! -e "$root/repo/keystore.properties" || { echo 'Remove signing configuration from builder' >&2; exit 2; }
+if [[ "$target" == combined ]]; then
 bundle="$root/sources/symbian.zip"
 if [[ ! -f "$bundle" ]]; then
   curl --fail --location --retry 3 -o "$bundle.part" \
@@ -50,9 +53,12 @@ test -f "$root/symbian/ABYSS_REVISION" || {
   echo 'Incomplete source restoration retained; inspect it before retrying' >&2; exit 2;
 }
 python3 "$root/repo/tools/restore-symbian-sources.py" "$root/sources/unpacked" "$root/symbian" --prepare-posix
+fi
+source_mount=()
+if [[ "$target" == combined ]]; then source_mount=(-v "$root/symbian:/sources/symbian"); fi
 image=abyssme-builder:android34-jdk21-v1
 docker build -t "$image" "$root/repo/tools/remote-build"
-run="$(date -u +%Y%m%dT%H%M%SZ)-${revision:0:12}-$mode"
+run="$(date -u +%Y%m%dT%H%M%SZ)-${revision:0:12}-$mode-$target"
 out="$root/out/$run"
 mkdir "$out"
 docker image inspect "$image" --format '{{.Id}}' > "$out/IMAGE-ID.txt"
@@ -60,7 +66,7 @@ wait_for_memory
 docker run --rm --name abyssme-build-run --cpus=2 --memory=4g --memory-swap=4g \
   --pids-limit=512 --cap-drop=ALL --security-opt=no-new-privileges --read-only \
   --user "$(id -u):$(id -g)" \
-  -v "$root/repo:/work" -v "$root/symbian:/sources/symbian" \
+  -v "$root/repo:/work" "${source_mount[@]}" \
   -v "$root/cache:/cache" -v "$root/tmp:/tmp" -v "$out:/out" \
-  "$image" bash tools/remote-build/container-build.sh "$mode" 2>&1 | tee "$out/build.log"
+  "$image" bash tools/remote-build/container-build.sh "$mode" "$target" 2>&1 | tee "$out/build.log"
 printf 'Artifacts: %s\n' "$out"

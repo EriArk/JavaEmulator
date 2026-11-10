@@ -10,6 +10,19 @@ stated otherwise. **Experimental** in older checkpoints means local/private
 combined builds; released experimental features are explicitly identified.
 **Released** means an actual GitHub release asset.
 
+## 2026-11-10 - Adaptive ARMv7 Build Target (Local Only)
+
+- Add `-Parmv7=true`: one adaptive Java/Mophun APK, no Symbian, Android 10+,
+  explicit artifact names and incompatible-mode rejection. Add the optional
+  ARMv7 target to the existing manual server workflow.
+- Hide unavailable library tabs and preserve their remembered state. Verify
+  ELF32/ARM payloads and prohibit the Debug multiplayer probe in Release.
+- Debug/test and optimized unsigned Release assemble; 70 selected Android cases
+  pass after correcting CPU-reference and MIDI-timing fixtures. 419 app JVM tests
+  pass; ARMv7 lint has zero errors and 1300 warnings in its broader test scope.
+  [Evidence and failure history](docs/checks/2026-11-10-armv7-target.md).
+- Physical ARMv7, real games, signed upgrades and publication remain unverified.
+
 ## 2026-11-10 - Java Multiplayer Lifecycle Check (Local Only)
 
 - Verify the existing Java multiplayer lifecycle using synthetic room partners

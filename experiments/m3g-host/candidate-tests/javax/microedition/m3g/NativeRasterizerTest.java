@@ -2,12 +2,22 @@ package javax.microedition.m3g;
 
 import javax.microedition.lcdui.Image;
 import org.junit.After;
+import org.junit.Before;
 import org.junit.Test;
 import static org.junit.Assert.*;
 
 /** Exact pixels against the retained Java path, including mixed execution. */
 public class NativeRasterizerTest {
-    @After public void restore() { NativeRasterizer.enabled = true; Graphics3D.getInstance().releaseTarget(); }
+    private boolean priorNative, priorRaster, priorGeometry;
+    @Before public void selectCpuReferencePaths() {
+        priorNative=NativeRasterizer.enabled; priorRaster=GpuRasterizer.enabled; priorGeometry=GpuGeometry.enabled;
+        Graphics3D.getInstance().releaseTarget(); GpuRasterizer.close();
+        GpuRasterizer.enabled=false; GpuGeometry.enabled=false;
+    }
+    @After public void restore() {
+        Graphics3D.getInstance().releaseTarget(); GpuRasterizer.close();
+        NativeRasterizer.enabled=priorNative; GpuRasterizer.enabled=priorRaster; GpuGeometry.enabled=priorGeometry;
+    }
 
     @Test public void nativePixelsMatchJavaAcrossPipelineStates() {
         for (int mode : new int[]{CompositingMode.REPLACE, CompositingMode.ALPHA,

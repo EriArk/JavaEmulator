@@ -63,6 +63,12 @@ process death and fresh preparation after return. No production change was neede
 Live-service, different-network and real-game acceptance are separate.
 [Network evidence](checks/2026-11-10-multiplayer-lifecycle.md).
 
+An explicit **local-only ARMv7 Java/Mophun target** now builds Debug and optimized
+unsigned Release, excluding Symbian. Its 16 native libraries are ELF32/ARM and
+70 selected Android cases pass in a 32-bit emulator process, with corrected
+CPU/MIDI fixtures documented. Physical ARMv7, real-game, signed-upgrade and
+release acceptance remain open. [ARMv7 checks](checks/2026-11-10-armv7-target.md).
+
 ## Product in Plain Language
 
 AbyssME runs old mobile Java games, Mophun and experimental Symbian/N-Gage

@@ -1,3 +1,4 @@
+def productionAbi = providers.gradleProperty('armv7').orNull == 'true' ? 'armeabi-v7a' : 'arm64-v8a'
 tasks.register('verifyProductionApks') {
     dependsOn 'assembleFdroidRelease'
     doLast {
@@ -16,11 +17,12 @@ tasks.register('verifyProductionApks') {
                 'Ljavax/microedition/media/tone/ToneEvent;',
                 'Ljavax/microedition/media/tone/VolumeEvent;',
                 'Lorg/abyssme/research/FrameMeter;',
+                'Lru/playsoftware/j2meloader/multiplayer/GameNetworkProbeService;',
                 'Lru/playsoftware/j2meloader/mophun/MophunPreviewActivity;']
             new java.util.zip.ZipFile(new File(folder, metadata.elements[0].outputFile)).withCloseable { zip ->
-                ['lib/arm64-v8a/libabyssaudiobridge.so', 'lib/arm64-v8a/libmidi.so',
-                 'lib/arm64-v8a/libavcodec.so', 'lib/arm64-v8a/libavformat.so',
-                 'lib/arm64-v8a/libavutil.so', 'assets/licenses/AUDIO-BRIDGE.txt'].each {
+                ["lib/${productionAbi}/libabyssaudiobridge.so", "lib/${productionAbi}/libmidi.so",
+                 "lib/${productionAbi}/libavcodec.so", "lib/${productionAbi}/libavformat.so",
+                 "lib/${productionAbi}/libavutil.so", 'assets/licenses/AUDIO-BRIDGE.txt'].each {
                     if (zip.getEntry(it) == null) throw new GradleException("Missing audio backend/notice: $it")
                 }
                 ['assets/FREEJ2ME-LICENSE.txt', 'assets/FREEJ2ME-SOURCE.json',
@@ -30,13 +32,33 @@ tasks.register('verifyProductionApks') {
                  'assets/shaders/retro/crt-easymode.glsl'].each {
                     if (zip.getEntry(it) == null) throw new GradleException("Missing notice: $it")
                 }
-                ['lib/arm64-v8a/libabyss-peer.so',
+                ["lib/${productionAbi}/libabyss-peer.so",
                  'assets/licenses/peer/libdatachannel-MPL-2.0.txt',
                  'assets/licenses/peer/libjuice-MPL-2.0.txt',
                  'assets/licenses/peer/plog-MIT.txt',
                  'assets/licenses/peer/mbedtls-LICENSE.txt',
                  'assets/licenses/peer/usrsctp-BSD.txt'].each {
                     if (zip.getEntry(it) == null) throw new GradleException("Missing experimental multiplayer payload/notice: $it")
+                }
+                if (productionAbi == 'armeabi-v7a') {
+                    ['libmicro3d.so', 'libabyssm3graster.so'].each {
+                        if (zip.getEntry("lib/armeabi-v7a/$it") == null)
+                            throw new GradleException("Missing ARMv7 backend: $it")
+                    }
+                    zip.entries().each { entry ->
+                        if (entry.name.startsWith('lib/') && !entry.name.startsWith('lib/armeabi-v7a/'))
+                            throw new GradleException("Unexpected ABI in ARMv7 APK: ${entry.name}")
+                        if (entry.name.contains('libabysssymbian') || entry.name.startsWith('assets/resources/') ||
+                                entry.name.startsWith('assets/licenses/symbian/'))
+                            throw new GradleException("Symbian payload in Java/Mophun APK: ${entry.name}")
+                        if (entry.name.startsWith('lib/') && entry.name.endsWith('.so')) {
+                            byte[] header = zip.getInputStream(entry).withCloseable { it.readNBytes(20) }
+                            if (header.length != 20 || header[0] != 0x7f || header[1] != 69 ||
+                                    header[2] != 76 || header[3] != 70 || header[4] != 1 || header[5] != 1 ||
+                                    header[18] != 40 || header[19] != 0)
+                                throw new GradleException("Not a 32-bit ARM ELF: ${entry.name}")
+                        }
+                    }
                 }
                 zip.entries().each { entry ->
                     if (entry.name.endsWith('/libjavam3g.so') || entry.name ==~ /(?i).+\.(mpn|jar|jad)$/) {

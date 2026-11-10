@@ -33,6 +33,8 @@ the launcher does not change host keys or enable password/key forwarding.
 .\tools\remote-build\Invoke-RemoteBuild.ps1 -Revision HEAD -Mode unsigned
 # Optional isolated debug APK instead:
 .\tools\remote-build\Invoke-RemoteBuild.ps1 -Revision HEAD -Mode debug
+# Java/Mophun-only ARMv7 target (no Symbian source restoration):
+.\tools\remote-build\Invoke-RemoteBuild.ps1 -Revision HEAD -Mode unsigned -Target armv7
 ```
 
 The server fetches the exact full Git SHA from the public origin. Dirty remote
@@ -43,8 +45,13 @@ text inputs, including C headers scanned by FFmpeg's configure script. Binary
 files are unchanged. Existing inputs must match the archive or its normalized
 equivalent; modified files are not silently replaced. The original source
 archives remain byte-identical and hash-verified.
-Every run checks source restoration and signing/mode/resource validation,
-builds all three engines and runs app/converter JVM tests; unsigned
+Combined runs check source restoration and signing/mode/resource validation,
+build all three engines and run app/converter JVM tests. ARMv7 runs skip Symbian
+restoration, check incompatible modes/flavors, build Java/Mophun with 32-bit peer
+and audio dependencies, and run the same JVM tasks. The default target remains
+`combined`; artifact names, run directories and provenance record the selected
+target. This target extension has local validation only; a fresh server round trip
+is still required. Unsigned
 Release also runs the production-payload guard. It exports the APK, checksum,
 test XML, guard logs, build log and `BUILD-INFO.json`; unsigned Release also
 retains the R8 crash-deobfuscation mapping. Downloads are verified locally under

@@ -66,21 +66,29 @@ public class MophunMidiTest {
         }
     }
 
-    @Test public void playbackDurationFollowsSessionSpeed() throws Exception {
-        long slow = durationAt(50), fast = durationAt(200);
+    @Test public void playbackPositionProgressFollowsSessionSpeed() throws Exception {
+        long slow = progressAt(50), fast = progressAt(200);
         assertTrue("Slow=" + slow + ", fast=" + fast, slow > fast * 2.2);
     }
 
-    private long durationAt(int speed) throws Exception {
+    private long progressAt(int speed) throws Exception {
         try (MophunMidi midi = new MophunMidi(cache())) {
             midi.speed(speed);
             midi.play(NOTE, false);
             until(() -> midi.playing() || midi.error() != null);
             assertNull(midi.error());
-            long start = SystemClock.elapsedRealtime();
-            until(() -> !midi.playing());
+            // Completion includes the platform MIDI synthesizer/output tail, whose
+            // latency is independent of the requested rate. Measure media progress
+            // after startup and before that tail instead of weakening the ratio.
+            java.lang.reflect.Field field=MophunMidi.class.getDeclaredField("player");
+            field.setAccessible(true);
+            android.media.MediaPlayer player=(android.media.MediaPlayer)field.get(midi);
+            until(() -> player.getCurrentPosition() >= 250);
+            int target=player.getCurrentPosition()+750;
+            long start=SystemClock.elapsedRealtime();
+            until(() -> player.getCurrentPosition() >= target);
             assertNull(midi.error());
-            return SystemClock.elapsedRealtime() - start;
+            return SystemClock.elapsedRealtime()-start;
         }
     }
 

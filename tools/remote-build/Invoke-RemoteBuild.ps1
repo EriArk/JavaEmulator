@@ -1,7 +1,8 @@
 param(
     [ValidatePattern('^[A-Za-z0-9_.-]+$')][string]$RemoteHost = 'books-server',
     [string]$Revision = 'HEAD',
-    [ValidateSet('unsigned', 'debug')][string]$Mode = 'unsigned'
+    [ValidateSet('unsigned', 'debug')][string]$Mode = 'unsigned',
+    [ValidateSet('combined', 'armv7')][string]$Target = 'combined'
 )
 $ErrorActionPreference = 'Stop'
 $repo = (Resolve-Path (Join-Path $PSScriptRoot '../..')).Path
@@ -21,12 +22,12 @@ try {
     $log = Join-Path $local ("request-" + (Get-Date -Format 'yyyyMMdd-HHmmss') + '.log')
     $ErrorActionPreference = 'Continue'
     try {
-        & ssh $RemoteHost "bash abyssme-build/run.sh $sha $Mode" 2>&1 | ForEach-Object { $_.ToString() } | Tee-Object -FilePath $log
+        & ssh $RemoteHost "bash abyssme-build/run.sh $sha $Mode $Target" 2>&1 | ForEach-Object { $_.ToString() } | Tee-Object -FilePath $log
         $buildExit = $LASTEXITCODE
     } finally { $ErrorActionPreference = 'Stop' }
     if ($buildExit -ne 0) { throw "Remote build failed; retained log: $log" }
     $line = Get-Content $log | Where-Object { $_ -match '^Artifacts: ' } | Select-Object -Last 1
-    if (!$line -or $line -notmatch '/out/(\d{8}T\d{6}Z-[0-9a-f]{12}-(unsigned|debug))$') {
+    if (!$line -or $line -notmatch '/out/(\d{8}T\d{6}Z-[0-9a-f]{12}-(unsigned|debug)-(combined|armv7))$') {
         throw 'Missing/invalid artifact directory in build response'
     }
     $run = $Matches[1]
@@ -38,7 +39,7 @@ try {
     $checksums = @(Get-Content (Join-Path $destination 'SHA256SUMS.txt'))
     if ($checksums.Count -ne 1) { throw 'Expected exactly one APK checksum' }
     $info = Get-Content (Join-Path $destination 'BUILD-INFO.json') -Raw | ConvertFrom-Json
-    if ($info.revision -ne $sha -or $info.mode -ne $Mode) { throw 'Artifact provenance mismatch' }
+    if ($info.revision -ne $sha -or $info.mode -ne $Mode -or $info.target -ne $Target) { throw 'Artifact provenance mismatch' }
     foreach ($entry in $checksums) {
         if ($entry -notmatch '^([0-9a-f]{64})  ([A-Za-z0-9_.-]+\.apk)$') { throw 'Invalid checksum manifest' }
         $expected = $Matches[1]

@@ -1,12 +1,18 @@
 plugins { id 'com.android.library' }
 
+def armv7 = providers.gradleProperty('armv7').orNull == 'true'
+if (armv7) layout.buildDirectory.set(file('build/armv7'))
+
 android {
     namespace 'io.github.eriark.abyssme.peer'
     compileSdk 34
     ndkVersion '28.2.13676358'
     defaultConfig {
         minSdk 29
-        if (providers.gradleProperty('symbianRelease').orNull == 'true') {
+        if (armv7) {
+            ndk { abiFilters 'armeabi-v7a' }
+        } else if (['symbianRelease', 'symbianExperiment', 'symbianReleaseCheck'].any {
+                providers.gradleProperty(it).orNull == 'true' }) {
             ndk { abiFilters 'arm64-v8a' }
         }
         testInstrumentationRunner 'androidx.test.runner.AndroidJUnitRunner'

@@ -88,6 +88,14 @@ engine for both Debug and Release with normal package IDs (Debug still has its
 build remains a Java/Mophun-only development option. Phone dumps and commercial
 games are never required to compile the application.
 
+For the Java/Mophun-only ARMv7 target, use `-Parmv7=true` with the `fdroid`
+variant. It packages only `armeabi-v7a`, excludes Symbian and keeps Android 10+
+as the minimum. Output is isolated under `app/build/armv7/` and filenames include
+`-armv7`. Combining this property with Symbian/research modes fails explicitly;
+the legacy Phone flavor is not an ARMv7 distribution. The application ID stays
+the same, so this is an alternate architecture build, not a separate library.
+An APK is not a supported release until device, upgrade and signing checks pass.
+
 The current distribution uses one adaptive `fdroid` APK. The `phone` flavor remains
 available for migration testing, but is not a second distribution target.
 Check touch and controller use separately, in portrait, landscape and square layouts:

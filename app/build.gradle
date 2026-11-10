@@ -2,6 +2,11 @@ plugins {
     id 'com.android.application'
 }
 
+def armv7Option = providers.gradleProperty('armv7').orNull
+if (armv7Option != null && !(armv7Option in ['true', 'false'])) {
+    throw new GradleException('armv7 must be true or false')
+}
+def armv7 = armv7Option == 'true'
 def midletArchivesBaseName
 def m3gExperiment = providers.gradleProperty('m3gExperiment').orNull
 def m3gReleaseCheck = providers.gradleProperty('m3gReleaseCheck').orNull == 'true'
@@ -9,6 +14,10 @@ def symbianExperiment = providers.gradleProperty('symbianExperiment').orNull == 
 def symbianRelease = providers.gradleProperty('symbianRelease').orNull == 'true'
 def symbianReleaseCheck = providers.gradleProperty('symbianReleaseCheck').orNull == 'true'
 def symbianEnabled = symbianExperiment || symbianRelease || symbianReleaseCheck
+if (armv7 && (symbianEnabled || m3gExperiment != null || m3gReleaseCheck)) {
+    throw new GradleException('ARMv7 is a Java/Mophun target without Symbian or research modes')
+}
+if (armv7) layout.buildDirectory.set(file('build/armv7'))
 def unsignedRelease = providers.gradleProperty('unsignedRelease').orNull == 'true'
 if (unsignedRelease && (m3gReleaseCheck || symbianReleaseCheck)) {
     throw new GradleException('Unsigned export and debug-signed rehearsal are separate modes')
@@ -46,6 +55,7 @@ android {
 
     defaultConfig {
         applicationId "io.github.eriark.abyssme"
+        if (armv7) ndk { abiFilters 'armeabi-v7a' }
         minSdk MIN_SDK
         targetSdk TARGET_SDK
         versionCode 315
@@ -108,6 +118,9 @@ android {
     }
 
     flavorDimensions 'default'
+    if (armv7) {
+        variantFilter { variant -> variant.ignore = variant.flavors*.name != ['fdroid'] }
+    }
     if (m3gExperiment != null) {
         if (m3gReleaseCheck) testBuildType 'release'
         variantFilter { variant ->
@@ -192,7 +205,7 @@ android {
         }
         def baseName = flavorName == 'midlet' ? "${midletArchivesBaseName}-" : "${rootProject.name}-"
         outputs.all {
-            outputFileName = "${baseName}${versionName}-${dirName}-${buildType.name}${unsignedRelease && buildType.name == 'release' ? '-unsigned' : ''}.apk"
+            outputFileName = "${baseName}${versionName}${armv7 ? '-armv7' : ''}-${dirName}-${buildType.name}${unsignedRelease && buildType.name == 'release' ? '-unsigned' : ''}.apk"
                     .replaceAll('--+', '-').replaceAll(' +', '_')
         }
     }
