@@ -30,15 +30,15 @@ extends the selectable list and CJK layout/lifecycle checks. On 2026-10-28 the
 maintainer paused further language expansion after these two: Indonesian,
 Hindi and the second wave remain deferred, not delivered or removed.
 
-## Local continuation (2026-11-10)
+## Beta 3 continuation (2026-11-10)
 
 The release counts above describe the October checkpoint, not current resource
-counts. Local queue/import/backup work adds current-language recovery for retained
+counts. Beta 3 queue/import/backup work adds current-language recovery for retained
 Symbian failures and 30 Java/Mophun transfer messages in all eight locales.
 Technical causes and unknown provider diagnostics are preserved. See
 [queue checks](checks/2026-11-10-phone-transfer-queue.md) and
 [library checks](checks/2026-11-10-library-transfer-messages.md).
-These changes are not in the public Beta 2 APK; native-speaker review remains open.
+These changes are included in public Beta 3; native-speaker review remains open.
 
 ## Language Selection
 

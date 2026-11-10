@@ -10,18 +10,21 @@ stated otherwise. **Experimental** in older checkpoints means local/private
 combined builds; released experimental features are explicitly identified.
 **Released** means an actual GitHub release asset.
 
-## 2026-11-10 - Beta 3 Release Preparation (Local Only)
+## 2026-11-10 - 0.7.0 Beta 3 (Released)
 
-- Prepare version 0.7.0-beta.3 / 316 with multi-phone transfer/retry, localized
-  recovery messages, Ocean/Amber styles and Website actions.
-- Build and sign the combined ARM64 release; verify 424 JVM tests, production
-  guards and source bundles. Lint has zero errors and 806 warnings.
-- Upgrade the official Retroid app without uninstalling; confirm all 36 exported
-  game records and 296 payload hashes survive. Check Beta 2 to Beta 3 separately
-  on API 30 with two games and six saved-data files.
-- Stage the APK, matching app/dependency/Symbian sources and checksums. Publication
-  awaits GitHub CLI authentication; no public release or ARMv7 APK is claimed.
-  [Evidence and limits](docs/releases/v0.7.0-beta.3-checks.md).
+- Publish the combined ARM64 APK, version 0.7.0-beta.3 / 316, with multi-phone
+  EKA2L1 transfer/retry, localized recovery, Ocean/Amber styles and Website actions.
+- Include matching app/dependency/Symbian sources and SHA-256 checksums. Verify
+  all five upload digests and authenticated/public APK/checksum downloads.
+- Verify 424 JVM tests, production guards, source restoration and official signing
+  continuity. Release lint has zero errors and 806 warnings.
+- Upgrade the official Retroid app without uninstalling: preserve 36 game records,
+  296 Java/Mophun payload hashes and 7,799 phone files. Verify Beta 2 to Beta 3
+  separately on API 30; briefly launch an animated Deep Abyss level on the signed APK.
+- Keep N95 cold startup, broader compatibility and native ARMv7 acceptance open.
+  No ARMv7 APK is published. Earlier local checkpoints below retain their original
+  test scope; promoted runtime code is now public.
+  [Release evidence and limits](docs/releases/v0.7.0-beta.3-checks.md).
 
 ## 2026-11-10 - Retroid Candidate Checks (Local Only)
 

@@ -2,7 +2,7 @@
 
 *Java ME • Mophun • Symbian • N-Gage • Android phones & gaming handhelds*
 
-**Guide for the current public release: AbyssME 0.7.0 Beta 2 (Android 10+, ARM64). Availability and transfer guidance reviewed November 10, 2026.** AbyssME is still in beta. Not every game, phone firmware or network combination will work yet.
+**Guide for the current public release: AbyssME 0.7.0 Beta 3 (Android 10+, ARM64). Availability and transfer guidance reviewed November 10, 2026.** AbyssME is still in beta. Not every game, phone firmware or network combination will work yet.
 
 **New here?** Start with [What files do I need?](#what-files-do-i-need), then follow the section for your platform. **Having trouble with buttons?** Jump to [Touchscreen controls](#7-touchscreen-controls) or [Physical controllers](#8-physical-controllers). If you're stuck, the [Troubleshooting](#12-troubleshooting) section tells you what to check.
 
@@ -20,7 +20,7 @@ It is an independent J2ME Loader fork and uses an integrated Symbian/N-Gage engi
 - **Official APK and release notes:** https://github.com/EriArk/JavaEmulator/releases
 - **Questions, game reports and help:** https://discord.gg/xBN9DXt8Q
 
-Download the latest **signed APK** from an official link. The current public unified build is `AbyssME-0.7.0-beta.2.apk`. Android may ask you to allow installation from your browser or file manager.
+Download the latest **signed APK** from an official link. The current public unified build is `AbyssME-0.7.0-beta.3.apk`. Android may ask you to allow installation from your browser or file manager.
 
 **Requirements:** Android 10 or newer and a **64-bit ARM (ARM64)** device. The app adapts to touchscreens and gaming handhelds. A controller is optional.
 
@@ -185,11 +185,11 @@ Different generations of Symbian are **not automatically interchangeable**. A ga
 
 ### Can I import games already installed in a separate EKA2L1 installation?
 
-**Yes, through Library transfer → Import from EKA2L1 in Beta 2.** Choose a complete accessible EKA2L1 folder or ZIP, select a registered phone, review it and confirm the copy. Installed games, components and saves move together without individual SIS reinstalls. The same entry is available from Phone backups.
+**Yes, through Library transfer → Import from EKA2L1.** In Beta 3, choose a complete accessible EKA2L1 folder or ZIP, select one or more registered phones, review the selection and confirm the copy. Installed games, components and saves move together without individual SIS reinstalls. The same entry is available from Phone backups.
 
 Close EKA2L1 before making the snapshot. The import creates a separate phone copy and preserves the source; repeating the same snapshot keeps newer saves in the existing imported copy. Verify the imported games before removing the original installation.
 
-Current limits: **one phone per import**, a standalone Drive E is insufficient, and Android private-storage restrictions still apply. Include external-card contents in the exported drives tree. Mophun launchers inside the imported Symbian phone remain guest apps; this does not convert their games into native Mophun library entries. See [the transfer scope and checks](checks/2026-11-01-eka2l1-transfer.md).
+The retained queue supports cancellation and retry of unfinished work without replacing newer saves in completed copies. Current limits: a standalone Drive E is insufficient, and Android private-storage restrictions still apply. Include external-card contents in the exported drives tree. Mophun launchers inside the imported Symbian phone remain guest apps; this does not convert their games into native Mophun library entries. See [the transfer guide](LIBRARY_TRANSFER.md#from-eka2l1) and [queue checks](checks/2026-11-10-phone-transfer-queue.md).
 
 ## 7. Touchscreen controls
 
@@ -269,9 +269,9 @@ Open **Game menu → Display**. Try **Picture size**, rotation and orientation w
 
 ### Can Symbian games use landscape or a different resolution?
 
-Beta 2 offers the selected virtual phone's supported **Original / Portrait / Landscape** choices where available. These select an initial native mode, require the guarded restart/trial workflow, and preserve the phone's original display capabilities. A game can select its own mode afterwards. **Fit** preserves aspect ratio; **Stretch** distorts the existing picture. Neither guarantees extra scene content or widescreen gameplay.
+Since Beta 2, AbyssME offers the selected virtual phone's supported **Original / Portrait / Landscape** choices where available. These select an initial native mode, require the guarded restart/trial workflow, and preserve the phone's original display capabilities. A game can select its own mode afterwards. **Fit** preserves aspect ratio; **Stretch** distorts the existing picture. Neither guarantees extra scene content or widescreen gameplay.
 
-Arbitrary Symbian resolutions are not supported. If a non-Original mode is rejected during preparation, **Try Original** previews recovery; **Keep** saves it. This does not repair every native crash or black screen. See [Beta 2 limits](releases/v0.7.0-beta.2.md#verification-and-limits).
+Arbitrary Symbian resolutions are not supported. If a non-Original mode is rejected during preparation, **Try Original** previews recovery; **Keep** saves it. This does not repair every native crash or black screen. See [current release limits](releases/v0.7.0-beta.3.md#verification-and-limits).
 
 ### Are LCD and CRT effects available?
 
@@ -381,7 +381,7 @@ Even if the problem seems tiny, **please tell us**. Fixing one specific game oft
 
 ## 14. Feature availability and useful links
 
-**This FAQ describes public 0.7.0 Beta 2.** It includes per-game virtual Gamepad remapping, movable/hideable phone menu handles, opacity settings and **Settings > Language**. Choose System default, English, Spanish, Brazilian Portuguese, Russian, French, German, Japanese or Simplified Chinese. This changes emulator menus, not the game's language. Some low-level diagnostics may still appear in English. Java audio and N-Gage 2.0 installer fixes are included. Beta 2 adds EKA2L1 phone transfer, transfer retries, supported native screen choices and launch recovery; see the [release notes and limits](releases/v0.7.0-beta.2.md). Remaining work is tracked in the [issue-status index](ISSUE_STATUS.md).
+**This FAQ describes public 0.7.0 Beta 3.** It includes per-game virtual Gamepad remapping, movable/hideable phone menu handles, opacity settings and **Settings > Language**. Choose System default, English, Spanish, Brazilian Portuguese, Russian, French, German, Japanese or Simplified Chinese. This changes emulator menus, not the game's language. Some low-level diagnostics may still appear in English. Java audio and N-Gage 2.0 installer fixes are included. Beta 3 adds multi-phone EKA2L1 transfer/retry, localized recovery, Ocean/Amber styles and Website actions; see the [release notes and limits](releases/v0.7.0-beta.3.md). Remaining work is tracked in the [issue-status index](ISSUE_STATUS.md).
 
 - **AbyssME website:** https://abysstail.art/en/projects/abyssme
 - **APK, release notes and matching source:** https://github.com/EriArk/JavaEmulator/releases

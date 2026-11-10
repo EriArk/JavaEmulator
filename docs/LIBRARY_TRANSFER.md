@@ -30,7 +30,7 @@ saves are retained. Duplicate imports are skipped, and same-title variants are
 not silently substituted. Optional shared filesystem import copies missing
 files only and reports conflicts without replacing existing files.
 
-On unreleased `main`, a partially completed or canceled import retains its
+A partially completed or canceled import retains its
 remaining selection. **Retry** opens that selection for review; **Import** or
 **Restore** starts the next attempt. Successfully transferred games are excluded,
 including their newer destination saves. A failed shared-files step can be retried
@@ -38,27 +38,30 @@ on its own. This review survives Activity recreation; after process death the
 source is rescanned, not imported automatically. Closing the transfer screen or
 choosing a new source may require selecting the source again.
 
-## From EKA2L1 (Unreleased Main)
+## From EKA2L1
 
 Choose **Import from EKA2L1** in Library transfer, or in **Phone backups**.
 Close EKA2L1 first and select its complete accessible folder or a ZIP snapshot.
 The importer finds `devices.yml`, its sibling `roms/` and `drives/` folders,
-including a `data/` folder inside an outer export directory. Choose a registered
-virtual phone, review its size, and confirm **Copy phone**.
+including a `data/` folder inside an outer export directory. In Beta 3, select
+one or more registered virtual phones, review the selection and confirm copying.
 
 This copies a coherent phone instead of reinstalling each SIS or scanning only
 `.app` files. It retains installed components, C/E drive files, saves, guest
 Java data and the selected ROM/Z drive. Old shared C/E drives become isolated
 drives for the selected phone. If several phones share those drives, their shared
-contents travel together; this is not a game-by-game filter. Phones are selected
-one at a time. Standalone E-drive folders are not enough for a complete migration.
+contents travel together; this is not a game-by-game filter. Multiple selected
+phones are processed through a retained queue. Standalone E-drive folders are not
+enough for a complete migration.
 
 Source files are read-only. A private staging copy is validated before atomic
 addition to the system catalog. Existing phones are never merged or overwritten;
 repeating the same snapshot reuses the previously imported phone without replacing
 newer saves. A changed snapshot is a separate phone, not an update or merge.
-Cancellation/failure before commit removes the pending copy. After closing or
-recreating the transfer screen, select the source again; no import starts silently.
+Cancellation/failure before commit removes the pending copy. The retained
+snapshot and queue let you review and retry unfinished copying or indexing after
+interruption. Completed copies retain newer saves; no import starts silently.
+See [queue verification and limits](checks/2026-11-10-phone-transfer-queue.md).
 
 When the enclosing `config.yml` is available, portable identity/settings such
 as IMEI and memory-card identity are retained. Host paths, networking and scripts

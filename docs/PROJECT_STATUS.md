@@ -12,36 +12,42 @@ not a live feed. Verify GitHub Releases, recent commits and build notes before
 calling a version "latest" after this date. If local evidence is inaccessible,
 attribute its results to the dated maintainer record below; do not infer a pass.
 
-## Beta 3 Release Preparation (2026-11-10, Local Only)
+## Beta 3 Released (2026-11-10)
 
-**0.7.0 Beta 3, code 316, is signed and staged locally, not published.**
-The combined ARM64 APK, matching app source, verified dependency/Symbian source
-bundles and checksums are ready. Fresh build/guards and 424 JVM tests pass;
-release lint has zero errors and 806 warnings. The final signed APK upgrades the
-official Retroid installation from 314 to 316: 36 Java/Mophun game records and
-296 exported payload hashes remain unchanged. Beta 2 to Beta 3 also installs
-on API 30 with a two-game saved-data fixture. These are bounded checks, not
-whole-game acceptance. GitHub CLI authentication is unavailable; source/tag push,
-release upload and publication verification remain pending. Beta 2 remains the
-public beta. [Release verification](releases/v0.7.0-beta.3-checks.md).
+**0.7.0 Beta 3, code 316, is published.** The combined ARM64 APK, matching app
+source, verified dependency/Symbian bundles and checksums are public. Multi-phone
+transfer/retry, localized recovery, Ocean/Amber styles and Website actions are
+included. Fresh build/guards and 424 JVM tests pass; release lint has zero errors
+and 806 warnings. The signed APK upgrades the official Retroid app from 314 to
+316: 36 Java/Mophun records, 296 library payload hashes and 7,799 phone payload
+files survive unchanged. Beta 2 to Beta 3 also installs on API 30 with a two-game
+saved-data fixture. The final signed Deep Abyss smoke reaches an animated level
+and exits to the library. This is bounded acceptance, not complete-game or fresh
+physical-button/audible-audio acceptance. Public APK/checksum downloads match.
+[Release verification](releases/v0.7.0-beta.3-checks.md).
 
 ## Current Issue Review (2026-11-10)
 
-Live GitHub release metadata still identifies 0.7.0 Beta 2 (November 2) as the
-newest published beta. This documentation review did not repeat APK hash/signature,
-build, device, game or live-service checks; their recorded dates remain authoritative.
+Live release metadata identifies Beta 3 (November 10) as the newest published
+beta. Release-specific build, signature, upgrade and download checks are linked
+above. Earlier issue/game results retain their dates and scope; live multiplayer
+services were not rechecked during publication.
 
 See [issue status and remaining work](ISSUE_STATUS.md) for the reconciled queue.
 The #41/#42/#45/#43 implementation batches are released, with specific acceptance
 still open. #48 N95 startup/LCD behavior and #50 broader guest-display research
 remain unresolved; #52 is a new, insufficiently identified Crash Bandicoot report.
-#51 has a local Website action; a valid Discord invitation is still needed. #44 new engines remains deferred.
+#51 has a released Website action; a valid Discord invitation is still needed. #44 new engines remains deferred.
 
 The original #39 reporter confirmed the EKA2L1 transfer in Beta 2 on November 4;
 that accepted whole-phone workflow closes #39. Broader migration stays in #49.
 This is user feedback, not new maintainer device testing or standalone Drive E support.
 
-## Functionality Completion Work (2026-11-10, Local Only)
+## Functionality Preparation Checkpoints (2026-11-10)
+
+The following paragraphs preserve the availability at each earlier checkpoint.
+Their promoted implementation through `658cb164` is now in public Beta 3; private
+fixtures/builds remain private. ARMv7 has public source only, without a release APK.
 
 The maintainer approved [the functionality-first sequence](ISSUE_STATUS.md#development-focus)
 before the next real-game matrix. Multi-phone EKA2L1 transfer now has local
@@ -206,20 +212,17 @@ remains canonical; game text and user content are not translated.
 
 ## Availability: Do Not Mix These Channels
 
-**Current public beta: [0.7.0 Beta 2](https://github.com/EriArk/JavaEmulator/releases/tag/v0.7.0-beta.2)**,
-code **315**, published **2026-11-02 at 17:59:24 UTC**. One signed adaptive ARM64
-APK includes the Java/Symbian compatibility repairs, EKA2L1 phone import,
-transfer recovery, native screen choices and launch recovery described below.
-Runtime/app-source tag `v0.7.0-beta.2` identifies `cc698da3`. Fresh assembly,
-production payload guards and **424 JVM tests** pass; release lint has zero
-errors and 803 warnings. Signature continuity and all five asset sizes/digests
-are verified; unauthenticated APK/checksum downloads match local hashes.
-The final signed APK was **not installed or smoke-tested on Retroid** because
-the owner reserved it for another project. Earlier Debug results remain dated
-device evidence. Known black/incomplete scenes, touch/tilt and N95/Asphalt
-problems remain; this is not universal Symbian widescreen or full compatibility.
-[Notes](releases/v0.7.0-beta.2.md), [verification](releases/v0.7.0-beta.2-checks.md),
-[checksums](releases/v0.7.0-beta.2/SHA256SUMS.txt).
+**Current public beta: [0.7.0 Beta 3](https://github.com/EriArk/JavaEmulator/releases/tag/v0.7.0-beta.3)**,
+code **316**, published **2026-11-10 at 21:20:07 UTC**. One signed adaptive ARM64
+APK includes Java, Mophun and experimental Symbian/N-Gage. Runtime/app-source tag
+`v0.7.0-beta.3` identifies `658cb164`. Fresh assembly, production payload guards
+and **424 JVM tests** pass; release lint has zero errors and 806 warnings.
+Signature continuity, five asset sizes/digests and public APK/checksum downloads
+are verified. Executed upgrades cover the official Retroid 314 installation and
+an API 30 Beta 2 fixture. N95 cold startup, full-game, native ARMv7, physical-button
+and audible-audio acceptance remain outside this release-specific result.
+[Notes](releases/v0.7.0-beta.3.md), [verification](releases/v0.7.0-beta.3-checks.md),
+[checksums](releases/v0.7.0-beta.3/SHA256SUMS.txt).
 
 **Server build migration verified (2026-11-02, public source; infrastructure):**
 manual SSH builds now compile the combined APK in an isolated Linux Docker
@@ -230,7 +233,7 @@ pass. Downloads include checksums, reports and R8 mappings; local signing
 verifies the existing official certificate without uploading keys. Windows
 source restoration and incremental peer-notice packaging were repaired.
 No automatic publishing, device installation or Windows cache deletion was
-added. Beta 2 remains the unchanged Windows-built release; server-validation
+added. At that checkpoint Beta 2 remained the Windows-built release; server-validation
 APKs are local artifacts, not a new release. Retroid was not used.
 [Workflow](REMOTE_BUILDS.md), [evidence](checks/2026-11-02-remote-build.md).
 

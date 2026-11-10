@@ -10,7 +10,7 @@ library, automatic first-launch preparation, and fast per-game controller
 mapping. Mophun and experimental Symbian / N-Gage support share the same
 library, display controls and in-game menu.
 
-**0.7.0 Beta 2 uses one APK for phones and handhelds**, with automatic controller
+**0.7.0 Beta 3 uses one APK for phones and handhelds**, with automatic controller
 detection and optional touch buttons. Existing Handheld installs update in place;
 users of the former Phone app can use the menu-based
 [migration workflow](docs/LIBRARY_TRANSFER.md#moving-from-abyssme-phone).
@@ -18,11 +18,11 @@ users of the former Phone app can use the menu-based
 > **Project status:** Beta. AbyssME is usable, but compatibility automation and
 > launcher integration still need testing across more games and devices.
 
-[Download 0.7.0 Beta 2](https://github.com/EriArk/JavaEmulator/releases/download/v0.7.0-beta.2/AbyssME-0.7.0-beta.2.apk)
+[Download 0.7.0 Beta 3](https://github.com/EriArk/JavaEmulator/releases/download/v0.7.0-beta.3/AbyssME-0.7.0-beta.3.apk)
 
 **[Setup & FAQ](docs/FAQ.md)** — step-by-step help with Java ME, Mophun, Symbian/N-Gage firmware and game installation, touchscreen controls, physical controller mapping, backups and troubleshooting.
 
-Use the **0.7.0-beta.2** APK (code 315). It updates the official unified app in place;
+Use the **0.7.0-beta.3** APK (code 316). It updates the official unified app in place;
 older releases remain available for reference.
 
 ## Current Beta
@@ -31,16 +31,15 @@ For website copy, progress posts and handoffs, start with the
 [current product/development status](docs/PROJECT_STATUS.md) and
 [dated changelog](CHANGELOG.md). They also describe local/private experiments,
 explicitly separated from public downloads. The
-[0.7.0 Beta 2 notes](docs/releases/v0.7.0-beta.2.md) include the combined-engine scope,
+[0.7.0 Beta 3 notes](docs/releases/v0.7.0-beta.3.md) include the combined-engine scope,
 verification limits and source downloads.
 
-**Beta 2** improves legacy Java compatibility, uncommon screen-size detection
-and D-pad center input. Symbian gains safer native screen-mode selection,
-sensor initialization and pause/runtime repairs. Library transfer can import
-a registered EKA2L1 phone; unfinished transfers and caught game-launch failures
-have explicit recovery actions. Known black-screen, touch and N-Gage problems
-remain; this is not universal widescreen or full Symbian compatibility.
-[Verification and limits](docs/releases/v0.7.0-beta.2-checks.md).
+**Beta 3** adds multi-phone EKA2L1 selection/review with retained transfers and
+safe retries, clearer import/backup recovery in all eight languages, Ocean and
+Amber styles, and Website actions in Help/About. Existing games, saves and phones
+survive the executed signed update checks. N95 cold startup and broader game
+compatibility remain unresolved; this is not universal Symbian compatibility.
+[Verification and limits](docs/releases/v0.7.0-beta.3-checks.md).
 
 **New in 0.7:** choose from eight UI languages in Settings, map virtual gamepad
 buttons per game, and adjust the Phone menu handle and button opacity. Java audio
@@ -233,7 +232,7 @@ broader device acceptance remains tracked in [#3](https://github.com/EriArk/Java
 ## Install
 
 1. Open [Releases](https://github.com/EriArk/JavaEmulator/releases).
-2. Download `AbyssME-0.7.0-beta.2.apk` for either a phone or a handheld.
+2. Download `AbyssME-0.7.0-beta.3.apk` for either a phone or a handheld.
 3. Allow installation from your browser or file manager when Android asks.
 4. Install the APK and open AbyssME.
 
@@ -330,7 +329,7 @@ use the server and release assets are uploaded manually.
 - Mophun is experimental; broad compatibility and audio are not established.
 - Symbian/N-Gage is experimental and needs user-supplied system files. Some
   games still fail or require specific phone/component versions; installation
-  success does not guarantee gameplay. See the [current limits](docs/releases/v0.7.0-beta.2.md#verification-and-limits).
+  success does not guarantee gameplay. See the [current limits](docs/releases/v0.7.0-beta.3.md#verification-and-limits).
 
 Please report reproducible problems through
 [GitHub Issues](https://github.com/EriArk/JavaEmulator/issues) and include the
