@@ -24,6 +24,8 @@ public class VisualPolishTest {
         String brightness=InstrumentationRegistry.getArguments().getString("captureBrightness", "dark");
         try {
             for(String style:AppPalette.VALUES) {
+                String styles=InstrumentationRegistry.getArguments().getString("captureStyles", "");
+                if(!styles.isEmpty() && !java.util.Arrays.asList(styles.split(",")).contains(style)) continue;
                 main(()->prefs.edit().putString(AppPalette.PREFERENCE,style).putString("pref_theme",brightness).commit());
                 for(int mode=0;mode<3;mode++) {
                 final int view=mode;
@@ -42,6 +44,17 @@ public class VisualPolishTest {
                     });
                     capture(style+"-editor");
                     scenario.onActivity(activity->editor[0].dismiss());
+                    final ru.playsoftware.j2meloader.ui.PaletteDialog[] picker={null};
+                    scenario.onActivity(activity->{
+                        picker[0]=new ru.playsoftware.j2meloader.ui.PaletteDialog(activity); picker[0].show();
+                        android.view.View row=findDescription(picker[0].getWindow().getDecorView(),
+                            activity.getResources().getStringArray(R.array.palette_names)[java.util.Arrays.asList(AppPalette.VALUES).indexOf(style)]);
+                        assertNotNull(row); assertTrue(row.requestFocus());
+                        android.view.accessibility.AccessibilityNodeInfo node=row.createAccessibilityNodeInfo();
+                        assertTrue(node.isCheckable()); assertTrue(node.isChecked()); node.recycle();
+                    });
+                    capture(style+"-picker");
+                    scenario.onActivity(activity->picker[0].dismiss());
                 }
             }
         } finally {
@@ -53,6 +66,14 @@ public class VisualPolishTest {
                 prefs.edit().putInt("pref_library_view_mode",oldView).commit();
             });
         }
+    }
+    private android.view.View findDescription(android.view.View view,String description) {
+        if(description.contentEquals(view.getContentDescription()==null?"":view.getContentDescription())) return view;
+        if(view instanceof android.view.ViewGroup) for(int i=0;i<((android.view.ViewGroup)view).getChildCount();i++) {
+            android.view.View found=findDescription(((android.view.ViewGroup)view).getChildAt(i),description);
+            if(found!=null) return found;
+        }
+        return null;
     }
     private void capture(String name) throws Exception {
         InstrumentationRegistry.getInstrumentation().waitForIdleSync(); android.os.SystemClock.sleep(1200);

@@ -43,6 +43,10 @@
     <string name="menu_percentage">%1$s: %2$d%%</string>
     <string name="menu_picture_preset">Bildvoreinstellung %1$s</string>
     <string-array name="palette_names">
-        <item>Klassisch</item><item>Retro-LCD</item><item>Hoher Kontrast</item>
+        <item>Klassisch</item>
+        <item>Retro-LCD</item>
+        <item>Hoher Kontrast</item>
+        <item>Ozean</item>
+        <item>Bernstein</item>
     </string-array>
 </resources>

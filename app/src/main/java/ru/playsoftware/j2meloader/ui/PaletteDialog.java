@@ -39,6 +39,14 @@ public final class PaletteDialog extends Dialog {
             ConsoleSurface.apply(row, ConsoleSurface.Kind.KEY); row.setFocusable(true); row.setClickable(true);
             row.setSelected(value.equals(AppPalette.selected(activity)));
             row.setContentDescription(names[i]);
+            row.setAccessibilityDelegate(new View.AccessibilityDelegate() {
+                @Override public void onInitializeAccessibilityNodeInfo(View host,
+                        android.view.accessibility.AccessibilityNodeInfo info) {
+                    super.onInitializeAccessibilityNodeInfo(host, info);
+                    info.setClassName(RadioButton.class.getName());
+                    info.setCheckable(true); info.setChecked(host.isSelected());
+                }
+            });
             TextView title = new TextView(palette); title.setText(names[i]);
             title.setTextColor(AppPalette.color(palette, R.color.text_primary)); title.setTextSize(17);
             title.setTypeface(null, android.graphics.Typeface.BOLD);
@@ -57,6 +65,7 @@ public final class PaletteDialog extends Dialog {
             row.addView(description, new LinearLayout.LayoutParams(0, -2, 1));
             RadioButton selected = new RadioButton(palette); selected.setClickable(false); selected.setFocusable(false);
             selected.setChecked(value.equals(AppPalette.selected(activity)));
+            selected.setImportantForAccessibility(View.IMPORTANT_FOR_ACCESSIBILITY_NO);
             selected.setButtonTintList(android.content.res.ColorStateList.valueOf(AppPalette.color(palette, R.color.accent)));
             row.addView(selected, new LinearLayout.LayoutParams(dp(44), dp(48)));
             row.setOnClickListener(v -> {

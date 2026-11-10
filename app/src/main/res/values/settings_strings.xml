@@ -43,6 +43,10 @@
     <string name="menu_percentage">%1$s: %2$d%%</string>
     <string name="menu_picture_preset">%1$s picture preset</string>
     <string-array name="palette_names">
-        <item>Classic</item><item>Retro LCD</item><item>High contrast</item>
+        <item>Classic</item>
+        <item>Retro LCD</item>
+        <item>High contrast</item>
+        <item>Ocean</item>
+        <item>Amber</item>
     </string-array>
 </resources>

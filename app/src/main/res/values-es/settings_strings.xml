@@ -36,5 +36,11 @@
     <string name="menu_opacity">Opacidad</string>
     <string name="menu_percentage">%1$s: %2$d%%</string>
     <string name="menu_picture_preset">Preajuste de imagen: %1$s</string>
-    <string-array name="palette_names"><item>Clásico</item><item>LCD retro</item><item>Alto contraste</item></string-array>
+    <string-array name="palette_names">
+        <item>Clásico</item>
+        <item>LCD retro</item>
+        <item>Alto contraste</item>
+        <item>Océano</item>
+        <item>Ámbar</item>
+    </string-array>
 </resources>

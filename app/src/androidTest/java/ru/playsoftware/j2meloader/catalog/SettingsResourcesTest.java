@@ -40,14 +40,20 @@ public class SettingsResourcesTest {
                 + "Scan limit reached. Select a smaller folder for the remaining files.", r.summary(c, 0));
     }
 
-    @Test public void newStringsFallbackToEnglishWithoutChangingGuestOrSystemLocale() {
+    @Test public void translatedStringsAndUnknownLocaleFallbackPreserveGuestAndSystemLocale() {
         Locale original = Locale.getDefault();
-        for (String locale : new String[]{"en", "es", "pt-BR", "ru", "ar", "ja"}) {
+        String[] locales={"en", "es", "pt-BR", "ru", "fr", "de", "ja", "zh-CN", "zz-ZZ"};
+        String[] titles={"System files", "Archivos del sistema", "Arquivos de sistema", "Системные файлы",
+                "Fichiers système", "Systemdateien", "システムファイル", "系统文件", "System files"};
+        for (int i=0;i<locales.length;i++) {
+            String locale=locales[i];
             Context c = context(locale);
-            assertEquals("System files", c.getString(R.string.settings_system_files));
-            assertEquals("Required files for Symbian and N-Gage", c.getString(R.string.settings_system_files_summary));
+            assertEquals(titles[i], c.getString(R.string.settings_system_files));
+            assertFalse(c.getString(R.string.settings_system_files_summary).isEmpty());
+            if(locale.equals("zz-ZZ")) assertEquals("Required files for Symbian and N-Gage", c.getString(R.string.settings_system_files_summary));
             String file = "Games/RH-29/%20 archive.zip";
-            assertEquals("Could not add folder: " + file, c.getString(R.string.folders_add_failed, file));
+            assertTrue(c.getString(R.string.folders_add_failed, file).contains(file));
+            if(locale.equals("zz-ZZ")) assertEquals("Could not add folder: " + file, c.getString(R.string.folders_add_failed, file));
             assertEquals("Opacity: 75%", context("en").getString(R.string.menu_percentage, "Opacity", 75));
             assertEquals(AppPalette.VALUES.length, c.getResources().getStringArray(R.array.palette_names).length);
         }

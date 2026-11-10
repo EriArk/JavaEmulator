@@ -9,7 +9,7 @@ import ru.playsoftware.j2meloader.R;
 /** UI colors only. Guest rendering, imported art and per-game input are independent. */
 public final class AppPalette {
     public static final String PREFERENCE = "pref_palette";
-    public static final String[] VALUES = {"classic", "retro", "contrast"};
+    public static final String[] VALUES = {"classic", "retro", "contrast", "ocean", "amber"};
     private AppPalette() { }
 
     public static String selected(Context context) {
@@ -17,7 +17,9 @@ public final class AppPalette {
     }
     public static int style(String value) {
         return "retro".equals(value) ? R.style.PaletteRetro
-                : "contrast".equals(value) ? R.style.PaletteContrast : R.style.PaletteClassic;
+                : "contrast".equals(value) ? R.style.PaletteContrast
+                : "ocean".equals(value) ? R.style.PaletteOcean
+                : "amber".equals(value) ? R.style.PaletteAmber : R.style.PaletteClassic;
     }
     public static void apply(Context context) {
         if (context instanceof android.app.Activity)

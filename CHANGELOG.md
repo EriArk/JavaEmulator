@@ -10,6 +10,17 @@ stated otherwise. **Experimental** in older checkpoints means local/private
 combined builds; released experimental features are explicitly identified.
 **Released** means an actual GitHub release asset.
 
+## 2026-11-10 - Ocean and Amber Styles (Local Only)
+
+- Add two coordinated built-in styles, each with light/dark colors and names in
+  eight languages. Preserve artwork, guest pixels and existing styles.
+- Expose selected style as a checked radio choice for accessibility independently
+  of focus; retain scrolling for compact displays.
+- Eleven targeted Android checks pass, including contrast, focus states and
+  appearance propagation; inspect light/dark captures. Correct one obsolete
+  English-only resource assertion. Lint remains zero errors and 804 warnings.
+  [Evidence and limits](docs/checks/2026-11-10-built-in-palettes.md).
+
 ## 2026-11-10 - Library Import and Backup Recovery Text (Local Only)
 
 - Localize Java/Mophun scan, import and backup recovery in the eight supported

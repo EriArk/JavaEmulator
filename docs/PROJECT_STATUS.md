@@ -52,6 +52,11 @@ folder-access recreation and four localization cases; lint remains at zero error
 and 804 warnings. This is a second local checkpoint, not a new public APK.
 [Evidence and remaining review](checks/2026-11-10-library-transfer-messages.md).
 
+Ocean and Amber are two additional **local-only built-in styles**, with light/dark
+variants and an accessible checked-state picker. Eleven targeted Android cases
+pass; representative captures were inspected. Imported skins and physical-device
+acceptance remain outside this result. [Style checks](checks/2026-11-10-built-in-palettes.md).
+
 ## Product in Plain Language
 
 AbyssME runs old mobile Java games, Mophun and experimental Symbian/N-Gage
