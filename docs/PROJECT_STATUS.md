@@ -117,7 +117,15 @@ one Mophun game with synthetic saves. Picker cancellation, preview/result
 recreation, cancel/retry before the first entry, catalog/profile preservation,
 shared-file conflicts, newer-save duplicate protection and corrupted-archive
 recovery pass in one 22.335s scenario. No production repair was needed; broader
-provider, upgrade and physical-device acceptance remain open.
+provider and physical-device acceptance remain open.
+
+The [in-place Debug update](checks/2026-11-10-in-place-upgrade.md) also passes:
+a Beta 2 runtime snapshot with current Linux build plumbing is replaced by the
+combined candidate without clearing data. Three catalog entries, 19 file hashes,
+favorites/history and remembered Java/Mophun search/view settings survive.
+Seed/verify pass in 3.434s/2.997s after strengthening UI synchronization. Both
+artifacts use the same local Debug key and version code; official signed-release
+upgrade and actual guest progress are separate acceptance steps.
 
 ## Product in Plain Language
 

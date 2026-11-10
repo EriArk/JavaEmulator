@@ -45,7 +45,10 @@ production archive/importer cycle, save hashes, duplicate rejection and fresh
 Java/Mophun launches. These remain local-only emulator checks.
 The [mixed-library DocumentsUI journey](checks/2026-11-10-library-journey.md)
 adds real picker export/restore, cancel/retry, metadata/shared files and corruption
-recovery using synthetic saves. Upgrade and paired-game checks remain next.
+recovery using synthetic saves. The [in-place Debug update](checks/2026-11-10-in-place-upgrade.md)
+now preserves three entries, 19 file hashes and remembered settings across a
+Beta 2 runtime snapshot and the candidate. Signed-release upgrading remains open;
+meaningful guest progress and paired-game checks remain next.
 
 ## Accepted Transfer Outcome
 

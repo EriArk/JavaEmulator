@@ -155,7 +155,7 @@ public class ProvidedLibraryJourneyTest {
         }
     }
 
-    private List<AppItem> prepare(File source) throws Exception {
+    List<AppItem> prepare(File source) throws Exception {
         File fixtures = new File(context.getExternalFilesDir(null), "sweep");
         String[] names = {"diamond-backup.jar", "simcity-backup.jar"};
         for (int n = 0; n < names.length; n++) {

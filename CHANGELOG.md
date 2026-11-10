@@ -10,6 +10,17 @@ stated otherwise. **Experimental** in older checkpoints means local/private
 combined builds; released experimental features are explicitly identified.
 **Released** means an actual GitHub release asset.
 
+## 2026-11-10 - In-place Debug Update Check (Local Only)
+
+- Add an opt-in seed/verify/cleanup fixture across installation with `adb install -r`.
+  Three Java/Mophun entries, 19 file hashes, catalog metadata and remembered
+  navigation/settings survive replacement by the combined candidate.
+- Seed/verify pass in 3.434s/2.997s. Correct transitional screenshot capture by
+  waiting for the expected bound row and UI idle. No production runtime repair.
+- The baseline combines Beta 2 runtime sources with current Linux build plumbing;
+  both APKs share a local Debug key and version code. This is not signed-release
+  upgrade acceptance. [Evidence](docs/checks/2026-11-10-in-place-upgrade.md).
+
 ## 2026-11-10 - Mixed-library DocumentsUI Check (Local Only)
 
 - Add an opt-in whole-library transfer journey through actual Android document
