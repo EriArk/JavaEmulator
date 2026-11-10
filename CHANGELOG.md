@@ -21,6 +21,8 @@ combined builds; released experimental features are explicitly identified.
 - Upgrade the official Retroid app without uninstalling: preserve 36 game records,
   296 Java/Mophun payload hashes and 7,799 phone files. Verify Beta 2 to Beta 3
   separately on API 30; briefly launch an animated Deep Abyss level on the signed APK.
+- Update README/FAQ/transfer guidance and seven issue status summaries; preserve
+  original reports and keep their remaining acceptance work open.
 - Keep N95 cold startup, broader compatibility and native ARMv7 acceptance open.
   No ARMv7 APK is published. Earlier local checkpoints below retain their original
   test scope; promoted runtime code is now public.
