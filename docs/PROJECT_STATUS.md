@@ -134,6 +134,15 @@ storage/process assertions; object/budget evidence is visually reviewed. Tutoria
 prompts repeat, and later district completion is not claimed. This is local-only
 emulator evidence with no production runtime change.
 
+The [paired Absorbed check](checks/2026-11-10-paired-real-game.md) now passes one
+scenario on each of two API 30 emulators (246.246s / 242.226s): two short paired
+level launches, encrypted packet exchange, a live peer immediately before host
+process termination, revocation and a fresh session. Admission/signaling are
+local fixtures. Earlier input failures and an emulator-port collision are retained
+in the report. Sustained synchronization, the observed connection banner/rendering
+artifacts, actual room UI rejoining and physical/different-network acceptance
+remain open. No production runtime repair or publication.
+
 ## Product in Plain Language
 
 AbyssME runs old mobile Java games, Mophun and experimental Symbian/N-Gage

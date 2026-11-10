@@ -10,6 +10,19 @@ stated otherwise. **Experimental** in older checkpoints means local/private
 combined builds; released experimental features are explicitly identified.
 **Released** means an actual GitHub release asset.
 
+## 2026-11-10 - Paired Absorbed Lifecycle Check (Local Only)
+
+- Add an opt-in two-emulator fixture using real game processes, encrypted peer
+  transport and synthetic local admission/signaling. Verify live peers before
+  deliberate host process death, lease revocation and a fresh session.
+- Final isolated run passes one scenario per endpoint in 246.246s / 242.226s;
+  both rounds reach paired levels. Retain failed input/environment runs, including
+  an emulator-port conflict corrected with separate ports and an isolated ADB server.
+- Keep game rendering/input, the observed connection banner, sustained
+  synchronization, full matches and physical/live-room acceptance open.
+  [Evidence](docs/checks/2026-11-10-paired-real-game.md). No production runtime
+  change, public-source push or APK publication.
+
 ## 2026-11-10 - SimCity Progress Restore (Local Only)
 
 - Build a Townhouse in Sunny Glen, save through the guest menu, export/import,
