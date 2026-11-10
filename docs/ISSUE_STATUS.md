@@ -84,6 +84,14 @@ The reconciliation updated all 33 reviewed issues; 32 remain open.
 | [#44: Research & roadmap: missing mobile platforms — BREW, DoJa/i-mode, ExEn, Zeebo](https://github.com/EriArk/JavaEmulator/issues/44) | **Deferred by maintainer.** New BREW/DoJa/ExEn/Zeebo integration was deferred in the October 28 stabilization decision. Existing upstream links are research leads, not shipped engines or a current license audit. | Resume only after reprioritization, starting with the feasibility/licensing dossier in the original scope. | [STABILIZATION_PLAN](STABILIZATION_PLAN.md) |
 | [#24: Research: evaluate SquirrelJME / dedicated Java ME VM ideas for AbyssME](https://github.com/EriArk/JavaEmulator/issues/24) | **Research only; no replacement commitment.** The dedicated Java VM/SquirrelJME proposal remains a research task. No engine replacement or imported upstream code is established by this issue. | If prioritized, produce the architecture/license/compatibility report before proposing an isolated prototype. | [PROJECT_STATUS](PROJECT_STATUS.md) |
 
+## November 10 local multiplayer verification
+
+The approved synthetic lifecycle stage for #33–#37 passes 52 Android cases,
+including a separate Java game process and native encrypted transport. Existing
+JVM coverage also verifies cancellation, backgrounding, stale authority and fresh
+attempts. No production repair was needed; the live/network/game acceptance in
+the rows above remains open. [Evidence](checks/2026-11-10-multiplayer-lifecycle.md).
+
 ## Maintenance
 
 After an implementation or release, update the affected issue's current summary,

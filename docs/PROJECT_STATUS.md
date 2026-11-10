@@ -57,6 +57,12 @@ variants and an accessible checked-state picker. Eleven targeted Android cases
 pass; representative captures were inspected. Imported skins and physical-device
 acceptance remain outside this result. [Style checks](checks/2026-11-10-built-in-palettes.md).
 
+The existing Java multiplayer lifecycle passes **52 fresh Android checks** using
+synthetic room partners and a separate game process, including encrypted exchange,
+process death and fresh preparation after return. No production change was needed.
+Live-service, different-network and real-game acceptance are separate.
+[Network evidence](checks/2026-11-10-multiplayer-lifecycle.md).
+
 ## Product in Plain Language
 
 AbyssME runs old mobile Java games, Mophun and experimental Symbian/N-Gage

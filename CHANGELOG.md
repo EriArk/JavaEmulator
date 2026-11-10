@@ -10,6 +10,15 @@ stated otherwise. **Experimental** in older checkpoints means local/private
 combined builds; released experimental features are explicitly identified.
 **Released** means an actual GitHub release asset.
 
+## 2026-11-10 - Java Multiplayer Lifecycle Check (Local Only)
+
+- Verify the existing Java multiplayer lifecycle using synthetic room partners
+  and a separate Debug game process: preparation/start, encrypted data exchange,
+  process death, disconnect/cancel, room return and fresh preparation.
+- All 52 selected Android cases pass. No production repair was needed in this
+  checkpoint. [Evidence](docs/checks/2026-11-10-multiplayer-lifecycle.md) separates
+  emulator protocol checks from live accounts, different networks and real games.
+
 ## 2026-11-10 - Ocean and Amber Styles (Local Only)
 
 - Add two coordinated built-in styles, each with light/dark colors and names in
