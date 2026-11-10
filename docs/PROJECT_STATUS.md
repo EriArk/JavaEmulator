@@ -69,6 +69,13 @@ unsigned Release, excluding Symbian. Its 16 native libraries are ELF32/ARM and
 CPU/MIDI fixtures documented. Physical ARMv7, real-game, signed-upgrade and
 release acceptance remain open. [ARMv7 checks](checks/2026-11-10-armv7-target.md).
 
+The final **local combined candidate** builds Debug/test and optimized unsigned
+Release; payload guards pass and seven final Android regressions pass. Combined
+lint remains zero errors and 804 warnings after indentation cleanup.
+[Candidate artifacts, pending inputs and real-game handoff](checks/2026-11-10-functionality-candidate.md).
+Discord still needs a valid official destination, and physical tests await ADB
+authorization. No new source or APK has been published.
+
 ## Product in Plain Language
 
 AbyssME runs old mobile Java games, Mophun and experimental Symbian/N-Gage

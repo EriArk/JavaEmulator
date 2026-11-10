@@ -175,7 +175,7 @@ public class AppsListFragment extends Fragment implements AppsListAdapter.Listen
 		preferences = PreferenceManager.getDefaultSharedPreferences(requireActivity());
 		navigation = new LibraryNavigation(preferences);
 		platform = navigation.active();
-        if (!BuildConfig.SYMBIAN_EXPERIMENT && platform > 2) platform = 1;
+		if (!BuildConfig.SYMBIAN_EXPERIMENT && platform > 2) platform = 1;
 		category = navigation.category(platform);
 		generation = navigation.generation(platform);
 		restoredSearch = navigation.query(platform);
@@ -248,8 +248,8 @@ public class AppsListFragment extends Fragment implements AppsListAdapter.Listen
 		binding.viewModeGrid.setOnClickListener(v -> setDisplayMode(AppsListAdapter.MODE_GRID));
 		for (int i = 0; i < binding.libraryPlatformTabs.getChildCount(); i++) {
 			final int target = i + 1;
-            binding.libraryPlatformTabs.getChildAt(i).setVisibility(
-                    !BuildConfig.SYMBIAN_EXPERIMENT && target > 2 ? View.GONE : View.VISIBLE);
+			binding.libraryPlatformTabs.getChildAt(i).setVisibility(
+					!BuildConfig.SYMBIAN_EXPERIMENT && target > 2 ? View.GONE : View.VISIBLE);
 			binding.libraryPlatformTabs.getChildAt(i).setOnClickListener(v -> setPlatform(target));
 		}
 		binding.librarySocial.setOnClickListener(v -> showSocial());
@@ -539,7 +539,7 @@ public class AppsListFragment extends Fragment implements AppsListAdapter.Listen
 	}
 
 	private void setPlatform(int platform) {
-        if (platform < 1 || platform > (BuildConfig.SYMBIAN_EXPERIMENT ? 4 : 2)) return;
+		if (platform < 1 || platform > (BuildConfig.SYMBIAN_EXPERIMENT ? 4 : 2)) return;
 		if (this.platform == platform || binding == null) return;
 		saveLibraryLocation();
 		if (!restoreLocation) rememberVisibleSelection();
@@ -566,9 +566,9 @@ public class AppsListFragment extends Fragment implements AppsListAdapter.Listen
 		updateCollectionLabel();
 	}
 	public void stepPlatform(int direction) {
-        int count = BuildConfig.SYMBIAN_EXPERIMENT ? 4 : 2;
-        setPlatform(1 + Math.floorMod(platform - 1 + direction, count));
-    }
+		int count = BuildConfig.SYMBIAN_EXPERIMENT ? 4 : 2;
+		setPlatform(1 + Math.floorMod(platform - 1 + direction, count));
+	}
 	private void saveNavigation() {
 		if (navigation != null && adapter != null)
 			navigation.save(platform, adapter.getDisplayMode(), category, generation, restoredSearch, restoredSelection);

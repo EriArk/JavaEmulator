@@ -10,6 +10,17 @@ stated otherwise. **Experimental** in older checkpoints means local/private
 combined builds; released experimental features are explicitly identified.
 **Released** means an actual GitHub release asset.
 
+## 2026-11-10 - Combined Functionality Candidate (Local Only)
+
+- Assemble combined Debug/test and optimized unsigned Release after the approved
+  functionality sequence. Production payload guards and seven final Android
+  library/queue regressions pass. Correct only indentation in capability checks;
+  combined lint remains zero errors and 804 warnings.
+- Retain separate combined/ARMv7 artifacts and evidence; no publication or
+  production signing. [Handoff](docs/checks/2026-11-10-functionality-candidate.md)
+  identifies the pending valid Discord destination, handheld ADB authorization
+  and the subsequent real-game/device matrix. No real-game acceptance is claimed.
+
 ## 2026-11-10 - Adaptive ARMv7 Build Target (Local Only)
 
 - Add `-Parmv7=true`: one adaptive Java/Mophun APK, no Symbian, Android 10+,
