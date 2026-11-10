@@ -125,6 +125,18 @@ public class ProvidedJavaSweepTest {
                     assertTrue("Touch up must be injected", i.getUiAutomation().injectInputEvent(up, true));
                 }
                 finally { down.recycle(); up.recycle(); }
+            } else if (parts[0].equals("gate")) {
+                // Opt-in manual gameplay window, bounded and scoped to this capture directory.
+                assertTrue("Gate name must be a simple fixture name", parts[1].matches("[a-z0-9-]+"));
+                int seconds = Integer.parseInt(parts[2]); assertTrue(seconds >= 1 && seconds <= 900);
+                File gate = new File(output, parts[1] + ".continue");
+                capture(i, output, prefix + "waiting-" + parts[1]);
+                Bundle status = new Bundle(); status.putString("stream", "Waiting for fixture gate " + parts[1] + "\n");
+                i.sendStatus(0, status);
+                long until = SystemClock.uptimeMillis() + seconds * 1000L;
+                while (!gate.isFile() && SystemClock.uptimeMillis() < until) SystemClock.sleep(100);
+                assertTrue("Manual gameplay gate timed out: " + parts[1], gate.isFile());
+                assertTrue(gate.delete());
             } else if (parts[0].equals("wait")) SystemClock.sleep(Math.min(15000, Integer.parseInt(parts[1])));
             else throw new IllegalArgumentException(action);
             SystemClock.sleep(1800); capture(i, output, prefix + (++step));

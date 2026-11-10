@@ -10,6 +10,16 @@ stated otherwise. **Experimental** in older checkpoints means local/private
 combined builds; released experimental features are explicitly identified.
 **Released** means an actual GitHub release asset.
 
+## 2026-11-10 - SimCity Progress Restore (Local Only)
+
+- Build a Townhouse in Sunny Glen, save through the guest menu, export/import,
+  then reopen the same house and saved budget. Two RMS hashes survive unchanged;
+  the complete bounded manual/instrumentation scenario passes in 324.174s.
+- Add bounded manual gates to the opt-in Java game fixture. Object and budget
+  evidence is visually reviewed; repeating tutorial prompts and full-game/device
+  limits remain explicit. [Evidence](docs/checks/2026-11-10-simcity-progress.md).
+- No production runtime repair, public-source push or APK publication.
+
 ## 2026-11-10 - In-place Debug Update Check (Local Only)
 
 - Add an opt-in seed/verify/cleanup fixture across installation with `adb install -r`.

@@ -127,6 +127,13 @@ Seed/verify pass in 3.434s/2.997s after strengthening UI synchronization. Both
 artifacts use the same local Debug key and version code; official signed-release
 upgrade and actual guest progress are separate acceptance steps.
 
+A further [SimCity progress restore](checks/2026-11-10-simcity-progress.md)
+constructs a Townhouse, saves through the guest menu, restores the archive and
+reopens the same house with the saved 28,320 budget. The 324.174s scenario passes
+storage/process assertions; object/budget evidence is visually reviewed. Tutorial
+prompts repeat, and later district completion is not claimed. This is local-only
+emulator evidence with no production runtime change.
+
 ## Product in Plain Language
 
 AbyssME runs old mobile Java games, Mophun and experimental Symbian/N-Gage

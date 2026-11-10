@@ -48,7 +48,8 @@ adds real picker export/restore, cancel/retry, metadata/shared files and corrupt
 recovery using synthetic saves. The [in-place Debug update](checks/2026-11-10-in-place-upgrade.md)
 now preserves three entries, 19 file hashes and remembered settings across a
 Beta 2 runtime snapshot and the candidate. Signed-release upgrading remains open;
-meaningful guest progress and paired-game checks remain next.
+[SimCity now retains a constructed Townhouse and its budget after restoration](checks/2026-11-10-simcity-progress.md).
+Paired-game network checks remain next; complete-game acceptance stays open.
 
 ## Accepted Transfer Outcome
 
