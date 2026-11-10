@@ -192,11 +192,11 @@ public class CompactSettingsTest {
                 android.provider.DocumentsContract.buildDocumentUriUsingTree(tree, "root/data/game"), "data/game");
         try (ActivityScenario<LibraryImportActivity> scenario = ActivityScenario.launch(LibraryImportActivity.class)) {
             scenario.onActivity(activity -> new ViewModelProvider(activity).get(LibraryImportModel.class).state.setValue(
-                    new LibraryImportModel.State(false, request.getMessage(), 0, 0, null, null, request)));
+                    new LibraryImportModel.State(false, LibraryTransferFailure.message(activity,request), 0, 0, null, null, request)));
             idle(); scenario.recreate(); idle();
             scenario.onActivity(activity -> {
                 View root = activity.getWindow().getDecorView();
-                TextView message = (TextView) find(root, request.getMessage());
+                TextView message = (TextView) find(root, LibraryTransferFailure.message(activity,request));
                 assertNotNull(message); assertTrue(message.isShown()); assertNull(message.getEllipsize());
                 assertTrue(message.getMaxLines() > 2);
                 assertTrue(find(root, "Allow folder access").isEnabled());
@@ -204,7 +204,8 @@ public class CompactSettingsTest {
                 assertSame(request, model.state.getValue().access);
                 model.allowFolder(android.provider.DocumentsContract.buildTreeDocumentUri("fixture.library", "wrong"));
                 assertSame(request, model.state.getValue().access);
-                assertTrue(model.state.getValue().status.startsWith("A different folder"));
+                assertEquals(activity.getString(R.string.library_transfer_wrong_folder)+"\n\n"
+                        +LibraryTransferFailure.message(activity,request),model.state.getValue().status);
             });
         }
     }

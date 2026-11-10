@@ -498,9 +498,9 @@ public class LibraryImporterTest {
 			assertEquals(55, loaded.getActiveKeyMappings().get(96));
 			assertEquals(SourceIdentity.sha256(new File(source, "data/old-folder/sudoku.rms")),
 					SourceIdentity.sha256(new File(destination, "data/" + restored.getPath() + "/sudoku.rms")));
-			assertTrue(importer.importSharedFiles(preview).contains("1 shared files copied"));
+			assertEquals(context.getString(ru.playsoftware.j2meloader.R.string.library_transfer_shared_count,1,0),importer.importSharedFiles(preview));
 			write(destination, "fs/c/shared-save", "newer progress");
-			assertTrue(importer.importSharedFiles(preview).contains("1 existing files kept"));
+			assertEquals(context.getString(ru.playsoftware.j2meloader.R.string.library_transfer_shared_count,0,1),importer.importSharedFiles(preview));
 			assertEquals("newer progress", new String(Files.readAllBytes(new File(destination, "fs/c/shared-save").toPath()), StandardCharsets.UTF_8));
 			assertNotNull(importer.scanBackup(unpacked).entries.get(0).problem);
 		} finally { LibraryArchive.remove(unpacked); }

@@ -45,6 +45,13 @@ handheld checks await USB-debug authorization. No real-game, whole-collection,
 public-source or release acceptance is claimed. Beta 2 remains the published
 one-phone-per-operation implementation. [Evidence and limits](checks/2026-11-10-phone-transfer-queue.md).
 
+Java/Mophun import and backup recovery now also use localized, actionable
+messages in all eight languages, while retaining technical diagnostics and file
+identities. **38 targeted Android cases pass**, including archive round-trip,
+folder-access recreation and four localization cases; lint remains at zero errors
+and 804 warnings. This is a second local checkpoint, not a new public APK.
+[Evidence and remaining review](checks/2026-11-10-library-transfer-messages.md).
+
 ## Product in Plain Language
 
 AbyssME runs old mobile Java games, Mophun and experimental Symbian/N-Gage

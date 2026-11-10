@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="library_transfer_wrong_folder">Wähle den angeforderten Quellordner, um fortzufahren.</string>
+    <string name="library_transfer_source_layout">Wähle den J2ME-Loader-Ordner mit converted, data und configs oder einen Spielordner in converted.</string>
+    <string name="library_transfer_jar_required">Die ursprüngliche JAR fehlt oder ist unvollständig. Wähle eine Kopie mit den Spielklassen und dem Manifest.</string>
+    <string name="library_transfer_source_access">Die Quelle kann nicht gelesen werden. Prüfe den Ordnerzugriff oder wähle eine exportierte Kopie.</string>
+    <string name="library_transfer_import_limit">Die Übertragung überschreitet die Größen- oder Dateigrenze. Wähle eine kleinere Sammlung.</string>
+    <string name="library_transfer_source_invalid">Die Quelldaten sind ungültig oder unvollständig. Exportiere eine neue Kopie und versuche es erneut.</string>
+    <string name="library_transfer_engine_unavailable">Diese Version enthält die für dieses Spiel benötigte Engine nicht.</string>
+    <string name="library_transfer_already_imported">Dieses Spiel wurde bereits importiert. Vorhandene Dateien und Spielstände wurden beibehalten.</string>
+    <string name="library_transfer_source_changed">Die Quelle wurde beim Import geändert. Schließe die Quell-App und durchsuche die Bibliothek erneut.</string>
+    <string name="library_transfer_destination_conflict">Das Ziel ist bereits vorhanden. Vorhandene Dateien und Spielstände wurden beibehalten.</string>
+    <string name="library_transfer_storage_failure">Die Daten können nicht gespeichert werden. Prüfe freien Speicherplatz und Zugriffsrechte und versuche es erneut.</string>
+    <string name="library_transfer_settings_invalid">Die Einstellungen konnten nicht importiert werden. Das Spiel wurde nicht hinzugefügt.</string>
+    <string name="library_transfer_unsafe_path">Ein unsicherer Pfad oder symbolischer Link wurde gefunden. Verwende eine normale exportierte Kopie.</string>
+    <string name="library_transfer_cleanup">Temporäre Importdateien konnten nicht entfernt werden. Prüfe den Speicherzugriff und versuche es erneut.</string>
+    <string name="library_transfer_folder_access">Erlaube den Zugriff auf %1$s, um die Bibliothek zu lesen. Wähle diesen Ordner, wenn Android danach fragt; die Originaldateien bleiben unverändert.</string>
+    <string name="library_transfer_source_name">Wähle den Ordner namens %1$s.</string>
+    <string name="library_transfer_source_folder">Quellordner</string>
+    <string name="library_transfer_unsupported_entry">Dieser Eintrag konnte nicht importiert werden: %1$s</string>
+    <string name="library_transfer_settings_default">Die Einstellungen wurden nicht übertragen; beim Start wird die automatische Einrichtung verwendet.</string>
+    <string name="library_transfer_settings_version">Diese Einstellungsversion wird nicht unterstützt; beim Start wird die automatische Einrichtung verwendet.</string>
+    <string name="library_transfer_imported_saved">Mit Spielständen importiert</string>
+    <string name="library_transfer_imported_nosaves">Importiert; keine Spielstände gefunden</string>
+    <string name="library_transfer_no_shared">Keine gemeinsamen Dateien</string>
+    <string name="library_transfer_shared_count">Kopierte gemeinsame Dateien: %1$d; beibehaltene vorhandene Dateien: %2$d.</string>
+    <string name="library_transfer_shared_error">Gemeinsame Dateien — kopiert: %1$d; beibehalten: %2$d. %3$s</string>
+    <string name="library_transfer_settings_paths">Externe Pfade und eigene Shader wurden nicht übertragen.</string>
+    <string name="library_transfer_launch_once">Starte %1$s einmal, bevor du die Bibliothek sicherst.</string>
+    <string name="library_transfer_no_games">Es sind keine installierten Spiele zum Sichern vorhanden.</string>
+    <string name="library_transfer_backup_version">Diese Sicherungsversion wird nicht unterstützt. Verwende eine Sicherung aus einer kompatiblen AbyssME-Version.</string>
+    <string name="library_transfer_backup_changed">Die Spieldaten wurden während der Sicherung geändert. Schließe das Spiel und versuche es erneut.</string>
+</resources>

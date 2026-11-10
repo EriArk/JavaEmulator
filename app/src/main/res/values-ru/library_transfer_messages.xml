@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="library_transfer_wrong_folder">Выберите запрошенную исходную папку, чтобы продолжить.</string>
+    <string name="library_transfer_source_layout">Выберите папку J2ME Loader с converted, data и configs или папку одной игры внутри converted.</string>
+    <string name="library_transfer_jar_required">Исходный JAR отсутствует или неполон. Выберите копию с классами игры и манифестом.</string>
+    <string name="library_transfer_source_access">Не удалось прочитать источник. Проверьте доступ к папке или выберите экспортированную копию.</string>
+    <string name="library_transfer_import_limit">Превышен допустимый размер или число файлов. Выберите меньшую коллекцию.</string>
+    <string name="library_transfer_source_invalid">Исходные данные повреждены или неполны. Экспортируйте новую копию и повторите попытку.</string>
+    <string name="library_transfer_engine_unavailable">В этой сборке нет движка, необходимого для этой игры.</string>
+    <string name="library_transfer_already_imported">Эта игра уже импортирована. Существующие файлы и сохранения оставлены без изменений.</string>
+    <string name="library_transfer_source_changed">Источник изменился во время импорта. Закройте исходное приложение и повторно просканируйте библиотеку.</string>
+    <string name="library_transfer_destination_conflict">Место назначения уже занято. Существующие файлы и сохранения оставлены без изменений.</string>
+    <string name="library_transfer_storage_failure">Не удалось сохранить данные. Проверьте свободное место и доступ к хранилищу, затем повторите попытку.</string>
+    <string name="library_transfer_settings_invalid">Не удалось импортировать настройки. Игра не добавлена.</string>
+    <string name="library_transfer_unsafe_path">Обнаружен небезопасный путь или символическая ссылка. Используйте обычную экспортированную копию.</string>
+    <string name="library_transfer_cleanup">Не удалось удалить временные файлы импорта. Проверьте доступ к хранилищу и повторите попытку.</string>
+    <string name="library_transfer_folder_access">Разрешите доступ к %1$s для чтения библиотеки. Выберите эту папку в запросе Android; исходные файлы останутся без изменений.</string>
+    <string name="library_transfer_source_name">Выберите папку с именем %1$s.</string>
+    <string name="library_transfer_source_folder">Исходная папка</string>
+    <string name="library_transfer_unsupported_entry">Не удалось импортировать запись: %1$s</string>
+    <string name="library_transfer_settings_default">Настройки не перенесены; при запуске будет использована автоматическая настройка.</string>
+    <string name="library_transfer_settings_version">Эта версия настроек не поддерживается; при запуске будет использована автоматическая настройка.</string>
+    <string name="library_transfer_imported_saved">Импортировано с сохранениями</string>
+    <string name="library_transfer_imported_nosaves">Импортировано; сохранения не найдены</string>
+    <string name="library_transfer_no_shared">Нет общих файлов</string>
+    <string name="library_transfer_shared_count">Скопировано общих файлов: %1$d; сохранено существующих: %2$d.</string>
+    <string name="library_transfer_shared_error">Общие файлы: скопировано %1$d, сохранено %2$d. %3$s</string>
+    <string name="library_transfer_settings_paths">Внешние пути и пользовательские шейдеры не перенесены.</string>
+    <string name="library_transfer_launch_once">Запустите %1$s один раз перед резервным копированием библиотеки.</string>
+    <string name="library_transfer_no_games">Нет установленных игр для резервного копирования.</string>
+    <string name="library_transfer_backup_version">Эта версия резервной копии не поддерживается. Используйте копию из совместимой версии AbyssME.</string>
+    <string name="library_transfer_backup_changed">Данные игры изменились во время резервного копирования. Закройте игру и повторите попытку.</string>
+</resources>

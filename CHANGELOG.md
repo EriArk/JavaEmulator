@@ -10,6 +10,19 @@ stated otherwise. **Experimental** in older checkpoints means local/private
 combined builds; released experimental features are explicitly identified.
 **Released** means an actual GitHub release asset.
 
+## 2026-11-10 - Library Import and Backup Recovery Text (Local Only)
+
+- Localize Java/Mophun scan, import and backup recovery in the eight supported
+  languages. Preserve technical causes, file names and stored identities.
+- Retain full folder-access recovery text across recreation; show localized
+  cancellation, settings and shared-file summaries.
+- Combined Debug/test APKs build; 38 targeted Android cases pass after correcting
+  one obsolete English-only assertion. The behavioral checkpoint has 424 passing
+  JVM tests; final lint remains zero errors and 804 warnings.
+- [Checks and limits](docs/checks/2026-11-10-library-transfer-messages.md): synthetic
+  files and emulator only; native-speaker/device review and real-game testing
+  remain open. No publication or release change.
+
 ## 2026-11-10 - Multi-Phone Transfer and Website Action (Local Only)
 
 - Add multi-phone EKA2L1 selection, a retained source snapshot and queue,

@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="library_transfer_wrong_folder">Choisissez le dossier source demandé pour continuer.</string>
+    <string name="library_transfer_source_layout">Choisissez le dossier J2ME Loader contenant converted, data et configs, ou le dossier d’un jeu dans converted.</string>
+    <string name="library_transfer_jar_required">Le JAR d’origine est absent ou incomplet. Choisissez une copie contenant les classes et le manifeste du jeu.</string>
+    <string name="library_transfer_source_access">Impossible de lire la source. Vérifiez l’accès au dossier ou choisissez une copie exportée.</string>
+    <string name="library_transfer_import_limit">Le transfert dépasse la limite de taille ou de fichiers. Choisissez une collection plus petite.</string>
+    <string name="library_transfer_source_invalid">Les données source sont invalides ou incomplètes. Exportez une nouvelle copie et réessayez.</string>
+    <string name="library_transfer_engine_unavailable">Cette version ne contient pas le moteur nécessaire à ce jeu.</string>
+    <string name="library_transfer_already_imported">Ce jeu a déjà été importé. Les fichiers et sauvegardes existants ont été conservés.</string>
+    <string name="library_transfer_source_changed">La source a changé pendant l’importation. Fermez l’application source et analysez à nouveau la bibliothèque.</string>
+    <string name="library_transfer_destination_conflict">La destination existe déjà. Les fichiers et sauvegardes existants ont été conservés.</string>
+    <string name="library_transfer_storage_failure">Impossible d’enregistrer les données. Vérifiez l’espace libre et l’accès au stockage, puis réessayez.</string>
+    <string name="library_transfer_settings_invalid">Les paramètres n’ont pas pu être importés. Le jeu n’a pas été ajouté.</string>
+    <string name="library_transfer_unsafe_path">Un chemin non sûr ou un lien symbolique a été détecté. Utilisez une copie exportée normale.</string>
+    <string name="library_transfer_cleanup">Les fichiers temporaires d’importation n’ont pas pu être supprimés. Vérifiez l’accès au stockage et réessayez.</string>
+    <string name="library_transfer_folder_access">Autorisez l’accès à %1$s pour lire la bibliothèque. Sélectionnez ce dossier quand Android le demande ; les originaux restent inchangés.</string>
+    <string name="library_transfer_source_name">Sélectionnez le dossier nommé %1$s.</string>
+    <string name="library_transfer_source_folder">Dossier source</string>
+    <string name="library_transfer_unsupported_entry">Cette entrée n’a pas pu être importée : %1$s</string>
+    <string name="library_transfer_settings_default">Les paramètres n’ont pas été transférés ; la configuration automatique sera utilisée au lancement.</string>
+    <string name="library_transfer_settings_version">Cette version des paramètres n’est pas prise en charge ; la configuration automatique sera utilisée au lancement.</string>
+    <string name="library_transfer_imported_saved">Importé avec les sauvegardes</string>
+    <string name="library_transfer_imported_nosaves">Importé ; aucune sauvegarde trouvée</string>
+    <string name="library_transfer_no_shared">Aucun fichier partagé</string>
+    <string name="library_transfer_shared_count">Fichiers partagés copiés : %1$d ; fichiers existants conservés : %2$d.</string>
+    <string name="library_transfer_shared_error">Fichiers partagés — copiés : %1$d ; conservés : %2$d. %3$s</string>
+    <string name="library_transfer_settings_paths">Les chemins externes et les shaders personnalisés n’ont pas été transférés.</string>
+    <string name="library_transfer_launch_once">Lancez %1$s une fois avant de sauvegarder la bibliothèque.</string>
+    <string name="library_transfer_no_games">Aucun jeu installé à sauvegarder.</string>
+    <string name="library_transfer_backup_version">Cette version de sauvegarde n’est pas prise en charge. Utilisez une sauvegarde d’une version compatible d’AbyssME.</string>
+    <string name="library_transfer_backup_changed">Les données du jeu ont changé pendant la sauvegarde. Fermez le jeu et réessayez.</string>
+</resources>

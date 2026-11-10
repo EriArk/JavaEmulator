@@ -329,7 +329,7 @@ public class LibraryImportActivity extends CompactSettingsActivity {
             row.check.setContentDescription(entry.title);
             String metadata = getString(R.string.transfer_row_metadata, entry.vendor, entry.version,
                     getString(entry.hasSaves ? R.string.transfer_saves_included : R.string.transfer_saves_missing));
-            row.label.setText(entry.title + "\n" + (entry.problem != null ? entry.problem
+            row.label.setText(entry.title + "\n" + (entry.problem != null ? entry.problemText(LibraryImportActivity.this)
                     : metadata + (entry.duplicateTitle ? "\n" + getString(R.string.transfer_duplicate_notice) : "")));
             row.check.setOnCheckedChangeListener((button, checked) -> { entry.selected = checked; updateSelection(); });
             row.itemView.setOnClickListener(v -> { if (row.check.isEnabled()) row.check.toggle(); });

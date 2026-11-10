@@ -36,6 +36,7 @@ import java.util.zip.ZipEntry;
 import java.util.zip.ZipFile;
 
 import ru.playsoftware.j2meloader.BuildConfig;
+import ru.playsoftware.j2meloader.R;
 import ru.playsoftware.j2meloader.applist.AppItem;
 import ru.playsoftware.j2meloader.appsdb.AppRepository;
 import ru.playsoftware.j2meloader.config.Config;
@@ -68,6 +69,11 @@ public final class LibraryImporter {
 		private JsonObject backupInfo;
 		private String nativeId;
 		private DocumentFile game, data, config;
+        private LibraryTransferFailure problemFailure;
+        public String problemText(Context context) {
+            return problemFailure==null?problem:LibraryTransferFailure.message(context,problemFailure);
+        }
+        private void reject(LibraryTransferFailure failure) { problemFailure=failure; problem=failure.getMessage(); }
 	}
 
 	public static final class Preview {
@@ -106,7 +112,7 @@ public final class LibraryImporter {
 			catch (Exception e) {
 				result.failed++;
 				result.results.add(context.getString(ru.playsoftware.j2meloader.R.string.transfer_not_imported,
-						entry.title, e.getMessage()));
+						entry.title, LibraryTransferFailure.message(context,e)));
 			}
 		}
 		if (!cancelled.get() && result.remaining.sharedFiles && (result.imported > 0 || result.total == 0)) {
@@ -115,7 +121,7 @@ public final class LibraryImporter {
 				result.remaining.sharedFiles = false;
 			} catch (Exception e) {
 				result.sharedFailure = context.getString(ru.playsoftware.j2meloader.R.string.transfer_not_imported,
-						context.getString(ru.playsoftware.j2meloader.R.string.transfer_shared_files), e.getMessage());
+						context.getString(ru.playsoftware.j2meloader.R.string.transfer_shared_files), LibraryTransferFailure.message(context,e));
 				result.results.add(result.sharedFailure);
 			}
 		}
@@ -135,11 +141,11 @@ public final class LibraryImporter {
 	private final Map<String, String> folderNames = new HashMap<>();
 	private Uri sourceTree;
 
-	public static final class FolderAccessRequired extends IOException {
+	public static final class FolderAccessRequired extends LibraryTransferFailure {
 		public final Uri folder;
 		public final String name;
 		FolderAccessRequired(Uri folder, String name) {
-			super("Allow access to " + name + " to continue reading the library. Android will ask you to select this folder. Original files stay unchanged.");
+			super(R.string.library_transfer_folder_access, "Allow access to " + name + " to continue reading the library. Android will ask you to select this folder. Original files stay unchanged.", null, new Object[]{name});
 			this.folder = folder;
 			this.name = name;
 		}
@@ -170,7 +176,7 @@ public final class LibraryImporter {
 		if (!"content".equals(selected.getScheme()) || !DocumentsContract.isTreeUri(selected)
 				|| !request.folder.getAuthority().equals(selected.getAuthority())
 				|| !DocumentsContract.getDocumentId(request.folder).equals(DocumentsContract.getTreeDocumentId(selected)))
-			throw new IOException("A different folder was selected. Choose the requested folder to continue.");
+			throw LibraryTransferFailure.of(R.string.library_transfer_wrong_folder,"A different folder was selected. Choose the requested folder to continue.");
 		folderGrants.put(documentKey(request.folder), selected);
 	}
 
@@ -190,8 +196,8 @@ public final class LibraryImporter {
 	private IOException accessRequired(DocumentFile folder, String name, SecurityException cause) {
 		name = folderNames.getOrDefault(documentKey(folder.getUri()), name);
 		if (folderGrants.containsKey(documentKey(folder.getUri())))
-			return new IOException("Access to " + name + " is still unavailable. No files were changed. Try choosing the library from another storage location.", cause);
-		return new FolderAccessRequired(folder.getUri(), name == null ? "the source folder" : name);
+			return LibraryTransferFailure.caused(R.string.library_transfer_source_access,"Access to " + name + " is still unavailable. No files were changed. Try choosing the library from another storage location.", cause);
+		return new FolderAccessRequired(folder.getUri(), name == null ? context.getString(R.string.library_transfer_source_folder) : name);
 	}
 
 	public LibraryImporter(Context context, File destination, Catalog catalog, AtomicBoolean cancelled) {
@@ -211,20 +217,20 @@ public final class LibraryImporter {
 
 	/** Some older providers only grant direct children. Separate picker grants avoid file-manager copying. */
 	public Preview scanSingle(DocumentFile game, DocumentFile data, DocumentFile config) throws IOException {
-		if (game == null || !game.isDirectory()) throw new IOException("Select one installed game folder inside converted");
+		if (game == null || !game.isDirectory()) throw LibraryTransferFailure.of(R.string.library_transfer_source_layout,"Select one installed game folder inside converted");
 		sourceTree = game.getUri();
 		Entry entry = new Entry();
 		entry.game = game; entry.data = data; entry.config = config;
 		if ((data != null && !game.getName().equals(data.getName())) || (config != null && !game.getName().equals(config.getName())))
-			throw new IOException("Select the folder with the same name as the game: " + game.getName());
+			throw LibraryTransferFailure.of(R.string.library_transfer_source_name,"Select the folder with the same name as the game: " + game.getName(),game.getName());
 		Descriptor descriptor = new Descriptor(readText(find(game, "converted.dex.conf"), 1024 * 1024), false);
 		entry.title = descriptor.getName(); entry.vendor = descriptor.getVendor(); entry.version = descriptor.getVersion();
 		entry.sourceKey = "j2me-library:" + originalUri(game);
-		if (find(game, "res.jar") == null) throw new IOException("Original JAR required (no res.jar)");
-		if (catalog.bySource(entry.sourceKey) != null) entry.problem = "Already imported; existing saves will be kept";
+		if (find(game, "res.jar") == null) throw LibraryTransferFailure.of(R.string.library_transfer_jar_required,"Original JAR required (no res.jar)");
+		if (catalog.bySource(entry.sourceKey) != null) entry.reject(LibraryTransferFailure.of(R.string.library_transfer_already_imported,"Already imported; existing saves will be kept"));
 		entry.hasSaves = data != null && children(data).length > 0;
 		if (data != null) checkTree(data, 0, new int[]{0});
-		if (config != null && find(config, "config.json") == null) throw new IOException("Select this game's folder inside configs");
+		if (config != null && find(config, "config.json") == null) throw LibraryTransferFailure.of(R.string.library_transfer_wrong_folder,"Select this game's folder inside configs");
 		entry.duplicateTitle = catalog.byTitle(entry.title, entry.vendor) != null;
 		entry.selected = entry.problem == null && !entry.duplicateTitle;
 		Preview preview = new Preview(); preview.entries.add(entry); return preview;
@@ -232,17 +238,17 @@ public final class LibraryImporter {
 
 	private Preview scan(DocumentFile root, JsonObject backup) throws IOException {
 		checkCancelled();
-		if (root == null || !root.isDirectory() || !root.canRead()) throw new IOException("Cannot read this folder");
+		if (root == null || !root.isDirectory() || !root.canRead()) throw LibraryTransferFailure.of(R.string.library_transfer_source_access,"Cannot read this folder");
 		sourceTree = root.getUri();
 		DocumentFile converted = find(root, "converted");
-		if (converted == null || !converted.isDirectory()) throw new IOException("Select the J2ME Loader folder containing converted, data and configs");
+		if (converted == null || !converted.isDirectory()) throw LibraryTransferFailure.of(R.string.library_transfer_source_layout,"Select the J2ME Loader folder containing converted, data and configs");
 		Preview result = new Preview();
 		result.shared = find(root, "fs");
 		result.sharedFiles = result.shared != null && children(result.shared).length > 0;
 		if (result.sharedFiles) checkTree(result.shared, 0, new int[]{0});
 		DocumentFile data = find(root, "data"), configs = find(root, "configs");
 		DocumentFile[] games = children(converted);
-		if (games.length > MAX_FILES) throw new IOException("Too many library entries");
+		if (games.length > MAX_FILES) throw LibraryTransferFailure.of(R.string.library_transfer_import_limit,"Too many library entries");
 		for (DocumentFile game : games) {
 			checkCancelled();
 			if (!game.isDirectory() || ".tmp".equals(game.getName())) continue;
@@ -255,34 +261,34 @@ public final class LibraryImporter {
 				if (backup != null) {
 					entry.sourceKey = "abyssme-backup:" + backup.get("id").getAsString() + ":" + game.getName();
 					entry.backupInfo = backup.getAsJsonObject("games").getAsJsonObject(game.getName());
-					if (entry.backupInfo == null) throw new IOException("Game missing from backup manifest");
+					if (entry.backupInfo == null) throw LibraryTransferFailure.of(R.string.library_transfer_source_invalid,"Game missing from backup manifest");
 				}
 				if (backup != null && find(game, AdditionalGames.MANIFEST) != null) {
 					AdditionalGames.Engine engine = AdditionalGames.get(context);
-					if (engine == null) throw new IOException("This build does not include this game's engine");
+					if (engine == null) throw LibraryTransferFailure.of(R.string.library_transfer_engine_unavailable,"This build does not include this game's engine");
 					AppItem item = engine.readInstalled(new File(game.getUri().getPath()));
 					entry.nativeId = item.getPath();
-					if (!entry.nativeId.matches("mophun-[0-9a-f]{64}")) throw new IOException("Unsupported game identifier");
+					if (!entry.nativeId.matches("mophun-[0-9a-f]{64}")) throw LibraryTransferFailure.of(R.string.library_transfer_source_invalid,"Unsupported game identifier");
 					entry.title = item.getTitle(); entry.vendor = item.getAuthor(); entry.version = item.getVersion();
 					if (catalog.byPath(entry.nativeId) != null || new File(destination, "converted/" + entry.nativeId).exists())
-						entry.problem = "Already installed; existing saves will be kept";
+						entry.reject(LibraryTransferFailure.of(R.string.library_transfer_already_imported,"Already installed; existing saves will be kept"));
 				} else {
 					Descriptor descriptor = new Descriptor(readText(find(game, "converted.dex.conf"), 1024 * 1024), false);
 					entry.title = descriptor.getName(); entry.vendor = descriptor.getVendor(); entry.version = descriptor.getVersion();
-					if (find(game, "res.jar") == null) entry.problem = "Original JAR required (no res.jar)";
+					if (find(game, "res.jar") == null) entry.reject(LibraryTransferFailure.of(R.string.library_transfer_jar_required,"Original JAR required (no res.jar)"));
 				}
 				entry.data = data == null ? null : find(data, game.getName());
 				entry.config = configs == null ? null : find(configs, game.getName());
 				entry.hasSaves = entry.data != null && children(entry.data).length > 0;
 				if (entry.data != null) checkTree(entry.data, 0, new int[]{0});
 				if (entry.config != null) children(entry.config);
-				if (catalog.bySource(entry.sourceKey) != null) entry.problem = "Already imported; existing saves will be kept";
+				if (catalog.bySource(entry.sourceKey) != null) entry.reject(LibraryTransferFailure.of(R.string.library_transfer_already_imported,"Already imported; existing saves will be kept"));
 				entry.duplicateTitle = catalog.byTitle(entry.title, entry.vendor) != null;
 				entry.selected = entry.problem == null && !entry.duplicateTitle;
 			} catch (IOException | RuntimeException error) {
 				if (error instanceof CancellationException) throw error;
 				if (error instanceof FolderAccessRequired) throw (FolderAccessRequired) error;
-				entry.problem = "Unsupported entry: " + error.getMessage();
+				entry.reject(LibraryTransferFailure.caused(R.string.library_transfer_unsupported_entry,"Unsupported entry: " + error.getMessage(),error,error));
 			}
 			result.entries.add(entry);
 		}
@@ -292,8 +298,8 @@ public final class LibraryImporter {
 
 	public String importEntry(Entry entry) throws Exception {
 		checkCancelled();
-		if (entry.problem != null) throw new IOException(entry.problem);
-		if (catalog.bySource(entry.sourceKey) != null) throw new IOException("Already imported; no files replaced");
+		if (entry.problem != null) throw entry.problemFailure==null?new IOException(entry.problem):entry.problemFailure;
+		if (catalog.bySource(entry.sourceKey) != null) throw LibraryTransferFailure.of(R.string.library_transfer_already_imported,"Already imported; no files replaced");
 		copied = 0; files = 0;
 		String transaction = "import-" + UUID.randomUUID();
 		String id = entry.nativeId == null ? transaction : entry.nativeId;
@@ -312,19 +318,19 @@ public final class LibraryImporter {
 				copyTree(entry.game, app, 0);
 				item = new AppItem(id, entry.title, entry.vendor, entry.version);
 				String hash = SourceIdentity.sha256(new File(app, "game.mpn"));
-				if (!id.equals("mophun-" + hash)) throw new IOException("Game checksum mismatch");
+				if (!id.equals("mophun-" + hash)) throw LibraryTransferFailure.of(R.string.library_transfer_source_changed,"Game checksum mismatch");
 				item.setSourceHash(hash);
 			} else {
 			copyFile(find(entry.game, "res.jar"), new File(app, "res.jar"));
 			Descriptor descriptor = new Descriptor(readText(find(entry.game, "converted.dex.conf"), 1024 * 1024), false);
 			if (!entry.title.equals(descriptor.getName()) || !entry.vendor.equals(descriptor.getVendor())
-					|| !entry.version.equals(descriptor.getVersion())) throw new IOException("Source changed; scan the library again");
+					|| !entry.version.equals(descriptor.getVersion())) throw LibraryTransferFailure.of(R.string.library_transfer_source_changed,"Source changed; scan the library again");
 			File jar = new File(app, "res.jar");
 			validateJar(jar, descriptor);
 			checkCancelled();
 			// Recompile original classes instead of trusting a foreign converted.dex.
 			Main.main(new String[]{"--no-optimize", "--core-library", "--output=" + new File(app, "converted.dex"), jar.getPath()});
-			if (!new File(app, "converted.dex").isFile()) throw new IOException("Missing converted code");
+			if (!new File(app, "converted.dex").isFile()) throw LibraryTransferFailure.of(R.string.library_transfer_source_invalid,"Missing converted code");
 			descriptor.writeTo(new File(app, "converted.dex.conf"));
 			DocumentFile hints = find(entry.game, SourceHints.FILE);
 			String hintName = null;
@@ -354,10 +360,10 @@ public final class LibraryImporter {
 			// Recovery and startup indexing share this lock. The marker is durable before any moves.
 			synchronized (LibraryImporter.class) {
 				checkCancelled();
-				if (catalog.bySource(entry.sourceKey) != null) throw new IOException("Already imported; no files replaced");
+				if (catalog.bySource(entry.sourceKey) != null) throw LibraryTransferFailure.of(R.string.library_transfer_already_imported,"Already imported; no files replaced");
 				for (String dir : new String[]{"data", "configs", "converted"}) {
 					File target = new File(new File(destination, dir), id);
-					if (target.exists()) throw new IOException("Destination collision; no files replaced");
+					if (target.exists()) throw LibraryTransferFailure.of(R.string.library_transfer_destination_conflict,"Destination collision; no files replaced");
 					mkdir(target.getParentFile());
 				}
 				try (FileOutputStream marker = new FileOutputStream(new File(stage, "pending"))) {
@@ -367,7 +373,7 @@ public final class LibraryImporter {
 					for (String dir : new String[]{"data", "configs", "converted"}) {
 						checkCancelled();
 						if (!new File(stage, dir).renameTo(new File(new File(destination, dir), id)))
-							throw new IOException("Cannot publish imported files");
+							throw LibraryTransferFailure.of(R.string.library_transfer_storage_failure,"Cannot publish imported files");
 					}
 					catalog.insert(item);
 					committed = true;
@@ -375,7 +381,7 @@ public final class LibraryImporter {
 					if (!committed) rollback(destination, id);
 				}
 			}
-			return "Imported" + (entry.hasSaves ? " with saves" : "; no saves found") + (notes.isEmpty() ? "" : "; " + notes);
+			return context.getString(entry.hasSaves ? R.string.library_transfer_imported_saved : R.string.library_transfer_imported_nosaves) + (notes.isEmpty() ? "" : "; " + notes);
 		} finally {
 			// A pending marker is kept if cleanup fails so startup can retry safely.
 			synchronized (LibraryImporter.class) {
@@ -395,12 +401,12 @@ public final class LibraryImporter {
 	private String importConfig(DocumentFile source, File target, boolean backup) throws IOException {
 		String notes = "";
 		DocumentFile json = source == null ? null : find(source, "config.json");
-		if (json == null) return "settings not transferred; automatic setup on launch";
+		if (json == null) return context.getString(R.string.library_transfer_settings_default);
 		JsonObject original;
 		try { original = JsonParser.parseString(readText(json, 1024 * 1024)).getAsJsonObject(); }
-		catch (RuntimeException e) { throw new IOException("Invalid settings; game was not imported", e); }
+		catch (RuntimeException e) { throw LibraryTransferFailure.caused(R.string.library_transfer_settings_invalid,"Invalid settings; game was not imported", e); }
 		int version = original.has("Version") ? original.get("Version").getAsInt() : 0;
-		if (version < 3 || version > ProfileModel.VERSION) return "unsupported settings version; automatic setup on launch";
+		if (version < 3 || version > ProfileModel.VERSION) return context.getString(R.string.library_transfer_settings_version);
 		// Transfer only fields the current profile understands. Global paths and shaders are not imported.
 		Gson gson = new Gson();
 		JsonObject merged = gson.toJsonTree(new ProfileModel(target)).getAsJsonObject();
@@ -426,19 +432,19 @@ public final class LibraryImporter {
 		for (String key : allowed) if (original.has(key) && !original.get(key).isJsonNull()) merged.add(key, original.get(key));
 		ProfileModel profile;
 		try { profile = gson.fromJson(merged, ProfileModel.class); }
-		catch (RuntimeException e) { throw new IOException("Invalid settings; game was not imported", e); }
+		catch (RuntimeException e) { throw LibraryTransferFailure.caused(R.string.library_transfer_settings_invalid,"Invalid settings; game was not imported", e); }
 		if (profile.screenWidth < 0 || profile.screenWidth > 4096 || profile.screenHeight < 0 || profile.screenHeight > 4096
 				|| profile.screenScaleRatio < 1 || profile.screenScaleRatio > 400)
-			throw new IOException("Unsupported display settings; game was not imported");
+			throw LibraryTransferFailure.of(R.string.library_transfer_settings_invalid,"Unsupported display settings; game was not imported");
 		StringBuilder properties = new StringBuilder();
 		for (String line : profile.systemProperties.split("[\\r\\n]+")) {
 			if (line.contains("file:") || line.contains("content:") || line.contains("/storage/")
 					|| line.contains("/sdcard/") || line.startsWith("user.home") || line.startsWith("fileconn.dir.")) {
-				notes = "external paths and custom shaders not transferred";
+				notes = context.getString(R.string.library_transfer_settings_paths);
 			} else properties.append(line).append('\n');
 		}
 		profile.systemProperties = properties.toString();
-		if (original.has("Shader") && !original.get("Shader").isJsonNull()) notes = "external paths and custom shaders not transferred";
+		if (original.has("Shader") && !original.get("Shader").isJsonNull()) notes = context.getString(R.string.library_transfer_settings_paths);
 		profile.dir = target;
 		if (!backup) profile.keyMappingProfiles = null;
 		profile.ensureKeyMappingProfiles();
@@ -451,33 +457,33 @@ public final class LibraryImporter {
 			DocumentFile keyboard = find(source, "VirtualKeyboardLayout");
 			if (keyboard != null) copyFile(keyboard, new File(target, "VirtualKeyboardLayout"));
 		}
-		if (!ProfilesManager.saveConfig(profile)) throw new IOException("Cannot save imported settings");
+		if (!ProfilesManager.saveConfig(profile)) throw LibraryTransferFailure.of(R.string.library_transfer_storage_failure,"Cannot save imported settings");
 		return notes;
 	}
 
 	/** Shared file-API data is merged on explicit request; collisions never replace existing files. */
 	public String importSharedFiles(Preview preview) throws IOException {
-		if (preview.shared == null) return "No shared files";
+		if (preview.shared == null) return context.getString(R.string.library_transfer_no_shared);
 		copied = 0; files = 0;
 		int[] counts = new int[2];
 		File stage = Files.createTempDirectory(destination.toPath(), ".shared-import-").toFile();
 		try {
 			copyTree(preview.shared, stage, 0);
 			mergeShared(stage, new File(destination, "fs"), counts);
-			return counts[0] + " shared files copied, " + counts[1] + " existing files kept";
+			return context.getString(R.string.library_transfer_shared_count,counts[0],counts[1]);
 		} catch (CancellationException | IOException e) {
-			throw new IOException("Shared files: " + counts[0] + " copied, " + counts[1] + " kept; " + e.getMessage(), e);
+			throw LibraryTransferFailure.caused(R.string.library_transfer_shared_error,"Shared files: " + counts[0] + " copied, " + counts[1] + " kept; " + e.getMessage(), e, counts[0],counts[1],e);
 		} finally { delete(stage); }
 	}
 
 	private void mergeShared(File source, File target, int[] counts) throws IOException {
 		checkCancelled();
-		if (Files.isSymbolicLink(target.toPath())) throw new IOException("Linked destination is not supported");
+		if (Files.isSymbolicLink(target.toPath())) throw LibraryTransferFailure.of(R.string.library_transfer_unsafe_path,"Linked destination is not supported");
 		if (source.isDirectory()) {
 			if (target.exists() && !target.isDirectory()) { counts[1]++; return; }
 			mkdir(target);
 			File[] children = source.listFiles();
-			if (children == null) throw new IOException("Cannot read staged shared files");
+			if (children == null) throw LibraryTransferFailure.of(R.string.library_transfer_source_access,"Cannot read staged shared files");
 			for (File child : children) mergeShared(child, new File(target, child.getName()), counts);
 		} else if (target.exists()) counts[1]++;
 		else {
@@ -496,35 +502,35 @@ public final class LibraryImporter {
 			while (entries.hasMoreElements()) {
 				checkCancelled();
 				ZipEntry entry = entries.nextElement();
-				if (++count > MAX_FILES) throw new IOException("JAR contains too many entries");
+				if (++count > MAX_FILES) throw LibraryTransferFailure.of(R.string.library_transfer_import_limit,"JAR contains too many entries");
 				String name = entry.getName();
-				if (name.startsWith("/") || name.contains("\\") || name.contains(":")) throw new IOException("Unsafe JAR path");
-				for (String part : name.split("/")) if (part.equals("..") || part.equals(".")) throw new IOException("Unsafe JAR path");
+				if (name.startsWith("/") || name.contains("\\") || name.contains(":")) throw LibraryTransferFailure.of(R.string.library_transfer_unsafe_path,"Unsafe JAR path");
+				for (String part : name.split("/")) if (part.equals("..") || part.equals(".")) throw LibraryTransferFailure.of(R.string.library_transfer_unsafe_path,"Unsafe JAR path");
 				classes |= name.endsWith(".class");
 				CRC32 crc = new CRC32();
 				try (InputStream input = zip.getInputStream(entry)) {
 					int n;
 					while ((n = input.read(buffer)) != -1) {
 						checkCancelled(); size += n; crc.update(buffer, 0, n);
-						if (size > MAX_BYTES) throw new IOException("JAR expands beyond 256 MiB");
+						if (size > MAX_BYTES) throw LibraryTransferFailure.of(R.string.library_transfer_import_limit,"JAR expands beyond 256 MiB");
 					}
 				}
-				if (crc.getValue() != entry.getCrc()) throw new IOException("Corrupt JAR entry");
+				if (crc.getValue() != entry.getCrc()) throw LibraryTransferFailure.of(R.string.library_transfer_source_invalid,"Corrupt JAR entry");
 			}
 			String midlet = descriptor.getAttrs().get("MIDlet-1");
-			if (!classes || midlet == null) throw new IOException("Original JAR required (missing classes or MIDlet entry)");
+			if (!classes || midlet == null) throw LibraryTransferFailure.of(R.string.library_transfer_jar_required,"Original JAR required (missing classes or MIDlet entry)");
 			String main = midlet.substring(midlet.lastIndexOf(',') + 1).trim().replace('.', '/') + ".class";
-			if (zip.getEntry(main) == null) throw new IOException("Original JAR required (MIDlet class missing)");
+			if (zip.getEntry(main) == null) throw LibraryTransferFailure.of(R.string.library_transfer_jar_required,"Original JAR required (MIDlet class missing)");
 		}
 	}
 
 	private void copyTree(DocumentFile source, File target, int depth) throws IOException {
 		checkCancelled();
-		if (!source.isDirectory() || depth > 20) throw new IOException("Unsupported save folder structure");
+		if (!source.isDirectory() || depth > 20) throw LibraryTransferFailure.of(R.string.library_transfer_source_invalid,"Unsupported save folder structure");
 		mkdir(target);
 		for (DocumentFile child : children(source)) {
 			checkCancelled(); validName(child.getName());
-			if (++files > MAX_FILES) throw new IOException("Too many files in game data");
+			if (++files > MAX_FILES) throw LibraryTransferFailure.of(R.string.library_transfer_import_limit,"Too many files in game data");
 			File file = new File(target, child.getName());
 			if (child.isDirectory()) copyTree(child, file, depth + 1);
 			else copyFile(child, file);
@@ -532,28 +538,28 @@ public final class LibraryImporter {
 	}
 
 	private void copyFile(DocumentFile source, File target) throws IOException {
-		if (source == null || !source.isFile() || !source.canRead()) throw new IOException("Missing or unreadable source file");
+		if (source == null || !source.isFile() || !source.canRead()) throw LibraryTransferFailure.of(R.string.library_transfer_source_access,"Missing or unreadable source file");
 		long expected = source.length(), written = 0, modified = source.lastModified();
 		try (InputStream in = open(source); FileOutputStream out = new FileOutputStream(target)) {
 			byte[] buffer = new byte[65536]; int n;
 			while ((n = in.read(buffer)) != -1) {
 				checkCancelled(); copied += n; written += n;
-				if (copied > MAX_BYTES) throw new IOException("Game import exceeds 256 MiB");
+				if (copied > MAX_BYTES) throw LibraryTransferFailure.of(R.string.library_transfer_import_limit,"Game import exceeds 256 MiB");
 				out.write(buffer, 0, n);
 			}
 			out.getFD().sync();
 		}
 		if ((expected > 0 && expected != written) || source.length() != expected || source.lastModified() != modified)
-			throw new IOException("Source changed during import; close J2ME Loader and retry");
+			throw LibraryTransferFailure.of(R.string.library_transfer_source_changed,"Source changed during import; close J2ME Loader and retry");
 	}
 
 	private String readText(DocumentFile file, int limit) throws IOException {
-		if (file == null || !file.isFile()) throw new IOException("Missing library metadata");
+		if (file == null || !file.isFile()) throw LibraryTransferFailure.of(R.string.library_transfer_source_invalid,"Missing library metadata");
 		try (InputStream in = open(file); ByteArrayOutputStream out = new ByteArrayOutputStream()) {
 			byte[] buffer = new byte[8192]; int n;
 			while ((n = in.read(buffer)) != -1) {
 				checkCancelled();
-				if (out.size() + n > limit) throw new IOException("Metadata too large");
+				if (out.size() + n > limit) throw LibraryTransferFailure.of(R.string.library_transfer_import_limit,"Metadata too large");
 				out.write(buffer, 0, n);
 			}
 			return new String(out.toByteArray(), StandardCharsets.UTF_8);
@@ -574,14 +580,14 @@ public final class LibraryImporter {
 					new String[]{DocumentsContract.Document.COLUMN_MIME_TYPE}, null, null, null)) {
 				if (cursor == null || !cursor.moveToFirst()
 						|| !DocumentsContract.Document.MIME_TYPE_DIR.equals(cursor.getString(0)))
-					throw new IOException("Cannot read source folder");
+					throw LibraryTransferFailure.of(R.string.library_transfer_source_access,"Cannot read source folder");
 			} catch (SecurityException error) { throw accessRequired(directory, directory.getName(), error); }
-			catch (RuntimeException error) { throw new IOException("Cannot read source folder", error); }
+			catch (RuntimeException error) { throw LibraryTransferFailure.caused(R.string.library_transfer_source_access,"Cannot read source folder", error); }
 		}
-		if (!directory.isDirectory() || !directory.canRead()) throw new IOException("Cannot read source folder");
+		if (!directory.isDirectory() || !directory.canRead()) throw LibraryTransferFailure.of(R.string.library_transfer_source_access,"Cannot read source folder");
 		if ("file".equals(uri.getScheme())) {
 			File file = new File(uri.getPath());
-			if (Files.isSymbolicLink(file.toPath()) || file.list() == null) throw new IOException("Unreadable or linked source folder");
+			if (Files.isSymbolicLink(file.toPath()) || file.list() == null) throw LibraryTransferFailure.of(R.string.library_transfer_unsafe_path,"Unreadable or linked source folder");
 		}
 		DocumentFile[] children = directory.listFiles();
 		// DocumentFile swallows provider errors and returns an empty/partial list. Never call that success.
@@ -591,32 +597,32 @@ public final class LibraryImporter {
 			try (Cursor cursor = context.getContentResolver().query(childUri,
 					new String[]{DocumentsContract.Document.COLUMN_DOCUMENT_ID,
 							DocumentsContract.Document.COLUMN_MIME_TYPE, DocumentsContract.Document.COLUMN_DISPLAY_NAME}, null, null, null)) {
-				if (cursor == null || cursor.getCount() != children.length) throw new IOException("Incomplete folder listing; retry import");
+				if (cursor == null || cursor.getCount() != children.length) throw LibraryTransferFailure.of(R.string.library_transfer_source_access,"Incomplete folder listing; retry import");
 				while (cursor.moveToNext()) metadata.put(cursor.getString(0), new String[]{cursor.getString(1), cursor.getString(2)});
 			} catch (SecurityException error) { throw accessRequired(directory, directory.getName(), error); }
-			catch (RuntimeException error) { throw new IOException("Cannot enumerate source folder", error); }
+			catch (RuntimeException error) { throw LibraryTransferFailure.caused(R.string.library_transfer_source_access,"Cannot enumerate source folder", error); }
 			for (int i = 0; i < children.length; i++) {
 				DocumentFile child = children[i] = resolve(children[i]);
 				String[] info = metadata.get(DocumentsContract.getDocumentId(child.getUri()));
-				if (info == null) throw new IOException("Source changed; scan the library again");
+				if (info == null) throw LibraryTransferFailure.of(R.string.library_transfer_source_changed,"Source changed; scan the library again");
 				String parentName = folderNames.getOrDefault(documentKey(uri), "");
 				folderNames.put(documentKey(child.getUri()), parentName.isEmpty() ? info[1] : parentName + " / " + info[1]);
 				try (Cursor cursor = context.getContentResolver().query(child.getUri(),
 						new String[]{DocumentsContract.Document.COLUMN_MIME_TYPE}, null, null, null)) {
-					if (cursor == null || !cursor.moveToFirst() || cursor.isNull(0)) throw new IOException("Cannot read a source entry");
+					if (cursor == null || !cursor.moveToFirst() || cursor.isNull(0)) throw LibraryTransferFailure.of(R.string.library_transfer_source_access,"Cannot read a source entry");
 				} catch (SecurityException error) {
 					throw accessRequired(directory, directory.getName(), error);
-				} catch (RuntimeException error) { throw new IOException("Cannot read a source entry", error); }
+				} catch (RuntimeException error) { throw LibraryTransferFailure.caused(R.string.library_transfer_source_access,"Cannot read a source entry", error); }
 			}
 		}
-		if (children.length > MAX_FILES) throw new IOException("Too many source files");
+		if (children.length > MAX_FILES) throw LibraryTransferFailure.of(R.string.library_transfer_import_limit,"Too many source files");
 		return children;
 	}
 
 	private void checkTree(DocumentFile directory, int depth, int[] count) throws IOException {
-		if (depth > 20) throw new IOException("Source folders are nested too deeply");
+		if (depth > 20) throw LibraryTransferFailure.of(R.string.library_transfer_import_limit,"Source folders are nested too deeply");
 		for (DocumentFile child : children(directory)) {
-			if (++count[0] > MAX_FILES) throw new IOException("Too many source files");
+			if (++count[0] > MAX_FILES) throw LibraryTransferFailure.of(R.string.library_transfer_import_limit,"Too many source files");
 			if (child.isDirectory()) checkTree(child, depth + 1, count);
 		}
 	}
@@ -625,11 +631,11 @@ public final class LibraryImporter {
 		Uri uri = file.getUri();
 		if ("file".equals(uri.getScheme())) {
 			File source = new File(uri.getPath());
-			if (Files.isSymbolicLink(source.toPath())) throw new IOException("Symbolic links are not supported");
+			if (Files.isSymbolicLink(source.toPath())) throw LibraryTransferFailure.of(R.string.library_transfer_unsafe_path,"Symbolic links are not supported");
 			return new FileInputStream(source);
 		}
 		InputStream input = context.getContentResolver().openInputStream(uri);
-		if (input == null) throw new IOException("Cannot open source file");
+		if (input == null) throw LibraryTransferFailure.of(R.string.library_transfer_source_access,"Cannot open source file");
 		return input;
 	}
 
@@ -639,19 +645,19 @@ public final class LibraryImporter {
 
 	private static void validName(String name) throws IOException {
 		if (name == null || name.isEmpty() || name.equals(".") || name.equals("..")
-				|| name.contains("/") || name.contains("\\") || name.contains(":")) throw new IOException("Unsafe file name");
+				|| name.contains("/") || name.contains("\\") || name.contains(":")) throw LibraryTransferFailure.of(R.string.library_transfer_unsafe_path,"Unsafe file name");
 	}
 
 	private static void mkdir(File dir) throws IOException {
-		if (!dir.isDirectory() && !dir.mkdirs()) throw new IOException("Cannot create import folder");
+		if (!dir.isDirectory() && !dir.mkdirs()) throw LibraryTransferFailure.of(R.string.library_transfer_storage_failure,"Cannot create import folder");
 	}
 
 	private static void delete(File root) throws IOException {
 		if (!root.exists()) return;
-		if (Files.isSymbolicLink(root.toPath())) throw new IOException("Unexpected link in import folder");
+		if (Files.isSymbolicLink(root.toPath())) throw LibraryTransferFailure.of(R.string.library_transfer_unsafe_path,"Unexpected link in import folder");
 		File[] children = root.listFiles();
 		if (children != null) for (File child : children) delete(child);
-		if (!root.delete()) throw new IOException("Could not clean up import folder");
+		if (!root.delete()) throw LibraryTransferFailure.of(R.string.library_transfer_cleanup,"Could not clean up import folder");
 	}
 
 	private static boolean hasPublished(File root, String id) {
@@ -675,7 +681,7 @@ public final class LibraryImporter {
 			if (marker.isFile()) {
 				String target = new String(Files.readAllBytes(marker.toPath()), StandardCharsets.UTF_8);
 				if (target.equals("\u0001") || target.equals("1")) target = id;
-				if (!target.equals(id) && !target.matches("mophun-[0-9a-f]{64}")) throw new IOException("Invalid import recovery marker");
+				if (!target.equals(id) && !target.matches("mophun-[0-9a-f]{64}")) throw LibraryTransferFailure.of(R.string.library_transfer_source_invalid,"Invalid import recovery marker");
 				if (catalog.byPath(target) == null) rollback(root, target);
 			}
 			delete(stage);

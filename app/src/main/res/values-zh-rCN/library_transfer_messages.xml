@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="library_transfer_wrong_folder">请选择要求的源文件夹以继续。</string>
+    <string name="library_transfer_source_layout">请选择包含 converted、data 和 configs 的 J2ME Loader 文件夹，或 converted 内的单个游戏文件夹。</string>
+    <string name="library_transfer_jar_required">原始 JAR 缺失或不完整。请选择包含游戏类和清单的副本。</string>
+    <string name="library_transfer_source_access">无法读取源数据。请检查文件夹访问权限，或选择导出的副本。</string>
+    <string name="library_transfer_import_limit">传输内容超出文件数量或大小限制。请选择较小的合集。</string>
+    <string name="library_transfer_source_invalid">源数据无效或不完整。请重新导出副本后重试。</string>
+    <string name="library_transfer_engine_unavailable">此版本未包含该游戏所需的引擎。</string>
+    <string name="library_transfer_already_imported">此游戏已导入。现有文件和存档已保留。</string>
+    <string name="library_transfer_source_changed">源数据在导入过程中发生了变化。请关闭源应用并重新扫描游戏库。</string>
+    <string name="library_transfer_destination_conflict">目标已存在。现有文件和存档已保留。</string>
+    <string name="library_transfer_storage_failure">无法保存数据。请检查可用空间和存储访问权限后重试。</string>
+    <string name="library_transfer_settings_invalid">无法导入设置。游戏未添加。</string>
+    <string name="library_transfer_unsafe_path">发现不安全的路径或符号链接。请使用普通的导出副本。</string>
+    <string name="library_transfer_cleanup">无法删除导入临时文件。请检查存储访问权限后重试。</string>
+    <string name="library_transfer_folder_access">请允许访问 %1$s 以读取游戏库。在 Android 提示时选择该文件夹；原始文件保持不变。</string>
+    <string name="library_transfer_source_name">请选择名为 %1$s 的文件夹。</string>
+    <string name="library_transfer_source_folder">源文件夹</string>
+    <string name="library_transfer_unsupported_entry">无法导入此条目：%1$s</string>
+    <string name="library_transfer_settings_default">设置未传输；启动时将使用自动设置。</string>
+    <string name="library_transfer_settings_version">不支持此设置版本；启动时将使用自动设置。</string>
+    <string name="library_transfer_imported_saved">已导入游戏及存档</string>
+    <string name="library_transfer_imported_nosaves">已导入；未找到存档</string>
+    <string name="library_transfer_no_shared">没有共享文件</string>
+    <string name="library_transfer_shared_count">已复制 %1$d 个共享文件；保留了 %2$d 个现有文件。</string>
+    <string name="library_transfer_shared_error">共享文件：已复制 %1$d 个，保留 %2$d 个。%3$s</string>
+    <string name="library_transfer_settings_paths">外部路径和自定义着色器未传输。</string>
+    <string name="library_transfer_launch_once">备份游戏库前，请先启动一次 %1$s。</string>
+    <string name="library_transfer_no_games">没有可备份的已安装游戏。</string>
+    <string name="library_transfer_backup_version">不支持此备份版本。请使用兼容 AbyssME 版本创建的备份。</string>
+    <string name="library_transfer_backup_changed">游戏数据在备份过程中发生了变化。请关闭游戏后重试。</string>
+</resources>

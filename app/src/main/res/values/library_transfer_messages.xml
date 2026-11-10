@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="library_transfer_wrong_folder">Choose the requested source folder to continue.</string>
+    <string name="library_transfer_source_layout">Choose the J2ME Loader folder containing converted, data and configs, or one game folder inside converted.</string>
+    <string name="library_transfer_jar_required">The original JAR is missing or incomplete. Choose a copy containing the game classes and manifest.</string>
+    <string name="library_transfer_source_access">Cannot read this source. Check folder access or select an exported copy.</string>
+    <string name="library_transfer_import_limit">This transfer exceeds the supported file or size limit. Choose a smaller collection.</string>
+    <string name="library_transfer_source_invalid">The source data is invalid or incomplete. Export a fresh copy and try again.</string>
+    <string name="library_transfer_engine_unavailable">This build does not include the engine needed by this game.</string>
+    <string name="library_transfer_already_imported">This game was already imported. Existing files and saves were kept.</string>
+    <string name="library_transfer_source_changed">The source changed during import. Close the source app and scan the library again.</string>
+    <string name="library_transfer_destination_conflict">The destination already exists. Existing files and saves were kept.</string>
+    <string name="library_transfer_storage_failure">Cannot save the data. Check free space and storage access, then retry.</string>
+    <string name="library_transfer_settings_invalid">The settings could not be imported. The game was not added.</string>
+    <string name="library_transfer_unsafe_path">An unsafe path or symbolic link was found. Use an ordinary exported copy.</string>
+    <string name="library_transfer_cleanup">Temporary import files could not be removed. Check storage access and retry.</string>
+    <string name="library_transfer_folder_access">Allow access to %1$s to read this library. Select that folder when Android asks; original files stay unchanged.</string>
+    <string name="library_transfer_source_name">Select the folder named %1$s.</string>
+    <string name="library_transfer_source_folder">Source folder</string>
+    <string name="library_transfer_unsupported_entry">This entry could not be imported: %1$s</string>
+    <string name="library_transfer_settings_default">Settings were not transferred; automatic setup will be used on launch.</string>
+    <string name="library_transfer_settings_version">This settings version is unsupported; automatic setup will be used on launch.</string>
+    <string name="library_transfer_imported_saved">Imported with saves</string>
+    <string name="library_transfer_imported_nosaves">Imported; no saves found</string>
+    <string name="library_transfer_no_shared">No shared files</string>
+    <string name="library_transfer_shared_count">Shared files copied: %1$d; existing files kept: %2$d.</string>
+    <string name="library_transfer_shared_error">Shared files — copied: %1$d; kept: %2$d. %3$s</string>
+    <string name="library_transfer_settings_paths">External paths and custom shaders were not transferred.</string>
+    <string name="library_transfer_launch_once">Launch %1$s once before backing up the library.</string>
+    <string name="library_transfer_no_games">There are no installed games to back up.</string>
+    <string name="library_transfer_backup_version">This backup version is not supported. Use a backup from a compatible AbyssME version.</string>
+    <string name="library_transfer_backup_changed">Game data changed during backup. Close the game and try again.</string>
+</resources>

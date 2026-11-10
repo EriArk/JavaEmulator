@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="library_transfer_wrong_folder">Elige la carpeta de origen solicitada para continuar.</string>
+    <string name="library_transfer_source_layout">Elige la carpeta de J2ME Loader que contiene converted, data y configs, o la carpeta de un juego dentro de converted.</string>
+    <string name="library_transfer_jar_required">El JAR original falta o está incompleto. Elige una copia con las clases y el manifiesto del juego.</string>
+    <string name="library_transfer_source_access">No se puede leer el origen. Comprueba el acceso a la carpeta o elige una copia exportada.</string>
+    <string name="library_transfer_import_limit">La transferencia supera el límite de tamaño o archivos. Elige una colección más pequeña.</string>
+    <string name="library_transfer_source_invalid">Los datos de origen no son válidos o están incompletos. Exporta una copia nueva e inténtalo otra vez.</string>
+    <string name="library_transfer_engine_unavailable">Esta versión no incluye el motor que necesita este juego.</string>
+    <string name="library_transfer_already_imported">Este juego ya se importó. Se conservaron los archivos y las partidas existentes.</string>
+    <string name="library_transfer_source_changed">El origen cambió durante la importación. Cierra la aplicación de origen y vuelve a examinar la biblioteca.</string>
+    <string name="library_transfer_destination_conflict">El destino ya existe. Se conservaron los archivos y las partidas existentes.</string>
+    <string name="library_transfer_storage_failure">No se pueden guardar los datos. Comprueba el espacio libre y el acceso al almacenamiento, y vuelve a intentarlo.</string>
+    <string name="library_transfer_settings_invalid">No se pudieron importar los ajustes. El juego no se añadió.</string>
+    <string name="library_transfer_unsafe_path">Se encontró una ruta insegura o un enlace simbólico. Usa una copia exportada normal.</string>
+    <string name="library_transfer_cleanup">No se pudieron eliminar los archivos temporales de importación. Comprueba el acceso al almacenamiento y vuelve a intentarlo.</string>
+    <string name="library_transfer_folder_access">Permite el acceso a %1$s para leer la biblioteca. Selecciona esa carpeta cuando Android lo solicite; los originales no se modificarán.</string>
+    <string name="library_transfer_source_name">Selecciona la carpeta llamada %1$s.</string>
+    <string name="library_transfer_source_folder">Carpeta de origen</string>
+    <string name="library_transfer_unsupported_entry">No se pudo importar esta entrada: %1$s</string>
+    <string name="library_transfer_settings_default">Los ajustes no se transfirieron; se usará la configuración automática al iniciar.</string>
+    <string name="library_transfer_settings_version">Esta versión de los ajustes no es compatible; se usará la configuración automática al iniciar.</string>
+    <string name="library_transfer_imported_saved">Importado con partidas guardadas</string>
+    <string name="library_transfer_imported_nosaves">Importado; no se encontraron partidas guardadas</string>
+    <string name="library_transfer_no_shared">No hay archivos compartidos</string>
+    <string name="library_transfer_shared_count">Archivos compartidos copiados: %1$d; archivos existentes conservados: %2$d.</string>
+    <string name="library_transfer_shared_error">Archivos compartidos — copiados: %1$d; conservados: %2$d. %3$s</string>
+    <string name="library_transfer_settings_paths">No se transfirieron las rutas externas ni los sombreadores personalizados.</string>
+    <string name="library_transfer_launch_once">Inicia %1$s una vez antes de crear la copia de seguridad.</string>
+    <string name="library_transfer_no_games">No hay juegos instalados para incluir en la copia de seguridad.</string>
+    <string name="library_transfer_backup_version">Esta versión de la copia de seguridad no es compatible. Usa una copia de una versión compatible de AbyssME.</string>
+    <string name="library_transfer_backup_changed">Los datos del juego cambiaron durante la copia de seguridad. Cierra el juego e inténtalo otra vez.</string>
+</resources>

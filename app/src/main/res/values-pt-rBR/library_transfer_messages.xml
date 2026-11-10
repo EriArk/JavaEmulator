@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="library_transfer_wrong_folder">Escolha a pasta de origem solicitada para continuar.</string>
+    <string name="library_transfer_source_layout">Escolha a pasta do J2ME Loader com converted, data e configs, ou a pasta de um jogo dentro de converted.</string>
+    <string name="library_transfer_jar_required">O JAR original está ausente ou incompleto. Escolha uma cópia com as classes e o manifesto do jogo.</string>
+    <string name="library_transfer_source_access">Não foi possível ler a origem. Verifique o acesso à pasta ou escolha uma cópia exportada.</string>
+    <string name="library_transfer_import_limit">A transferência excede o limite de tamanho ou de arquivos. Escolha uma coleção menor.</string>
+    <string name="library_transfer_source_invalid">Os dados de origem são inválidos ou incompletos. Exporte uma nova cópia e tente novamente.</string>
+    <string name="library_transfer_engine_unavailable">Esta versão não inclui o mecanismo necessário para este jogo.</string>
+    <string name="library_transfer_already_imported">Este jogo já foi importado. Os arquivos e salvamentos existentes foram mantidos.</string>
+    <string name="library_transfer_source_changed">A origem mudou durante a importação. Feche o aplicativo de origem e examine a biblioteca novamente.</string>
+    <string name="library_transfer_destination_conflict">O destino já existe. Os arquivos e salvamentos existentes foram mantidos.</string>
+    <string name="library_transfer_storage_failure">Não foi possível salvar os dados. Verifique o espaço livre e o acesso ao armazenamento e tente novamente.</string>
+    <string name="library_transfer_settings_invalid">Não foi possível importar as configurações. O jogo não foi adicionado.</string>
+    <string name="library_transfer_unsafe_path">Foi encontrado um caminho inseguro ou link simbólico. Use uma cópia exportada comum.</string>
+    <string name="library_transfer_cleanup">Não foi possível remover os arquivos temporários da importação. Verifique o acesso ao armazenamento e tente novamente.</string>
+    <string name="library_transfer_folder_access">Permita o acesso a %1$s para ler a biblioteca. Selecione essa pasta quando o Android pedir; os arquivos originais não serão alterados.</string>
+    <string name="library_transfer_source_name">Selecione a pasta chamada %1$s.</string>
+    <string name="library_transfer_source_folder">Pasta de origem</string>
+    <string name="library_transfer_unsupported_entry">Não foi possível importar esta entrada: %1$s</string>
+    <string name="library_transfer_settings_default">As configurações não foram transferidas; a configuração automática será usada ao iniciar.</string>
+    <string name="library_transfer_settings_version">Esta versão das configurações não é compatível; a configuração automática será usada ao iniciar.</string>
+    <string name="library_transfer_imported_saved">Importado com salvamentos</string>
+    <string name="library_transfer_imported_nosaves">Importado; nenhum salvamento encontrado</string>
+    <string name="library_transfer_no_shared">Nenhum arquivo compartilhado</string>
+    <string name="library_transfer_shared_count">Arquivos compartilhados copiados: %1$d; arquivos existentes mantidos: %2$d.</string>
+    <string name="library_transfer_shared_error">Arquivos compartilhados — copiados: %1$d; mantidos: %2$d. %3$s</string>
+    <string name="library_transfer_settings_paths">Caminhos externos e shaders personalizados não foram transferidos.</string>
+    <string name="library_transfer_launch_once">Abra %1$s uma vez antes de fazer o backup da biblioteca.</string>
+    <string name="library_transfer_no_games">Não há jogos instalados para incluir no backup.</string>
+    <string name="library_transfer_backup_version">Esta versão do backup não é compatível. Use um backup de uma versão compatível do AbyssME.</string>
+    <string name="library_transfer_backup_changed">Os dados do jogo mudaram durante o backup. Feche o jogo e tente novamente.</string>
+</resources>

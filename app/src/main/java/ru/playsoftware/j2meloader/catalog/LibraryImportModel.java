@@ -91,8 +91,8 @@ public class LibraryImportModel extends AndroidViewModel {
 		Uri access = saved.getParcelable("access");
 		if (access != null) {
 			LibraryImporter.FolderAccessRequired request = new LibraryImporter.FolderAccessRequired(access,
-					saved.getString("accessName", "the source folder"));
-			state.setValue(new State(false, request.getMessage(), 0, 0, null, null, request));
+					saved.getString("accessName", getApplication().getString(R.string.library_transfer_source_folder)));
+			state.setValue(new State(false, LibraryTransferFailure.message(getApplication(),request), 0, 0, null, null, request));
 		} else if (!awaitingPicker) rescanRestoredSource();
 		// Only rescan for review. Never replay an import or overwrite a backup automatically.
 	}
@@ -152,7 +152,7 @@ public class LibraryImportModel extends AndroidViewModel {
 		if (busy || current == null || current.access == null) return;
 		try { importer.allowFolder(current.access, uri); }
 		catch (java.io.IOException e) {
-			state.setValue(new State(false, e.getMessage() + "\n\n" + current.access.getMessage(), 0, 0, null, null, current.access));
+			state.setValue(new State(false, LibraryTransferFailure.message(getApplication(),e) + "\n\n" + LibraryTransferFailure.message(getApplication(),current.access), 0, 0, null, null, current.access));
 			return;
 		}
 		if (singleGame != null) scanSingle(-1, null);
@@ -163,7 +163,7 @@ public class LibraryImportModel extends AndroidViewModel {
 		LibraryImporter.FolderAccessRequired access = error instanceof LibraryImporter.FolderAccessRequired
 				? (LibraryImporter.FolderAccessRequired) error : null;
 		state.postValue(new State(false, error instanceof CancellationException ? getApplication().getString(R.string.transfer_cancelled)
-				: error.getMessage() == null ? getApplication().getString(R.string.transfer_read_failed) : error.getMessage(),
+				: LibraryTransferFailure.message(getApplication(),error),
 				0, 0, null, null, access));
 	}
 
@@ -253,7 +253,7 @@ public class LibraryImportModel extends AndroidViewModel {
 				state.postValue(new State(false, getApplication().getResources().getQuantityString(R.plurals.transfer_backup_saved, count, count), 0, 0, null, null));
 			} catch (Exception e) {
 				busy = false;
-				state.postValue(new State(false, getApplication().getString(R.string.transfer_backup_failed, e.getMessage()), 0, 0, null, null));
+				state.postValue(new State(false, getApplication().getString(R.string.transfer_backup_failed, LibraryTransferFailure.message(getApplication(),e)), 0, 0, null, null));
 			}
 		});
 	}

@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="library_transfer_wrong_folder">続行するには指定された元のフォルダーを選択してください。</string>
+    <string name="library_transfer_source_layout">converted、data、configs を含む J2ME Loader フォルダー、または converted 内のゲームフォルダーを選択してください。</string>
+    <string name="library_transfer_jar_required">元の JAR がないか不完全です。ゲームのクラスとマニフェストを含むコピーを選択してください。</string>
+    <string name="library_transfer_source_access">元のデータを読み込めません。フォルダーへのアクセス権を確認するか、エクスポートしたコピーを選択してください。</string>
+    <string name="library_transfer_import_limit">ファイル数またはサイズの上限を超えています。より小さいコレクションを選択してください。</string>
+    <string name="library_transfer_source_invalid">元のデータが無効または不完全です。新しいコピーをエクスポートして再試行してください。</string>
+    <string name="library_transfer_engine_unavailable">このビルドには、このゲームに必要なエンジンが含まれていません。</string>
+    <string name="library_transfer_already_imported">このゲームはすでにインポートされています。既存のファイルとセーブデータは保持されました。</string>
+    <string name="library_transfer_source_changed">インポート中に元のデータが変更されました。元のアプリを閉じてライブラリを再スキャンしてください。</string>
+    <string name="library_transfer_destination_conflict">保存先はすでに存在します。既存のファイルとセーブデータは保持されました。</string>
+    <string name="library_transfer_storage_failure">データを保存できません。空き容量とストレージへのアクセス権を確認して再試行してください。</string>
+    <string name="library_transfer_settings_invalid">設定をインポートできませんでした。ゲームは追加されていません。</string>
+    <string name="library_transfer_unsafe_path">安全でないパスまたはシンボリックリンクが見つかりました。通常のエクスポート済みコピーを使用してください。</string>
+    <string name="library_transfer_cleanup">インポート用の一時ファイルを削除できませんでした。ストレージへのアクセス権を確認して再試行してください。</string>
+    <string name="library_transfer_folder_access">ライブラリを読み込むために %1$s へのアクセスを許可してください。Android の確認画面でそのフォルダーを選択します。元のファイルは変更されません。</string>
+    <string name="library_transfer_source_name">%1$s という名前のフォルダーを選択してください。</string>
+    <string name="library_transfer_source_folder">元のフォルダー</string>
+    <string name="library_transfer_unsupported_entry">この項目をインポートできませんでした: %1$s</string>
+    <string name="library_transfer_settings_default">設定は転送されませんでした。起動時に自動設定を使用します。</string>
+    <string name="library_transfer_settings_version">この設定バージョンはサポートされていません。起動時に自動設定を使用します。</string>
+    <string name="library_transfer_imported_saved">セーブデータと一緒にインポートしました</string>
+    <string name="library_transfer_imported_nosaves">インポートしました。セーブデータは見つかりませんでした</string>
+    <string name="library_transfer_no_shared">共有ファイルはありません</string>
+    <string name="library_transfer_shared_count">共有ファイルを %1$d 個コピーし、既存のファイルを %2$d 個保持しました。</string>
+    <string name="library_transfer_shared_error">共有ファイル: %1$d 個コピー、%2$d 個保持。%3$s</string>
+    <string name="library_transfer_settings_paths">外部パスとカスタムシェーダーは転送されませんでした。</string>
+    <string name="library_transfer_launch_once">ライブラリをバックアップする前に %1$s を一度起動してください。</string>
+    <string name="library_transfer_no_games">バックアップするインストール済みゲームがありません。</string>
+    <string name="library_transfer_backup_version">このバックアップバージョンはサポートされていません。互換性のある AbyssME バージョンのバックアップを使用してください。</string>
+    <string name="library_transfer_backup_changed">バックアップ中にゲームデータが変更されました。ゲームを閉じて再試行してください。</string>
+</resources>
