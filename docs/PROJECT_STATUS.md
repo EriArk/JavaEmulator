@@ -1,6 +1,6 @@
 # AbyssME - Current Product and Development Status
 
-**Last updated: 2026-11-10.** Verification dates are recorded per section.
+**Last updated: 2026-11-12.** Verification dates are recorded per section.
 This is the starting point for website copy,
 announcements, progress posts and project handoffs. It includes work that exists
 only in local experiments or private test builds. Describing that work here
@@ -11,6 +11,16 @@ changes, and the linked evidence for detail. This is a maintained snapshot,
 not a live feed. Verify GitHub Releases, recent commits and build notes before
 calling a version "latest" after this date. If local evidence is inaccessible,
 attribute its results to the dated maintainer record below; do not infer a pass.
+
+## Beta 4 Hotfix Prepared (2026-11-12)
+
+**0.7.0 Beta 4, code 318, is prepared locally; publication pending.** It fixes
+Compatibility settings launching the game from the library Advanced panel and
+after first preparation. Both targeted Android tests and 424 JVM tests pass;
+release lint has zero errors and 806 warnings. The signed combined ARM64 APK
+uses the existing release certificate. The final signed APK opens the editor via
+the reported library-card path on Retroid; the update preserves all 329 readable
+external file hashes. [Evidence and limits](releases/v0.7.0-beta.4-checks.md).
 
 ## Beta 3 Released (2026-11-10)
 

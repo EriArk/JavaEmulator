@@ -1,7 +1,7 @@
 # AbyssME Changelog
 
 User-facing development history, reconstructed from commits, release notes and
-local/private build records through **2026-11-10**. This is not a claim that all
+local/private build records through **2026-11-12**. This is not a claim that all
 listed work is in a public APK. See [current status](docs/PROJECT_STATUS.md) for
 availability, verification, known limits and screenshot guidance.
 
@@ -9,6 +9,17 @@ Labels: **Public source** means implemented on `main` but unreleased unless
 stated otherwise. **Experimental** in older checkpoints means local/private
 combined builds; released experimental features are explicitly identified.
 **Released** means an actual GitHub release asset.
+
+## 2026-11-12 - 0.7.0 Beta 4 (Prepared Locally)
+
+- Fix Compatibility settings launching a game instead of opening its editor:
+  recognize the library card's standard Android edit action and explicitly
+  request editing after first game preparation.
+- Prepare signed code 318 with matching app sources, unchanged dependency/Symbian
+  bundles and SHA-256 checksums. Publication is pending.
+- Pass two focused Android navigation tests and 424 JVM tests; production guards
+  pass and release lint has zero errors / 806 warnings.
+  [Verification and limits](docs/releases/v0.7.0-beta.4-checks.md).
 
 ## 2026-11-10 - 0.7.0 Beta 3 (Released)
 
