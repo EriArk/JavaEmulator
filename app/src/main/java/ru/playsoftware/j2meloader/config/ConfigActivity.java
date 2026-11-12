@@ -105,7 +105,7 @@ public class ConfigActivity extends BaseActivity implements View.OnClickListener
 		Intent intent = getIntent();
 		String action = intent.getAction();
 		isProfile = ACTION_EDIT_PROFILE.equals(action);
-		needShow = isProfile || ACTION_EDIT.equals(action);
+		needShow = isProfile || ACTION_EDIT.equals(action) || Intent.ACTION_EDIT.equals(action);
 		String path = intent.getDataString();
 		if (path == null) {
 			needShow = false;

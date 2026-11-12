@@ -64,6 +64,26 @@ public class CompatibilityNavigationTest {
             }
         }
     }
+    @Test public void standardAndroidEditFromLibraryCardDoesNotLaunchGame() throws Exception {
+        Instrumentation inst = InstrumentationRegistry.getInstrumentation();
+        File root = Files.createTempDirectory(inst.getTargetContext().getCacheDir().toPath(), "card-compat-").toFile();
+        File app = new File(root, "converted/fixture");
+        File config = new File(root, "configs/fixture");
+        assertTrue(app.mkdirs()); assertTrue(config.mkdirs());
+        assertTrue(ProfilesManager.saveConfig(new ProfileModel(config)));
+        Instrumentation.ActivityMonitor game = inst.addMonitor("javax.microedition.shell.MicroActivity", null, true);
+        try (ActivityScenario<ConfigActivity> scenario = ActivityScenario.launch(
+                new Intent(inst.getTargetContext(), ConfigActivity.class).setAction(Intent.ACTION_EDIT)
+                        .setData(Uri.parse(app.getPath())).putExtra(KEY_MIDLET_NAME, "Card fixture"))) {
+            scenario.onActivity(activity -> assertNotNull(activity.findViewById(R.id.whole_config_root)));
+            assertEquals(0, game.getHits());
+        } finally {
+            inst.removeMonitor(game);
+            try (java.util.stream.Stream<java.nio.file.Path> files = Files.walk(root.toPath())) {
+                files.sorted(java.util.Comparator.reverseOrder()).forEach(p -> { try { Files.delete(p); } catch (Exception e) { throw new RuntimeException(e); } });
+            }
+        }
+    }
     private static void click(View view, String text) {
         View target = find(view, text); assertNotNull(text, target);
         while (!target.isClickable() && target.getParent() instanceof View) target = (View) target.getParent();
