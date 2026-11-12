@@ -10,13 +10,15 @@ stated otherwise. **Experimental** in older checkpoints means local/private
 combined builds; released experimental features are explicitly identified.
 **Released** means an actual GitHub release asset.
 
-## 2026-11-12 - 0.7.0 Beta 4 (Prepared Locally)
+## 2026-11-12 - 0.7.0 Beta 4 (Released)
 
 - Fix Compatibility settings launching a game instead of opening its editor:
   recognize the library card's standard Android edit action and explicitly
   request editing after first game preparation.
-- Prepare signed code 318 with matching app sources, unchanged dependency/Symbian
-  bundles and SHA-256 checksums. Publication is pending.
+- Publish signed code 318 with matching app sources, unchanged dependency/Symbian
+  bundles and SHA-256 checksums; verify uploaded digests and public downloads.
+- Verify the reported menu path on the final signed Retroid APK and preserve
+  all 329 readable external file hashes across the in-place update.
 - Pass two focused Android navigation tests and 424 JVM tests; production guards
   pass and release lint has zero errors / 806 warnings.
   [Verification and limits](docs/releases/v0.7.0-beta.4-checks.md).

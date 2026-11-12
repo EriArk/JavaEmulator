@@ -20,7 +20,7 @@ It is an independent J2ME Loader fork and uses an integrated Symbian/N-Gage engi
 - **Official APK and release notes:** https://github.com/EriArk/JavaEmulator/releases
 - **Questions, game reports and help:** https://discord.gg/xBN9DXt8Q
 
-Download the latest **signed APK** from an official link. The current public unified build is `AbyssME-0.7.0-beta.3.apk`. Android may ask you to allow installation from your browser or file manager.
+Download the latest **signed APK** from an official link. The current public unified build is `AbyssME-0.7.0-beta.4.apk`. Android may ask you to allow installation from your browser or file manager.
 
 **Requirements:** Android 10 or newer and a **64-bit ARM (ARM64)** device. The app adapts to touchscreens and gaming handhelds. A controller is optional.
 
@@ -381,7 +381,7 @@ Even if the problem seems tiny, **please tell us**. Fixing one specific game oft
 
 ## 14. Feature availability and useful links
 
-**This FAQ describes public 0.7.0 Beta 3.** It includes per-game virtual Gamepad remapping, movable/hideable phone menu handles, opacity settings and **Settings > Language**. Choose System default, English, Spanish, Brazilian Portuguese, Russian, French, German, Japanese or Simplified Chinese. This changes emulator menus, not the game's language. Some low-level diagnostics may still appear in English. Java audio and N-Gage 2.0 installer fixes are included. Beta 3 adds multi-phone EKA2L1 transfer/retry, localized recovery, Ocean/Amber styles and Website actions; see the [release notes and limits](releases/v0.7.0-beta.3.md). Remaining work is tracked in the [issue-status index](ISSUE_STATUS.md).
+**This FAQ describes public 0.7.0 Beta 4.** It includes per-game virtual Gamepad remapping, movable/hideable phone menu handles, opacity settings and **Settings > Language**. Choose System default, English, Spanish, Brazilian Portuguese, Russian, French, German, Japanese or Simplified Chinese. This changes emulator menus, not the game's language. Some low-level diagnostics may still appear in English. Java audio and N-Gage 2.0 installer fixes are included. Beta 3 adds multi-phone EKA2L1 transfer/retry, localized recovery, Ocean/Amber styles and Website actions; Beta 4 fixes Compatibility settings opening a game; see the [release notes and limits](releases/v0.7.0-beta.4.md). Remaining work is tracked in the [issue-status index](ISSUE_STATUS.md).
 
 - **AbyssME website:** https://abysstail.art/en/projects/abyssme
 - **APK, release notes and matching source:** https://github.com/EriArk/JavaEmulator/releases

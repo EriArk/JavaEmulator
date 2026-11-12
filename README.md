@@ -18,11 +18,11 @@ users of the former Phone app can use the menu-based
 > **Project status:** Beta. AbyssME is usable, but compatibility automation and
 > launcher integration still need testing across more games and devices.
 
-[Download 0.7.0 Beta 3](https://github.com/EriArk/JavaEmulator/releases/download/v0.7.0-beta.3/AbyssME-0.7.0-beta.3.apk)
+[Download 0.7.0 Beta 4](https://github.com/EriArk/JavaEmulator/releases/download/v0.7.0-beta.4/AbyssME-0.7.0-beta.4.apk)
 
 **[Setup & FAQ](docs/FAQ.md)** — step-by-step help with Java ME, Mophun, Symbian/N-Gage firmware and game installation, touchscreen controls, physical controller mapping, backups and troubleshooting.
 
-Use the **0.7.0-beta.3** APK (code 316). It updates the official unified app in place;
+Use the **0.7.0-beta.4** APK (code 318). It updates the official unified app in place;
 older releases remain available for reference.
 
 ## Current Beta
@@ -31,8 +31,12 @@ For website copy, progress posts and handoffs, start with the
 [current product/development status](docs/PROJECT_STATUS.md) and
 [dated changelog](CHANGELOG.md). They also describe local/private experiments,
 explicitly separated from public downloads. The
-[0.7.0 Beta 3 notes](docs/releases/v0.7.0-beta.3.md) include the combined-engine scope,
-verification limits and source downloads.
+[0.7.0 Beta 4 notes](docs/releases/v0.7.0-beta.4.md) describe the compatibility
+settings navigation fix, verification limits and source downloads.
+
+**Beta 4** fixes Compatibility settings launching a game instead of opening its
+editor, both from the library card and after first preparation.
+[Hotfix verification](docs/releases/v0.7.0-beta.4-checks.md).
 
 **Beta 3** adds multi-phone EKA2L1 selection/review with retained transfers and
 safe retries, clearer import/backup recovery in all eight languages, Ocean and
@@ -232,7 +236,7 @@ broader device acceptance remains tracked in [#3](https://github.com/EriArk/Java
 ## Install
 
 1. Open [Releases](https://github.com/EriArk/JavaEmulator/releases).
-2. Download `AbyssME-0.7.0-beta.3.apk` for either a phone or a handheld.
+2. Download `AbyssME-0.7.0-beta.4.apk` for either a phone or a handheld.
 3. Allow installation from your browser or file manager when Android asks.
 4. Install the APK and open AbyssME.
 

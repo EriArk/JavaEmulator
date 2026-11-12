@@ -12,15 +12,16 @@ not a live feed. Verify GitHub Releases, recent commits and build notes before
 calling a version "latest" after this date. If local evidence is inaccessible,
 attribute its results to the dated maintainer record below; do not infer a pass.
 
-## Beta 4 Hotfix Prepared (2026-11-12)
+## Beta 4 Released (2026-11-12)
 
-**0.7.0 Beta 4, code 318, is prepared locally; publication pending.** It fixes
+**0.7.0 Beta 4, code 318, is published.** It fixes
 Compatibility settings launching the game from the library Advanced panel and
 after first preparation. Both targeted Android tests and 424 JVM tests pass;
 release lint has zero errors and 806 warnings. The signed combined ARM64 APK
 uses the existing release certificate. The final signed APK opens the editor via
 the reported library-card path on Retroid; the update preserves all 329 readable
-external file hashes. [Evidence and limits](releases/v0.7.0-beta.4-checks.md).
+external file hashes. All five release assets and public APK/checksum downloads
+match staging. [Evidence and limits](releases/v0.7.0-beta.4-checks.md).
 
 ## Beta 3 Released (2026-11-10)
 
@@ -38,8 +39,8 @@ physical-button/audible-audio acceptance. Public APK/checksum downloads match.
 
 ## Current Issue Review (2026-11-10)
 
-Live release metadata identifies Beta 3 (November 10) as the newest published
-beta. Release-specific build, signature, upgrade and download checks are linked
+Release metadata rechecked November 12 identifies Beta 4 as the newest published
+beta. The issue review below retains its November 10 scope. Release-specific build, signature, upgrade and download checks are linked
 above. Earlier issue/game results retain their dates and scope; live multiplayer
 services were not rechecked during publication.
 
