@@ -57,7 +57,8 @@ public final class GameSettingsActivity extends AppCompatActivity {
                 mapper.show();
             }
             public void advanced() {
-                Intent intent = new Intent(getIntent()).setClass(GameSettingsActivity.this, ConfigActivity.class);
+                Intent intent = new Intent(getIntent()).setClass(GameSettingsActivity.this, ConfigActivity.class)
+                        .setAction(ACTION_EDIT);
                 startActivity(intent); finish();
             }
             public void back() { pages.home(); }
