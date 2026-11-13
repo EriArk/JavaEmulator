@@ -10,15 +10,18 @@ stated otherwise. **Experimental** in older checkpoints means local/private
 combined builds; released experimental features are explicitly identified.
 **Released** means an actual GitHub release asset.
 
-## 2026-11-13 - 0.7.0 Beta 5 (Prepared Locally)
+## 2026-11-13 - 0.7.0 Beta 5 (Released)
 
-- Prepare two signed code-319 APKs: combined ARM64 and Java/Mophun-only ARMv7.
+- Publish two signed code-319 APKs: combined ARM64 and Java/Mophun-only ARMv7.
   Both retain Android 10+, the official app identity and existing saves.
 - Identify the installed distribution in About. Keep the Beta 4 settings fix.
 - Verify both builds/ABI guards, 424 JVM tests per target, native ARM32 Retroid
   checks and selected real-game save round trips. Preserve the explicit limits
   for older low-memory phones, full games, physical input and audio listening.
-- Publication is pending. [Verification](docs/releases/v0.7.0-beta.5-checks.md).
+- Verify signed ARM64/ARMv7 switching without uninstalling, all six uploaded
+  asset digests and both public APK downloads. Remove the expired FAQ Discord
+  invitation; a replacement link/button remains pending.
+  [Verification](docs/releases/v0.7.0-beta.5-checks.md).
 
 ## 2026-11-12 - 0.7.0 Beta 4 (Released)
 

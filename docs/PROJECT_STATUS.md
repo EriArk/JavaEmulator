@@ -12,14 +12,16 @@ not a live feed. Verify GitHub Releases, recent commits and build notes before
 calling a version "latest" after this date. If local evidence is inaccessible,
 attribute its results to the dated maintainer record below; do not infer a pass.
 
-## Dual Beta 5 Prepared (2026-11-13)
+## Dual Beta 5 Released (2026-11-13)
 
-**Code 319 is prepared locally; publication pending.** A separate ARMv7
+**Both signed code-319 APKs are published.** A separate ARMv7
 Java/Mophun APK accompanies the usual combined ARM64 APK; both require Android
 10+. About identifies the installed distribution. Each target passes 424 JVM
 tests and production guards. ARMv7 passes 78 targeted Android tests in a native
 32-bit Retroid process plus bounded Deep Abyss, Diamond Rush and Java Asphalt 3D
-checks. This is not older low-memory-phone or full-game acceptance.
+checks. Signed ARM64 → ARMv7 → ARM64 updates preserve all 329 readable external
+file hashes. Six upload digests and both public APK downloads match staging.
+This is not older low-memory-phone or full-game acceptance.
 [Verification and limits](releases/v0.7.0-beta.5-checks.md).
 
 ## Beta 4 Released (2026-11-12)
@@ -49,7 +51,7 @@ physical-button/audible-audio acceptance. Public APK/checksum downloads match.
 
 ## Current Issue Review (2026-11-10)
 
-Release metadata rechecked November 12 identifies Beta 4 as the newest published
+Release metadata rechecked November 13 identifies Beta 5 as the newest published
 beta. The issue review below retains its November 10 scope. Release-specific build, signature, upgrade and download checks are linked
 above. Earlier issue/game results retain their dates and scope; live multiplayer
 services were not rechecked during publication.

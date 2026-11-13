@@ -18,11 +18,12 @@ users of the former Phone app can use the menu-based
 > **Project status:** Beta. AbyssME is usable, but compatibility automation and
 > launcher integration still need testing across more games and devices.
 
-[Download 0.7.0 Beta 4](https://github.com/EriArk/JavaEmulator/releases/download/v0.7.0-beta.4/AbyssME-0.7.0-beta.4.apk)
+[Download Beta 5 — ARM64](https://github.com/EriArk/JavaEmulator/releases/download/v0.7.0-beta.5/AbyssME-0.7.0-beta.5.apk) ·
+[ARMv7 — Java/Mophun only](https://github.com/EriArk/JavaEmulator/releases/download/v0.7.0-beta.5/AbyssME-0.7.0-beta.5-armv7.apk)
 
 **[Setup & FAQ](docs/FAQ.md)** — step-by-step help with Java ME, Mophun, Symbian/N-Gage firmware and game installation, touchscreen controls, physical controller mapping, backups and troubleshooting.
 
-Use the **0.7.0-beta.4** APK (code 318). It updates the official unified app in place;
+Choose the **0.7.0-beta.5** APK (code 319) for your Android ABI. Both update the official app in place;
 older releases remain available for reference.
 
 ## Current Beta
@@ -31,8 +32,12 @@ For website copy, progress posts and handoffs, start with the
 [current product/development status](docs/PROJECT_STATUS.md) and
 [dated changelog](CHANGELOG.md). They also describe local/private experiments,
 explicitly separated from public downloads. The
-[0.7.0 Beta 4 notes](docs/releases/v0.7.0-beta.4.md) describe the compatibility
-settings navigation fix, verification limits and source downloads.
+[0.7.0 Beta 5 notes](docs/releases/v0.7.0-beta.5.md) explain the two downloads,
+verification limits and source bundles.
+
+**Beta 5** adds a separate ARMv7 Java/Mophun APK and identifies the installed
+distribution in About. Android 10+ remains required; choose ARM64 when supported.
+[Native ARM32 and signed-update checks](docs/releases/v0.7.0-beta.5-checks.md).
 
 **Beta 4** fixes Compatibility settings launching a game instead of opening its
 editor, both from the library card and after first preparation.
@@ -224,9 +229,9 @@ Each pack identifies its build and test environment.
 ## Requirements
 
 - Android 10 or newer (API 29+)
-- 64-bit ARM device (arm64-v8a) for the current combined APK. A current ARMv7
-  Java/Mophun distribution is tracked in [#29](https://github.com/EriArk/JavaEmulator/issues/29);
-  older releases are historical alternatives, not current-feature builds
+- ARM64 Android for the combined Java/Mophun/Symbian/N-Gage APK, or 32-bit ARM
+  Android support for the separate Java/Mophun-only ARMv7 APK. ARM64-only systems
+  cannot run ARMv7. Older low-memory phone coverage remains limited ([#29](https://github.com/EriArk/JavaEmulator/issues/29)).
 - A controller is optional; touch layouts are included
 
 The unified app has a rotatable library, a compact portrait layout, direct MIDP
@@ -236,7 +241,7 @@ broader device acceptance remains tracked in [#3](https://github.com/EriArk/Java
 ## Install
 
 1. Open [Releases](https://github.com/EriArk/JavaEmulator/releases).
-2. Download `AbyssME-0.7.0-beta.4.apk` for either a phone or a handheld.
+2. Choose `AbyssME-0.7.0-beta.5.apk` for ARM64, or `AbyssME-0.7.0-beta.5-armv7.apk` for 32-bit ARM Android. Both adapt to phones and handhelds.
 3. Allow installation from your browser or file manager when Android asks.
 4. Install the APK and open AbyssME.
 

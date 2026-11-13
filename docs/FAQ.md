@@ -2,7 +2,7 @@
 
 *Java ME • Mophun • Symbian • N-Gage • Android phones & gaming handhelds*
 
-**Guide for the current public release: AbyssME 0.7.0 Beta 3 (Android 10+, ARM64). Availability and transfer guidance reviewed November 10, 2026.** AbyssME is still in beta. Not every game, phone firmware or network combination will work yet.
+**Guide for the current public release: AbyssME 0.7.0 Beta 5 (Android 10+, ARM64 or ARMv7). Download guidance reviewed November 13, 2026; earlier game/transfer checks retain their recorded dates.** AbyssME is still in beta. Not every game, phone firmware or network combination will work yet.
 
 **New here?** Start with [What files do I need?](#what-files-do-i-need), then follow the section for your platform. **Having trouble with buttons?** Jump to [Touchscreen controls](#7-touchscreen-controls) or [Physical controllers](#8-physical-controllers). If you're stuck, the [Troubleshooting](#12-troubleshooting) section tells you what to check.
 
@@ -12,17 +12,18 @@
 
 AbyssME is an Android app for playing classic mobile games. It brings **Java ME, Mophun, Symbian and both generations of N-Gage** together in one library, with touchscreen and physical-controller support.
 
-It is an independent J2ME Loader fork and uses an integrated Symbian/N-Gage engine based on EKA2L1. You do **not** need to install J2ME Loader or EKA2L1 separately to use AbyssME.
+It is an independent J2ME Loader fork and uses an integrated Symbian/N-Gage engine based on EKA2L1. You do **not** need to install J2ME Loader or EKA2L1 separately to use AbyssME. The ARMv7 build omits Symbian/N-Gage; those sections below apply to the combined ARM64 build.
 
 ### Where can I get AbyssME?
 
 - **Project page:** https://abysstail.art/en/projects/abyssme
 - **Official APK and release notes:** https://github.com/EriArk/JavaEmulator/releases
-- **Questions, game reports and help:** https://discord.gg/xBN9DXt8Q
+- **Questions, game reports and help:** https://github.com/EriArk/JavaEmulator/issues
+- The previous Discord invitation expired; a replacement is pending.
 
-Download the latest **signed APK** from an official link. The current public unified build is `AbyssME-0.7.0-beta.4.apk`. Android may ask you to allow installation from your browser or file manager.
+Download the latest **signed APK** from an official link. Choose `AbyssME-0.7.0-beta.5.apk` for ARM64, or `AbyssME-0.7.0-beta.5-armv7.apk` for 32-bit ARM Android. Android may ask you to allow installation from your browser or file manager.
 
-**Requirements:** Android 10 or newer and a **64-bit ARM (ARM64)** device. The app adapts to touchscreens and gaming handhelds. A controller is optional.
+**Requirements:** Android 10 or newer. The **ARM64** APK includes all four platforms; the **ARMv7** APK requires 32-bit ARM Android support and includes only Java ME/Mophun. Prefer ARM64 when supported. The app adapts to touchscreens and gaming handhelds. A controller is optional.
 
 ### Are any games or phone system files included?
 
@@ -381,7 +382,7 @@ Even if the problem seems tiny, **please tell us**. Fixing one specific game oft
 
 ## 14. Feature availability and useful links
 
-**This FAQ describes public 0.7.0 Beta 4.** It includes per-game virtual Gamepad remapping, movable/hideable phone menu handles, opacity settings and **Settings > Language**. Choose System default, English, Spanish, Brazilian Portuguese, Russian, French, German, Japanese or Simplified Chinese. This changes emulator menus, not the game's language. Some low-level diagnostics may still appear in English. Java audio and N-Gage 2.0 installer fixes are included. Beta 3 adds multi-phone EKA2L1 transfer/retry, localized recovery, Ocean/Amber styles and Website actions; Beta 4 fixes Compatibility settings opening a game; see the [release notes and limits](releases/v0.7.0-beta.4.md). Remaining work is tracked in the [issue-status index](ISSUE_STATUS.md).
+**This FAQ describes public 0.7.0 Beta 5.** It includes per-game virtual Gamepad remapping, movable/hideable phone menu handles, opacity settings and **Settings > Language**. Choose System default, English, Spanish, Brazilian Portuguese, Russian, French, German, Japanese or Simplified Chinese. This changes emulator menus, not the game's language. Some low-level diagnostics may still appear in English. Java audio and N-Gage 2.0 installer fixes are included. Beta 3 adds multi-phone EKA2L1 transfer/retry, localized recovery, Ocean/Amber styles and Website actions; Beta 4 fixes Compatibility settings opening a game; Beta 5 adds the separate ARMv7 APK and an architecture label in About; see the [release notes and limits](releases/v0.7.0-beta.5.md). Remaining work is tracked in the [issue-status index](ISSUE_STATUS.md).
 
 - **AbyssME website:** https://abysstail.art/en/projects/abyssme
 - **APK, release notes and matching source:** https://github.com/EriArk/JavaEmulator/releases

@@ -96,7 +96,8 @@ the legacy Phone flavor is not an ARMv7 distribution. The application ID stays
 the same, so this is an alternate architecture build, not a separate library.
 An APK is not a supported release until device, upgrade and signing checks pass.
 
-The current distribution uses one adaptive `fdroid` APK. The `phone` flavor remains
+The current distribution offers adaptive `fdroid` APKs for combined ARM64 and
+Java/Mophun-only ARMv7. The `phone` flavor remains
 available for migration testing, but is not a second distribution target.
 Check touch and controller use separately, in portrait, landscape and square layouts:
 

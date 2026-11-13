@@ -2,9 +2,9 @@
 
 Manual SSH builds use a dedicated Docker environment. They do not enable GitHub
 Actions, publish a release, replace a device installation or move signing keys.
-The current public Beta 4 used an explicitly authorized local Linux build and
+The current public Beta 5 used an explicitly authorized local Linux build and
 host signing. The server remains the default for subsequent maintainer builds.
-See [release evidence](releases/v0.7.0-beta.4-checks.md).
+See [release evidence](releases/v0.7.0-beta.5-checks.md).
 This is now the default maintainer APK build path. Keep the local contributor
 workflow available, but do not silently fall back to a heavy Windows build when
 the server is unavailable; report the problem and preserve the local disk space.

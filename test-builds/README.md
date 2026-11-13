@@ -5,23 +5,23 @@ not one of the old experimental APKs in this directory.
 
 ## Current published beta
 
-[AbyssME 0.7.0 Beta 4](https://github.com/EriArk/JavaEmulator/releases/tag/v0.7.0-beta.4)
-provides one adaptive arm64 APK for phones and handhelds, with Java, Mophun and
-experimental Symbian / N-Gage. Games and firmware are not bundled:
+[AbyssME 0.7.0 Beta 5](https://github.com/EriArk/JavaEmulator/releases/tag/v0.7.0-beta.5)
+provides two adaptive APKs for phones and handhelds, both Android 10+ / code 319:
 
-- `AbyssME-0.7.0-beta.4.apk`: controller and touch use, portrait and landscape,
-  eight-language UI, virtual gamepad mapping, audio and N-Gage setup repairs.
-  Early experimental Java Bluetooth multiplayer retains its compatibility limits.
-  Code 318 fixes Compatibility settings navigation. Beta 3 added multi-phone transfer/retry, localized recovery, Ocean/Amber
-  styles and Website actions. It updates the official unified app in place.
-  ARMv7 remains source-only pending native device and release acceptance.
-- Older release files remain historical downloads.
-- Existing Handheld installs update in place; use the in-app migration workflow
-  for the separate old Phone app. Keep it installed until saves are checked.
+- `AbyssME-0.7.0-beta.5.apk`: ARM64, Java/Mophun and experimental Symbian/N-Gage.
+- `AbyssME-0.7.0-beta.5-armv7.apk`: 32-bit ARM Android, Java/Mophun only.
+- Both retain the current shared UI and Beta 4 navigation fix. About identifies
+  the distribution. Choose ARM64 when supported; older low-memory ARM32 device
+  coverage remains limited.
+- Games and firmware are not bundled. These alternate APKs update the same
+  official app; do not uninstall to switch. Existing saves remain stored, while
+  Symbian entries are unavailable in ARMv7. Keep a backup before switching.
+- Use the in-app migration workflow for the separate old Phone app. Keep that
+  app installed until saves are checked. Older release files remain historical.
 
-Use the [SHA-256 list](../docs/releases/v0.7.0-beta.4/SHA256SUMS.txt) to verify downloads.
-See the [release notes](../docs/releases/v0.7.0-beta.4.md) and
-[current limitations](../README.md#known-limitations) before reporting a problem.
+Use the [SHA-256 list](../docs/releases/v0.7.0-beta.5/SHA256SUMS.txt) to verify downloads.
+See the [release notes](../docs/releases/v0.7.0-beta.5.md) and
+[current limitations](../README.md#known-limitations).
 
 ## Historical files
 
