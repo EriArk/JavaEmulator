@@ -24,6 +24,12 @@ file hashes. Six upload digests and both public APK downloads match staging.
 This is not older low-memory-phone or full-game acceptance.
 [Verification and limits](releases/v0.7.0-beta.5-checks.md).
 
+A [silent Retroid demo](../screenshots/releases/v0.7.0-beta.5/README.md), recorded
+on November 13 using the signed ARM64 APK, shows library views, compatibility
+settings, a short Deep Abyss level and in-game panels. The video is public in the
+repository; ADB-injected controls do not establish physical-button or audio
+acceptance. No new build or broader game testing accompanies this recording.
+
 ## Beta 4 Released (2026-11-12)
 
 **0.7.0 Beta 4, code 318, is published.** It fixes

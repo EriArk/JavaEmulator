@@ -21,6 +21,8 @@ users of the former Phone app can use the menu-based
 [Download Beta 5 — ARM64](https://github.com/EriArk/JavaEmulator/releases/download/v0.7.0-beta.5/AbyssME-0.7.0-beta.5.apk) ·
 [ARMv7 — Java/Mophun only](https://github.com/EriArk/JavaEmulator/releases/download/v0.7.0-beta.5/AbyssME-0.7.0-beta.5-armv7.apk)
 
+[Watch the Beta 5 UI and gameplay demo](screenshots/releases/v0.7.0-beta.5/README.md) — recorded on Retroid, without audio.
+
 **[Setup & FAQ](docs/FAQ.md)** — step-by-step help with Java ME, Mophun, Symbian/N-Gage firmware and game installation, touchscreen controls, physical controller mapping, backups and troubleshooting.
 
 Choose the **0.7.0-beta.5** APK (code 319) for your Android ABI. Both update the official app in place;

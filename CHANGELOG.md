@@ -10,6 +10,13 @@ stated otherwise. **Experimental** in older checkpoints means local/private
 combined builds; released experimental features are explicitly identified.
 **Released** means an actual GitHub release asset.
 
+## 2026-11-13 - Retroid Demo (Public Media)
+
+- Add a silent recording of the signed Beta 5 ARM64 app on Retroid: library
+  views, compatibility settings, Deep Abyss gameplay, in-game panels and return
+  to the library. Inputs use ADB; this adds no new physical-button, audio or
+  full-game acceptance. [Video and capture details](screenshots/releases/v0.7.0-beta.5/README.md).
+
 ## 2026-11-13 - 0.7.0 Beta 5 (Released)
 
 - Publish two signed code-319 APKs: combined ARM64 and Java/Mophun-only ARMv7.
