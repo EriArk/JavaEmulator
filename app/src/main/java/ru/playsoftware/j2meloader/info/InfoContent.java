@@ -17,7 +17,7 @@ final class InfoContent {
     private InfoContent() { }
     static CharSequence about(Context context) {
         android.text.SpannableString text=new android.text.SpannableString(Html.fromHtml(context.getString(R.string.product_about,
-                TextUtils.htmlEncode(BuildConfig.VERSION_NAME)),Html.FROM_HTML_MODE_LEGACY));
+                TextUtils.htmlEncode(BuildConfig.VERSION_NAME + " · " + BuildConfig.DISTRIBUTION)),Html.FROM_HTML_MODE_LEGACY));
         for(android.text.style.URLSpan original:text.getSpans(0,text.length(),android.text.style.URLSpan.class)) {
             android.text.style.URLSpan link=new android.text.style.URLSpan(original.getURL()) {
                 @Override public void onClick(android.view.View widget) { ProductLinks.open(context,getURL()); }

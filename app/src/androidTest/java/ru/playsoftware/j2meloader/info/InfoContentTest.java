@@ -65,7 +65,7 @@ public class InfoContentTest {
                     "https://github.com/EriArk/JavaEmulator/issues",
                     "https://github.com/EriArk/JavaEmulator/blob/main/docs/LOCALIZATION.md",
                     "https://github.com/nikita36078/J2ME-Loader")),links);
-            assertTrue(about.toString().contains(BuildConfig.VERSION_NAME));
+            assertTrue(about.toString().contains(BuildConfig.VERSION_NAME + " · " + BuildConfig.DISTRIBUTION));
             if(tag.equals("en"))assertTrue(about.toString().contains("Copyright 2017-2024 Nikita Shakarun"));
             if(tag.equals("ja") || tag.equals("zh-CN")) {
                 assertTrue(about.toString().contains("2017-2024 Nikita Shakarun"));
