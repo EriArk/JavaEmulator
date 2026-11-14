@@ -10,6 +10,15 @@ stated otherwise. **Experimental** in older checkpoints means local/private
 combined builds; released experimental features are explicitly identified.
 **Released** means an actual GitHub release asset.
 
+## 2026-11-14 - Beta 6 Feature Demo (Public Media)
+
+- Add a 58-second Retroid recording of named profiles, two extra Gamepad buttons,
+  assignment through the UI and Asphalt gameplay on the signed ARM64 Beta 6 app.
+- Trim navigation/loading pauses and add English captions; preserve normal speed.
+  The video has no audio. Restore temporary demo settings after recording.
+- Decode the final MP4 end to end and inspect representative frames.
+  [Video and capture scope](screenshots/releases/v0.7.0-beta.6/README.md).
+
 ## 2026-11-14 - Dual Beta 6 Released
 
 - Publish signed ARM64 combined and ARMv7 Java/Mophun APKs, version code 320,

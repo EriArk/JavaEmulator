@@ -28,6 +28,11 @@ These are bounded game/device checks, not complete-game or human comfort accepta
 [Usage](SHARED_PROFILES.md) · [Release notes](releases/v0.7.0-beta.6.md) ·
 [Verification and limits](releases/v0.7.0-beta.6-checks.md).
 
+A [58-second Beta 6 feature video](../screenshots/releases/v0.7.0-beta.6/README.md)
+shows profile creation, two extra buttons, UI assignment and Asphalt gameplay
+on the signed ARM64 app. It is an edited, silent device recording; demo settings
+were restored afterward. This does not extend the release acceptance scope.
+
 ## Dual Beta 5 Released (2026-11-13)
 
 **Both signed code-319 APKs are published.** A separate ARMv7
