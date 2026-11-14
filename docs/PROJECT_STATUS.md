@@ -12,6 +12,21 @@ not a live feed. Verify GitHub Releases, recent commits and build notes before
 calling a version "latest" after this date. If local evidence is inaccessible,
 attribute its results to the dated maintainer record below; do not infer a pass.
 
+## Independent Graphics and Control Profiles (Unreleased Source, 2026-11-14)
+
+Graphics and controls have separate global defaults, named profiles, assignments
+and per-game overrides. Graphics now include built-in xBRZ/CRT, FSR, smoothing,
+interpolation, scaling and LCD options, subject to each engine's capabilities.
+Beta 6 combined profiles migrate without losing LCD inheritance or existing
+per-game graphics. Both catalogs and portable assignments survive library backups.
+
+A separate Debug build passes 419 app JVM tests and 116 targeted checks on
+Retroid; lint has zero errors. A bounded Diamond Rush smoke applies a named xBRZ
+profile. The published Beta 6 APKs do not contain this
+separation. No ARMv7 release build or signed upgrade is claimed for this change.
+[Usage and limits](SHARED_PROFILES.md) ·
+[Verification](checks/2026-11-14-graphics-profiles.md).
+
 ## Dual Beta 6 Released (2026-11-14)
 
 **Both signed code-320 APKs are published.** #53 adds global touch/LCD defaults,

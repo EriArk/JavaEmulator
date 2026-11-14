@@ -45,6 +45,9 @@ public class ProvidedJavaSweepTest {
         File catalogFile = new File(Config.getEmulatorDir(), SharedProfiles.FILE);
         boolean sharedCheck = "true".equals(args.getString("javaSharedProfile"));
         byte[] priorCatalog = sharedCheck && catalogFile.isFile() ? Files.readAllBytes(catalogFile.toPath()) : null;
+        boolean graphicsCheck=args.containsKey("javaGraphicsProfile");
+        File graphicsFile=new File(Config.getEmulatorDir(),SharedProfiles.GRAPHICS_FILE);
+        byte[] priorGraphics=graphicsCheck && graphicsFile.isFile()?Files.readAllBytes(graphicsFile.toPath()):null;
         try {
             try (ZipFile zip = new ZipFile(source); InputStream manifest = zip.getInputStream(zip.getEntry("META-INF/MANIFEST.MF"))) {
                 Files.copy(manifest, new File(game, Config.MIDLET_MANIFEST_FILE).toPath());
@@ -75,6 +78,15 @@ public class ProvidedJavaSweepTest {
                 SharedProfiles.write(catalogFile.getParentFile(), catalog);
                 SharedProfiles.assign(profile, entry.id, catalog); SharedProfiles.clear(profile, null, catalog);
                 profile.touchSize = 110; // Explicit game exception must survive a linked base edit.
+            }
+            if(graphicsCheck) {
+                SharedProfiles.Catalog images=SharedProfiles.GRAPHICS.read(graphicsFile.getParentFile());
+                ProfileModel image=new ProfileModel();ImagePresets.apply(image,Integer.parseInt(args.getString("javaGraphicsProfile")),true);
+                image.screenScaleType=3;image.screenScaleRatio=100;image.screenGravity=2;image.orientation=2;
+                SharedProfiles.Entry entry=SharedProfiles.GRAPHICS.create(images,id,SharedProfiles.GRAPHICS.values(image));
+                SharedProfiles.GRAPHICS.write(graphicsFile.getParentFile(),images);
+                SharedProfiles.GRAPHICS.assign(profile,entry.id,images);SharedProfiles.GRAPHICS.clear(profile,null,images);
+                profile.graphicsMode=1;profile.shader=null;
             }
             assertTrue(ProfilesManager.saveConfig(profile));
             Bundle status = new Bundle(); status.putString("stream", name + " size=" + profile.screenWidth + "x" + profile.screenHeight
@@ -124,6 +136,9 @@ public class ProvidedJavaSweepTest {
                 assertTrue("Restored Java VM must survive input", pid(context) > 0);
             }
         } finally {
+            if(graphicsCheck) {
+                if(priorGraphics==null)Files.deleteIfExists(graphicsFile.toPath());else Files.write(graphicsFile.toPath(),priorGraphics);
+            }
             int vm = pid(context); if (vm > 0) { android.os.Process.killProcess(vm); SystemClock.sleep(500); }
             assertEquals("VM must stop before removing its private fixture", 0, pid(context));
             FileUtils.deleteDirectory(game); FileUtils.deleteDirectory(profileDir); FileUtils.deleteDirectory(saves);

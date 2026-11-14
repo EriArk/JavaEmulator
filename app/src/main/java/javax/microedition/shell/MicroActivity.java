@@ -966,6 +966,7 @@ public class MicroActivity extends AppCompatActivity {
 		new ru.playsoftware.j2meloader.config.DisplayPanel(gameMenu, profile,
 				profile.graphicsMode == 1 && profile.shader == null, false, () -> {
 			microLoader.applyPreviewSettings();
+            setOrientation(profile.orientation);
 			if (current instanceof Canvas) {
 				((Canvas) current).updateSize();
 				((Canvas) current).updateRenderingSettings();

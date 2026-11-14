@@ -81,6 +81,8 @@ public final class LibraryArchive {
             pack(root, new File(root, "fs"), zip, hashes, 0);
             ru.playsoftware.j2meloader.config.SharedProfiles.read(root); // Validate before publishing the archive.
             pack(root, new File(root, ru.playsoftware.j2meloader.config.SharedProfiles.FILE), zip, hashes, 0);
+            ru.playsoftware.j2meloader.config.SharedProfiles.GRAPHICS.read(root);
+            pack(root, new File(root, ru.playsoftware.j2meloader.config.SharedProfiles.GRAPHICS_FILE), zip, hashes, 0);
             byte[] metadata = new Gson().toJson(manifest).getBytes(StandardCharsets.UTF_8);
             if (metadata.length > 16 * 1024 * 1024 || ++files > MAX_FILES) throw LibraryTransferFailure.of(R.string.library_transfer_import_limit,"Backup metadata too large");
             limit(metadata.length);
@@ -141,7 +143,7 @@ public final class LibraryArchive {
                 if (parts.length > 26) throw LibraryTransferFailure.of(R.string.library_transfer_import_limit,"Backup folders are too deep");
                 for (String part : parts) safeName(part);
                 if (!names.add(path) || ++files > MAX_FILES) throw LibraryTransferFailure.of(R.string.library_transfer_source_invalid,"Duplicate or excessive backup entries");
-                if (!path.equals(MANIFEST) && !path.equals(ru.playsoftware.j2meloader.config.SharedProfiles.FILE) && !(parts.length >= 3 && Arrays.asList("converted", "data", "configs").contains(parts[0]))
+                if (!path.equals(MANIFEST) && !path.equals(ru.playsoftware.j2meloader.config.SharedProfiles.FILE) && !path.equals(ru.playsoftware.j2meloader.config.SharedProfiles.GRAPHICS_FILE) && !(parts.length >= 3 && Arrays.asList("converted", "data", "configs").contains(parts[0]))
                         && !(parts.length >= 2 && parts[0].equals("fs")))
                     throw LibraryTransferFailure.of(R.string.library_transfer_source_invalid,"Unexpected backup file: " + path);
                 if (entry.isDirectory()) throw LibraryTransferFailure.of(R.string.library_transfer_source_invalid,"Unexpected directory entry");

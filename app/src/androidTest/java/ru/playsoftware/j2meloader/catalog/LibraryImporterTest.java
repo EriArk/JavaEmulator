@@ -470,13 +470,20 @@ public class LibraryImporterTest {
 	@Test public void archiveRoundTripPreservesProgressControlsAndLibraryMetadata() throws Exception {
         ru.playsoftware.j2meloader.config.SharedProfiles.Catalog shared=new ru.playsoftware.j2meloader.config.SharedProfiles.Catalog();
         ru.playsoftware.j2meloader.config.SharedProfiles.Entry reusable=ru.playsoftware.j2meloader.config.SharedProfiles.create(shared,"Reusable",new com.google.gson.JsonObject());
-        reusable.values.addProperty("ScreenEffect",2);
-        ru.playsoftware.j2meloader.config.SharedProfiles.create(shared,"Unassigned",new com.google.gson.JsonObject()).values.addProperty("ScreenEffect",1);
+        reusable.values.addProperty("touchTheme",2);
+        ru.playsoftware.j2meloader.config.SharedProfiles.create(shared,"Unassigned",new com.google.gson.JsonObject()).values.addProperty("touchTheme",1);
         ru.playsoftware.j2meloader.config.SharedProfiles.write(source,shared);
+        ru.playsoftware.j2meloader.config.SharedProfiles.Catalog graphics=new ru.playsoftware.j2meloader.config.SharedProfiles.Catalog();
+        ru.playsoftware.j2meloader.config.SharedProfiles.Entry visual=ru.playsoftware.j2meloader.config.SharedProfiles.GRAPHICS.create(graphics,"CRT",new com.google.gson.JsonObject());
+        visual.values.addProperty("RetroShader",2);
+        ru.playsoftware.j2meloader.config.SharedProfiles.GRAPHICS.create(graphics,"Unassigned graphics",new com.google.gson.JsonObject());
+        ru.playsoftware.j2meloader.config.SharedProfiles.GRAPHICS.write(source,graphics);
 
 		SourceHints.write(new File(source, "converted/old-folder"), "Sudoku_SE_128x160.jar");
 		ProfileModel profile = new ProfileModel(new File(source, "configs/old-folder"));
         ru.playsoftware.j2meloader.config.SharedProfiles.assign(profile,reusable.id,shared);
+        ru.playsoftware.j2meloader.config.SharedProfiles.GRAPHICS.assign(profile,visual.id,graphics);
+        ru.playsoftware.j2meloader.config.SharedProfiles.GRAPHICS.clear(profile,null,graphics);
         profile.extraTouchButtons=new java.util.ArrayList<>();
         ru.playsoftware.j2meloader.input.ExtraTouchButton extra=new ru.playsoftware.j2meloader.input.ExtraTouchButton();extra.code=51;profile.extraTouchButtons.add(extra);
 		profile.touchLayout = 1; profile.touchOpacity = 75; profile.screenRotation = 180;
@@ -501,7 +508,9 @@ public class LibraryImporterTest {
 			assertEquals("Sudoku_SE_128x160.jar", SourceHints.read(new File(destination, "converted/" + restored.getPath())));
 			assertTrue(restored.isFavorite()); assertEquals(17, restored.getPlayCount());
 			ProfileModel loaded = ProfilesManager.loadConfig(new File(destination, "configs/" + restored.getPath()));
-            assertEquals(2,loaded.screenEffect);assertEquals(reusable.id,loaded.sharedProfileId);
+            assertEquals(2,loaded.touchTheme);assertEquals(reusable.id,loaded.sharedProfileId);
+            assertEquals(2,loaded.retroShader);assertEquals(visual.id,loaded.graphicsProfileId);
+            assertEquals(2,ru.playsoftware.j2meloader.config.SharedProfiles.GRAPHICS.read(destination).profiles.size());
             assertEquals(51,loaded.extraTouchButtons.get(0).code);
             assertEquals(2,ru.playsoftware.j2meloader.config.SharedProfiles.read(destination).profiles.size());
 			assertEquals(Integer.valueOf(1), loaded.touchLayout); assertEquals(75, loaded.touchOpacity);

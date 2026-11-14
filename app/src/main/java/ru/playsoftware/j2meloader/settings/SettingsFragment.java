@@ -47,11 +47,14 @@ public class SettingsFragment extends PreferenceFragmentCompat {
 			language.setOnPreferenceClickListener(p -> { showLanguages(); return true; });
 		}
 		if (rootKey == null) {
-            Preference shared = new Preference(requireContext()); shared.setKey("pref_shared_profiles");
-            shared.setTitle("Profiles / Global defaults"); shared.setSummary("Reusable touch controls and LCD filters");
-            shared.setLayoutResource(R.layout.preference_compact); shared.setOrder(2);
-            shared.setOnPreferenceClickListener(p -> { ru.playsoftware.j2meloader.config.SharedProfileDialog.show(requireActivity(), null, null); return true; });
-            getPreferenceScreen().addPreference(shared);
+            for (ru.playsoftware.j2meloader.config.SharedProfiles.Store store : new ru.playsoftware.j2meloader.config.SharedProfiles.Store[]{
+                    ru.playsoftware.j2meloader.config.SharedProfiles.GRAPHICS, ru.playsoftware.j2meloader.config.SharedProfiles.CONTROLS}) {
+                Preference shared = new Preference(requireContext()); shared.setKey(store.graphics?"pref_graphics_profiles":"pref_shared_profiles");
+                shared.setTitle(store.title()); shared.setSummary(store.graphics?"Global graphics defaults and reusable image settings":"Global control defaults and reusable touch layouts");
+                shared.setLayoutResource(R.layout.preference_compact); shared.setOrder(store.graphics?2:3);
+                shared.setOnPreferenceClickListener(p -> { ru.playsoftware.j2meloader.config.SharedProfileDialog.show(requireActivity(), null, null, store); return true; });
+                getPreferenceScreen().addPreference(shared);
+            }
 
 			Preference account = new Preference(requireContext()); account.setKey("pref_fluxer_account");
 			account.setTitle(R.string.settings_fluxer_account); account.setIcon(android.R.drawable.ic_menu_myplaces);

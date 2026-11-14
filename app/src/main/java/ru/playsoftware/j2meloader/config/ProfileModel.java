@@ -47,6 +47,21 @@ public class ProfileModel {
     @SerializedName("sharedResolved")
     @JsonAdapter(SharedValuesAdapter.class)
     public com.google.gson.JsonObject sharedSnapshot;
+    @SerializedName("graphicsSettings")
+    public boolean graphicsSettings;
+    @SerializedName("graphicsProfileId")
+    public String graphicsProfileId;
+    @SerializedName("graphicsOverrides")
+    @JsonAdapter(SharedValuesAdapter.class)
+    public com.google.gson.JsonObject graphicsOverrides;
+    @SerializedName("graphicsPortable")
+    @JsonAdapter(SharedValuesAdapter.class)
+    public com.google.gson.JsonObject graphicsPortable;
+    @SerializedName("graphicsPortableName")
+    public String graphicsPortableName;
+    @SerializedName("graphicsResolved")
+    @JsonAdapter(SharedValuesAdapter.class)
+    public com.google.gson.JsonObject graphicsSnapshot;
     public transient File sharedRoot;
 
     @SerializedName("extraTouchButtons")

@@ -126,7 +126,7 @@ final class SymbianSessionUi {
         button.setPadding(dp(12),dp(12),dp(12),dp(12)); button.setContentDescription(label); button.setTooltipText(label);
         button.setOnClickListener(v -> action.run()); return button;
     }
-    int scale() { return Math.max(0, Math.min(2, profile.screenScaleType)); }
+    int scale() { return profile.screenScaleType == 3 ? 1 : Math.max(0, Math.min(2, profile.screenScaleType)); }
     void apply() {
         fastForward.configure();
         lcdGeometry = null; nextLcdGeometry = 0;

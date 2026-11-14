@@ -55,9 +55,12 @@ public final class DisplayPanel {
         menu.previewDecisions(() -> {
             if (preview.keep()) back.run(); else menu.message(menu.text(R.string.game_save_settings_failed));
         }, () -> { undoQuietly(); back.run(); });
-        menu.action("Profiles / Global defaults", R.drawable.ic_baseline_tune_24, () -> {
+        menu.action(nativePhone ? "Graphics profiles / Advanced" : "Graphics profiles", R.drawable.ic_baseline_tune_24, () -> {
             undoQuietly();
-            SharedProfileDialog.show(menu.getContext(), null, this::show);
+            // Native geometry needs the host's full Try flow; paused LCD previews never call the guest.
+            if(nativePhone){ advanced.run(); return; }
+            draft=preview.draft();
+            SharedProfileDialog.show(menu.getContext(), draft, this::apply, SharedProfiles.GRAPHICS);
         });
         menu.action(menu.text(R.string.game_performance_advanced), R.drawable.ic_baseline_tune_24, advanced);
         menu.setBackAction(back);

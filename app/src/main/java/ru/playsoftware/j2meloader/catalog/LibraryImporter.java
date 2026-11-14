@@ -67,7 +67,7 @@ public final class LibraryImporter {
 		public boolean selected, duplicateTitle;
 		public boolean hasSaves;
 		private JsonObject backupInfo;
-        private ru.playsoftware.j2meloader.config.SharedProfiles.Catalog sharedProfiles;
+        private ru.playsoftware.j2meloader.config.SharedProfiles.Catalog sharedProfiles, graphicsProfiles;
 		private String nativeId;
 		private DocumentFile game, data, config;
         private LibraryTransferFailure problemFailure;
@@ -215,7 +215,8 @@ public final class LibraryImporter {
 	public Preview scanBackup(File root) throws IOException {
 		Preview preview=scan(DocumentFile.fromFile(root), LibraryArchive.readManifest(root));
         ru.playsoftware.j2meloader.config.SharedProfiles.Catalog profiles=ru.playsoftware.j2meloader.config.SharedProfiles.read(root);
-        for(Entry entry:preview.entries)entry.sharedProfiles=profiles;
+        ru.playsoftware.j2meloader.config.SharedProfiles.Catalog graphics=ru.playsoftware.j2meloader.config.SharedProfiles.GRAPHICS.read(root);
+        for(Entry entry:preview.entries){entry.sharedProfiles=profiles;entry.graphicsProfiles=graphics;}
         return preview;
 	}
 
@@ -352,7 +353,8 @@ public final class LibraryImporter {
 			}
 			if (entry.data != null) copyTree(entry.data, data, 0);
 			if (entry.sharedProfiles != null) {
-				ru.playsoftware.j2meloader.config.SharedProfiles.importCatalog(entry.sharedProfiles, destination);
+				ru.playsoftware.j2meloader.config.SharedProfiles.CONTROLS.importCatalog(entry.sharedProfiles, destination);
+                ru.playsoftware.j2meloader.config.SharedProfiles.GRAPHICS.importCatalog(entry.graphicsProfiles, destination);
 			}
 			notes = importConfig(entry.config, config, entry.backupInfo != null);
 			checkCancelled();

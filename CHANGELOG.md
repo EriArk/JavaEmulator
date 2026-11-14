@@ -10,6 +10,20 @@ stated otherwise. **Experimental** in older checkpoints means local/private
 combined builds; released experimental features are explicitly identified.
 **Released** means an actual GitHub release asset.
 
+## 2026-11-14 - Independent Graphics and Control Profiles (Unreleased Source)
+
+- Separate global defaults, named profiles, per-game assignments and bulk override
+  reset for graphics and touch controls. Editing either category leaves the other
+  intact. Retain extra buttons and the existing physical-controller editors.
+- Extend graphics to built-in xBRZ/CRT, FSR/sharpness, smoothing, interpolation,
+  sizing, rotation/orientation and supported capture options. Keep guest resolution,
+  renderer compatibility and performance settings per game.
+- Split Beta 6 combined profiles while preserving LCD inheritance/exceptions;
+  retain other existing graphics as overrides. Back up both independent catalogs.
+- Verify a separate Debug build, 419 app JVM tests and 116 targeted Retroid checks.
+  This is not a new release or ARMv7/signed-update acceptance.
+  [Checks and engine limits](docs/checks/2026-11-14-graphics-profiles.md).
+
 ## 2026-11-14 - Beta 6 Feature Demo (Public Media)
 
 - Add a 58-second Retroid recording of named profiles, two extra Gamepad buttons,

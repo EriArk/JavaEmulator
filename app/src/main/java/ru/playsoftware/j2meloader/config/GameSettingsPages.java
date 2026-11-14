@@ -48,7 +48,7 @@ public final class GameSettingsPages {
 
     public void display() {
         menu.page(menu.text(R.string.game_display));
-        profileAction(this::display);
+        profileAction(this::display, SharedProfiles.GRAPHICS);
         frameRateChoice();
         if (speedAvailable()) speedChoice(menu, draft);
         menu.choice(menu.text(R.string.game_picture_size), menu.labels(R.array.game_picture_sizes), clamp(draft.screenScaleType, 4),
@@ -71,6 +71,7 @@ public final class GameSettingsPages {
 
     public void nativePhoneDisplay(int supportedModes) {
         menu.page(menu.text(R.string.game_display));
+        profileAction(() -> nativePhoneDisplay(supportedModes), SharedProfiles.GRAPHICS);
         int mask = supportedModes >= 1 && supportedModes <= 7 && (supportedModes & 1) != 0 ? supportedModes : 1;
         if ((mask & (1 << draft.getSymbianScreenPreset())) == 0) draft.symbianScreenPreset = 0;
         if (mask != 1) {
@@ -140,8 +141,11 @@ public final class GameSettingsPages {
     }
 
     public void profileAction(Runnable back) {
-        menu.action("Profiles / Global defaults", R.drawable.ic_baseline_tune_24, () ->
-                SharedProfileDialog.show(menu.getContext(), draft, back));
+        profileAction(back, SharedProfiles.CONTROLS);
+    }
+    private void profileAction(Runnable back, SharedProfiles.Store store) {
+        menu.action(store.title(), R.drawable.ic_baseline_tune_24, () ->
+                SharedProfileDialog.show(menu.getContext(), draft, back, store));
     }
 
     public void gameShortcuts(Runnable back) {

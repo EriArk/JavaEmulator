@@ -40,6 +40,10 @@ public final class SymbianSessionUiTest {
                         public void leave() { } public void restart() { } public Bitmap capture() { return null; }
                     });
                     activity.setContentView(current[0].root);
+                    int oldScale=current[0].profile.screenScaleType;
+                    current[0].profile.screenScaleType=3;
+                    assertEquals("Shared integer graphics profile uses native Fit",1,current[0].scale());
+                    current[0].profile.screenScaleType=oldScale;
                     java.lang.reflect.Field cache = SymbianSessionUi.class.getDeclaredField("lcdGeometry");
                     cache.setAccessible(true);
                     current[0].profile.screenEffect = 0;

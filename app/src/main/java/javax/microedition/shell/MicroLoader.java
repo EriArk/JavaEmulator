@@ -447,6 +447,7 @@ public class MicroLoader {
 	}
 
 	void applyPreviewSettings() {
+		Canvas.setBackgroundColor(params.screenBackgroundColor);
 		Canvas.setEnhancements(params.fsrUpscaling, params.frameInterpolation, params.fsrSharpness, params.getRetroShader());
 		Canvas.setScreenEffect(params.screenEffect, params.screenEffectIntensity);
 		GuestTime.speed(params.getEmulationSpeed());

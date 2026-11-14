@@ -38,10 +38,11 @@ public final class DisplayPreview {
         copyPicture(entry, current); current.previewBaseline = inherited; dirty = false;
     }
     public static void copyPicture(ProfileModel from, ProfileModel to) {
-        to.screenScaleType = from.screenScaleType; to.screenScaleRatio = from.screenScaleRatio;
-        to.screenRotation = from.screenRotation; to.screenFilter = from.screenFilter;
-        to.fsrUpscaling = from.fsrUpscaling; to.fsrSharpness = from.fsrSharpness;
-        to.retroShader = from.retroShader; to.frameInterpolation = from.frameInterpolation;
-        to.screenEffect = from.screenEffect; to.screenEffectIntensity = from.screenEffectIntensity;
+        SharedProfiles.GRAPHICS.applyValues(to,SharedProfiles.GRAPHICS.values(from));
+        to.graphicsSettings=from.graphicsSettings; to.graphicsProfileId=from.graphicsProfileId;
+        to.graphicsOverrides=from.graphicsOverrides==null?null:from.graphicsOverrides.deepCopy();
+        to.graphicsSnapshot=from.graphicsSnapshot==null?null:from.graphicsSnapshot.deepCopy();
+        to.graphicsPortable=from.graphicsPortable==null?null:from.graphicsPortable.deepCopy();
+        to.graphicsPortableName=from.graphicsPortableName;
     }
 }

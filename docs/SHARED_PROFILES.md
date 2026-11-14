@@ -1,43 +1,70 @@
-# Shared touch profiles and extra buttons
+# Graphics profiles, control profiles and extra buttons
 
-Released in **0.7.0 Beta 6** on November 14, 2026 for #53 and #54, in both
-ARM64 and ARMv7 APKs. Beta 5 APKs do not include these features. See
-[release verification](releases/v0.7.0-beta.6-checks.md) and the earlier
-[implementation checks](checks/2026-11-14-shared-profiles.md) for the tested scope.
+**Unreleased source (November 14, 2026):** graphics and controls now have separate
+catalogs, global defaults, named profiles and assignments. Published Beta 6 still
+has the earlier combined touch/LCD profiles. This separation requires a newer
+build; it is not an update to the existing Beta 6 APKs.
+[Implementation checks](checks/2026-11-14-graphics-profiles.md).
 
-## Global defaults and named profiles
+## Independent global defaults and named profiles
 
-Open **Settings → Profiles / Global defaults**. Set **Global default** for new
-games, or create named profiles such as Standard Gamepad and Full Keypad.
-Profiles can be edited, renamed, duplicated or deleted. The per-game profile
-panel also offers **Create from this game's settings**.
+Open **Settings → Graphics profiles** or **Settings → Control profiles**. Each
+category has its own **Global default**, named profiles and bulk assignment.
+A game can use, for example, graphics profile **CRT** and control profile
+**Standard Gamepad**, or global defaults for either category independently.
+Editing, selecting, deleting or resetting one category does not alter the other.
 
-Open a game's **Controls → Profiles / Global defaults** to choose its base.
-The Display panel also provides a management entry. Settings resolve in this order:
+In a game's **Display → Graphics profiles** or **Controls → Control profiles**,
+choose a base and inspect where each setting comes from. Resolution order is:
 
-1. Global default.
+1. That category's global defaults.
 2. The assigned named profile, for fields it defines.
 3. Explicit game overrides.
 
-Assignment links a game to a profile; it does not make an independent settings
-copy. Shared edits take effect the next time a game opens. The per-game panel
-lists the source of each setting. Clear an override to return to the currently
-assigned base, or explicitly reset all touch/LCD overrides. Game edits never
-modify the shared definition. Per-game changes retain Try / Keep / Undo.
+Profiles can be edited, renamed, duplicated, deleted, or created from a game's
+settings. Assignments remain linked; shared edits apply on reopening a game.
+Game edits create overrides and retain Try / Keep / Undo. A live picture preview
+keeps or undoes only graphics, including its selected profile, without saving a
+pending control trial. Shared-definition edits have their own Save confirmation.
 
-**Existing game settings are preserved as overrides on upgrade.** To adopt a
-shared setup across an existing collection, use **Assign profiles to games**,
-select the prepared games, choose the profile, and explicitly enable resetting
-touch/LCD overrides if wanted. Assignment alone retains exceptions. Bulk writes
-run in the background; failed/unprocessed selections remain available for retry.
-Deleting a profile removes known assignments and falls back to Global default,
-keeping per-game overrides. Missing definitions also fall back safely.
+**Assign profiles to games** supports prepared games in bulk. Assignment retains
+overrides unless **Also reset graphics game overrides** or **Also reset control
+game overrides** is explicitly enabled. Failed/unprocessed selections remain for
+retry. Deleting a named profile falls back to that category's global defaults,
+retaining game overrides.
 
-Profiles cover modern Phone/Gamepad layouts, placements, size, opacity, touch
-key mappings, extra buttons, visibility, tactile feedback and LCD filters.
-Java, Mophun and Symbian use the shared supported touch/LCD fields. Legacy keypad
-files, physical-controller bindings, guest resolution/compatibility and
-engine-specific shaders/performance options stay outside this profile schema.
+## Graphics contents and engine support
+
+Graphics profiles include picture sizing, scale percentage, position, rotation,
+orientation, background color, smoothing, built-in xBRZ/CRT shaders, FSR and its
+sharpness, frame interpolation, LCD filter/intensity, screenshot filtering and
+Mophun's original/enhanced capture preference.
+
+- Java GPU and Mophun support the built-in xBRZ/CRT, FSR and interpolation options.
+  Retro shaders use their own filtering; FSR, interpolation and LCD overlays are
+  inactive while a retro shader is selected.
+- Java software/custom-renderer paths retain their existing capability limits.
+  A profile never switches the renderer to enable an unsupported effect.
+- Scale percentage, position and background color apply to Java.
+- Symbian uses supported host size, rotation, orientation and LCD settings.
+  Integer scaling falls back to Fit. It does not gain Java/Mophun GPU shaders.
+
+Guest resolution, engine/compatibility settings, custom external shader files,
+frame-rate limits, emulation speed and CPU budgets remain per game.
+
+## Control contents and upgrade preservation
+
+Control profiles cover modern Phone/Gamepad layouts, keypad placement, button
+size/theme/opacity, portrait/landscape reach and positions, touch key mappings,
+extra buttons, visibility and tactile feedback. Physical-controller bindings and
+legacy keypad files retain their existing per-game editors.
+
+The first migration splits Beta 6's combined named profiles and global defaults:
+LCD values move to graphics, while touch values remain in controls. Existing LCD
+inheritance and exceptions are preserved. Other existing graphics settings become
+explicit game overrides, so migration does not silently change the picture.
+The two assignments can then be changed independently. Pre-profile game settings
+remain overrides; new games inherit both global defaults.
 
 ## Extra Gamepad buttons
 
@@ -58,8 +85,8 @@ tab to remove the added controls. Shared profiles can carry these buttons too.
 
 ## Backups and storage
 
-Java/Mophun library backups include the shared catalog, including unassigned
-named profiles. Each backed-up game config also carries its current resolved
+Java/Mophun library backups include both catalogs, including unassigned
+named profiles in each category. Each backed-up game config also carries its current resolved
 base definition, assignment and explicit overrides. Export resolves the current
 profile without rewriting the source game settings. Symbian phone backups use
 the same portable per-game definition through the host's backup callback.
@@ -70,9 +97,11 @@ names receive a suffix. Distinct named profiles remain distinct even if their
 settings happen to match. Imported global defaults become a named profile when
 needed, rather than replacing defaults for unrelated destination games.
 
-The library's `shared-profiles.json` is written atomically. Field names and
+The library's `shared-profiles.json` (controls) and `graphics-profiles.json`
+(graphics) are written atomically. The LCD catalog is persisted before a
+controls-only write replaces a Beta 6 combined catalog. Field names and
 profile/button identities are stable; explicit null overrides remain distinct
-from absent inherited fields. Unknown profile fields are excluded. The catalog
+from absent inherited fields. Unknown profile fields are excluded. Each catalog
 is bounded to 200 profiles / 1 MiB and each layout to twelve extra buttons.
 
 [Actual device UI captures](../screenshots/development/2026-11-14-profiles/README.md).
