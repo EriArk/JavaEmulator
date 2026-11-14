@@ -48,6 +48,7 @@ public final class GameSettingsPages {
 
     public void display() {
         menu.page(menu.text(R.string.game_display));
+        profileAction(this::display);
         frameRateChoice();
         if (speedAvailable()) speedChoice(menu, draft);
         menu.choice(menu.text(R.string.game_picture_size), menu.labels(R.array.game_picture_sizes), clamp(draft.screenScaleType, 4),
@@ -102,6 +103,7 @@ public final class GameSettingsPages {
 
     public void controls() {
         menu.page(menu.text(R.string.game_controls));
+        profileAction(this::controls);
         menu.choice(menu.text(R.string.game_control_mode), menu.labels(R.array.game_control_modes), clamp(draft.controlMode, 3),
                 i -> draft.controlMode = i);
         menu.choice(menu.text(R.string.game_touch_visibility), menu.labels(R.array.game_touch_visibility_modes), draft.getTouchVisibility(),
@@ -135,6 +137,11 @@ public final class GameSettingsPages {
                     i -> draft.touchLandscapeReach = i);
         }
         controlsFooter();
+    }
+
+    public void profileAction(Runnable back) {
+        menu.action("Profiles / Global defaults", R.drawable.ic_baseline_tune_24, () ->
+                SharedProfileDialog.show(menu.getContext(), draft, back));
     }
 
     public void gameShortcuts(Runnable back) {

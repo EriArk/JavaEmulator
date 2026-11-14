@@ -32,6 +32,25 @@ import ru.playsoftware.j2meloader.BuildConfig;
 import ru.playsoftware.j2meloader.util.SparseIntArrayAdapter;
 
 public class ProfileModel {
+    @SerializedName("sharedSettings")
+    public boolean sharedSettings;
+    @SerializedName("sharedProfileId")
+    public String sharedProfileId;
+    @SerializedName("sharedOverrides")
+    @JsonAdapter(SharedValuesAdapter.class)
+    public com.google.gson.JsonObject sharedOverrides;
+    @SerializedName("sharedPortable")
+    @JsonAdapter(SharedValuesAdapter.class)
+    public com.google.gson.JsonObject sharedPortable;
+    @SerializedName("sharedPortableName")
+    public String sharedPortableName;
+    @SerializedName("sharedResolved")
+    @JsonAdapter(SharedValuesAdapter.class)
+    public com.google.gson.JsonObject sharedSnapshot;
+    public transient File sharedRoot;
+
+    @SerializedName("extraTouchButtons")
+    public java.util.ArrayList<ru.playsoftware.j2meloader.input.ExtraTouchButton> extraTouchButtons;
 	public static final int VERSION = 4;
 	/** True if this is a new profile (not yet saved to file) */
 	public final transient boolean isNew;
@@ -337,6 +356,7 @@ public class ProfileModel {
 		systemProperties = ContextHolder.getAssetAsString("defaults/system.props");
 		keyMappingProfiles = KeyMapper.createBuiltInProfiles();
 		activeKeyMappingProfile = 0;
+        if (dir != null) SharedProfiles.resolve(this, false);
 	}
 
 	public void ensureKeyMappingProfiles() {

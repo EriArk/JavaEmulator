@@ -155,7 +155,11 @@ final class PhoneBackup {
             return new ArrayList<>(items.values());
         } catch(JSONException e) { throw new SystemFailure(SystemFailure.Code.INVENTORY_INVALID,e); }
     }
+    interface ProfileExport { String json(File config) throws IOException; }
     void exportPhone(SystemFileCatalog.Entry entry,File target,String[] portableSettings,PreparedSystemArchive.Progress progress) throws Exception {
+        exportPhone(entry,target,portableSettings,progress,null);
+    }
+    void exportPhone(SystemFileCatalog.Entry entry,File target,String[] portableSettings,PreparedSystemArchive.Progress progress,ProfileExport profileExport) throws Exception {
         File root=catalog.set(entry.id);
         JSONObject metadata=readJson(new FileInputStream(new File(root,"set.json")),65536); validateMetadata(metadata);
         List<Item> items=new ArrayList<>();
@@ -169,6 +173,11 @@ final class PhoneBackup {
         generated("runtime/data/devices.yml",portableSettings[1],items);
         File profiles=profiles(files,entry.id);
         if(profiles.exists()) collect(profiles,"profiles",items,progress); else addDirectory("profiles",items);
+        if(profileExport!=null) {
+            List<Item> configs=new ArrayList<>();
+            for(Item item:items)if(!item.directory && item.path.startsWith("profiles/") && item.path.endsWith("/config.json"))configs.add(item);
+            for(Item item:configs){String json=profileExport.json(item.source);items.remove(item);generated(item.path,json,items);}
+        }
         File artwork=SymbianLibraryIndex.artworkRoot(files,entry.id);
         if(artwork.exists()) collect(artwork,"artwork",items,progress); else addDirectory("artwork",items);
         generated(PhoneLibraryTitles.FILE,PhoneLibraryTitles.read(files,entry.id).toString(),items);

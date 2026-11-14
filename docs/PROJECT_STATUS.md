@@ -1,6 +1,6 @@
 # AbyssME - Current Product and Development Status
 
-**Last updated: 2026-11-13.** Verification dates are recorded per section.
+**Last updated: 2026-11-14.** Verification dates are recorded per section.
 This is the starting point for website copy,
 announcements, progress posts and project handoffs. It includes work that exists
 only in local experiments or private test builds. Describing that work here
@@ -11,6 +11,21 @@ changes, and the linked evidence for detail. This is a maintained snapshot,
 not a live feed. Verify GitHub Releases, recent commits and build notes before
 calling a version "latest" after this date. If local evidence is inaccessible,
 attribute its results to the dated maintainer record below; do not infer a pass.
+
+## Shared Profiles and Extra Buttons (2026-11-14, Unreleased)
+
+**Public source; separate maintainer Debug build only.** #53 adds global touch/LCD
+settings, named linked profiles, per-game exceptions, bulk assignment and portable
+backup definitions. Existing customized games retain explicit overrides. #54 adds
+up to twelve independent Gamepad touch buttons, with orientation-specific placement,
+size, labels and opacity, using the existing editor and input lifecycle.
+
+424 JVM tests and 86 targeted Android checks pass on Retroid / Android 14,
+including profile inheritance, migration, archive restoration, native phone backup
+metadata, multitouch and the assignment/editor UI. Debug lint reports zero errors
+and 807 warnings. These checks do not establish full-game, human touch comfort or
+signed production-upgrade acceptance. Beta 5 APKs do not include this work.
+[Usage and boundaries](SHARED_PROFILES.md) · [Evidence](checks/2026-11-14-shared-profiles.md).
 
 ## Dual Beta 5 Released (2026-11-13)
 

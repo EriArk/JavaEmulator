@@ -34,6 +34,8 @@ public final class TouchDeck {
         public final int[] codes;
         public final String id;
         private final int[] defaults;
+        private int alpha = 100;
+        public boolean isExtra() { return id.startsWith("extra:"); }
         Key(RectF bounds, String label, String id, int[] defaults, int[] codes) {
             this.bounds = bounds; this.label = label; this.id = id;
             this.defaults = defaults; this.codes = codes;
@@ -171,7 +173,40 @@ public final class TouchDeck {
             if (style() == GAMEPAD) key(right, y, 3 * u, u, numbers ? "Actions" : "123", NUMBERS);
         }
         applyPlacements();
+        addExtraButtons();
         sink.invalidate();
+    }
+
+    public ExtraTouchButton extra(String id) {
+        if (settings.extraTouchButtons != null) for (ExtraTouchButton b : settings.extraTouchButtons)
+            if (b != null && ("extra:" + b.id).equals(id)) return b;
+        return null;
+    }
+    private RectF extraLane() { return new RectF(dp(4), dp(56), width-dp(4), height-dp(4)); }
+    private void addExtraButtons() {
+        if (style() != GAMEPAD || settings.extraTouchButtons == null) return;
+        java.util.HashSet<String> seen = new java.util.HashSet<>();
+        int count = 0;
+        for (ExtraTouchButton b : settings.extraTouchButtons) {
+            if (b == null || !b.valid() || !seen.add(b.id)) continue;
+            if (++count > ExtraTouchButton.LIMIT) break;
+            TouchPlacement p = b.position(width > height);
+            RectF lane = extraLane();
+            float size = Math.max(1, Math.min(dp(48)*p.scale(), Math.min(lane.width(), lane.height())));
+            float x = lane.left + Math.max(0,lane.width()-size)*p.x();
+            float y = lane.top + Math.max(0,lane.height()-size)*p.y();
+            Key k = new Key(new RectF(x,y,x+size,y+size),b.title(),"extra:"+b.id,new int[]{b.code},new int[]{b.code});
+            k.alpha = TouchAppearance.opacity(themeContext,b.opacity);
+            keys.add(k);
+        }
+    }
+    public void moveExtra(String id, float dx, float dy) {
+        ExtraTouchButton b = extra(id); if (b == null) return;
+        TouchPlacement p = b.position(width > height); RectF lane = extraLane();
+        float size = dp(48)*p.scale();
+        p.x = TouchPlacement.bounded(p.x()+dx/Math.max(1,lane.width()-size),0,1,.5f);
+        p.y = TouchPlacement.bounded(p.y()+dy/Math.max(1,lane.height()-size),0,1,.5f);
+        layout(width,height);
     }
 
     public int groupCount() { return width <= height && style() == PHONE ? 1 : 2; }
@@ -254,7 +289,7 @@ public final class TouchDeck {
         keys.add(new Key(new RectF(x, y, x+w, y+h), label, id, codes, resolved));
     }
     private Key at(float x, float y) {
-        for (Key key : keys) if (key.bounds.contains(x,y)) return key;
+        for (int i=keys.size()-1;i>=0;i--) if (keys.get(i).bounds.contains(x,y)) return keys.get(i);
         return null;
     }
     public synchronized boolean down(int pointer, float x, float y) {
@@ -325,12 +360,13 @@ public final class TouchDeck {
         paint.setTextAlign(Paint.Align.CENTER);
         paint.setTypeface(KEY_FONT);
         for (Key key : keys) {
+            int extraLayer = key.isExtra() ? canvas.saveLayerAlpha(key.bounds, key.alpha*255/100) : -1;
             RectF rect = new RectF(key.bounds); rect.inset(dp(3),dp(3));
             float labelScale = Math.min(1, key.bounds.height() / dp(48));
             boolean pressed = pointers.containsValue(key);
             boolean dpad = cross && isDpad(key);
             if (dpad && key.defaults.length == 1) pressed = held.get(key.codes[0]) > 0;
-            boolean action = style() == GAMEPAD && !numbers && key.defaults[0] > 0 && !key.isLayoutSwitch();
+            boolean action = key.isExtra() || style() == GAMEPAD && !numbers && key.defaults[0] > 0 && !key.isLayoutSwitch();
             int opacity = 100;
             paint.setColor(pressed ? accent : button);
             paint.setAlpha(opacity * 255 / 100);
@@ -359,7 +395,7 @@ public final class TouchDeck {
             String label = key.displayLabel();
             paint.setTextSize(dp(dpad && key.defaults.length > 1 ? 13 : label.length() > 2 ? 14 : 20) * labelScale);
             if (dpad && key.defaults.length > 1 && !pressed) paint.setColor(muted);
-            boolean digit = (style() == PHONE || numbers) && key.defaults.length == 1 && key.defaults[0] >= 48 && key.defaults[0] <= 57;
+            boolean digit = !key.isExtra() && (style() == PHONE || numbers) && key.defaults.length == 1 && key.defaults[0] >= 48 && key.defaults[0] <= 57;
             if (digit) paint.setTextSize(dp(23) * labelScale);
             canvas.drawText(label,rect.centerX(),rect.centerY()-(paint.ascent()+paint.descent())/2-(digit ? dp(5) * labelScale : 0),paint);
             if (digit) {
@@ -371,6 +407,7 @@ public final class TouchDeck {
                     canvas.drawCircle(rect.right - dp(8), rect.bottom - dp(5), dp(1), paint);
                 }
             }
+            if (extraLayer >= 0) canvas.restoreToCount(extraLayer);
         }
         canvas.restoreToCount(layer);
     }
@@ -403,12 +440,12 @@ public final class TouchDeck {
     }
 
     private boolean isDpad(Key key) {
-        return key.defaults[0] >= -5 && key.defaults[0] <= -1;
+        return !key.isExtra() && key.defaults[0] >= -5 && key.defaults[0] <= -1;
     }
 
     private void drawDpadBase(Canvas canvas) {
         Key center = null;
-        for (Key key : keys) if (key.defaults.length == 1 && key.defaults[0] == -5) center = key;
+        for (Key key : keys) if (!key.isExtra() && key.defaults.length == 1 && key.defaults[0] == -5) center = key;
         if (center == null) return;
         RectF c = center.bounds;
         float u = c.width(), inset = dp(3);

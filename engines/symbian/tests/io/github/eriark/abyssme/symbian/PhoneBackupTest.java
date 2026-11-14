@@ -59,6 +59,19 @@ public final class PhoneBackupTest {
         Files.createDirectories(file.getParentFile().toPath());
         Files.write(file.toPath(),SymbianArtworkTest.image(color));
     }
+    @Test public void portableProfileCallbackPreservesSourceAndRestoresLinkedMetadata() throws Exception {
+        SystemFileCatalog.Entry original=phone();File config=new File(PhoneBackup.profiles(root,original.id),"123/config.json");
+        byte[] before=Files.readAllBytes(config.toPath());File zip=new File(root,"portable-profiles.zip");
+        backup.exportPhone(original,zip,new String[]{"data-storage: data","registration"},SILENT,file->{
+            String portable=new String(ru.playsoftware.j2meloader.config.SharedProfiles.portableConfig(file),StandardCharsets.UTF_8);
+            com.google.gson.JsonObject json=com.google.gson.JsonParser.parseString(portable).getAsJsonObject();json.addProperty("sharedPortableName","Phone profile");return json.toString();
+        });
+        assertArrayEquals(before,Files.readAllBytes(config.toPath()));
+        SystemFileCatalog.Entry restored=backup.restore(zip,VALID,SILENT);
+        org.json.JSONObject json=new org.json.JSONObject(new String(Files.readAllBytes(new File(PhoneBackup.profiles(root,restored.id),"123/config.json").toPath()),StandardCharsets.UTF_8));
+        assertEquals("Phone profile",json.getString("sharedPortableName"));assertTrue(json.has("sharedPortable"));
+    }
+
     @Test public void artworkRoundTripRebindsToNewPhoneAndLauncherWithoutChangingOriginal() throws Exception {
         SystemFileCatalog.Entry original=phone();
         byte[] icon=SymbianArtworkTest.image(0xff334455), cover=SymbianArtworkTest.image(0xff669977);

@@ -37,6 +37,7 @@ public final class TouchLayoutEditor extends Dialog {
     private int selected;
     private int tab;
     private String selectedButton = "up";
+    private String selectedExtra;
     private ImageButton reset;
 
     public TouchLayoutEditor(Context context, ProfileModel target, Runnable done) {
@@ -68,6 +69,10 @@ public final class TouchLayoutEditor extends Dialog {
             if (handleMode) {
                 if (landscape) draft.gameHandleLandscape = null; else draft.gameHandlePortrait = null;
                 preview.invalidate(); return;
+            }
+            if (tab == 4) {
+                draft.extraTouchButtons = null; selectedExtra = null;
+                preview.rebuild(); buildControls(); return;
             }
             if (tab == 3) {
                 draft.touchGamepadMappings = null;
@@ -108,6 +113,7 @@ public final class TouchLayoutEditor extends Dialog {
         to.touchPortraitReach = copy.touchPortraitReach; to.touchLandscapeReach = copy.touchLandscapeReach;
         to.touchPlacements = copy.touchPlacements;
         to.touchGamepadMappings = copy.touchGamepadMappings;
+        to.extraTouchButtons = copy.extraTouchButtons;
     }
     public static void copyHandle(ProfileModel from, ProfileModel to) {
         ProfileModel copy = ProfilesManager.copy(from);
@@ -126,6 +132,7 @@ public final class TouchLayoutEditor extends Dialog {
         state.putBoolean("landscape",landscape); state.putInt("tab",tab); state.putInt("block",selected);
         state.putBoolean("handleMode", handleMode);
         state.putString("touchButton", selectedButton);
+        state.putString("extraButton", selectedExtra);
         return state;
     }
     @Override public void onRestoreInstanceState(Bundle state) {
@@ -136,7 +143,8 @@ public final class TouchLayoutEditor extends Dialog {
                 if(restored!=null) { copyLayout(restored,draft); copyHandle(restored,draft); }
             } catch(RuntimeException ignored) { }
         }
-        landscape=state.getBoolean("landscape",landscape); tab=Math.max(0,Math.min(3,state.getInt("tab")));
+        landscape=state.getBoolean("landscape",landscape); tab=Math.max(0,Math.min(4,state.getInt("tab")));
+        selectedExtra = state.getString("extraButton");
         String button = state.getString("touchButton", "up");
         selectedButton = TouchMappings.index(button) >= 0 ? button : "up";
         preview.rebuild(); selected=Math.max(0,Math.min(preview.deck.groupCount()-1,state.getInt("block")));
@@ -166,7 +174,7 @@ public final class TouchLayoutEditor extends Dialog {
         tabs.removeAllViews();
         String resetLabel = getContext().getString(tab == 3 ? R.string.touch_mapping_reset : R.string.touch_positions_reset);
         reset.setContentDescription(resetLabel); reset.setTooltipText(resetLabel);
-        String[] names = {getContext().getString(R.string.controls_layout), getContext().getString(R.string.controls_position), getContext().getString(R.string.controls_style), getContext().getString(R.string.touch_mapping_tab)};
+        String[] names = {getContext().getString(R.string.controls_layout), getContext().getString(R.string.controls_position), getContext().getString(R.string.controls_style), getContext().getString(R.string.touch_mapping_tab), "Extra"};
         for (int i=0;i<names.length;i++) {
             final int index=i;
             TextView button=label(names[i],14); button.setGravity(Gravity.CENTER);
@@ -200,6 +208,8 @@ public final class TouchLayoutEditor extends Dialog {
             preview.rebuild(); scaleLabel.setText(getContext().getString(R.string.controls_block_size_value, value + 70));
         }); updateScale();
         addMoveButtons();
+        } else if (tab == 4) {
+            buildExtra();
         } else if (tab == 3) {
             buildMapping();
         } else {
@@ -210,6 +220,55 @@ public final class TouchLayoutEditor extends Dialog {
         if ("contrast".equals(AppPalette.selected(getContext()))) controls.addView(label(getContext().getString(R.string.touch_contrast_opacity),14));
         }
     }
+    private void extraAction(String text, Runnable action) {
+        TextView b = mappingButton(text,false,action);
+        controls.addView(b,new LinearLayout.LayoutParams(-1,dp(48)));
+    }
+    private void buildExtra() {
+        if (draft.touchLayout == null || draft.touchLayout != TouchDeck.GAMEPAD) {
+            controls.addView(label("Extra buttons are available with the Gamepad layout.",14)); return;
+        }
+        choice(getContext().getString(R.string.controls_preview), getContext().getResources().getStringArray(R.array.controls_preview_orientations), landscape ? 1 : 0,
+                i -> { landscape = i == 1; preview.rebuild(); buildControls(); });
+        extraAction("+ Add button", () -> {
+            if (draft.extraTouchButtons == null) draft.extraTouchButtons = new java.util.ArrayList<>();
+            if (draft.extraTouchButtons.size() >= ExtraTouchButton.LIMIT) return;
+            ExtraTouchButton b = new ExtraTouchButton(); int n = draft.extraTouchButtons.size();
+            b.portrait.x = b.landscape.x = .25f + (n%3)*.25f;
+            b.portrait.y = b.landscape.y = .25f + (n/3)*.12f;
+            draft.extraTouchButtons.add(b); selectedExtra = "extra:"+b.id;
+            preview.rebuild(); buildControls();
+        });
+        if (draft.extraTouchButtons == null || draft.extraTouchButtons.isEmpty()) return;
+        java.util.ArrayList<ExtraTouchButton> list = draft.extraTouchButtons;
+        String[] names = new String[list.size()]; int selectedIndex = 0;
+        for (int i=0;i<list.size();i++) { names[i]=(i+1)+" · "+list.get(i).title(); if (("extra:"+list.get(i).id).equals(selectedExtra)) selectedIndex=i; }
+        selectedExtra = "extra:"+list.get(selectedIndex).id;
+        choice("Extra button",names,selectedIndex,i->{selectedExtra="extra:"+list.get(i).id; buildControls(); preview.invalidate();});
+        ExtraTouchButton b = preview.deck.extra(selectedExtra);
+        if (b == null) return;
+        int[] codes={-1,-2,-3,-4,-5,-6,-7,48,49,50,51,52,53,54,55,56,57,42,35};
+        String[] labels=new String[codes.length]; int ci=0;
+        for(int i=0;i<codes.length;i++){labels[i]=i<7?new String[]{"Up","Down","Left","Right","OK / Fire","Left soft key","Right soft key"}[i]:TouchMappings.glyph(codes[i]);if(codes[i]==b.code)ci=i;}
+        choice("Key",labels,ci,i->{b.code=codes[i];preview.rebuild();});
+        extraAction("Label: "+b.title(),()->{
+            android.widget.EditText input=new android.widget.EditText(getContext());input.setSingleLine(true);
+            input.setFilters(new android.text.InputFilter[]{new android.text.InputFilter.LengthFilter(8)});
+            input.setText(b.label);
+            new androidx.appcompat.app.AlertDialog.Builder(getContext()).setTitle("Button label (blank = key name)").setView(input)
+                    .setPositiveButton("Save",(d,w)->{b.label=input.getText().toString();preview.rebuild();buildControls();})
+                    .setNegativeButton("Cancel",null).show();
+        });
+        controls.addView(label("Button size (70–120%)",14));
+        slider("Extra button size",50,Math.round(b.position(landscape).scale()*100)-70,
+                v->{b.position(landscape).scale=(v+70)/100f;preview.rebuild();});
+        controls.addView(label("Opacity (20–100%)",14));
+        slider("Extra button opacity",80,Math.max(0,Math.min(80,b.opacity-20)),v->{b.opacity=v+20;preview.rebuild();});
+        addMoveButtons();
+        extraAction("Remove button",()->{list.remove(b);selectedExtra=null;preview.rebuild();buildControls();});
+        controls.addView(label("Drag a button in the preview. Position and size are separate for each orientation. Up to 12 extra buttons; the top edge stays available for the game menu.",14));
+    }
+
     private void buildMapping() {
         if (draft.touchLayout == null || draft.touchLayout != TouchDeck.GAMEPAD) {
             choice(getContext().getString(R.string.controls_layout), getContext().getResources().getStringArray(R.array.game_native_touch_layouts), 0,
@@ -285,6 +344,7 @@ public final class TouchLayoutEditor extends Dialog {
     }
     private void move(float x,float y) {
         if (handleMode) GameHandlePlacement.move(draft, landscape, preview.safeArea(), 48, x, y);
+        else if (tab == 4) preview.deck.moveExtra(selectedExtra,x,y);
         else preview.deck.moveGroup(selected,x,y);
         preview.invalidate();
     }
@@ -387,7 +447,9 @@ public final class TouchLayoutEditor extends Dialog {
                 icon.draw(canvas);
             }
             paint.setStyle(Paint.Style.STROKE); paint.setStrokeWidth(2/zoom); paint.setColor(color(R.color.accent));
-            if (!handleMode && tab == 3) {
+            if (!handleMode && tab == 4) {
+                for (TouchDeck.Key key : deck.getKeys()) if (key.id.equals(selectedExtra)) canvas.drawRoundRect(key.bounds,5,5,paint);
+            } else if (!handleMode && tab == 3) {
                 for (TouchDeck.Key key : deck.getKeys()) if (selectedButton.equals(key.id)) canvas.drawRoundRect(key.bounds,5,5,paint);
             } else canvas.drawRoundRect(handleMode ? handleBounds() : deck.groupBounds(selected),5,5,paint);
             paint.setStyle(Paint.Style.FILL);
@@ -401,6 +463,13 @@ public final class TouchLayoutEditor extends Dialog {
                     if (!handleBounds().contains(x, y)) return false;
                     pointer = event.getPointerId(0); lastX = x; lastY = y;
                     getParent().requestDisallowInterceptTouchEvent(true); return true;
+                }
+                if (tab == 4) {
+                    java.util.List<TouchDeck.Key> keys=deck.getKeys();
+                    for(int i=keys.size()-1;i>=0;i--) { TouchDeck.Key key=keys.get(i);
+                        if(key.isExtra() && key.bounds.contains(x,y)) {selectedExtra=key.id;pointer=event.getPointerId(0);lastX=x;lastY=y;
+                            buildControls();invalidate();getParent().requestDisallowInterceptTouchEvent(true);return true;}
+                    } return true;
                 }
                 if (tab == 3) {
                     for (TouchDeck.Key key : deck.getKeys()) if (key.bounds.contains(x,y)) {

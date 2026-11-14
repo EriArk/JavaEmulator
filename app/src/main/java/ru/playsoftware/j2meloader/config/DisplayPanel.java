@@ -55,6 +55,10 @@ public final class DisplayPanel {
         menu.previewDecisions(() -> {
             if (preview.keep()) back.run(); else menu.message(menu.text(R.string.game_save_settings_failed));
         }, () -> { undoQuietly(); back.run(); });
+        menu.action("Profiles / Global defaults", R.drawable.ic_baseline_tune_24, () -> {
+            undoQuietly();
+            SharedProfileDialog.show(menu.getContext(), null, this::show);
+        });
         menu.action(menu.text(R.string.game_performance_advanced), R.drawable.ic_baseline_tune_24, advanced);
         menu.setBackAction(back);
     }

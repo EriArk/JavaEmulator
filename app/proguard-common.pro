@@ -44,3 +44,7 @@
 -keep class * implements com.google.gson.JsonDeserializer {
   <init>();
 }
+
+# Shared profile schema uses stable field names, including reflective whitelisted settings.
+-keepclassmembers class ru.playsoftware.j2meloader.config.ProfileModel { <fields>; }
+-keepclassmembers class ru.playsoftware.j2meloader.config.SharedProfiles$* { <fields>; }

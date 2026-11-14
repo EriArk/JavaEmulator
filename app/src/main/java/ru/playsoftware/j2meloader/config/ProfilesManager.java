@@ -172,6 +172,7 @@ public class ProfilesManager {
 			params.version = ProfileModel.VERSION;
 			ProfilesManager.saveConfig(params);
 		}
+		SharedProfiles.resolve(params, true);
 		return params;
 	}
 
@@ -179,6 +180,7 @@ public class ProfilesManager {
 		// Runtime helpers may request autosave while a reversible preview is active.
 		if (isPreview(p)) return true;
 		if (p.dir == null || !p.dir.isDirectory()) return false;
+		SharedProfiles.prepareSave(p);
 		android.util.AtomicFile file = new android.util.AtomicFile(new File(p.dir, Config.MIDLET_CONFIG_FILE));
 		java.io.FileOutputStream stream = null;
 		try {
@@ -196,12 +198,16 @@ public class ProfilesManager {
 	public static ProfileModel copy(ProfileModel source) {
 		ProfileModel result = gson.fromJson(gson.toJson(source), ProfileModel.class);
 		result.dir = source.dir;
+        result.sharedRoot = source.sharedRoot;
+        result.sharedSnapshot = source.sharedSnapshot == null ? null : source.sharedSnapshot.deepCopy();
 		return result;
 	}
 
 	/** Preserve the model identity held by the touch deck and runtime. */
 	public static void copyInto(ProfileModel source, ProfileModel destination) {
 		ProfileModel detached = copy(source);
+        destination.sharedSnapshot = detached.sharedSnapshot;
+        destination.sharedRoot = detached.sharedRoot;
 		try {
 			for (java.lang.reflect.Field field : ProfileModel.class.getFields()) {
 				int modifiers = field.getModifiers();

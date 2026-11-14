@@ -79,6 +79,8 @@ public final class LibraryArchive {
             }
             if (count == 0) throw LibraryTransferFailure.of(R.string.library_transfer_no_games,"No installed games to back up");
             pack(root, new File(root, "fs"), zip, hashes, 0);
+            ru.playsoftware.j2meloader.config.SharedProfiles.read(root); // Validate before publishing the archive.
+            pack(root, new File(root, ru.playsoftware.j2meloader.config.SharedProfiles.FILE), zip, hashes, 0);
             byte[] metadata = new Gson().toJson(manifest).getBytes(StandardCharsets.UTF_8);
             if (metadata.length > 16 * 1024 * 1024 || ++files > MAX_FILES) throw LibraryTransferFailure.of(R.string.library_transfer_import_limit,"Backup metadata too large");
             limit(metadata.length);
@@ -108,14 +110,17 @@ public final class LibraryArchive {
         long length = file.length(), modified = file.lastModified(), written = 0;
         java.security.MessageDigest digest = digest();
         zip.putNextEntry(new ZipEntry(path));
-        try (InputStream input = new FileInputStream(file)) {
+        byte[] portable = path.startsWith("configs/") && file.getName().equals("config.json")
+                ? ru.playsoftware.j2meloader.config.SharedProfiles.portableConfig(file) : null;
+        if(portable!=null)length=portable.length;
+        try (InputStream input = portable==null ? new FileInputStream(file) : new ByteArrayInputStream(portable)) {
             byte[] buffer = new byte[65536]; int n;
             while ((n = input.read(buffer)) != -1) {
                 check(); limit(n); written += n; digest.update(buffer, 0, n); zip.write(buffer, 0, n);
             }
         }
         zip.closeEntry();
-        if (length != written || length != file.length() || modified != file.lastModified())
+        if (length != written || portable==null && length != file.length() || modified != file.lastModified())
             throw LibraryTransferFailure.of(R.string.library_transfer_backup_changed,"Game data changed during backup. Exit the game and retry.");
         hashes.addProperty(path, hex(digest.digest()));
     }
@@ -136,7 +141,7 @@ public final class LibraryArchive {
                 if (parts.length > 26) throw LibraryTransferFailure.of(R.string.library_transfer_import_limit,"Backup folders are too deep");
                 for (String part : parts) safeName(part);
                 if (!names.add(path) || ++files > MAX_FILES) throw LibraryTransferFailure.of(R.string.library_transfer_source_invalid,"Duplicate or excessive backup entries");
-                if (!path.equals(MANIFEST) && !(parts.length >= 3 && Arrays.asList("converted", "data", "configs").contains(parts[0]))
+                if (!path.equals(MANIFEST) && !path.equals(ru.playsoftware.j2meloader.config.SharedProfiles.FILE) && !(parts.length >= 3 && Arrays.asList("converted", "data", "configs").contains(parts[0]))
                         && !(parts.length >= 2 && parts[0].equals("fs")))
                     throw LibraryTransferFailure.of(R.string.library_transfer_source_invalid,"Unexpected backup file: " + path);
                 if (entry.isDirectory()) throw LibraryTransferFailure.of(R.string.library_transfer_source_invalid,"Unexpected directory entry");

@@ -468,8 +468,17 @@ public class LibraryImporterTest {
 	}
 
 	@Test public void archiveRoundTripPreservesProgressControlsAndLibraryMetadata() throws Exception {
+        ru.playsoftware.j2meloader.config.SharedProfiles.Catalog shared=new ru.playsoftware.j2meloader.config.SharedProfiles.Catalog();
+        ru.playsoftware.j2meloader.config.SharedProfiles.Entry reusable=ru.playsoftware.j2meloader.config.SharedProfiles.create(shared,"Reusable",new com.google.gson.JsonObject());
+        reusable.values.addProperty("ScreenEffect",2);
+        ru.playsoftware.j2meloader.config.SharedProfiles.create(shared,"Unassigned",new com.google.gson.JsonObject()).values.addProperty("ScreenEffect",1);
+        ru.playsoftware.j2meloader.config.SharedProfiles.write(source,shared);
+
 		SourceHints.write(new File(source, "converted/old-folder"), "Sudoku_SE_128x160.jar");
 		ProfileModel profile = new ProfileModel(new File(source, "configs/old-folder"));
+        ru.playsoftware.j2meloader.config.SharedProfiles.assign(profile,reusable.id,shared);
+        profile.extraTouchButtons=new java.util.ArrayList<>();
+        ru.playsoftware.j2meloader.input.ExtraTouchButton extra=new ru.playsoftware.j2meloader.input.ExtraTouchButton();extra.code=51;profile.extraTouchButtons.add(extra);
 		profile.touchLayout = 1; profile.touchOpacity = 75; profile.screenRotation = 180;
 		profile.controlMode = 1; profile.touchVisibility = 1;
 		profile.orientation = 2;
@@ -492,6 +501,9 @@ public class LibraryImporterTest {
 			assertEquals("Sudoku_SE_128x160.jar", SourceHints.read(new File(destination, "converted/" + restored.getPath())));
 			assertTrue(restored.isFavorite()); assertEquals(17, restored.getPlayCount());
 			ProfileModel loaded = ProfilesManager.loadConfig(new File(destination, "configs/" + restored.getPath()));
+            assertEquals(2,loaded.screenEffect);assertEquals(reusable.id,loaded.sharedProfileId);
+            assertEquals(51,loaded.extraTouchButtons.get(0).code);
+            assertEquals(2,ru.playsoftware.j2meloader.config.SharedProfiles.read(destination).profiles.size());
 			assertEquals(Integer.valueOf(1), loaded.touchLayout); assertEquals(75, loaded.touchOpacity);
 			assertEquals(1, loaded.controlMode); assertEquals(1, loaded.getTouchVisibility());
 			assertEquals(180, loaded.screenRotation); assertEquals(BuildConfig.HANDHELD_MODE ? 3 : 2, loaded.orientation);

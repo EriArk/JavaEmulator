@@ -67,6 +67,7 @@ public final class LibraryImporter {
 		public boolean selected, duplicateTitle;
 		public boolean hasSaves;
 		private JsonObject backupInfo;
+        private ru.playsoftware.j2meloader.config.SharedProfiles.Catalog sharedProfiles;
 		private String nativeId;
 		private DocumentFile game, data, config;
         private LibraryTransferFailure problemFailure;
@@ -212,7 +213,10 @@ public final class LibraryImporter {
 	}
 
 	public Preview scanBackup(File root) throws IOException {
-		return scan(DocumentFile.fromFile(root), LibraryArchive.readManifest(root));
+		Preview preview=scan(DocumentFile.fromFile(root), LibraryArchive.readManifest(root));
+        ru.playsoftware.j2meloader.config.SharedProfiles.Catalog profiles=ru.playsoftware.j2meloader.config.SharedProfiles.read(root);
+        for(Entry entry:preview.entries)entry.sharedProfiles=profiles;
+        return preview;
 	}
 
 	/** Some older providers only grant direct children. Separate picker grants avoid file-manager copying. */
@@ -347,6 +351,9 @@ public final class LibraryImporter {
 				if (file != null) copyFile(file, new File(app, art));
 			}
 			if (entry.data != null) copyTree(entry.data, data, 0);
+			if (entry.sharedProfiles != null) {
+				ru.playsoftware.j2meloader.config.SharedProfiles.importCatalog(entry.sharedProfiles, destination);
+			}
 			notes = importConfig(entry.config, config, entry.backupInfo != null);
 			checkCancelled();
 			item.setSourceKey(entry.sourceKey);
@@ -457,6 +464,10 @@ public final class LibraryImporter {
 			DocumentFile keyboard = find(source, "VirtualKeyboardLayout");
 			if (keyboard != null) copyFile(keyboard, new File(target, "VirtualKeyboardLayout"));
 		}
+		profile.sharedRoot = destination;
+        if(!backup || !original.has("sharedSettings")) profile.sharedSettings=false;
+        if(backup) ru.playsoftware.j2meloader.config.SharedProfiles.importPortable(profile,destination);
+        ru.playsoftware.j2meloader.config.SharedProfiles.resolve(profile,true);
 		if (!ProfilesManager.saveConfig(profile)) throw LibraryTransferFailure.of(R.string.library_transfer_storage_failure,"Cannot save imported settings");
 		return notes;
 	}

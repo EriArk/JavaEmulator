@@ -1,7 +1,7 @@
 # AbyssME Changelog
 
 User-facing development history, reconstructed from commits, release notes and
-local/private build records through **2026-11-13**. This is not a claim that all
+local/private build records through **2026-11-14**. This is not a claim that all
 listed work is in a public APK. See [current status](docs/PROJECT_STATUS.md) for
 availability, verification, known limits and screenshot guidance.
 
@@ -9,6 +9,23 @@ Labels: **Public source** means implemented on `main` but unreleased unless
 stated otherwise. **Experimental** in older checkpoints means local/private
 combined builds; released experimental features are explicitly identified.
 **Released** means an actual GitHub release asset.
+
+## 2026-11-14 - Linked Touch Profiles and Extra Buttons (Public Source, Unreleased)
+
+- Add Global default and named reusable touch/LCD profiles, assignment to individual
+  or selected prepared games, per-field override sources/reset, and profile
+  creation, duplication, rename and safe deletion. Shared changes apply on reopening
+  a game; existing per-game settings remain explicit exceptions on upgrade.
+- Extend the touch editor with up to twelve extra Gamepad keys, independent labels,
+  size/opacity and portrait/landscape placement. Retain simultaneous input, proper
+  releases during layout changes, and reversible editor/game drafts.
+- Include profile definitions and assignments in library/phone backup paths;
+  preserve destination profiles on ID/name conflicts and preserve explicit null
+  overrides. Keep engine compatibility and physical bindings outside shared settings.
+- Pass 424 JVM tests and 86 targeted Retroid Android checks; Debug lint has zero
+  errors and 807 warnings. This is source and a separate Debug package, not a new
+  public APK or signed-upgrade/full-game acceptance.
+  [Usage](docs/SHARED_PROFILES.md) · [Verification](docs/checks/2026-11-14-shared-profiles.md).
 
 ## 2026-11-13 - Retroid Demo (Public Media)
 

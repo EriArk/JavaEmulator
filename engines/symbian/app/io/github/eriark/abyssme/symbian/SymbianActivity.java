@@ -447,7 +447,8 @@ public final class SymbianActivity extends Activity implements Emulator.Host, In
                 SystemFileCatalog.Entry entry=catalog.read(selected);
                 PreparedSystemArchive.Progress progress=transferProgress();
                 PhoneLibraryTitles.migrate(getFilesDir(),entry.id,getSharedPreferences("symbian-library-presentation",MODE_PRIVATE));
-                new PhoneBackup(getFilesDir()).exportPhone(entry,archive,Emulator.portablePhoneSettings(catalog.runtime(entry).getAbsolutePath()),progress);
+                new PhoneBackup(getFilesDir()).exportPhone(entry,archive,Emulator.portablePhoneSettings(catalog.runtime(entry).getAbsolutePath()),progress,
+                        config -> new String(ru.playsoftware.j2meloader.config.SharedProfiles.portableConfig(config),java.nio.charset.StandardCharsets.UTF_8));
                 progress.update(getString(R.string.native_saving_backup));
                 try(java.io.InputStream input=new java.io.FileInputStream(archive);
                     java.io.OutputStream output=getContentResolver().openOutputStream(destination,"wt")) {
@@ -701,6 +702,7 @@ public final class SymbianActivity extends Activity implements Emulator.Host, In
             try {
                 Emulator.stopSession();
                 SystemFileCatalog.Entry restored=new PhoneBackup(getFilesDir()).restore(archive,this::validateTransferredPhone,transferProgress());
+                ru.playsoftware.j2meloader.config.SharedProfiles.restorePhoneProfiles(PhoneBackup.profiles(getFilesDir(),restored.id));
                 openSystem(restored); refresh(getString(R.string.native_restored_status));
                 afterTask=() -> notice(getString(R.string.native_restored),getString(R.string.native_restored_body),getString(R.string.system_library),this::openSharedLibrary,getString(R.string.system_close));
             } catch(Exception error) {

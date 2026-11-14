@@ -34,6 +34,7 @@ public final class SettingsTrial {
     }
 
     public static void stage(ProfileModel draft) throws IOException {
+        SharedProfiles.capture(draft);
         AtomicFile file = file(draft.dir);
         FileOutputStream out = null;
         try {
@@ -57,6 +58,7 @@ public final class SettingsTrial {
         // Consume before engine initialization: a failed launch cannot replay the draft.
         ProfilesManager.beginPreview(confirmed);
         ProfilesManager.copyInto(draft, confirmed);
+        confirmed.sharedSnapshot = SharedProfiles.values(confirmed);
     }
 
     private SettingsTrial() { }
