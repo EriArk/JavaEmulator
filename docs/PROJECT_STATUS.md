@@ -12,7 +12,29 @@ not a live feed. Verify GitHub Releases, recent commits and build notes before
 calling a version "latest" after this date. If local evidence is inaccessible,
 attribute its results to the dated maintainer record below; do not infer a pass.
 
-## Independent Graphics and Control Profiles (Unreleased Source, 2026-11-14)
+## Dual Beta 7 Released (2026-11-14)
+
+**Both signed code-321 APKs are published.** Graphics profiles and control profiles
+have independent global defaults, named profiles, game assignments and resets.
+Graphics include supported xBRZ/CRT, FSR, interpolation, scaling and LCD options.
+Beta 6 migration preserves LCD inheritance and existing graphics exceptions.
+
+Each optimized target passes 424 JVM tests and production guards; lint has zero
+errors. Native ARMv7 verification passes 85 checks (two UI tests retried after
+Android's ABI notice). Final signed APKs preserve readable files across upgrades
+and load the saved xBRZ setup in Asphalt. Retroid returns to ARM64; temporary
+settings and instrumentation packages are removed. All six uploaded digests and
+both public APK/checksum downloads match staging. These are bounded checks.
+[Release notes](releases/v0.7.0-beta.7.md) ·
+[Verification and limits](releases/v0.7.0-beta.7-checks.md).
+
+A [40-second Beta 7 feature video](../screenshots/releases/v0.7.0-beta.7/README.md)
+shows the separate catalogs, graphics editor, in-game xBRZ-to-CRT profile switch
+and a short race on signed ARM64. The saved graphics assignment changes while
+the control assignment stays intact. Demo settings and game saves were restored;
+the silent recording does not extend the release acceptance scope.
+
+## Independent Profiles Implementation Checkpoint (2026-11-14)
 
 Graphics and controls have separate global defaults, named profiles, assignments
 and per-game overrides. Graphics now include built-in xBRZ/CRT, FSR, smoothing,
@@ -23,7 +45,8 @@ per-game graphics. Both catalogs and portable assignments survive library backup
 A separate Debug build passes 419 app JVM tests and 116 targeted checks on
 Retroid; lint has zero errors. A bounded Diamond Rush smoke applies a named xBRZ
 profile. The published Beta 6 APKs do not contain this
-separation. No ARMv7 release build or signed upgrade is claimed for this change.
+separation. The subsequent Beta 7 release and architecture/upgrade checks are
+recorded above; this earlier paragraph describes only the implementation build.
 [Usage and limits](SHARED_PROFILES.md) ·
 [Verification](checks/2026-11-14-graphics-profiles.md).
 
@@ -93,7 +116,7 @@ physical-button/audible-audio acceptance. Public APK/checksum downloads match.
 
 ## Current Issue Review (2026-11-10)
 
-Release metadata rechecked November 14 identifies Beta 6 as the newest published
+Release metadata rechecked November 14 identifies Beta 7 as the newest published
 beta. The issue review below retains its November 10 scope. Release-specific build, signature, upgrade and download checks are linked
 above. Earlier issue/game results retain their dates and scope; live multiplayer
 services were not rechecked during publication.

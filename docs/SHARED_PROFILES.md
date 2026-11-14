@@ -1,9 +1,10 @@
 # Graphics profiles, control profiles and extra buttons
 
-**Unreleased source (November 14, 2026):** graphics and controls now have separate
+**Released in 0.7.0 Beta 7 (November 14, 2026):** graphics and controls now have separate
 catalogs, global defaults, named profiles and assignments. Published Beta 6 still
 has the earlier combined touch/LCD profiles. This separation requires a newer
-build; it is not an update to the existing Beta 6 APKs.
+build; install Beta 7 over the official app.
+[Release verification](releases/v0.7.0-beta.7-checks.md).
 [Implementation checks](checks/2026-11-14-graphics-profiles.md).
 
 ## Independent global defaults and named profiles

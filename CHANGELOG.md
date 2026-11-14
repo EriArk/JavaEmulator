@@ -10,6 +10,26 @@ stated otherwise. **Experimental** in older checkpoints means local/private
 combined builds; released experimental features are explicitly identified.
 **Released** means an actual GitHub release asset.
 
+## 2026-11-14 - Dual Beta 7 Released
+
+- Publish ARM64 combined and ARMv7 Java/Mophun APKs, code 321, with independent
+  graphics/control defaults, linked profiles, scoped resets and Beta 6 migration.
+- Verify 424 JVM tests per optimized target, 85 native ARMv7 checks, signed
+  profile UI/serialization, bounded Asphalt xBRZ rendering and readable-file
+  preservation across updates. Restore temporary settings and return to ARM64.
+- Verify all six asset digests and both public APK/checksum downloads. Preserve
+  the existing signing identity and publish matching source bundles.
+  [Verification and limits](docs/releases/v0.7.0-beta.7-checks.md).
+
+## 2026-11-14 - Beta 7 Feature Demo (Public Media)
+
+- Add a 40-second signed ARM64 Retroid recording showing independent profile
+  catalogs, the graphics editor, an in-game CRT profile switch and a short race.
+- Verify that keeping the graphics change preserves the control assignment.
+  Restore temporary catalogs, game configuration, saved data and device settings.
+- Decode the final silent MP4 and inspect representative frames and captions.
+  [Video and capture scope](screenshots/releases/v0.7.0-beta.7/README.md).
+
 ## 2026-11-14 - Independent Graphics and Control Profiles (Unreleased Source)
 
 - Separate global defaults, named profiles, per-game assignments and bulk override
