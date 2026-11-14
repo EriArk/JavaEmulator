@@ -16,18 +16,18 @@ acceptance for an already released feature. Original issue descriptions and
 comments remain historical evidence; the dated status at the top identifies the
 current remainder. Unchecked original checklists do not mean every feature is absent.
 
-## November 14 implementation: #53 and #54
+## November 14 release: #53 and #54
 
 - [#53](https://github.com/EriArk/JavaEmulator/issues/53): global defaults and named
-  linked touch/LCD profiles are implemented in unreleased public source, including
+  linked touch/LCD profiles are released in both Beta 6 APKs, including
   per-game exceptions, bulk assignment, migration and backup conflict handling.
 - [#54](https://github.com/EriArk/JavaEmulator/issues/54): extra Gamepad touch buttons
-  are implemented in the existing editor and can be included in shared profiles.
+  are released in the existing editor and can be included in shared profiles.
 
-424 JVM and 86 targeted Retroid Android checks pass; lint reports zero errors.
-Keep both issues open for release and broader user/device acceptance. No new
-public APK is published. [Usage](SHARED_PROFILES.md) and
-[evidence](checks/2026-11-14-shared-profiles.md) describe the scope and limits.
+Both release targets pass 424 JVM tests; fresh ARMv7 checks and real-game/signed
+update verification are recorded in the [release report](releases/v0.7.0-beta.6-checks.md).
+Broader user/device acceptance remains open. This documentation update does not
+change live issue state. [Usage](SHARED_PROFILES.md) describes the shipped scope.
 The older issue review and release records below keep their original dates.
 
 ## Development Focus

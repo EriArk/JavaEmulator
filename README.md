@@ -18,14 +18,14 @@ users of the former Phone app can use the menu-based
 > **Project status:** Beta. AbyssME is usable, but compatibility automation and
 > launcher integration still need testing across more games and devices.
 
-[Download Beta 5 — ARM64](https://github.com/EriArk/JavaEmulator/releases/download/v0.7.0-beta.5/AbyssME-0.7.0-beta.5.apk) ·
-[ARMv7 — Java/Mophun only](https://github.com/EriArk/JavaEmulator/releases/download/v0.7.0-beta.5/AbyssME-0.7.0-beta.5-armv7.apk)
+[Download Beta 6 — ARM64](https://github.com/EriArk/JavaEmulator/releases/download/v0.7.0-beta.6/AbyssME-0.7.0-beta.6.apk) ·
+[ARMv7 — Java/Mophun only](https://github.com/EriArk/JavaEmulator/releases/download/v0.7.0-beta.6/AbyssME-0.7.0-beta.6-armv7.apk)
 
 [Watch the Beta 5 UI and gameplay demo](screenshots/releases/v0.7.0-beta.5/README.md) — recorded on Retroid, without audio.
 
 **[Setup & FAQ](docs/FAQ.md)** — step-by-step help with Java ME, Mophun, Symbian/N-Gage firmware and game installation, touchscreen controls, physical controller mapping, backups and troubleshooting.
 
-Choose the **0.7.0-beta.5** APK (code 319) for your Android ABI. Both update the official app in place;
+Choose the **0.7.0-beta.6** APK (code 320) for your Android ABI. Both update the official app in place;
 older releases remain available for reference.
 
 ## Current Beta
@@ -34,8 +34,13 @@ For website copy, progress posts and handoffs, start with the
 [current product/development status](docs/PROJECT_STATUS.md) and
 [dated changelog](CHANGELOG.md). They also describe local/private experiments,
 explicitly separated from public downloads. The
-[0.7.0 Beta 5 notes](docs/releases/v0.7.0-beta.5.md) explain the two downloads,
+[0.7.0 Beta 6 notes](docs/releases/v0.7.0-beta.6.md) explain the two downloads,
 verification limits and source bundles.
+
+**Beta 6** adds linked touch/LCD profiles, per-game exceptions, bulk assignment
+and up to twelve extra Gamepad buttons. Existing customized games keep their
+settings on upgrade. [Usage](docs/SHARED_PROFILES.md) ·
+[Release checks](docs/releases/v0.7.0-beta.6-checks.md).
 
 **Beta 5** adds a separate ARMv7 Java/Mophun APK and identifies the installed
 distribution in About. Android 10+ remains required; choose ARM64 when supported.
@@ -243,7 +248,7 @@ broader device acceptance remains tracked in [#3](https://github.com/EriArk/Java
 ## Install
 
 1. Open [Releases](https://github.com/EriArk/JavaEmulator/releases).
-2. Choose `AbyssME-0.7.0-beta.5.apk` for ARM64, or `AbyssME-0.7.0-beta.5-armv7.apk` for 32-bit ARM Android. Both adapt to phones and handhelds.
+2. Choose `AbyssME-0.7.0-beta.6.apk` for ARM64, or `AbyssME-0.7.0-beta.6-armv7.apk` for 32-bit ARM Android. Both adapt to phones and handhelds.
 3. Allow installation from your browser or file manager when Android asks.
 4. Install the APK and open AbyssME.
 

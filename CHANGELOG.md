@@ -10,6 +10,18 @@ stated otherwise. **Experimental** in older checkpoints means local/private
 combined builds; released experimental features are explicitly identified.
 **Released** means an actual GitHub release asset.
 
+## 2026-11-14 - Dual Beta 6 Released
+
+- Publish signed ARM64 combined and ARMv7 Java/Mophun APKs, version code 320,
+  with the linked touch/LCD profiles and extra Gamepad buttons described below.
+- Verify both optimized builds, 424 JVM tests per target, native ARMv7 profile/
+  input/archive and process checks, Diamond Rush profile/backup/relaunch, and
+  Asphalt with saved extra buttons on both final signed APKs.
+- Verify signature continuity, readable library-file preservation during updates,
+  source bundles and uploaded asset hashes. Retroid returns to ARM64.
+  [Release notes](docs/releases/v0.7.0-beta.6.md) ·
+  [Checks and limits](docs/releases/v0.7.0-beta.6-checks.md).
+
 ## 2026-11-14 - Linked Touch Profiles and Extra Buttons (Public Source, Unreleased)
 
 - Add Global default and named reusable touch/LCD profiles, assignment to individual

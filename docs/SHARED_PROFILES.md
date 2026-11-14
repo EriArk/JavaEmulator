@@ -1,8 +1,9 @@
 # Shared touch profiles and extra buttons
 
-Implemented on November 14, 2026 for #53 and #54. **Unreleased source and a
-separate maintainer Debug build; these features are not in the Beta 5 APKs.**
-See [verification](checks/2026-11-14-shared-profiles.md) for the tested scope.
+Released in **0.7.0 Beta 6** on November 14, 2026 for #53 and #54, in both
+ARM64 and ARMv7 APKs. Beta 5 APKs do not include these features. See
+[release verification](releases/v0.7.0-beta.6-checks.md) and the earlier
+[implementation checks](checks/2026-11-14-shared-profiles.md) for the tested scope.
 
 ## Global defaults and named profiles
 

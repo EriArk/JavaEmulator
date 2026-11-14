@@ -12,20 +12,21 @@ not a live feed. Verify GitHub Releases, recent commits and build notes before
 calling a version "latest" after this date. If local evidence is inaccessible,
 attribute its results to the dated maintainer record below; do not infer a pass.
 
-## Shared Profiles and Extra Buttons (2026-11-14, Unreleased)
+## Dual Beta 6 Released (2026-11-14)
 
-**Public source; separate maintainer Debug build only.** #53 adds global touch/LCD
-settings, named linked profiles, per-game exceptions, bulk assignment and portable
-backup definitions. Existing customized games retain explicit overrides. #54 adds
-up to twelve independent Gamepad touch buttons, with orientation-specific placement,
-size, labels and opacity, using the existing editor and input lifecycle.
+**Both signed code-320 APKs are published.** #53 adds global touch/LCD defaults,
+named linked profiles, per-game overrides and bulk assignment. #54 adds up to
+12 extra Gamepad buttons in the existing editor. Existing game settings remain
+explicit overrides on upgrade; profiles and extra keys travel through backups.
 
-424 JVM tests and 86 targeted Android checks pass on Retroid / Android 14,
-including profile inheritance, migration, archive restoration, native phone backup
-metadata, multitouch and the assignment/editor UI. Debug lint reports zero errors
-and 807 warnings. These checks do not establish full-game, human touch comfort or
-signed production-upgrade acceptance. Beta 5 APKs do not include this work.
-[Usage and boundaries](SHARED_PROFILES.md) · [Evidence](checks/2026-11-14-shared-profiles.md).
+Both optimized targets pass 424 JVM tests and production APK guards. Fresh native
+ARMv7 verification passes 64 profile/input/archive checks, two target checks and
+the Diamond Rush linked-profile/backup/relaunch journey. Final signed ARM64 and
+ARMv7 APKs run Asphalt with a saved extra button. Signed updates preserve readable
+external library files; Retroid is left on ARM64 after temporary-setting cleanup.
+These are bounded game/device checks, not complete-game or human comfort acceptance.
+[Usage](SHARED_PROFILES.md) · [Release notes](releases/v0.7.0-beta.6.md) ·
+[Verification and limits](releases/v0.7.0-beta.6-checks.md).
 
 ## Dual Beta 5 Released (2026-11-13)
 
@@ -72,7 +73,7 @@ physical-button/audible-audio acceptance. Public APK/checksum downloads match.
 
 ## Current Issue Review (2026-11-10)
 
-Release metadata rechecked November 13 identifies Beta 5 as the newest published
+Release metadata rechecked November 14 identifies Beta 6 as the newest published
 beta. The issue review below retains its November 10 scope. Release-specific build, signature, upgrade and download checks are linked
 above. Earlier issue/game results retain their dates and scope; live multiplayer
 services were not rechecked during publication.
