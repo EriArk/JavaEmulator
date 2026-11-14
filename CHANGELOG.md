@@ -10,6 +10,15 @@ stated otherwise. **Experimental** in older checkpoints means local/private
 combined builds; released experimental features are explicitly identified.
 **Released** means an actual GitHub release asset.
 
+## 2026-11-14 - Crash of the Titans Investigation (Local Check)
+
+- Test the supplied pack's 1.0.1 JAR on signed ARM64 Beta 7: startup, tutorial,
+  held-key and Phone-keypad input, combat and restart/continue.
+- Reproduce the game's Sound setting switching off after host-menu return;
+  re-enabling it restores an active audio player. Capture title/gameplay audio
+  without claiming subjective listening acceptance. No runtime change or release.
+  [Evidence and limits](docs/checks/2026-11-14-crash-titans.md).
+
 ## 2026-11-14 - Dual Beta 7 Released
 
 - Publish ARM64 combined and ARMv7 Java/Mophun APKs, code 321, with independent

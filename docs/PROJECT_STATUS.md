@@ -12,6 +12,16 @@ not a live feed. Verify GitHub Releases, recent commits and build notes before
 calling a version "latest" after this date. If local evidence is inaccessible,
 attribute its results to the dated maintainer record below; do not infer a pass.
 
+## Crash of the Titans Investigation (2026-11-14)
+
+Local signed-Beta-7 Retroid checks reach the tutorial and exercise held keys,
+Phone touch controls, movement and combat without an observed crash. The sampled
+1.0.1 JAR disables its own sound after host-menu return; enabling Sound in the
+game restores an active player. Captured title/gameplay audio contains a signal,
+but listening quality was not assessed. No runtime fix or new APK was made, and
+the reporter's exact JAR/symptom remains unknown.
+[Evidence, workaround and limits](checks/2026-11-14-crash-titans.md).
+
 ## Dual Beta 7 Released (2026-11-14)
 
 **Both signed code-321 APKs are published.** Graphics profiles and control profiles
