@@ -42,6 +42,9 @@ public class ProvidedJavaSweepTest {
         assertTrue(output.mkdirs());
         assertTrue(game.mkdirs()); assertTrue(profileDir.mkdirs());
         File backupWork = new File(context.getCacheDir(), "java-backup-" + UUID.randomUUID());
+        File catalogFile = new File(Config.getEmulatorDir(), SharedProfiles.FILE);
+        boolean sharedCheck = "true".equals(args.getString("javaSharedProfile"));
+        byte[] priorCatalog = sharedCheck && catalogFile.isFile() ? Files.readAllBytes(catalogFile.toPath()) : null;
         try {
             try (ZipFile zip = new ZipFile(source); InputStream manifest = zip.getInputStream(zip.getEntry("META-INF/MANIFEST.MF"))) {
                 Files.copy(manifest, new File(game, Config.MIDLET_MANIFEST_FILE).toPath());
@@ -57,6 +60,22 @@ public class ProvidedJavaSweepTest {
                 profile.screenHeight = Integer.parseInt(args.getString("javaHeight"));
             }
             profile.showKeyboard = false; profile.touchInput = true;
+            if (sharedCheck) {
+                SharedProfiles.Catalog catalog = SharedProfiles.read(catalogFile.getParentFile());
+                ProfileModel base = new ProfileModel(); base.touchLayout = 1; base.touchVisibility = 1;
+                base.extraTouchButtons = new java.util.ArrayList<>();
+                for (int k = 0; k < 2; k++) {
+                    ru.playsoftware.j2meloader.input.ExtraTouchButton b = new ru.playsoftware.j2meloader.input.ExtraTouchButton();
+                    b.code = k == 0 ? -5 : -4; b.label = k == 0 ? "GO" : "RIGHT";
+                    b.portrait.x = b.landscape.x = .35f + k * .3f;
+                    b.portrait.y = b.landscape.y = .18f;
+                    base.extraTouchButtons.add(b);
+                }
+                SharedProfiles.Entry entry = SharedProfiles.create(catalog, id, SharedProfiles.values(base));
+                SharedProfiles.write(catalogFile.getParentFile(), catalog);
+                SharedProfiles.assign(profile, entry.id, catalog); SharedProfiles.clear(profile, null, catalog);
+                profile.touchSize = 110; // Explicit game exception must survive a linked base edit.
+            }
             assertTrue(ProfilesManager.saveConfig(profile));
             Bundle status = new Bundle(); status.putString("stream", name + " size=" + profile.screenWidth + "x" + profile.screenHeight
                     + " profile=" + profile.compatibilityProfile + " reasons=" + profile.compatibilityReasons + "\n"); i.sendStatus(0, status);
@@ -71,6 +90,16 @@ public class ProvidedJavaSweepTest {
                 long deadline = SystemClock.uptimeMillis() + 5000;
                 while (pid(context) != 0 && SystemClock.uptimeMillis() < deadline) SystemClock.sleep(50);
                 assertEquals("Stop the fixture VM before exporting", 0, pid(context));
+                if (sharedCheck) {
+                    SharedProfiles.Catalog catalog = SharedProfiles.read(catalogFile.getParentFile());
+                    SharedProfiles.Entry linked = SharedProfiles.find(catalog, profile.sharedProfileId);
+                    assertNotNull(linked); linked.values.addProperty("touchOpacity", 65);
+                    SharedProfiles.write(catalogFile.getParentFile(), catalog);
+                    ProfileModel reloaded = ProfilesManager.loadConfig(profileDir);
+                    assertEquals(65, reloaded.touchOpacity);
+                    assertEquals(110, reloaded.touchSize);
+                    assertEquals(2, reloaded.extraTouchButtons.size());
+                }
                 ru.playsoftware.j2meloader.applist.AppItem item =
                         new ru.playsoftware.j2meloader.applist.AppItem(id, name, "Fixture", "1");
                 item.setFavorite(true); // Synthetic catalog metadata, not game progress.
@@ -99,6 +128,10 @@ public class ProvidedJavaSweepTest {
             assertEquals("VM must stop before removing its private fixture", 0, pid(context));
             FileUtils.deleteDirectory(game); FileUtils.deleteDirectory(profileDir); FileUtils.deleteDirectory(saves);
             FileUtils.deleteDirectory(backupWork);
+            if (sharedCheck) {
+                if (priorCatalog == null) Files.deleteIfExists(catalogFile.toPath());
+                else Files.write(catalogFile.toPath(), priorCatalog);
+            }
         }
     }
     private static void actions(Instrumentation i, File output, String sequence, String prefix) throws IOException {
