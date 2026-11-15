@@ -595,9 +595,7 @@ public final class MophunGameActivity extends Activity {
         if (mapper != null) { mapper.captureAxes(event); return true; }
         if (!hasWindowFocus() || (devices != null && devices.resumeRequired())) return true;
         if (input != null && event.isFromSource(InputDevice.SOURCE_JOYSTICK)) {
-            input.axes(event.getDeviceId(), event.getAxisValue(MotionEvent.AXIS_X), event.getAxisValue(MotionEvent.AXIS_Y),
-                    event.getAxisValue(MotionEvent.AXIS_HAT_X), event.getAxisValue(MotionEvent.AXIS_HAT_Y),
-                    event.getAxisValue(MotionEvent.AXIS_LTRIGGER), event.getAxisValue(MotionEvent.AXIS_RTRIGGER));
+            ru.playsoftware.j2meloader.input.ControllerMotion.update(input, event);
             return true;
         }
         return super.dispatchGenericMotionEvent(event);

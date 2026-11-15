@@ -69,4 +69,7 @@
         <item>Bas + gauche</item>
         <item>Bas + droite</item>
     </string-array>
+    <string name="controls_sticks">Sticks</string>
+    <string name="controls_right_stick">Stick droit</string>
+    <string name="controls_right_stick_direction">Stick droit %1$s</string>
 </resources>

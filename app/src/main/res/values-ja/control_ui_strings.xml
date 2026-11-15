@@ -49,4 +49,7 @@
     <string-array name="controls_phone_blocks"><item>キーパッド</item></string-array>
     <string-array name="controls_gamepad_blocks"><item>方向</item><item>アクション</item></string-array>
     <string-array name="controls_directions"><item>上</item><item>下</item><item>左</item><item>右</item><item>左上</item><item>右上</item><item>左下</item><item>右下</item></string-array>
+    <string name="controls_sticks">スティック</string>
+    <string name="controls_right_stick">右スティック</string>
+    <string name="controls_right_stick_direction">右スティック %1$s</string>
 </resources>

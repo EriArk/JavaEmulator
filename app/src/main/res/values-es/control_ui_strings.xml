@@ -49,4 +49,7 @@
     <string-array name="controls_phone_blocks"><item>Teclado numérico</item></string-array>
     <string-array name="controls_gamepad_blocks"><item>Direcciones</item><item>Acciones</item></string-array>
     <string-array name="controls_directions"><item>Arriba</item><item>Abajo</item><item>Izquierda</item><item>Derecha</item><item>Arriba + izquierda</item><item>Arriba + derecha</item><item>Abajo + izquierda</item><item>Abajo + derecha</item></string-array>
+    <string name="controls_sticks">Palancas</string>
+    <string name="controls_right_stick">Palanca derecha</string>
+    <string name="controls_right_stick_direction">Palanca derecha %1$s</string>
 </resources>

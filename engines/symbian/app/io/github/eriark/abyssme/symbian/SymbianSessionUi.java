@@ -199,10 +199,7 @@ final class SymbianSessionUi {
     }
     boolean motion(MotionEvent event) {
         if (closed || !visible || !focused || menu != null || mapper != null || !event.isFromSource(InputDevice.SOURCE_JOYSTICK)) return false;
-        input.axes(event.getDeviceId(), event.getAxisValue(MotionEvent.AXIS_X), event.getAxisValue(MotionEvent.AXIS_Y),
-                event.getAxisValue(MotionEvent.AXIS_HAT_X), event.getAxisValue(MotionEvent.AXIS_HAT_Y),
-                Math.max(event.getAxisValue(MotionEvent.AXIS_LTRIGGER), event.getAxisValue(MotionEvent.AXIS_BRAKE)),
-                Math.max(event.getAxisValue(MotionEvent.AXIS_RTRIGGER), event.getAxisValue(MotionEvent.AXIS_GAS)));
+        ru.playsoftware.j2meloader.input.ControllerMotion.update(input, event);
         return true;
     }
     void showMenu() {

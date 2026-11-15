@@ -10,6 +10,15 @@ stated otherwise. **Experimental** in older checkpoints means local/private
 combined builds; released experimental features are explicitly identified.
 **Released** means an actual GitHub release asset.
 
+## 2026-11-15 - Independent Right Stick (Local Source)
+
+- Add four right-stick directions and four diagonals to the physical mapper,
+  including Identify, explicit Unbound and saved per-game bindings.
+- Decode device-reported Z/RZ or RX/RY axes in Java ME, Mophun and Symbian/N-Gage.
+  Preserve existing profiles, R3, triggers and held-key ownership.
+- Pass 434 app JVM tests and 24 focused Retroid checks. Physical two-stick testing
+  is unavailable; no public APK yet. [Evidence](docs/checks/2026-11-15-right-stick.md).
+
 ## 2026-11-15 - Dual Beta 8 Released
 
 - Publish ARM64 combined and ARMv7 Java/Mophun APKs, code 322.

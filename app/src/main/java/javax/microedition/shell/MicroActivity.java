@@ -601,11 +601,7 @@ public class MicroActivity extends AppCompatActivity {
 		if ((current instanceof Canvas || fastForward != null && (fastForward.binding() == KeyEvent.KEYCODE_BUTTON_L2
 				|| fastForward.binding() == KeyEvent.KEYCODE_BUTTON_R2)) && event.getAction() == MotionEvent.ACTION_MOVE
 				&& isFromSource(event, InputDevice.SOURCE_JOYSTICK)) {
-			controllerInput.axes(event.getDeviceId(), getCenteredAxis(event, MotionEvent.AXIS_X),
-					getCenteredAxis(event, MotionEvent.AXIS_Y), getCenteredAxis(event, MotionEvent.AXIS_HAT_X),
-					getCenteredAxis(event, MotionEvent.AXIS_HAT_Y),
-					Math.max(event.getAxisValue(MotionEvent.AXIS_LTRIGGER), event.getAxisValue(MotionEvent.AXIS_BRAKE)),
-					Math.max(event.getAxisValue(MotionEvent.AXIS_RTRIGGER), event.getAxisValue(MotionEvent.AXIS_GAS)));
+			ru.playsoftware.j2meloader.input.ControllerMotion.update(controllerInput, event);
 			return true;
 		}
 		return super.dispatchGenericMotionEvent(event);

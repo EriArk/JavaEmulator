@@ -58,6 +58,18 @@ public class MophunTouchTest {
         event(controls, action, new int[]{0}, r.centerX(), r.centerY());
     }
 
+    @Test public void independentRightStickReachesMophunAndKeepsLeftHeld() {
+        Screen screen = new Screen(101,80,1);
+        android.util.SparseIntArray map = new android.util.SparseIntArray();
+        map.put(ControllerInput.STICK_LEFT, -3); map.put(ControllerInput.RIGHT_STICK_UP, '5');
+        ControllerInput input = new ControllerInput(map::get, new MophunInput(() -> screen));
+        input.axes(1,-1,0,0,0,0,0,0,-1);
+        assertEquals(Screen.LEFT | Screen.FIRE, screen.getButtons()); assertTrue(screen.keypadPressed('5'));
+        input.axes(1,-1,0,0,0,0,0,0,0);
+        assertEquals(Screen.LEFT, screen.getButtons()); assertFalse(screen.keypadPressed('5'));
+        input.removeDevice(1); assertEquals(0,screen.getButtons());
+    }
+
     @Test public void touchAndPhysicalSourcesDoNotReleaseEachOther() {
         Screen screen = new Screen(101, 80, 1);
         MophunInput input = new MophunInput(() -> screen);

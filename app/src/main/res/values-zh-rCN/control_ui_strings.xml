@@ -68,4 +68,7 @@
         <item>左下</item>
         <item>右下</item>
     </string-array>
+    <string name="controls_sticks">摇杆</string>
+    <string name="controls_right_stick">右摇杆</string>
+    <string name="controls_right_stick_direction">右摇杆 %1$s</string>
 </resources>

@@ -49,4 +49,7 @@
     <string-array name="controls_phone_blocks"><item>Keypad</item></string-array>
     <string-array name="controls_gamepad_blocks"><item>Directions</item><item>Actions</item></string-array>
     <string-array name="controls_directions"><item>Up</item><item>Down</item><item>Left</item><item>Right</item><item>Up + left</item><item>Up + right</item><item>Down + left</item><item>Down + right</item></string-array>
+    <string name="controls_sticks">Sticks</string>
+    <string name="controls_right_stick">Right stick</string>
+    <string name="controls_right_stick_direction">Right stick %1$s</string>
 </resources>

@@ -45,6 +45,7 @@ public final class ControllerMapperView extends LinearLayout {
     private final int BG, PANEL, LINE, TEXT, MUTED, AMBER, CYAN;
     private static final int[] DPAD = {19, 20, 21, 22, -1011, -1012, -1013, -1014};
     private static final int[] STICK = {-1001, -1002, -1003, -1004, -1005, -1006, -1007, -1008};
+    private static final int[] RIGHT_STICK = {-1021, -1022, -1023, -1024, -1025, -1026, -1027, -1028};
     private static final String[] DIR_ICONS = {"\u2191", "\u2193", "\u2190", "\u2192",
             "\u2196", "\u2197", "\u2199", "\u2198"};
 
@@ -157,7 +158,7 @@ public final class ControllerMapperView extends LinearLayout {
         sourceHeading = section(R.string.mapper_controller);
         sources.addView(sourceHeading);
         LinearLayout groups = new LinearLayout(context);
-        String[] groupNames = {getContext().getString(R.string.controls_buttons), getContext().getString(R.string.controls_dpad), getContext().getString(R.string.controls_stick)};
+        String[] groupNames = {getContext().getString(R.string.controls_buttons), getContext().getString(R.string.controls_dpad), getContext().getString(R.string.controls_sticks)};
         for (int i = 0; i < groupNames.length; i++) {
             final int group = i;
             Button tab = button(groupNames[i]);
@@ -226,6 +227,8 @@ public final class ControllerMapperView extends LinearLayout {
         buildingGroup = 2;
         addSection(getContext().getString(R.string.controls_left_stick));
         for (int i = 0; i < STICK.length; i++) addInput(STICK[i], DIR_ICONS[i], getContext().getString(R.string.controls_stick_direction, directions[i]), CYAN);
+        addSection(getContext().getString(R.string.controls_right_stick));
+        for (int i = 0; i < RIGHT_STICK.length; i++) addInput(RIGHT_STICK[i], DIR_ICONS[i], getContext().getString(R.string.controls_right_stick_direction, directions[i]), CYAN);
 
         LinearLayout footer = new LinearLayout(context);
         footer.setGravity(Gravity.CENTER_VERTICAL);
@@ -613,8 +616,11 @@ public final class ControllerMapperView extends LinearLayout {
     }
 
     public void captureAxes(MotionEvent event) {
+        if (event.getActionMasked() != MotionEvent.ACTION_MOVE
+                || !event.isFromSource(android.view.InputDevice.SOURCE_JOYSTICK)) return;
+        ControllerMotion.Sticks axes = ControllerMotion.sticks(event);
         if (!listening) {
-            int mask = ControllerInput.axisMask(event.getAxisValue(MotionEvent.AXIS_X), event.getAxisValue(MotionEvent.AXIS_Y), 0);
+            int mask = ControllerInput.axisMask(axes.leftX, axes.leftY, 0);
             int direction = (mask & ControllerInput.UP) != 0 ? View.FOCUS_UP
                     : (mask & ControllerInput.DOWN) != 0 ? View.FOCUS_DOWN
                     : (mask & ControllerInput.LEFT) != 0 ? View.FOCUS_LEFT
@@ -629,12 +635,14 @@ public final class ControllerMapperView extends LinearLayout {
             }
             return;
         }
-        int stick = ControllerInput.axisMask(event.getAxisValue(MotionEvent.AXIS_X), event.getAxisValue(MotionEvent.AXIS_Y), 0);
+        int stick = ControllerInput.axisMask(axes.leftX, axes.leftY, 0);
         int hat = ControllerInput.axisMask(event.getAxisValue(MotionEvent.AXIS_HAT_X), event.getAxisValue(MotionEvent.AXIS_HAT_Y), 0);
-        int mask = hat != 0 ? hat : stick;
-        int input = ControllerInput.diagonal(mask, hat == 0);
+        int right = ControllerInput.axisMask(axes.rightX, axes.rightY, 0);
+        boolean useRight = hat == 0 && stick == 0;
+        int mask = hat != 0 ? hat : stick != 0 ? stick : right;
+        int input = useRight ? ControllerInput.rightDiagonal(mask) : ControllerInput.diagonal(mask, hat == 0);
         if (input == 0) {
-            int[] codes = hat != 0 ? DPAD : STICK;
+            int[] codes = hat != 0 ? DPAD : useRight ? RIGHT_STICK : STICK;
             if ((mask & ControllerInput.UP) != 0) input = codes[0];
             else if ((mask & ControllerInput.DOWN) != 0) input = codes[1];
             else if ((mask & ControllerInput.LEFT) != 0) input = codes[2];

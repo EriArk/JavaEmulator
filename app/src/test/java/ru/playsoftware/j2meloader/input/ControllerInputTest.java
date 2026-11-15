@@ -106,4 +106,58 @@ public class ControllerInputTest {
         input.key(1, 96, true, true); expect();
         input.key(1, 96, true, false); input.key(1, 96, true, true); expect("+5", "r5");
     }
+
+    @Test public void bothSticksR3AndTriggersRemainIndependent() {
+        map.put(STICK_UP, 2); map.put(RIGHT_STICK_RIGHT, 6); map.put(107, 5); map.put(104, 7);
+        input.axes(1, 0, -1, 0, 0, 1, 0, 1, 0); expect("+2", "+6", "+7");
+        input.key(1, 107, true, false); expect("+5");
+        input.axes(1, 0, -1, 0, 0, 1, 0, 0, 0); expect("-6");
+        input.axes(1, 0, 0, 0, 0, 0, 0, 0, 0); expect("-2", "-7");
+        input.key(1, 107, false, false); expect("-5");
+    }
+
+    @Test public void rightStickUsesIndependentHysteresisAndDiagonalTransitions() {
+        map.put(RIGHT_STICK_UP, 2); map.put(RIGHT_STICK_RIGHT, 6); map.put(RIGHT_STICK_UR, 3);
+        input.axes(1, 0, 0, 0, 0, 0, 0, .46f, -.46f); expect("+3");
+        input.axes(1, 0, 0, 0, 0, 0, 0, .36f, -.36f); expect();
+        input.axes(1, 0, 0, 0, 0, 0, 0, .29f, -.36f); expect("-3", "+2");
+        input.axes(1, 0, 0, 0, 0, 0, 0, 0, 0); expect("-2");
+    }
+
+    @Test public void rightStickOwnershipSurvivesNeutralAndDisconnectOfOtherSources() {
+        map.put(STICK_UP, 5); map.put(RIGHT_STICK_UP, 5); map.put(96, 5);
+        input.axes(1, 0, -1, 0, 0, 0, 0, 0, -1); input.key(2, 96, true, false); expect("+5");
+        input.axes(1, 0, 0, 0, 0, 0, 0, 0, -1); expect();
+        input.removeDevice(2); expect(); input.removeDevice(1); expect("-5");
+    }
+
+    @Test public void oldProfilesLeaveRightStickUnbound() {
+        map.put(STICK_UP, 2); map.put(107, 5);
+        input.axes(1, 0, 0, 0, 0, 0, 0, 1, -1); expect();
+        input.key(1, 107, true, false); expect("+5"); input.clear(); expect("-5");
+    }
+
+    @Test public void rightUnboundDiagonalSuppressesOnlyRightCardinals() {
+        map.put(STICK_UP, 2); map.put(RIGHT_STICK_UP, 8); map.put(RIGHT_STICK_LEFT, 4);
+        input.axes(1, 0, -1, 0, 0, 0, 0, -1, -1); expect("+2", "+8", "+4");
+        input.clear(); expect("-2", "-8", "-4");
+        map.put(RIGHT_STICK_UL, UNBOUND);
+        input.axes(1, 0, -1, 0, 0, 0, 0, -1, -1); expect("+2");
+    }
+
+    @Test public void rightDiagonalsHaveStableDistinctIds() {
+        int[] masks = {UP | LEFT, UP | RIGHT, DOWN | LEFT, DOWN | RIGHT};
+        for (int i = 0; i < masks.length; i++) {
+            assertEquals(-1025 - i, rightDiagonal(masks[i]));
+            assertTrue(isDiagonal(rightDiagonal(masks[i])));
+        }
+        assertEquals(0, rightDiagonal(UP)); assertFalse(isDiagonal(RIGHT_STICK_UP));
+    }
+
+    @Test public void clearingAfterRightStickReleasesExactlyOnce() {
+        map.put(RIGHT_STICK_DOWN, 8);
+        input.axes(1, 0, 0, 0, 0, 0, 0, 0, 1); expect("+8");
+        input.clear(); expect("-8"); input.clear(); expect();
+        input.axes(1, 0, 0, 0, 0, 0, 0, 0, 0); expect();
+    }
 }

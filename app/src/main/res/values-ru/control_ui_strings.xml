@@ -71,4 +71,7 @@
         <item>Вниз + влево</item>
         <item>Вниз + вправо</item>
     </string-array>
+    <string name="controls_sticks">Стики</string>
+    <string name="controls_right_stick">Правый стик</string>
+    <string name="controls_right_stick_direction">Правый стик %1$s</string>
 </resources>

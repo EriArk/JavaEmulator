@@ -13,6 +13,10 @@ public final class ControllerInput {
     public static final int STICK_LEFT = -1003, STICK_RIGHT = -1004;
     public static final int STICK_UL = -1005, STICK_UR = -1006;
     public static final int STICK_DL = -1007, STICK_DR = -1008;
+    public static final int RIGHT_STICK_UP = -1021, RIGHT_STICK_DOWN = -1022;
+    public static final int RIGHT_STICK_LEFT = -1023, RIGHT_STICK_RIGHT = -1024;
+    public static final int RIGHT_STICK_UL = -1025, RIGHT_STICK_UR = -1026;
+    public static final int RIGHT_STICK_DL = -1027, RIGHT_STICK_DR = -1028;
     public static final int DPAD_UL = -1011, DPAD_UR = -1012;
     public static final int DPAD_DL = -1013, DPAD_DR = -1014;
 
@@ -25,7 +29,7 @@ public final class ControllerInput {
 
     private static final class Device {
         final Set<Integer> buttons = new LinkedHashSet<>();
-        int dpad, hat, stick;
+        int dpad, hat, stick, rightStick;
         boolean leftTrigger, rightTrigger;
     }
 
@@ -70,8 +74,14 @@ public final class ControllerInput {
         }
     }
 
+    public static int rightDiagonal(int mask) {
+        int left = diagonal(mask, true);
+        return left == 0 ? 0 : left - 20;
+    }
+
     public static boolean isDiagonal(int input) {
-        return (input <= STICK_UL && input >= STICK_DR) || (input <= DPAD_UL && input >= DPAD_DR);
+        return (input <= STICK_UL && input >= STICK_DR) || (input <= DPAD_UL && input >= DPAD_DR)
+                || (input <= RIGHT_STICK_UL && input >= RIGHT_STICK_DR);
     }
 
     public static int axisMask(float x, float y, int previous) {
@@ -106,8 +116,14 @@ public final class ControllerInput {
 
     public synchronized void axes(int deviceId, float x, float y, float hatX, float hatY,
                      float leftTrigger, float rightTrigger) {
+        axes(deviceId, x, y, hatX, hatY, leftTrigger, rightTrigger, 0, 0);
+    }
+
+    public synchronized void axes(int deviceId, float x, float y, float hatX, float hatY,
+                     float leftTrigger, float rightTrigger, float rightX, float rightY) {
         Device device = devices.computeIfAbsent(deviceId, id -> new Device());
         device.stick = axisMask(x, y, device.stick);
+        device.rightStick = axisMask(rightX, rightY, device.rightStick);
         device.hat = axisMask(hatX, hatY, device.hat);
         device.leftTrigger = leftTrigger > (device.leftTrigger ? 0.30f : 0.55f);
         device.rightTrigger = rightTrigger > (device.rightTrigger ? 0.30f : 0.55f);
@@ -129,6 +145,7 @@ public final class ControllerInput {
         for (Device device : devices.values()) {
             addDirections(next, device.dpad | device.hat, false);
             addDirections(next, device.stick, true);
+            addRightDirections(next, device.rightStick);
             for (int button : device.buttons) add(next, mapped(button));
             if (device.leftTrigger) add(next, mapped(104));
             if (device.rightTrigger) add(next, mapped(105));
@@ -155,6 +172,19 @@ public final class ControllerInput {
         if ((mask & DOWN) != 0) add(output, mapping.get(stick ? STICK_DOWN : 20));
         if ((mask & LEFT) != 0) add(output, mapping.get(stick ? STICK_LEFT : 21));
         if ((mask & RIGHT) != 0) add(output, mapping.get(stick ? STICK_RIGHT : 22));
+    }
+
+    private void addRightDirections(Set<Integer> output, int mask) {
+        int diagonal = rightDiagonal(mask);
+        int target = diagonal == 0 ? 0 : mapping.get(diagonal);
+        if (target != 0) {
+            add(output, target);
+            return;
+        }
+        if ((mask & UP) != 0) add(output, mapping.get(RIGHT_STICK_UP));
+        if ((mask & DOWN) != 0) add(output, mapping.get(RIGHT_STICK_DOWN));
+        if ((mask & LEFT) != 0) add(output, mapping.get(RIGHT_STICK_LEFT));
+        if ((mask & RIGHT) != 0) add(output, mapping.get(RIGHT_STICK_RIGHT));
     }
 
     private static void add(Set<Integer> output, int key) {

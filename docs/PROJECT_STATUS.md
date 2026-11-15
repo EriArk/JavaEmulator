@@ -12,6 +12,15 @@ not a live feed. Verify GitHub Releases, recent commits and build notes before
 calling a version "latest" after this date. If local evidence is inaccessible,
 attribute its results to the dated maintainer record below; do not infer a pass.
 
+## Independent Right Stick (Local Source, 2026-11-15)
+
+The physical controller mapper has separate right-stick directions/diagonals,
+identification and per-game saved bindings. All three engine routes share axis
+selection; old presets leave the added inputs unbound. 434 application JVM tests
+and 24 focused Retroid checks pass. Physical two-stick testing is deferred by the
+owner; virtual inputs do not satisfy that acceptance criterion. No Beta 9 APK
+is public at this checkpoint. [Evidence and limits](checks/2026-11-15-right-stick.md).
+
 ## Dual Beta 8 Released (2026-11-15)
 
 **Both signed code-322 APKs are published.** M3G export to MIDP Graphics now
