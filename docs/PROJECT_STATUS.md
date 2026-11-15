@@ -12,15 +12,22 @@ not a live feed. Verify GitHub Releases, recent commits and build notes before
 calling a version "latest" after this date. If local evidence is inaccessible,
 attribute its results to the dated maintainer record below; do not infer a pass.
 
-## Tomb Raider / Crash Report Follow-up (2026-11-15)
+## Dual Beta 8 Released (2026-11-15)
 
-Local source fixes M3G alpha export to MIDP Graphics, eliminating the black,
-striped Lara and stale loading text in the supplied Underworld 1.7.1 first room.
-88 renderer checks pass on Retroid. The supplied Crash Titans 1.3.7 also fails
-outside AbyssME: its code reads an incompatible packed resource as an integer
-array. Startup dialogs now expose the guest cause behind reflection wrappers;
-this does not repair that JAR. No new public APK at this checkpoint.
-[Reproduction, diagnosis and limits](checks/2026-11-15-tomb-underworld.md).
+**Both signed code-322 APKs are published.** M3G export to MIDP Graphics now
+keeps the screen opaque, fixing black/striped Lara and loading text showing
+through her model in the supplied Tomb Raider: Underworld 1.7.1 first room.
+Startup failures expose the underlying game exception. Supplied Crash Titans
+1.3.7 has inconsistent code/resource data and also fails outside AbyssME;
+that particular JAR remains unplayable.
+
+427 JVM tests pass per build; 88 renderer checks pass on each Retroid architecture.
+Both signed builds pass bounded first-room movement checks and display the
+underlying Crash error. Each signed upgrade/switch preserves 357 readable files.
+Retroid is back on ARM64 and temporary instrumentation packages are removed.
+All six uploaded digests and both public APK/checksum downloads match staging.
+[Diagnosis and limits](checks/2026-11-15-tomb-underworld.md) ·
+[Release verification](releases/v0.7.0-beta.8-checks.md).
 
 ## Crash of the Titans Investigation (2026-11-14)
 

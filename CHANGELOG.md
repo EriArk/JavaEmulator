@@ -10,8 +10,9 @@ stated otherwise. **Experimental** in older checkpoints means local/private
 combined builds; released experimental features are explicitly identified.
 **Released** means an actual GitHub release asset.
 
-## 2026-11-15 - M3G MIDP Target Opacity (Local Source)
+## 2026-11-15 - Dual Beta 8 Released
 
+- Publish ARM64 combined and ARMv7 Java/Mophun APKs, code 322.
 - Keep M3G output to MIDP Graphics opaque, fixing Lara's black/striped appearance
   and old text showing through her model in Tomb Raider: Underworld 1.7.1.
 - Preserve fragment-alpha blending and RGBA Image2D targets. Pass 88 Retroid
@@ -19,6 +20,9 @@ combined builds; released experimental features are explicitly identified.
 - Show the original guest exception behind startup reflection wrappers.
   Diagnose the supplied Crash Titans 1.3.7 as inconsistent code/resource data;
   reproduce the same reader failure on host Java without the emulator.
+- Verify 427 JVM tests per optimized target, 88 renderer checks per Retroid ABI,
+  signed update preservation and all public APK/checksum downloads.
+  [Release checks](docs/releases/v0.7.0-beta.8-checks.md).
   [Evidence and limits](docs/checks/2026-11-15-tomb-underworld.md).
 
 ## 2026-11-14 - Crash of the Titans Investigation (Local Check)

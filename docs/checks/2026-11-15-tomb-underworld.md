@@ -2,8 +2,8 @@
 
 ## Availability
 
-The M3G fix and clearer startup diagnostics are local source pending the next
-release. Official ARM64 Beta 7 (code 321) reproduces both supplied reports on
+The M3G fix and clearer startup diagnostics are published in both signed
+[Beta 8 APKs](../releases/v0.7.0-beta.8-checks.md). Official ARM64 Beta 7 (code 321) reproduces both supplied reports on
 Retroid Pocket Classic, Android 14. No complete-game acceptance is claimed.
 
 ## Tomb Raider: Underworld 1.7.1
