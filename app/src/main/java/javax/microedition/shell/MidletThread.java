@@ -210,7 +210,7 @@ public class MidletThread extends HandlerThread implements Handler.Callback {
 		Display.setForeground(false);
 		Log.e(TAG, stage, error);
 		MicroActivity activity = ContextHolder.getActivity();
-		if (activity != null) activity.showErrorDialog(error.toString());
+		if (activity != null) activity.showErrorDialog(ru.playsoftware.j2meloader.diagnostics.LaunchDiagnostics.describeFailure(error));
 		else notifyDestroyed();
 	}
 }

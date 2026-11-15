@@ -309,7 +309,7 @@ public class MicroActivity extends AppCompatActivity {
 		} catch (Exception e) {
 			e.printStackTrace();
 			if (networkClient != null) returnToNetworkRoom("Could not load the network game. Prepare it again in the room.");
-			else showErrorDialog(e.toString());
+			else showErrorDialog(LaunchDiagnostics.describeFailure(e));
 		}
 	}
 

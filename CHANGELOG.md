@@ -1,7 +1,7 @@
 # AbyssME Changelog
 
 User-facing development history, reconstructed from commits, release notes and
-local/private build records through **2026-11-14**. This is not a claim that all
+local/private build records through **2026-11-15**. This is not a claim that all
 listed work is in a public APK. See [current status](docs/PROJECT_STATUS.md) for
 availability, verification, known limits and screenshot guidance.
 
@@ -9,6 +9,17 @@ Labels: **Public source** means implemented on `main` but unreleased unless
 stated otherwise. **Experimental** in older checkpoints means local/private
 combined builds; released experimental features are explicitly identified.
 **Released** means an actual GitHub release asset.
+
+## 2026-11-15 - M3G MIDP Target Opacity (Local Source)
+
+- Keep M3G output to MIDP Graphics opaque, fixing Lara's black/striped appearance
+  and old text showing through her model in Tomb Raider: Underworld 1.7.1.
+- Preserve fragment-alpha blending and RGBA Image2D targets. Pass 88 Retroid
+  renderer checks and a bounded first-room movement check.
+- Show the original guest exception behind startup reflection wrappers.
+  Diagnose the supplied Crash Titans 1.3.7 as inconsistent code/resource data;
+  reproduce the same reader failure on host Java without the emulator.
+  [Evidence and limits](docs/checks/2026-11-15-tomb-underworld.md).
 
 ## 2026-11-14 - Crash of the Titans Investigation (Local Check)
 

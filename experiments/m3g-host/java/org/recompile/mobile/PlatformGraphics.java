@@ -43,6 +43,14 @@ public final class PlatformGraphics {
 
     public void flush() {
         if (!ready || width == 0 || height == 0) return;
+        // MIDP Graphics targets are RGB, even though Android stores them in ARGB.
+        // Exporting fragment alpha would make a REPLACE draw reveal stale 2D pixels
+        // when the MIDP back buffer is later composited. Image2D RGBA targets do not
+        // use this adapter and retain their alpha channel.
+        for (int row = y; row < y + height; row++) {
+            int end = row * stride + x + width;
+            for (int at = row * stride + x; at < end; at++) pixels[at] |= 0xff000000;
+        }
         bitmap.setPixels(pixels, y * stride + x, stride, x, y, width, height);
         exports++;
     }

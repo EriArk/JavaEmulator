@@ -16,6 +16,17 @@ public final class LaunchDiagnostics {
 	private LaunchDiagnostics() {
 	}
 
+	/** Reflection is a host detail; show the guest failure behind its wrapper. */
+	public static String describeFailure(Throwable error) {
+		for (int depth = 0; depth < 16
+				&& error instanceof java.lang.reflect.InvocationTargetException; depth++) {
+			Throwable cause = error.getCause();
+			if (cause == null || cause == error) break;
+			error = cause;
+		}
+		return error.toString();
+	}
+
 	public static synchronized void record(Context context, String event, String game, String detail) {
 		try {
 			JSONObject line = new JSONObject();
