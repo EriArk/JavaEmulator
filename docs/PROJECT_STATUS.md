@@ -19,7 +19,9 @@ keeps the screen opaque, fixing black/striped Lara and loading text showing
 through her model in the supplied Tomb Raider: Underworld 1.7.1 first room.
 Startup failures expose the underlying game exception. Supplied Crash Titans
 1.3.7 has inconsistent code/resource data and also fails outside AbyssME;
-that particular JAR remains unplayable.
+that particular JAR remains unplayable. A fresh original-class host recheck
+confirms the failure despite valid ZIP CRCs; no additional runtime fix or beta
+was produced for this file.
 
 427 JVM tests pass per build; 88 renderer checks pass on each Retroid architecture.
 Both signed builds pass bounded first-room movement checks and display the

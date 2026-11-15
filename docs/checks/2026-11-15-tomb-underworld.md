@@ -47,6 +47,12 @@ and bytes, and invokes that reader directly: it throws the same bounds error
 without Android or AbyssME. Minimal type stubs are used; no game code/data is
 modified. This is a focused reader reproduction, not a full host game run.
 
+A follow-up check on November 15 confirms that every ZIP entry passes its CRC
+check and that the host harness loads game classes directly from the supplied
+JAR, with no replacement game classes. The same reader failure repeats. The
+archive is intact as a ZIP; the problem is its incompatible game code/resources.
+Private evidence: `build/checks/2026-11-15-crash-137/host-recheck.txt`.
+
 The emulator now unwraps reflection wrappers in its error dialog so the actual
 guest exception is visible. It does not patch this commercial JAR, swallow the
 bounds error or claim that this version is playable. Another matching JAR is

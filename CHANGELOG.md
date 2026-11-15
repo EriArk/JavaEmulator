@@ -20,6 +20,9 @@ combined builds; released experimental features are explicitly identified.
 - Show the original guest exception behind startup reflection wrappers.
   Diagnose the supplied Crash Titans 1.3.7 as inconsistent code/resource data;
   reproduce the same reader failure on host Java without the emulator.
+  A follow-up recheck confirms valid ZIP CRCs and the same failure using original
+  classes directly from the supplied JAR; no additional beta is needed for this
+  code/resource mismatch.
 - Verify 427 JVM tests per optimized target, 88 renderer checks per Retroid ABI,
   signed update preservation and all public APK/checksum downloads.
   [Release checks](docs/releases/v0.7.0-beta.8-checks.md).
