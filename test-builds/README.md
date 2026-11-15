@@ -5,12 +5,12 @@ not one of the old experimental APKs in this directory.
 
 ## Current published beta
 
-[AbyssME 0.7.0 Beta 8](https://github.com/EriArk/JavaEmulator/releases/tag/v0.7.0-beta.8)
-provides two adaptive APKs for phones and handhelds, both Android 10+ / code 322:
+[AbyssME 0.7.0 Beta 9](https://github.com/EriArk/JavaEmulator/releases/tag/v0.7.0-beta.9)
+provides two adaptive APKs for phones and handhelds, both Android 10+ / code 323:
 
-- `AbyssME-0.7.0-beta.8.apk`: ARM64, Java/Mophun and experimental Symbian/N-Gage.
-- `AbyssME-0.7.0-beta.8-armv7.apk`: 32-bit ARM Android, Java/Mophun only.
-- Both include independent graphics/control profiles and extra Gamepad buttons. About identifies
+- `AbyssME-0.7.0-beta.9.apk`: ARM64, Java/Mophun and experimental Symbian/N-Gage.
+- `AbyssME-0.7.0-beta.9-armv7.apk`: 32-bit ARM Android, Java/Mophun only.
+- Both include independent right-stick mapping, graphics/control profiles and extra Gamepad buttons. About identifies
   the distribution. Choose ARM64 when supported; older low-memory ARM32 device
   coverage remains limited.
 - Games and firmware are not bundled. These alternate APKs update the same
@@ -19,8 +19,8 @@ provides two adaptive APKs for phones and handhelds, both Android 10+ / code 322
 - Use the in-app migration workflow for the separate old Phone app. Keep that
   app installed until saves are checked. Older release files remain historical.
 
-Use the [SHA-256 list](../docs/releases/0.7.0-beta.8/SHA256SUMS.txt) to verify downloads.
-See the [release notes](../docs/releases/v0.7.0-beta.8.md) and
+Use the [SHA-256 list](../docs/releases/0.7.0-beta.9/SHA256SUMS.txt) to verify downloads.
+See the [release notes](../docs/releases/v0.7.0-beta.9.md) and
 [current limitations](../README.md#known-limitations).
 
 ## Historical files

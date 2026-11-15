@@ -2,7 +2,7 @@
 
 ## Implementation checkpoint
 
-Local source for issue #55 adds eight independently mappable right-stick inputs
+Implementation for issue #55 adds eight independently mappable right-stick inputs
 (four cardinal and four diagonal directions) to the existing physical controller
 editor under Sticks. Identify selects the right direction; R3 remains a button.
 Missing diagonal assignments combine the two cardinal outputs; explicit Unbound
@@ -34,7 +34,7 @@ by another input. Unusual devices with ambiguous metadata still need testing.
 The owner cannot provide a physical two-stick controller for this release.
 Automated/virtual-device checks are not physical-stick, Bluetooth disconnection,
 full-game or ergonomic acceptance. Issue #55's physical-controller criterion
-remains open. Publication and final signed-build evidence follow in the release
-report; this checkpoint alone does not distribute an APK.
+remains open. Signed APK publication and final build evidence are recorded in
+the [Beta 9 release report](../releases/v0.7.0-beta.9-checks.md).
 
 Private logs and commands: `build/checks/2026-11-15-right-stick/`.

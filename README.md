@@ -18,17 +18,19 @@ users of the former Phone app can use the menu-based
 > **Project status:** Beta. AbyssME is usable, but compatibility automation and
 > launcher integration still need testing across more games and devices.
 
-[Download Beta 8 — ARM64](https://github.com/EriArk/JavaEmulator/releases/download/v0.7.0-beta.8/AbyssME-0.7.0-beta.8.apk) ·
-[ARMv7 — Java/Mophun only](https://github.com/EriArk/JavaEmulator/releases/download/v0.7.0-beta.8/AbyssME-0.7.0-beta.8-armv7.apk)
+[Download Beta 9 — ARM64](https://github.com/EriArk/JavaEmulator/releases/download/v0.7.0-beta.9/AbyssME-0.7.0-beta.9.apk) ·
+[ARMv7 — Java/Mophun only](https://github.com/EriArk/JavaEmulator/releases/download/v0.7.0-beta.9/AbyssME-0.7.0-beta.9-armv7.apk)
 
-[Watch the Beta 7 new-features demo](screenshots/releases/v0.7.0-beta.7/README.md) — independent graphics/control profiles and CRT gameplay in 40 seconds, recorded on Retroid without audio.
+[Watch the Beta 9 right-stick demo](screenshots/releases/v0.7.0-beta.9/README.md) — 23 seconds, recorded on Retroid with virtual joystick input and no audio.
+
+[Earlier Beta 7 new-features demo](screenshots/releases/v0.7.0-beta.7/README.md) — independent graphics/control profiles and CRT gameplay in 40 seconds, recorded on Retroid without audio.
 
 [Earlier Beta 6 controls demo](screenshots/releases/v0.7.0-beta.6/README.md) — profiles, extra buttons and gameplay in 58 seconds, recorded on Retroid without audio.
 [Earlier Beta 5 library/UI demo](screenshots/releases/v0.7.0-beta.5/README.md).
 
 **[Setup & FAQ](docs/FAQ.md)** — step-by-step help with Java ME, Mophun, Symbian/N-Gage firmware and game installation, touchscreen controls, physical controller mapping, backups and troubleshooting.
 
-Choose the **0.7.0-beta.8** APK (code 322) for your Android ABI. Both update the official app in place;
+Choose the **0.7.0-beta.9** APK (code 323) for your Android ABI. Both update the official app in place;
 older releases remain available for reference.
 
 ## Current Beta
@@ -37,8 +39,12 @@ For website copy, progress posts and handoffs, start with the
 [current product/development status](docs/PROJECT_STATUS.md) and
 [dated changelog](CHANGELOG.md). They also describe local/private experiments,
 explicitly separated from public downloads. The
-[0.7.0 Beta 8 notes](docs/releases/v0.7.0-beta.8.md) explain the two downloads,
+[0.7.0 Beta 9 notes](docs/releases/v0.7.0-beta.9.md) explain the two downloads,
 verification limits and source bundles.
+
+**Beta 9** adds independent right-stick directions and diagonals, Identify and
+saved per-game bindings. Existing left-stick mappings remain separate.
+[Verification and hardware-test limits](docs/releases/v0.7.0-beta.9-checks.md).
 
 **Beta 8** fixes M3G transparency affecting Lara in Tomb Raider: Underworld and
 shows the underlying game exception on startup failure.
@@ -256,7 +262,7 @@ broader device acceptance remains tracked in [#3](https://github.com/EriArk/Java
 ## Install
 
 1. Open [Releases](https://github.com/EriArk/JavaEmulator/releases).
-2. Choose `AbyssME-0.7.0-beta.8.apk` for ARM64, or `AbyssME-0.7.0-beta.8-armv7.apk` for 32-bit ARM Android. Both adapt to phones and handhelds.
+2. Choose `AbyssME-0.7.0-beta.9.apk` for ARM64, or `AbyssME-0.7.0-beta.9-armv7.apk` for 32-bit ARM Android. Both adapt to phones and handhelds.
 3. Allow installation from your browser or file manager when Android asks.
 4. Install the APK and open AbyssME.
 

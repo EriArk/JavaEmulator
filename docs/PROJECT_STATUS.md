@@ -12,14 +12,26 @@ not a live feed. Verify GitHub Releases, recent commits and build notes before
 calling a version "latest" after this date. If local evidence is inaccessible,
 attribute its results to the dated maintainer record below; do not infer a pass.
 
-## Independent Right Stick (Local Source, 2026-11-15)
+## Dual Beta 9 Released (2026-11-15)
 
-The physical controller mapper has separate right-stick directions/diagonals,
-identification and per-game saved bindings. All three engine routes share axis
-selection; old presets leave the added inputs unbound. 434 application JVM tests
-and 24 focused Retroid checks pass. Physical two-stick testing is deferred by the
-owner; virtual inputs do not satisfy that acceptance criterion. No Beta 9 APK
-is public at this checkpoint. [Evidence and limits](checks/2026-11-15-right-stick.md).
+**Both signed code-323 APKs are published.** The controller mapper has separate
+right-stick directions/diagonals, Identify and per-game saved bindings. Java ME,
+Mophun and Symbian/N-Gage share axis selection; existing profiles leave the new
+inputs unbound. This maps directions to digital keys, not proportional analog
+camera control.
+
+Each optimized target passes 439 JVM tests and 24 focused Android checks, with
+the ARMv7 UI-dialog retry documented. Both signed APKs preserve readable library
+files at install boundaries and accept virtual left/right-stick input. Physical
+two-stick testing remains deferred; issue #55's hardware criterion remains open.
+All six uploaded digests and public APK/checksum downloads match staging. The
+website's two full APK downloads and ten localized Beta 9 pages also pass checks.
+Retroid remains on ARM64; demo configuration, two saves and Android settings are
+restored, and temporary instrumentation/controller fixtures removed.
+
+[Release verification](releases/v0.7.0-beta.9-checks.md) ·
+[23-second feature demo](../screenshots/releases/v0.7.0-beta.9/README.md) ·
+[Implementation details](checks/2026-11-15-right-stick.md).
 
 ## Dual Beta 8 Released (2026-11-15)
 
