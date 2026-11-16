@@ -7,9 +7,10 @@ import java.io.*;
 import java.nio.charset.StandardCharsets;
 import java.util.*;
 
-/** Independent linked graphics and touch-control settings. Guest compatibility stays per game. */
+/** Independent linked graphics, touch-control and physical-controller settings. Guest compatibility stays per game. */
 public final class SharedProfiles {
     public static final String FILE = "shared-profiles.json";
+    public static final String PHYSICAL_FILE = "physical-profiles.json";
     public static final String GRAPHICS_FILE = "graphics-profiles.json";
     private static final Gson JSON = new Gson();
     private static final Gson WITH_NULLS = new GsonBuilder().serializeNulls().create();
@@ -28,6 +29,9 @@ public final class SharedProfiles {
             new String[]{"Picture size", "Scale percentage", "Picture position", "Picture rotation", "Orientation",
                     "Background color", "Smoothing", "Retro shader", "FSR upscaling", "FSR sharpness",
                     "Frame interpolation", "LCD filter", "LCD intensity", "Screenshot filter", "Mophun capture image"});
+    public static final Store PHYSICAL = new Store(false, PHYSICAL_FILE,
+            new String[]{"KeyMappings", "KeyMappingProfiles", "ActiveKeyMappingProfile"},
+            new String[]{"Physical bindings", "Mapping presets", "Active mapping preset"});
     public static final class Entry {
         public String id, name, importedFrom;
         @com.google.gson.annotations.JsonAdapter(SharedValuesAdapter.class)
@@ -49,26 +53,27 @@ public final class SharedProfiles {
         return configured == null ? null : new File(configured);
     }
     public static final class Store {
-        public final boolean graphics;
+        public final boolean graphics, physical;
         public final String FILE;
         public final String[] FIELDS, LABELS;
         private Store(boolean graphics,String file,String[] fields,String[] labels) {
-            this.graphics=graphics; FILE=file; FIELDS=fields; LABELS=labels;
+            this.graphics=graphics; physical=PHYSICAL_FILE.equals(file); FILE=file; FIELDS=fields; LABELS=labels;
         }
-        public String title() { return graphics ? "Graphics profiles" : "Control profiles"; }
-        public boolean settings(ProfileModel p) { return graphics ? p.graphicsSettings : p.sharedSettings; }
-        private void setSettings(ProfileModel p, boolean value) { if(graphics) p.graphicsSettings=value; else p.sharedSettings=value; }
-        public String profileId(ProfileModel p) { return graphics ? p.graphicsProfileId : p.sharedProfileId; }
-        private void setProfileId(ProfileModel p, String value) { if(graphics) p.graphicsProfileId=value; else p.sharedProfileId=value; }
-        public JsonObject overrides(ProfileModel p) { return graphics ? p.graphicsOverrides : p.sharedOverrides; }
-        private void setOverrides(ProfileModel p, JsonObject value) { if(graphics) p.graphicsOverrides=value; else p.sharedOverrides=value; }
-        public JsonObject snapshot(ProfileModel p) { return graphics ? p.graphicsSnapshot : p.sharedSnapshot; }
-        private void setSnapshot(ProfileModel p, JsonObject value) { if(graphics) p.graphicsSnapshot=value; else p.sharedSnapshot=value; }
-        public JsonObject portable(ProfileModel p) { return graphics ? p.graphicsPortable : p.sharedPortable; }
-        private void setPortable(ProfileModel p, JsonObject value) { if(graphics) p.graphicsPortable=value; else p.sharedPortable=value; }
-        public String portableName(ProfileModel p) { return graphics ? p.graphicsPortableName : p.sharedPortableName; }
-        private void setPortableName(ProfileModel p, String value) { if(graphics) p.graphicsPortableName=value; else p.sharedPortableName=value; }
+        public String title() { return physical ? "Physical controller profiles" : graphics ? "Graphics profiles" : "Control profiles"; }
+        public boolean settings(ProfileModel p) { return physical ? p.physicalSettings : graphics ? p.graphicsSettings : p.sharedSettings; }
+        private void setSettings(ProfileModel p, boolean value) { if(physical) p.physicalSettings=value; else if(graphics) p.graphicsSettings=value; else p.sharedSettings=value; }
+        public String profileId(ProfileModel p) { return physical ? p.physicalProfileId : graphics ? p.graphicsProfileId : p.sharedProfileId; }
+        private void setProfileId(ProfileModel p, String value) { if(physical) p.physicalProfileId=value; else if(graphics) p.graphicsProfileId=value; else p.sharedProfileId=value; }
+        public JsonObject overrides(ProfileModel p) { return physical ? p.physicalOverrides : graphics ? p.graphicsOverrides : p.sharedOverrides; }
+        private void setOverrides(ProfileModel p, JsonObject value) { if(physical) p.physicalOverrides=value; else if(graphics) p.graphicsOverrides=value; else p.sharedOverrides=value; }
+        public JsonObject snapshot(ProfileModel p) { return physical ? p.physicalSnapshot : graphics ? p.graphicsSnapshot : p.sharedSnapshot; }
+        private void setSnapshot(ProfileModel p, JsonObject value) { if(physical) p.physicalSnapshot=value; else if(graphics) p.graphicsSnapshot=value; else p.sharedSnapshot=value; }
+        public JsonObject portable(ProfileModel p) { return physical ? p.physicalPortable : graphics ? p.graphicsPortable : p.sharedPortable; }
+        private void setPortable(ProfileModel p, JsonObject value) { if(physical) p.physicalPortable=value; else if(graphics) p.graphicsPortable=value; else p.sharedPortable=value; }
+        public String portableName(ProfileModel p) { return physical ? p.physicalPortableName : graphics ? p.graphicsPortableName : p.sharedPortableName; }
+        private void setPortableName(ProfileModel p, String value) { if(physical) p.physicalPortableName=value; else if(graphics) p.graphicsPortableName=value; else p.sharedPortableName=value; }
         public JsonObject values(ProfileModel p) {
+            if (physical) { p.ensureKeyMappingProfiles(); p.keyMappings=p.getActiveKeyMappings(); }
             JsonObject all = WITH_NULLS.toJsonTree(p).getAsJsonObject(), result = new JsonObject();
             for (String key : FIELDS) result.add(key, all.has(key) ? all.get(key).deepCopy() : JsonNull.INSTANCE);
             return result;
@@ -113,6 +118,18 @@ public final class SharedProfiles {
         private void validateValues(JsonObject v) throws IOException {
             try {
                 ProfileModel p=JSON.fromJson(v,ProfileModel.class);
+                if (physical) {
+                    if (p.keyMappings != null && p.keyMappings.size() > 512) throw new IOException("Too many physical bindings");
+                    if (p.keyMappingProfiles != null) {
+                        if (p.keyMappingProfiles.isEmpty() || p.keyMappingProfiles.size() > 200
+                                || p.activeKeyMappingProfile < 0 || p.activeKeyMappingProfile >= p.keyMappingProfiles.size())
+                            throw new IOException("Invalid physical mapping presets");
+                        for (ProfileModel.KeyMappingProfile mapping : p.keyMappingProfiles)
+                            if (mapping == null || mapping.name == null || mapping.name.length() > 64
+                                    || mapping.mappings != null && mapping.mappings.size() > 512)
+                                throw new IOException("Invalid physical mapping preset");
+                    }
+                }
                 if(p.touchLayout!=null && (p.touchLayout<0 || p.touchLayout>1))throw new IOException("Shared profiles support Phone keypad and Gamepad layouts. Legacy layouts remain per game.");
                 if(p.extraTouchButtons!=null){
                     if(p.extraTouchButtons.size()>ru.playsoftware.j2meloader.input.ExtraTouchButton.LIMIT)throw new IOException("Too many extra buttons");
@@ -124,7 +141,7 @@ public final class SharedProfiles {
             }catch(RuntimeException e){throw new IOException("Invalid profile values",e);}
         }
         public synchronized void write(File root,Catalog c) throws IOException {
-            if (!graphics) preserveLegacyGraphics(root);
+            if (!graphics && !physical) preserveLegacyGraphics(root);
             validate(c); c.version=2;
             if(root==null || !root.isDirectory()) throw new IOException("Library folder unavailable");
             AtomicFile f=new AtomicFile(new File(root,FILE)); FileOutputStream out=null;
@@ -156,7 +173,7 @@ public final class SharedProfiles {
             try{
                 Catalog c=read(root(p));JsonObject b=base(c,profileId(p));overlay(b,overrides(p));applyValues(p,b);
             }catch(IOException|RuntimeException e){android.util.Log.w("SharedProfiles","Retaining stored settings; shared profile unavailable",e);}
-            if(!graphics && p.extraTouchButtons!=null){
+            if(!graphics && !physical && p.extraTouchButtons!=null){
                 java.util.ArrayList<ru.playsoftware.j2meloader.input.ExtraTouchButton> valid=new java.util.ArrayList<>();
                 HashSet<String> ids=new HashSet<>();
                 for(ru.playsoftware.j2meloader.input.ExtraTouchButton b:p.extraTouchButtons)
@@ -169,12 +186,16 @@ public final class SharedProfiles {
             if(!settings(p)) {setSettings(p,true);setOverrides(p,values(p));}
             if(overrides(p)==null)setOverrides(p,new JsonObject());
             JsonObject now=values(p);
+            if (physical && snapshot(p)!=null && !now.equals(snapshot(p))) {
+                // Preset list, selected index and effective map form one atomic setting.
+                setOverrides(p,now.deepCopy());
+            }
             if(snapshot(p)!=null)for(String key:FIELDS)
                 if(!Objects.equals(now.get(key),snapshot(p).get(key)))overrides(p).add(key,now.get(key).deepCopy());
             setSnapshot(p,now);
         }
         public void assign(ProfileModel p,String id,Catalog c){capture(p);setProfileId(p,id);refresh(p,c);}
-        public void clear(ProfileModel p,String key,Catalog c){capture(p);if(key==null)setOverrides(p,new JsonObject());else overrides(p).remove(key);refresh(p,c);}
+        public void clear(ProfileModel p,String key,Catalog c){capture(p);if(key==null || physical)setOverrides(p,new JsonObject());else overrides(p).remove(key);refresh(p,c);}
         private void refresh(ProfileModel p,Catalog c){JsonObject b=base(c,profileId(p));overlay(b,overrides(p));applyValues(p,b);setSnapshot(p,values(p));}
         public ProfileModel editor(Catalog c,String id){ProfileModel p=new ProfileModel();applyValues(p,base(c,id));return p;}
         public String source(ProfileModel p,String key,Catalog c){
@@ -226,19 +247,19 @@ public final class SharedProfiles {
     public static String source(ProfileModel p,String key,Catalog c) { return CONTROLS.source(p,key,c); }
     public static void resolve(ProfileModel p,boolean existing) {
         migrateGraphics(p,existing);
-        GRAPHICS.resolve(p,existing); CONTROLS.resolve(p,existing);
+        GRAPHICS.resolve(p,existing); CONTROLS.resolve(p,existing); PHYSICAL.resolve(p,existing);
     }
     public static void capture(ProfileModel p) {
         migrateGraphics(p,true);
-        GRAPHICS.capture(p); CONTROLS.capture(p);
+        GRAPHICS.capture(p); CONTROLS.capture(p); PHYSICAL.capture(p);
     }
     public static void prepareSave(ProfileModel p) {
         migrateGraphics(p,true);
-        GRAPHICS.prepareSave(p); CONTROLS.prepareSave(p);
+        GRAPHICS.prepareSave(p); CONTROLS.prepareSave(p); PHYSICAL.prepareSave(p);
     }
     public static void importPortable(ProfileModel p,File root) throws IOException {
         migrateGraphics(p,true);
-        GRAPHICS.importPortable(p,root); CONTROLS.importPortable(p,root);
+        GRAPHICS.importPortable(p,root); CONTROLS.importPortable(p,root); PHYSICAL.importPortable(p,root);
     }
     public static void importCatalog(Catalog source,File destination) throws IOException {
         if(source.version==1) GRAPHICS.importCatalog(graphicsFromLegacy(source),destination);

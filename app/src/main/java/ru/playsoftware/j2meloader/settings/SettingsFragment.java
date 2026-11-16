@@ -48,10 +48,10 @@ public class SettingsFragment extends PreferenceFragmentCompat {
 		}
 		if (rootKey == null) {
             for (ru.playsoftware.j2meloader.config.SharedProfiles.Store store : new ru.playsoftware.j2meloader.config.SharedProfiles.Store[]{
-                    ru.playsoftware.j2meloader.config.SharedProfiles.GRAPHICS, ru.playsoftware.j2meloader.config.SharedProfiles.CONTROLS}) {
-                Preference shared = new Preference(requireContext()); shared.setKey(store.graphics?"pref_graphics_profiles":"pref_shared_profiles");
-                shared.setTitle(store.title()); shared.setSummary(store.graphics?"Global graphics defaults and reusable image settings":"Global control defaults and reusable touch layouts");
-                shared.setLayoutResource(R.layout.preference_compact); shared.setOrder(store.graphics?2:3);
+                    ru.playsoftware.j2meloader.config.SharedProfiles.GRAPHICS, ru.playsoftware.j2meloader.config.SharedProfiles.CONTROLS, ru.playsoftware.j2meloader.config.SharedProfiles.PHYSICAL}) {
+                Preference shared = new Preference(requireContext()); shared.setKey(store.physical?"pref_physical_profiles":store.graphics?"pref_graphics_profiles":"pref_shared_profiles");
+                shared.setTitle(store.title()); shared.setSummary(store.physical?"Global button and stick mappings":store.graphics?"Global graphics defaults and reusable image settings":"Global control defaults and reusable touch layouts");
+                shared.setLayoutResource(R.layout.preference_compact); shared.setOrder(store.physical?4:store.graphics?2:3);
                 shared.setOnPreferenceClickListener(p -> { ru.playsoftware.j2meloader.config.SharedProfileDialog.show(requireActivity(), null, null, store); return true; });
                 getPreferenceScreen().addPreference(shared);
             }

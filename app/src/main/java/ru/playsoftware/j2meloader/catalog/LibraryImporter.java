@@ -67,7 +67,7 @@ public final class LibraryImporter {
 		public boolean selected, duplicateTitle;
 		public boolean hasSaves;
 		private JsonObject backupInfo;
-        private ru.playsoftware.j2meloader.config.SharedProfiles.Catalog sharedProfiles, graphicsProfiles;
+        private ru.playsoftware.j2meloader.config.SharedProfiles.Catalog sharedProfiles, graphicsProfiles, physicalProfiles;
 		private String nativeId;
 		private DocumentFile game, data, config;
         private LibraryTransferFailure problemFailure;
@@ -216,7 +216,8 @@ public final class LibraryImporter {
 		Preview preview=scan(DocumentFile.fromFile(root), LibraryArchive.readManifest(root));
         ru.playsoftware.j2meloader.config.SharedProfiles.Catalog profiles=ru.playsoftware.j2meloader.config.SharedProfiles.read(root);
         ru.playsoftware.j2meloader.config.SharedProfiles.Catalog graphics=ru.playsoftware.j2meloader.config.SharedProfiles.GRAPHICS.read(root);
-        for(Entry entry:preview.entries){entry.sharedProfiles=profiles;entry.graphicsProfiles=graphics;}
+        ru.playsoftware.j2meloader.config.SharedProfiles.Catalog physical=ru.playsoftware.j2meloader.config.SharedProfiles.PHYSICAL.read(root);
+        for(Entry entry:preview.entries){entry.sharedProfiles=profiles;entry.graphicsProfiles=graphics;entry.physicalProfiles=physical;}
         return preview;
 	}
 
@@ -355,6 +356,7 @@ public final class LibraryImporter {
 			if (entry.sharedProfiles != null) {
 				ru.playsoftware.j2meloader.config.SharedProfiles.CONTROLS.importCatalog(entry.sharedProfiles, destination);
                 ru.playsoftware.j2meloader.config.SharedProfiles.GRAPHICS.importCatalog(entry.graphicsProfiles, destination);
+                ru.playsoftware.j2meloader.config.SharedProfiles.PHYSICAL.importCatalog(entry.physicalProfiles, destination);
 			}
 			notes = importConfig(entry.config, config, entry.backupInfo != null);
 			checkCancelled();
@@ -468,6 +470,7 @@ public final class LibraryImporter {
 		}
 		profile.sharedRoot = destination;
         if(!backup || !original.has("sharedSettings")) profile.sharedSettings=false;
+        if(!backup || !original.has("physicalSettings")) profile.physicalSettings=false;
         if(backup) ru.playsoftware.j2meloader.config.SharedProfiles.importPortable(profile,destination);
         ru.playsoftware.j2meloader.config.SharedProfiles.resolve(profile,true);
 		if (!ProfilesManager.saveConfig(profile)) throw LibraryTransferFailure.of(R.string.library_transfer_storage_failure,"Cannot save imported settings");

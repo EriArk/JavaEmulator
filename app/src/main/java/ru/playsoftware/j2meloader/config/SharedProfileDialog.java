@@ -61,7 +61,7 @@ public final class SharedProfileDialog {
     private boolean save(){try{store.write(root,catalog);return true;}catch(Exception e){error(e);return false;}}
     private void home(){
         menu.page(store.title()+" / Global defaults");
-        menu.message("Choose global defaults or named profiles for this category. Graphics and controls are assigned independently. Game overrides take priority. Shared changes take effect the next time you open a game.");
+        menu.message("Choose global defaults or named profiles for this category. Graphics, touch controls and physical mappings are assigned independently. Game overrides take priority. Shared changes take effect the next time you open a game.");
         action("Global default",()->edit(null));
         for(SharedProfiles.Entry e:catalog.profiles)action(e.name,()->details(e));
         action("+ New profile",()->name("New profile","",n->{store.create(catalog,n,new com.google.gson.JsonObject());if(save())home();}));
@@ -80,8 +80,8 @@ public final class SharedProfileDialog {
             menu.message("Selecting a base keeps existing game overrides. Clear an override below to inherit that setting.");menu.setBackAction(this::game);
         });
         action("Manage shared profiles",this::home);
-        action("Reset all game overrides",()->confirm("Reset overrides?",store.title()+" will inherit the selected base. The other category and saves are unchanged.",()->{store.clear(game,null,catalog);game();}));
-        for(int i=0;i<store.FIELDS.length;i++){
+        action("Reset all game overrides",()->confirm("Reset overrides?",store.title()+" will inherit the selected base. Other categories and saves are unchanged.",()->{store.clear(game,null,catalog);game();}));
+        for(int i=0;i<(store.physical?1:store.FIELDS.length);i++){
             String key=store.FIELDS[i],label=store.LABELS[i];
             action(label+" · "+store.source(game,key,catalog),()->{
                 if(store.overrides(game).has(key))confirm("Use inherited setting?",label+" will use the currently assigned profile or Global default.",()->{store.clear(game,key,catalog);game();});
@@ -112,8 +112,11 @@ public final class SharedProfileDialog {
     private void edit(SharedProfiles.Entry e){edit(e,store.editor(catalog,e==null?null:e.id));}
     private void edit(SharedProfiles.Entry e,ProfileModel draft){
         menu.page(e==null?"Global default":e.name);
-        menu.message("Editing shared settings. "+affected(e==null?null:e.id)+" linked games; game overrides take priority. Graphics and controls remain independent.");
+        menu.message("Editing shared settings. "+affected(e==null?null:e.id)+" linked games; game overrides take priority. Other profile categories remain independent.");
         if(store.graphics) graphicsEditor(e,draft);
+        else if(store.physical) {
+            action("Edit physical buttons / sticks",()->menu.editPhysicalMapping(draft,()->edit(e,draft)));
+        }
         else {
             menu.choice("Touch layout",new String[]{"Phone keypad","Gamepad"},draft.touchLayout!=null&&draft.touchLayout==1?1:0,i->draft.touchLayout=i);
             action("Edit touch layout / extra buttons",()->menu.editTouchLayout(draft,()->edit(e,draft)));
@@ -184,9 +187,9 @@ public final class SharedProfileDialog {
     }
     private void bulkConfirm(String id){
         boolean[] reset={false};
-        menu.page("Confirm assignment");menu.message(pending.size()+" selected games. Saves, compatibility settings and physical bindings are unchanged.");
-        menu.toggle("Also reset "+(store.graphics?"graphics":"control")+" game overrides",false,v->reset[0]=v);
-        action("Apply to selected games",()->confirm("Apply profile?",pending.size()+" games"+(reset[0]?"; clear their "+(store.graphics?"graphics":"control")+" overrides.":"; keep their overrides."),()->{
+        menu.page("Confirm assignment");menu.message(pending.size()+" selected games. Only this profile category changes. Saves and compatibility settings are unchanged.");
+        menu.toggle("Also reset "+(store.physical?"physical mapping":store.graphics?"graphics":"control")+" game overrides",false,v->reset[0]=v);
+        action("Apply to selected games",()->confirm("Apply profile?",pending.size()+" games"+(reset[0]?"; clear their "+(store.physical?"physical mapping":store.graphics?"graphics":"control")+" overrides.":"; keep their overrides."),()->{
             // Retain failed/unprocessed games for a deliberate retry.
             run("Assigning profiles…",()->{for(String path:new ArrayList<>(pending)){
                 ProfileModel p=ProfilesManager.loadConfig(new File(path));if(p==null)throw new java.io.IOException("Unavailable game settings");

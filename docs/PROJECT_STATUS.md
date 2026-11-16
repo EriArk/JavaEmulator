@@ -1,6 +1,6 @@
 # AbyssME - Current Product and Development Status
 
-**Last updated: 2026-11-15.** Verification dates are recorded per section.
+**Last updated: 2026-11-16.** Verification dates are recorded per section.
 This is the starting point for website copy,
 announcements, progress posts and project handoffs. It includes work that exists
 only in local experiments or private test builds. Describing that work here
@@ -11,6 +11,16 @@ changes, and the linked evidence for detail. This is a maintained snapshot,
 not a live feed. Verify GitHub Releases, recent commits and build notes before
 calling a version "latest" after this date. If local evidence is inaccessible,
 attribute its results to the dated maintainer record below; do not infer a pass.
+
+## Physical Profiles and General Mophun Audio (Local Source, 2026-11-16)
+
+Independent global/named physical-controller profiles now cover buttons and
+both sticks, per-game overrides, trials and portable backup definitions.
+The game-specific Mophun audio gate is removed; PCM gains host pause/resume,
+speed handling and bounded teardown. Debug/JVM and focused Android checks pass.
+The four reported games still require the owner's archive location to reproduce
+speed/audio symptoms. No new public APK or timing fix is claimed.
+[Implementation, checks and outstanding work](checks/2026-11-16-physical-profiles-mophun.md).
 
 ## Dual Beta 9 Released (2026-11-15)
 

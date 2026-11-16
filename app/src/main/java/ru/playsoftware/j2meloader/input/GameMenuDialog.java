@@ -74,6 +74,38 @@ public final class GameMenuDialog extends Dialog {
         editor.setOnDismissListener(d -> editor = null);
         editor.show();
     }
+    public void editPhysicalMapping(ru.playsoftware.j2meloader.config.ProfileModel draft, Runnable done) {
+        if (editor != null) editor.dismiss();
+        draft.ensureKeyMappingProfiles();
+        final ControllerMapperView[] mapper = new ControllerMapperView[1];
+        Dialog dialog = new Dialog(getContext()) {
+            @Override public boolean dispatchKeyEvent(KeyEvent event) {
+                return mapper[0].handleKey(event) || super.dispatchKeyEvent(event);
+            }
+            @Override public boolean dispatchGenericMotionEvent(android.view.MotionEvent event) {
+                if ((event.getSource() & android.view.InputDevice.SOURCE_JOYSTICK) == android.view.InputDevice.SOURCE_JOYSTICK) {
+                    mapper[0].captureAxes(event); return true;
+                }
+                return super.dispatchGenericMotionEvent(event);
+            }
+        };
+        dialog.requestWindowFeature(Window.FEATURE_NO_TITLE);
+        mapper[0] = new ControllerMapperView(getContext(), "Shared physical mapping",
+                draft.keyMappingProfiles, draft.activeKeyMappingProfile, new ControllerMapperView.Listener() {
+            public void save(java.util.ArrayList<ru.playsoftware.j2meloader.config.ProfileModel.KeyMappingProfile> profiles, int active) {
+                draft.keyMappingProfiles = profiles; draft.setActiveKeyMappingProfile(active);
+                dialog.dismiss(); done.run();
+            }
+            public void cancel() { dialog.dismiss(); }
+        });
+        mapper[0].setSaveLabel(getContext().getString(R.string.controls_use_mapping));
+        editor=dialog;
+        dialog.setContentView(mapper[0]);
+        dialog.setOnDismissListener(d -> { if(editor==dialog) editor=null; });
+        dialog.show();
+        dialog.getWindow().setBackgroundDrawable(new ColorDrawable(Color.TRANSPARENT));
+        dialog.getWindow().setLayout(WindowManager.LayoutParams.MATCH_PARENT,WindowManager.LayoutParams.MATCH_PARENT);
+    }
     public Bundle saveTouchEditor() { return editor == null ? null : editor.onSaveInstanceState(); }
     public void restoreTouchEditor(Bundle state, ru.playsoftware.j2meloader.config.ProfileModel draft, Runnable done) {
         if (state == null) return;

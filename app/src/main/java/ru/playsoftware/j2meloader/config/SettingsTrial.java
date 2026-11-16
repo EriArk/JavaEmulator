@@ -60,6 +60,7 @@ public final class SettingsTrial {
         ProfilesManager.copyInto(draft, confirmed);
         confirmed.sharedSnapshot = SharedProfiles.values(confirmed);
         confirmed.graphicsSnapshot = SharedProfiles.GRAPHICS.values(confirmed);
+        confirmed.physicalSnapshot = SharedProfiles.PHYSICAL.values(confirmed);
     }
 
     private SettingsTrial() { }

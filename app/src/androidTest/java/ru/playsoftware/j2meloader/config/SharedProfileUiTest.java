@@ -23,6 +23,11 @@ public class SharedProfileUiTest {
         if(v instanceof ViewGroup)for(int i=0;i<((ViewGroup)v).getChildCount();i++){View found=find(((ViewGroup)v).getChildAt(i),text);if(found!=null)return found;}
         return null;
     }
+    private View described(View view,String label){
+        if(label.contentEquals(view.getContentDescription()==null?"":view.getContentDescription()))return view;
+        if(view instanceof ViewGroup)for(int i=0;i<((ViewGroup)view).getChildCount();i++){View v=described(((ViewGroup)view).getChildAt(i),label);if(v!=null)return v;}
+        return null;
+    }
     private void press(String text){main(()->{View v=find(menu.getWindow().getDecorView(),text);assertNotNull(text,v);v.performClick();});}
     private void waitFor(String text){
         for(int i=0;i<100;i++){boolean[] found={false};main(()->found[0]=find(menu.getWindow().getDecorView(),text)!=null);if(found[0])return;android.os.SystemClock.sleep(50);}fail(text);
@@ -85,6 +90,39 @@ public class SharedProfileUiTest {
                 if("Confirm".equalsIgnoreCase(node.getText()==null?"":node.getText().toString()))confirmed=node.performAction(android.view.accessibility.AccessibilityNodeInfo.ACTION_CLICK);
             assertTrue(confirmed);waitFor("+ New profile");assertEquals(1,SharedProfiles.GRAPHICS.read(root).profiles.get(0).values.get("RetroShader").getAsInt());
             assertEquals("independent-pad",game.sharedProfileId);assertEquals(2,game.touchSize);
+        }finally{main(()->{if(menu!=null)menu.dismiss();});remove(root);}
+    }
+
+    @Test public void physicalEditorSavesSharedBindingsWithoutChangingOtherCategories()throws Exception{
+        Context c=ApplicationProvider.getApplicationContext();File root=Files.createTempDirectory(c.getCacheDir().toPath(),"physical-ui-").toFile();
+        SharedProfiles.Catalog catalog=new SharedProfiles.Catalog();
+        SharedProfiles.Entry entry=SharedProfiles.PHYSICAL.create(catalog,"My controller",new com.google.gson.JsonObject());SharedProfiles.PHYSICAL.write(root,catalog);
+        File dir=new File(root,"configs/Game");assertTrue(dir.mkdirs());ProfileModel game=new ProfileModel(dir);game.sharedProfileId="touch-profile";game.graphicsProfileId="image-profile";assertTrue(ProfilesManager.saveConfig(game));
+        try(ActivityScenario<SettingsActivity> scenario=ActivityScenario.launch(SettingsActivity.class)){
+            scenario.onActivity(activity->menu=SharedProfileDialog.show(activity,game,null,SharedProfiles.PHYSICAL));
+            waitFor("Choose base profile");press("Choose base profile");press("My controller");assertEquals(entry.id,game.physicalProfileId);
+            press("Manage shared profiles");press("My controller");press("Edit profile");capture("physical-profile-editor");
+            press("Edit physical buttons / sticks");
+            java.lang.reflect.Field editor=GameMenuDialog.class.getDeclaredField("editor");editor.setAccessible(true);
+            android.app.Dialog dialog=(android.app.Dialog)editor.get(menu);assertNotNull(dialog);
+            main(()->{
+                View rootView=dialog.getWindow().getDecorView();View sticks=find(rootView,"Sticks");assertNotNull(sticks);sticks.performClick();
+                View up=described(rootView,"Right stick Up");assertNotNull(up);up.performClick();
+                View five=described(rootView,"Phone key 5");assertNotNull(five);five.performClick();
+            });
+            capture("physical-button-mapper");
+            main(()->{View save=find(dialog.getWindow().getDecorView(),"Use mapping");assertNotNull(save);save.performClick();});
+            press("Save shared settings");android.os.SystemClock.sleep(250);
+            android.view.accessibility.AccessibilityNodeInfo window=InstrumentationRegistry.getInstrumentation().getUiAutomation().getRootInActiveWindow();boolean confirmed=false;
+            for(android.view.accessibility.AccessibilityNodeInfo node:window.findAccessibilityNodeInfosByText("Confirm"))
+                if("Confirm".equalsIgnoreCase(node.getText()==null?"":node.getText().toString()))confirmed=node.performAction(android.view.accessibility.AccessibilityNodeInfo.ACTION_CLICK);
+            assertTrue(confirmed);waitFor("+ New profile");
+            assertTrue(SharedProfiles.PHYSICAL.read(root).profiles.get(0).values.has("KeyMappingProfiles"));
+            ProfileModel loaded=SharedProfiles.PHYSICAL.editor(SharedProfiles.PHYSICAL.read(root),entry.id);
+            assertEquals(53,loaded.getActiveKeyMappings().get(-1021));
+            assertEquals(-3,loaded.getActiveKeyMappings().get(-1003));
+            assertEquals("touch-profile",game.sharedProfileId);assertEquals("image-profile",game.graphicsProfileId);
+            capture("physical-profile-manager");
         }finally{main(()->{if(menu!=null)menu.dismiss();});remove(root);}
     }
 

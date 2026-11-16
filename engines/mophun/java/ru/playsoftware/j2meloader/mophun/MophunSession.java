@@ -13,6 +13,7 @@ import wolphun.vm.Vmgp;
 public final class MophunSession implements AutoCloseable {
     private final File game, saves;
     private final File audioCache;
+    private volatile wolphun.vm.VSound pcm;
     private final int model, width, height;
     private final Thread worker;
     private final MophunClock clock = new MophunClock();
@@ -58,6 +59,7 @@ public final class MophunSession implements AutoCloseable {
     public synchronized void setEmulationSpeed(int percent) {
         clock.speed(percent);
         if (midi != null) midi.speed(clock.speed());
+        if (pcm != null) pcm.speed(clock.speed());
     }
     public int getEmulationSpeed() { return clock.speed(); }
 
@@ -66,6 +68,7 @@ public final class MophunSession implements AutoCloseable {
         if (screen != null) screen.clearButtons();
         clock.pause(value);
         if (midi != null) midi.pause(value);
+        if (pcm != null) pcm.pause(value);
         paused = value;
         framePacer.reset();
     }
@@ -136,10 +139,13 @@ public final class MophunSession implements AutoCloseable {
             };
             Pip2 vm = new Pip2(exe, 4 * 1024 * 1024, 256 * 1024);
             sdk = new Sdk(vm, target, clock);
-            sdk.soundEnabled = false;
+            sdk.soundEnabled = true;
             synchronized (this) {
-                // Enable only the verified Deep Abyss 1.4 path; PCM games remain unaccepted.
-                if (audioCache != null && MophunCompatibility.isDeepAbyss14(executable)) {
+                // Audio belongs to the session, regardless of game identity.
+                pcm = sdk.vsound;
+                pcm.speed(clock.speed());
+                pcm.pause(paused);
+                if (audioCache != null) {
                     midi = new MophunMidi(audioCache);
                     midi.speed(clock.speed());
                     midi.pause(paused);
@@ -186,6 +192,7 @@ public final class MophunSession implements AutoCloseable {
         if (stopped) return;
         stopped = true;
         if (midi != null) midi.pause(true);
+        if (pcm != null) pcm.pause(true);
         if (screen != null) screen.clearButtons();
         worker.interrupt();
     }

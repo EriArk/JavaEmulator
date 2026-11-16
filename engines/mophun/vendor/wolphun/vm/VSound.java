@@ -36,7 +36,25 @@ public final class VSound {
     int nextHandle = 1;
     float masterVol = 1f;
 
-    AudioTrack track;
+    volatile AudioTrack track;
+    private final Object audioLock = new Object();
+    private volatile boolean paused;
+    private volatile int speed = 100;
+    private volatile Throwable error;
+    public Throwable error() { return error; }
+    public boolean running() { return running; }
+    public void speed(int percent) { speed = ru.playsoftware.j2meloader.runtime.EmulationClock.normalize(percent); }
+    public void pause(boolean value) {
+        synchronized (voices) { paused = value; }
+        synchronized (audioLock) {
+            AudioTrack current = track;
+            if (current != null && running) {
+                try { if (value) current.pause(); else current.play(); }
+                catch (IllegalStateException failure) { error=failure; }
+            }
+            audioLock.notifyAll();
+        }
+    }
     Thread mixThread;
     volatile boolean running = false;
 
@@ -75,13 +93,20 @@ public final class VSound {
                 track = new AudioTrack(AudioManager.STREAM_MUSIC, OUT_RATE, AudioFormat.CHANNEL_OUT_STEREO,
                                        AudioFormat.ENCODING_PCM_16BIT, buf, AudioTrack.MODE_STREAM);
             }
-            track.play();
-            running = true;
+            if (track.getState() != AudioTrack.STATE_INITIALIZED) throw new IllegalStateException("PCM track unavailable");
+            synchronized (audioLock) {
+                if (!paused) track.play();
+                running = true;
+            }
             mixThread = new Thread(new Runnable(){ public void run(){ mixLoop(); } }, "vsound-mix");
             mixThread.setDaemon(true);
             mixThread.start();
             return 0;
-        } catch(Throwable t){ track=null; return -1; }
+        } catch(RuntimeException t){
+            error=t; running=false;
+            if(track!=null)track.release(); track=null;
+            android.util.Log.w("Mophun", "PCM initialization",t); return -1;
+        }
     }
 
     public int getHandle(int dataPtr){
@@ -146,6 +171,13 @@ public final class VSound {
         short[] out = new short[FR*2];
         int[] mixL = new int[FR], mixR = new int[FR];
         while(running){
+            synchronized (audioLock) {
+                while (running && paused) {
+                    try { audioLock.wait(); }
+                    catch (InterruptedException stop) { Thread.currentThread().interrupt(); return; }
+                }
+            }
+            if (!running) break;
             renderFrames(mixL, mixR, FR);
             for(int i=0;i<FR;i++){
                 int l=mixL[i], r=mixR[i];
@@ -153,13 +185,29 @@ public final class VSound {
                 if(r>32767)r=32767; else if(r<-32768)r=-32768;
                 out[i*2]=(short)l; out[i*2+1]=(short)r;
             }
-            try { track.write(out, 0, out.length); } catch(Throwable t){}
+            try {
+                int offset=0;
+                while(running && !paused && offset<out.length) {
+                    AudioTrack current=track;
+                    if(current==null)return;
+                    int written=current.write(out,offset,out.length-offset);
+                    if(written<=0) {
+                        if(running && !paused)throw new IllegalStateException("PCM write failed: "+written);
+                        break;
+                    }
+                    offset+=written;
+                }
+            } catch(RuntimeException failure) {
+                if(running) { error=failure; android.util.Log.w("Mophun","PCM output",failure); }
+                running=false;
+            }
         }
     }
 
     void renderFrames(int[] mixL, int[] mixR, int frames){
         for(int i=0;i<frames;i++){ mixL[i]=0; mixR[i]=0; }
         synchronized(voices){
+            if (paused) return;
             for(Voice v : voices.values()){
                 if(!v.playing || v.snd==null) continue;
                 Snd s = v.snd; short[] p = s.pcm;
@@ -175,7 +223,7 @@ public final class VSound {
                     short sm = (ip>=0 && ip<p.length) ? p[ip] : 0;
                     mixL[i] += (int)(sm*gl);
                     mixR[i] += (int)(sm*gr);
-                    v.pos += v.step;
+                    v.pos += v.step * speed / 100.0;
                 }
             }
         }
@@ -192,11 +240,30 @@ public final class VSound {
 
     public int dispose(){
         running = false;
-        try { if(mixThread!=null) mixThread.join(300); } catch(Throwable t){}
-        try { if(track!=null){ track.stop(); track.flush(); track.release(); } } catch(Throwable t){}
+        AudioTrack current;
+        synchronized (audioLock) {
+            current=track;
+            if(current!=null) {
+                try { current.pause(); current.flush(); } catch(IllegalStateException ignored) { }
+            }
+            audioLock.notifyAll();
+        }
+        boolean interrupted=false;
+        if(mixThread!=null) {
+            try { mixThread.join(1500); }
+            catch(InterruptedException stop) { interrupted=true; }
+        }
+        if(current!=null) {
+            try { current.release(); } catch(RuntimeException failure) { error=failure; }
+        }
+        if(mixThread!=null && mixThread.isAlive()) {
+            mixThread.interrupt();
+            try { mixThread.join(1000); } catch(InterruptedException stop) { interrupted=true; }
+        }
         track=null; mixThread=null;
         sounds.clear();
         synchronized(voices){ voices.clear(); }
+        if(interrupted)Thread.currentThread().interrupt();
         return 0;
     }
     public int disposeHandle(int h){

@@ -105,6 +105,7 @@ public final class GameSettingsPages {
     public void controls() {
         menu.page(menu.text(R.string.game_controls));
         profileAction(this::controls);
+        profileAction(this::controls, SharedProfiles.PHYSICAL);
         menu.choice(menu.text(R.string.game_control_mode), menu.labels(R.array.game_control_modes), clamp(draft.controlMode, 3),
                 i -> draft.controlMode = i);
         menu.choice(menu.text(R.string.game_touch_visibility), menu.labels(R.array.game_touch_visibility_modes), draft.getTouchVisibility(),

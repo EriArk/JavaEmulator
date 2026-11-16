@@ -29,7 +29,10 @@ Original upstream comments and notices remain intact.
 
 Experimental direct `.mpn` import and shared library/controls are included.
 Deep Abyss 1.1/1.4 have recorded compatibility work; general Mophun compatibility
-and audio are not established. Known-game MIDI is not a universal sound engine.
+and audio coverage remain incomplete. The local November 16 changes enable MIDI
+and PCM for every game, removing the old Deep Abyss audio gate; playback still
+depends on implemented resource formats. See the
+[local verification checkpoint](../../docs/checks/2026-11-16-physical-profiles-mophun.md).
 No Symbian/N-Gage runtime is included. See `docs/PROJECT_STATUS.md` for evidence.
 
 `tests/` contains fixture-free checks only. Commercial game probes remain local

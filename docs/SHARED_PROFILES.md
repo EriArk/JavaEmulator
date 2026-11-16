@@ -7,6 +7,18 @@ build; install Beta 7 over the official app.
 [Release verification](releases/v0.7.0-beta.7-checks.md).
 [Implementation checks](checks/2026-11-14-graphics-profiles.md).
 
+## Physical controller profiles (local source, November 16)
+
+An unreleased third category is available in **Settings → Physical controller
+profiles** and **Controls → Physical controller profiles**. Global defaults and
+named profiles include physical buttons, D-pad and both sticks. Edit through
+**Edit physical buttons / sticks**, select **Use mapping**, then **Save shared
+settings**. Game assignments and overrides follow the same independent model
+as graphics and touch controls. Existing games keep their mappings; use an
+explicit reset or the bulk reset option to inherit a shared physical profile.
+Backups carry `physical-profiles.json` and portable per-game definitions.
+[Availability and checks](checks/2026-11-16-physical-profiles-mophun.md).
+
 ## Independent global defaults and named profiles
 
 Open **Settings → Graphics profiles** or **Settings → Control profiles**. Each
@@ -57,8 +69,9 @@ frame-rate limits, emulation speed and CPU budgets remain per game.
 
 Control profiles cover modern Phone/Gamepad layouts, keypad placement, button
 size/theme/opacity, portrait/landscape reach and positions, touch key mappings,
-extra buttons, visibility and tactile feedback. Physical-controller bindings and
-legacy keypad files retain their existing per-game editors.
+extra buttons, visibility and tactile feedback. Released builds through Beta 9 retain per-game physical-controller editors;
+the local-source extension above adds shared physical mappings. Legacy keypad
+files remain per game.
 
 The first migration splits Beta 6's combined named profiles and global defaults:
 LCD values move to graphics, while touch values remain in controls. Existing LCD

@@ -478,12 +478,19 @@ public class LibraryImporterTest {
         visual.values.addProperty("RetroShader",2);
         ru.playsoftware.j2meloader.config.SharedProfiles.GRAPHICS.create(graphics,"Unassigned graphics",new com.google.gson.JsonObject());
         ru.playsoftware.j2meloader.config.SharedProfiles.GRAPHICS.write(source,graphics);
+        ru.playsoftware.j2meloader.config.SharedProfiles.Catalog physical=new ru.playsoftware.j2meloader.config.SharedProfiles.Catalog();
+        ProfileModel mapping=new ProfileModel();mapping.ensureCustomKeyMappingProfile();mapping.getActiveKeyMappings().put(-1021,53);
+        ru.playsoftware.j2meloader.config.SharedProfiles.Entry controller=ru.playsoftware.j2meloader.config.SharedProfiles.PHYSICAL.create(physical,"Two sticks",ru.playsoftware.j2meloader.config.SharedProfiles.PHYSICAL.values(mapping));
+        ru.playsoftware.j2meloader.config.SharedProfiles.PHYSICAL.create(physical,"Unassigned controller",new com.google.gson.JsonObject());
+        ru.playsoftware.j2meloader.config.SharedProfiles.PHYSICAL.write(source,physical);
+
 
 		SourceHints.write(new File(source, "converted/old-folder"), "Sudoku_SE_128x160.jar");
 		ProfileModel profile = new ProfileModel(new File(source, "configs/old-folder"));
         ru.playsoftware.j2meloader.config.SharedProfiles.assign(profile,reusable.id,shared);
         ru.playsoftware.j2meloader.config.SharedProfiles.GRAPHICS.assign(profile,visual.id,graphics);
         ru.playsoftware.j2meloader.config.SharedProfiles.GRAPHICS.clear(profile,null,graphics);
+        ru.playsoftware.j2meloader.config.SharedProfiles.PHYSICAL.assign(profile,controller.id,physical);
         profile.extraTouchButtons=new java.util.ArrayList<>();
         ru.playsoftware.j2meloader.input.ExtraTouchButton extra=new ru.playsoftware.j2meloader.input.ExtraTouchButton();extra.code=51;profile.extraTouchButtons.add(extra);
 		profile.touchLayout = 1; profile.touchOpacity = 75; profile.screenRotation = 180;
@@ -510,6 +517,8 @@ public class LibraryImporterTest {
 			ProfileModel loaded = ProfilesManager.loadConfig(new File(destination, "configs/" + restored.getPath()));
             assertEquals(2,loaded.touchTheme);assertEquals(reusable.id,loaded.sharedProfileId);
             assertEquals(2,loaded.retroShader);assertEquals(visual.id,loaded.graphicsProfileId);
+            assertEquals(controller.id,loaded.physicalProfileId);assertEquals(53,loaded.getActiveKeyMappings().get(-1021));
+            assertEquals(2,ru.playsoftware.j2meloader.config.SharedProfiles.PHYSICAL.read(destination).profiles.size());
             assertEquals(2,ru.playsoftware.j2meloader.config.SharedProfiles.GRAPHICS.read(destination).profiles.size());
             assertEquals(51,loaded.extraTouchButtons.get(0).code);
             assertEquals(2,ru.playsoftware.j2meloader.config.SharedProfiles.read(destination).profiles.size());
