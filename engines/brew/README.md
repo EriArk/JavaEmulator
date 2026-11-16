@@ -18,8 +18,8 @@ Melange's main repository currently has no explicit license. While waiting for
 written permission, keep any upstream source checkout, copies and experimental
 modifications **local and untracked**. Do not push upstream files even to this
 research branch or place them in a PR. A private experiment is not a substitute
-for obtaining the necessary legal rights; confirm the applicable permissions
-before modifying/reusing code.
+for obtaining the rights needed to distribute or integrate third-party code.
+Confirm any applicable limits on local experimentation and modifications.
 
 ### Prepare a pinned local baseline (requires network and git)
 
@@ -35,9 +35,20 @@ a local `abyssme-local-experiment` branch. It does not pull or bundle Qualcomm
 SDK objects; builds will remain blocked until those dependencies are lawfully
 replaced. Network access and upstream availability are required.
 
-Initial native bridge work can live in `engines/brew/native/` independently of
-the unlicensed upstream. Keep game samples, firmware, vendor binaries, dumps and
-generated artifacts outside Git.
+Initial native bridge work lives in `engines/brew/native/` independently of
+the unlicensed upstream. The staging host currently implements only a small
+single-threaded lifecycle/event queue; it is **not the BREW guest ABI** and
+cannot run a game. Its separate host-side smoke test can be run with:
+
+```sh
+cmake -S engines/brew/native -B /tmp/abyssme-brew-host -DBUILD_TESTING=ON
+cmake --build /tmp/abyssme-brew-host
+ctest --test-dir /tmp/abyssme-brew-host --output-on-failure
+```
+
+This staging module is not connected to Android or the production Gradle build.
+Keep game samples, firmware, vendor binaries, dumps and generated artifacts
+outside Git.
 
 ## Gates for promotion
 
