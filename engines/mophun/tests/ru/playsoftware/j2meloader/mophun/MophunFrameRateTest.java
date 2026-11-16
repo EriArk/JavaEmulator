@@ -61,4 +61,18 @@ public class MophunFrameRateTest {
             session.setFrameRateLimit(0); assertEquals(0, session.getFrameRateLimit());
         }
     }
+    @Test public void phoneWorkBudgetPacesExecutionWithoutChangingFrameCap() throws Exception {
+        long[] now={0};
+        MophunCpuPacer cpu=new MophunCpuPacer(()->now[0],millis->now[0]+=millis,()->{},512);
+        cpu.await(0,100);cpu.await(512000,100);assertEquals(1000,now[0]);
+        cpu.await(1024000,200);assertEquals(1500,now[0]);
+        // Time spent outside guest execution cannot buy a large burst of CPU time.
+        now[0]+=10000;cpu.await(1536000,100);assertEquals(12484,now[0]);
+        cpu.reset();cpu.await(1536000,100);cpu.await(2048000,100);assertEquals(13484,now[0]);
+    }
+    @Test public void phoneWorkWaitCanBeCancelledAtCheckpoint() throws Exception {
+        long[] now={0};MophunCpuPacer[] holder={null};
+        holder[0]=new MophunCpuPacer(()->now[0],millis->now[0]+=millis,()->holder[0].reset(),512);
+        holder[0].await(0,100);holder[0].await(512000,100);assertEquals(0,now[0]);
+    }
 }

@@ -42,4 +42,36 @@ public class MophunPcmTest {
             finally {sound.dispose();}
         }
     }
+    @Test public void beepSequencePreservesFrequencyDurationVolumeAndSilence() {
+        // Original 440 Hz/100 ms tone followed by 50 ms of silence.
+        BeepSequence sequence=new BeepSequence(new byte[]{(byte)184,1,100,0,(byte)255,0,0,50,0,(byte)255},false);
+        int rises=0,previous=0,peak=0;
+        for(int i=0;i<4410;i++) {int sample=sequence.next(1);if(previous<=0&&sample>0)rises++;previous=sample;peak=Math.max(peak,Math.abs(sample));}
+        assertEquals(44,rises);assertTrue(peak>16000);
+        for(int i=0;i<2205;i++)assertEquals(0,sequence.next(1));
+        assertEquals(0,sequence.next(1));assertTrue(sequence.finished());
+        BeepSequence quiet=new BeepSequence(new byte[]{(byte)184,1,100,0,64},false);
+        for(int i=0;i<4410;i++)assertTrue(Math.abs(quiet.next(1))<=4112);
+    }
+    @Test public void beepLoopAndZeroDurationDoNotHang() {
+        BeepSequence empty=new BeepSequence(new byte[]{1,0,0,0,(byte)255},true);
+        assertEquals(0,empty.next(1));assertTrue(empty.finished());
+        BeepSequence sequence=new BeepSequence(new byte[]{1,0,0,0,0,(byte)184,1,10,0,(byte)255},true);
+        long energy=0;for(int i=0;i<10000;i++)energy+=Math.abs(sequence.next(4));
+        assertTrue(energy>10000);assertFalse(sequence.finished());
+        try {new BeepSequence(new byte[4],false);fail();}catch(IllegalArgumentException expected){}
+    }
+    @Test public void beepResourcesStopAndFollowHostPause() {
+        VSound sound=sound();Sdk sdk=new Sdk(sound.vm,new wolphun.Screen(101,80,1));sound=sdk.vsound;
+        try {
+            sound.pause(true);int p=sound.vm.heapBase;
+            byte[] data={(byte)184,1,100,0,(byte)255};for(int i=0;i<data.length;i++)sound.vm.write8(p+i,data[i]&255);
+            assertEquals(1,sdk.playResource(p,5,0x100));
+            int[] l=new int[100],r=new int[100];sound.renderFrames(l,r,100);assertEquals(0,java.util.Arrays.stream(l).sum());
+            sound.pause(false);sound.renderFrames(l,r,100);assertTrue(java.util.Arrays.stream(l).anyMatch(x->x!=0));
+            sdk.playResource(0,0,0x400);sound.renderFrames(l,r,100);assertTrue(java.util.Arrays.stream(l).allMatch(x->x==0));
+            sound.beep(440,100);sound.beep(0,0);sound.renderFrames(l,r,100);assertTrue(java.util.Arrays.stream(l).allMatch(x->x==0));
+            assertEquals(0,sdk.playResource(p,4,0));assertNull(sound.error());
+        } finally {sound.dispose();}
+    }
 }

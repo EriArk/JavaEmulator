@@ -104,7 +104,7 @@ public final class Sdk {
             case "vWaitVBL": vm.ret(0); break;                                    // no-op (pacing esta no vFlipScreen)
             case "vTestKey":  vm.ret(testKey(vm.arg(0))); break;   // 1 se a tecla ASCII do keypad esta pressionada
             case "vScanKeys": vm.ret(scanKeys()); break;           // ASCII da tecla atualmente pressionada
-            case "vBeep": break;
+            case "vBeep": if(soundEnabled) vsound.beep(vm.arg(0),vm.arg(1)); break;
             // ---------- graficos ----------
             case "vClearScreen": dlog("clearScreen fore="+colStr(vm.arg(0))); Arrays.fill(scr.fb, getColor(vm.arg(0))); vm.ret(0); break;
             case "vFlipScreen": if(DRAWLOG) dlog("--- FLIP (frame "+drawLogFrame+") ---"); scr.present(); r3d.clearDepthPerFrame(); vm.ret(0); break;
@@ -968,9 +968,9 @@ public final class Sdk {
                 bytes = new byte[length];
                 for(int i=0;i<length;i++) bytes[i]=(byte)vm.read8(data+i);
             }
-            // toca so se for MIDI (SMF "MThd")
-            if(bytes.length<4 || bytes[0]!='M'||bytes[1]!='T'||bytes[2]!='h'||bytes[3]!='d') return 1;
             stopSound();
+            if((flags & 0xF)==0) return vsound.playBeeps(bytes,(flags & 0x100)!=0) ? 1 : 0;
+            if((flags & 0xF)!=2 || bytes.length<4 || bytes[0]!='M'||bytes[1]!='T'||bytes[2]!='h'||bytes[3]!='d') return 0;
             byte[] midi = reverb ? bytes : MidiReverb.kill(bytes);
             if (midiBackend != null) midiBackend.play(midi, (flags & 0x100)!=0);
             else MidiBridge.play(midi, (flags & 0x100)!=0);

@@ -63,6 +63,7 @@ public class ProvidedMophunLifecycleTest {
                     key(scenario, KeyEvent.KEYCODE_BUTTON_A);
                     SystemClock.sleep(1500); healthy(session); capture(output, "step-" + step);
                 }
+                keys(scenario, output, InstrumentationRegistry.getArguments().getString("mophunStartKeys", ""), "start-key-");
                 key(scenario, KeyEvent.KEYCODE_DPAD_RIGHT);
                 SystemClock.sleep(500); capture(output, "input");
                 scenario.moveToState(Lifecycle.State.CREATED);

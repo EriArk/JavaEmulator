@@ -12,14 +12,18 @@ not a live feed. Verify GitHub Releases, recent commits and build notes before
 calling a version "latest" after this date. If local evidence is inaccessible,
 attribute its results to the dated maintainer record below; do not infer a pass.
 
-## Physical Profiles and General Mophun Audio (Local Source, 2026-11-16)
+## Physical Profiles, Mophun Audio and Timing (Local Source, 2026-11-16)
 
 Independent global/named physical-controller profiles now cover buttons and
 both sticks, per-game overrides, trials and portable backup definitions.
 The game-specific Mophun audio gate is removed; PCM gains host pause/resume,
 speed handling and bounded teardown. Debug/JVM and focused Android checks pass.
-The four reported games still require the owner's archive location to reproduce
-speed/audio symptoms. No new public APK or timing fix is claimed.
+Supplied Boulder Dash 1.1 and Lemtris 1.0 reach gameplay/tutorial with captured
+audio; BEEP synthesis and approximate phone VM pacing address their missing
+effects and excessive execution speed. Deep Abyss 1.1/1.4 lifecycle regressions
+pass. The older cracked T300 Boulder file remains at level selection in the
+automated sequence; V-Rally 2 and 1849 Gold Rush remain untested. No new public
+APK yet; dual-architecture release preparation follows.
 [Implementation, checks and outstanding work](checks/2026-11-16-physical-profiles-mophun.md).
 
 ## Dual Beta 9 Released (2026-11-15)
@@ -1750,7 +1754,7 @@ This historical feature summary includes retained 0.2/0.3 features and the 0.4/0
 | Area | Current development behavior | Evidence / boundary |
 | --- | --- | --- |
 | Image presets and scaling | Released opt-in Java/Mophun Pixel sharp, Smooth, FSR, xBRZ and CRT EasyMode; separate Integer picture size and enhanced/original Mophun capture | [Options](EXPERIMENTAL_ENHANCEMENTS.md), [signed 0.5 checks](releases/v0.5.0-beta.1-checks.md); Java GLES required, no Symbian GPU integration |
-| Experimental motion and CPU budget | Optional Java/Mophun frame interpolation; independent Mophun 100-300% instruction budget, original defaults retained | [Boundaries](EXPERIMENTAL_ENHANCEMENTS.md); not universal 60 FPS or calibrated CPU overclocking |
+| Experimental motion and CPU budget | Optional Java/Mophun frame interpolation; independent Mophun 100-300% instruction budget, original defaults retained | [Boundaries](EXPERIMENTAL_ENHANCEMENTS.md); not universal 60 FPS or cycle-exact CPU overclocking; November 16 adds approximate SDK-calibrated VM pacing |
 | Adaptive APK | Auto / Touch / Controller, Auto / Always / Off screen buttons, disconnect pause and menu-based Phone migration | [Implementation](checks/2026-10-18-unified-apk.md), [signed upgrade and migration](releases/v0.4.0-beta.1-checks.md); physical unplug/replug remains unverified |
 | Visual styles and touch editor | Classic / Retro LCD / High contrast, brightness independently; visual control-block editing with reversible per-game trials and separate orientation placements | [Implementation](checks/2026-10-18-visual-polish.md), [signed persistence and captures](releases/v0.4.0-beta.2-checks.md); legacy keypad editor unchanged |
 | Native custom artwork | Separate covers/icons by virtual phone and UID; overrides survive refresh and whole-phone backup/restore | [Artwork](checks/2026-10-18-symbian-artwork.md), [backup coverage](checks/2026-10-18-symbian-artwork-backup.md); new version-2 archives need Beta 2 or newer |

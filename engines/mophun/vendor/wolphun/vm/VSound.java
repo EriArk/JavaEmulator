@@ -33,6 +33,7 @@ public final class VSound {
 
     final Map<Integer,Snd> sounds = new HashMap<Integer,Snd>();
     final Map<Integer,Voice> voices = new HashMap<Integer,Voice>();
+    private BeepSequence beeps;
     int nextHandle = 1;
     float masterVol = 1f;
 
@@ -107,6 +108,19 @@ public final class VSound {
             if(track!=null)track.release(); track=null;
             android.util.Log.w("Mophun", "PCM initialization",t); return -1;
         }
+    }
+
+    public boolean playBeeps(byte[] data, boolean loop) {
+        BeepSequence sequence=new BeepSequence(data,loop);
+        if(init()!=0)return false;
+        synchronized(voices){beeps=sequence;}
+        return true;
+    }
+
+    public void beep(int frequency, int duration) {
+        if(frequency==0 || duration==0) { synchronized(voices){beeps=null;} return; }
+        if(init()!=0)return;
+        synchronized(voices){beeps=new BeepSequence(frequency,duration);}
     }
 
     public int getHandle(int dataPtr){
@@ -208,6 +222,13 @@ public final class VSound {
         for(int i=0;i<frames;i++){ mixL[i]=0; mixR[i]=0; }
         synchronized(voices){
             if (paused) return;
+            if (beeps!=null) {
+                for(int i=0;i<frames;i++) {
+                    int sample=(int)(beeps.next(speed/100.0)*masterVol);
+                    mixL[i]=sample; mixR[i]=sample;
+                }
+                if(beeps.finished())beeps=null;
+            }
             for(Voice v : voices.values()){
                 if(!v.playing || v.snd==null) continue;
                 Snd s = v.snd; short[] p = s.pcm;
@@ -235,7 +256,7 @@ public final class VSound {
      *  Usado ao pausar / trocar de MIDI — NAO derruba o VSound (senao ele nunca mais volta, pois o
      *  jogo so chama vSoundInit uma vez no inicio). */
     public void stopVoices(){
-        synchronized(voices){ for(Voice v : voices.values()) v.playing=false; }
+        synchronized(voices){ beeps=null; for(Voice v : voices.values()) v.playing=false; }
     }
 
     public int dispose(){
@@ -262,7 +283,7 @@ public final class VSound {
         }
         track=null; mixThread=null;
         sounds.clear();
-        synchronized(voices){ voices.clear(); }
+        synchronized(voices){ voices.clear(); beeps=null; }
         if(interrupted)Thread.currentThread().interrupt();
         return 0;
     }

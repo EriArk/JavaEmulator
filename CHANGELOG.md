@@ -10,15 +10,19 @@ stated otherwise. **Experimental** in older checkpoints means local/private
 combined builds; released experimental features are explicitly identified.
 **Released** means an actual GitHub release asset.
 
-## 2026-11-16 - Physical Profiles and Mophun Audio (Local Source)
+## 2026-11-16 - Physical Profiles, Mophun Audio and Timing (Local Source)
 
 - Add an independent global physical-controller profile catalog, reusable
   mappings, per-game inheritance/reset and backup/restore support.
 - Preserve legacy imported physical bindings as explicit game overrides.
 - Remove the Deep-Abyss-only audio gate for Mophun. Add PCM pause/resume,
   emulation-speed handling and mixer teardown.
-- Pass focused debug/Android checks; archive lookup and reproduction of Boulder
-  Dash, Lemtris, V-Rally 2 and 1849 Gold Rush remain pending. No new release yet.
+- Add BEEP resource/vBeep playback and approximate phone VM throughput pacing
+  for all Mophun games, calibrated against original SDK synthetic loops.
+- Check supplied T610 Boulder Dash/Lemtris gameplay, captured audio and lifecycle;
+  repeat Deep Abyss 1.1/1.4 checks. Pass 16 focused Android checks and 434 fresh
+  app JVM checks. Older T300 Boulder remains unaccepted; V-Rally 2 and 1849
+  Gold Rush remain untested. Dual beta preparation is pending; no new release yet.
   [Evidence and limits](docs/checks/2026-11-16-physical-profiles-mophun.md).
 
 ## 2026-11-15 - Dual Beta 9 Released

@@ -19,8 +19,10 @@ public final class MophunSession implements AutoCloseable {
     private final MophunClock clock = new MophunClock();
     private volatile int frameRateLimit = 60;
     private volatile int cpuBudget = 100;
+    private volatile MophunCpuPacer cpuPacer;
     public void setCpuBudget(int percent) {
         cpuBudget = Math.max(100, Math.min(300, percent));
+        if(cpuPacer!=null)cpuPacer.reset();
     }
     public int getCpuBudget() { return cpuBudget; }
     private final javax.microedition.lcdui.FramePacer framePacer =
@@ -58,6 +60,7 @@ public final class MophunSession implements AutoCloseable {
     public int getFrameRateLimit() { return frameRateLimit; }
     public synchronized void setEmulationSpeed(int percent) {
         clock.speed(percent);
+        if(cpuPacer!=null)cpuPacer.reset();
         if (midi != null) midi.speed(clock.speed());
         if (pcm != null) pcm.speed(clock.speed());
     }
@@ -71,6 +74,7 @@ public final class MophunSession implements AutoCloseable {
         if (pcm != null) pcm.pause(value);
         paused = value;
         framePacer.reset();
+        if(cpuPacer!=null)cpuPacer.reset();
     }
 
     private static final class SessionStopped extends RuntimeException { }
@@ -133,11 +137,13 @@ public final class MophunSession implements AutoCloseable {
             Screen target = new Screen(width, height, 1, 1);
             target.hostCheckpoint = this::checkpoint;
             target.targetFps = 60;
+            Pip2 vm = new Pip2(exe, 4 * 1024 * 1024, 256 * 1024);
+            cpuPacer=new MophunCpuPacer(clock,Thread::sleep,this::checkpoint,model==2 ? 512 : 115);
             target.hostFramePacer = () -> {
+                paceCpu(vm);
                 framePacer.awaitFrame();
                 checkpoint();
             };
-            Pip2 vm = new Pip2(exe, 4 * 1024 * 1024, 256 * 1024);
             sdk = new Sdk(vm, target, clock);
             sdk.soundEnabled = true;
             synchronized (this) {
@@ -163,15 +169,11 @@ public final class MophunSession implements AutoCloseable {
             vm.runConstructors();
             while (!stopped && !vm.stopped) {
                 checkpoint();
-                int flips = target.flips;
-                // More guest instructions per scheduling slice; clock and frame pacing stay independent.
-                vm.run(500 * cpuBudget);
-                if (target.flips == flips) Thread.sleep(1);
+                vm.run(1024);
+                paceCpu(vm);
             }
         } catch (SessionStopped ignored) {
             // A host stop can unwind a blocking SDK dialog as well as the VM loop.
-        } catch (InterruptedException ignored) {
-            Thread.currentThread().interrupt();
         } catch (Throwable failure) {
             error = failure;
         } finally {
@@ -186,6 +188,11 @@ public final class MophunSession implements AutoCloseable {
             parked = true;
             finished = true;
         }
+    }
+
+    private void paceCpu(Pip2 vm) {
+        try {cpuPacer.await(vm.workUnits,cpuBudget);}
+        catch(InterruptedException stopped) {Thread.currentThread().interrupt();throw new SessionStopped();}
     }
 
     public synchronized void stop() {

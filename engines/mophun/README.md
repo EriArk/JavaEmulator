@@ -23,14 +23,18 @@ dialogs, pause/input ownership, safe file creation, monotonic ticks and
 session-owned MIDI. `java/` is the AbyssME integration: bounded import/loading,
 per-game storage and settings, controller/touch input, reversible display
 settings, screenshots and lifecycle. These changes are distributed under GPLv3.
-Original upstream comments and notices remain intact.
+Original upstream comments and notices remain intact. `BeepSequence` and
+`MophunCpuPacer` are original GPL-3.0-only implementations based on documented
+BEEP format semantics and measurements of our own synthetic SDK probes, not
+copied proprietary SDK implementation.
 
 ## Scope
 
 Experimental direct `.mpn` import and shared library/controls are included.
 Deep Abyss 1.1/1.4 have recorded compatibility work; general Mophun compatibility
 and audio coverage remain incomplete. The local November 16 changes enable MIDI
-and PCM for every game, removing the old Deep Abyss audio gate; playback still
+and PCM for every game, removing the old Deep Abyss audio gate, adding original
+BEEP synthesis and approximate SDK-calibrated phone VM pacing; playback still
 depends on implemented resource formats. See the
 [local verification checkpoint](../../docs/checks/2026-11-16-physical-profiles-mophun.md).
 No Symbian/N-Gage runtime is included. See `docs/PROJECT_STATUS.md` for evidence.

@@ -22,6 +22,7 @@ public final class Pip2 {
     public Sdk sdk;
     public boolean stopped = false;
     public long instr = 0;
+    public long workUnits = 0;
     public long stubCalls = 0;
 
     // pool resolvido
@@ -175,6 +176,8 @@ public final class Pip2 {
         int word = read32(pc0); R[PC>>2]=pc0+4;
         int op=word&0xff, d=(word>>>8)&0xff, s=(word>>>16)&0xff, t=(word>>>24)&0xff;
         instr++;
+        // Relative short/extended instruction cost, calibrated against SDK phone profiles.
+        workUnits += op>=0x4A && op<=0x66 ? 5 : 4;
         if(instr<=traceSteps) System.out.printf("  [%d] PC=0x%x op=0x%02x d=%d s=%d t=%d  sp=0x%x%n",instr,pc0,op,d,s,t,R[SP>>2]);
         switch(op){
             case 0x00: /*BREAKPOINT*/ break;

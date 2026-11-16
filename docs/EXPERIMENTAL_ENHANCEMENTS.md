@@ -79,14 +79,16 @@ alongside the optional image effects.
 
 | Setting | Current implementation | Not a promise of |
 | --- | --- | --- |
-| CPU budget, 100/150/200/300% | Mophun: 50,000/75,000/100,000/150,000 VM instructions per scheduling slice | A calibrated phone CPU frequency or a proportional performance increase |
+| CPU budget, 100/150/200/300% | Mophun: multiplier of the approximate phone VM execution budget | Cycle-exact phone CPU frequency or a proportional game FPS increase |
 | FSR 1.0 + sharpness | Java Canvas/GameCanvas OpenGL ES without a custom shader, and optional Mophun GLES presentation | More guest FPS, reconstructed detail, or better pixel art in every game |
 | Frame interpolation | Shared Java/Mophun GLES pipeline: bounded image-based motion estimation and intermediate presentation frames | Faster game logic/input, universal 60 FPS, FSR 3 or AI frame generation |
 
 Java games run as converted DEX through Android ART. There is no emulated Java
-phone CPU clock to increase. Mophun's budget reduces instruction-slice yielding;
-its SDK clock, sleeps, audio clock and frame limit remain separate. Games that
-time themselves by busy loops can nevertheless change speed. Increasing this
+phone CPU clock to increase. Mophun's budget scales approximate VM throughput,
+calibrated to synthetic loops in the original SDK phone profiles. The SDK clock,
+audio clock and presentation cap remain separate; emulation speed scales time
+and audio together. CPU-dependent games can change speed.
+[Timing evidence and limits](checks/2026-11-16-physical-profiles-mophun.md). Increasing this
 budget can increase CPU use, battery use and heat. The default remains 100%.
 No Symbian CPU setting or Symbian GPU enhancement path is added here.
 
