@@ -2,9 +2,9 @@
 
 ## Availability
 
-Local source and a private debug build, not a new public beta. The signed ARM64
-Beta 9 application remains installed separately. Boulder Dash and Lemtris were subsequently supplied and checked; final
-dual-architecture release checks are pending.
+Published in both code-324 [Beta 10 APKs](../releases/v0.7.0-beta.10.md) on
+November 16. The implementation/debug results below precede the
+[final signed-build and publication checks](../releases/v0.7.0-beta.10-checks.md).
 
 ## Physical controller profiles
 

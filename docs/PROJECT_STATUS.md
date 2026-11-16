@@ -12,19 +12,30 @@ not a live feed. Verify GitHub Releases, recent commits and build notes before
 calling a version "latest" after this date. If local evidence is inaccessible,
 attribute its results to the dated maintainer record below; do not infer a pass.
 
-## Physical Profiles, Mophun Audio and Timing (Local Source, 2026-11-16)
+## Dual Beta 10 Released (2026-11-16)
 
-Independent global/named physical-controller profiles now cover buttons and
-both sticks, per-game overrides, trials and portable backup definitions.
-The game-specific Mophun audio gate is removed; PCM gains host pause/resume,
-speed handling and bounded teardown. Debug/JVM and focused Android checks pass.
-Supplied Boulder Dash 1.1 and Lemtris 1.0 reach gameplay/tutorial with captured
-audio; BEEP synthesis and approximate phone VM pacing address their missing
-effects and excessive execution speed. Deep Abyss 1.1/1.4 lifecycle regressions
-pass. The older cracked T300 Boulder file remains at level selection in the
-automated sequence; V-Rally 2 and 1849 Gold Rush remain untested. No new public
-APK yet; dual-architecture release preparation follows.
-[Implementation, checks and outstanding work](checks/2026-11-16-physical-profiles-mophun.md).
+**Both signed code-324 APKs are published and download-verified.** Physical
+controller mappings have their own global/named catalog, game assignments,
+overrides and backups, independently of graphics and touch profiles.
+Mophun sound is enabled for every game; BEEP synthesis and approximate
+phone-model execution pacing address missing effects and excessive CPU speed.
+
+Each target passes 439 fresh JVM checks and production guards. ARMv7 passes
+27 focused Android checks, including three UI retries after dismissing Android's
+ABI warning; ARM64 profile/importer and timing/audio checks are recorded in the
+implementation report. Final signed builds launch supplied T610 Boulder Dash;
+ARMv7 also demonstrates movement. Debug checks reach Lemtris tutorial with
+captured audio and repeat Deep Abyss 1.1/1.4 lifecycle checks. Upgrade/switch
+boundaries preserve all readable library files. Retroid returns to ARM64. The
+website now shows Beta 10; ten localized pages, the guide and both complete APK
+downloads pass. Temporary debug packages are removed.
+
+The older cracked T300 Boulder sample remains unconfirmed beyond level
+selection; V-Rally 2 and 1849 Gold Rush were unavailable. Timing is approximate,
+not cycle-exact, and physical dual-stick testing remains pending. Fixes apply
+globally without a game allowlist.
+[Release verification](releases/v0.7.0-beta.10-checks.md) ·
+[Implementation and game evidence](checks/2026-11-16-physical-profiles-mophun.md).
 
 ## Dual Beta 9 Released (2026-11-15)
 
