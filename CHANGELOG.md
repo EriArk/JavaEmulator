@@ -10,6 +10,17 @@ stated otherwise. **Experimental** in older checkpoints means local/private
 combined builds; released experimental features are explicitly identified.
 **Released** means an actual GitHub release asset.
 
+## 2026-11-16 - Supplied Gold Rush / V-Rally 2 Follow-up
+
+- Verify both newly supplied games reach gameplay on signed ARM64 Beta 10;
+  pass isolated debug lifecycle checks with generated input.
+- Confirm V-Rally 2 MIDI effects in an extended race and in a signed-APK audio
+  capture. This Gold Rush build has no sound API imports; no emulator audio
+  failure was demonstrated for its silence.
+- No new runtime change or beta. Full playthroughs, ARMv7 repetition and V-Rally
+  add-on packs remain outside this check.
+  [Evidence and limits](docs/checks/2026-11-16-goldrush-vrally.md).
+
 ## 2026-11-16 - Dual Beta 10 Released
 
 - Add independent global/named physical-controller profiles, game assignments,
@@ -23,7 +34,8 @@ combined builds; released experimental features are explicitly identified.
   complete APK downloads. Return Retroid to ARM64 and remove temporary packages.
 - Confirm bounded T610 Boulder Dash/Lemtris gameplay/tutorial and captured audio;
   repeat Deep Abyss 1.1/1.4 lifecycle checks. Older T300 Boulder remains
-  unaccepted; V-Rally 2 and 1849 Gold Rush remain untested.
+  unaccepted; V-Rally 2 and 1849 Gold Rush were untested at publication
+  (see the subsequent supplied-file follow-up above).
   [Release verification](docs/releases/v0.7.0-beta.10-checks.md) ·
   [Implementation and limits](docs/checks/2026-11-16-physical-profiles-mophun.md).
 

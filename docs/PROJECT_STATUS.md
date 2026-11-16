@@ -31,7 +31,11 @@ website now shows Beta 10; ten localized pages, the guide and both complete APK
 downloads pass. Temporary debug packages are removed.
 
 The older cracked T300 Boulder sample remains unconfirmed beyond level
-selection; V-Rally 2 and 1849 Gold Rush were unavailable. Timing is approximate,
+selection. A subsequent supplied-file check reaches Gold Rush level 1 and a
+running V-Rally 2 race on signed ARM64 Beta 10. V-Rally audio is captured after
+the countdown; this Gold Rush build imports no sound API. No additional APK
+was needed. [Follow-up evidence and limits](checks/2026-11-16-goldrush-vrally.md).
+Timing is approximate,
 not cycle-exact, and physical dual-stick testing remains pending. Fixes apply
 globally without a game allowlist.
 [Release verification](releases/v0.7.0-beta.10-checks.md) ·

@@ -113,3 +113,10 @@ Private evidence: `build/checks/2026-11-16-physical-profiles/` and
 `build/checks/2026-11-16-mophun/` and
 `build/checks/2026-11-16-mophun-reports/` (supplied games, SDK reference timings,
 recordings and focused results). Commercial files are not published.
+
+## Subsequent supplied-file check (2026-11-16)
+
+Gold Rush and V-Rally 2 arrived after the checks above. Signed ARM64 Beta 10
+reaches gameplay in both; V-Rally race audio is captured, while this Gold Rush
+build has no sound API imports. No additional APK was produced.
+[Follow-up evidence and limits](../checks/2026-11-16-goldrush-vrally.md).
