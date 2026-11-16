@@ -1,0 +1,7 @@
+# Local experiments must never enter the public source tree.
+/melange-upstream/
+/build/
+/external-sdk/
+/local-data/
+/test-games/
+/private-patches/
