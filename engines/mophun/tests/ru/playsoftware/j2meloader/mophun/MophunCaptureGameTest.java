@@ -103,9 +103,9 @@ public class MophunCaptureGameTest {
                     scenario.onActivity(activity -> {
                         MophunGpuView view=(MophunGpuView)get(activity,"gpuView");
                         MophunGpuView.State state=(MophunGpuView.State)get(view,"presented");
-                        if(state!=null && state.rotation==90 && state.screen.flips>=20) {
+                        if(state!=null && state.rotation==90 && state.screen.presentationSerial()>=20) {
                             dimensions[0]=state.width; dimensions[1]=state.height;
-                            dimensions[2]=state.screen.pw; dimensions[3]=state.screen.ph;
+                            dimensions[2]=state.screen.frameWidth(); dimensions[3]=state.screen.frameHeight();
                         }
                     });
                     if(dimensions[0]>0) break; Thread.sleep(50);

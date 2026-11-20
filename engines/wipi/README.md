@@ -1,10 +1,10 @@
 # WIPI / SKVM Android integration
 
-AbyssME can open a carrier ZIP in a dedicated Android process in the optional ARM64 debug build. The app provides the document picker, calibrated game area, keyboard events and per-package data directory. The existing mobile adapter provides the guest runtime and framebuffer. Open **Settings → Open WIPI test package** and select a ZIP. D-pad and number keys are supported. Back exits the session.
+AbyssME can open a carrier ZIP in a dedicated Android process in the optional ARM64 debug build. The app provides the document picker, calibrated game area, keyboard events and per-package data directory. The existing mobile adapter provides the guest runtime and framebuffer. Open **Settings → Open WIPI test package** and select a ZIP. Back opens the shared game menu. Display and Controls expose the same graphics presets, physical mappings, touch layouts and settings preview used by other platforms. The host supplies the GeneralUser GS bank for MIDI playback.
 
 ## Build the local probe
 
-Use the pinned [mobile adapter](https://github.com/ParkJeongseop/WIPI-Emulator/tree/d632a4341229f818ececeb93267dbb5554af7e65). Its Cargo lockfile pins the [wie fork](https://github.com/ParkJeongseop/wie/tree/408fdd0ff58964172e7bca499078ca42d876111b). Both repositories declare MIT licenses. AbyssME adds the Java host and JNI declarations here. Native sources, compiled libraries and upstream game data stay outside the repository.
+Use the pinned [mobile adapter](https://github.com/ParkJeongseop/WIPI-Emulator/tree/d632a4341229f818ececeb93267dbb5554af7e65). Its Cargo lockfile pins the [wie fork](https://github.com/ParkJeongseop/wie/tree/408fdd0ff58964172e7bca499078ca42d876111b). Both repositories declare MIT licenses. AbyssME adds the Java host and JNI declarations here. The build applies the Android clock and audio patches to a temporary copy of the pinned source. Compiled libraries and game data stay outside the repository.
 
 On a Linux build host with Git, Rust, JDK and the Android build environment, set ANDROID_NDK_HOME to the installed NDK. The device check used NDK 28.2.13676358. From the AbyssME root run:
 
@@ -40,4 +40,4 @@ for fixture in demo_wipi.zip slider.zip; do
 done
 ```
 
-The test watches the Android display for the orange object and requires its screen position to change after a right key event, then exits and repeats. It starts the activity with the fixture URI. The ZIP entry point recognizes KTF, LGT and SKT carrier descriptors paired with a guest JAR. LGT gameplay, commercial title compatibility, audio, persistent saves and global input profiles still need device coverage. The probe does not pass a MIDI soundfont. Public distribution also needs a dependency and embedded asset license review, including the font used by the core.
+The test watches the Android display for the orange object and requires its screen position to change after a right key event, then exits and repeats. It starts the activity with the fixture URI. The ZIP entry point recognizes KTF, LGT and SKT carrier descriptors paired with a guest JAR. Legacy Korean ZIP directory names are covered by an import regression. [Commercial game results and remaining coverage](../../docs/checks/2026-11-20-wipi-games.md). Public distribution also needs a dependency and embedded asset license review, including the font used by the core.

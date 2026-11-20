@@ -1,0 +1,110 @@
+--- a/wipi_core/src/platform/audio.rs
++++ b/wipi_core/src/platform/audio.rs
+@@ -10,6 +10,7 @@
+     path::Path,
+     sync::{
+         Arc, Mutex,
++        atomic::{AtomicBool, Ordering},
+         mpsc::{Receiver, RecvTimeoutError, Sender, channel},
+     },
+     time::{Duration, Instant},
+@@ -71,39 +72,46 @@
+     }
+
+     fn audio_thread(rx: Receiver<AppAudioCommand>, synth: Option<Arc<Mutex<Synthesizer>>>) {
+-        let output = match DeviceSinkBuilder::open_default_sink() {
+-            Ok(x) => x,
+-            Err(e) => {
+-                tracing::warn!("Failed to open audio output: {e} - audio disabled");
+-                while rx.recv().is_ok() {}
+-                return;
+-            }
++        // AAudio streams can disconnect when Android switches the active route.
++        // Reopen on the scheduler thread; the realtime callback only sets a flag.
++        let disconnected = Arc::new(AtomicBool::new(false));
++        let mut levels = (1.0, 1.0);
++        let open = |levels: (f32, f32)| {
++            let lost = disconnected.clone();
++            let output = DeviceSinkBuilder::from_default_device()?
++                .with_error_callback(move |_| lost.store(true, Ordering::Release))
++                .open_sink_or_fallback()?;
++            let pcm = Player::connect_new(output.mixer());
++            pcm.set_volume(levels.0);
++            let midi = synth.clone().map(|synth| {
++                let player = Player::connect_new(output.mixer());
++                player.set_volume(levels.1);
++                player.append(SynthSource::new(synth));
++                player
++            });
++            Ok::<_, rodio::DeviceSinkError>((output, pcm, midi))
+         };
+-        tracing::info!("audio output opened");
+-
+-        let pcm_player = Player::connect_new(output.mixer());
+-
+-        // 신스는 무한 소스로 믹서에 상시 연결
+-        let midi_player = synth.clone().map(|synth| {
+-            let player = Player::connect_new(output.mixer());
+-            player.append(SynthSource::new(synth));
+-            player
+-        });
+-
++        let mut output = open(levels).ok();
++        let mut retry = Instant::now() + Duration::from_millis(300);
+         let mut playbacks: BTreeMap<AudioHandle, Playback> = BTreeMap::new();
+
+         loop {
+-            let command = if let Some(deadline) = playbacks.values().map(Playback::next_deadline).min() {
+-                match rx.recv_timeout(deadline.saturating_duration_since(Instant::now())) {
+-                    Ok(command) => Some(command),
+-                    Err(RecvTimeoutError::Timeout) => None,
+-                    Err(RecvTimeoutError::Disconnected) => break,
+-                }
+-            } else {
+-                match rx.recv() {
+-                    Ok(command) => Some(command),
+-                    Err(_) => break,
+-                }
++            let now = Instant::now();
++            if disconnected.swap(false, Ordering::AcqRel) {
++                output = None;
++                retry = now + Duration::from_millis(150);
++            }
++            if output.is_none() && now >= retry {
++                output = open(levels).ok();
++                retry = now + Duration::from_millis(500);
++            }
++            let check = Duration::from_millis(300);
++            let wait = playbacks.values().map(Playback::next_deadline).min()
++                .map_or(check, |deadline| deadline.saturating_duration_since(now).min(check));
++            let command = match rx.recv_timeout(wait) {
++                Ok(command) => Some(command),
++                Err(RecvTimeoutError::Timeout) => None,
++                Err(RecvTimeoutError::Disconnected) => break,
+             };
+
+             if let Some(command) = command {
+@@ -120,9 +128,10 @@
+                         }
+                     }
+                     AppAudioCommand::SetVolume { pcm, midi } => {
+-                        pcm_player.set_volume(pcm.clamp(0.0, 1.0));
+-                        if let Some(midi_player) = &midi_player {
+-                            midi_player.set_volume(midi.clamp(0.0, 1.0));
++                        levels = (pcm.clamp(0.0, 1.0), midi.clamp(0.0, 1.0));
++                        if let Some((_, pcm, midi)) = &output {
++                            pcm.set_volume(levels.0);
++                            if let Some(midi) = midi { midi.set_volume(levels.1); }
+                         }
+                     }
+                 }
+@@ -139,6 +148,8 @@
+                         break;
+                     }
+
+-                    play_event(&synth, &pcm_player, event, &mut playback.active_notes, &mut playback.used_channels);
++                    if let Some((_, pcm, _)) = &output {
++                        play_event(&synth, pcm, event, &mut playback.active_notes, &mut playback.used_channels);
++                    }
+                     playback.next_event += 1;
+                 }

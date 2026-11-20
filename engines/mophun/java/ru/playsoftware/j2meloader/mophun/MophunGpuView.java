@@ -19,12 +19,12 @@ import javax.microedition.lcdui.graphics.EnhancementPipeline;
 import javax.microedition.lcdui.graphics.PresentationFence;
 import ru.playsoftware.j2meloader.config.ProfileModel;
 import ru.playsoftware.j2meloader.runtime.InterpolationLoadGuard;
-import wolphun.Screen;
+import ru.playsoftware.j2meloader.ui.NativeFrame;
 import static android.opengl.GLES20.*;
 
 /** Optional presentation only. One latest state, GL-owned pixels, no queued guest frames. */
 @android.annotation.SuppressLint("ViewConstructor") // Programmatic only: requires owner callbacks.
-final class MophunGpuView extends GLSurfaceView implements GLSurfaceView.Renderer {
+public final class MophunGpuView extends GLSurfaceView implements GLSurfaceView.Renderer {
     private final Runnable changed;
     private final Runnable failure;
     private final InterpolationLoadGuard load = new InterpolationLoadGuard();
@@ -36,7 +36,7 @@ final class MophunGpuView extends GLSurfaceView implements GLSurfaceView.Rendere
     private volatile int presentationEpoch;
     private EnhancementPipeline pipeline;
     private PresentationFence fence;
-    private Screen source;
+    private NativeFrame source;
     private Bitmap bitmap;
     private int[] pixels;
     private int surfaceWidth, surfaceHeight;
@@ -47,7 +47,7 @@ final class MophunGpuView extends GLSurfaceView implements GLSurfaceView.Rendere
     private final AtomicBoolean capturing = new AtomicBoolean();
     private volatile Capture captureRequest;
 
-    MophunGpuView(Context context, Runnable changed, Runnable failure) {
+    public MophunGpuView(Context context, Runnable changed, Runnable failure) {
         super(context);
         this.changed = changed; this.failure = failure;
         setEGLContextClientVersion(2);
@@ -57,7 +57,7 @@ final class MophunGpuView extends GLSurfaceView implements GLSurfaceView.Rendere
         setFocusable(false); setClickable(false);
     }
 
-    static boolean enabled(ProfileModel profile) {
+    public static boolean enabled(ProfileModel profile) {
         return profile.fsrUpscaling || profile.frameInterpolation || profile.getRetroShader() != 0;
     }
 
@@ -135,7 +135,7 @@ final class MophunGpuView extends GLSurfaceView implements GLSurfaceView.Rendere
         }
     }
 
-    void active(boolean value) {
+    public void active(boolean value) {
         if (active == value) return;
         presentationEpoch++;
         active = value; presented = null;
@@ -151,7 +151,7 @@ final class MophunGpuView extends GLSurfaceView implements GLSurfaceView.Rendere
     }
 
     // Called on the UI vsync, including while a menu is open. Repeated source frames do not upload.
-    boolean update(Screen screen, RectF area, int width, int height, int rotation,
+    public boolean update(NativeFrame screen, RectF area, int width, int height, int rotation,
                    ProfileModel profile, boolean paused) {
         if (!active || failed) return false;
         State next = new State(screen, area, width, height, rotation, profile.fsrUpscaling,
@@ -218,17 +218,17 @@ final class MophunGpuView extends GLSurfaceView implements GLSurfaceView.Rendere
         pipeline.setRetroShader(current.retro);
         if (source != current.screen) {
             source = current.screen; stamp[0] = 0; renderedSerial = 0;
-            if (source.pw <= 0 || source.ph <= 0 || (long)source.pw*source.ph > 1_048_576L)
+            if (source.frameWidth() <= 0 || source.frameHeight() <= 0 || (long)source.frameWidth()*source.frameHeight() > 1_048_576L)
                 throw new IllegalArgumentException("Enhancement texture budget exceeded");
             if (bitmap != null) bitmap.recycle();
-            bitmap = Bitmap.createBitmap(source.pw, source.ph, Bitmap.Config.ARGB_8888);
-            pixels = new int[source.pw * source.ph]; pipeline.resetHistory();
+            bitmap = Bitmap.createBitmap(source.frameWidth(), source.frameHeight(), Bitmap.Config.ARGB_8888);
+            pixels = new int[source.frameWidth() * source.frameHeight()]; pipeline.resetHistory();
         }
         // The guest lock is held only for the snapshot, never during GPU upload or processing.
         if (source.copyPresented(pixels, stamp, stamp[0]))
-            bitmap.setPixels(pixels, 0, source.pw, 0, 0, source.pw, source.ph);
+            bitmap.setPixels(pixels, 0, source.frameWidth(), 0, 0, source.frameWidth(), source.frameHeight());
         if (stamp[0] == 0) return;
-        pipeline.upload(bitmap, stamp[0], source.pw, source.ph, current.motion, stamp[1]);
+        pipeline.upload(bitmap, stamp[0], source.frameWidth(), source.frameHeight(), current.motion, stamp[1]);
         if (!allow) pipeline.skipInterpolation();
         int texture = pipeline.renderForPresentation(current.width, current.height,
                 current.fsr, current.sharpness);
@@ -269,16 +269,16 @@ final class MophunGpuView extends GLSurfaceView implements GLSurfaceView.Rendere
     }
 
     static final class State {
-        final Screen screen;
+        final NativeFrame screen;
         final RectF area;
         final int width, height, rotation, sharpness, retro;
         final boolean fsr, motion, filter, integer;
         final long budget;
-        State(Screen screen, RectF area, int width, int height, int rotation,
+        State(NativeFrame screen, RectF area, int width, int height, int rotation,
               boolean fsr, boolean motion, int sharpness, boolean filter, long budget, boolean integer) {
             this(screen, area, width, height, rotation, fsr, motion, sharpness, filter, budget, integer, 0);
         }
-        State(Screen screen, RectF area, int width, int height, int rotation,
+        State(NativeFrame screen, RectF area, int width, int height, int rotation,
               boolean fsr, boolean motion, int sharpness, boolean filter, long budget, boolean integer, int retro) {
             this.screen=screen; this.area=new RectF(area); this.width=width; this.height=height;
             this.retro=retro==1 || retro==2 ? retro : 0;

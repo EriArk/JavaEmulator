@@ -13,6 +13,7 @@ public final class GameSettingsPages {
         void advanced();
         void back();
         default void legacyControls() { advanced(); }
+        default boolean mophunTuning() { return true; }
     }
     private final GameMenuDialog menu;
     private final ProfileModel draft;
@@ -182,7 +183,7 @@ public final class GameSettingsPages {
             menu.toggle(menu.text(R.string.game_interpolation), draft.frameInterpolation, v -> draft.frameInterpolation = v);
         }
         if (draft.getRetroShader() == 0) menu.action(menu.text(R.string.game_fine_tuning), R.drawable.ic_baseline_tune_24, this::enhancementTuning);
-        if (!javaGame) {
+        if (!javaGame && host.mophunTuning()) {
             menu.choice(menu.text(R.string.game_capture_image), menu.labels(R.array.game_capture_modes),
                     draft.mophunCaptureEnhanced ? 0 : 1, i -> draft.mophunCaptureEnhanced = i == 0);
             int[] budgets = {100, 150, 200, 300};

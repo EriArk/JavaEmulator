@@ -15,7 +15,9 @@ import android.graphics.Paint;
  * e o "present" empurra o frame para um FrameSink (a SurfaceView do emulador).
  * O input vem do teclado virtual (touch) via setButtonBit().
  */
-public final class Screen {
+public final class Screen implements ru.playsoftware.j2meloader.ui.NativeFrame {
+    public int frameWidth() { return pw; }
+    public int frameHeight() { return ph; }
     public final int w, h, scale;
     // Supersampling interno (HD): jogo desenha em coords LOGICAS (w x h); framebuffer FISICO
     // (pw x ph = w*rs x h*rs). 3D rasteriza em fisico (nitido); 2D escala em bloco rs x rs. rs=1 = identico.

@@ -13,6 +13,11 @@ export CC_aarch64_linux_android="$CARGO_TARGET_AARCH64_LINUX_ANDROID_LINKER"
 export CXX_aarch64_linux_android="$ndk_bin/aarch64-linux-android29-clang++"
 export AR_aarch64_linux_android="$ndk_bin/llvm-ar"
 export CARGO_TARGET_DIR=${CARGO_TARGET_DIR:-"$source_dir/rust/target"}
-cargo build --locked --manifest-path "$source_dir/rust/Cargo.toml" --target aarch64-linux-android -p wipi_android --lib
+adapter=$(mktemp -d)
+trap 'rm -rf "$adapter"' EXIT
+git -C "$source_dir" archive "$revision" rust | tar -x -C "$adapter"
+patch -s -d "$adapter/rust" -p1 < "$(dirname "$0")/android-clock.patch"
+patch -s -d "$adapter/rust" -p1 < "$(dirname "$0")/android-audio.patch"
+cargo build --release --locked --manifest-path "$adapter/rust/Cargo.toml" --target aarch64-linux-android -p wipi_android --lib
 mkdir -p "$out/arm64-v8a"
-"$ndk_bin/llvm-strip" --strip-unneeded -o "$out/arm64-v8a/libwipi_android.so" "$CARGO_TARGET_DIR/aarch64-linux-android/debug/libwipi_android.so"
+"$ndk_bin/llvm-strip" --strip-unneeded -o "$out/arm64-v8a/libwipi_android.so" "$CARGO_TARGET_DIR/aarch64-linux-android/release/libwipi_android.so"

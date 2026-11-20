@@ -21,5 +21,7 @@ public final class WipiNative {
     public static native void nativeKeyDown(String key);
     public static native void nativeKeyUp(String key);
     public static native void nativeSetPaused(boolean paused);
+    public static native void nativeSetSpeed(int percent);
+    public static native void nativeSetVolume(float pcm, float midi);
     public static native void nativeStop();
 }

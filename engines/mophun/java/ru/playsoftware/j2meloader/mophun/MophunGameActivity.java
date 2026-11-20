@@ -40,6 +40,7 @@ import ru.playsoftware.j2meloader.config.ProfilesManager;
 import ru.playsoftware.j2meloader.input.ControllerInput;
 import ru.playsoftware.j2meloader.input.ControllerMapperView;
 import ru.playsoftware.j2meloader.input.GameMenuDialog;
+import ru.playsoftware.j2meloader.input.NativeTouchControls;
 import ru.playsoftware.j2meloader.input.TouchDeck;
 import ru.playsoftware.j2meloader.BuildConfig;
 import ru.playsoftware.j2meloader.R;
@@ -65,7 +66,7 @@ public final class MophunGameActivity extends Activity {
     private FrameView frameView;
     private MophunGpuView gpuView;
     private boolean gamePaused = true;
-    private MophunTouchControls touch;
+    private NativeTouchControls touch;
     private ImageButton screenshotButton;
     private ru.playsoftware.j2meloader.input.GameChrome gameChrome;
     private ru.playsoftware.j2meloader.input.FastForwardControl fastForward;
@@ -112,7 +113,7 @@ public final class MophunGameActivity extends Activity {
             frameView = new FrameView();
             root.addView(frameView);
             if (!BuildConfig.HANDHELD_MODE) {
-                touch = new MophunTouchControls(profile, getResources().getDisplayMetrics().density,
+                touch = new NativeTouchControls(profile, getResources().getDisplayMetrics().density,
                         ViewConfiguration.get(this).getScaledTouchSlop(), sink.newSource(),
                         () -> frameView.invalidate(), () -> frameView.performClick(),
                         () -> ru.playsoftware.j2meloader.input.TouchFeedback.perform(frameView, profile.vkFeedback));

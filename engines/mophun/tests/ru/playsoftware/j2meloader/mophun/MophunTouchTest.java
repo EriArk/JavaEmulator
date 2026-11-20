@@ -7,6 +7,7 @@ import java.io.File;
 import org.junit.Test;
 import ru.playsoftware.j2meloader.config.ProfileModel;
 import ru.playsoftware.j2meloader.input.ControllerInput;
+import ru.playsoftware.j2meloader.input.NativeTouchControls;
 import ru.playsoftware.j2meloader.input.TouchDeck;
 import wolphun.Screen;
 import static org.junit.Assert.*;
@@ -18,7 +19,7 @@ public class MophunTouchTest {
             ProfileModel profile = profile(TouchDeck.GAMEPAD);
             profile.touchGamepadMappings = ru.playsoftware.j2meloader.input.TouchMappings.template(true);
             profile.touchGamepadMappings.put("down_left",55);
-            MophunTouchControls controls = new MophunTouchControls(profile,1,8,
+            NativeTouchControls controls = new NativeTouchControls(profile,1,8,
                     new MophunInput(() -> screen).newSource(), () -> {}, () -> fail("Guest key opened menu"), () -> {});
             for (int[] size : new int[][]{{360,640},{640,360}}) {
                 controls.layout(size[0],size[1]);
@@ -36,11 +37,11 @@ public class MophunTouchTest {
         result.touchLayout = layout;
         return result;
     }
-    private TouchDeck.Key key(MophunTouchControls controls, String label) {
+    private TouchDeck.Key key(NativeTouchControls controls, String label) {
         for (TouchDeck.Key key : controls.deck.getKeys()) if (key.label.equals(label)) return key;
         throw new AssertionError(label);
     }
-    private void event(MophunTouchControls controls, int action, int[] ids, float... xy) {
+    private void event(NativeTouchControls controls, int action, int[] ids, float... xy) {
         MotionEvent.PointerProperties[] props = new MotionEvent.PointerProperties[ids.length];
         MotionEvent.PointerCoords[] coords = new MotionEvent.PointerCoords[ids.length];
         for (int i = 0; i < ids.length; i++) {
@@ -53,7 +54,7 @@ public class MophunTouchTest {
                 android.view.InputDevice.SOURCE_TOUCHSCREEN, 0);
         try { controls.touch(e); } finally { e.recycle(); }
     }
-    private void at(MophunTouchControls controls, int action, String label) {
+    private void at(NativeTouchControls controls, int action, String label) {
         RectF r = key(controls, label).bounds;
         event(controls, action, new int[]{0}, r.centerX(), r.centerY());
     }
@@ -94,7 +95,7 @@ public class MophunTouchTest {
             int[] menu = {0};
             int[] feedback = {0};
             ProfileModel profile = profile(TouchDeck.GAMEPAD); profile.vkFeedback = true;
-            MophunTouchControls controls = new MophunTouchControls(profile, 1, 8,
+            NativeTouchControls controls = new NativeTouchControls(profile, 1, 8,
                     new MophunInput(() -> screen).newSource(), () -> {}, () -> menu[0]++, () -> feedback[0]++);
             controls.layout(360, 640);
             RectF left = key(controls, "\u2190").bounds, fire = key(controls, "5").bounds;
@@ -121,7 +122,7 @@ public class MophunTouchTest {
         InstrumentationRegistry.getInstrumentation().runOnMainSync(() -> {
             Screen screen = new Screen(101,80,1);
             ProfileModel profile = profile(TouchDeck.GAMEPAD);
-            MophunTouchControls controls = new MophunTouchControls(profile, 1, 8,
+            NativeTouchControls controls = new NativeTouchControls(profile, 1, 8,
                     new MophunInput(() -> screen).newSource(), () -> {}, () -> fail("Unexpected menu"), () -> {});
             controls.layout(360,640);
             at(controls, MotionEvent.ACTION_DOWN, "5");
@@ -153,7 +154,7 @@ public class MophunTouchTest {
         InstrumentationRegistry.getInstrumentation().runOnMainSync(() -> {
             int[] taps = {0};
             Screen screen = new Screen(101,80,1);
-            MophunTouchControls controls = new MophunTouchControls(profile(TouchDeck.PHONE), 1, 8,
+            NativeTouchControls controls = new NativeTouchControls(profile(TouchDeck.PHONE), 1, 8,
                     new MophunInput(() -> screen).newSource(), () -> {}, () -> taps[0]++, () -> {});
             controls.layout(360,640);
             RectF area = controls.gameArea();

@@ -10,6 +10,12 @@ stated otherwise. **Experimental** in older checkpoints means local/private
 combined builds; released experimental features are explicitly identified.
 **Released** means an actual GitHub release asset.
 
+## 2026-11-20 - WIPI and SKVM commercial game checks (local ARM64 debug build)
+
+- Connected the WIPI/SKVM host to the shared graphics, touch and physical-controller profiles, in-game menu and settings preview. Back opens the game menu.
+- Fixed import of carrier ZIPs with legacy Korean directory names and restored audio after output-route changes. The host supplies a MIDI sound bank.
+- Reached the village in Inotia and the first combat stage in Metal Slug on Retroid Pocket Classic, recorded audio, exercised touch and controller events, and checked saved display and input settings. [Results and remaining coverage](docs/checks/2026-11-20-wipi-games.md).
+
 ## 2026-11-20 - First WIPI / SKVM games in the local Android host
 
 - Open a carrier ZIP from AbyssME settings in the optional ARM64 debug build. The app displays the guest's 240 × 320 framebuffer and forwards keypad events to the wie core.

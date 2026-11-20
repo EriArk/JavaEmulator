@@ -44,7 +44,10 @@ final class WipiPackage {
         byte[] bytes = data.toByteArray();
         Set<String> entries = new HashSet<>();
         long expanded = 0;
-        try (ZipInputStream zip = new ZipInputStream(new ByteArrayInputStream(bytes))) {
+        // Use a byte-preserving fallback for unflagged legacy Korean ZIP names.
+        // Only ASCII markers matter here. The core receives the original archive.
+        try (ZipInputStream zip = new ZipInputStream(new ByteArrayInputStream(bytes),
+                java.nio.charset.StandardCharsets.ISO_8859_1)) {
             for (ZipEntry entry; (entry = zip.getNextEntry()) != null;) {
                 if (entries.size() >= 4096 || !entries.add(entry.getName())) {
                     throw new IOException("Invalid archive directory");

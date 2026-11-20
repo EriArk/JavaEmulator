@@ -1,4 +1,4 @@
-package ru.playsoftware.j2meloader.mophun;
+package ru.playsoftware.j2meloader.input;
 
 import android.graphics.Canvas;
 import android.graphics.RectF;
@@ -8,15 +8,15 @@ import ru.playsoftware.j2meloader.input.ControllerInput;
 import ru.playsoftware.j2meloader.input.TouchDeck;
 
 /** Phone/gamepad touch routing, independent of the physical controller mapper. */
-final class MophunTouchControls {
-    final TouchDeck deck;
+public final class NativeTouchControls {
+    public final TouchDeck deck;
     private final Runnable gameTap;
     private final float slop;
     private final RectF area = new RectF();
     private int tapPointer = -1;
     private float downX, downY;
 
-    MophunTouchControls(ProfileModel profile, float density, float slop,
+    public NativeTouchControls(ProfileModel profile, float density, float slop,
                         ControllerInput.Sink input, Runnable invalidate, Runnable gameTap, Runnable feedback) {
         this.gameTap = gameTap;
         this.slop = slop;
@@ -29,17 +29,17 @@ final class MophunTouchControls {
         });
     }
 
-    void layout(int width, int height) {
+    public void layout(int width, int height) {
         cancel();
         deck.layout(width, height);
         area.set(deck.gameArea(width, height));
     }
 
-    RectF gameArea() { return new RectF(area); }
-    void draw(Canvas canvas) { deck.draw(canvas); }
-    void cancel() { tapPointer = -1; deck.cancel(); }
+    public RectF gameArea() { return new RectF(area); }
+    public void draw(Canvas canvas) { deck.draw(canvas); }
+    public void cancel() { tapPointer = -1; deck.cancel(); }
 
-    boolean touch(MotionEvent event) {
+    public boolean touch(MotionEvent event) {
         int index = event.getActionIndex(), id = event.getPointerId(index);
         switch (event.getActionMasked()) {
             case MotionEvent.ACTION_DOWN:

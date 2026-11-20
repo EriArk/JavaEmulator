@@ -46,8 +46,12 @@ public class WipiGameTest {
         throw new AssertionError("Could not see "+(moved?"basket movement":"initial basket"));
     }
     private static WipiPackage readArchive(String... names) throws IOException {
+        return readArchive(java.nio.charset.StandardCharsets.UTF_8, names);
+    }
+
+    private static WipiPackage readArchive(java.nio.charset.Charset charset, String... names) throws IOException {
         ByteArrayOutputStream bytes = new ByteArrayOutputStream();
-        try (java.util.zip.ZipOutputStream zip = new java.util.zip.ZipOutputStream(bytes)) {
+        try (java.util.zip.ZipOutputStream zip = new java.util.zip.ZipOutputStream(bytes, charset)) {
             for (String name : names) {
                 zip.putNextEntry(new java.util.zip.ZipEntry(name));
                 zip.write(1);
@@ -69,13 +73,32 @@ public class WipiGameTest {
         }
     }
 
+    @Test public void opensUnflaggedKoreanGameDirectory() throws IOException {
+        assertEquals("KTF", readArchive(java.nio.charset.Charset.forName("EUC-KR"),
+                "게임/__adf__", "게임/app.jar").carrier);
+    }
+
+    private void clickAction(int labelId) {
+        String label = context.getString(labelId);
+        long until = SystemClock.uptimeMillis() + 4000;
+        do {
+            android.view.accessibility.AccessibilityNodeInfo root = instr.getUiAutomation().getRootInActiveWindow();
+            if (root != null) for (android.view.accessibility.AccessibilityNodeInfo item : root.findAccessibilityNodeInfosByText(label)) {
+                if (label.equals(String.valueOf(item.getText())) && item.performAction(
+                        android.view.accessibility.AccessibilityNodeInfo.ACTION_CLICK)) return;
+            }
+            SystemClock.sleep(120);
+        } while (SystemClock.uptimeMillis() < until);
+        fail("Missing game menu action: " + label);
+    }
+
     @Test public void gameRespondsToRightAcrossRelaunch() {
         String fixture=InstrumentationRegistry.getArguments().getString("fixture");
         Assume.assumeNotNull(fixture);
         File zip=new File(context.getExternalFilesDir(null),fixture);
         assertTrue(zip.isFile());
         Intent launch=new Intent(context,WipiGameActivity.class).setData(Uri.fromFile(zip))
-                .addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+                .addFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
         for(int pass=0;pass<2;pass++){
             context.startActivity(launch);
             int initial=awaitBasket(0,false);
@@ -87,6 +110,8 @@ public class WipiGameTest {
             } finally {
                 instr.getUiAutomation().injectInputEvent(new KeyEvent(now,SystemClock.uptimeMillis(),KeyEvent.ACTION_UP,KeyEvent.KEYCODE_DPAD_RIGHT,0),true);
                 instr.sendKeyDownUpSync(KeyEvent.KEYCODE_BACK);
+                clickAction(ru.playsoftware.j2meloader.R.string.game_exit);
+                clickAction(ru.playsoftware.j2meloader.R.string.game_leave_without_saving);
                 SystemClock.sleep(600);
             }
         }

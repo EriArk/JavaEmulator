@@ -1,0 +1,103 @@
+--- a/wipi_core/src/platform/mod.rs
++++ b/wipi_core/src/platform/mod.rs
+@@ -28,6 +28,21 @@
+
+ /// Host platform for mobile targets (and headless testing). All persistent
+ /// state lives under `base_path` (filesDir on Android, Documents on iOS).
++struct GameClock {
++    anchor: std::time::Instant,
++    guest_ms: u64,
++    speed: u32,
++    paused: bool,
++}
++
++impl GameClock {
++    fn millis(&self) -> u64 {
++        if self.paused { self.guest_ms } else {
++            self.guest_ms + (self.anchor.elapsed().as_millis() as u64 * self.speed as u64 / 100)
++        }
++    }
++}
++
+ pub struct MobilePlatform {
+     /// 게임 텍스트 렌더링용 폰트 (wie 데스크톱과 동일한 neodgm — 글자 규격 12px 기준).
+     font: Font,
+@@ -42,6 +57,7 @@
+     /// 가상 시계 (epoch ms). 0이면 비활성(실시간). now() 호출마다 1ms 전진하는
+     /// 결정적 시계 — flaky(타이밍 레이스) 재현/차단 실험용 (headless 전용).
+     virtual_clock_ms: AtomicU64,
++    clock: Mutex<GameClock>,
+ }
+
+ impl MobilePlatform {
+@@ -55,11 +71,24 @@
+             vibration: Mutex::new(None),
+             exit_requested: AtomicBool::new(false),
+             virtual_clock_ms: AtomicU64::new(0),
++            clock: Mutex::new(GameClock {
++                anchor: std::time::Instant::now(),
++                guest_ms: std::time::SystemTime::now().duration_since(std::time::UNIX_EPOCH).unwrap().as_millis() as u64,
++                speed: 100, paused: false,
++            }),
+         }
+     }
+
+     /// 가상 시계 활성화 — now()가 실시간 대신 호출마다 1ms 전진하는 결정적 시계를
+     /// 반환하게 한다. start_epoch_ms는 게임이 보는 시작 시각 (0 금지 — 비활성 의미).
++    pub fn set_clock(&self, speed: Option<u32>, paused: Option<bool>) {
++        let mut c = self.clock.lock().unwrap();
++        c.guest_ms = c.millis();
++        c.anchor = std::time::Instant::now();
++        if let Some(speed) = speed { c.speed = speed.clamp(10, 800); }
++        if let Some(paused) = paused { c.paused = paused; }
++    }
++
+     pub fn enable_virtual_clock(&self, start_epoch_ms: u64) {
+         self.virtual_clock_ms.store(start_epoch_ms, Ordering::SeqCst);
+     }
+@@ -146,9 +175,7 @@
+             return Instant::from_epoch_millis(t);
+         }
+
+-        let since_the_epoch = std::time::SystemTime::now().duration_since(std::time::UNIX_EPOCH).unwrap();
+-
+-        Instant::from_epoch_millis(since_the_epoch.as_millis() as _)
++        Instant::from_epoch_millis(self.clock.lock().unwrap().millis())
+     }
+
+     fn database_repository(&self) -> &dyn wie_backend::DatabaseRepository {
+--- a/wipi_core/src/session.rs
++++ b/wipi_core/src/session.rs
+@@ -212,11 +212,18 @@
+ pub fn set_paused(paused: bool) {
+     let session = SESSION.lock().unwrap();
+     if let Some(session) = session.as_ref() {
++        session.platform.set_clock(None, Some(paused));
+         session.paused.store(paused, Ordering::SeqCst);
+     }
+ }
+
+ /// 볼륨 (0.0~1.0, 0이면 음소거) — PCM(효과음)/MIDI(배경음악) 분리, 호스트 사운드 설정용
++pub fn set_speed(speed: u32) {
++    if let Some(session) = SESSION.lock().unwrap().as_ref() {
++        session.platform.set_clock(Some(speed), None);
++    }
++}
++
+ pub fn set_volume(pcm: f32, midi: f32) {
+     let session = SESSION.lock().unwrap();
+     if let Some(session) = session.as_ref() {
+--- a/wipi_android/src/jni_bridge.rs
++++ b/wipi_android/src/jni_bridge.rs
+@@ -10,6 +10,11 @@
+ };
+
+ use wipi_core::session;
++
++#[unsafe(no_mangle)]
++pub extern "system" fn Java_com_parkjeongseop_wipi_WipiNative_nativeSetSpeed(_env: JNIEnv, _class: JClass, speed: i32) {
++    session::set_speed(speed.max(1) as u32);
++}
+
+ #[unsafe(no_mangle)]
+ pub extern "system" fn Java_com_parkjeongseop_wipi_WipiNative_nativeStart(

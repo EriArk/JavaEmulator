@@ -9,3 +9,15 @@ android {
 if (!rootProject.file('build/wipi/jniLibs/arm64-v8a/libwipi_android.so').isFile()) {
     throw new GradleException('Build the pinned WIPI native bridge first (engines/wipi/README.md)')
 }
+
+// The combined ARM64 build already contains this bank and its notice.
+if (findProject(':symbian-core') == null) {
+    def bank = tasks.register('copyProbeMidiBank', Sync) {
+        from(rootProject.file('engines/symbian/core/src/main/assets')) {
+            include 'resources/generaluser-gs.sf2', 'licenses/GeneralUser-GS.txt'
+        }
+        into layout.buildDirectory.dir('generated/wipiBank')
+    }
+    android.sourceSets.main.assets.srcDir layout.buildDirectory.dir('generated/wipiBank')
+    tasks.named('preBuild').configure { dependsOn bank }
+}

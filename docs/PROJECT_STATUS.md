@@ -16,9 +16,13 @@ The [platform issue index](PLATFORM_ISSUES.md) maps the 49 open platform-specifi
 
 ## WIPI and SKVM (2026-11-20, local ARM64 debug build)
 
-The optional AbyssME host runs the existing wie mobile core. On a Retroid Classic running Android 14, instrumentation opened the KTF ARM Clet game Heart Catch, observed its basket move after an injected D-pad Right event, exited and repeated the check. A separate SKT Java fixture moved a slider using the runtime's SKVM-specific math API and passed the same two-launch check. Each test checked pixels from the device display. Heart Catch also opened through the Settings document picker and Back returned to Settings.
+On Retroid Pocket Classic (Android 14), the local build ran Com2uS Inotia (KTF WIPI) through character creation into the village and Metal Slug (SKT SKVM) into the first combat stage. Android playback captures contained audio from both games. The games used the shared touch deck, physical mapper, graphics presets and preview controls. Inotia retained B → Right after relaunch. Metal Slug retained the CRT setting and responded to both the touch deck and events injected through the connected Xbox controller's input device.
 
-The build is local. Commercial games, audio output, persistent save data, physical button presses and LGT execution remain unverified. Full library import and shared control profiles are pending. [Build, fixtures and device test](../engines/wipi/README.md) · [Platform issue #57](https://github.com/EriArk/JavaEmulator/issues/57).
+The original Korean KTF ZIP now opens from the document picker, and audio resumes after an Android output-route change. Heart Catch and the SKVM slider passed launch and relaunch on the same device. Full library import, LGT gameplay, save restoration and hand-operated controller testing remain open. The APK and game captures are local. [Device evidence and scope](checks/2026-11-20-wipi-games.md) · [Build and fixtures](../engines/wipi/README.md) · [Issue #57](https://github.com/EriArk/JavaEmulator/issues/57).
+
+## Dingoo (2026-11-20, initial device check)
+
+On the same Retroid, Android loaded the upstream ARM64 DingooEmu 0.3.0 shared library. The libretro API returned version 1 and the supported extensions `app|cc|c2s|c3s`. This was a standalone ABI check. Game execution and the AbyssME frontend remain pending. [Evidence](checks/2026-11-20-wipi-games.md#dingoo-follow-up) · [Issue #89](https://github.com/EriArk/JavaEmulator/issues/89).
 
 ## Game area calibration (2026-11-20, local debug build)
 

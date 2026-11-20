@@ -4,6 +4,10 @@ GitHub snapshot reviewed on 2026-11-20. There are 49 open platform research or d
 
 Five distinct native games can justify keeping a platform. An unverified catalog stays under investigation. The roadmap ranks early implementations by existing reusable cores, Android ARM64 feasibility and available game fixtures. The first engine should demonstrate gameplay before the launcher gains another platform tab.
 
+## Checking a platform with a real game
+
+Record the game edition, host and scene reached. Check the picture during gameplay and capture or listen to the game audio. Exercise the virtual controls and a connected physical controller separately. Record whether inputs were pressed by hand or injected. Use the existing AbyssME graphics, touch and physical-controller profiles, change a mapping and a display setting in the shared menu, and check their effect after relaunch. Track any missing capability alongside the result for that game.
+
 ## First integration candidates in the order recorded in #44
 
 [WIPI / SKVM (#57)](https://github.com/EriArk/JavaEmulator/issues/57) · [Dingoo A320 / Gemei A330 (#89)](https://github.com/EriArk/JavaEmulator/issues/89) · [Aquaplus P/ECE (#97)](https://github.com/EriArk/JavaEmulator/issues/97) · [GamePark GP32 (#87)](https://github.com/EriArk/JavaEmulator/issues/87) · [Watara Supervision and Mega Duck first, Gamate and GameKing separately (#94)](https://github.com/EriArk/JavaEmulator/issues/94) · [Cybiko Classic / Xtreme (#86)](https://github.com/EriArk/JavaEmulator/issues/86) · [Flash Lite (#64)](https://github.com/EriArk/JavaEmulator/issues/64) · [Nokia Asha / S40 extensions to Java ME (#73)](https://github.com/EriArk/JavaEmulator/issues/73)
