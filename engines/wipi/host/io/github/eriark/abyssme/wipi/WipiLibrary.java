@@ -7,7 +7,7 @@ import ru.playsoftware.j2meloader.handheld.ManagedGameLibrary;
 
 public final class WipiLibrary extends ManagedGameLibrary {
     public WipiLibrary() { super("wipi", WipiGameActivity.class); }
-    @Override protected String inspect(File content, String name, Properties info) throws IOException {
+    @Override protected String inspect(android.content.Context context, File content, String name, Properties info) throws IOException {
         try (InputStream in = new FileInputStream(content)) {
             WipiPackage game = WipiPackage.read(in);
             info.setProperty("carrier", game.carrier);

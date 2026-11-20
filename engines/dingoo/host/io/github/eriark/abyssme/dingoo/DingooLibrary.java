@@ -12,7 +12,7 @@ import ru.playsoftware.j2meloader.catalog.SourceIdentity;
 
 public final class DingooLibrary extends ManagedGameLibrary {
     public DingooLibrary() { super("dingoo", DingooGameActivity.class); }
-    @Override protected String inspect(File file, String name, Properties info) throws IOException {
+    @Override protected String inspect(android.content.Context context, File file, String name, Properties info) throws IOException {
         String ext = name.substring(name.lastIndexOf('.') + 1).toLowerCase(Locale.ROOT);
         byte[] header = new byte[128];
         try (DataInputStream reader = new DataInputStream(new FileInputStream(file))) { reader.readFully(header); }
@@ -38,17 +38,8 @@ public final class DingooLibrary extends ManagedGameLibrary {
         File dir = new File(root(context), id);
         return new File(dir, filename(load(dir)));
     }
-    static void defaultMappings(ru.playsoftware.j2meloader.config.ProfileModel profile) {
-        profile.ensureKeyMappingProfiles();
-        for (ru.playsoftware.j2meloader.config.ProfileModel.KeyMappingProfile binding : profile.keyMappingProfiles) {
-            if (binding.mappings != null) continue;
-            binding.mappings = javax.microedition.lcdui.keyboard.KeyMapper.getDefaultKeyMap();
-            binding.mappings.put(android.view.KeyEvent.KEYCODE_BUTTON_START, '9');
-            binding.mappings.put(android.view.KeyEvent.KEYCODE_BUTTON_SELECT, '7');
-        }
-    }
     @Override protected void configureProfile(ru.playsoftware.j2meloader.config.ProfileModel profile) {
-        defaultMappings(profile);
+        ru.playsoftware.j2meloader.handheld.LibretroKeys.defaultMappings(profile);
     }
     @Override protected String filename(Properties info) { return "game." + variant(info); }
     @Override protected String variant(Properties info) {

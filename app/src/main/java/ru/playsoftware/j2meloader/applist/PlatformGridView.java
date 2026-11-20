@@ -170,12 +170,12 @@ public final class PlatformGridView extends LinearLayout {
         image.setPadding(dp(6), dp(6), dp(6), dp(6));
         image.setScaleType(ImageView.ScaleType.FIT_CENTER);
         int art = id < ART.length ? ART[id] : getResources().getIdentifier(
-                id == 6 ? "sticker_dingoo" : "sticker_gemei", "drawable", context.getPackageName());
+                id == 6 ? "sticker_dingoo" : id == 7 ? "sticker_gemei" : "sticker_piece", "drawable", context.getPackageName());
         image.setImageResource(art);
         image.setImportantForAccessibility(IMPORTANT_FOR_ACCESSIBILITY_NO);
         tile.addView(image, new LayoutParams(-1, 0, 1));
         TextView label = new TextView(context);
-        label.setText(LibraryQuery.PLATFORMS[id]);
+        label.setText(id == 8 ? "Aquaplus\nP/ECE" : LibraryQuery.PLATFORMS[id]);
         label.setTextSize(17);
         label.setTextColor(AppPalette.color(context, R.color.text_primary));
         label.setGravity(Gravity.CENTER);

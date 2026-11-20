@@ -1,6 +1,6 @@
 # Platform device stickers
 
-[View all stickers](contact-sheet.jpg). Each individual file is a transparent WebP. The five library illustrations are Android resources. The optional Dingoo build also packages the A320 and Gemei A330 illustrations from this directory. The remaining roadmap artwork stays outside the APK.
+[View all stickers](contact-sheet.jpg). Each individual file is a transparent WebP. The five library illustrations are Android resources. The optional Dingoo build also packages the A320 and Gemei A330 illustrations from this directory. The optional P/ECE build packages the Aquaplus illustration. The remaining roadmap artwork stays outside the APK.
 
 These are reference-based illustrations of named hardware. The source photographs guided shape, keypad and control placement. A generative tool isolated and re-lit the designs, simplified details and added a die-cut edge. The individual attribution and license entries below apply to the corresponding adaptations. A device representing a runtime does not imply support for every edition or carrier.
 

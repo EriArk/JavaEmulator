@@ -131,7 +131,7 @@ public class AppsListFragment extends Fragment implements AppsListAdapter.Listen
 	private boolean changingPlatform;
 	private boolean bothNgageGenerations;
 	private boolean databaseLoaded;
-	private boolean externalLoaded = !BuildConfig.SYMBIAN_EXPERIMENT && !BuildConfig.WIPI_PROBE && !BuildConfig.DINGOO_PROBE;
+	private boolean externalLoaded = !BuildConfig.SYMBIAN_EXPERIMENT && !BuildConfig.WIPI_PROBE && !BuildConfig.DINGOO_PROBE && !BuildConfig.PIECE_PROBE;
 	private boolean restoreLocation = true;
 	private String restoredSelection;
 	private boolean searchExpanded;
@@ -525,11 +525,23 @@ public class AppsListFragment extends Fragment implements AppsListAdapter.Listen
         binding.platformGrid.focusPlatform(platform);
     }
 
+    private void revealPlatformTab() {
+        View tab = binding.libraryPlatformTabs.getChildAt(platform - 1);
+        if (tab == null) return;
+        tab.post(() -> {
+            if (binding == null || platformHome || !tab.isSelected()) return;
+            android.widget.HorizontalScrollView strip = binding.libraryPlatformScroll;
+            int left = tab.getLeft(), right = tab.getRight() - strip.getWidth();
+            strip.scrollTo(Math.max(right, Math.min(left, strip.getScrollX())), 0);
+        });
+    }
+
     private void enterPlatform(int id) {
         binding.platformGrid.setSearching(false);
         platformHome = false;
         setPlatform(id);
         updateResponsiveToolbar();
+        revealPlatformTab();
         if (ru.playsoftware.j2meloader.input.DeviceControls.connected(requireContext())) focusGame(restoredSelection);
     }
 
@@ -670,10 +682,8 @@ public class AppsListFragment extends Fragment implements AppsListAdapter.Listen
 		for (int i = 0; i < binding.libraryPlatformTabs.getChildCount(); i++) {
 			View tab = binding.libraryPlatformTabs.getChildAt(i);
 			tab.setSelected(i + 1 == platform);
-			if (i + 1 == platform) tab.post(() -> {
-				if (binding != null) tab.requestRectangleOnScreen(new Rect(0, 0, tab.getWidth(), tab.getHeight()), true);
-			});
 		}
+		if (!platformHome) revealPlatformTab();
 		binding.libraryGeneration.setVisibility(platform == 4 && bothNgageGenerations ? View.VISIBLE : View.GONE);
 		binding.libraryGeneration.setText(getResources().getStringArray(R.array.library_generations)[generation]);
 		binding.libraryGeneration.setContentDescription(getString(R.string.library_generation_value, binding.libraryGeneration.getText()));
@@ -1483,7 +1493,7 @@ public class AppsListFragment extends Fragment implements AppsListAdapter.Listen
 
 	private void reloadExternalLibrary() {
 		if (!isAdded() || binding == null) return;
-		if (!BuildConfig.SYMBIAN_EXPERIMENT && !BuildConfig.WIPI_PROBE && !BuildConfig.DINGOO_PROBE) return;
+		if (!BuildConfig.SYMBIAN_EXPERIMENT && !BuildConfig.WIPI_PROBE && !BuildConfig.DINGOO_PROBE && !BuildConfig.PIECE_PROBE) return;
 		Context context = requireContext().getApplicationContext();
 		android.app.Activity activity = requireActivity();
 		int generation = ++externalGeneration;
@@ -1553,6 +1563,7 @@ public class AppsListFragment extends Fragment implements AppsListAdapter.Listen
 		binding.empty.setText(!restoredSearch.isEmpty() ? getString(R.string.library_no_matches)
 				: category == 2 ? getString(R.string.library_no_favorites)
 				: category == 1 ? getString(R.string.library_no_recent)
+				: platform == 8 ? getString(R.string.library_piece_import_hint)
 				: platform != 0 ? getString(R.string.library_no_platform_games, LibraryQuery.PLATFORMS[platform])
 				: getString(R.string.library_no_games));
 		binding.libraryEmpty.setVisibility(empty ? View.VISIBLE : View.GONE);

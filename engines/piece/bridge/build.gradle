@@ -1,0 +1,19 @@
+plugins { id 'com.android.library' }
+android {
+    namespace 'io.github.eriark.abyssme.piece.bridge'
+    compileSdk 34
+    defaultConfig { minSdk 29 }
+    sourceSets.main.jniLibs.srcDir rootProject.file('build/piece/jniLibs')
+}
+if (!rootProject.file('build/piece/jniLibs/arm64-v8a/libabysspiece.so').isFile())
+    throw new GradleException('Build the pinned Piece frontend first (engines/piece/README.md)')
+
+def stickers = tasks.register('preparePieceStickers', Sync) {
+    from(rootProject.file('design-concepts/platform-stickers')) {
+        include 'piece.webp'
+        rename { name -> "sticker_" + name }
+    }
+    into layout.buildDirectory.dir('generated/deviceArt/drawable-nodpi')
+}
+android.sourceSets.main.res.srcDir layout.buildDirectory.dir('generated/deviceArt')
+tasks.named('preBuild').configure { dependsOn stickers }

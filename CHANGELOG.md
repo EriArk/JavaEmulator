@@ -10,6 +10,11 @@ stated otherwise. **Experimental** in older checkpoints means local/private
 combined builds; released experimental features are explicitly identified.
 **Released** means an actual GitHub release asset.
 
+## 2026-11-20 - Aquaplus P/ECE (local ARM64 debug build)
+
+- Added the P/ECE launcher sticker, library tab, flash image and game import. Game packages can include graphics, music and other files named by their PFS manifest. The library keeps separate flash saves for each card.
+- Played P.K.O. on Retroid with sound and the shared touch and controller settings. Confirmed guest flash writes survive a cold restart. [Device check](docs/checks/2026-11-20-piece.md).
+
 ## 2026-11-20 - Native Dingoo and Gemei games (local ARM64 debug build)
 
 - Open Dingoo A320 and Gemei A330 from their own platform stickers and library tabs. Import native packages, keep favorites and covers, and use the shared display, touch and controller settings.

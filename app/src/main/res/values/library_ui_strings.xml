@@ -26,6 +26,7 @@
     <string name="library_no_matches">No matching games</string>
     <string name="library_no_favorites">No favorites in this collection</string>
     <string name="library_no_recent">No recently played games in this collection</string>
+    <string name="library_piece_import_hint">Add a base .pfi image first, then a .pex game or a game ZIP with a .pfs file list.</string>
     <string name="library_no_platform_games">No %1$s games</string>
     <string name="library_no_games">No games yet</string>
     <string name="library_actions">Game actions</string>

@@ -24,13 +24,15 @@ public abstract class ManagedGameLibrary implements ExternalLibrary.PackageProvi
         this.engine = engine;
         this.activityClass = activityClass;
     }
-    protected abstract String inspect(File content, String name, Properties info) throws IOException;
+    protected abstract String inspect(android.content.Context context, File content, String name, Properties info) throws IOException;
     protected abstract String platformName(Properties info);
     protected abstract int platformId(Properties info);
     protected abstract String variant(Properties info);
     protected abstract String filename(Properties info);
     protected abstract int firstCardId();
     protected void configureProfile(ProfileModel profile) {}
+
+    protected void imported(Context context, String id, Properties info) {}
 
     protected File root(Context c) { return new File(StoragePaths.library(c), engine + "/packages"); }
     @Override public void install(Context context, Uri uri) throws IOException {
@@ -50,15 +52,19 @@ public abstract class ManagedGameLibrary implements ExternalLibrary.PackageProvi
                 Files.copy(in, content.toPath());
             }
             Properties info = new Properties();
-            String id = inspect(content, name, info);
+            String id = inspect(context, content, name, info);
             File dir = new File(root, id);
             File game = new File(dir, filename(info));
-            if (game.isFile()) return;
+            if (game.isFile()) {
+                imported(context, id, info);
+                return;
+            }
             int dot = name.lastIndexOf('.');
             info.setProperty("title", dot > 0 ? name.substring(0,dot) : name);
             Files.move(content.toPath(), new File(tmp, filename(info)).toPath());
             store(tmp, info);
             if (!tmp.renameTo(dir) && !game.isFile()) throw new IOException("Cannot install game");
+            imported(context, id, info);
         } finally {
             File[] left = tmp.listFiles();
             if (left != null) for (File file : left) file.delete();

@@ -30,9 +30,9 @@ public final class DingooImportTest {
         File file = new File(c.getExternalFilesDir(null),name);
         DingooLibrary library = new DingooLibrary();
         int platform = name.endsWith(".app") ? 6 : 7;
-        String hash = library.inspect(file,name,new Properties());
+        String hash = library.inspect(c, file,name,new Properties());
         try {
-            library.inspect(file, platform == 6 ? "wrong.cc" : "wrong.app",new Properties());
+            library.inspect(c, file, platform == 6 ? "wrong.cc" : "wrong.app",new Properties());
             fail("Mismatched CPU accepted");
         } catch (IOException expected) { assertTrue(expected.getMessage().contains("extension")); }
         library.install(c, Uri.fromFile(file));

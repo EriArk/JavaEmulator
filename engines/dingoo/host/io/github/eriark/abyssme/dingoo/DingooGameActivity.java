@@ -49,9 +49,11 @@ public final class DingooGameActivity extends HandheldActivity {
             });
         }, "Dingoo save state").start();
     }
-    @Override protected ControllerInput.Sink keys() { return new DingooKeys(); }
+    @Override protected ControllerInput.Sink keys() { return new ru.playsoftware.j2meloader.handheld.LibretroKeys() {
+        @Override protected void button(int id, boolean down) { DingooCore.button(id, down); }
+    }; }
     @Override protected void configureProfile(ru.playsoftware.j2meloader.config.ProfileModel profile) {
-        DingooLibrary.defaultMappings(profile);
+        ru.playsoftware.j2meloader.handheld.LibretroKeys.defaultMappings(profile);
     }
     @Override protected void setSpeed(int percent) { DingooCore.speed(percent); }
     @Override protected void pauseCore(boolean paused) { DingooCore.pause(paused); }

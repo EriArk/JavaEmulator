@@ -12,7 +12,7 @@ public final class ExternalLibrary {
     public interface Provider { List<AppItem> read(Context context) throws IOException; }
     public interface PackageProvider extends Provider { void install(Context context, android.net.Uri uri) throws IOException; }
     public static PackageProvider packageProvider(int platform) throws IOException {
-        String provider = platform == 5 ? "io.github.eriark.abyssme.wipi.WipiLibrary" : "io.github.eriark.abyssme.dingoo.DingooLibrary";
+        String provider = platform == 5 ? "io.github.eriark.abyssme.wipi.WipiLibrary" : platform == 8 ? "io.github.eriark.abyssme.piece.PieceLibrary" : "io.github.eriark.abyssme.dingoo.DingooLibrary";
         try {
             return Class.forName(provider)
                     .asSubclass(PackageProvider.class).getDeclaredConstructor().newInstance();
@@ -41,6 +41,7 @@ public final class ExternalLibrary {
         List<AppItem> games = new ArrayList<>();
         if (BuildConfig.WIPI_PROBE) games.addAll(packageProvider(5).read(context));
         if (BuildConfig.DINGOO_PROBE) games.addAll(packageProvider(6).read(context));
+        if (BuildConfig.PIECE_PROBE) games.addAll(packageProvider(8).read(context));
         if (!BuildConfig.SYMBIAN_EXPERIMENT) return games;
         try {
             games.addAll(Class.forName("io.github.eriark.abyssme.symbian.SymbianLauncherLibrary")
