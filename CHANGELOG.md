@@ -10,6 +10,10 @@ stated otherwise. **Experimental** in older checkpoints means local/private
 combined builds; released experimental features are explicitly identified.
 **Released** means an actual GitHub release asset.
 
+## 2026-11-21 - Nokia double-tap and pinch in Java ME
+
+- Added double-tap recognition and two-finger pinches to the optional Asha build. Games can read pinch distance, center and movement in canvas coordinates. Verified both gestures with a diagnostic MIDlet on Retroid and checked ordinary controls in TouchMare. [Device results](docs/checks/2026-11-21-asha.md#double-tap-and-pinch).
+
 ## 2026-11-21 - Asha 501 game menus and phone keypad
 
 - Added an Asha 501 phone preset, guest Back commands and keypad-command visibility. Fixed a guest softkey menu focus change that could return to the starting screen. Verified a complete Bubblet round and retained score on Retroid. [Checks and screenshots](docs/checks/2026-11-21-asha.md#asha-501-and-bubblet-105).

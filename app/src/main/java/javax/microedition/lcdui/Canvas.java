@@ -437,6 +437,7 @@ public abstract class Canvas extends Displayable {
 	public void updateSize() {
 		int oldWidth = width, oldHeight = height;
 		if (drawRotation != screenRotation) {
+			cancelGestureInput();
 			for (int p = 0; p < gamePointers.length; p++) {
 				if (gamePointers[p]) Display.postEvent(CanvasEvent.getInstance(this,
 						CanvasEvent.POINTER_RELEASED, p, lastPointerPos[p][0], lastPointerPos[p][1]));
@@ -871,7 +872,7 @@ public abstract class Canvas extends Displayable {
 
 	/** Optional handset gesture listener. Coordinates are in the MIDlet canvas. */
 	public interface GestureInput {
-		void pointer(int type, int x, int y, long time);
+		void pointer(int type, int id, int x, int y, long time);
 		void cancel();
 		boolean acceptsKey(int key);
 		void key(int key, boolean down, long time);
@@ -879,6 +880,11 @@ public abstract class Canvas extends Displayable {
 
 	public volatile GestureInput gestureInput;
 	public static volatile boolean nokiaGestureKeys;
+
+	private void cancelGestureInput() {
+		GestureInput gestures = gestureInput;
+		if (gestures != null) Display.postEvent(javax.microedition.lcdui.event.RunnableEvent.getInstance(gestures::cancel));
+	}
 
 	protected final boolean gestureKey(int key, int phase) {
 		GestureInput input = gestureInput;
@@ -1493,7 +1499,7 @@ public abstract class Canvas extends Displayable {
 								CanvasEvent.POINTER_PRESSED,
 								id,
 								cX,
-								cY));
+								cY, event.getEventTime()));
 					}
 					break;
 				case MotionEvent.ACTION_MOVE:
@@ -1523,7 +1529,7 @@ public abstract class Canvas extends Displayable {
 										CanvasEvent.POINTER_DRAGGED,
 										id,
 										cX,
-										cY));
+										cY, event.getHistoricalEventTime(h)));
 							}
 						}
 					}
@@ -1550,7 +1556,7 @@ public abstract class Canvas extends Displayable {
 									CanvasEvent.POINTER_DRAGGED,
 									id,
 									cX,
-									cY));
+									cY, event.getEventTime()));
 						}
 					}
 					break;
@@ -1576,7 +1582,7 @@ public abstract class Canvas extends Displayable {
 								CanvasEvent.POINTER_RELEASED,
 								id,
 								cX,
-								cY));
+								cY, event.getEventTime()));
 					}
 					if (ru.playsoftware.j2meloader.BuildConfig.HANDHELD_MODE && !touchInput && event.getActionMasked() == MotionEvent.ACTION_UP
 							&& virtualScreen.contains(x, y)) {
@@ -1584,8 +1590,7 @@ public abstract class Canvas extends Displayable {
 					}
 					break;
 				case MotionEvent.ACTION_CANCEL:
-					GestureInput gestures = gestureInput;
-					if (gestures != null) Display.postEvent(javax.microedition.lcdui.event.RunnableEvent.getInstance(gestures::cancel));
+					cancelGestureInput();
 					for (int p = 0; p < gamePointers.length; p++) {
 						if (gamePointers[p]) Display.postEvent(CanvasEvent.getInstance(Canvas.this,
 								CanvasEvent.POINTER_RELEASED, p, lastPointerPos[p][0], lastPointerPos[p][1]));

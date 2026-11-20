@@ -7,7 +7,6 @@ public class GestureInteractiveZone {
             GESTURE_DROP = 8, GESTURE_FLICK = 16, GESTURE_LONG_PRESS_REPEATED = 32,
             GESTURE_PINCH = 64, GESTURE_DOUBLE_TAP = 128, GESTURE_RECOGNITION_START = 0x4000,
             GESTURE_RECOGNITION_END = 0x8000, GESTURE_ALL = 0xc0ff;
-    private static final int SUPPORTED = GESTURE_ALL & ~(GESTURE_PINCH | GESTURE_DOUBLE_TAP);
     private int mask, interval, x, y, width, height;
     private boolean bounded;
 
@@ -17,7 +16,7 @@ public class GestureInteractiveZone {
         setLongPressTimeInterval(timeInterval);
     }
     public static boolean isSupported(int gestures) {
-        return gestures != 0 && (gestures & ~SUPPORTED) == 0;
+        return gestures != 0 && (gestures & ~GESTURE_ALL) == 0;
     }
     public void setGestures(int gestures) {
         if (gestures == 0 || (gestures & ~GESTURE_ALL) != 0) throw new IllegalArgumentException("gestures");

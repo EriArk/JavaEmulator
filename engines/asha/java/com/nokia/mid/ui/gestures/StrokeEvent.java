@@ -1,7 +1,7 @@
 /* SPDX-License-Identifier: GPL-3.0-only */
 package com.nokia.mid.ui.gestures;
 
-final class StrokeEvent implements GestureEvent {
+class StrokeEvent implements GestureEvent {
     private final int type, x, y, dx, dy, vx, vy;
 
     StrokeEvent(int type, int x, int y, int dx, int dy, int vx, int vy) {
