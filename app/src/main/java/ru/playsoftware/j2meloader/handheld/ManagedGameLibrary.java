@@ -32,7 +32,7 @@ public abstract class ManagedGameLibrary implements ExternalLibrary.PackageProvi
     protected abstract int firstCardId();
     protected void configureProfile(ProfileModel profile) {}
 
-    protected void imported(Context context, String id, Properties info) {}
+    protected void imported(Context context, String id, Properties info) throws IOException {}
 
     protected File root(Context c) { return new File(StoragePaths.library(c), engine + "/packages"); }
     @Override public void install(Context context, Uri uri) throws IOException {
@@ -60,7 +60,7 @@ public abstract class ManagedGameLibrary implements ExternalLibrary.PackageProvi
                 return;
             }
             int dot = name.lastIndexOf('.');
-            info.setProperty("title", dot > 0 ? name.substring(0,dot) : name);
+            if (!info.containsKey("title")) info.setProperty("title", dot > 0 ? name.substring(0,dot) : name);
             Files.move(content.toPath(), new File(tmp, filename(info)).toPath());
             store(tmp, info);
             if (!tmp.renameTo(dir) && !game.isFile()) throw new IOException("Cannot install game");

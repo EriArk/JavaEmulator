@@ -54,9 +54,16 @@ static void core_log(int level, const char *fmt, ...) {
     va_end(args);
 }
 static bool environment(unsigned command, void *data) {
+#ifdef FRONTEND_ENVIRONMENT
+    if (FRONTEND_ENVIRONMENT(command, data)) return true;
+#endif
     switch (command) {
         case 7: atomic_store(&exited, true); return true;
+#ifdef FRONTEND_XRGB8888
+        case 10: return *(unsigned *)data == 1;
+#else
         case 10: return *(unsigned *)data == 2; /* RGB565 */
+#endif
         case 11: return true;
         case 27: *(void (**)(int,const char *,...))data = core_log; return true;
         case 31: *(const char **)data = save_dir; return true;
@@ -65,13 +72,22 @@ static bool environment(unsigned command, void *data) {
 }
 
 static void video(const void *data, unsigned w, unsigned h, size_t pitch) {
-    if (!data || w != W || h != H || pitch < W * 2) return;
+#ifdef FRONTEND_XRGB8888
+    typedef uint32_t Pixel;
+#else
+    typedef uint16_t Pixel;
+#endif
+    if (!data || w != W || h != H || pitch < W * sizeof(Pixel)) return;
     pthread_mutex_lock(&frame_lock);
     for (unsigned y = 0; y < h; ++y) {
-        const uint16_t *row = (const uint16_t *)((const char *)data + y * pitch);
+        const Pixel *row = (const Pixel *)((const char *)data + y * pitch);
         for (unsigned x = 0; x < w; ++x) {
+#ifdef FRONTEND_XRGB8888
+            pixels[y * W + x] = 0xff000000u | row[x];
+#else
             unsigned c = row[x], r = c >> 11, g = (c >> 5) & 63, b = c & 31;
             pixels[y * W + x] = 0xff000000u | ((r * 255 / 31) << 16) | ((g * 255 / 63) << 8) | b * 255 / 31;
+#endif
         }
     }
     fresh = true;

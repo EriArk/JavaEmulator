@@ -138,7 +138,7 @@ public final class PlatformGridView extends LinearLayout {
         int width = w - grid.getPaddingLeft() - grid.getPaddingRight();
         int count = grid.getChildCount();
         int cols = Math.min(count, Math.max(1, width / dp(146)));
-        if (cols == 4 && count == 5) cols = 3;
+        if (cols == 4 && (count == 5 || count == 9)) cols = 3;
         int rows = (count + cols - 1) / cols;
         int height = Math.max(dp(136), Math.min(dp(234), (h - dp(16)) / rows));
         grid.setColumnCount(GridLayout.UNDEFINED);
@@ -170,7 +170,7 @@ public final class PlatformGridView extends LinearLayout {
         image.setPadding(dp(6), dp(6), dp(6), dp(6));
         image.setScaleType(ImageView.ScaleType.FIT_CENTER);
         int art = id < ART.length ? ART[id] : getResources().getIdentifier(
-                id == 6 ? "sticker_dingoo" : id == 7 ? "sticker_gemei" : "sticker_piece", "drawable", context.getPackageName());
+                id == 6 ? "sticker_dingoo" : id == 7 ? "sticker_gemei" : id == 8 ? "sticker_piece" : "sticker_gp32", "drawable", context.getPackageName());
         image.setImageResource(art);
         image.setImportantForAccessibility(IMPORTANT_FOR_ACCESSIBILITY_NO);
         tile.addView(image, new LayoutParams(-1, 0, 1));

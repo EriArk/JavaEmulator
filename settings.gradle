@@ -40,3 +40,8 @@ if (providers.gradleProperty('dingooProbe').orNull == 'true') {
     include ':dingoo-probe'
     project(':dingoo-probe').projectDir = file('engines/dingoo/bridge')
 }
+
+if (providers.gradleProperty('gp32Probe').orNull == 'true') {
+    include ':gp32-probe'
+    project(':gp32-probe').projectDir = file('engines/gp32/bridge')
+}

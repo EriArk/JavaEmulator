@@ -10,6 +10,11 @@ stated otherwise. **Experimental** in older checkpoints means local/private
 combined builds; released experimental features are explicitly identified.
 **Released** means an actual GitHub release asset.
 
+## 2026-11-20 - GamePark GP32 (local ARM64 debug build)
+
+- Added the GP32 launcher sticker and library tab with BIOS, FXE, FPK, SmartMedia and ZIP import. GP32 uses the common controller mapper, touch deck and graphics settings, with per-game save states and writable cards.
+- Verified Tomak and GP Fight in gameplay on Retroid with audio and cold state restoration. Recovered the GP Fight card from the supplied archives. [Device results](docs/checks/2026-11-20-gp32.md).
+
 ## 2026-11-20 - Aquaplus P/ECE (local ARM64 debug build)
 
 - Added the P/ECE launcher sticker, library tab, flash image and game import. Game packages can include graphics, music and other files named by their PFS manifest. The library keeps separate flash saves for each card.

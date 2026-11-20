@@ -131,7 +131,7 @@ public class AppsListFragment extends Fragment implements AppsListAdapter.Listen
 	private boolean changingPlatform;
 	private boolean bothNgageGenerations;
 	private boolean databaseLoaded;
-	private boolean externalLoaded = !BuildConfig.SYMBIAN_EXPERIMENT && !BuildConfig.WIPI_PROBE && !BuildConfig.DINGOO_PROBE && !BuildConfig.PIECE_PROBE;
+	private boolean externalLoaded = !BuildConfig.SYMBIAN_EXPERIMENT && !BuildConfig.WIPI_PROBE && !BuildConfig.DINGOO_PROBE && !BuildConfig.PIECE_PROBE && !BuildConfig.GP32_PROBE;
 	private boolean restoreLocation = true;
 	private String restoredSelection;
 	private boolean searchExpanded;
@@ -1493,7 +1493,7 @@ public class AppsListFragment extends Fragment implements AppsListAdapter.Listen
 
 	private void reloadExternalLibrary() {
 		if (!isAdded() || binding == null) return;
-		if (!BuildConfig.SYMBIAN_EXPERIMENT && !BuildConfig.WIPI_PROBE && !BuildConfig.DINGOO_PROBE && !BuildConfig.PIECE_PROBE) return;
+		if (!BuildConfig.SYMBIAN_EXPERIMENT && !BuildConfig.WIPI_PROBE && !BuildConfig.DINGOO_PROBE && !BuildConfig.PIECE_PROBE && !BuildConfig.GP32_PROBE) return;
 		Context context = requireContext().getApplicationContext();
 		android.app.Activity activity = requireActivity();
 		int generation = ++externalGeneration;
@@ -1563,6 +1563,7 @@ public class AppsListFragment extends Fragment implements AppsListAdapter.Listen
 		binding.empty.setText(!restoredSearch.isEmpty() ? getString(R.string.library_no_matches)
 				: category == 2 ? getString(R.string.library_no_favorites)
 				: category == 1 ? getString(R.string.library_no_recent)
+				: platform == 9 ? getString(R.string.library_gp32_import_hint)
 				: platform == 8 ? getString(R.string.library_piece_import_hint)
 				: platform != 0 ? getString(R.string.library_no_platform_games, LibraryQuery.PLATFORMS[platform])
 				: getString(R.string.library_no_games));
