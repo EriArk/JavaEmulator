@@ -43,6 +43,18 @@ public class CompatibilityProfileTest {
         }
     }
 
+    @Test public void asha501FilenameSelectsOneKeyBackAndPortraitCanvas() throws Exception {
+        org.junit.Assume.assumeTrue(ru.playsoftware.j2meloader.BuildConfig.ASHA_PROBE);
+        manifest("Nokia-MIDlet-App-Orientation: portrait\n");
+        ru.playsoftware.j2meloader.catalog.SourceHints.write(root, "Puzzle-Nokia501.jar");
+        ProfileModel model = run();
+        assertEquals("Nokia Asha 501", model.compatibilityProfile);
+        assertTrue(model.systemProperties.contains("com.nokia.keyboard.type: OnekeyBack"));
+        assertEquals(240, model.screenWidth);
+        assertEquals(320, model.screenHeight);
+        assertEquals(2, model.orientation);
+    }
+
     @Test public void asha311UsesFreshTargetOrientationAndKeepsCustomSettings() throws Exception {
         org.junit.Assume.assumeTrue(ru.playsoftware.j2meloader.BuildConfig.ASHA_PROBE);
         manifest("Target-Device: Nokia Asha 311\nNokia-MIDlet-App-Orientation: landscape\n");

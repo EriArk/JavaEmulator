@@ -68,4 +68,6 @@
     <string-array name="library_cover_formats"><item>Automatic</item><item>Wide</item><item>Portrait</item></string-array>
     <string name="library_flash_import_hint">Choose a Flash Lite SWF or a ZIP with its game files.</string>
     <string name="game_nokia_gesture_keys">Nokia gestures: D-pad flicks, OK taps or holds</string>
+    <string name="nokia_open_keypad">Open phone keypad</string>
+    <string name="nokia_close_keypad">Close phone keypad</string>
 </resources>

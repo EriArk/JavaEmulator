@@ -54,6 +54,7 @@ final class CompatibilityProfileTester {
 
 	private static final String PROFILE_GENERIC = "Generic MIDP";
 	private static final String PROFILE_NOKIA = "Nokia S40";
+	private static final String PROFILE_ASHA_501 = "Nokia Asha 501";
 	private static final String PROFILE_FULL_TOUCH = "Nokia Asha 311 (S40 full touch)";
 	private static final String PROFILE_SONY_ERICSSON = "Sony Ericsson JP-8";
 	private static final String PROFILE_MOTOROLA = "Motorola";
@@ -129,10 +130,12 @@ final class CompatibilityProfileTester {
 				if ("portrait".equalsIgnoreCase(orientation.trim())) params.orientation = 2;
 				if ("landscape".equalsIgnoreCase(orientation.trim())) params.orientation = 3;
 			}
-			if (PROFILE_FULL_TOUCH.equals(best.name) && probe.screenWidth == 0) {
-				reasons += "; default canvas for Asha 311";
-				probe.screenWidth = params.orientation == 3 ? 400 : 240;
-				probe.screenHeight = params.orientation == 3 ? 240 : 400;
+			if ((PROFILE_FULL_TOUCH.equals(best.name) || PROFILE_ASHA_501.equals(best.name))
+					&& probe.screenWidth == 0) {
+				reasons += "; default canvas for " + best.name;
+				int longEdge = PROFILE_ASHA_501.equals(best.name) ? 320 : 400;
+				probe.screenWidth = params.orientation == 3 ? longEdge : 240;
+				probe.screenHeight = params.orientation == 3 ? 240 : longEdge;
 			}
 		}
 		params.compatibilityReasons = reasons;
@@ -281,6 +284,10 @@ final class CompatibilityProfileTester {
 			fullTouch.put("microedition.platform", "Nokia311");
 			fullTouch.put("com.nokia.keyboard.type", "None");
 			candidates.add(new Candidate(PROFILE_FULL_TOUCH, 0, fullTouch));
+			LinkedHashMap<String, String> asha = nokiaProperties(profile, configuration);
+			asha.put("microedition.platform", "Nokia501 (Nokia_Asha_1_0)");
+			asha.put("com.nokia.keyboard.type", "OnekeyBack");
+			candidates.add(new Candidate(PROFILE_ASHA_501, 0, asha));
 		}
 		candidates.add(new Candidate(PROFILE_SONY_ERICSSON, 0,
 				sonyEricssonProperties(profile, configuration)));
@@ -294,14 +301,15 @@ final class CompatibilityProfileTester {
 	}
 
 	private static int scoreCandidate(Candidate candidate, Probe probe) {
-		if (PROFILE_FULL_TOUCH.equals(candidate.name)) {
-			Pattern model = Pattern.compile("(?<![a-z0-9])(?:nokia[ -]?311|asha[ -]?311)(?![a-z0-9])");
+		if (PROFILE_FULL_TOUCH.equals(candidate.name) || PROFILE_ASHA_501.equals(candidate.name)) {
+			String number = PROFILE_ASHA_501.equals(candidate.name) ? "501" : "311";
+			Pattern model = Pattern.compile("(?<![a-z0-9])(?:nokia|asha)[ -]?" + number + "(?![a-z0-9])");
 			if (model.matcher(probe.targetText).find()) {
-				candidate.reason = "Asha 311 target metadata";
+				candidate.reason = "Asha " + number + " target metadata";
 				return 360;
 			}
 			if (model.matcher(probe.filenameTarget).find()) {
-				candidate.reason = "Asha 311 source filename";
+				candidate.reason = "Asha " + number + " source filename";
 				return 140;
 			}
 			return 0;

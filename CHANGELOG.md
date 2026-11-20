@@ -10,6 +10,10 @@ stated otherwise. **Experimental** in older checkpoints means local/private
 combined builds; released experimental features are explicitly identified.
 **Released** means an actual GitHub release asset.
 
+## 2026-11-21 - Asha 501 game menus and phone keypad
+
+- Added an Asha 501 phone preset, guest Back commands and keypad-command visibility. Fixed a guest softkey menu focus change that could return to the starting screen. Verified a complete Bubblet round and retained score on Retroid. [Checks and screenshots](docs/checks/2026-11-21-asha.md#asha-501-and-bubblet-105).
+
 ## 2026-11-21 - Nokia full-touch gestures in Java ME
 
 - Added Nokia gesture zones, an Asha 311 phone preset and optional D-pad/OK gesture controls in the private Retroid debug build. Fixed a guest Thread method conflict on entry to TouchMare battles and a MIDP rendering crash when another game thread removed layers during a frame. [Device checks and remaining APIs](docs/checks/2026-11-21-asha.md).

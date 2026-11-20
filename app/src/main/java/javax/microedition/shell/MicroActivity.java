@@ -141,10 +141,22 @@ public class MicroActivity extends AppCompatActivity {
 		VirtualKeyboard vk = ContextHolder.getVk();
 		if (vk != null) vk.cancel();
 	}
+	private volatile boolean nokiaKeypadCommandHidden;
+	private boolean nokiaKeypadOpened;
+
+	public void hideNokiaKeypadCommand(boolean hidden) {
+		nokiaKeypadCommandHidden = hidden;
+	}
+
+	private boolean nokiaBack() {
+		return BuildConfig.ASHA_PROBE && "OnekeyBack".equals(System.getProperty("com.nokia.keyboard.type"))
+				&& current != null && current.fireBackCommand();
+	}
+
 	private void updateControllerMode() {
 		if (microLoader == null) return;
 		VirtualKeyboard vk = ContextHolder.getVk();
-		if (vk != null) vk.setControlsEnabled(ru.playsoftware.j2meloader.input.DeviceControls.showTouch(
+		if (vk != null) vk.setControlsEnabled(nokiaKeypadOpened || ru.playsoftware.j2meloader.input.DeviceControls.showTouch(
 				microLoader.getTouchSettings(), devices != null && devices.connected()));
 	}
 	private void controllerDisconnected() {
@@ -370,7 +382,10 @@ public class MicroActivity extends AppCompatActivity {
 		if (!hasFocus) {
 			if (fastForward != null) fastForward.cancel();
 			cancelQuickMapTrigger();
-			if (!keepNetworkRunningInUi()) MidletThread.pauseApp();
+			// A focusable MIDP command popup belongs to the running game. Pausing here
+			// would call startApp() on selection and discard the screen it just opened.
+			if ((current == null || !current.isCommandMenuShowing()) && !keepNetworkRunningInUi())
+				MidletThread.pauseApp();
 			controllerInput.clear();
 			VirtualKeyboard vk = ContextHolder.getVk();
 			if (vk != null) vk.cancel();
@@ -1007,6 +1022,19 @@ public class MicroActivity extends AppCompatActivity {
 						this::updateScreenshotButton, this::showMorePage));
 		if (!BuildConfig.HANDHELD_MODE) gameMenu.action(getString(R.string.game_shortcut_appearance), R.drawable.ic_baseline_tune_24,
 				() -> settingsPages().gameShortcuts(this::showMorePage));
+		if (BuildConfig.ASHA_PROBE && current instanceof Canvas && ContextHolder.getVk() != null) {
+			String keyboard = System.getProperty("com.nokia.keyboard.type");
+			boolean offerKeypad = !nokiaKeypadCommandHidden && ("None".equals(keyboard) || "OnekeyBack".equals(keyboard))
+					&& !ContextHolder.getVk().isControlsEnabled();
+			if (offerKeypad || nokiaKeypadOpened) {
+				gameMenu.action(getString(nokiaKeypadOpened ? R.string.nokia_close_keypad : R.string.nokia_open_keypad),
+						R.drawable.ic_action_keyboard, () -> {
+							nokiaKeypadOpened = !nokiaKeypadOpened;
+							gameMenu.dismiss();
+							applyRuntimeDisplaySettings(false);
+						});
+			}
+		}
 		gameMenu.action(getString(R.string.game_system_keyboard), R.drawable.ic_action_keyboard, () -> {
 			gameMenu.dismiss();
 			inputMethodManager.toggleSoftInputFromWindow(binding.displayableContainer.getWindowToken(),
@@ -1093,7 +1121,7 @@ public class MicroActivity extends AppCompatActivity {
 	public boolean onKeyUp(int keyCode, KeyEvent event) {
 		if ((keyCode == menuKey || keyCode == KeyEvent.KEYCODE_BACK || keyCode == KeyEvent.KEYCODE_MENU)
 				&& (event.getFlags() & (KeyEvent.FLAG_LONG_PRESS | KeyEvent.FLAG_CANCELED)) == 0) {
-			openOptionsMenu();
+			if (keyCode != KeyEvent.KEYCODE_BACK || !nokiaBack()) openOptionsMenu();
 			return true;
 		}
 		return super.onKeyUp(keyCode, event);
@@ -1101,8 +1129,8 @@ public class MicroActivity extends AppCompatActivity {
 
 	@Override
 	public void onBackPressed() {
-		// Keep a system-gesture escape path when the explicit touch handle is hidden.
 		if (microLoader != null && !microLoader.getTouchSettings().gameHandleVisible) openOptionsMenu();
+		else nokiaBack();
 	}
 
 	@Override

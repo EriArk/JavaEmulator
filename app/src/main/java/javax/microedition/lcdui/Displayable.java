@@ -168,6 +168,23 @@ public abstract class Displayable {
 		this.listener = listener;
 	}
 
+	public boolean isCommandMenuShowing() {
+		return softBar != null && softBar.isMenuShowing();
+	}
+
+	/** Asha's hardware Back key invokes the highest-priority guest BACK command. */
+	public boolean fireBackCommand() {
+		if (listener == null) return false;
+		Command best = null;
+		for (Command command : getCommands()) {
+			if (command.getCommandType() == Command.BACK
+					&& (best == null || command.getPriority() < best.getPriority())) best = command;
+		}
+		if (best == null) return false;
+		fireCommandAction(best);
+		return true;
+	}
+
 	public void fireCommandAction(Command c) {
 		if (listener != null) {
 			Display.postEvent(CommandActionEvent.getInstance(listener, c, this));

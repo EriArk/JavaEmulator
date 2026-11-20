@@ -16,7 +16,7 @@ The [platform issue index](PLATFORM_ISSUES.md) maps the 49 open platform-specifi
 
 ## Nokia Asha / Series 40 (2026-11-21, private Retroid build)
 
-TouchMare 1.3 runs in the Java ME library with guest gestures, optional controller or keypad gestures, per-game graphics and RMS. On Retroid Classic it reached battle and Game Over. Bounce Tales 1.15 also entered its first level with ordinary Series 40 controls. Asha 311 handset detection is available for explicit model hints. Pinch, double-tap and Nokia text-entry extensions remain open. [Device checks and scope](checks/2026-11-21-asha.md).
+TouchMare 1.3 runs in the Java ME library with guest gestures, optional controller or keypad gestures, per-game graphics and RMS. On Retroid Classic it reached battle and Game Over. Bounce Tales 1.15 also entered its first level with ordinary Series 40 controls. Asha 311 and 501 handset detection is available for explicit model hints. On the 501 profile, Bubblet 1.0.5 completed a round and kept its 478-point high score across restart, update and reimport. The guest Back key and keypad-command visibility are implemented. Pinch, double-tap and Nokia text-entry extensions remain open. [Device checks and scope](checks/2026-11-21-asha.md).
 
 ## Flash Lite (2026-11-21, private Retroid build)
 

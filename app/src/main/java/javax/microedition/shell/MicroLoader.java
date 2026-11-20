@@ -378,6 +378,12 @@ public class MicroLoader {
 					MidletSystem.setProperty(prop[0], prop[1]);
 				}
 			}
+			// Older profiles for the default Nokia 6233 do not store a keyboard type.
+			if (BuildConfig.ASHA_PROBE && System.getProperty("com.nokia.keyboard.type") == null
+					&& "Nokia6233/05.10".equals(System.getProperty("microedition.platform"))) {
+				System.setProperty("com.nokia.keyboard.type", "PhoneKeypad");
+				MidletSystem.setProperty("com.nokia.keyboard.type", "PhoneKeypad");
+			}
 			try {
 				Charset.forName(System.getProperty("microedition.encoding"));
 			} catch (Exception e) {

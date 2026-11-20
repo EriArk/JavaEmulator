@@ -113,6 +113,10 @@ public abstract class AbstractSoftKeysBar {
 		menuStartIndex = i;
 	}
 
+	public boolean isMenuShowing() {
+		return popup != null && popup.isShowing();
+	}
+
 	public void closeMenu() {
 		if (popup != null && popup.isShowing()) {
 			popup.dismiss();

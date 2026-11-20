@@ -64,6 +64,19 @@ public class NokiaGestureTest {
         assertEquals(Collections.singletonList(GESTURE_LONG_PRESS),events);
     }
 
+    @Test public void hardwareBackDeliversOnlyTheHighestPriorityBackCommand() throws Exception {
+        Command help = new Command("Help", Command.HELP, 0);
+        Command back = new Command("Return", Command.BACK, 1);
+        canvas.addCommand(help);
+        canvas.addCommand(new Command("Other back", Command.BACK, 4));
+        canvas.addCommand(back);
+        assertFalse(canvas.fireBackCommand());
+        java.util.concurrent.LinkedBlockingQueue<Command> received = new java.util.concurrent.LinkedBlockingQueue<>();
+        canvas.setCommandListener((command, screen) -> received.add(command));
+        assertTrue(canvas.fireBackCommand());
+        assertSame(back, received.poll(2, java.util.concurrent.TimeUnit.SECONDS));
+    }
+
     @Test public void phoneIdentityBelongsToTheSelectedGame() {
         ru.playsoftware.j2meloader.config.ProfileModel profile = new ru.playsoftware.j2meloader.config.ProfileModel();
         profile.systemProperties = "custom.key: retained\n";
