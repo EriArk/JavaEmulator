@@ -16,7 +16,7 @@ The [platform issue index](PLATFORM_ISSUES.md) maps the 49 open platform-specifi
 
 ## Platform launcher and device artwork (2026-11-20, local debug build)
 
-The optional startup grid opens each enabled platform’s library tab. Switch off **Show platforms at startup** to reopen the last tab directly. The library menu includes **Platforms** for returning to the grid. The five tiles in the combined debug build use hardware illustrations with model labels. The [device reference catalog](../design-concepts/platform-stickers/README.md) includes 67 additional stickers for roadmap platforms. [Retroid screenshot](checks/2026-11-20-platform-launcher.png).
+The platform grid is the top level of the library. A sticker opens a library tab. Controller focus lights the device silhouette and enlarges it by 12%. Back or the library’s up arrow returns to the grid. Back from the grid leaves the app. The grid shares the library header with search across installed games, platform-specific import, social and settings. Disable **Show platform launcher** under **Settings → Appearance / Layout** to open the last tab directly. The [device reference catalog](../design-concepts/platform-stickers/README.md) identifies the five hardware illustrations and includes 67 reserve stickers. [Retroid screenshot](checks/2026-11-20-platform-launcher.png) · [Controller focus recording](checks/2026-11-20-platform-focus.mp4). Five library instrumentation checks passed. The recording used left-stick events injected through the connected Xbox controller input device.
 
 ## WIPI and SKVM (2026-11-20, local ARM64 debug build)
 

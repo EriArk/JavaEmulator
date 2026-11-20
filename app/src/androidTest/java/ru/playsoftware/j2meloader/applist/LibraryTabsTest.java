@@ -51,6 +51,44 @@ public class LibraryTabsTest {
         } finally { p.edit().clear().commit(); }
     }
 
+    @Test public void platformHomePrecedesLibraryAndCanBeDisabled() {
+        SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(context);
+        try (LibraryPreferencesSnapshot snapshot = new LibraryPreferencesSnapshot(context)) {
+            prefs.edit().putBoolean(PlatformGridView.STARTUP, true).commit();
+            try (ActivityScenario<MainActivity> scenario = ActivityScenario.launch(MainActivity.class)) {
+                scenario.onActivity(a -> {
+                    PlatformGridView home = a.findViewById(R.id.platform_grid);
+                    assertTrue(home.isShown());
+                    assertTrue(a.findViewById(R.id.library_search_toggle).isShown());
+                    assertTrue(a.findViewById(R.id.rail_add_game).isShown());
+                    assertTrue(a.findViewById(R.id.library_social).isShown());
+                    assertTrue(a.findViewById(R.id.library_menu).isShown());
+                    home.findViewWithTag(2).performClick();
+                    assertTrue(a.findViewById(R.id.platform_mophun).isSelected());
+                    assertFalse(home.isShown());
+                    a.getOnBackPressedDispatcher().onBackPressed();
+                    assertTrue(home.isShown());
+                    a.findViewById(R.id.library_search_toggle).performClick();
+                    assertTrue(home.isSearching());
+                    a.getOnBackPressedDispatcher().onBackPressed();
+                    assertFalse(home.isSearching());
+                    assertTrue(home.isShown());
+                    home.findViewWithTag(2).performClick();
+                    a.findViewById(R.id.platform_up).performClick();
+                    assertTrue(home.isShown());
+                    prefs.edit().putBoolean(PlatformGridView.STARTUP, false).commit();
+                });
+            }
+            try (ActivityScenario<MainActivity> scenario = ActivityScenario.launch(MainActivity.class)) {
+                scenario.onActivity(a -> {
+                    assertFalse(a.findViewById(R.id.platform_grid).isShown());
+                    assertFalse(a.findViewById(R.id.platform_up).isShown());
+                    assertTrue(a.findViewById(R.id.platform_mophun).isSelected());
+                });
+            }
+        }
+    }
+
     private int lastVisiblePlatform() {
         return ru.playsoftware.j2meloader.BuildConfig.WIPI_PROBE ? 5
                 : ru.playsoftware.j2meloader.BuildConfig.SYMBIAN_EXPERIMENT ? 4 : 2;

@@ -88,6 +88,11 @@ public class MainActivity extends BaseActivity {
 	@Override
 	public boolean dispatchKeyEvent(KeyEvent event) {
 		int key = event.getKeyCode();
+        if (key == KeyEvent.KEYCODE_BUTTON_B) {
+            if (event.getAction() == KeyEvent.ACTION_UP && !event.isCanceled()) getOnBackPressedDispatcher().onBackPressed();
+            return true;
+        }
+        if (key == KeyEvent.KEYCODE_BUTTON_A && event.getRepeatCount() > 0) return true;
 		if (key == KeyEvent.KEYCODE_BUTTON_L2 || key == KeyEvent.KEYCODE_BUTTON_R2) {
 			int step = libraryTriggers.key(event.getDeviceId(), key == KeyEvent.KEYCODE_BUTTON_R2,
 					event.getAction() == KeyEvent.ACTION_DOWN);

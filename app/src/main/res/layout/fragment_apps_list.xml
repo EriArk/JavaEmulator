@@ -6,9 +6,13 @@
     <LinearLayout android:id="@+id/library_header"
         android:layout_width="match_parent" android:layout_height="48dp"
         android:layout_marginHorizontal="8dp" android:gravity="center_vertical">
+        <ImageButton android:id="@+id/platform_up" android:visibility="gone"
+            android:layout_width="44dp" android:layout_height="48dp"
+            android:background="?attr/selectableItemBackgroundBorderless" android:src="?attr/homeAsUpIndicator"
+            app:tint="?attr/abyss_text_primary" android:contentDescription="@string/platform_launcher" />
         <TextView android:id="@+id/launcher_title"
             android:layout_width="0dp" android:layout_height="match_parent" android:layout_weight="1"
-            android:gravity="center_vertical" android:text="AbyssME" android:textSize="18sp"
+            android:gravity="center_vertical" android:text="@string/platform_library_brand" android:textSize="18sp"
             android:textStyle="bold" android:singleLine="true" android:textColor="?attr/abyss_text_primary" />
         <ImageButton android:id="@+id/library_search_toggle"
             android:layout_width="48dp" android:layout_height="48dp"
@@ -31,6 +35,9 @@
             app:tint="?attr/abyss_text_primary" android:padding="12dp"
             android:contentDescription="@string/library_menu_title" android:tooltipText="@string/library_menu_title" />
     </LinearLayout>
+    <ru.playsoftware.j2meloader.applist.PlatformGridView android:id="@+id/platform_grid"
+        android:layout_width="match_parent" android:layout_height="0dp" android:layout_weight="1"
+        android:visibility="gone" />
     <HorizontalScrollView android:id="@+id/library_platform_scroll"
         android:layout_width="match_parent" android:layout_height="48dp"
         android:fillViewport="true" android:scrollbars="none">

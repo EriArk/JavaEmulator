@@ -1,6 +1,9 @@
 <resources>
     <string name="platform_launcher">Platforms</string>
-    <string name="platform_show_startup">Show platforms at startup</string>
-    <string name="platform_startup_summary">When off, open the last library tab.</string>
+    <string name="platform_show_startup">Show platform launcher</string>
+    <string name="platform_startup_summary">Choose a platform at startup and return to platforms with Back.</string>
     <string name="game_info_carrier">Platform: %1$s\nCarrier: %2$s</string>
+    <string name="search_all_games">Search all games</string>
+    <string name="platform_search_empty">No matching games</string>
+    <string name="platform_library_brand" translatable="false">AbyssME</string>
 </resources>

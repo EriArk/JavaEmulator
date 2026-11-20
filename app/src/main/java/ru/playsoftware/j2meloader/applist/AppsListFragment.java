@@ -137,6 +137,8 @@ public class AppsListFragment extends Fragment implements AppsListAdapter.Listen
 	private boolean searchExpanded;
 	private String restoredSearch = "";
 	private OnBackPressedCallback searchBack;
+	private OnBackPressedCallback platformBack;
+	private boolean platformHome;
 	private boolean compactLibrary;
 	private boolean initialGameFocus = true;
 	private int pendingGameFocus = -1;
@@ -147,11 +149,6 @@ public class AppsListFragment extends Fragment implements AppsListAdapter.Listen
 	private final ActivityResultLauncher<String> openFileLauncher = registerForActivityResult(
 			FileUtils.getFilePicker(),
 			this::onPickFileResult);
-	private final ActivityResultLauncher<Intent> platformPicker = registerForActivityResult(
-            new ActivityResultContracts.StartActivityForResult(), result -> {
-                if (result.getResultCode() == Activity.RESULT_OK && result.getData() != null)
-                    setPlatform(result.getData().getIntExtra("platform", platform));
-            });
     private final ActivityResultLauncher<String[]> wipiPicker = registerForActivityResult(
             new ActivityResultContracts.OpenDocument(), uri -> {
                 if (uri == null) return;
@@ -227,10 +224,24 @@ public class AppsListFragment extends Fragment implements AppsListAdapter.Listen
 	@Override
 	public void onViewCreated(@NonNull View view, Bundle savedInstanceState) {
 		super.onViewCreated(view, savedInstanceState);
-        if (savedInstanceState == null && appUri == null
-                && Intent.ACTION_MAIN.equals(requireActivity().getIntent().getAction())
-                && requireActivity().getIntent().hasCategory(Intent.CATEGORY_LAUNCHER)
-                && preferences.getBoolean(PlatformLauncherActivity.STARTUP, true)) openPlatforms();
+        Intent entry = requireActivity().getIntent();
+        platformHome = launcherEnabled() && (savedInstanceState != null
+                ? savedInstanceState.getBoolean("platformHome")
+                : appUri == null && (entry.getAction() == null || Intent.ACTION_MAIN.equals(entry.getAction())));
+        binding.platformGrid.bind(this::enterPlatform, item -> {
+            enterPlatform(LibraryQuery.platform(item));
+            startApp(item, false);
+        });
+        binding.platformUp.setOnClickListener(v -> showPlatforms());
+        platformBack = new OnBackPressedCallback(false) {
+            @Override public void handleOnBackPressed() {
+                if (platformHome) {
+                    binding.platformGrid.setSearching(false);
+                    updateResponsiveToolbar();
+                } else showPlatforms();
+            }
+        };
+        requireActivity().getOnBackPressedDispatcher().addCallback(getViewLifecycleOwner(), platformBack);
 		setHasOptionsMenu(true);
 		binding.appsRecycler.setAdapter(adapter);
 		binding.appsRecycler.setItemAnimator(null);
@@ -301,7 +312,12 @@ public class AppsListFragment extends Fragment implements AppsListAdapter.Listen
 		binding.libraryCategory.setOnClickListener(v -> showCategoryMenu());
 		binding.libraryMenu.setOnClickListener(v -> showLibraryMenu());
 		binding.librarySearchToggle.setOnClickListener(v -> {
-			if (searchExpanded) { closeSearch(); return; }
+			if (platformHome) {
+                binding.platformGrid.setSearching(!binding.platformGrid.isSearching());
+                updateResponsiveToolbar();
+                return;
+            }
+            if (searchExpanded) { closeSearch(); return; }
 			searchExpanded = true;
 			pendingGameFocus = -1;
 			updateResponsiveToolbar();
@@ -314,7 +330,10 @@ public class AppsListFragment extends Fragment implements AppsListAdapter.Listen
 				}
 			});
 		});
-		binding.librarySearchClose.setOnClickListener(v -> closeSearch());
+		if (platformHome && savedInstanceState != null && savedInstanceState.containsKey("platformSearch")) {
+            binding.platformGrid.restoreSearch(savedInstanceState.getString("platformSearch", ""));
+        }
+        binding.librarySearchClose.setOnClickListener(v -> closeSearch());
 		searchBack = new OnBackPressedCallback(false) {
 			@Override public void handleOnBackPressed() { closeSearch(); }
 		};
@@ -326,6 +345,11 @@ public class AppsListFragment extends Fragment implements AppsListAdapter.Listen
 		applyDisplayMode();
 		updateDetail(adapter.getFirstItem());
 		libraryObserver.onChanged();
+        if (platformHome && savedInstanceState == null && ru.playsoftware.j2meloader.input.DeviceControls.connected(requireContext())) {
+            binding.platformGrid.post(() -> {
+                if (binding != null && platformHome && !binding.platformGrid.isSearching()) binding.platformGrid.focusPlatform(platform);
+            });
+        }
 	}
 
 	private final RecyclerView.AdapterDataObserver libraryObserver = new RecyclerView.AdapterDataObserver() {
@@ -334,7 +358,7 @@ public class AppsListFragment extends Fragment implements AppsListAdapter.Listen
 		}
 	};
 	@Override public void onItemsFiltered() {
-			if (binding == null || !databaseLoaded || !externalLoaded) return;
+			if (binding == null || platformHome || !databaseLoaded || !externalLoaded) return;
 			if (restoreLocation) {
 				restoreLocation = false;
 				restoreLibraryLocation();
@@ -357,6 +381,18 @@ public class AppsListFragment extends Fragment implements AppsListAdapter.Listen
 	}
 
 	private void openLastDirectory() {
+        if (platformHome) {
+            GameMenuDialog dialog = libraryDialog(getString(R.string.library_add_game));
+            for (int i = 1; i < LibraryQuery.PLATFORMS.length; i++) {
+                final int id = i;
+                if (LibraryNavigation.available(id)) dialog.action(LibraryQuery.PLATFORMS[id], 0, () -> {
+                    dialog.dismiss();
+                    enterPlatform(id);
+                    openLastDirectory();
+                });
+            }
+            return;
+        }
         if (platform == 5) {
             wipiPicker.launch(new String[]{"*/*"});
             return;
@@ -392,6 +428,7 @@ public class AppsListFragment extends Fragment implements AppsListAdapter.Listen
 	}
 
 	private void focusGame(String path) {
+		if (platformHome) return;
 		int position = 0;
 		for (int i = 0; i < adapter.getItemCount(); i++) {
 			if (adapter.getItem(i).getPath().equals(path)) { position = i; break; }
@@ -402,8 +439,9 @@ public class AppsListFragment extends Fragment implements AppsListAdapter.Listen
 	}
 
 	private GameMenuDialog libraryDialog(String title) {
+		int count = platformHome ? databaseItems.size() + externalItems.size() : adapter.getItemCount();
 		GameMenuDialog dialog = new GameMenuDialog(requireContext(),
-				getResources().getQuantityString(R.plurals.library_games, adapter.getItemCount(), adapter.getItemCount()));
+				getResources().getQuantityString(R.plurals.library_games, count, count));
 		dialog.useEdgePanel();
 		dialog.show();
 		dialog.page(title);
@@ -475,9 +513,23 @@ public class AppsListFragment extends Fragment implements AppsListAdapter.Listen
 		}
 	}
 
-    private void openPlatforms() {
-        platformPicker.launch(new Intent(requireContext(), PlatformLauncherActivity.class)
-                .putExtra("platform", platform));
+    private boolean launcherEnabled() {
+        return preferences.getBoolean(PlatformGridView.STARTUP, true);
+    }
+
+    private void showPlatforms() {
+        platformHome = true;
+        pendingGameFocus = -1;
+        updateResponsiveToolbar();
+        binding.platformGrid.focusPlatform(platform);
+    }
+
+    private void enterPlatform(int id) {
+        binding.platformGrid.setSearching(false);
+        platformHome = false;
+        setPlatform(id);
+        updateResponsiveToolbar();
+        if (ru.playsoftware.j2meloader.input.DeviceControls.connected(requireContext())) focusGame(restoredSelection);
     }
 
 	private void showLibraryMenu() {
@@ -487,15 +539,12 @@ public class AppsListFragment extends Fragment implements AppsListAdapter.Listen
 
 	private void populateLibraryMenu(GameMenuDialog dialog) {
 		dialog.page(getString(R.string.library_menu_title));
-        dialog.action(getString(R.string.platform_launcher), R.drawable.ic_library_layout_grid, () -> {
-            dialog.dismiss(); openPlatforms();
-        });
 		List<AppItem> all = new java.util.ArrayList<>(databaseItems);
 		all.addAll(externalItems);
 		AppItem last = LibraryQuery.lastPlayed(all);
 		if (last != null) dialog.action(getString(R.string.library_play_last, last.getTitle()), android.R.drawable.ic_media_play,
-				() -> { dialog.dismiss(); startApp(last, false); });
-		dialog.action(getString(R.string.library_collection), R.drawable.ic_list, () -> {
+				() -> { dialog.dismiss(); if (platformHome) enterPlatform(LibraryQuery.platform(last)); startApp(last, false); });
+		if (!platformHome) dialog.action(getString(R.string.library_collection), R.drawable.ic_list, () -> {
 			dialog.dismiss(); showCategoryMenu();
 		});
 		if (BuildConfig.SYMBIAN_EXPERIMENT) {
@@ -505,6 +554,31 @@ public class AppsListFragment extends Fragment implements AppsListAdapter.Listen
 						"io.github.eriark.abyssme.symbian.SymbianActivity"));
 			});
 		}
+		if (!platformHome) addGameViewActions(dialog);
+		dialog.action(getString(R.string.library_add_game), R.drawable.ic_add_white, () -> { dialog.dismiss(); openLastDirectory(); });
+		dialog.action(getString(R.string.library_add_folder), R.drawable.ic_setting_folder, () -> { dialog.dismiss(); openFolderLauncher.launch(null); });
+		dialog.action(getString(R.string.settings_fluxer_account), android.R.drawable.ic_menu_myplaces, () -> {
+			dialog.dismiss(); startActivity(new Intent(requireActivity(),
+					ru.playsoftware.j2meloader.multiplayer.FluxerAccountActivity.class));
+		});
+		dialog.action(getString(R.string.social_chats), android.R.drawable.ic_dialog_email, () -> {
+			dialog.dismiss(); startActivity(new Intent(requireActivity(),
+					ru.playsoftware.j2meloader.multiplayer.FluxerChatsActivity.class));
+		});
+		dialog.action(getString(R.string.social_friends), android.R.drawable.ic_menu_myplaces, () -> {
+			dialog.dismiss(); startActivity(new Intent(requireContext(),
+					ru.playsoftware.j2meloader.multiplayer.FluxerChatsActivity.class).putExtra("friends", true));
+		});
+		dialog.action(getString(R.string.social_lobbies), android.R.drawable.ic_menu_share, () -> {
+			dialog.dismiss(); startActivity(new Intent(requireContext(),
+					ru.playsoftware.j2meloader.multiplayer.LobbyDirectoryActivity.class));
+		});
+		dialog.action(getString(R.string.settings_title), R.drawable.ic_baseline_tune_24, () -> {
+			dialog.dismiss(); startActivity(new Intent(requireActivity(), SettingsActivity.class));
+		});
+	}
+
+	private void addGameViewActions(GameMenuDialog dialog) {
 		dialog.action(getString(R.string.library_view_value, getResources().getStringArray(R.array.library_view_modes)[adapter.getDisplayMode()]),
 				android.R.drawable.ic_menu_view, () -> {
 			dialog.page(getString(R.string.library_view));
@@ -541,27 +615,6 @@ public class AppsListFragment extends Fragment implements AppsListAdapter.Listen
 				int sort = appRepository.getSort() & Integer.MAX_VALUE;
 				preferences.edit().putInt(PREF_APP_SORT, checked ? sort | Integer.MIN_VALUE : sort).apply();
 			});
-		});
-		dialog.action(getString(R.string.library_add_game), R.drawable.ic_add_white, () -> { dialog.dismiss(); openLastDirectory(); });
-		dialog.action(getString(R.string.library_add_folder), R.drawable.ic_setting_folder, () -> { dialog.dismiss(); openFolderLauncher.launch(null); });
-		dialog.action(getString(R.string.settings_fluxer_account), android.R.drawable.ic_menu_myplaces, () -> {
-			dialog.dismiss(); startActivity(new Intent(requireActivity(),
-					ru.playsoftware.j2meloader.multiplayer.FluxerAccountActivity.class));
-		});
-		dialog.action(getString(R.string.social_chats), android.R.drawable.ic_dialog_email, () -> {
-			dialog.dismiss(); startActivity(new Intent(requireActivity(),
-					ru.playsoftware.j2meloader.multiplayer.FluxerChatsActivity.class));
-		});
-		dialog.action(getString(R.string.social_friends), android.R.drawable.ic_menu_myplaces, () -> {
-			dialog.dismiss(); startActivity(new Intent(requireContext(),
-					ru.playsoftware.j2meloader.multiplayer.FluxerChatsActivity.class).putExtra("friends", true));
-		});
-		dialog.action(getString(R.string.social_lobbies), android.R.drawable.ic_menu_share, () -> {
-			dialog.dismiss(); startActivity(new Intent(requireContext(),
-					ru.playsoftware.j2meloader.multiplayer.LobbyDirectoryActivity.class));
-		});
-		dialog.action(getString(R.string.settings_title), R.drawable.ic_baseline_tune_24, () -> {
-			dialog.dismiss(); startActivity(new Intent(requireActivity(), SettingsActivity.class));
 		});
 	}
 
@@ -601,7 +654,7 @@ public class AppsListFragment extends Fragment implements AppsListAdapter.Listen
 		updateCollectionLabel();
 	}
 	public void stepPlatform(int direction) {
-		setPlatform(LibraryNavigation.next(platform, direction));
+		if (!platformHome) setPlatform(LibraryNavigation.next(platform, direction));
 	}
 	private void saveNavigation() {
 		if (navigation != null && adapter != null)
@@ -725,22 +778,29 @@ public class AppsListFragment extends Fragment implements AppsListAdapter.Listen
 		float fontScale = getResources().getConfiguration().fontScale;
 		boolean shortScreen = width >= 440 && height < 400 && fontScale <= 1.2f;
 		ViewGroup toolsParent = (ViewGroup) binding.libraryTools.getParent();
-		ViewGroup wantedParent = shortScreen ? binding.libraryHeader : binding.libraryScreen;
+		ViewGroup wantedParent = shortScreen && !platformHome ? binding.libraryHeader : binding.libraryScreen;
 		if (toolsParent != wantedParent) {
 			toolsParent.removeView(binding.libraryTools);
 			LinearLayout.LayoutParams lp = new LinearLayout.LayoutParams(shortScreen ? 0 : -1, dp(48), shortScreen ? 1 : 0);
 			if (!shortScreen) lp.setMargins(dp(4), 0, dp(4), 0);
 			wantedParent.addView(binding.libraryTools, shortScreen ? 0 : 1, lp);
 		}
-		binding.launcherTitle.setVisibility(shortScreen ? View.GONE : View.VISIBLE);
+		binding.platformGrid.setVisibility(platformHome ? View.VISIBLE : View.GONE);
+        binding.libraryScreen.setVisibility(platformHome ? View.GONE : View.VISIBLE);
+        binding.libraryPlatformScroll.setVisibility(platformHome ? View.GONE : View.VISIBLE);
+        boolean parentAvailable = launcherEnabled() && requireActivity().getIntent().getData() == null;
+        binding.platformUp.setVisibility(!platformHome && parentAvailable ? View.VISIBLE : View.GONE);
+        binding.launcherTitle.setText(platformHome ? getString(R.string.platform_launcher) : getString(R.string.platform_library_brand));
+        binding.launcherTitle.setVisibility(shortScreen && !platformHome ? View.GONE : View.VISIBLE);
 		compactLibrary = LibraryLayout.compact(width, height, fontScale);
 		adapter.setCompact(compactLibrary && height < 600);
 		binding.libraryCount.setVisibility(!shortScreen && width >= 560 && fontScale <= 1.3f ? View.VISIBLE : View.GONE);
 		// Secondary commands remain in the menu when a narrow viewport cannot fit them.
-		binding.railAddGame.setVisibility(!shortScreen && width >= 340 && fontScale <= 1.5f ? View.VISIBLE : View.GONE);
+		binding.railAddGame.setVisibility(platformHome || (!shortScreen && width >= 340 && fontScale <= 1.5f) ? View.VISIBLE : View.GONE);
 		binding.librarySearchRow.setVisibility(searchExpanded || !restoredSearch.isEmpty() ? View.VISIBLE : View.GONE);
-		if (searchBack != null) searchBack.setEnabled(searchExpanded || !restoredSearch.isEmpty());
-		binding.librarySearchToggle.setSelected(searchExpanded || !restoredSearch.isEmpty());
+		if (searchBack != null) searchBack.setEnabled(!platformHome && (searchExpanded || !restoredSearch.isEmpty()));
+        if (platformBack != null) platformBack.setEnabled(platformHome ? binding.platformGrid.isSearching() : parentAvailable);
+		binding.librarySearchToggle.setSelected(platformHome ? binding.platformGrid.isSearching() : searchExpanded || !restoredSearch.isEmpty());
 		int visibleTabs = 0;
 		for (int id = 1; id < LibraryQuery.PLATFORMS.length; id++)
 			if (LibraryNavigation.available(id)) visibleTabs++;
@@ -931,6 +991,9 @@ public class AppsListFragment extends Fragment implements AppsListAdapter.Listen
 		if (!restoreLocation) rememberVisibleSelection();
 		saveNavigation();
 		super.onSaveInstanceState(state);
+        state.putBoolean("platformHome", platformHome);
+        if (platformHome && binding != null && binding.platformGrid.isSearching())
+            state.putString("platformSearch", binding.platformGrid.query());
         state.putString("launcherLink", pendingLauncherLink);
 		state.putInt("artworkTargetId", artworkTargetId);
 		state.putBoolean("pickingIcon", pickingIcon);
@@ -1047,7 +1110,26 @@ public class AppsListFragment extends Fragment implements AppsListAdapter.Listen
 
 	public boolean handleControllerKey(int keyCode) {
 		if (binding == null) return false;
-		if (restoreLocation && keyCode == KeyEvent.KEYCODE_BUTTON_A) return true;
+		if (platformHome) {
+            if (!binding.platformGrid.isSearching() && binding.getRoot().findFocus() == null
+                    && ru.playsoftware.j2meloader.input.ControllerInput.direction(keyCode) != 0) {
+                binding.platformGrid.focusPlatform(platform);
+                return true;
+            }
+            if (keyCode == KeyEvent.KEYCODE_BUTTON_START || keyCode == KeyEvent.KEYCODE_MENU) {
+                showLibraryMenu();
+                return true;
+            }
+            if (keyCode == KeyEvent.KEYCODE_BUTTON_A) {
+                View focus = binding.getRoot().findFocus();
+                if (focus == null) binding.platformGrid.focusPlatform(platform);
+                else if (focus.isClickable()) focus.performClick();
+                else return false;
+                return true;
+            }
+            return false;
+        }
+        if (restoreLocation && keyCode == KeyEvent.KEYCODE_BUTTON_A) return true;
 		if (binding.getRoot().findFocus() == null) {
 			if (keyCode == KeyEvent.KEYCODE_BUTTON_A && selectedItem != null) {
 				startApp(selectedItem, false);
@@ -1385,6 +1467,7 @@ public class AppsListFragment extends Fragment implements AppsListAdapter.Listen
 
 	@Override public void onResume() {
 		super.onResume();
+		if (platformHome && !launcherEnabled()) enterPlatform(platform);
 		updateLibraryControls();
 		reloadExternalLibrary();
 	}
@@ -1444,6 +1527,7 @@ public class AppsListFragment extends Fragment implements AppsListAdapter.Listen
 			if (sort < 0) order = order.reversed();
 			items.sort(order.thenComparing(byTitle).thenComparing(AppItem::getPath));
 		}
+		if (binding != null) binding.platformGrid.setGames(items);
 		adapter.setItems(items);
 	}
 

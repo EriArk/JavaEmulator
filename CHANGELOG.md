@@ -12,7 +12,7 @@ combined builds; released experimental features are explicitly identified.
 
 ## 2026-11-20 - Platform launcher, device stickers and WIPI library (local)
 
-- Open a platform’s library from a grid illustrated with its hardware. Disable **Show platforms at startup** to resume the last library tab. Reopen the grid from the library menu. [Retroid screenshot](docs/checks/2026-11-20-platform-launcher.png).
+- Open a platform’s library from the top-level device grid. Each sticker has a platform label and grows slightly with an accent glow when focused. Back returns to the grid, where the header offers search across games, import, social and the library menu. Disable **Show platform launcher** to resume the last library tab. [Retroid screenshot](docs/checks/2026-11-20-platform-launcher.png).
 - Added 72 hardware stickers for current and planned platforms. Five are Android resources. The other 67 have individual files in the [roadmap artwork catalog](design-concepts/platform-stickers/README.md).
 - In the opt-in WIPI / SKVM build, add carrier ZIPs to the library, then launch, rename, favorite or configure games from their cards. Verified import of Inotia and Metal Slug and launch of Inotia from the library on Retroid Classic.
 

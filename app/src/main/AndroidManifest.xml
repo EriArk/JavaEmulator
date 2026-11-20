@@ -158,7 +158,6 @@
         <activity android:name=".multiplayer.FluxerChatsActivity" android:exported="false"
             android:launchMode="singleTask" android:screenOrientation="unspecified"
             android:windowSoftInputMode="adjustResize" />
-        <activity android:name=".applist.PlatformLauncherActivity" android:exported="false" />
         <activity android:name=".settings.SettingsActivity"
             android:exported="false"
             android:screenOrientation="unspecified">
