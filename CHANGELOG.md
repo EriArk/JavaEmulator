@@ -10,6 +10,11 @@ stated otherwise. **Experimental** in older checkpoints means local/private
 combined builds; released experimental features are explicitly identified.
 **Released** means an actual GitHub release asset.
 
+## 2026-11-20 - Native Dingoo and Gemei games (local ARM64 debug build)
+
+- Open Dingoo A320 and Gemei A330 from their own platform stickers and library tabs. Import native packages, keep favorites and covers, and use the shared display, touch and controller settings.
+- Ran Digger and 7 Days Salvation on Retroid Pocket Classic with gameplay and recorded audio. Save state and Load state restored both games after a cold restart. Two Gemei homebrew titles displayed black on Android and on the upstream desktop emulator. [Device results and open checks](docs/checks/2026-11-20-dingoo-gemei.md).
+
 ## 2026-11-20 - Platform launcher, device stickers and WIPI library (local)
 
 - Open a platform’s library from the top-level device grid. Each sticker has a platform label and grows slightly with an accent glow when focused. Back returns to the grid, where the header offers search across games, import, social and the library menu. Disable **Show platform launcher** to resume the last library tab. [Retroid screenshot](docs/checks/2026-11-20-platform-launcher.png).

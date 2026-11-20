@@ -1,24 +1,23 @@
 /* SPDX-License-Identifier: GPL-3.0-only */
-package io.github.eriark.abyssme.wipi;
+package ru.playsoftware.j2meloader.handheld;
 
 import android.content.Context;
 import android.graphics.*;
 import android.os.SystemClock;
 import android.view.*;
-import com.parkjeongseop.wipi.WipiNative;
 import ru.playsoftware.j2meloader.config.ProfileModel;
 import ru.playsoftware.j2meloader.input.*;
 import ru.playsoftware.j2meloader.mophun.MophunGpuView;
 import ru.playsoftware.j2meloader.ui.*;
 
 /** Native-frame consumer shared by the Canvas and enhancement pipeline. */
-final class WipiScreen extends View implements NativeFrame {
-    private static final int W = 240, H = 320;
+final class HandheldScreen extends View implements NativeFrame {
+    private final int W, H;
     private final ProfileModel profile;
-    private final WipiGameActivity host;
+    private final HandheldActivity host;
     private final NativeTouchControls touch;
-    private final Bitmap bitmap = Bitmap.createBitmap(W, H, Bitmap.Config.ARGB_8888);
-    private final int[] pixels = new int[W * H], errorKind = new int[1];
+    private final Bitmap bitmap;
+    private final int[] pixels;
     private final RectF dest = new RectF();
     private final Paint paint = new Paint();
     private final LcdEffect lcd = new LcdEffect();
@@ -28,9 +27,12 @@ final class WipiScreen extends View implements NativeFrame {
     int fps;
     MophunGpuView gpu;
 
-    WipiScreen(WipiGameActivity host, ProfileModel profile, ControllerInput.Sink keys) {
+    HandheldScreen(HandheldActivity host, ProfileModel profile, ControllerInput.Sink keys) {
         super(host);
         this.host = host;
+        W = host.width(); H = host.height();
+        bitmap = Bitmap.createBitmap(W, H, Bitmap.Config.ARGB_8888);
+        pixels = new int[W * H];
         this.profile = profile;
         touch = new NativeTouchControls(profile, getResources().getDisplayMetrics().density,
                 ViewConfiguration.get(host).getScaledTouchSlop(), keys, this::invalidate, () -> {},
@@ -56,7 +58,7 @@ final class WipiScreen extends View implements NativeFrame {
         return true;
     }
     private synchronized void poll() {
-        if (WipiNative.nativeGetFrame(pixels)) {
+        if (host.frame(pixels)) {
             bitmap.setPixels(pixels, 0, W, 0, 0, W, H);
             nanos = System.nanoTime();
             serial++;
@@ -87,9 +89,9 @@ final class WipiScreen extends View implements NativeFrame {
         canvas.restore();
         touch.draw(canvas);
         if (paused) return;
-        String error = WipiNative.nativeGetError(errorKind);
+        String error = host.error();
         if (error != null) { paused = true; post(() -> host.fail(error)); return; }
-        if (WipiNative.nativePollExit()) { paused = true; post(host::finish); return; }
+        if (host.exited()) { paused = true; post(host::finish); return; }
         if (fps > 0 && fps < 60) postInvalidateDelayed(Math.max(1, 1000 / fps));
         else postInvalidateOnAnimation();
     }

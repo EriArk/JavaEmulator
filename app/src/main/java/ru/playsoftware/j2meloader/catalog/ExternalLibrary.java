@@ -11,11 +11,12 @@ import ru.playsoftware.j2meloader.applist.AppItem;
 public final class ExternalLibrary {
     public interface Provider { List<AppItem> read(Context context) throws IOException; }
     public interface PackageProvider extends Provider { void install(Context context, android.net.Uri uri) throws IOException; }
-    public static PackageProvider wipi() throws IOException {
+    public static PackageProvider packageProvider(int platform) throws IOException {
+        String provider = platform == 5 ? "io.github.eriark.abyssme.wipi.WipiLibrary" : "io.github.eriark.abyssme.dingoo.DingooLibrary";
         try {
-            return Class.forName("io.github.eriark.abyssme.wipi.WipiLibrary")
+            return Class.forName(provider)
                     .asSubclass(PackageProvider.class).getDeclaredConstructor().newInstance();
-        } catch (ReflectiveOperationException e) { throw new IOException("Cannot load WIPI library", e); }
+        } catch (ReflectiveOperationException e) { throw new IOException("Cannot load handheld library", e); }
     }
     public abstract static class Item extends AppItem {
         protected Item(String path, String title, String platform, String phone) { super(path, title, platform, phone); }
@@ -38,7 +39,8 @@ public final class ExternalLibrary {
     private ExternalLibrary() { }
     public static List<AppItem> read(Context context) throws IOException {
         List<AppItem> games = new ArrayList<>();
-        if (BuildConfig.WIPI_PROBE) games.addAll(wipi().read(context));
+        if (BuildConfig.WIPI_PROBE) games.addAll(packageProvider(5).read(context));
+        if (BuildConfig.DINGOO_PROBE) games.addAll(packageProvider(6).read(context));
         if (!BuildConfig.SYMBIAN_EXPERIMENT) return games;
         try {
             games.addAll(Class.forName("io.github.eriark.abyssme.symbian.SymbianLauncherLibrary")

@@ -22,7 +22,7 @@ final class LibraryNavigation {
     static int platform(int value) { return value >= 1 && value < LibraryQuery.PLATFORMS.length ? value : 1; }
     static boolean available(int id) {
         return id == 1 || id == 2 || ((id == 3 || id == 4) && BuildConfig.SYMBIAN_EXPERIMENT)
-                || (id == 5 && BuildConfig.WIPI_PROBE);
+                || (id == 5 && BuildConfig.WIPI_PROBE) || ((id == 6 || id == 7) && BuildConfig.DINGOO_PROBE);
     }
 
     static int next(int value, int direction) {

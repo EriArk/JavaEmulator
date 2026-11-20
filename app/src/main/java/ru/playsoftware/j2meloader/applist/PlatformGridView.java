@@ -46,7 +46,7 @@ public final class PlatformGridView extends LinearLayout {
         grid.setPadding(dp(6), dp(8), dp(6), dp(8));
         scroll.addView(grid);
         addView(scroll, new LayoutParams(-1, -1));
-        for (int id = 1; id < ART.length; id++) {
+        for (int id = 1; id < LibraryQuery.PLATFORMS.length; id++) {
             if (LibraryNavigation.available(id)) grid.addView(sticker(id));
         }
         scroll.addOnLayoutChangeListener((v,l,t,r,b,ol,ot,or,ob) -> {
@@ -169,7 +169,9 @@ public final class PlatformGridView extends LinearLayout {
         StickerImage image = new StickerImage(context);
         image.setPadding(dp(6), dp(6), dp(6), dp(6));
         image.setScaleType(ImageView.ScaleType.FIT_CENTER);
-        image.setImageResource(ART[id]);
+        int art = id < ART.length ? ART[id] : getResources().getIdentifier(
+                id == 6 ? "sticker_dingoo" : "sticker_gemei", "drawable", context.getPackageName());
+        image.setImageResource(art);
         image.setImportantForAccessibility(IMPORTANT_FOR_ACCESSIBILITY_NO);
         tile.addView(image, new LayoutParams(-1, 0, 1));
         TextView label = new TextView(context);

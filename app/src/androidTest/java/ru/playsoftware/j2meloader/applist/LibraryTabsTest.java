@@ -90,7 +90,8 @@ public class LibraryTabsTest {
     }
 
     private int lastVisiblePlatform() {
-        return ru.playsoftware.j2meloader.BuildConfig.WIPI_PROBE ? 5
+        return ru.playsoftware.j2meloader.BuildConfig.DINGOO_PROBE ? 7
+                : ru.playsoftware.j2meloader.BuildConfig.WIPI_PROBE ? 5
                 : ru.playsoftware.j2meloader.BuildConfig.SYMBIAN_EXPERIMENT ? 4 : 2;
     }
 
@@ -132,7 +133,8 @@ public class LibraryTabsTest {
                         if (tabs.getChildAt(i).getVisibility() == View.VISIBLE) visible++;
                     }
                     assertEquals(2 + (ru.playsoftware.j2meloader.BuildConfig.SYMBIAN_EXPERIMENT ? 2 : 0)
-                            + (ru.playsoftware.j2meloader.BuildConfig.WIPI_PROBE ? 1 : 0), visible);
+                            + (ru.playsoftware.j2meloader.BuildConfig.WIPI_PROBE ? 1 : 0)
+                            + (ru.playsoftware.j2meloader.BuildConfig.DINGOO_PROBE ? 2 : 0), visible);
                     assertTrue(a.findViewById(R.id.platform_java).isSelected());
                     a.findViewById(R.id.view_mode_list).performClick();
                     a.findViewById(R.id.library_search_toggle).performClick();
@@ -185,7 +187,7 @@ public class LibraryTabsTest {
                     assertTrue(a.findViewById(R.id.platform_java).isSelected());
                     a.dispatchKeyEvent(new KeyEvent(KeyEvent.ACTION_UP, KeyEvent.KEYCODE_BUTTON_L2));
                     a.dispatchKeyEvent(new KeyEvent(KeyEvent.ACTION_DOWN, KeyEvent.KEYCODE_BUTTON_L2));
-                    int lastTab = lastVisiblePlatform() == 5 ? R.id.platform_wipi
+                    int lastTab = lastVisiblePlatform() == 7 ? R.id.platform_gemei : lastVisiblePlatform() == 5 ? R.id.platform_wipi
                             : lastVisiblePlatform() == 4 ? R.id.platform_ngage : R.id.platform_mophun;
                     assertTrue(a.findViewById(lastTab).isSelected());
                     a.dispatchKeyEvent(new KeyEvent(KeyEvent.ACTION_UP, KeyEvent.KEYCODE_BUTTON_L2));

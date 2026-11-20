@@ -16,7 +16,7 @@ The [platform issue index](PLATFORM_ISSUES.md) maps the 49 open platform-specifi
 
 ## Platform launcher and device artwork (2026-11-20, local debug build)
 
-The platform grid is the top level of the library. A sticker opens a library tab. Controller focus lights the device silhouette and enlarges it by 12%. Back or the library’s up arrow returns to the grid. Back from the grid leaves the app. The grid shares the library header with search across installed games, platform-specific import, social and settings. Disable **Show platform launcher** under **Settings → Appearance / Layout** to open the last tab directly. The [device reference catalog](../design-concepts/platform-stickers/README.md) identifies the five hardware illustrations and includes 67 reserve stickers. [Retroid screenshot](checks/2026-11-20-platform-launcher.png) · [Controller focus recording](checks/2026-11-20-platform-focus.mp4). Five library instrumentation checks passed. The recording used left-stick events injected through the connected Xbox controller input device.
+The platform grid is the top level of the library. A sticker opens a library tab. Controller focus lights the device silhouette and enlarges it by 12%. Back or the library’s up arrow returns to the grid. Back from the grid leaves the app. The grid shares the library header with search across installed games, platform-specific import, social and settings. Disable **Show platform launcher** under **Settings → Appearance / Layout** to open the last tab directly. The [device reference catalog](../design-concepts/platform-stickers/README.md) lists all 72 illustrations. The combined WIPI and Dingoo debug build uses seven of them. [Retroid screenshot](checks/2026-11-20-platform-launcher.png) · [Controller focus recording](checks/2026-11-20-platform-focus.mp4). Five library instrumentation checks passed. The recording used left-stick events injected through the connected Xbox controller input device.
 
 ## WIPI and SKVM (2026-11-20, local ARM64 debug build)
 
@@ -24,9 +24,9 @@ On Retroid Pocket Classic (Android 14), the local build ran Com2uS Inotia (KTF W
 
 The original Korean KTF ZIP now opens from the document picker, and audio resumes after an Android output-route change. Heart Catch and the SKVM slider passed launch and relaunch on the same device. The WIPI / SKVM library tab imports individual carrier ZIPs, retains a managed copy and opens the game from its card. Inotia and Metal Slug remained in the library after a cold start on Retroid. LGT gameplay, save restoration and hand-operated controller testing remain open. The APK and game captures are local. [Device evidence and scope](checks/2026-11-20-wipi-games.md) · [Build and fixtures](../engines/wipi/README.md) · [Issue #57](https://github.com/EriArk/JavaEmulator/issues/57).
 
-## Dingoo (2026-11-20, initial device check)
+## Dingoo A320 and Gemei A330 (2026-11-20, local ARM64 debug build)
 
-On the same Retroid, Android loaded the upstream ARM64 DingooEmu 0.3.0 shared library. The libretro API returned version 1 and the supported extensions `app|cc|c2s|c3s`. This was a standalone ABI check. Game execution and the AbyssME frontend remain pending. [Evidence](checks/2026-11-20-wipi-games.md#dingoo-follow-up) · [Issue #89](https://github.com/EriArk/JavaEmulator/issues/89).
+The two device stickers open separate library tabs backed by DingooEmu 0.3.0. On Retroid Pocket Classic, Digger reached its playable maze and 7 Days Salvation reached the first 3D room. Android playback captures contained sound from both. The shared touch deck, controller input, saved CRT setting and per-game physical remapping were exercised. Two other Gemei CC games opened to black on both Retroid and the upstream desktop emulator. Per-game save states restored both games after a cold restart. Restoration from the games’ own save slots and C2S gameplay remain open. [Device results](checks/2026-11-20-dingoo-gemei.md) · [Build and controls](../engines/dingoo/README.md) · [Issue #89](https://github.com/EriArk/JavaEmulator/issues/89).
 
 ## Game area calibration (2026-11-20, local debug build)
 

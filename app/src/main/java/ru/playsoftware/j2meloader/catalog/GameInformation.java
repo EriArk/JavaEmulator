@@ -26,6 +26,8 @@ public final class GameInformation {
     public static String describe(android.content.Context context,AppItem item) {
         if (item instanceof ExternalLibrary.Item && ((ExternalLibrary.Item)item).platformId() == 5)
             return context.getString(ru.playsoftware.j2meloader.R.string.game_info_carrier, item.getAuthor(), item.getVersion());
+        if (item instanceof ExternalLibrary.Item && ((ExternalLibrary.Item)item).platformId() >= 6)
+            return item.getAuthor() + " (." + item.getVersion() + ")";
         Details data=inspect(item);
         String version=value(context,data.version),vendor=value(context,data.vendor);
         switch(data.kind) {

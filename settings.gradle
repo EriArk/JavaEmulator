@@ -30,3 +30,8 @@ if (providers.gradleProperty('wipiProbe').orNull == 'true') {
     include ':wipi-probe'
     project(':wipi-probe').projectDir = file('engines/wipi/bridge')
 }
+
+if (providers.gradleProperty('dingooProbe').orNull == 'true') {
+    include ':dingoo-probe'
+    project(':dingoo-probe').projectDir = file('engines/dingoo/bridge')
+}
