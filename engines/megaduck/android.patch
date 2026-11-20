@@ -1,0 +1,11 @@
+--- a/Core/gb.c
++++ b/Core/gb.c
+@@ -877,0 +878,2 @@
++    /* Some Mega Duck games read work RAM before their first write. */
++    memset(gb->ram, 0, gb->ram_size);
+--- a/libretro/libretro.c
++++ b/libretro/libretro.c
+@@ -11 +11,2 @@
+-#define AUDIO_FREQUENCY 384000
++/* Synthesize directly at the Android output rate. */
++#define AUDIO_FREQUENCY 48000

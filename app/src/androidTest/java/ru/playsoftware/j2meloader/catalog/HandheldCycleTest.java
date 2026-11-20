@@ -81,6 +81,8 @@ public class HandheldCycleTest {
         Set<Integer> ids = new HashSet<>(Arrays.asList(5, 6, 7, 8, 9));
         if (ru.playsoftware.j2meloader.BuildConfig.SUPERVISION_PROBE &&
                 new File(source, "supervision/packages").isDirectory()) ids.add(10);
+        if (ru.playsoftware.j2meloader.BuildConfig.MEGADUCK_PROBE &&
+                new File(source, "megaduck/packages").isDirectory()) ids.add(11);
         return ids;
     }
 

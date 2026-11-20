@@ -28,11 +28,12 @@ public final class HandheldFormat {
         if (BuildConfig.DINGOO_PROBE && s.endsWith(".app")) return 6;
         if (BuildConfig.DINGOO_PROBE && (s.endsWith(".cc") || s.endsWith(".c2s") || s.endsWith(".c3s"))) return 7;
         if (BuildConfig.PIECE_PROBE && (s.endsWith(".pfi") || s.endsWith(".pex"))) return 8;
+        if (BuildConfig.MEGADUCK_PROBE && (s.endsWith(".md1") || s.endsWith(".md2") || s.endsWith(".duck"))) return 11;
         if (BuildConfig.SUPERVISION_PROBE && s.endsWith(".sv")) return 10;
         if (BuildConfig.GP32_PROBE && (s.endsWith(".smc") || s.endsWith(".fpk") || s.endsWith(".fxe"))) return 9;
         return 0;
     }
-    static boolean enabled() { return BuildConfig.WIPI_PROBE || BuildConfig.DINGOO_PROBE || BuildConfig.PIECE_PROBE || BuildConfig.GP32_PROBE || BuildConfig.SUPERVISION_PROBE; }
+    static boolean enabled() { return BuildConfig.WIPI_PROBE || BuildConfig.DINGOO_PROBE || BuildConfig.PIECE_PROBE || BuildConfig.GP32_PROBE || BuildConfig.SUPERVISION_PROBE || BuildConfig.MEGADUCK_PROBE; }
     static boolean candidate(String name) {
         String s=name.toLowerCase(Locale.ROOT);
         return enabled() && (platform(s)!=0 || s.endsWith(".zip") || s.endsWith(".bin") || s.endsWith(".exe"));
@@ -112,7 +113,14 @@ public final class HandheldFormat {
     }
     private static int cartridgeOrFirmware(InputStream in, byte[] header, long length) throws IOException {
         int firmware = binary(header, length);
-        if (firmware != 0 || !BuildConfig.SUPERVISION_PROBE) return firmware;
+        if (firmware != 0) return firmware;
+        // Retail Mega Duck cartridges commonly disable interrupts and jump into the first ROM window.
+        if (BuildConfig.MEGADUCK_PROBE && header.length >= 4 && (length < 0 || length >= 16384 && length % 16384 == 0)
+                && header[0] == (byte) 0xf3 && header[1] == (byte) 0xc3) {
+            int entry = (header[2] & 255) | (header[3] & 255) << 8;
+            if (entry >= 4 && entry < 0x8000) return 11;
+        }
+        if (!BuildConfig.SUPERVISION_PROBE) return 0;
         if (length < 16384 || length % 16384 != 0) return 0;
         // A headerless cartridge places the 65C02 reset vector in its last bank.
         long distance = length - 4 - header.length;
@@ -133,7 +141,7 @@ public final class HandheldFormat {
         return Arrays.copyOf(bytes,n);
     }
     public static int indexedPlatform(String path) {
-        if (path != null && path.matches("pending_([5-9]|10)_[a-f0-9]+"))
+        if (path != null && path.matches("pending_([5-9]|1[01])_[a-f0-9]+"))
             return Integer.parseInt(path.substring(8, path.indexOf('_', 8)));
         return 0;
     }

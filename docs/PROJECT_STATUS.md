@@ -14,13 +14,17 @@ attribute its results to the dated maintainer record below; do not infer a pass.
 
 The [platform issue index](PLATFORM_ISSUES.md) maps the 49 open platform-specific tasks to the maintainer roadmap, including the initial integration order and scope decisions.
 
+## Mega Duck / Cougar Boy (2026-11-20, local Retroid build)
+
+Mega Duck is the eleventh platform in the combined Retroid build. Its library opens cartridge files and single-game ZIPs and indexes collections by folder. Arctic Zone and The Brick Wall reached gameplay with captured stereo sound. The Brick Wall retained its physical mapping, touch deck, graphics settings and level checkpoint across a cold launch. [Cartridge tests, device checks and availability](checks/2026-11-20-megaduck.md) · [Platform grid](checks/2026-11-20-megaduck-grid.png).
+
 ## Watara Supervision (2026-11-20, local Retroid build)
 
 Crystball and Challenger Tank reached gameplay with recorded Android playback audio on Retroid Classic. Supervision uses the shared display and controls, portable backup and per-game checkpoints. All 62 intact cartridges in the supplied collection produced changing video and audio samples in short scripted host-core runs. [Scope, device results and audio measurements](checks/2026-11-20-supervision.md).
 
 ## Retroid library and platform coverage (2026-11-20, local device)
 
-The original nine platform tabs were populated during the handheld lifecycle audit. Watara Supervision now adds a tenth populated tab. The single Retroid installation now accepts Dingoo/Gemei distributions with companion assets and prepares P/ECE firmware directly from Aquaplus’s updater. Library backup covers the five newer platforms, including system selection, game settings and writable data. Platform tabs have room for their labels and scroll horizontally. [Device checks and remaining compatibility questions](checks/2026-11-20-platform-lifecycle.md) · [Tab strip](checks/2026-11-20-handheld-tabs.png).
+The original nine platform tabs were populated during the handheld lifecycle audit. Watara Supervision and Mega Duck subsequently brought the populated tab count to eleven. The single Retroid installation now accepts Dingoo/Gemei distributions with companion assets and prepares P/ECE firmware directly from Aquaplus’s updater. Library backup covers installed handheld packages, including game settings, writable data and system selection where applicable. Platform tabs have room for their labels and scroll horizontally. [Device checks and remaining compatibility questions](checks/2026-11-20-platform-lifecycle.md) · [Tab strip](checks/2026-11-20-handheld-tabs.png).
 
 ## Platform launcher and device artwork (2026-11-20, local debug build)
 

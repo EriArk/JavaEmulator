@@ -24,7 +24,8 @@ final class LibraryNavigation {
         return id == 1 || id == 2 || ((id == 3 || id == 4) && BuildConfig.SYMBIAN_EXPERIMENT)
                 || (id == 5 && BuildConfig.WIPI_PROBE) || ((id == 6 || id == 7) && BuildConfig.DINGOO_PROBE)
                 || (id == 8 && BuildConfig.PIECE_PROBE) || (id == 9 && BuildConfig.GP32_PROBE)
-                || (id == 10 && BuildConfig.SUPERVISION_PROBE);
+                || (id == 10 && BuildConfig.SUPERVISION_PROBE)
+                || (id == 11 && BuildConfig.MEGADUCK_PROBE);
     }
 
     static int next(int value, int direction) {

@@ -18,6 +18,7 @@ public final class ExternalLibrary {
             case 6: case 7: provider = "io.github.eriark.abyssme.dingoo.DingooLibrary"; break;
             case 8: provider = "io.github.eriark.abyssme.piece.PieceLibrary"; break;
             case 10: provider = "io.github.eriark.abyssme.supervision.SupervisionLibrary"; break;
+            case 11: provider = "io.github.eriark.abyssme.megaduck.MegaDuckLibrary"; break;
             case 9: provider = "io.github.eriark.abyssme.gp32.Gp32Library"; break;
             default: throw new IOException("Unknown handheld platform");
         }
@@ -51,6 +52,7 @@ public final class ExternalLibrary {
         if (BuildConfig.DINGOO_PROBE) games.addAll(packageProvider(6).read(context));
         if (BuildConfig.PIECE_PROBE) games.addAll(packageProvider(8).read(context));
         if (BuildConfig.SUPERVISION_PROBE) games.addAll(packageProvider(10).read(context));
+        if (BuildConfig.MEGADUCK_PROBE) games.addAll(packageProvider(11).read(context));
         if (BuildConfig.GP32_PROBE) games.addAll(packageProvider(9).read(context));
         if (!BuildConfig.SYMBIAN_EXPERIMENT) return games;
         try {

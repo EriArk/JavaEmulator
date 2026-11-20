@@ -130,7 +130,21 @@ static size_t pcm(const int16_t *samples, size_t frames) {
     }
     return frames;
 }
+#ifdef FRONTEND_BUFFER_SAMPLES
+static int16_t sample_buffer[512 * 2];
+static size_t buffered;
+static void flush_samples(void) {
+    pcm(sample_buffer, buffered);
+    buffered = 0;
+}
+static void sample(int16_t left, int16_t right) {
+    sample_buffer[2 * buffered] = left;
+    sample_buffer[2 * buffered + 1] = right;
+    if (++buffered == 512) flush_samples();
+}
+#else
 static void sample(int16_t l, int16_t r) { int16_t s[] = {l,r}; pcm(s,1); }
+#endif
 static void poll(void) {
     // A touchscreen tap can begin and end between two emulated frames.
     int pressed = atomic_exchange(&pressed_since_poll, 0);
@@ -173,6 +187,9 @@ static void *loop(void *arg) {
         }
         pthread_mutex_lock(&core_lock);
         retro_run();
+#ifdef FRONTEND_BUFFER_SAMPLES
+        flush_samples();
+#endif
 #ifdef FRONTEND_FLASH_IMAGE
         if (now() >= next_flush) {
             if (!flush_image()) __android_log_print(ANDROID_LOG_ERROR, CORE_TAG, "Could not save flash");
@@ -180,7 +197,11 @@ static void *loop(void *arg) {
         }
 #endif
         pthread_mutex_unlock(&core_lock);
+#ifdef FRONTEND_FRAME_PERIOD_NS
+        deadline += FRONTEND_FRAME_PERIOD_NS * 100 / atomic_load(&speed);
+#else
         deadline += 100000000000LL / (60 * atomic_load(&speed));
+#endif
         int64_t wait = deadline - now();
         if (wait > 0) nanosleep(&(struct timespec){0, wait}, NULL);
         else if (wait < -50000000) deadline = now();

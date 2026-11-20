@@ -11,7 +11,7 @@ import java.util.concurrent.atomic.AtomicBoolean;
 
 /** Managed handheld packages are already portable. Publish each card after its dependencies. */
 final class HandheldBackup {
-    static final List<String> ENGINES = Arrays.asList("wipi", "dingoo", "piece", "gp32", "supervision");
+    static final List<String> ENGINES = Arrays.asList("wipi", "dingoo", "piece", "gp32", "supervision", "megaduck");
     final String engine, id, title, format;
     final File root;
     HandheldBackup(File root, String engine, String id, Properties metadata) {

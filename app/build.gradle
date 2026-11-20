@@ -67,6 +67,7 @@ android {
         buildConfigField 'boolean', 'EXPERIMENTAL_MULTIPLAYER', 'true'
         buildConfigField 'boolean', 'GP32_PROBE', (findProject(':gp32-probe') != null).toString()
         buildConfigField 'boolean', 'SUPERVISION_PROBE', (findProject(':supervision-probe') != null).toString()
+        buildConfigField 'boolean', 'MEGADUCK_PROBE', (findProject(':megaduck-probe') != null).toString()
         buildConfigField 'boolean', 'PIECE_PROBE', (findProject(':piece-probe') != null).toString()
         buildConfigField 'boolean', 'DINGOO_PROBE', (findProject(':dingoo-probe') != null).toString()
         buildConfigField 'boolean', 'WIPI_PROBE', (findProject(':wipi-probe') != null).toString()
@@ -207,7 +208,7 @@ android {
 
     applicationVariants.all {
         if (buildType.name == 'debug' && flavorName != 'midlet') {
-            resValue 'string', 'app_name', (findProject(':dingoo-probe') != null || findProject(':piece-probe') != null || findProject(':gp32-probe') != null || findProject(':supervision-probe') != null) ? 'AbyssME Handhelds' : findProject(':wipi-probe') != null ? 'AbyssME WIPI' : flavorName == 'phone'
+            resValue 'string', 'app_name', (findProject(':dingoo-probe') != null || findProject(':piece-probe') != null || findProject(':gp32-probe') != null || findProject(':supervision-probe') != null || findProject(':megaduck-probe') != null) ? 'AbyssME Handhelds' : findProject(':wipi-probe') != null ? 'AbyssME WIPI' : flavorName == 'phone'
                     ? 'AbyssME Phone Debug' : symbianExperiment ? 'AbyssME Symbian Test' : 'AbyssME Debug'
         }
         def baseName = flavorName == 'midlet' ? "${midletArchivesBaseName}-" : "${rootProject.name}-"
@@ -409,4 +410,14 @@ if (findProject(':supervision-probe') != null) {
     dependencies.add('debugImplementation', project(':supervision-probe'))
     android.sourceSets.debug.java.srcDir rootProject.file('engines/supervision/host')
     android.sourceSets.androidTest.java.srcDir rootProject.file('engines/supervision/tests')
+}
+
+if (findProject(':megaduck-probe') != null) {
+    if (armv7) throw new GradleException('The MegaDuck integration requires ARM64')
+    android.defaultConfig.ndk.abiFilters 'arm64-v8a'
+    android.variantFilter { v -> v.ignore = v.buildType.name != 'debug' || !(v.flavors*.name == ['fdroid']) }
+    android.buildTypes.debug.applicationIdSuffix = findProject(':dingoo-probe') != null ? '.dingoocheck.debug' : '.megaduckcheck.debug'
+    dependencies.add('debugImplementation', project(':megaduck-probe'))
+    android.sourceSets.debug.java.srcDir rootProject.file('engines/megaduck/host')
+    android.sourceSets.androidTest.java.srcDir rootProject.file('engines/megaduck/tests')
 }

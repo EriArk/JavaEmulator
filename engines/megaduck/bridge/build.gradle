@@ -1,0 +1,19 @@
+plugins { id 'com.android.library' }
+android {
+    namespace 'io.github.eriark.abyssme.megaduck.bridge'
+    compileSdk 34
+    defaultConfig { minSdk 29 }
+    sourceSets.main.jniLibs.srcDir rootProject.file('build/megaduck/jniLibs')
+}
+if (!rootProject.file('build/megaduck/jniLibs/arm64-v8a/libabyssmegaduck.so').isFile())
+    throw new GradleException('Build the pinned MegaDuck frontend first (engines/megaduck/README.md)')
+
+def stickers = tasks.register('prepareMegaDuckStickers', Sync) {
+    from(rootProject.file('design-concepts/platform-stickers')) {
+        include 'megaduck.webp'
+        rename { name -> "sticker_" + name }
+    }
+    into layout.buildDirectory.dir('generated/deviceArt/drawable-nodpi')
+}
+android.sourceSets.main.res.srcDir layout.buildDirectory.dir('generated/deviceArt')
+tasks.named('preBuild').configure { dependsOn stickers }

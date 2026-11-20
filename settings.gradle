@@ -50,3 +50,8 @@ if (providers.gradleProperty('supervisionProbe').orNull == 'true') {
     include ':supervision-probe'
     project(':supervision-probe').projectDir = file('engines/supervision/bridge')
 }
+
+if (providers.gradleProperty('megaduckProbe').orNull == 'true') {
+    include ':megaduck-probe'
+    project(':megaduck-probe').projectDir = file('engines/megaduck/bridge')
+}

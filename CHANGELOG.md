@@ -10,6 +10,11 @@ stated otherwise. **Experimental** in older checkpoints means local/private
 combined builds; released experimental features are explicitly identified.
 **Released** means an actual GitHub release asset.
 
+## 2026-11-20 - Mega Duck / Cougar Boy (private Retroid build)
+
+- Added a Mega Duck tile and library tab, cartridge and ZIP import, folder discovery, shared graphics and controller settings, 48 kHz stereo playback and portable per-game checkpoints.
+- Fixed intermittent blank starts in Magic Maze. All 23 intact cartridges in the supplied collection produced changing video and audio in scripted core runs. [Retroid and collection checks](docs/checks/2026-11-20-megaduck.md).
+
 ## 2026-11-20 - Watara Supervision with stereo sound (local Retroid build)
 
 - Added the Supervision platform tile and library tab with cartridge and ZIP import, 44.1 kHz game audio, shared controller and graphics profiles, save states and library backup. Crystball and Challenger Tank reached gameplay with captured audio on Retroid Classic. [Device check](docs/checks/2026-11-20-supervision.md).
