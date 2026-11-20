@@ -16,6 +16,8 @@ attribute its results to the dated maintainer record below; do not infer a pass.
 
 The 0.8 release candidate supports verified library moves to removable SD, an adjustable portrait menu margin and independent menu orientation. On Retroid Classic, 12 focused instrumentation checks passed. A separate private-fixture test moved an N-Gage phone with Snakes, verified favorites and a save sentinel, restored a backup as a second phone and reopened both catalogs after the return move. Physical Pocket Taco coverage is pending.
 
+Both local targets passed 445 JVM checks and 12 focused device checks each. The SD test exposed an outstanding Java ME private/cache URI issue. [Candidate verification and reproduction](checks/2026-11-20-storage-layout.md).
+
 ## Dual Beta 10 Released (2026-11-16)
 
 **Both signed code-324 APKs are published and download-verified.** Physical

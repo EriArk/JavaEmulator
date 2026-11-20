@@ -16,6 +16,8 @@ combined builds; released experimental features are explicitly identified.
 - Choose the menu orientation and portrait bottom margin under Settings → Appearance / Layout. Games retain their own display settings.
 - [Device verification](docs/PROJECT_STATUS.md).
 
+Local verification found an outstanding private/cache path issue for Java ME games after storage migration. [Candidate checks and limits](docs/checks/2026-11-20-storage-layout.md).
+
 ## 2026-11-16 - Supplied Gold Rush / V-Rally 2 Follow-up
 
 - Verify both newly supplied games reach gameplay on signed ARM64 Beta 10;
