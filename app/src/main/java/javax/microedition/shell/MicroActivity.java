@@ -73,6 +73,7 @@ import java.util.Objects;
 
 import javax.microedition.lcdui.Alert;
 import javax.microedition.lcdui.Canvas;
+import javax.microedition.lcdui.KeyboardViewport;
 import javax.microedition.lcdui.Displayable;
 import javax.microedition.lcdui.Form;
 import javax.microedition.lcdui.List;
@@ -143,6 +144,9 @@ public class MicroActivity extends AppCompatActivity {
 	}
 	private volatile boolean nokiaKeypadCommandHidden;
 	private boolean nokiaKeypadOpened;
+	private KeyboardViewport keyboardViewport;
+
+	public KeyboardViewport getKeyboardViewport() { return keyboardViewport; }
 
 	public void hideNokiaKeypadCommand(boolean hidden) {
 		nokiaKeypadCommandHidden = hidden;
@@ -193,6 +197,7 @@ public class MicroActivity extends AppCompatActivity {
 		binding = ActivityMicroBinding.inflate(getLayoutInflater());
 		View view = binding.getRoot();
 		setContentView(ru.playsoftware.j2meloader.ui.GameArea.wrap(view));
+		if (BuildConfig.ASHA_PROBE) keyboardViewport = new KeyboardViewport(this);
 		setSupportActionBar(binding.toolbar);
 
 		SharedPreferences sp = PreferenceManager.getDefaultSharedPreferences(getApplicationContext());
@@ -1384,6 +1389,7 @@ public class MicroActivity extends AppCompatActivity {
 
 	@Override
 	protected void onDestroy() {
+		if (keyboardViewport != null) keyboardViewport.close();
 		if (launchFailureDialog != null) launchFailureDialog.dismiss();
 		if (networkClient != null) networkClient.close();
 		if (fastForward != null) fastForward.cancel();

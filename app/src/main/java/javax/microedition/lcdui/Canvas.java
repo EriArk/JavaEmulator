@@ -620,6 +620,8 @@ public abstract class Canvas extends Displayable {
 		RectF screen = new RectF(0, 0, displayWidth, displayHeight);
 		virtualScreen.set(onX, onY, onX + onWidth, onY + onHeight);
 		lcdClip.set(available);
+		KeyboardViewport keyboard = ContextHolder.getActivity().getKeyboardViewport();
+		if (keyboard != null) keyboard.canvasMoved();
 		FrameLayout layer = guestLayer;
 		if (layer != null) layer.post(this::positionGuestLayer);
 		ContextHolder.getActivity().binding.overlayView.postInvalidate();
@@ -716,6 +718,21 @@ public abstract class Canvas extends Displayable {
 			innerView.requestFocus();
 		}
 		return layout;
+	}
+
+	void mapWindowOverlap(android.graphics.Rect overlap, int[] location) {
+		if (innerView == null || !innerView.isAttachedToWindow()) {
+			overlap.setEmpty();
+			return;
+		}
+		innerView.getLocationInWindow(location);
+		if (!overlap.intersect(location[0] + (int) lcdClip.left, location[1] + (int) lcdClip.top,
+				location[0] + (int) Math.ceil(lcdClip.right), location[1] + (int) Math.ceil(lcdClip.bottom))) {
+			overlap.setEmpty();
+			return;
+		}
+		KeyboardViewport.toGuest(overlap, location[0] + onX, location[1] + onY,
+				onWidth, onHeight, width, height, drawRotation);
 	}
 
 	public void postGuestCallback(Runnable callback) {
