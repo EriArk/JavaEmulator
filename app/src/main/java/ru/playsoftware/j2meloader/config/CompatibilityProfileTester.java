@@ -54,6 +54,7 @@ final class CompatibilityProfileTester {
 
 	private static final String PROFILE_GENERIC = "Generic MIDP";
 	private static final String PROFILE_NOKIA = "Nokia S40";
+	private static final String PROFILE_FULL_TOUCH = "Nokia Asha 311 (S40 full touch)";
 	private static final String PROFILE_SONY_ERICSSON = "Sony Ericsson JP-8";
 	private static final String PROFILE_MOTOROLA = "Motorola";
 	private static final String PROFILE_SIEMENS = "Siemens";
@@ -122,6 +123,18 @@ final class CompatibilityProfileTester {
 		if (!applyProperties) reasons += "; existing system properties kept";
 		params.suggestedCompatibilityProfile = best.name;
 		params.compatibilityConfidence = confidence;
+		if (BuildConfig.ASHA_PROBE && fresh) {
+			String orientation = probe.attrs.get("Nokia-MIDlet-App-Orientation");
+			if (params.orientation == 1 && orientation != null) {
+				if ("portrait".equalsIgnoreCase(orientation.trim())) params.orientation = 2;
+				if ("landscape".equalsIgnoreCase(orientation.trim())) params.orientation = 3;
+			}
+			if (PROFILE_FULL_TOUCH.equals(best.name) && probe.screenWidth == 0) {
+				reasons += "; default canvas for Asha 311";
+				probe.screenWidth = params.orientation == 3 ? 400 : 240;
+				probe.screenHeight = params.orientation == 3 ? 240 : 400;
+			}
+		}
 		params.compatibilityReasons = reasons;
 		applyDisplayDefaults(params, probe, fresh);
 		params.compatibilityTested = true;
@@ -263,6 +276,12 @@ final class CompatibilityProfileTester {
 		candidates.add(new Candidate(PROFILE_GENERIC, 1, baseProperties(
 				"J2ME-Loader/Auto", profile, configuration)));
 		candidates.add(new Candidate(PROFILE_NOKIA, 0, nokiaProperties(profile, configuration)));
+		if (BuildConfig.ASHA_PROBE) {
+			LinkedHashMap<String, String> fullTouch = nokiaProperties(profile, configuration);
+			fullTouch.put("microedition.platform", "Nokia311");
+			fullTouch.put("com.nokia.keyboard.type", "None");
+			candidates.add(new Candidate(PROFILE_FULL_TOUCH, 0, fullTouch));
+		}
 		candidates.add(new Candidate(PROFILE_SONY_ERICSSON, 0,
 				sonyEricssonProperties(profile, configuration)));
 		candidates.add(new Candidate(PROFILE_MOTOROLA, 0,
@@ -275,6 +294,18 @@ final class CompatibilityProfileTester {
 	}
 
 	private static int scoreCandidate(Candidate candidate, Probe probe) {
+		if (PROFILE_FULL_TOUCH.equals(candidate.name)) {
+			Pattern model = Pattern.compile("(?<![a-z0-9])(?:nokia[ -]?311|asha[ -]?311)(?![a-z0-9])");
+			if (model.matcher(probe.targetText).find()) {
+				candidate.reason = "Asha 311 target metadata";
+				return 360;
+			}
+			if (model.matcher(probe.filenameTarget).find()) {
+				candidate.reason = "Asha 311 source filename";
+				return 140;
+			}
+			return 0;
+		}
 		String[] hints;
 		String[] apis;
 		String prefix;

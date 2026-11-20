@@ -44,6 +44,7 @@ public class CanvasEvent extends Event {
 	private int keyCode;
 
 	private int pointer;
+	private long pointerTime;
 	private float x, y;
 
 	private int width;
@@ -62,6 +63,7 @@ public class CanvasEvent extends Event {
 	public static Event getInstance(Canvas canvas, int eventType, int pointer, float x, float y) {
 		CanvasEvent instance = obtain(canvas, eventType);
 		instance.pointer = pointer;
+		instance.pointerTime = android.os.SystemClock.uptimeMillis();
 		instance.x = x;
 		instance.y = y;
 		return instance;
@@ -87,6 +89,10 @@ public class CanvasEvent extends Event {
 	@Override
 	public void process() {
 		if (eventType <= POINTER_RELEASED && !canvas.isShown()) return;
+		Canvas.GestureInput gestures = canvas.gestureInput;
+		if (gestures != null && pointer == 0 && eventType >= POINTER_PRESSED && eventType <= POINTER_RELEASED) {
+			gestures.pointer(eventType, Math.round(x), Math.round(y), pointerTime);
+		}
 		switch (eventType) {
 			case KEY_PRESSED:
 				try {

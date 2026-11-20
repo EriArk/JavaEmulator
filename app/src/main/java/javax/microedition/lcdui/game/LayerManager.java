@@ -20,21 +20,22 @@ import javax.microedition.lcdui.Graphics;
 
 public class LayerManager {
 	private int nlayers;
-	private Layer component[] = new Layer[4];
+	private Layer[] component = new Layer[4];
+	private Layer[] paintOrder;
 	private int viewX, viewY, viewWidth, viewHeight;
 
 	public LayerManager() {
 		setViewWindow(0, 0, Integer.MAX_VALUE, Integer.MAX_VALUE);
 	}
 
-	public void append(Layer l) {
+	public synchronized void append(Layer l) {
 		// remove the Layer if it is already present
 		// will throw NullPointerException if the Layer is null
 		removeImpl(l);
 		addImpl(l, nlayers);
 	}
 
-	public void insert(Layer l, int index) {
+	public synchronized void insert(Layer l, int index) {
 		if ((index < 0) || (index > nlayers) || (exist(l) && (index >= nlayers))) {
 			throw new IndexOutOfBoundsException();
 		}
@@ -42,48 +43,56 @@ public class LayerManager {
 		addImpl(l, index);
 	}
 
-	public Layer getLayerAt(int index) {
+	public synchronized Layer getLayerAt(int index) {
 		if ((index < 0) || (index >= nlayers)) {
 			throw new IndexOutOfBoundsException();
 		}
 		return component[index];
 	}
 
-	public int getSize() {
+	public synchronized int getSize() {
 		return nlayers;
 	}
 
-	public void remove(Layer l) {
+	public synchronized void remove(Layer l) {
 		removeImpl(l);
 	}
 
 	public void paint(Graphics g, int x, int y) {
-		// if g == null g.getClipX will throw NullPointerException;
-
-		// save the original clip
+		Layer[] frame;
+		int vx, vy, width, height;
+		synchronized (this) {
+			if (paintOrder == null) {
+				paintOrder = java.util.Arrays.copyOf(component, nlayers);
+			}
+			frame = paintOrder;
+			vx = viewX;
+			vy = viewY;
+			width = viewWidth;
+			height = viewHeight;
+		}
 		int clipX = g.getClipX();
 		int clipY = g.getClipY();
 		int clipW = g.getClipWidth();
 		int clipH = g.getClipHeight();
-
-		// translate the LayerManager co-ordinates to Screen co-ordinates
-		g.translate(x - viewX, y - viewY);
-		// set the clip to view window
-		g.clipRect(viewX, viewY, viewWidth, viewHeight);
-
-		// draw last to first
-		for (int i = nlayers; --i >= 0; ) {
-			Layer comp = component[i];
-			if (comp.visible) {
-				comp.paint(g);
+		int originX = g.getTranslateX();
+		int originY = g.getTranslateY();
+		g.translate(x - vx, y - vy);
+		try {
+			g.clipRect(vx, vy, width, height);
+			for (int i = frame.length - 1; i >= 0; i--) {
+				Layer layer = frame[i];
+				if (layer.visible) {
+					layer.paint(g);
+				}
 			}
+		} finally {
+			g.translate(originX - g.getTranslateX(), originY - g.getTranslateY());
+			g.setClip(clipX, clipY, clipW, clipH);
 		}
-
-		g.translate(-x + viewX, -y + viewY);
-		g.setClip(clipX, clipY, clipW, clipH);
 	}
 
-	public void setViewWindow(int x, int y, int width, int height) {
+	public synchronized void setViewWindow(int x, int y, int width, int height) {
 		if (width < 0 || height < 0) {
 			throw new IllegalArgumentException();
 		}
@@ -108,6 +117,7 @@ public class LayerManager {
 
 		component[index] = layer;
 		nlayers++;
+		paintOrder = null;
 	}
 
 	private void removeImpl(Layer l) {
@@ -140,6 +150,7 @@ public class LayerManager {
 				component, index,
 				nlayers - index - 1);
 		component[--nlayers] = null;
+		paintOrder = null;
 	}
 
 }

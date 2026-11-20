@@ -21,6 +21,7 @@ historical artifacts, not part of the new combined distribution.
 | Component | Source and terms |
 | --- | --- |
 | J2ME Loader / MIDPShell / JL-Mod and inherited Android implementation | Apache-2.0; retained headers |
+| Nokia Asha gesture compatibility (optional Java ME debug build) | Original AbyssME gestures and controller integration, GPL-3.0-only. The guest thread adapter in dexlib carries an Apache-2.0 header. The build contains no Nokia SDK, firmware or test game. [Source and device checks](checks/2026-11-21-asha.md). |
 | M3G replacement | FreeJ2ME-Plus `baca76a4dda6f30abac67fb4a3db009eed05f91c`, GPL-3.0-or-later; adapted sources, Android GLES/native paths and pinned generator included in [engines/m3g](../engines/m3g) |
 | Tone compiler/player | Original Apache-2.0 implementation, not a relicensing of the removed EPL code |
 | Mophun | Wolphun `780649421fc5b1faabc7589c3165f17a6a316848`, GPLv3; selected source and modifications in [engines/mophun](../engines/mophun) |

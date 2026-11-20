@@ -493,6 +493,7 @@ public class LibraryImporterTest {
         ru.playsoftware.j2meloader.config.SharedProfiles.PHYSICAL.assign(profile,controller.id,physical);
         profile.extraTouchButtons=new java.util.ArrayList<>();
         ru.playsoftware.j2meloader.input.ExtraTouchButton extra=new ru.playsoftware.j2meloader.input.ExtraTouchButton();extra.code=51;profile.extraTouchButtons.add(extra);
+		profile.nokiaGestureKeys = true;
 		profile.touchLayout = 1; profile.touchOpacity = 75; profile.screenRotation = 180;
 		profile.controlMode = 1; profile.touchVisibility = 1;
 		profile.orientation = 2;
@@ -522,7 +523,8 @@ public class LibraryImporterTest {
             assertEquals(2,ru.playsoftware.j2meloader.config.SharedProfiles.GRAPHICS.read(destination).profiles.size());
             assertEquals(51,loaded.extraTouchButtons.get(0).code);
             assertEquals(2,ru.playsoftware.j2meloader.config.SharedProfiles.read(destination).profiles.size());
-			assertEquals(Integer.valueOf(1), loaded.touchLayout); assertEquals(75, loaded.touchOpacity);
+			assertTrue(loaded.nokiaGestureKeys);
+		assertEquals(Integer.valueOf(1), loaded.touchLayout); assertEquals(75, loaded.touchOpacity);
 			assertEquals(1, loaded.controlMode); assertEquals(1, loaded.getTouchVisibility());
 			assertEquals(180, loaded.screenRotation); assertEquals(BuildConfig.HANDHELD_MODE ? 3 : 2, loaded.orientation);
 			assertEquals(55, loaded.getActiveKeyMappings().get(96));

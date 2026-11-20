@@ -63,6 +63,7 @@ android {
         resValue 'string', 'app_name', rootProject.name
         // Legacy build flag retained for old test/source consumers. All builds are adaptive.
         buildConfigField 'boolean', 'HANDHELD_MODE', 'false'
+        buildConfigField 'boolean', 'ASHA_PROBE', 'false'
         buildConfigField 'String', 'DISTRIBUTION', '"' + (armv7 ? 'ARMv7' : symbianEnabled ? 'ARM64' : 'Java/Mophun') + '"'
         buildConfigField 'boolean', 'EXPERIMENTAL_MULTIPLAYER', 'true'
         buildConfigField 'boolean', 'GP32_PROBE', (findProject(':gp32-probe') != null).toString()
@@ -440,4 +441,10 @@ if (findProject(':flash-probe') != null) {
     dependencies.add('debugImplementation', project(':flash-probe'))
     android.sourceSets.debug.java.srcDir rootProject.file('engines/flash/host')
     android.sourceSets.androidTest.java.srcDir rootProject.file('engines/flash/tests')
+}
+
+if (providers.gradleProperty('ashaProbe').orNull == 'true') {
+    android.buildTypes.debug.buildConfigField 'boolean', 'ASHA_PROBE', 'true'
+    android.sourceSets.debug.java.srcDir rootProject.file('engines/asha/java')
+    android.sourceSets.androidTest.java.srcDir rootProject.file('engines/asha/tests')
 }

@@ -111,6 +111,8 @@ public final class GameSettingsPages {
                 i -> draft.controlMode = i);
         menu.choice(menu.text(R.string.game_touch_visibility), menu.labels(R.array.game_touch_visibility_modes), draft.getTouchVisibility(),
                 i -> draft.touchVisibility = i);
+        if (javaGame && BuildConfig.ASHA_PROBE)
+            menu.toggle(menu.text(R.string.game_nokia_gesture_keys), draft.nokiaGestureKeys, value -> draft.nokiaGestureKeys = value);
         menu.action(menu.text(R.string.game_controller_mapping), R.drawable.ic_action_keyboard, () -> host.mapping(draft, this::controls));
         menu.action(menu.text(R.string.game_fast_forward), android.R.drawable.ic_media_ff, () -> fastForward(this::controls));
         if (!BuildConfig.HANDHELD_MODE) {

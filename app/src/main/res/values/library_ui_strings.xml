@@ -67,4 +67,5 @@
     <string-array name="library_generations"><item>@string/library_all_generations</item><item>Classic</item><item>2.0</item></string-array>
     <string-array name="library_cover_formats"><item>Automatic</item><item>Wide</item><item>Portrait</item></string-array>
     <string name="library_flash_import_hint">Choose a Flash Lite SWF or a ZIP with its game files.</string>
+    <string name="game_nokia_gesture_keys">Nokia gestures: D-pad flicks, OK taps or holds</string>
 </resources>

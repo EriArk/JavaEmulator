@@ -299,6 +299,7 @@ public abstract class Canvas extends Displayable {
 	}
 
 	public void postKeyPressed(int keyCode) {
+		if (gestureKey(keyCode, CanvasEvent.KEY_PRESSED)) return;
 		if (keyCode == KEY_SOFT_LEFT && softBar.fireLeftSoft()) {
 			skipLeftSoft = true;
 			return;
@@ -312,6 +313,7 @@ public abstract class Canvas extends Displayable {
 	}
 
 	public void postKeyReleased(int keyCode) {
+		if (gestureKey(keyCode, CanvasEvent.KEY_RELEASED)) return;
 		if (keyCode == KEY_SOFT_LEFT && skipLeftSoft) {
 			skipLeftSoft = false;
 			return;
@@ -325,6 +327,7 @@ public abstract class Canvas extends Displayable {
 	}
 
 	public void postKeyRepeated(int keyCode) {
+		if (gestureKey(keyCode, CanvasEvent.KEY_REPEATED)) return;
 		if (keyCode == KEY_SOFT_LEFT && skipLeftSoft) {
 			return;
 		} else if (keyCode == KEY_SOFT_RIGHT && skipRightSoft) {
@@ -361,6 +364,7 @@ public abstract class Canvas extends Displayable {
 		if (displayVisible || !visible) return;
 		framePacer.reset();
 		visible = false;
+		if (gestureInput != null) gestureInput.cancel();
 		hideNotify();
 	}
 
@@ -863,6 +867,30 @@ public abstract class Canvas extends Displayable {
 	}
 
 	protected void keyReleased(int keyCode) {
+	}
+
+	/** Optional handset gesture listener. Coordinates are in the MIDlet canvas. */
+	public interface GestureInput {
+		void pointer(int type, int x, int y, long time);
+		void cancel();
+		boolean acceptsKey(int key);
+		void key(int key, boolean down, long time);
+	}
+
+	public volatile GestureInput gestureInput;
+	public static volatile boolean nokiaGestureKeys;
+
+	protected final boolean gestureKey(int key, int phase) {
+		GestureInput input = gestureInput;
+		if (!nokiaGestureKeys || input == null || !input.acceptsKey(key)) return false;
+		if (phase != CanvasEvent.KEY_REPEATED) {
+			long time = android.os.SystemClock.uptimeMillis();
+			Display.postEvent(javax.microedition.lcdui.event.RunnableEvent.getInstance(() -> {
+				if (isShown() && gestureInput == input && nokiaGestureKeys)
+					input.key(key, phase == CanvasEvent.KEY_PRESSED, time);
+			}));
+		}
+		return true;
 	}
 
 	public void pointerPressed(int pointer, float x, float y) {
@@ -1556,6 +1584,8 @@ public abstract class Canvas extends Displayable {
 					}
 					break;
 				case MotionEvent.ACTION_CANCEL:
+					GestureInput gestures = gestureInput;
+					if (gestures != null) Display.postEvent(javax.microedition.lcdui.event.RunnableEvent.getInstance(gestures::cancel));
 					for (int p = 0; p < gamePointers.length; p++) {
 						if (gamePointers[p]) Display.postEvent(CanvasEvent.getInstance(Canvas.this,
 								CanvasEvent.POINTER_RELEASED, p, lastPointerPos[p][0], lastPointerPos[p][1]));

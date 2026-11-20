@@ -19,20 +19,29 @@ final class GuestDex {
             if (zip.stream().noneMatch(e -> e.getName().endsWith(".class"))) return original;
         }
         // v2 also normalizes legacy boolean returns for Android's verifier.
-        File directory = new File(cache, "guest-code-v2");
+        File directory = new File(cache, ru.playsoftware.j2meloader.BuildConfig.ASHA_PROBE ? "guest-code-asha-v1" : "guest-code-v2");
         Files.createDirectories(directory.toPath());
         File result = new File(directory, SourceIdentity.sha256(jar) + ".dex");
         if (result.isFile() && result.length() > 0) { GuestTime.available(true); return result; }
         File temporary = File.createTempFile("convert-", ".dex", directory);
+        File converted = null;
         try {
+            File input = jar;
+            if (ru.playsoftware.j2meloader.BuildConfig.ASHA_PROBE) {
+                converted = File.createTempFile("cldc-", ".jar", directory);
+                input = org.microemu.android.asm.CldcThreadMethods.prepare(jar, converted);
+            }
             com.android.dx.command.dexer.Main.main(new String[]{"--no-optimize", "--core-library",
-                    "--output=" + temporary.getAbsolutePath(), jar.getAbsolutePath()});
+                    "--output=" + temporary.getAbsolutePath(), input.getAbsolutePath()});
             if (temporary.length() == 0) throw new IOException("Empty converted game");
             Files.move(temporary.toPath(), result.toPath(), StandardCopyOption.REPLACE_EXISTING);
             GuestTime.available(true);
             return result;
         } catch (Exception failure) {
-            throw new IOException("Cannot prepare game timing", failure);
-        } finally { Files.deleteIfExists(temporary.toPath()); }
+            throw new IOException("Cannot prepare game code", failure);
+        } finally {
+            Files.deleteIfExists(temporary.toPath());
+            if (converted != null) Files.deleteIfExists(converted.toPath());
+        }
     }
 }

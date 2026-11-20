@@ -83,6 +83,7 @@ public class GameCanvas extends Canvas {
 
 	@Override
 	public void postKeyPressed(int keyCode) {
+		if (gestureKey(keyCode, javax.microedition.lcdui.event.CanvasEvent.KEY_PRESSED)) return;
 		int code = convertGameKeyCode(keyCode);
 		if (code != 0) {
 			synchronized (keysDown) {
@@ -100,6 +101,7 @@ public class GameCanvas extends Canvas {
 
 	@Override
 	public void postKeyReleased(int keyCode) {
+		if (gestureKey(keyCode, javax.microedition.lcdui.event.CanvasEvent.KEY_RELEASED)) return;
 		int code = convertGameKeyCode(keyCode);
 		if (code != 0) {
 			synchronized (keysDown) {
@@ -119,6 +121,7 @@ public class GameCanvas extends Canvas {
 
 	@Override
 	public void postKeyRepeated(int keyCode) {
+		if (gestureKey(keyCode, javax.microedition.lcdui.event.CanvasEvent.KEY_REPEATED)) return;
 		if (suppressCommands && convertGameKeyCode(keyCode) != 0) {
 			return;
 		}

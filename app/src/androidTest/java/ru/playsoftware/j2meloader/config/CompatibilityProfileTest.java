@@ -43,6 +43,22 @@ public class CompatibilityProfileTest {
         }
     }
 
+    @Test public void asha311UsesFreshTargetOrientationAndKeepsCustomSettings() throws Exception {
+        org.junit.Assume.assumeTrue(ru.playsoftware.j2meloader.BuildConfig.ASHA_PROBE);
+        manifest("Target-Device: Nokia Asha 311\nNokia-MIDlet-App-Orientation: landscape\n");
+        ProfileModel model = run();
+        assertEquals("Nokia Asha 311 (S40 full touch)", model.compatibilityProfile);
+        assertEquals(3, model.orientation);
+        assertEquals(400, model.screenWidth);
+        assertEquals(240, model.screenHeight);
+        model = ProfilesManager.loadConfig(root);
+        model.orientation = 2;
+        model.screenWidth = 176;
+        run(model);
+        assertEquals(2, model.orientation);
+        assertEquals(176, model.screenWidth);
+    }
+
     @Test public void originalCanvasWinsOverPhoneScalingDestination() throws Exception {
         manifest("Nokia-MIDlet-Original-Display-Size: 176,208\nNokia-MIDlet-Target-Display-Size: 240,320\n");
         ProfileModel model = run();

@@ -10,6 +10,10 @@ stated otherwise. **Experimental** in older checkpoints means local/private
 combined builds; released experimental features are explicitly identified.
 **Released** means an actual GitHub release asset.
 
+## 2026-11-21 - Nokia full-touch gestures in Java ME
+
+- Added Nokia gesture zones, an Asha 311 phone preset and optional D-pad/OK gesture controls in the private Retroid debug build. Fixed a guest Thread method conflict on entry to TouchMare battles and a MIDP rendering crash when another game thread removed layers during a frame. [Device checks and remaining APIs](docs/checks/2026-11-21-asha.md).
+
 ## 2026-11-21 - Flash Lite
 
 - Added a Flash Lite tile and tab, raw SWF and ZIP import, relative level loading and per-game SharedObject saves to the optional debug build.

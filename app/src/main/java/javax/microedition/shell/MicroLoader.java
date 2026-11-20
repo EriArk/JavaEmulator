@@ -366,6 +366,10 @@ public class MicroLoader {
 			ContextHolder.setVk(keyboard);
 			setProperties();
 
+			if (BuildConfig.ASHA_PROBE) {
+				System.clearProperty("com.nokia.keyboard.type");
+				MidletSystem.setProperty("com.nokia.keyboard.type", "");
+			}
 			final String[] propLines = params.systemProperties.split("\n");
 			for (String line : propLines) {
 				String[] prop = line.split(":[ ]*", 2);
@@ -384,6 +388,7 @@ public class MicroLoader {
 			int screenWidth = params.screenWidth;
 			int screenHeight = params.screenHeight;
 			Displayable.setVirtualSize(screenWidth, screenHeight);
+			Canvas.nokiaGestureKeys = BuildConfig.ASHA_PROBE && params.nokiaGestureKeys;
 			Canvas.setBackgroundColor(params.screenBackgroundColor);
 			Canvas.setScale(params.screenGravity, params.screenScaleType, params.screenScaleRatio);
 			Canvas.setFilterBitmap(params.screenFilter);
@@ -450,6 +455,7 @@ public class MicroLoader {
 	}
 
 	void applyPreviewSettings() {
+		Canvas.nokiaGestureKeys = BuildConfig.ASHA_PROBE && params.nokiaGestureKeys;
 		Canvas.setBackgroundColor(params.screenBackgroundColor);
 		Canvas.setEnhancements(params.fsrUpscaling, params.frameInterpolation, params.fsrSharpness, params.getRetroShader());
 		Canvas.setScreenEffect(params.screenEffect, params.screenEffectIntensity);

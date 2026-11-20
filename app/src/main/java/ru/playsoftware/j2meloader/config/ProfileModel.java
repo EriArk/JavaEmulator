@@ -209,6 +209,9 @@ public class ProfileModel {
 	@SerializedName("FontAntiAlias")
 	public boolean fontAA;
 
+	@SerializedName("NokiaGestureKeys")
+	public boolean nokiaGestureKeys;
+
 	@SerializedName("TouchInput")
 	public boolean touchInput;
 

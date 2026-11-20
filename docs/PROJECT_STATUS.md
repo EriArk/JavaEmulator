@@ -14,6 +14,10 @@ attribute its results to the dated maintainer record below; do not infer a pass.
 
 The [platform issue index](PLATFORM_ISSUES.md) maps the 49 open platform-specific tasks to the maintainer roadmap, including the initial integration order and scope decisions.
 
+## Nokia Asha / Series 40 (2026-11-21, private Retroid build)
+
+TouchMare 1.3 runs in the Java ME library with guest gestures, optional controller or keypad gestures, per-game graphics and RMS. On Retroid Classic it reached battle and Game Over. Bounce Tales 1.15 also entered its first level with ordinary Series 40 controls. Asha 311 handset detection is available for explicit model hints. Pinch, double-tap and Nokia text-entry extensions remain open. [Device checks and scope](checks/2026-11-21-asha.md).
+
 ## Flash Lite (2026-11-21, private Retroid build)
 
 Flash Lite is the thirteenth platform in the combined build. MicroInvaders and Balloonatroid reached gameplay on Retroid Classic, including a level loaded from a companion SWF. The platform uses the shared handheld controls, graphics settings and portable saves. [Import, gameplay and audio checks](checks/2026-11-21-flash-lite.md).
