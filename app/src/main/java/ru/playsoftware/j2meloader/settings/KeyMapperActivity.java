@@ -244,7 +244,7 @@ public class KeyMapperActivity extends BaseActivity implements View.OnClickListe
 	}
 
 	private void alertMenuKey() {
-		new AlertDialog.Builder(this)
+		new ru.playsoftware.j2meloader.ui.MenuAlertBuilder(this)
 				.setMessage(R.string.alert_map_menu)
 				.setTitle(R.string.warning)
 				.setNegativeButton(R.string.save, (d, w) -> {

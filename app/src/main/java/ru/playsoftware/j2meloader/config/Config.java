@@ -60,7 +60,7 @@ public class Config {
 		File picturesDir = context.getExternalFilesDir(android.os.Environment.DIRECTORY_PICTURES);
 		SCREENSHOTS_DIR = new File(picturesDir == null ? context.getFilesDir() : picturesDir,
 				"AbyssME").getAbsolutePath();
-		File external = context.getExternalFilesDir(null);
+		File external = io.github.eriark.abyssme.storage.StoragePaths.library(context);
 		String path = external == null ? context.getFilesDir().getAbsolutePath() : external.getAbsolutePath();
 		initDirs(path);
 	}
@@ -102,7 +102,8 @@ public class Config {
 	}
 
 	public static void startApp(Context context, String name, String path, boolean showSettings, String arguments) {
-		if (ru.playsoftware.j2meloader.catalog.AdditionalGames.launch(context, name, new File(path), showSettings)) return;
+		path = io.github.eriark.abyssme.storage.StoragePaths.resolve(context, path);
+        if (ru.playsoftware.j2meloader.catalog.AdditionalGames.launch(context, name, new File(path), showSettings)) return;
 		LaunchDiagnostics.record(context, showSettings ? "settings_requested" : "launch_requested",
 				name, path);
 		File appDir = new File(path);

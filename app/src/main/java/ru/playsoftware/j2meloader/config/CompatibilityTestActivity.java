@@ -59,7 +59,7 @@ public class CompatibilityTestActivity extends AppCompatActivity {
 	}
 
 	private boolean preparePaths() {
-		String path = getIntent().getDataString();
+		String path = io.github.eriark.abyssme.storage.StoragePaths.resolve(this, getIntent().getDataString());
 		if (path == null) {
 			showError();
 			return false;

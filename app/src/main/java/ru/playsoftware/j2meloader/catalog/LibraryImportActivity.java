@@ -76,6 +76,7 @@ public class LibraryImportActivity extends CompactSettingsActivity {
 
     @Override protected void onCreate(Bundle state) {
         super.onCreate(state);
+        if (ru.playsoftware.j2meloader.storage.StorageActivity.guard(this)) return;
         LIGHT = ru.playsoftware.j2meloader.ui.AppPalette.color(this, R.color.text_primary);
         MUTED = ru.playsoftware.j2meloader.ui.AppPalette.color(this, R.color.text_secondary);
         AMBER = ru.playsoftware.j2meloader.ui.AppPalette.color(this, R.color.accent);

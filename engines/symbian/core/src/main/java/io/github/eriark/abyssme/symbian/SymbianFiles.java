@@ -14,7 +14,7 @@ import java.util.zip.ZipFile;
 
 public final class SymbianFiles {
     private SymbianFiles() { }
-    public static File root(Context context) { return new File(context.getFilesDir(), "symbian"); }
+    public static File root(Context context) { return new File(io.github.eriark.abyssme.storage.StoragePaths.phones(context), "symbian"); }
     public static void prepareAssets(Context context) throws IOException {
         prepareAssets(context, root(context));
     }

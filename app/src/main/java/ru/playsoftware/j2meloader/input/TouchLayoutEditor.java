@@ -255,7 +255,7 @@ public final class TouchLayoutEditor extends Dialog {
             android.widget.EditText input=new android.widget.EditText(getContext());input.setSingleLine(true);
             input.setFilters(new android.text.InputFilter[]{new android.text.InputFilter.LengthFilter(8)});
             input.setText(b.label);
-            new androidx.appcompat.app.AlertDialog.Builder(getContext()).setTitle("Button label (blank = key name)").setView(input)
+            new ru.playsoftware.j2meloader.ui.MenuAlertBuilder(getContext()).setTitle("Button label (blank = key name)").setView(input)
                     .setPositiveButton("Save",(d,w)->{b.label=input.getText().toString();preview.rebuild();buildControls();})
                     .setNegativeButton("Cancel",null).show();
         });

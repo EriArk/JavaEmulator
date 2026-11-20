@@ -77,7 +77,9 @@ public final class PaletteDialog extends Dialog {
         ScrollView scroll = new ScrollView(getContext()); scroll.addView(rows); setContentView(scroll);
     }
     @Override public void show() {
-        super.show();getWindow().setBackgroundDrawable(new ConsoleSurface(getContext(), ConsoleSurface.Kind.PANEL));
+        super.show();
+        MenuLayout.watchDialog(this);
+        getWindow().setBackgroundDrawable(new ConsoleSurface(getContext(), ConsoleSurface.Kind.PANEL));
         getWindow().setLayout(Math.min(dp(440), getContext().getResources().getDisplayMetrics().widthPixels - dp(24)),
                 Math.min(dp(380), getContext().getResources().getDisplayMetrics().heightPixels - dp(48)));
     }

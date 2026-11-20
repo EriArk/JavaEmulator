@@ -1,7 +1,7 @@
 # AbyssME Changelog
 
 User-facing development history, reconstructed from commits, release notes and
-local/private build records through **2026-11-16**. This is not a claim that all
+local/private build records through **2026-11-20**. This is not a claim that all
 listed work is in a public APK. See [current status](docs/PROJECT_STATUS.md) for
 availability, verification, known limits and screenshot guidance.
 
@@ -9,6 +9,12 @@ Labels: **Public source** means implemented on `main` but unreleased unless
 stated otherwise. **Experimental** in older checkpoints means local/private
 combined builds; released experimental features are explicitly identified.
 **Released** means an actual GitHub release asset.
+
+## 2026-11-20 - 0.8.0 Beta 1 release candidate
+
+- Move installed games, saves and virtual phones between internal and removable app storage under Settings → Library.
+- Choose the menu orientation and portrait bottom margin under Settings → Appearance / Layout. Games retain their own display settings.
+- [Device verification](docs/PROJECT_STATUS.md).
 
 ## 2026-11-16 - Supplied Gold Rush / V-Rally 2 Follow-up
 

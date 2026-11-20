@@ -37,7 +37,7 @@ final class SystemFileCatalog {
         }
     }
     private final File base;
-    SystemFileCatalog(Context context) { this(new File(context.getFilesDir(), "symbian-systems")); }
+    SystemFileCatalog(Context context) { this(new File(io.github.eriark.abyssme.storage.StoragePaths.phones(context), "symbian-systems")); }
     SystemFileCatalog(File base) { this.base = base; }
     File set(String id) throws IOException {
         if (id == null || !id.matches("[0-9a-f]{64}")) throw new SystemFailure(SystemFailure.Code.IMPORT_INVALID_SYSTEM_SET_IDENTITY);

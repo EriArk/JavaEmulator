@@ -35,7 +35,7 @@ import java.io.FileNotFoundException;
 import java.io.IOException;
 
 import ru.playsoftware.j2meloader.R;
-import ru.playsoftware.j2meloader.config.Config;
+import io.github.eriark.abyssme.storage.StoragePaths;
 import ru.playsoftware.j2meloader.util.FileUtils;
 
 @RequiresApi(api = Build.VERSION_CODES.KITKAT)
@@ -61,17 +61,23 @@ public class DocumentProvider extends DocumentsProvider {
 			Document.COLUMN_SIZE
 	};
 
-	private File baseDir;
+	private File library() throws FileNotFoundException {
+		if (StoragePaths.moving(getContext()) || !StoragePaths.available(getContext())) {
+			throw new FileNotFoundException("Library storage is unavailable");
+		}
+		return StoragePaths.library(getContext());
+	}
 
 	@Override
 	public boolean onCreate() {
-		baseDir = new File(Config.getEmulatorDir());
 		return true;
 	}
 
 	@Override
 	public Cursor queryRoots(String[] projection) throws FileNotFoundException {
 		final MatrixCursor result = new MatrixCursor(resolveRootProjection(projection));
+		if (StoragePaths.moving(getContext()) || !StoragePaths.available(getContext())) return result;
+		final File baseDir = library();
 		final MatrixCursor.RowBuilder row = result.newRow();
 
 		row.add(Root.COLUMN_ROOT_ID, getDocIdForFile(baseDir));
@@ -329,7 +335,14 @@ public class DocumentProvider extends DocumentsProvider {
 	}
 
 	private File getFileForDocId(String docId) throws FileNotFoundException {
-		final File file = new File(docId);
+		final File root = library();
+		final File file = new File(StoragePaths.resolve(getContext(), docId));
+		try {
+			if (!file.getCanonicalFile().toPath().startsWith(root.getCanonicalFile().toPath()))
+				throw new FileNotFoundException("Outside the selected library");
+		} catch (IOException e) {
+			throw new FileNotFoundException(e.getMessage());
+		}
 		if (!file.exists()) {
 			throw new FileNotFoundException("Missing file for " + docId);
 		}

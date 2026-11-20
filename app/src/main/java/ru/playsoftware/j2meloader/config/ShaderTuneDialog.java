@@ -115,7 +115,7 @@ public class ShaderTuneDialog extends DialogFragment {
 		parentBinding.negativeButton.setOnClickListener(v1 -> dismiss());
 		parentBinding.positiveButton.setOnClickListener(v1 -> onClickOk());
 		parentBinding.neutralButton.setOnClickListener(v1 -> onClickReset());
-		return new AlertDialog.Builder(requireActivity())
+		return new ru.playsoftware.j2meloader.ui.MenuAlertBuilder(requireActivity())
 			.setTitle(R.string.shader_tuning)
 			.setView(parentBinding.getRoot())
 			.create();

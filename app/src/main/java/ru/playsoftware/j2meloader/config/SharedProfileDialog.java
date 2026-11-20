@@ -165,7 +165,7 @@ public final class SharedProfileDialog {
         if("configs".equals(dir.getParentFile().getName()))return dir.getName();
         File parent=dir.getParentFile();String id="profiles".equals(parent.getName())?parent.getParentFile().getName():parent.getName();
         String title="App "+dir.getName(),phone=id.substring(0,Math.min(8,id.length()));
-        File system=new File(context.getFilesDir(),"symbian-systems/"+id);
+        File system=new File(io.github.eriark.abyssme.storage.StoragePaths.phones(context),"symbian-systems/"+id);
         try{
             File metadata=new File(system,"set.json");
             if(metadata.length()<65536){org.json.JSONObject json=new org.json.JSONObject(new String(java.nio.file.Files.readAllBytes(metadata.toPath()),java.nio.charset.StandardCharsets.UTF_8));phone=json.optString("model",phone);}
@@ -198,11 +198,11 @@ public final class SharedProfileDialog {
             }refreshGames();},this::home);
         }));menu.setBackAction(this::bulk);
     }
-    private void confirm(String title,String body,Runnable action){new AlertDialog.Builder(context).setTitle(title).setMessage(body).setPositiveButton("Confirm",(d,w)->action.run()).setNegativeButton("Cancel",null).show();}
+    private void confirm(String title,String body,Runnable action){new ru.playsoftware.j2meloader.ui.MenuAlertBuilder(context).setTitle(title).setMessage(body).setPositiveButton("Confirm",(d,w)->action.run()).setNegativeButton("Cancel",null).show();}
     private interface NameAction{void run(String value)throws Exception;}
     private void name(String title,String initial,NameAction action){
         EditText input=new EditText(context);input.setSingleLine(true);input.setText(initial);input.setFilters(new android.text.InputFilter[]{new android.text.InputFilter.LengthFilter(64)});
-        AlertDialog dialog=new AlertDialog.Builder(context).setTitle(title).setView(input).setPositiveButton("Save",null).setNegativeButton("Cancel",null).create();
+        AlertDialog dialog=new ru.playsoftware.j2meloader.ui.MenuAlertBuilder(context).setTitle(title).setView(input).setPositiveButton("Save",null).setNegativeButton("Cancel",null).create();
         dialog.setOnShowListener(d->dialog.getButton(-1).setOnClickListener(v->{try{action.run(input.getText().toString());dialog.dismiss();}catch(Exception ex){input.setError(ex.getMessage());}}));dialog.show();
     }
 }

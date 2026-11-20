@@ -62,3 +62,5 @@ android {
         if (name == "package${variant}Assets" || (name.contains(variant) && name.toLowerCase().contains('lint'))) dependsOn curateAssets
     }
 }
+
+dependencies { implementation project(':storage-core') }

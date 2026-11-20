@@ -106,7 +106,7 @@ public class ConfigActivity extends BaseActivity implements View.OnClickListener
 		String action = intent.getAction();
 		isProfile = ACTION_EDIT_PROFILE.equals(action);
 		needShow = isProfile || ACTION_EDIT.equals(action) || Intent.ACTION_EDIT.equals(action);
-		String path = intent.getDataString();
+		String path = io.github.eriark.abyssme.storage.StoragePaths.resolve(this, intent.getDataString());
 		if (path == null) {
 			needShow = false;
 			finish();
@@ -137,7 +137,7 @@ public class ConfigActivity extends BaseActivity implements View.OnClickListener
 						}
 					}
 				}
-				new AlertDialog.Builder(this)
+				new ru.playsoftware.j2meloader.ui.MenuAlertBuilder(this)
 						.setTitle(R.string.error)
 						.setMessage(getString(R.string.err_missing_app, storageName))
 						.setPositiveButton(R.string.exit, (d, w) -> finish())
@@ -427,7 +427,7 @@ public class ConfigActivity extends BaseActivity implements View.OnClickListener
 
 	private void showCharsetPicker(View v) {
 		String[] charsets = Charset.availableCharsets().keySet().toArray(new String[0]);
-		new AlertDialog.Builder(this).setItems(charsets, (d, w) -> {
+		new ru.playsoftware.j2meloader.ui.MenuAlertBuilder(this).setItems(charsets, (d, w) -> {
 			String enc = "microedition.encoding: " + charsets[w];
 			String[] props = binding.systemProperties.getText().toString().split("[\\n\\r]+");
 			int propsLength = props.length;
@@ -789,7 +789,7 @@ public class ConfigActivity extends BaseActivity implements View.OnClickListener
 	}
 
 	private void showClearDataDialog() {
-		AlertDialog.Builder builder = new AlertDialog.Builder(this)
+		AlertDialog.Builder builder = new ru.playsoftware.j2meloader.ui.MenuAlertBuilder(this)
 				.setTitle(android.R.string.dialog_alert_title)
 				.setMessage(R.string.message_clear_data)
 				.setPositiveButton(android.R.string.ok, (d, w) -> FileUtils.clearDirectory(dataDir))
@@ -814,7 +814,7 @@ public class ConfigActivity extends BaseActivity implements View.OnClickListener
 			binding.screenWidth.setText(binding.screenHeight.getText().toString());
 			binding.screenHeight.setText(tmp);
 		} else if (id == R.id.show_font_size_presets) {
-			new AlertDialog.Builder(this)
+			new ru.playsoftware.j2meloader.ui.MenuAlertBuilder(this)
 					.setTitle(getString(R.string.SIZE_PRESETS))
 					.setItems(fontPresetTitles.toArray(new String[0]),
 							(dialog, which) -> {
@@ -875,7 +875,7 @@ public class ConfigActivity extends BaseActivity implements View.OnClickListener
 				getString(R.string.fix_game_size), getString(R.string.fix_game_flicker),
 				getString(R.string.fix_game_crash), getString(R.string.fix_game_controls)
 		};
-		new AlertDialog.Builder(this)
+		new ru.playsoftware.j2meloader.ui.MenuAlertBuilder(this)
 				.setTitle(R.string.fix_game_title)
 				.setItems(symptoms, (dialog, which) -> applyFix(which))
 				.setNegativeButton(android.R.string.cancel, null)
@@ -924,7 +924,7 @@ public class ConfigActivity extends BaseActivity implements View.OnClickListener
 				: symptom == 1 ? getString(ru.playsoftware.j2meloader.R.string.helper_fix_renderer)
 				: getString(ru.playsoftware.j2meloader.R.string.helper_fix_default);
 		Runnable undo = () -> { ProfilesManager.undoPreview(params); loadParams(false); };
-		new AlertDialog.Builder(this).setTitle(getString(ru.playsoftware.j2meloader.R.string.helper_try_settings)).setMessage(change)
+		new ru.playsoftware.j2meloader.ui.MenuAlertBuilder(this).setTitle(getString(ru.playsoftware.j2meloader.R.string.helper_try_settings)).setMessage(change)
 				.setPositiveButton(isProfile ? getString(ru.playsoftware.j2meloader.R.string.helper_keep) : getString(ru.playsoftware.j2meloader.R.string.helper_try_in_game), (dialog, which) -> {
 					if (isProfile) {
 						if (!ProfilesManager.keepPreview(params)) Toast.makeText(this, R.string.display_save_failed, Toast.LENGTH_LONG).show();

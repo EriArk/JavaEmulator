@@ -44,6 +44,7 @@ public class MainActivity extends BaseActivity {
 	@Override
 	public void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
+        if (ru.playsoftware.j2meloader.storage.StorageActivity.guard(this)) return;
 		setContentView(R.layout.activity_main);
 		FileUtils.initWorkDir(new File(Config.getEmulatorDir()));
 		if (savedInstanceState == null) {
@@ -63,6 +64,11 @@ public class MainActivity extends BaseActivity {
 		}
 		setVolumeControlStream(AudioManager.STREAM_MUSIC);
 	}
+
+    @Override protected void onResume() {
+        super.onResume();
+        ru.playsoftware.j2meloader.storage.StorageActivity.guard(this);
+    }
 
 	@Override
 	public void onWindowFocusChanged(boolean hasFocus) {
@@ -121,6 +127,7 @@ public class MainActivity extends BaseActivity {
 	protected void onNewIntent(Intent intent) {
 		super.onNewIntent(intent);
 		setIntent(intent);
+        if (ru.playsoftware.j2meloader.storage.StorageActivity.guard(this)) return;
 		Uri uri = intent.getData();
 		if (uri != null) {
 			ru.playsoftware.j2meloader.catalog.AdditionalGames.install(this, getSupportFragmentManager(), uri, true, true);

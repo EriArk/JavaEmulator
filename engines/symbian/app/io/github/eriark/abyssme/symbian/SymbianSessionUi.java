@@ -80,7 +80,7 @@ final class SymbianSessionUi {
         this(activity, surface, loadSessionProfile(activity, system, uid), title, host);
     }
     static ProfileModel loadSessionProfile(Activity activity, String system, long uid) throws IOException {
-        ProfileModel profile = SymbianGameSettings.load(activity.getFilesDir(), system, uid);
+        ProfileModel profile = SymbianGameSettings.load(io.github.eriark.abyssme.storage.StoragePaths.phones(activity), system, uid);
         SettingsTrial.claim(profile);
         return profile;
     }
@@ -257,7 +257,7 @@ final class SymbianSessionUi {
         deckView.invalidate();
     }
     private void advancedDisplayPage() {
-        pages().nativePhoneDisplay(PhoneScreenOptions.read(activity.getFilesDir(),
+        pages().nativePhoneDisplay(PhoneScreenOptions.read(io.github.eriark.abyssme.storage.StoragePaths.phones(activity),
                 profile.dir.getParentFile().getName()));
     }
     private GameSettingsPages pages() {

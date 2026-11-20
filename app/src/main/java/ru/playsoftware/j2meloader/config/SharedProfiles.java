@@ -344,7 +344,7 @@ public final class SharedProfiles {
         ArrayList<File> result=new ArrayList<>();collect(new File(root,"configs"),result,0);
         android.content.Context context=javax.microedition.util.ContextHolder.getAppContext();
         if(context!=null) {
-            File files=context.getFilesDir();
+            File files=io.github.eriark.abyssme.storage.StoragePaths.phones(context);
             for(String parent:new String[]{"symbian-systems","symbian-profiles"}) {
                 File[] phones=new File(files,parent).listFiles();
                 if(phones!=null)for(File phone:phones)collect(parent.equals("symbian-systems")?new File(phone,"profiles"):phone,result,0);

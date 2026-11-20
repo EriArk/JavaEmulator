@@ -29,7 +29,7 @@ public class HelpDialogFragment extends DialogFragment {
 	@NonNull
 	@Override
 	public Dialog onCreateDialog(Bundle savedInstanceState) {
-		AlertDialog.Builder builder = new AlertDialog.Builder(requireActivity());
+		AlertDialog.Builder builder = new ru.playsoftware.j2meloader.ui.MenuAlertBuilder(requireActivity());
 		builder.setTitle(R.string.help)
 				.setIcon(R.mipmap.ic_launcher)
 				.setView(InfoContent.supportView(requireContext(),InfoContent.help(requireContext())))

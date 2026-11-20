@@ -39,6 +39,20 @@ public class SettingsFragment extends PreferenceFragmentCompat {
 	public void onCreatePreferences(Bundle bundle, String rootKey) {
 		setPreferencesFromResource(R.xml.preferences, rootKey);
 		styleRows(getPreferenceScreen());
+        for (String key : new String[]{ru.playsoftware.j2meloader.ui.MenuLayout.ORIENTATION, ru.playsoftware.j2meloader.ui.MenuLayout.MARGIN}) {
+            Preference layout = findPreference(key);
+            if (layout != null) layout.setOnPreferenceChangeListener((p,value) -> {
+                android.content.SharedPreferences.Editor edit=getPreferenceManager().getSharedPreferences().edit();
+                if(value instanceof Integer)edit.putInt(key,(Integer)value);else edit.putString(key,value.toString());
+                edit.apply();ru.playsoftware.j2meloader.ui.MenuLayout.apply(requireActivity());return true;
+            });
+        }
+        Preference reset=findPreference("pref_reset_menu_margin");
+        if(reset!=null)reset.setOnPreferenceClickListener(p->{
+            androidx.preference.SeekBarPreference margin=findPreference(ru.playsoftware.j2meloader.ui.MenuLayout.MARGIN);
+            if(margin!=null)margin.setValue(0);
+            ru.playsoftware.j2meloader.ui.MenuLayout.apply(requireActivity());return true;
+        });
 		Preference language = findPreference("pref_language");
 		if (language != null) {
 			language.setTitle(getString(R.string.settings_language));
@@ -102,7 +116,9 @@ public class SettingsFragment extends PreferenceFragmentCompat {
 			folderLauncher.launch(null);
 			return true;
 		});
-		updateFolderSummary();
+		Preference storage = findPreference("pref_library_storage");
+        if (storage != null) storage.setIntent(new Intent(requireContext(), ru.playsoftware.j2meloader.storage.StorageActivity.class).addFlags(Intent.FLAG_ACTIVITY_NEW_TASK));
+        updateFolderSummary();
 		if (findPreference("pref_import_library") != null) findPreference("pref_import_library").setIntent(new Intent(requireActivity(),
 				ru.playsoftware.j2meloader.catalog.LibraryImportActivity.class));
 		if (findPreference("pref_expert") != null) findPreference("pref_expert").setIntent(new Intent(requireActivity(), ProfilesActivity.class));
@@ -124,7 +140,7 @@ public class SettingsFragment extends PreferenceFragmentCompat {
 	private void styleRows(androidx.preference.PreferenceGroup group) {
 		for (int i = 0; i < group.getPreferenceCount(); i++) {
 			Preference preference = group.getPreference(i);
-			preference.setLayoutResource(R.layout.preference_compact);
+			if (!(preference instanceof androidx.preference.SeekBarPreference)) preference.setLayoutResource(R.layout.preference_compact);
 			preference.setIconSpaceReserved(true);
 			if (preference instanceof androidx.preference.PreferenceGroup) styleRows((androidx.preference.PreferenceGroup) preference);
 		}

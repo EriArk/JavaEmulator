@@ -56,7 +56,7 @@ public class SaveProfileDialog extends DialogFragment {
 	public Dialog onCreateDialog(Bundle savedInstanceState) {
 		configPath = requireArguments().getString(KEY_CONFIG_PATH);
 		binding = DialogSaveProfileBinding.inflate(LayoutInflater.from(getContext()));
-		AlertDialog dialog = new AlertDialog.Builder(requireActivity())
+		AlertDialog dialog = new ru.playsoftware.j2meloader.ui.MenuAlertBuilder(requireActivity())
 				.setTitle(R.string.save_profile).setView(binding.getRoot()).create();
 		binding.negativeButton.setOnClickListener(v1 -> dismiss());
 		binding.positiveButton.setOnClickListener(v1 -> {
@@ -78,7 +78,7 @@ public class SaveProfileDialog extends DialogFragment {
 	}
 
 	private void alertRewriteExists(String name) {
-		new AlertDialog.Builder(requireContext())
+		new ru.playsoftware.j2meloader.ui.MenuAlertBuilder(requireContext())
 				.setMessage(getString(R.string.alert_rewrite_profile, name))
 				.setPositiveButton(android.R.string.ok, (dialog, which) -> save(name))
 				.setNegativeButton(android.R.string.cancel, (dialog, which) -> {

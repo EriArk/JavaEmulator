@@ -23,3 +23,5 @@ if (['symbianExperiment', 'symbianRelease', 'symbianReleaseCheck'].any { provide
     include ':symbian-core'
     project(':symbian-core').projectDir = file('engines/symbian/core')
 }
+
+include ':storage-core'

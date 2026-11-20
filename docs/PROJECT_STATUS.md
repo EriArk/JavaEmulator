@@ -1,6 +1,6 @@
 # AbyssME - Current Product and Development Status
 
-**Last updated: 2026-11-16.** Verification dates are recorded per section.
+**Last updated: 2026-11-20.** Verification dates are recorded per section.
 This is the starting point for website copy,
 announcements, progress posts and project handoffs. It includes work that exists
 only in local experiments or private test builds. Describing that work here
@@ -11,6 +11,10 @@ changes, and the linked evidence for detail. This is a maintained snapshot,
 not a live feed. Verify GitHub Releases, recent commits and build notes before
 calling a version "latest" after this date. If local evidence is inaccessible,
 attribute its results to the dated maintainer record below; do not infer a pass.
+
+## 0.8 storage and menu controls (2026-11-20)
+
+The 0.8 release candidate supports verified library moves to removable SD, an adjustable portrait menu margin and independent menu orientation. On Retroid Classic, 12 focused instrumentation checks passed. A separate private-fixture test moved an N-Gage phone with Snakes, verified favorites and a save sentinel, restored a backup as a second phone and reopened both catalogs after the return move. Physical Pocket Taco coverage is pending.
 
 ## Dual Beta 10 Released (2026-11-16)
 

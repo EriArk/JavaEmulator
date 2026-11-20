@@ -78,14 +78,15 @@ public final class SymbianActivity extends Activity implements Emulator.Host, In
 
     @Override public void onCreate(Bundle saved) {
         super.onCreate(saved);
+        if (ru.playsoftware.j2meloader.storage.StorageActivity.guard(this)) return;
         ru.playsoftware.j2meloader.ui.AppPalette.apply(this);
         if (!BuildConfig.HANDHELD_MODE) setRequestedOrientation(android.content.pm.ActivityInfo.SCREEN_ORIENTATION_FULL_SENSOR);
         catalog = new SystemFileCatalog(this);
         if (saved != null) backupSystem = saved.getString("backupSystem");
         libraryIndex = new SymbianLibraryIndex(this);
-        pendingImport = new PendingGameImport(new File(getFilesDir(), "symbian-game-import"));
-        platforms = new PlatformStore(new File(getFilesDir(), "symbian-platforms"));
-        components = new ComponentStore(new File(getFilesDir(), "symbian-components"));
+        pendingImport = new PendingGameImport(new File(io.github.eriark.abyssme.storage.StoragePaths.phones(SymbianActivity.this), "symbian-game-import"));
+        platforms = new PlatformStore(new File(io.github.eriark.abyssme.storage.StoragePaths.phones(SymbianActivity.this), "symbian-platforms"));
+        components = new ComponentStore(new File(io.github.eriark.abyssme.storage.StoragePaths.phones(SymbianActivity.this), "symbian-components"));
         installFlow = new GameInstallFlow(pendingImport, catalog, new GameInstallFlow.Backend() {
             private SystemFileCatalog.Entry installingPhone;
             @Override public void open(SystemFileCatalog.Entry entry) throws Exception { openSystem(entry); installingPhone=entry; }
@@ -119,7 +120,7 @@ public final class SymbianActivity extends Activity implements Emulator.Host, In
                 else if (!SystemFileCatalog.hash(destination).equals(hash)) throw new IOException(getString(R.string.native_staged_changed));
             }
         }, platforms, components);
-        archives=new ArchiveBatch(new File(getFilesDir(),"symbian-archive-import"));
+        archives=new ArchiveBatch(new File(io.github.eriark.abyssme.storage.StoragePaths.phones(SymbianActivity.this),"symbian-archive-import"));
         archiveQueue=new ArchiveQueue(archives,pendingImport,installFlow,components,platforms);
         runtimeRoot = SymbianFiles.root(this);
         directLaunch = getIntent().hasExtra(SymbianLibraryIndex.UID_EXTRA);
@@ -246,7 +247,7 @@ public final class SymbianActivity extends Activity implements Emulator.Host, In
         page.addView(progressBar,new LinearLayout.LayoutParams(-1,dp(4)));
         if (directLaunch) {
             action(page, getString(R.string.system_library), this::finish);
-            setContentView(page); hideBars();
+            setContentView(page); ru.playsoftware.j2meloader.ui.MenuLayout.apply(this); hideBars();
             return;
         }
         ScrollView scroll = new ScrollView(this);
@@ -274,7 +275,7 @@ public final class SymbianActivity extends Activity implements Emulator.Host, In
             }
         });
         action(page, getString(R.string.system_library), this::finish);
-        setContentView(page);
+        setContentView(page); ru.playsoftware.j2meloader.ui.MenuLayout.apply(this);
         hideBars();
     }
     private void savedComponents() {
@@ -381,7 +382,7 @@ public final class SymbianActivity extends Activity implements Emulator.Host, In
         apps = devices.length == 0 ? new String[0] : Emulator.getCatalogApps();
         for (SystemFileCatalog.Entry entry : systems) if (prepared && catalog.runtime(entry).equals(runtimeRoot)) {
             libraryIndex.publish(entry, Emulator.getLibraryApps(), true);
-            PhoneScreenOptions.record(getFilesDir(), entry.id, Emulator.guestScreenOptions());
+            PhoneScreenOptions.record(io.github.eriark.abyssme.storage.StoragePaths.phones(SymbianActivity.this), entry.id, Emulator.guestScreenOptions());
             break;
         }
         hasPendingImport = pendingImport.exists();
@@ -446,8 +447,8 @@ public final class SymbianActivity extends Activity implements Emulator.Host, In
                 Emulator.stopSession();
                 SystemFileCatalog.Entry entry=catalog.read(selected);
                 PreparedSystemArchive.Progress progress=transferProgress();
-                PhoneLibraryTitles.migrate(getFilesDir(),entry.id,getSharedPreferences("symbian-library-presentation",MODE_PRIVATE));
-                new PhoneBackup(getFilesDir()).exportPhone(entry,archive,Emulator.portablePhoneSettings(catalog.runtime(entry).getAbsolutePath()),progress,
+                PhoneLibraryTitles.migrate(io.github.eriark.abyssme.storage.StoragePaths.phones(SymbianActivity.this),entry.id,getSharedPreferences("symbian-library-presentation",MODE_PRIVATE));
+                new PhoneBackup(io.github.eriark.abyssme.storage.StoragePaths.phones(SymbianActivity.this)).exportPhone(entry,archive,Emulator.portablePhoneSettings(catalog.runtime(entry).getAbsolutePath()),progress,
                         config -> new String(ru.playsoftware.j2meloader.config.SharedProfiles.portableConfig(config),java.nio.charset.StandardCharsets.UTF_8));
                 progress.update(getString(R.string.native_saving_backup));
                 try(java.io.InputStream input=new java.io.FileInputStream(archive);
@@ -473,7 +474,7 @@ public final class SymbianActivity extends Activity implements Emulator.Host, In
             catch(Exception error) { Files.deleteIfExists(archive.toPath()); throw error; }
         });
     }
-    private File ekaRoot() { return new File(getFilesDir(),"symbian-eka-transfer"); }
+    private File ekaRoot() { return new File(io.github.eriark.abyssme.storage.StoragePaths.phones(SymbianActivity.this),"symbian-eka-transfer"); }
     private File ekaQueueFile() { return new File(ekaRoot(),"queue.bin"); }
     private File ekaSnapshot() { return new File(ekaRoot(),"snapshot.json"); }
     private PreparedSystemArchive.Progress ekaProgress() {
@@ -618,7 +619,7 @@ public final class SymbianActivity extends Activity implements Emulator.Host, In
                 ekaQueue.run(new PhoneTransferQueue.Backend() {
                     public String copy(PhoneTransferQueue.Item item) throws Exception {
                         for(Eka2l1Transfer.Phone phone:ekaTransfer.phones) if(phone.firmware.equals(item.firmware))
-                            return ekaTransfer.install(getFilesDir(),phone,SymbianActivity.this::validateTransferredPhone).id;
+                            return ekaTransfer.install(io.github.eriark.abyssme.storage.StoragePaths.phones(SymbianActivity.this),phone,SymbianActivity.this::validateTransferredPhone).id;
                         throw new SystemFailure(SystemFailure.Code.PHONE_METADATA);
                     }
                     public void publish(String id) throws Exception {
@@ -629,7 +630,7 @@ public final class SymbianActivity extends Activity implements Emulator.Host, In
                             Emulator.stopSession(); SymbianFiles.prepareAssets(SymbianActivity.this,root);
                             Emulator.prepare(root.getAbsolutePath());
                             libraryIndex.publish(entry,Emulator.getLibraryApps(),true);
-                            PhoneScreenOptions.record(getFilesDir(),entry.id,Emulator.guestScreenOptions());
+                            PhoneScreenOptions.record(io.github.eriark.abyssme.storage.StoragePaths.phones(SymbianActivity.this),entry.id,Emulator.guestScreenOptions());
                         } finally { Emulator.stopSession(); }
                     }
                     public String message(Exception error) { return error.getMessage(); }
@@ -701,8 +702,8 @@ public final class SymbianActivity extends Activity implements Emulator.Host, In
             File previous=runtimeRoot;
             try {
                 Emulator.stopSession();
-                SystemFileCatalog.Entry restored=new PhoneBackup(getFilesDir()).restore(archive,this::validateTransferredPhone,transferProgress());
-                ru.playsoftware.j2meloader.config.SharedProfiles.restorePhoneProfiles(PhoneBackup.profiles(getFilesDir(),restored.id));
+                SystemFileCatalog.Entry restored=new PhoneBackup(io.github.eriark.abyssme.storage.StoragePaths.phones(SymbianActivity.this)).restore(archive,this::validateTransferredPhone,transferProgress());
+                ru.playsoftware.j2meloader.config.SharedProfiles.restorePhoneProfiles(PhoneBackup.profiles(io.github.eriark.abyssme.storage.StoragePaths.phones(SymbianActivity.this),restored.id));
                 openSystem(restored); refresh(getString(R.string.native_restored_status));
                 afterTask=() -> notice(getString(R.string.native_restored),getString(R.string.native_restored_body),getString(R.string.system_library),this::openSharedLibrary,getString(R.string.system_close));
             } catch(Exception error) {
@@ -735,7 +736,7 @@ public final class SymbianActivity extends Activity implements Emulator.Host, In
         SymbianFiles.prepareAssets(this, runtimeRoot);
         Emulator.prepare(runtimeRoot.getAbsolutePath());
         catalog.activate(entry);
-        PhoneScreenOptions.record(getFilesDir(), entry.id, Emulator.guestScreenOptions());
+        PhoneScreenOptions.record(io.github.eriark.abyssme.storage.StoragePaths.phones(SymbianActivity.this), entry.id, Emulator.guestScreenOptions());
         GameRemoval removal=removal(entry);
         removal.recover();
         if(removal.pending() && !removalReview)
@@ -743,7 +744,7 @@ public final class SymbianActivity extends Activity implements Emulator.Host, In
     }
     private GameRemoval removal(SystemFileCatalog.Entry entry) throws IOException {
         String runtime=catalog.runtime(entry).getAbsolutePath();
-        return new GameRemoval(new File(getFilesDir(),"symbian-library"),entry.id,new GameRemoval.Backend() {
+        return new GameRemoval(new File(io.github.eriark.abyssme.storage.StoragePaths.phones(SymbianActivity.this),"symbian-library"),entry.id,new GameRemoval.Backend() {
             public String[] inspect(long uid) throws Exception { return Emulator.inspectRemoval(uid,runtime); }
             public String[] apps() { return Emulator.getLibraryApps(); }
             public void remove(long uid,long owner,int index) throws Exception {
@@ -828,7 +829,7 @@ public final class SymbianActivity extends Activity implements Emulator.Host, In
         });
         status=view.status; progressBar=view.progress;
         archiveView=view;
-        setContentView(view); hideBars();
+        setContentView(view); ru.playsoftware.j2meloader.ui.MenuLayout.apply(this); hideBars();
     }
     private void archiveItem(ArchiveBatch.Item item,boolean started) {
         GameMenuDialog menu=dialog(item.label());
@@ -1095,7 +1096,7 @@ public final class SymbianActivity extends Activity implements Emulator.Host, In
         try {
             for (SymbianLibraryIndex.Entry entry : libraryIndex.read())
                 if (entry.system.equals(system) && entry.uid == uid) { title = entry.title; break; }
-            title = PhoneLibraryTitles.read(getFilesDir(), system).getJSONObject("titles").optString(Long.toString(uid), title);
+            title = PhoneLibraryTitles.read(io.github.eriark.abyssme.storage.StoragePaths.phones(SymbianActivity.this), system).getJSONObject("titles").optString(Long.toString(uid), title);
         } catch (IOException | org.json.JSONException error) {
             android.util.Log.w("AbyssSymbian", "Could not read library title for game menu", error);
         }
@@ -1157,7 +1158,7 @@ public final class SymbianActivity extends Activity implements Emulator.Host, In
             final String sessionTitle = sessionTitle(identity, Integer.toUnsignedLong(uid));
             try {
                 ru.playsoftware.j2meloader.config.ProfileModel preparedProfile =
-                        originalScreen ? SymbianGameSettings.originalScreenTrial(getFilesDir(), identity, Integer.toUnsignedLong(uid))
+                        originalScreen ? SymbianGameSettings.originalScreenTrial(io.github.eriark.abyssme.storage.StoragePaths.phones(SymbianActivity.this), identity, Integer.toUnsignedLong(uid))
                                 : SymbianSessionUi.loadSessionProfile(this, identity, Integer.toUnsignedLong(uid));
                 Emulator.stopSession();
                 try { Emulator.prepareGame(runtimeRoot.getAbsolutePath(), preparedProfile.getSymbianScreenPreset()); }
@@ -1168,7 +1169,7 @@ public final class SymbianActivity extends Activity implements Emulator.Host, In
                                 runtimeRoot, uid, sessionTitle);
                     throw error;
                 }
-                PhoneScreenOptions.record(getFilesDir(), identity, Emulator.guestScreenOptions());
+                PhoneScreenOptions.record(io.github.eriark.abyssme.storage.StoragePaths.phones(SymbianActivity.this), identity, Emulator.guestScreenOptions());
                 Emulator.lastGuestExit = null;
                 if (!Emulator.startSession()) throw new IOException(getString(R.string.native_phone_start_failed));
                 runOnUiThread(() -> {
@@ -1317,7 +1318,7 @@ public final class SymbianActivity extends Activity implements Emulator.Host, In
         if (menuOpen) return;
         menuOpen = true;
         releaseKeys(); Emulator.pauseSession(true);
-        new AlertDialog.Builder(this).setTitle(getString(R.string.native_leave_title))
+        new ru.playsoftware.j2meloader.ui.NativeMenuAlertBuilder(this).setTitle(getString(R.string.native_leave_title))
                 .setMessage(getString(R.string.native_leave_body))
                 .setPositiveButton(getString(R.string.system_library), (d, w) -> returnToLibrary())
                 .setNegativeButton(getString(R.string.native_resume), (d, w) -> resumeGame())
@@ -1379,7 +1380,10 @@ public final class SymbianActivity extends Activity implements Emulator.Host, In
         releaseKeys(); if (running) Emulator.pauseSession(true); super.onPause();
     }
     @Override protected void onResume() {
-        super.onResume(); resumed = true;
+        super.onResume();
+        if (ru.playsoftware.j2meloader.storage.StorageActivity.guard(this)) return;
+        resumed = true;
+        if (!running) ru.playsoftware.j2meloader.ui.MenuLayout.apply(this);
         onAppLanguageChanged();
         if (running && attached && !menuOpen && !closing) Emulator.pauseSession(false);
         if (sessionUi != null) sessionUi.visible(true);
@@ -1403,7 +1407,7 @@ public final class SymbianActivity extends Activity implements Emulator.Host, In
         if (sessionUi != null) { sessionUi.close(); sessionUi = null; }
         detach(); running = false;
         if (systemChoice != null) systemChoice.dismiss();
-        inputManager.unregisterInputDeviceListener(this);
+        if (inputManager != null) inputManager.unregisterInputDeviceListener(this);
         if (Emulator.host == this) Emulator.host = null;
         worker.execute(() -> {
             if (sessionOwner == this) { Emulator.stopSession(); sessionOwner = null; }
@@ -1424,7 +1428,7 @@ public final class SymbianActivity extends Activity implements Emulator.Host, In
     @Override public void question(String text, String yes, String no) {
         runOnUiThread(() -> {
             if (closing) { Emulator.submitQuestionDialogResponse(0); return; }
-            new AlertDialog.Builder(this).setMessage(text)
+            new ru.playsoftware.j2meloader.ui.NativeMenuAlertBuilder(this).setMessage(text)
                     .setPositiveButton(yes, (d, w) -> Emulator.submitQuestionDialogResponse(1))
                     .setNegativeButton(no, (d, w) -> Emulator.submitQuestionDialogResponse(0))
                     .setOnCancelListener(d -> Emulator.submitQuestionDialogResponse(0)).show();
@@ -1435,7 +1439,7 @@ public final class SymbianActivity extends Activity implements Emulator.Host, In
             if (closing) { Emulator.submitInput(""); return; }
             EditText edit = new EditText(this); edit.setText(text);
             edit.setFilters(new InputFilter[]{new InputFilter.LengthFilter(Math.max(0, maxLength))});
-            inputDialog = new AlertDialog.Builder(this).setView(edit)
+            inputDialog = new ru.playsoftware.j2meloader.ui.NativeMenuAlertBuilder(this).setView(edit)
                     .setPositiveButton(getString(R.string.native_ok), (d, w) -> Emulator.submitInput(edit.getText().toString()))
                     .setNegativeButton(getString(R.string.system_cancel), (d, w) -> Emulator.submitInput(""))
                     .setOnCancelListener(d -> Emulator.submitInput("")).show();

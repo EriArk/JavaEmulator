@@ -24,7 +24,7 @@ public final class SymbianLibraryIndex {
         public String key() { return "symbian:" + system + "/" + uid; }
     }
     private final File root;
-    public SymbianLibraryIndex(Context context) { this(new File(context.getFilesDir(), "symbian-library")); }
+    public SymbianLibraryIndex(Context context) { this(new File(io.github.eriark.abyssme.storage.StoragePaths.phones(context), "symbian-library")); }
     SymbianLibraryIndex(File root) { this.root = root; }
     public static File artworkRoot(File files, String system) {
         if (system == null || !system.matches("[0-9a-f]{64}")) throw new IllegalArgumentException("Invalid phone identity");

@@ -49,7 +49,7 @@ public final class SymbianImportDialog extends DialogFragment implements Additio
         model = new ViewModelProvider(this).get(Inspection.class);
         model.state.observe(this, this::render);
         model.start(uri);
-        AlertDialog dialog = new AlertDialog.Builder(requireContext()).setView(binding.getRoot()).create();
+        AlertDialog dialog = new ru.playsoftware.j2meloader.ui.MenuAlertBuilder(requireContext()).setView(binding.getRoot()).create();
         dialog.setOnKeyListener((d, key, event) -> {
             if (key != KeyEvent.KEYCODE_BUTTON_B && key != KeyEvent.KEYCODE_BUTTON_A && key != KeyEvent.KEYCODE_BACK) return false;
             if (event.getAction() == KeyEvent.ACTION_UP) binding.buttonClose.performClick();

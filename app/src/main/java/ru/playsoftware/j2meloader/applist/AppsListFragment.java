@@ -1316,7 +1316,7 @@ public class AppsListFragment extends Fragment implements AppsListAdapter.Listen
 	private void showSortDialog() {
 		int variant = appRepository.getSort();
 		SortAdapter adapter = new SortAdapter(requireActivity(), variant);
-		AlertDialog.Builder builder = new AlertDialog.Builder(requireActivity())
+		AlertDialog.Builder builder = new ru.playsoftware.j2meloader.ui.MenuAlertBuilder(requireActivity())
 				.setTitle(R.string.pref_app_sort_title)
 				.setAdapter(adapter, (d, v) -> {
 					adapter.setVariant(v);

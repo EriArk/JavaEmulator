@@ -23,7 +23,7 @@ public final class GameSettingsActivity extends AppCompatActivity {
         super.onCreate(state);
         ru.playsoftware.j2meloader.ui.AppPalette.apply(this);
         if (BuildConfig.HANDHELD_MODE) setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_SENSOR_LANDSCAPE);
-        String path = getIntent().getDataString();
+        String path = io.github.eriark.abyssme.storage.StoragePaths.resolve(this, getIntent().getDataString());
         if (path == null) { finish(); return; }
         app = new File(path);
         if (!app.isDirectory() || app.getParentFile() == null || app.getParentFile().getParentFile() == null) { finish(); return; }

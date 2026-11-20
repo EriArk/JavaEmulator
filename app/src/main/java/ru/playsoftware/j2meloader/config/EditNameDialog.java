@@ -73,7 +73,7 @@ public class EditNameDialog extends DialogFragment {
 	public Dialog onCreateDialog(Bundle savedInstanceState) {
 		binding = DialogChangeNameBinding.inflate(LayoutInflater.from(getContext()));
 
-		AlertDialog dialog = new AlertDialog.Builder(requireActivity())
+		AlertDialog dialog = new ru.playsoftware.j2meloader.ui.MenuAlertBuilder(requireActivity())
 				.setTitle(mTitle).setView(binding.getRoot()).create();
 		if (!TextUtils.isEmpty(mOldName)) {
 			binding.editText.setText(mOldName);

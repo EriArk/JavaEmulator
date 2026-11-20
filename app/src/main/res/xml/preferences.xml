@@ -13,7 +13,17 @@
         android:entries="@array/appearance_entries" android:entryValues="@array/appearance_values"
         app:useSimpleSummaryProvider="true" />
 
+    <PreferenceScreen android:key="layout" android:title="Appearance / Layout" android:icon="@drawable/ic_baseline_tune_24">
+        <ListPreference android:key="pref_menu_orientation" android:title="Menu orientation" android:defaultValue="auto"
+            android:entries="@array/menu_orientation_names" android:entryValues="@array/menu_orientation_values" app:useSimpleSummaryProvider="true" />
+        <androidx.preference.SeekBarPreference android:key="pref_portrait_menu_margin" android:title="Portrait menu margin"
+            android:summary="Bottom space hidden by a controller (dp). Menus preview immediately; gameplay is unchanged. At least 200 dp remains available."
+            android:defaultValue="0" android:max="480" app:showSeekBarValue="true" app:updatesContinuously="true" />
+        <Preference android:key="pref_reset_menu_margin" android:title="Reset portrait menu margin" />
+    </PreferenceScreen>
+
     <PreferenceScreen android:key="library" android:title="@string/settings_library" android:icon="@drawable/ic_setting_folder">
+        <Preference android:key="pref_library_storage" android:title="Library storage location" android:summary="Move games, saves and virtual phones to internal storage or SD card" android:icon="@drawable/ic_setting_folder" />
         <Preference
             android:icon="@drawable/ic_setting_folder"
             android:key="pref_game_folders"

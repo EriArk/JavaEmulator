@@ -174,6 +174,7 @@ public class MicroActivity extends AppCompatActivity {
 	public void onCreate(Bundle savedInstanceState) {
 		lockNightMode();
 		super.onCreate(savedInstanceState);
+        if (ru.playsoftware.j2meloader.storage.StorageActivity.guard(this)) return;
 		ru.playsoftware.j2meloader.ui.AppPalette.apply(this);
 		ContextHolder.setCurrentActivity(this);
 
@@ -197,7 +198,7 @@ public class MicroActivity extends AppCompatActivity {
 		Intent intent = getIntent();
 		if (BuildConfig.FULL_EMULATOR) {
 			appName = intent.getStringExtra(KEY_MIDLET_NAME);
-			Uri data = intent.getData();
+			Uri data = io.github.eriark.abyssme.storage.StoragePaths.resolve(this, intent.getData());
 			if (data == null) {
 				showErrorDialog("Invalid intent: app path is null");
 				return;

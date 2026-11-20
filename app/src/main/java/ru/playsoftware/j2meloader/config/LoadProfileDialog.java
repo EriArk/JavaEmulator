@@ -68,7 +68,7 @@ public class LoadProfileDialog extends DialogFragment {
 				android.R.layout.simple_list_item_single_choice, profiles);
 		binding.list.setOnItemClickListener(this::onItemClick);
 		binding.list.setAdapter(adapter);
-		AlertDialog.Builder builder = new AlertDialog.Builder(requireActivity());
+		AlertDialog.Builder builder = new ru.playsoftware.j2meloader.ui.MenuAlertBuilder(requireActivity());
 		builder.setTitle(R.string.load_profile)
 				.setView(binding.getRoot())
 				.setPositiveButton(android.R.string.ok, (dialog, which) -> {

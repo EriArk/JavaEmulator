@@ -19,8 +19,8 @@ public final class SymbianLauncherLibrary implements ExternalLibrary.Provider {
         Map<String, org.json.JSONObject> titles = new HashMap<>();
         for (SymbianLibraryIndex.Entry entry : new SymbianLibraryIndex(context).read()) {
             if (!titles.containsKey(entry.system)) titles.put(entry.system,
-                    PhoneLibraryTitles.migrate(context.getFilesDir(), entry.system, preferences));
-            result.add(new Item(entry, preferences, context.getFilesDir(), titles.get(entry.system)));
+                    PhoneLibraryTitles.migrate(io.github.eriark.abyssme.storage.StoragePaths.phones(context), entry.system, preferences));
+            result.add(new Item(entry, preferences, io.github.eriark.abyssme.storage.StoragePaths.phones(context), titles.get(entry.system)));
         }
         return result;
     }

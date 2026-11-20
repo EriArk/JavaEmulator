@@ -41,6 +41,7 @@
         android:usesCleartextTraffic="true"
         tools:targetApi="r"
         tools:ignore="RtlEnabled">
+        <activity android:name=".storage.StorageActivity" android:launchMode="singleTask" android:exported="false" android:process=":storage" android:taskAffinity="${applicationId}.storage" android:configChanges="orientation|screenSize|screenLayout|smallestScreenSize" />
         <activity
             android:name=".MainActivity"
             android:configChanges="orientation|screenSize|screenLayout|smallestScreenSize"

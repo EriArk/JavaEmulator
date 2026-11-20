@@ -105,6 +105,7 @@ public final class GameMenuDialog extends Dialog {
         dialog.show();
         dialog.getWindow().setBackgroundDrawable(new ColorDrawable(Color.TRANSPARENT));
         dialog.getWindow().setLayout(WindowManager.LayoutParams.MATCH_PARENT,WindowManager.LayoutParams.MATCH_PARENT);
+        ru.playsoftware.j2meloader.ui.MenuLayout.watchDialog(dialog);
     }
     public Bundle saveTouchEditor() { return editor == null ? null : editor.onSaveInstanceState(); }
     public void restoreTouchEditor(Bundle state, ru.playsoftware.j2meloader.config.ProfileModel draft, Runnable done) {
@@ -190,7 +191,7 @@ public final class GameMenuDialog extends Dialog {
                 updateWindowLayout();
             }
             @Override protected void onMeasure(int widthSpec,int heightSpec) {
-                int max = getContext().getResources().getDisplayMetrics().heightPixels-dp(24);
+                int max = getContext().getResources().getDisplayMetrics().heightPixels-dp(24)-ru.playsoftware.j2meloader.ui.MenuLayout.inset(getContext());
                 android.util.DisplayMetrics metrics = getResources().getDisplayMetrics();
                 if (picturePreview && MenuPlacement.resolve(metrics.widthPixels / metrics.density,
                         metrics.heightPixels / metrics.density, DeviceControls.connected(getContext()),
@@ -303,7 +304,8 @@ public final class GameMenuDialog extends Dialog {
                     : Math.min(dp(limit), width - dp(24));
             attributes.dimAmount = picturePreview ? 0 : .4f;
             attributes.height = WindowManager.LayoutParams.WRAP_CONTENT;
-            attributes.y = 0;
+            int inset = ru.playsoftware.j2meloader.ui.MenuLayout.inset(getContext());
+            attributes.y = position == MenuPlacement.Position.BOTTOM ? inset : -inset / 2;
             if (canApply) window.setAttributes(attributes);
             return;
         }
@@ -313,7 +315,8 @@ public final class GameMenuDialog extends Dialog {
         Window window = getWindow();
         WindowManager.LayoutParams attributes = window.getAttributes();
         attributes.gravity = bottom ? Gravity.BOTTOM | Gravity.CENTER_HORIZONTAL : Gravity.CENTER;
-        attributes.y = bottom ? dp(12) : 0;
+        int inset = ru.playsoftware.j2meloader.ui.MenuLayout.inset(getContext());
+        attributes.y = bottom ? dp(12) + inset : -inset / 2;
         attributes.width = Math.min(dp(440), getContext().getResources().getDisplayMetrics().widthPixels-dp(24));
         attributes.height = WindowManager.LayoutParams.WRAP_CONTENT;
         if (canApply) window.setAttributes(attributes);

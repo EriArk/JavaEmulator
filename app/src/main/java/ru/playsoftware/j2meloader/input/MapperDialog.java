@@ -37,7 +37,8 @@ public final class MapperDialog extends Dialog {
         getWindow().setBackgroundDrawable(new android.graphics.drawable.ColorDrawable(ru.playsoftware.j2meloader.ui.AppPalette.color(getContext(), ru.playsoftware.j2meloader.R.color.background)));
         getWindow().addFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN);
         getWindow().getDecorView().setSystemUiVisibility(5894);
-        getWindow().setLayout(WindowManager.LayoutParams.MATCH_PARENT, WindowManager.LayoutParams.MATCH_PARENT);
+        ru.playsoftware.j2meloader.ui.MenuLayout.fitMapper(getWindow());
+        mapper.getViewTreeObserver().addOnGlobalLayoutListener(() -> ru.playsoftware.j2meloader.ui.MenuLayout.fitMapper(getWindow()));
     }
     @Override public boolean dispatchKeyEvent(KeyEvent event) {
         return mapper.handleKey(event) || super.dispatchKeyEvent(event);

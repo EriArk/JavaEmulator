@@ -58,6 +58,7 @@ public final class AdditionalGames {
     public static void install(Context context, FragmentManager fragments, Uri uri,
                                boolean autoStart, boolean finishHost) {
         if (fragments.findFragmentByTag("installer") != null) return;
+        uri = io.github.eriark.abyssme.storage.StoragePaths.resolve(context, uri);
         if (LauncherLink.accepts(context, uri)) {
             LauncherLinkDialog.create(uri, finishHost).show(fragments, "installer");
             return;

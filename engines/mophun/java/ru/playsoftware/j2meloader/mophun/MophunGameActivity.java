@@ -80,6 +80,7 @@ public final class MophunGameActivity extends Activity {
 
     @Override public void onCreate(Bundle state) {
         super.onCreate(state);
+        if (ru.playsoftware.j2meloader.storage.StorageActivity.guard(this)) return;
         ru.playsoftware.j2meloader.ui.AppPalette.apply(this);
         getWindow().getDecorView().setSystemUiVisibility(5894);
         try {

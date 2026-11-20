@@ -34,7 +34,7 @@ public class LicensesDialogFragment extends DialogFragment {
 	public Dialog onCreateDialog(Bundle savedInstanceState) {
 		String string = ContextHolder.getAssetAsString("licenses.html");
 		CharSequence message = HtmlCompat.fromHtml(string, HtmlCompat.FROM_HTML_MODE_LEGACY);
-		AlertDialog.Builder builder = new AlertDialog.Builder(requireActivity());
+		AlertDialog.Builder builder = new ru.playsoftware.j2meloader.ui.MenuAlertBuilder(requireActivity());
 		builder.setTitle(R.string.licenses)
 				.setIcon(R.mipmap.ic_launcher)
 				.setMessage(message);

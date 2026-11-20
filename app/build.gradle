@@ -58,8 +58,8 @@ android {
         if (armv7) ndk { abiFilters 'armeabi-v7a' }
         minSdk MIN_SDK
         targetSdk TARGET_SDK
-        versionCode 324
-        versionName "0.7.0-beta.10"
+        versionCode 325
+        versionName "0.8.0-beta.1"
         resValue 'string', 'app_name', rootProject.name
         // Legacy build flag retained for old test/source consumers. All builds are adaptive.
         buildConfigField 'boolean', 'HANDHELD_MODE', 'false'
@@ -352,3 +352,5 @@ dependencies {
     compileOnly "com.google.auto.service:auto-service-annotations:$autoServiceVersion"
     annotationProcessor "com.google.auto.service:auto-service:$autoServiceVersion"
 }
+
+dependencies { implementation project(':storage-core') }

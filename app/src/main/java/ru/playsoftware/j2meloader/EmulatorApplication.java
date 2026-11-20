@@ -46,6 +46,7 @@ public class EmulatorApplication extends Application {
 	@Override public void onCreate() {
 		super.onCreate();
 		ru.playsoftware.j2meloader.util.AppLanguage.initialize(this);
+        ru.playsoftware.j2meloader.ui.MenuLayout.install(this);
 	}
 
 	@Override public void onConfigurationChanged(android.content.res.Configuration configuration) {

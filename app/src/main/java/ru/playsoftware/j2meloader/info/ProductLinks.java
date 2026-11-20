@@ -32,7 +32,7 @@ final class ProductLinks {
 
     static void open(Context context, String url) {
         if (tryOpen(context, url)) return;
-        new AlertDialog.Builder(context).setTitle(R.string.product_link_unavailable)
+        new ru.playsoftware.j2meloader.ui.MenuAlertBuilder(context).setTitle(R.string.product_link_unavailable)
                 .setMessage(context.getString(R.string.product_link_help, url))
                 .setPositiveButton(R.string.product_copy_link, (dialog, which) -> {
                     ClipboardManager clipboard = (ClipboardManager) context.getSystemService(Context.CLIPBOARD_SERVICE);
