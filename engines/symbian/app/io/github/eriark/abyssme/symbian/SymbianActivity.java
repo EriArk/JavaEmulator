@@ -247,7 +247,7 @@ public final class SymbianActivity extends Activity implements Emulator.Host, In
         page.addView(progressBar,new LinearLayout.LayoutParams(-1,dp(4)));
         if (directLaunch) {
             action(page, getString(R.string.system_library), this::finish);
-            setContentView(page); ru.playsoftware.j2meloader.ui.MenuLayout.apply(this); hideBars();
+            setContentView(page); ru.playsoftware.j2meloader.ui.MenuLayout.apply(this, page); hideBars();
             return;
         }
         ScrollView scroll = new ScrollView(this);
@@ -275,7 +275,7 @@ public final class SymbianActivity extends Activity implements Emulator.Host, In
             }
         });
         action(page, getString(R.string.system_library), this::finish);
-        setContentView(page); ru.playsoftware.j2meloader.ui.MenuLayout.apply(this);
+        setContentView(page); ru.playsoftware.j2meloader.ui.MenuLayout.apply(this, page);
         hideBars();
     }
     private void savedComponents() {
@@ -829,7 +829,7 @@ public final class SymbianActivity extends Activity implements Emulator.Host, In
         });
         status=view.status; progressBar=view.progress;
         archiveView=view;
-        setContentView(view); ru.playsoftware.j2meloader.ui.MenuLayout.apply(this); hideBars();
+        setContentView(view); ru.playsoftware.j2meloader.ui.MenuLayout.apply(this, view); hideBars();
     }
     private void archiveItem(ArchiveBatch.Item item,boolean started) {
         GameMenuDialog menu=dialog(item.label());
@@ -1237,7 +1237,7 @@ public final class SymbianActivity extends Activity implements Emulator.Host, In
                                 } finally { Files.deleteIfExists(png.toPath()); }
                             }
                         }, originalScreen);
-                        setContentView(sessionUi.root); hideBars();
+                        setContentView(ru.playsoftware.j2meloader.ui.GameArea.wrap(sessionUi.root)); hideBars();
                     } catch (IOException error) { failRunningLaunch(uid, sessionTitle, error); }
                 });
             } catch (Exception error) {
@@ -1383,7 +1383,10 @@ public final class SymbianActivity extends Activity implements Emulator.Host, In
         super.onResume();
         if (ru.playsoftware.j2meloader.storage.StorageActivity.guard(this)) return;
         resumed = true;
-        if (!running) ru.playsoftware.j2meloader.ui.MenuLayout.apply(this);
+        if (!running) {
+            android.view.ViewGroup content = findViewById(android.R.id.content);
+            ru.playsoftware.j2meloader.ui.MenuLayout.apply(this, content.getChildAt(0));
+        }
         onAppLanguageChanged();
         if (running && attached && !menuOpen && !closing) Emulator.pauseSession(false);
         if (sessionUi != null) sessionUi.visible(true);

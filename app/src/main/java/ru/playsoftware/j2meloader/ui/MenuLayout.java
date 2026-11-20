@@ -28,10 +28,12 @@ public final class MenuLayout {
             "landscape".equals(value)?ActivityInfo.SCREEN_ORIENTATION_SENSOR_LANDSCAPE:fallback;
     }
     public static void apply(Activity a) {
+        apply(a, a.findViewById(android.R.id.content));
+    }
+    public static void apply(Activity a, View content) {
         int fallback=defaults.computeIfAbsent(a,x->BuildConfig.HANDHELD_MODE?ActivityInfo.SCREEN_ORIENTATION_SENSOR_LANDSCAPE:a.getRequestedOrientation());
         int selected=orientation(PreferenceManager.getDefaultSharedPreferences(a).getString(ORIENTATION,"auto"),fallback);
         if(a.getRequestedOrientation()!=selected)a.setRequestedOrientation(selected);
-        View content=a.findViewById(android.R.id.content);
         if(content!=null)attach(content);
     }
     public static void attach(View content) {
@@ -77,7 +79,7 @@ public final class MenuLayout {
     }
     private static boolean menu(Activity a) {
         String n=a.getClass().getName();
-        return !n.equals("javax.microedition.shell.MicroActivity")&&!n.endsWith("MophunGameActivity")
+        return !(a instanceof GameAreaActivity) && !n.equals("javax.microedition.shell.MicroActivity")&&!n.endsWith("MophunGameActivity")
             &&!n.endsWith("SymbianActivity")&&!n.endsWith("GameRestartActivity")&&!n.endsWith("CompatibilityTestActivity");
     }
     public static void install(Application app) {

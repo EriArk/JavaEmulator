@@ -10,6 +10,11 @@ stated otherwise. **Experimental** in older checkpoints means local/private
 combined builds; released experimental features are explicitly identified.
 **Released** means an actual GitHub release asset.
 
+## 2026-11-20 - Game area calibration (local)
+
+- Draw the visible portion of the screen or enter its exact size and position in pixels. Portrait and landscape each retain a separate calibration for gameplay.
+- Verified editor persistence, reset and the resulting screen bounds on Retroid Classic. [Device checks and limits](docs/PROJECT_STATUS.md#game-area-calibration-2026-11-20-local-debug-build).
+
 ## 2026-11-20 - 0.8.0 Beta 1 release candidate
 
 - Move installed games, saves and virtual phones between internal and removable app storage under Settings → Library.

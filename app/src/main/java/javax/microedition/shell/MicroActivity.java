@@ -180,7 +180,7 @@ public class MicroActivity extends AppCompatActivity {
 
 		binding = ActivityMicroBinding.inflate(getLayoutInflater());
 		View view = binding.getRoot();
-		setContentView(view);
+		setContentView(ru.playsoftware.j2meloader.ui.GameArea.wrap(view));
 		setSupportActionBar(binding.toolbar);
 
 		SharedPreferences sp = PreferenceManager.getDefaultSharedPreferences(getApplicationContext());

@@ -14,6 +14,8 @@
         app:useSimpleSummaryProvider="true" />
 
     <PreferenceScreen android:key="layout" android:title="Appearance / Layout" android:icon="@drawable/ic_baseline_tune_24">
+        <Preference android:key="game_area_portrait" android:title="Portrait game area" android:summary="Adjust the size and position of the playable area" />
+        <Preference android:key="game_area_landscape" android:title="Landscape game area" />
         <ListPreference android:key="pref_menu_orientation" android:title="Menu orientation" android:defaultValue="auto"
             android:entries="@array/menu_orientation_names" android:entryValues="@array/menu_orientation_values" app:useSimpleSummaryProvider="true" />
         <androidx.preference.SeekBarPreference android:key="pref_portrait_menu_margin" android:title="Portrait menu margin"

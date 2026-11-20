@@ -12,6 +12,12 @@ not a live feed. Verify GitHub Releases, recent commits and build notes before
 calling a version "latest" after this date. If local evidence is inaccessible,
 attribute its results to the dated maintainer record below; do not infer a pass.
 
+## Game area calibration (2026-11-20, local debug build)
+
+Under Settings → Appearance / Layout, choose Portrait game area or Landscape game area. Draw a rectangle across the exposed display, drag it or its edges, or enter X, Y, width and height in pixels. Save applies it to games using that orientation. Reset and Save restore the full window. The game and its overlay controls share the same coordinate space.
+
+On Retroid Classic the editor test drew, saved and reopened a rectangle, entered exact pixel values and reset it. Screenshots matched the calibrated boundaries for Sudoku J2ME in portrait and landscape and Lemtris in landscape. The combined build includes the Symbian session integration. A running Symbian game and a physical Pocket Taco were not tested in this check. Local logs and private captures: `build/checks/2026-11-20-game-area/`. [Editor regression test](../app/src/androidTest/java/ru/playsoftware/j2meloader/ui/GameAreaTest.java).
+
 ## 0.8 storage and menu controls (2026-11-20)
 
 The 0.8 release candidate supports verified library moves to removable SD, an adjustable portrait menu margin and independent menu orientation. On Retroid Classic, 12 focused instrumentation checks passed. A separate private-fixture test moved an N-Gage phone with Snakes, verified favorites and a save sentinel, restored a backup as a second phone and reopened both catalogs after the return move. Physical Pocket Taco coverage is pending.

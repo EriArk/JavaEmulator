@@ -47,6 +47,14 @@ public class SettingsFragment extends PreferenceFragmentCompat {
                 edit.apply();ru.playsoftware.j2meloader.ui.MenuLayout.apply(requireActivity());return true;
             });
         }
+        for (String key : new String[]{"game_area_portrait", "game_area_landscape"}) {
+            Preference area = findPreference(key);
+            if (area != null) area.setOnPreferenceClickListener(p -> {
+                startActivity(new Intent(requireContext(), ru.playsoftware.j2meloader.ui.GameAreaActivity.class)
+                        .putExtra("portrait", key.equals("game_area_portrait")));
+                return true;
+            });
+        }
         Preference reset=findPreference("pref_reset_menu_margin");
         if(reset!=null)reset.setOnPreferenceClickListener(p->{
             androidx.preference.SeekBarPreference margin=findPreference(ru.playsoftware.j2meloader.ui.MenuLayout.MARGIN);

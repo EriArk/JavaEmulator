@@ -139,7 +139,7 @@ public final class MophunGameActivity extends Activity {
             screenshotButton.setOnClickListener(v -> takeScreenshot());
             root.addView(screenshotButton, new FrameLayout.LayoutParams(dp(48), dp(48), Gravity.TOP | Gravity.START));
             updateScreenshotButton();
-            setContentView(root);
+            setContentView(ru.playsoftware.j2meloader.ui.GameArea.wrap(root));
             previewBar = new ru.playsoftware.j2meloader.input.SettingsPreviewBar(this, this::keepPreview, this::undoPreview);
             previewBar.attachTo(root);
             fastForward = new ru.playsoftware.j2meloader.input.FastForwardControl(root, profile, () -> true,
