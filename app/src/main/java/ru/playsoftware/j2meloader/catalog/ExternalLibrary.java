@@ -10,7 +10,7 @@ import ru.playsoftware.j2meloader.applist.AppItem;
 /** Engine-owned entries. They must never enter the Java install/backup database. */
 public final class ExternalLibrary {
     public interface Provider { List<AppItem> read(Context context) throws IOException; }
-    public interface PackageProvider extends Provider { void install(Context context, android.net.Uri uri) throws IOException; }
+    public interface PackageProvider extends Provider { Item install(Context context, android.net.Uri uri) throws IOException; }
     public static PackageProvider packageProvider(int platform) throws IOException {
         String provider;
         switch (platform) {

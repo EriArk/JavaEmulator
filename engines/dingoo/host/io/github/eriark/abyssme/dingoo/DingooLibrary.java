@@ -13,6 +13,13 @@ import ru.playsoftware.j2meloader.catalog.SourceIdentity;
 public final class DingooLibrary extends ManagedGameLibrary {
     public DingooLibrary() { super("dingoo", DingooGameActivity.class); }
     @Override protected String inspect(android.content.Context context, File file, String name, Properties info) throws IOException {
+        String archiveId = null;
+        if (name.toLowerCase(Locale.ROOT).endsWith(".zip")) {
+            archiveId = SourceIdentity.sha256(file);
+            name = DingooArchive.unpack(file,info);
+            String leaf = new File(name).getName();
+            info.setProperty("title",leaf.substring(0,leaf.lastIndexOf('.')));
+        }
         String ext = name.substring(name.lastIndexOf('.') + 1).toLowerCase(Locale.ROOT);
         byte[] header = new byte[128];
         try (DataInputStream reader = new DataInputStream(new FileInputStream(file))) { reader.readFully(header); }
@@ -31,7 +38,7 @@ public final class DingooLibrary extends ManagedGameLibrary {
                 && ("cc".equals(ext) || "c2s".equals(ext) || "c3s".equals(ext));
         if (!dingoo && !gemei) throw new IOException("Package extension does not match a supported Dingoo or Gemei program");
         info.setProperty("format",ext);
-        return SourceIdentity.sha256(file);
+        return info.containsKey("entry") ? archiveId : SourceIdentity.sha256(file);
     }
     File installed(Context context, String id) throws IOException {
         if (id == null || !id.matches("[a-f0-9]{64}")) throw new IOException("Invalid game identity");
@@ -41,7 +48,10 @@ public final class DingooLibrary extends ManagedGameLibrary {
     @Override protected void configureProfile(ru.playsoftware.j2meloader.config.ProfileModel profile) {
         ru.playsoftware.j2meloader.handheld.LibretroKeys.defaultMappings(profile);
     }
-    @Override protected String filename(Properties info) { return "game." + variant(info); }
+    @Override protected String filename(Properties info) { String entry = info.getProperty("entry");
+        if (entry == null) return "game." + variant(info);
+        try { return "content/" + DingooArchive.relative(entry); }
+        catch (IOException e) { throw new IllegalArgumentException("Invalid archived executable path",e); } }
     @Override protected String variant(Properties info) {
         String ext = info.getProperty("format","");
         return ext.matches("app|cc|c2s|c3s") ? ext : "unknown";

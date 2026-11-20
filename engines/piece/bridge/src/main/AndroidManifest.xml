@@ -3,5 +3,80 @@
         <activity android:name="io.github.eriark.abyssme.piece.PieceGameActivity"
             android:exported="false" android:process=":piece"
             android:configChanges="orientation|screenSize|keyboardHidden|screenLayout|smallestScreenSize"/>
+        <activity android:name="ru.playsoftware.j2meloader.MainActivity">
+            <intent-filter>
+                <action android:name="android.intent.action.VIEW" />
+                <category android:name="android.intent.category.DEFAULT" />
+                <category android:name="android.intent.category.BROWSABLE" />
+                <data android:scheme="content" />
+                <data android:scheme="file" />
+                <data android:mimeType="application/octet-stream" />
+            </intent-filter>
+            <intent-filter>
+                <action android:name="android.intent.action.VIEW" />
+                <category android:name="android.intent.category.DEFAULT" />
+                <category android:name="android.intent.category.BROWSABLE" />
+                <data android:scheme="file" />
+                <data android:scheme="content" />
+                <data android:host="*" />
+                <data android:pathSuffix=".pfi" />
+                <data android:pathPattern=".*.pfi" />
+                <data android:pathPattern=".*..*.pfi" />
+                <data android:pathSuffix=".PFI" />
+                <data android:pathPattern=".*.PFI" />
+                <data android:pathPattern=".*..*.PFI" />
+                <data android:pathSuffix=".pex" />
+                <data android:pathPattern=".*.pex" />
+                <data android:pathPattern=".*..*.pex" />
+                <data android:pathSuffix=".PEX" />
+                <data android:pathPattern=".*.PEX" />
+                <data android:pathPattern=".*..*.PEX" />
+                <data android:pathSuffix=".bin" />
+                <data android:pathPattern=".*.bin" />
+                <data android:pathPattern=".*..*.bin" />
+                <data android:pathSuffix=".BIN" />
+                <data android:pathPattern=".*.BIN" />
+                <data android:pathPattern=".*..*.BIN" />
+                <data android:pathSuffix=".exe" />
+                <data android:pathPattern=".*.exe" />
+                <data android:pathPattern=".*..*.exe" />
+                <data android:pathSuffix=".EXE" />
+                <data android:pathPattern=".*.EXE" />
+                <data android:pathPattern=".*..*.EXE" />
+            </intent-filter>
+            <intent-filter>
+                <action android:name="android.intent.action.VIEW" />
+                <category android:name="android.intent.category.DEFAULT" />
+                <category android:name="android.intent.category.BROWSABLE" />
+                <data android:scheme="file" />
+                <data android:scheme="content" />
+                <data android:host="*" />
+                <data android:mimeType="*/*" />
+                <data android:pathSuffix=".pfi" />
+                <data android:pathPattern=".*.pfi" />
+                <data android:pathPattern=".*..*.pfi" />
+                <data android:pathSuffix=".PFI" />
+                <data android:pathPattern=".*.PFI" />
+                <data android:pathPattern=".*..*.PFI" />
+                <data android:pathSuffix=".pex" />
+                <data android:pathPattern=".*.pex" />
+                <data android:pathPattern=".*..*.pex" />
+                <data android:pathSuffix=".PEX" />
+                <data android:pathPattern=".*.PEX" />
+                <data android:pathPattern=".*..*.PEX" />
+                <data android:pathSuffix=".bin" />
+                <data android:pathPattern=".*.bin" />
+                <data android:pathPattern=".*..*.bin" />
+                <data android:pathSuffix=".BIN" />
+                <data android:pathPattern=".*.BIN" />
+                <data android:pathPattern=".*..*.BIN" />
+                <data android:pathSuffix=".exe" />
+                <data android:pathPattern=".*.exe" />
+                <data android:pathPattern=".*..*.exe" />
+                <data android:pathSuffix=".EXE" />
+                <data android:pathPattern=".*.EXE" />
+                <data android:pathPattern=".*..*.EXE" />
+            </intent-filter>
+        </activity>
     </application>
 </manifest>

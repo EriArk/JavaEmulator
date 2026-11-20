@@ -225,6 +225,9 @@ public class AppsListFragment extends Fragment implements AppsListAdapter.Listen
 	@Override
 	public void onViewCreated(@NonNull View view, Bundle savedInstanceState) {
 		super.onViewCreated(view, savedInstanceState);
+        getParentFragmentManager().setFragmentResultListener("handheld-installed", getViewLifecycleOwner(), (key,result)->{
+            enterPlatform(result.getInt("platform")); reloadExternalLibrary();
+        });
         Intent entry = requireActivity().getIntent();
         platformHome = launcherEnabled() && (savedInstanceState != null
                 ? savedInstanceState.getBoolean("platformHome")
@@ -815,7 +818,7 @@ public class AppsListFragment extends Fragment implements AppsListAdapter.Listen
 		int visibleTabs = 0;
 		for (int id = 1; id < LibraryQuery.PLATFORMS.length; id++)
 			if (LibraryNavigation.available(id)) visibleTabs++;
-		int tabWidth = dp(Math.max(80, Math.round(80 * fontScale)));
+		int tabWidth = dp(Math.max(112, Math.round(112 * fontScale)));
 		for (int i = 0; i < binding.libraryPlatformTabs.getChildCount(); i++) {
 			TextView tab = (TextView) binding.libraryPlatformTabs.getChildAt(i);
 			LinearLayout.LayoutParams lp = (LinearLayout.LayoutParams) tab.getLayoutParams();
@@ -1521,7 +1524,10 @@ public class AppsListFragment extends Fragment implements AppsListAdapter.Listen
 		saveLibraryLocation();
 		restoreLocation = true;
 		List<AppItem> items = new java.util.ArrayList<>(databaseItems);
-		items.addAll(externalItems);
+		java.util.HashSet<String> installedSources = new java.util.HashSet<>();
+        for (AppItem external : externalItems) if (external.getSourceKey()!=null) installedSources.add(external.getSourceKey());
+        items.removeIf(item -> "indexed".equals(item.getPreparationState()) && installedSources.contains(item.getSourceKey()));
+        items.addAll(externalItems);
 		bothNgageGenerations = LibraryQuery.hasBothNgageGenerations(externalItems);
 		if (externalLoaded && !bothNgageGenerations && generation != 0) {
 			generation = 0;

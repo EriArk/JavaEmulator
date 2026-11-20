@@ -118,9 +118,17 @@ public final class GameFolderIndexer {
 			String stem = name.substring(0, name.lastIndexOf('.'));
 			if (name.toLowerCase(Locale.ROOT).endsWith(".jad") && jars.contains(stem.toLowerCase(Locale.ROOT))) continue;
 			Uri uri = DocumentsContract.buildDocumentUriUsingTree(tree, entry.id);
-			String sourceKey = SourceIdentity.key(uri);
+			int platform = 0;
+            if (HandheldFormat.candidate(name)) {
+                Set<Integer> detected;
+                try { detected = HandheldFormat.detect(context,uri,name); }
+                catch (IOException unsupported) { detected = java.util.Collections.emptySet(); }
+                if (detected.size()==1) platform=detected.iterator().next();
+                if (detected.isEmpty() && !isLegacyFormat(name)) continue;
+            }
+            String sourceKey = SourceIdentity.key(uri);
 			String title = stem.replace('_', ' ').trim();
-			AppItem item = new AppItem("pending_" + SourceIdentity.shortId(sourceKey),
+			AppItem item = new AppItem("pending_" + (platform==0?"":platform+"_") + SourceIdentity.shortId(sourceKey),
 					title.isEmpty() ? name : title, "", "");
 			item.setSourceUri(uri.toString());
 			item.setSourceKey(sourceKey);
@@ -137,6 +145,10 @@ public final class GameFolderIndexer {
 	}
 
 	static boolean isSupported(String name) {
+        return isLegacyFormat(name) || HandheldFormat.candidate(name);
+    }
+
+    private static boolean isLegacyFormat(String name) {
 		String lower = name.toLowerCase(Locale.ROOT);
 		return lower.endsWith(".jar") || lower.endsWith(".jad") || lower.endsWith(".kjx")
 				|| lower.endsWith(".mpn") || lower.endsWith(".zip") || lower.endsWith(".7z");

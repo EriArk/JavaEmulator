@@ -3,5 +3,80 @@
         <activity android:name="io.github.eriark.abyssme.gp32.Gp32GameActivity"
             android:exported="false" android:process=":gp32"
             android:configChanges="orientation|screenSize|keyboardHidden|screenLayout|smallestScreenSize"/>
+        <activity android:name="ru.playsoftware.j2meloader.MainActivity">
+            <intent-filter>
+                <action android:name="android.intent.action.VIEW" />
+                <category android:name="android.intent.category.DEFAULT" />
+                <category android:name="android.intent.category.BROWSABLE" />
+                <data android:scheme="content" />
+                <data android:scheme="file" />
+                <data android:mimeType="application/octet-stream" />
+            </intent-filter>
+            <intent-filter>
+                <action android:name="android.intent.action.VIEW" />
+                <category android:name="android.intent.category.DEFAULT" />
+                <category android:name="android.intent.category.BROWSABLE" />
+                <data android:scheme="file" />
+                <data android:scheme="content" />
+                <data android:host="*" />
+                <data android:pathSuffix=".smc" />
+                <data android:pathPattern=".*.smc" />
+                <data android:pathPattern=".*..*.smc" />
+                <data android:pathSuffix=".SMC" />
+                <data android:pathPattern=".*.SMC" />
+                <data android:pathPattern=".*..*.SMC" />
+                <data android:pathSuffix=".fpk" />
+                <data android:pathPattern=".*.fpk" />
+                <data android:pathPattern=".*..*.fpk" />
+                <data android:pathSuffix=".FPK" />
+                <data android:pathPattern=".*.FPK" />
+                <data android:pathPattern=".*..*.FPK" />
+                <data android:pathSuffix=".fxe" />
+                <data android:pathPattern=".*.fxe" />
+                <data android:pathPattern=".*..*.fxe" />
+                <data android:pathSuffix=".FXE" />
+                <data android:pathPattern=".*.FXE" />
+                <data android:pathPattern=".*..*.FXE" />
+                <data android:pathSuffix=".bin" />
+                <data android:pathPattern=".*.bin" />
+                <data android:pathPattern=".*..*.bin" />
+                <data android:pathSuffix=".BIN" />
+                <data android:pathPattern=".*.BIN" />
+                <data android:pathPattern=".*..*.BIN" />
+            </intent-filter>
+            <intent-filter>
+                <action android:name="android.intent.action.VIEW" />
+                <category android:name="android.intent.category.DEFAULT" />
+                <category android:name="android.intent.category.BROWSABLE" />
+                <data android:scheme="file" />
+                <data android:scheme="content" />
+                <data android:host="*" />
+                <data android:mimeType="*/*" />
+                <data android:pathSuffix=".smc" />
+                <data android:pathPattern=".*.smc" />
+                <data android:pathPattern=".*..*.smc" />
+                <data android:pathSuffix=".SMC" />
+                <data android:pathPattern=".*.SMC" />
+                <data android:pathPattern=".*..*.SMC" />
+                <data android:pathSuffix=".fpk" />
+                <data android:pathPattern=".*.fpk" />
+                <data android:pathPattern=".*..*.fpk" />
+                <data android:pathSuffix=".FPK" />
+                <data android:pathPattern=".*.FPK" />
+                <data android:pathPattern=".*..*.FPK" />
+                <data android:pathSuffix=".fxe" />
+                <data android:pathPattern=".*.fxe" />
+                <data android:pathPattern=".*..*.fxe" />
+                <data android:pathSuffix=".FXE" />
+                <data android:pathPattern=".*.FXE" />
+                <data android:pathPattern=".*..*.FXE" />
+                <data android:pathSuffix=".bin" />
+                <data android:pathPattern=".*.bin" />
+                <data android:pathPattern=".*..*.bin" />
+                <data android:pathSuffix=".BIN" />
+                <data android:pathPattern=".*.BIN" />
+                <data android:pathPattern=".*..*.BIN" />
+            </intent-filter>
+        </activity>
     </application>
 </manifest>

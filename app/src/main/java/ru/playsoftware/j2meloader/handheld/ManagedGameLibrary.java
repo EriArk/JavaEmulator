@@ -35,7 +35,7 @@ public abstract class ManagedGameLibrary implements ExternalLibrary.PackageProvi
     protected void imported(Context context, String id, Properties info) throws IOException {}
 
     protected File root(Context c) { return new File(StoragePaths.library(c), engine + "/packages"); }
-    @Override public void install(Context context, Uri uri) throws IOException {
+    @Override public ExternalLibrary.Item install(Context context, Uri uri) throws IOException {
         String name = uri.getLastPathSegment();
         if ("content".equals(uri.getScheme())) try (Cursor c = context.getContentResolver().query(uri,
                 new String[]{OpenableColumns.DISPLAY_NAME}, null, null, null)) {
@@ -53,11 +53,16 @@ public abstract class ManagedGameLibrary implements ExternalLibrary.PackageProvi
             }
             Properties info = new Properties();
             String id = inspect(context, content, name, info);
+            String source = ru.playsoftware.j2meloader.catalog.SourceIdentity.key(uri);
+            info.setProperty("source",source);
             File dir = new File(root, id);
             File game = new File(dir, filename(info));
             if (game.isFile()) {
-                imported(context, id, info);
-                return;
+                Properties existing = load(dir);
+                existing.setProperty("source",source);
+                store(dir,existing);
+                imported(context, id, existing);
+                return new Card(dir,existing,stableId(context,id));
             }
             int dot = name.lastIndexOf('.');
             if (!info.containsKey("title")) info.setProperty("title", dot > 0 ? name.substring(0,dot) : name);
@@ -65,11 +70,18 @@ public abstract class ManagedGameLibrary implements ExternalLibrary.PackageProvi
             store(tmp, info);
             if (!tmp.renameTo(dir) && !game.isFile()) throw new IOException("Cannot install game");
             imported(context, id, info);
+            return new Card(dir,load(dir),stableId(context,id));
         } finally {
-            File[] left = tmp.listFiles();
-            if (left != null) for (File file : left) file.delete();
-            tmp.delete();
+            if (tmp.exists()) removeTree(tmp);
         }
+    }
+    private static void removeTree(File file) throws IOException {
+        if (!Files.isSymbolicLink(file.toPath()) && file.isDirectory()) {
+            File[] children = file.listFiles();
+            if (children == null) throw new IOException("Cannot read package directory");
+            for (File child : children) removeTree(child);
+        }
+        Files.delete(file.toPath());
     }
     protected static Properties load(File dir) throws IOException {
         Properties p = new Properties();
@@ -112,7 +124,7 @@ public abstract class ManagedGameLibrary implements ExternalLibrary.PackageProvi
         Card(File dir, Properties p, int id) {
             super(engine + "/" + dir.getName(), p.getProperty("title"), platformName(p), variant(p));
             platform = ManagedGameLibrary.this.platformId(p);
-            this.dir=dir; setId(id);
+            this.dir=dir; setId(id); setSourceKey(p.getProperty("source"));
             setLastPlayedAt(Long.parseLong(p.getProperty("last","0")));
             setPlayCount(Integer.parseInt(p.getProperty("count","0")));
             setFavorite(Boolean.parseBoolean(p.getProperty("favorite","false")));
@@ -153,10 +165,7 @@ public abstract class ManagedGameLibrary implements ExternalLibrary.PackageProvi
             return profile;
         }
         @Override public void removePackage() throws IOException {
-            Files.delete(new File(dir,filename(load(dir))).toPath());
-            File[] files=dir.listFiles();
-            if (files!=null) for (File f:files) Files.delete(f.toPath());
-            Files.delete(dir.toPath());
+            removeTree(dir);
         }
     }
 }

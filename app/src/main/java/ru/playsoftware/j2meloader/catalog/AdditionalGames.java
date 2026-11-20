@@ -63,6 +63,14 @@ public final class AdditionalGames {
             LauncherLinkDialog.create(uri, finishHost).show(fragments, "installer");
             return;
         }
+        if (HandheldFormat.enabled() && HandheldFormat.candidate(HandheldFormat.name(context,uri))) {
+            HandheldOpenDialog.create(uri,autoStart,finishHost).show(fragments,"installer");
+            return;
+        }
+        installLegacy(context,fragments,uri,autoStart,finishHost);
+    }
+
+    static void installLegacy(Context context, FragmentManager fragments, Uri uri, boolean autoStart, boolean finishHost) {
         if (ru.playsoftware.j2meloader.BuildConfig.SYMBIAN_EXPERIMENT) {
             try {
                 ImportRouter router = Class.forName("io.github.eriark.abyssme.symbian.SymbianImportDialog")

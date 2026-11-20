@@ -211,10 +211,10 @@ public class CompactSettingsTest {
     }
 
     private static String backupLabel() {
-        return ru.playsoftware.j2meloader.BuildConfig.SYMBIAN_EXPERIMENT ? "Back up Java / Mophun" : "Back up library";
+        return ru.playsoftware.j2meloader.BuildConfig.SYMBIAN_EXPERIMENT && !HandheldFormat.enabled() ? "Back up Java / Mophun" : "Back up library";
     }
     private static String restoreLabel() {
-        return ru.playsoftware.j2meloader.BuildConfig.SYMBIAN_EXPERIMENT ? "Restore Java / Mophun backup" : "Restore backup";
+        return ru.playsoftware.j2meloader.BuildConfig.SYMBIAN_EXPERIMENT && !HandheldFormat.enabled() ? "Restore Java / Mophun backup" : "Restore backup";
     }
     private void idle() {
         InstrumentationRegistry.getInstrumentation().waitForIdleSync();

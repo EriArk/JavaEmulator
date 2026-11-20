@@ -16,7 +16,7 @@ The [platform issue index](PLATFORM_ISSUES.md) maps the 49 open platform-specifi
 
 ## Retroid library and platform coverage (2026-11-20, local device)
 
-All nine platform tabs contain games in the combined installation. The updated debug APK opens Display or Controls directly on first use from a game card. In-place installation preserved the catalog and all 8,895 checked files. The [platform audit](checks/2026-11-20-platform-lifecycle.md) records the available installation, firmware and save paths and the remaining import and portable-backup gaps.
+All nine platform tabs contain games in the combined installation. The single Retroid installation now accepts Dingoo/Gemei distributions with companion assets and prepares P/ECE firmware directly from Aquaplus’s updater. Library backup covers the five newer platforms, including system selection, game settings and writable data. Platform tabs have room for their labels and scroll horizontally. [Device checks and remaining compatibility questions](checks/2026-11-20-platform-lifecycle.md) · [Tab strip](checks/2026-11-20-handheld-tabs.png).
 
 ## Platform launcher and device artwork (2026-11-20, local debug build)
 

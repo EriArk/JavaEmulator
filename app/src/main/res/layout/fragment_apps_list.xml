@@ -44,59 +44,59 @@
         <LinearLayout android:id="@+id/library_platform_tabs"
             android:layout_width="wrap_content" android:layout_height="match_parent" android:paddingHorizontal="8dp">
             <TextView android:id="@+id/platform_java"
-                android:layout_width="0dp" android:layout_height="48dp" android:layout_weight="1"
-                android:minWidth="80dp" android:paddingHorizontal="10dp"
+                android:layout_width="wrap_content" android:layout_height="48dp"
+                android:minWidth="112dp" android:paddingHorizontal="18dp"
                 android:background="@drawable/bg_library_tab" android:clickable="true" android:focusable="true"
                 android:gravity="center" android:singleLine="true" android:text="Java ME"
-                android:textSize="14sp" android:textColor="?attr/abyss_text_primary" />
+                android:textSize="16sp" android:textColor="?attr/abyss_text_primary" />
             <TextView android:id="@+id/platform_mophun"
-                android:layout_width="0dp" android:layout_height="48dp" android:layout_weight="1"
-                android:minWidth="80dp" android:paddingHorizontal="10dp"
+                android:layout_width="wrap_content" android:layout_height="48dp"
+                android:minWidth="112dp" android:paddingHorizontal="18dp"
                 android:background="@drawable/bg_library_tab" android:clickable="true" android:focusable="true"
                 android:gravity="center" android:singleLine="true" android:text="Mophun"
-                android:textSize="14sp" android:textColor="?attr/abyss_text_primary" />
+                android:textSize="16sp" android:textColor="?attr/abyss_text_primary" />
             <TextView android:id="@+id/platform_symbian"
-                android:layout_width="0dp" android:layout_height="48dp" android:layout_weight="1"
-                android:minWidth="80dp" android:paddingHorizontal="10dp"
+                android:layout_width="wrap_content" android:layout_height="48dp"
+                android:minWidth="112dp" android:paddingHorizontal="18dp"
                 android:background="@drawable/bg_library_tab" android:clickable="true" android:focusable="true"
                 android:gravity="center" android:singleLine="true" android:text="Symbian"
-                android:textSize="14sp" android:textColor="?attr/abyss_text_primary" />
+                android:textSize="16sp" android:textColor="?attr/abyss_text_primary" />
             <TextView android:id="@+id/platform_ngage"
-                android:layout_width="0dp" android:layout_height="48dp" android:layout_weight="1"
-                android:minWidth="80dp" android:paddingHorizontal="10dp"
+                android:layout_width="wrap_content" android:layout_height="48dp"
+                android:minWidth="112dp" android:paddingHorizontal="18dp"
                 android:background="@drawable/bg_library_tab" android:clickable="true" android:focusable="true"
                 android:gravity="center" android:singleLine="true" android:text="N-Gage"
-                android:textSize="14sp" android:textColor="?attr/abyss_text_primary" />
+                android:textSize="16sp" android:textColor="?attr/abyss_text_primary" />
             <TextView android:id="@+id/platform_wipi"
-                android:layout_width="0dp" android:layout_height="48dp" android:layout_weight="1"
-                android:minWidth="80dp" android:paddingHorizontal="10dp"
+                android:layout_width="wrap_content" android:layout_height="48dp"
+                android:minWidth="112dp" android:paddingHorizontal="18dp"
                 android:background="@drawable/bg_library_tab" android:clickable="true" android:focusable="true"
                 android:gravity="center" android:singleLine="true" android:text="WIPI / SKVM"
-                android:textSize="14sp" android:textColor="?attr/abyss_text_primary" />
+                android:textSize="16sp" android:textColor="?attr/abyss_text_primary" />
             <TextView android:id="@+id/platform_dingoo"
-                android:layout_width="0dp" android:layout_height="48dp" android:layout_weight="1"
-                android:minWidth="80dp" android:paddingHorizontal="10dp"
+                android:layout_width="wrap_content" android:layout_height="48dp"
+                android:minWidth="112dp" android:paddingHorizontal="18dp"
                 android:background="@drawable/bg_library_tab" android:clickable="true" android:focusable="true"
                 android:gravity="center" android:singleLine="true" android:text="Dingoo A320"
-                android:textSize="14sp" android:textColor="?attr/abyss_text_primary" />
+                android:textSize="16sp" android:textColor="?attr/abyss_text_primary" />
             <TextView android:id="@+id/platform_gemei"
-                android:layout_width="0dp" android:layout_height="48dp" android:layout_weight="1"
-                android:minWidth="80dp" android:paddingHorizontal="10dp"
+                android:layout_width="wrap_content" android:layout_height="48dp"
+                android:minWidth="112dp" android:paddingHorizontal="18dp"
                 android:background="@drawable/bg_library_tab" android:clickable="true" android:focusable="true"
                 android:gravity="center" android:singleLine="true" android:text="Gemei A330"
-                android:textSize="14sp" android:textColor="?attr/abyss_text_primary" />
+                android:textSize="16sp" android:textColor="?attr/abyss_text_primary" />
             <TextView android:id="@+id/platform_piece"
-                android:layout_width="0dp" android:layout_height="48dp" android:layout_weight="1"
-                android:minWidth="80dp" android:paddingHorizontal="10dp"
+                android:layout_width="wrap_content" android:layout_height="48dp"
+                android:minWidth="112dp" android:paddingHorizontal="18dp"
                 android:background="@drawable/bg_library_tab" android:clickable="true" android:focusable="true"
                 android:gravity="center" android:singleLine="true" android:text="Aquaplus P/ECE"
-                android:textSize="14sp" android:textColor="?attr/abyss_text_primary" />
+                android:textSize="16sp" android:textColor="?attr/abyss_text_primary" />
             <TextView android:id="@+id/platform_gp32"
-                android:layout_width="0dp" android:layout_height="48dp" android:layout_weight="1"
-                android:minWidth="80dp" android:paddingHorizontal="10dp"
+                android:layout_width="wrap_content" android:layout_height="48dp"
+                android:minWidth="112dp" android:paddingHorizontal="18dp"
                 android:background="@drawable/bg_library_tab" android:clickable="true" android:focusable="true"
                 android:gravity="center" android:singleLine="true" android:text="GamePark GP32"
-                android:textSize="14sp" android:textColor="?attr/abyss_text_primary" />
+                android:textSize="16sp" android:textColor="?attr/abyss_text_primary" />
         </LinearLayout>
     </HorizontalScrollView>
     <LinearLayout android:id="@+id/library_screen"

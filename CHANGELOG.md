@@ -10,6 +10,11 @@ stated otherwise. **Experimental** in older checkpoints means local/private
 combined builds; released experimental features are explicitly identified.
 **Released** means an actual GitHub release asset.
 
+## 2026-11-20 - Handheld library imports, backup and wider tabs (local Retroid build)
+
+- Added portable backup and selective restoration for WIPI/SKVM, Dingoo, Gemei, P/ECE and GP32. Folder discovery and Android file opening recognize their packages.
+- Added ZIP import with companion assets for Dingoo and Gemei, and on-device preparation of P/ECE firmware from the original updater. Platform tabs now scroll at a readable width. [Retroid checks](docs/checks/2026-11-20-platform-lifecycle.md).
+
 ## 2026-11-20 - Retroid library recovery and platform audit (local device)
 
 - Restored Java ME, Mophun, WIPI games and two virtual phones in the single combined installation. Fixed the first visit to Display and Controls when a game has no saved profile. Verified both pages on fresh Mophun cards and installed the updated APK over all nine populated platform libraries. [Inventory, setup and outstanding work](docs/checks/2026-11-20-platform-lifecycle.md).

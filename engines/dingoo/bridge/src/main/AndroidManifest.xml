@@ -3,5 +3,80 @@
         <activity android:name="io.github.eriark.abyssme.dingoo.DingooGameActivity"
             android:exported="false" android:process=":dingoo"
             android:configChanges="orientation|screenSize|keyboardHidden|screenLayout|smallestScreenSize"/>
+        <activity android:name="ru.playsoftware.j2meloader.MainActivity">
+            <intent-filter>
+                <action android:name="android.intent.action.VIEW" />
+                <category android:name="android.intent.category.DEFAULT" />
+                <category android:name="android.intent.category.BROWSABLE" />
+                <data android:scheme="content" />
+                <data android:scheme="file" />
+                <data android:mimeType="application/octet-stream" />
+            </intent-filter>
+            <intent-filter>
+                <action android:name="android.intent.action.VIEW" />
+                <category android:name="android.intent.category.DEFAULT" />
+                <category android:name="android.intent.category.BROWSABLE" />
+                <data android:scheme="file" />
+                <data android:scheme="content" />
+                <data android:host="*" />
+                <data android:pathSuffix=".app" />
+                <data android:pathPattern=".*.app" />
+                <data android:pathPattern=".*..*.app" />
+                <data android:pathSuffix=".APP" />
+                <data android:pathPattern=".*.APP" />
+                <data android:pathPattern=".*..*.APP" />
+                <data android:pathSuffix=".cc" />
+                <data android:pathPattern=".*.cc" />
+                <data android:pathPattern=".*..*.cc" />
+                <data android:pathSuffix=".CC" />
+                <data android:pathPattern=".*.CC" />
+                <data android:pathPattern=".*..*.CC" />
+                <data android:pathSuffix=".c2s" />
+                <data android:pathPattern=".*.c2s" />
+                <data android:pathPattern=".*..*.c2s" />
+                <data android:pathSuffix=".C2S" />
+                <data android:pathPattern=".*.C2S" />
+                <data android:pathPattern=".*..*.C2S" />
+                <data android:pathSuffix=".c3s" />
+                <data android:pathPattern=".*.c3s" />
+                <data android:pathPattern=".*..*.c3s" />
+                <data android:pathSuffix=".C3S" />
+                <data android:pathPattern=".*.C3S" />
+                <data android:pathPattern=".*..*.C3S" />
+            </intent-filter>
+            <intent-filter>
+                <action android:name="android.intent.action.VIEW" />
+                <category android:name="android.intent.category.DEFAULT" />
+                <category android:name="android.intent.category.BROWSABLE" />
+                <data android:scheme="file" />
+                <data android:scheme="content" />
+                <data android:host="*" />
+                <data android:mimeType="*/*" />
+                <data android:pathSuffix=".app" />
+                <data android:pathPattern=".*.app" />
+                <data android:pathPattern=".*..*.app" />
+                <data android:pathSuffix=".APP" />
+                <data android:pathPattern=".*.APP" />
+                <data android:pathPattern=".*..*.APP" />
+                <data android:pathSuffix=".cc" />
+                <data android:pathPattern=".*.cc" />
+                <data android:pathPattern=".*..*.cc" />
+                <data android:pathSuffix=".CC" />
+                <data android:pathPattern=".*.CC" />
+                <data android:pathPattern=".*..*.CC" />
+                <data android:pathSuffix=".c2s" />
+                <data android:pathPattern=".*.c2s" />
+                <data android:pathPattern=".*..*.c2s" />
+                <data android:pathSuffix=".C2S" />
+                <data android:pathPattern=".*.C2S" />
+                <data android:pathPattern=".*..*.C2S" />
+                <data android:pathSuffix=".c3s" />
+                <data android:pathPattern=".*.c3s" />
+                <data android:pathPattern=".*..*.c3s" />
+                <data android:pathSuffix=".C3S" />
+                <data android:pathPattern=".*.C3S" />
+                <data android:pathPattern=".*..*.C3S" />
+            </intent-filter>
+        </activity>
     </application>
 </manifest>

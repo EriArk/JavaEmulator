@@ -18,11 +18,37 @@ public final class PieceLibrary extends ManagedGameLibrary {
     }
     @Override protected String inspect(Context context, File file, String name, Properties info) throws IOException {
         String lower = name.toLowerCase(Locale.ROOT);
-        if (lower.endsWith(".pfi")) {
+        if (lower.endsWith(".zip")) {
+            // A system image may be distributed as ZIP just like a game.
+            try (ZipFile zip = new ZipFile(file)) {
+                ZipEntry main = null;
+                boolean listed = false;
+                for (ZipEntry entry : Collections.list(zip.entries())) {
+                    String path = entry.getName().toLowerCase(Locale.ROOT);
+                    if (path.endsWith(".pfs")) listed = true;
+                    if (path.endsWith(".pfi") || path.endsWith(".pex") || path.equals("all.bin") || path.endsWith("/all.bin")) {
+                        if (main == null || path.contains("/2mb/")) main = entry;
+                    }
+                }
+                if (!listed && main != null) {
+                    lower = new File(main.getName()).getName().toLowerCase(Locale.ROOT);
+                    byte[] image = read(zip,main,3*1024*1024);
+                    Files.write(file.toPath(),image);
+                }
+            }
+        }
+        if (lower.endsWith(".pfi") || lower.endsWith(".exe") || lower.endsWith(".bin")) {
+            if (!lower.endsWith(".pfi")) {
+                PieceFirmware.prepare(file,lower.endsWith(".exe"));
+                info.setProperty("title","P/ECE system");
+            }
             new PieceImage(file);
             info.setProperty("format", "PFI");
         } else {
-            File base = installed(context, context.getSharedPreferences("piece", 0).getString("base", null));
+            File marker = new File(root(context).getParentFile(),"system/base");
+            String selected = marker.isFile() ? new String(Files.readAllBytes(marker.toPath()),StandardCharsets.US_ASCII).trim()
+                    : context.getSharedPreferences("piece", 0).getString("base", null);
+            File base = installed(context,selected);
             if (!base.isFile()) throw new IOException("Import a base .pfi flash image first");
             PieceImage image = new PieceImage(base);
             if (lower.endsWith(".pex")) {
@@ -38,8 +64,17 @@ public final class PieceLibrary extends ManagedGameLibrary {
         }
         return SourceIdentity.sha256(file);
     }
-    @Override protected void imported(Context context, String id, Properties info) {
-        if ("PFI".equals(variant(info))) context.getSharedPreferences("piece", 0).edit().putString("base",id).apply();
+    @Override protected void imported(Context context, String id, Properties info) throws IOException {
+        if (!"PFI".equals(variant(info))) return;
+        File dir = new File(root(context).getParentFile(),"system");
+        Files.createDirectories(dir.toPath());
+        java.nio.file.Path tmp = Files.createTempFile(dir.toPath(),"base-", ".tmp");
+        try {
+            Files.write(tmp,id.getBytes(StandardCharsets.US_ASCII));
+            Files.move(tmp,new File(dir,"base").toPath(),java.nio.file.StandardCopyOption.ATOMIC_MOVE,
+                    java.nio.file.StandardCopyOption.REPLACE_EXISTING);
+        } finally { Files.deleteIfExists(tmp); }
+        context.getSharedPreferences("piece", 0).edit().putString("base",id).apply();
     }
     private static byte[] read(ZipFile zip, ZipEntry entry, int max) throws IOException {
         if (entry == null || entry.isDirectory() || entry.getSize() < 0 || entry.getSize() > max)

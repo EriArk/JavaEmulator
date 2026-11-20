@@ -15,6 +15,7 @@ import com.google.gson.JsonParser;
 
 import java.io.ByteArrayOutputStream;
 import java.io.File;
+import java.util.Locale;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
@@ -69,6 +70,7 @@ public final class LibraryImporter {
 		private JsonObject backupInfo;
         private ru.playsoftware.j2meloader.config.SharedProfiles.Catalog sharedProfiles, graphicsProfiles, physicalProfiles;
 		private String nativeId;
+        private HandheldBackup handheld;
 		private DocumentFile game, data, config;
         private LibraryTransferFailure problemFailure;
         public String problemText(Context context) {
@@ -217,6 +219,17 @@ public final class LibraryImporter {
         ru.playsoftware.j2meloader.config.SharedProfiles.Catalog profiles=ru.playsoftware.j2meloader.config.SharedProfiles.read(root);
         ru.playsoftware.j2meloader.config.SharedProfiles.Catalog graphics=ru.playsoftware.j2meloader.config.SharedProfiles.GRAPHICS.read(root);
         ru.playsoftware.j2meloader.config.SharedProfiles.Catalog physical=ru.playsoftware.j2meloader.config.SharedProfiles.PHYSICAL.read(root);
+        for (HandheldBackup card : HandheldBackup.list(root)) {
+            Entry entry = new Entry();
+            entry.handheld = card;
+            entry.title = card.title;
+            entry.vendor = card.engine.equals("piece") ? "P/ECE" : card.engine.equals("dingoo") && !card.format.equals("APP")
+                    ? "Gemei" : card.engine.toUpperCase(Locale.ROOT);
+            entry.version = card.format;
+            entry.sourceKey = card.card(); entry.selected = true;
+            entry.hasSaves = new File(root,card.data()).isDirectory();
+            preview.entries.add(entry);
+        }
         for(Entry entry:preview.entries){entry.sharedProfiles=profiles;entry.graphicsProfiles=graphics;entry.physicalProfiles=physical;}
         return preview;
 	}
@@ -247,13 +260,13 @@ public final class LibraryImporter {
 		if (root == null || !root.isDirectory() || !root.canRead()) throw LibraryTransferFailure.of(R.string.library_transfer_source_access,"Cannot read this folder");
 		sourceTree = root.getUri();
 		DocumentFile converted = find(root, "converted");
-		if (converted == null || !converted.isDirectory()) throw LibraryTransferFailure.of(R.string.library_transfer_source_layout,"Select the J2ME Loader folder containing converted, data and configs");
+		if ((converted == null || !converted.isDirectory()) && backup == null) throw LibraryTransferFailure.of(R.string.library_transfer_source_layout,"Select the J2ME Loader folder containing converted, data and configs");
 		Preview result = new Preview();
 		result.shared = find(root, "fs");
 		result.sharedFiles = result.shared != null && children(result.shared).length > 0;
 		if (result.sharedFiles) checkTree(result.shared, 0, new int[]{0});
 		DocumentFile data = find(root, "data"), configs = find(root, "configs");
-		DocumentFile[] games = children(converted);
+		DocumentFile[] games = converted == null ? new DocumentFile[0] : children(converted);
 		if (games.length > MAX_FILES) throw LibraryTransferFailure.of(R.string.library_transfer_import_limit,"Too many library entries");
 		for (DocumentFile game : games) {
 			checkCancelled();
@@ -305,7 +318,21 @@ public final class LibraryImporter {
 	public String importEntry(Entry entry) throws Exception {
 		checkCancelled();
 		if (entry.problem != null) throw entry.problemFailure==null?new IOException(entry.problem):entry.problemFailure;
-		if (catalog.bySource(entry.sourceKey) != null) throw LibraryTransferFailure.of(R.string.library_transfer_already_imported,"Already imported; no files replaced");
+		if (entry.handheld != null) {
+            HandheldBackup card = entry.handheld;
+            synchronized (LibraryImporter.class) {
+                HandheldBackup.migratePieceBase(context,destination);
+                File config = new File(destination,card.config()), source = new File(card.root,card.config());
+                importProfiles(entry);
+                if (source.isDirectory() && !new File(config,"config.json").exists()) {
+                    mkdir(config);
+                    importConfig(DocumentFile.fromFile(source),config,true);
+                }
+                card.restore(destination,cancelled);
+            }
+            return "Restored missing files; existing games and saves were kept";
+        }
+        if (catalog.bySource(entry.sourceKey) != null) throw LibraryTransferFailure.of(R.string.library_transfer_already_imported,"Already imported; no files replaced");
 		copied = 0; files = 0;
 		String transaction = "import-" + UUID.randomUUID();
 		String id = entry.nativeId == null ? transaction : entry.nativeId;
@@ -353,11 +380,7 @@ public final class LibraryImporter {
 				if (file != null) copyFile(file, new File(app, art));
 			}
 			if (entry.data != null) copyTree(entry.data, data, 0);
-			if (entry.sharedProfiles != null) {
-				ru.playsoftware.j2meloader.config.SharedProfiles.CONTROLS.importCatalog(entry.sharedProfiles, destination);
-                ru.playsoftware.j2meloader.config.SharedProfiles.GRAPHICS.importCatalog(entry.graphicsProfiles, destination);
-                ru.playsoftware.j2meloader.config.SharedProfiles.PHYSICAL.importCatalog(entry.physicalProfiles, destination);
-			}
+			importProfiles(entry);
 			notes = importConfig(entry.config, config, entry.backupInfo != null);
 			checkCancelled();
 			item.setSourceKey(entry.sourceKey);
@@ -408,6 +431,13 @@ public final class LibraryImporter {
 			}
 		}
 	}
+
+    private void importProfiles(Entry entry) throws IOException {
+        if (entry.sharedProfiles == null) return;
+        ru.playsoftware.j2meloader.config.SharedProfiles.CONTROLS.importCatalog(entry.sharedProfiles, destination);
+        ru.playsoftware.j2meloader.config.SharedProfiles.GRAPHICS.importCatalog(entry.graphicsProfiles, destination);
+        ru.playsoftware.j2meloader.config.SharedProfiles.PHYSICAL.importCatalog(entry.physicalProfiles, destination);
+    }
 
 	private String importConfig(DocumentFile source, File target, boolean backup) throws IOException {
 		String notes = "";

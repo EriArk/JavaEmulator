@@ -272,8 +272,8 @@ public class ProvidedLibraryJourneyTest {
         try { ui.waitForIdle(500,5000); }
         catch (java.util.concurrent.TimeoutException e) { throw new AssertionError("DocumentsUI drawer did not settle", e); }
     }
-    private String backupLabel() { return BuildConfig.SYMBIAN_EXPERIMENT ? "Back up Java / Mophun" : "Back up library"; }
-    private String restoreLabel() { return BuildConfig.SYMBIAN_EXPERIMENT ? "Restore Java / Mophun backup" : "Restore backup"; }
+    private String backupLabel() { return BuildConfig.SYMBIAN_EXPERIMENT && !HandheldFormat.enabled() ? "Back up Java / Mophun" : "Back up library"; }
+    private String restoreLabel() { return BuildConfig.SYMBIAN_EXPERIMENT && !HandheldFormat.enabled() ? "Restore Java / Mophun backup" : "Restore backup"; }
     private AccessibilityNodeInfo find(AccessibilityNodeInfo node, Predicate<AccessibilityNodeInfo> match) {
         if(node==null) return null; if(match.test(node)) return node;
         for(int n=0;n<node.getChildCount();n++) { AccessibilityNodeInfo found=find(node.getChild(n),match); if(found!=null)return found; }

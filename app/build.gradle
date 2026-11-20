@@ -385,6 +385,7 @@ if (findProject(':piece-probe') != null) {
     android.variantFilter { v -> v.ignore = v.buildType.name != 'debug' || !(v.flavors*.name == ['fdroid']) }
     android.buildTypes.debug.applicationIdSuffix = findProject(':dingoo-probe') != null ? '.dingoocheck.debug' : '.piececheck.debug'
     dependencies.add('debugImplementation', project(':piece-probe'))
+    dependencies.add('debugImplementation', 'com.orangesignal:orangesignal-csv:2.2.1') { transitive = false }
     android.sourceSets.debug.java.srcDir rootProject.file('engines/piece/host')
     android.sourceSets.androidTest.java.srcDir rootProject.file('engines/piece/tests')
 }

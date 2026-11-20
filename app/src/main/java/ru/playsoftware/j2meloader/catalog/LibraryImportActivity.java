@@ -106,10 +106,11 @@ public class LibraryImportActivity extends CompactSettingsActivity {
                     current.access.folder.getAuthority(), android.provider.DocumentsContract.getDocumentId(current.access.folder)));
         });
         choices.addView(allowAccess, actionParams());
-        choices.addView(button(ru.playsoftware.j2meloader.BuildConfig.SYMBIAN_EXPERIMENT ? getString(R.string.transfer_backup_java) : getString(R.string.transfer_backup_library), android.R.drawable.ic_menu_save, () -> launchPicker(backupPicker,
+        boolean javaAndMophunOnly = ru.playsoftware.j2meloader.BuildConfig.SYMBIAN_EXPERIMENT && !HandheldFormat.enabled();
+        choices.addView(button(getString(javaAndMophunOnly ? R.string.transfer_backup_java : R.string.transfer_backup_library), android.R.drawable.ic_menu_save, () -> launchPicker(backupPicker,
                 "AbyssME-" + new java.text.SimpleDateFormat("yyyy-MM-dd-HHmm", java.util.Locale.ROOT)
                         .format(new java.util.Date()) + ".zip")), actionParams());
-        choices.addView(button(ru.playsoftware.j2meloader.BuildConfig.SYMBIAN_EXPERIMENT ? getString(R.string.transfer_restore_java) : getString(R.string.transfer_restore_backup), android.R.drawable.ic_menu_revert,
+        choices.addView(button(getString(javaAndMophunOnly ? R.string.transfer_restore_java : R.string.transfer_restore_backup), android.R.drawable.ic_menu_revert,
                 () -> launchPicker(restorePicker, new String[]{"application/zip", "application/octet-stream"})), actionParams());
         choices.addView(button(getString(R.string.transfer_import_loader), R.drawable.ic_setting_folder, this::showImportSources), actionParams());
         choices.addView(button(getString(R.string.transfer_move_phone), android.R.drawable.ic_menu_revert, this::showPhoneMigration), actionParams());

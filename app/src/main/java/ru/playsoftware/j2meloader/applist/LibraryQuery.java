@@ -16,6 +16,8 @@ public final class LibraryQuery {
         if (item instanceof ExternalLibrary.Item) {
             return ((ExternalLibrary.Item) item).platformId();
         }
+        int indexed=ru.playsoftware.j2meloader.catalog.HandheldFormat.indexedPlatform(item.getPath());
+        if(indexed!=0)return indexed;
         return AdditionalGames.isManaged(new File(item.getPathExt())) ? 2 : 1;
     }
     public static List<AppItem> select(List<AppItem> items, int category, int platform, String query) {

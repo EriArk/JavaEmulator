@@ -63,6 +63,7 @@ public final class LibraryArchive {
             for (AppItem game : games) {
                 check();
                 String id = game.getPath();
+                if (HandheldFormat.indexedPlatform(id)!=0 && "indexed".equals(game.getPreparationState())) continue;
                 safeName(id);
                 File app = new File(root, "converted/" + id);
                 if (!new File(app, "res.jar").isFile() && !new File(app, AdditionalGames.MANIFEST).isFile())
@@ -77,6 +78,16 @@ public final class LibraryArchive {
                     pack(root, new File(root, dir + "/" + id), zip, hashes, 0);
                 count++;
             }
+            List<HandheldBackup> handhelds = HandheldBackup.list(root);
+            if (!handhelds.isEmpty()) manifest.addProperty("version", 2);
+            for (HandheldBackup card : handhelds) {
+                pack(root, new File(root, card.card()), zip, hashes, 0);
+                pack(root, new File(root, card.data()), zip, hashes, 0);
+                pack(root, new File(root, card.config()), zip, hashes, 0);
+                count++;
+            }
+            for (String engine : HandheldBackup.ENGINES)
+                pack(root, new File(root, engine + "/system"), zip, hashes, 0);
             if (count == 0) throw LibraryTransferFailure.of(R.string.library_transfer_no_games,"No installed games to back up");
             pack(root, new File(root, "fs"), zip, hashes, 0);
             ru.playsoftware.j2meloader.config.SharedProfiles.read(root); // Validate before publishing the archive.
@@ -103,6 +114,14 @@ public final class LibraryArchive {
         if (file.isDirectory()) {
             File[] children = file.listFiles();
             if (children == null) throw LibraryTransferFailure.of(R.string.library_transfer_source_access,"Cannot read " + file.getName());
+            if (children.length == 0) {
+                String rel = root.toPath().relativize(file.toPath()).toString();
+                if (HandheldBackup.handheldPath(rel.split("/"))) {
+                    if (++files > MAX_FILES) throw new IOException("Too many backup entries");
+                    zip.putNextEntry(new ZipEntry(rel + "/")); zip.closeEntry();
+                    hashes.addProperty(rel + "/", "directory");
+                }
+            }
             for (File child : children) pack(root, child, zip, hashes, depth + 1);
             return;
         }
@@ -141,14 +160,17 @@ public final class LibraryArchive {
             while ((entry = zip.getNextEntry()) != null) {
                 check();
                 String path = entry.getName();
-                String[] parts = path.split("/", -1);
+                String[] parts = (entry.isDirectory() ? path.substring(0,path.length()-1) : path).split("/", -1);
                 if (parts.length > 26) throw LibraryTransferFailure.of(R.string.library_transfer_import_limit,"Backup folders are too deep");
                 for (String part : parts) safeName(part);
                 if (!names.add(path) || ++files > MAX_FILES) throw LibraryTransferFailure.of(R.string.library_transfer_source_invalid,"Duplicate or excessive backup entries");
                 if (!path.equals(MANIFEST) && !path.equals(ru.playsoftware.j2meloader.config.SharedProfiles.FILE) && !path.equals(ru.playsoftware.j2meloader.config.SharedProfiles.GRAPHICS_FILE) && !path.equals(ru.playsoftware.j2meloader.config.SharedProfiles.PHYSICAL_FILE) && !(parts.length >= 3 && Arrays.asList("converted", "data", "configs").contains(parts[0]))
-                        && !(parts.length >= 2 && parts[0].equals("fs")))
+                        && !HandheldBackup.handheldPath(parts) && !(parts.length >= 2 && parts[0].equals("fs")))
                     throw LibraryTransferFailure.of(R.string.library_transfer_source_invalid,"Unexpected backup file: " + path);
-                if (entry.isDirectory()) throw LibraryTransferFailure.of(R.string.library_transfer_source_invalid,"Unexpected directory entry");
+                if (entry.isDirectory()) {
+                    if (!HandheldBackup.handheldPath(parts)) throw new IOException("Unexpected directory: " + path);
+                    Files.createDirectories(new File(stage,path).toPath()); hashes.put(path,"directory"); continue;
+                }
                 File target = new File(stage, path);
                 if (!target.getParentFile().isDirectory() && !target.getParentFile().mkdirs()) throw LibraryTransferFailure.of(R.string.library_transfer_storage_failure,"Cannot unpack backup");
                 java.security.MessageDigest digest = digest();
@@ -179,7 +201,7 @@ public final class LibraryArchive {
     static JsonObject readManifest(File stage) throws IOException {
         try (Reader reader = new FileReader(new File(stage, MANIFEST))) {
             JsonObject manifest = JsonParser.parseReader(reader).getAsJsonObject();
-            if (manifest.get("version").getAsInt() != 1) throw LibraryTransferFailure.of(R.string.library_transfer_backup_version,"Unsupported backup version");
+            if (manifest.get("version").getAsInt() != 1 && manifest.get("version").getAsInt() != 2) throw LibraryTransferFailure.of(R.string.library_transfer_backup_version,"Unsupported backup version");
             UUID.fromString(manifest.get("id").getAsString());
             return manifest;
         } catch (RuntimeException e) { throw LibraryTransferFailure.caused(R.string.library_transfer_source_invalid,"Invalid backup metadata", e); }

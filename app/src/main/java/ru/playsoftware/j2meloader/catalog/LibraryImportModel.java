@@ -243,6 +243,7 @@ public class LibraryImportModel extends AndroidViewModel {
 				if (processes != null) for (android.app.ActivityManager.RunningAppProcessInfo process : processes)
 					if (process.processName.equals(getApplication().getPackageName() + ":midlet"))
 						throw new java.io.IOException(getApplication().getString(R.string.transfer_exit_before_backup));
+				HandheldBackup.migratePieceBase(getApplication(), new File(Config.getEmulatorDir()));
 				int count = new LibraryArchive(cancelled).export(new File(Config.getEmulatorDir()),
 						repository.getAll().firstOrError().blockingGet(), getApplication().getCacheDir(), () -> {
 					java.io.OutputStream out = getApplication().getContentResolver().openOutputStream(uri, "wt");
