@@ -44,6 +44,7 @@ import android.view.SurfaceHolder;
 import android.view.SurfaceView;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.FrameLayout;
 import android.widget.LinearLayout;
 import android.widget.PopupWindow;
 
@@ -150,6 +151,9 @@ public abstract class Canvas extends Displayable {
 	protected int maxHeight;
 	private LinearLayout layout;
 	private SurfaceView innerView;
+	private FrameLayout surfaceFrame;
+	private volatile FrameLayout guestLayer;
+	private final java.util.ArrayList<View> guestViews = new java.util.ArrayList<>();
 	private ViewCallbacks viewCallbacks;
 	private Surface surface;
 	private GLRenderer renderer;
@@ -616,6 +620,8 @@ public abstract class Canvas extends Displayable {
 		RectF screen = new RectF(0, 0, displayWidth, displayHeight);
 		virtualScreen.set(onX, onY, onX + onWidth, onY + onHeight);
 		lcdClip.set(available);
+		FrameLayout layer = guestLayer;
+		if (layer != null) layer.post(this::positionGuestLayer);
 		ContextHolder.getActivity().binding.overlayView.postInvalidate();
 
 		synchronized (bufferLock) {
@@ -703,10 +709,64 @@ public abstract class Canvas extends Displayable {
 			innerView.setOnKeyListener(callback);
 			innerView.setOnGenericMotionListener(callback);
 			innerView.setFocusableInTouchMode(true);
-			layout.addView(innerView);
+			surfaceFrame = new FrameLayout(activity);
+			surfaceFrame.addView(innerView);
+			layout.addView(surfaceFrame, -1, -1);
+			for (View item : guestViews) mountGuestView(item);
 			innerView.requestFocus();
 		}
 		return layout;
+	}
+
+	public void postGuestCallback(Runnable callback) {
+		Display.getEventQueue().postEventQueued(javax.microedition.lcdui.event.RunnableEvent.getInstance(callback));
+	}
+
+	/** Native guest controls share the game image's coordinate system. UI thread only. */
+	public void attachGuestView(View item) {
+		if (guestViews.contains(item)) return;
+		guestViews.add(item);
+		if (surfaceFrame != null) mountGuestView(item);
+	}
+
+	private void mountGuestView(View item) {
+		if (guestLayer == null) {
+			guestLayer = new FrameLayout(surfaceFrame.getContext());
+			guestLayer.setPivotX(0);
+			guestLayer.setPivotY(0);
+			surfaceFrame.addView(guestLayer);
+			positionGuestLayer();
+		}
+		guestLayer.addView(item);
+	}
+
+	private void positionGuestLayer() {
+		if (guestLayer == null || width <= 0 || height <= 0) return;
+		boolean quarter = ScreenRotation.swapsAxes(drawRotation);
+		FrameLayout.LayoutParams params = (FrameLayout.LayoutParams) guestLayer.getLayoutParams();
+		params.gravity = Gravity.TOP | Gravity.LEFT;
+		params.width = width;
+		params.height = height;
+		guestLayer.setLayoutParams(params);
+		guestLayer.setScaleX((float) (quarter ? onHeight : onWidth) / width);
+		guestLayer.setScaleY((float) (quarter ? onWidth : onHeight) / height);
+		guestLayer.setRotation(drawRotation);
+		guestLayer.setTranslationX(onX + (drawRotation == 90 || drawRotation == 180 ? onWidth : 0));
+		guestLayer.setTranslationY(onY + (drawRotation == 180 || drawRotation == 270 ? onHeight : 0));
+	}
+
+	public void restoreGameInputFocus() {
+		if (innerView != null && innerView.isAttachedToWindow()) innerView.requestFocus();
+	}
+
+	public void detachGuestView(View item) {
+		guestViews.remove(item);
+		if (guestLayer == null) return;
+		guestLayer.removeView(item);
+		if (guestViews.isEmpty()) {
+			surfaceFrame.removeView(guestLayer);
+			guestLayer = null;
+		}
 	}
 
 	@Override
@@ -714,6 +774,9 @@ public abstract class Canvas extends Displayable {
 		// Detach now: the later surfaceDestroyed callback rejects obsolete innerView instances.
 		if (viewCallbacks != null) viewCallbacks.releaseSurface();
 		viewCallbacks = null;
+		if (guestLayer != null) guestLayer.removeAllViews();
+		guestLayer = null;
+		surfaceFrame = null;
 		super.clearDisplayableView();
 		layout = null;
 		innerView = null;

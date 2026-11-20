@@ -10,6 +10,10 @@ stated otherwise. **Experimental** in older checkpoints means local/private
 combined builds; released experimental features are explicitly identified.
 **Released** means an actual GitHub release asset.
 
+## 2026-11-21 - Nokia canvas text entry
+
+- Added Nokia `TextEditor` input to the optional Asha build. A guest can edit text directly on the game canvas and receive changes from the Android keyboard. Verified entry, save and return to canvas input on Retroid Classic. [Checks and screenshots](docs/checks/2026-11-21-asha.md#canvas-text-entry).
+
 ## 2026-11-21 - Nokia double-tap and pinch in Java ME
 
 - Added double-tap recognition and two-finger pinches to the optional Asha build. Games can read pinch distance, center and movement in canvas coordinates. Verified both gestures with a diagnostic MIDlet on Retroid and checked ordinary controls in TouchMare. [Device results](docs/checks/2026-11-21-asha.md#double-tap-and-pinch).

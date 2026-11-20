@@ -585,6 +585,8 @@ public class MicroActivity extends AppCompatActivity {
 					&& (event.getFlags() & (KeyEvent.FLAG_LONG_PRESS | KeyEvent.FLAG_CANCELED)) == 0) openOptionsMenu();
 			return true;
 		}
+		if (current instanceof Canvas && getCurrentFocus() instanceof android.widget.EditText
+				&& ControllerInput.direction(key) != 0) return super.dispatchKeyEvent(event);
 		if ((current instanceof Canvas || fastForward != null && fastForward.binding() == key) && event.getKeyCode() != menuKey
 				&& (KeyEvent.isGamepadButton(event.getKeyCode()) || ControllerInput.direction(event.getKeyCode()) != 0)) {
 			controllerInput.key(event.getDeviceId(), event.getKeyCode(),
