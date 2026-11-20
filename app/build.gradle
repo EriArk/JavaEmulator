@@ -69,6 +69,7 @@ android {
         buildConfigField 'boolean', 'SUPERVISION_PROBE', (findProject(':supervision-probe') != null).toString()
         buildConfigField 'boolean', 'MEGADUCK_PROBE', (findProject(':megaduck-probe') != null).toString()
         buildConfigField 'boolean', 'CYBIKO_PROBE', (findProject(':cybiko-probe') != null).toString()
+        buildConfigField 'boolean', 'FLASH_PROBE', (findProject(':flash-probe') != null).toString()
         buildConfigField 'boolean', 'PIECE_PROBE', (findProject(':piece-probe') != null).toString()
         buildConfigField 'boolean', 'DINGOO_PROBE', (findProject(':dingoo-probe') != null).toString()
         buildConfigField 'boolean', 'WIPI_PROBE', (findProject(':wipi-probe') != null).toString()
@@ -209,7 +210,7 @@ android {
 
     applicationVariants.all {
         if (buildType.name == 'debug' && flavorName != 'midlet') {
-            resValue 'string', 'app_name', (findProject(':dingoo-probe') != null || findProject(':piece-probe') != null || findProject(':gp32-probe') != null || findProject(':supervision-probe') != null || findProject(':megaduck-probe') != null || findProject(':cybiko-probe') != null) ? 'AbyssME Handhelds' : findProject(':wipi-probe') != null ? 'AbyssME WIPI' : flavorName == 'phone'
+            resValue 'string', 'app_name', (findProject(':dingoo-probe') != null || findProject(':piece-probe') != null || findProject(':gp32-probe') != null || findProject(':supervision-probe') != null || findProject(':megaduck-probe') != null || findProject(':cybiko-probe') != null || findProject(':flash-probe') != null) ? 'AbyssME Handhelds' : findProject(':wipi-probe') != null ? 'AbyssME WIPI' : flavorName == 'phone'
                     ? 'AbyssME Phone Debug' : symbianExperiment ? 'AbyssME Symbian Test' : 'AbyssME Debug'
         }
         def baseName = flavorName == 'midlet' ? "${midletArchivesBaseName}-" : "${rootProject.name}-"
@@ -431,4 +432,12 @@ if (findProject(':cybiko-probe') != null) {
     dependencies.add('debugImplementation', project(':cybiko-probe'))
     android.sourceSets.debug.java.srcDir rootProject.file('engines/cybiko/host')
     android.sourceSets.androidTest.java.srcDir rootProject.file('engines/cybiko/tests')
+}
+
+if (findProject(':flash-probe') != null) {
+    android.variantFilter { v -> v.ignore = v.buildType.name != 'debug' || !(v.flavors*.name == ['fdroid']) }
+    android.buildTypes.debug.applicationIdSuffix = findProject(':dingoo-probe') != null ? '.dingoocheck.debug' : '.flashcheck.debug'
+    dependencies.add('debugImplementation', project(':flash-probe'))
+    android.sourceSets.debug.java.srcDir rootProject.file('engines/flash/host')
+    android.sourceSets.androidTest.java.srcDir rootProject.file('engines/flash/tests')
 }

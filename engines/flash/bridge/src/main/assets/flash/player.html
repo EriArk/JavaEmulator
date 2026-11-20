@@ -1,0 +1,71 @@
+<!doctype html>
+<html><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+<style>html,body,ruffle-player{width:100%;height:100%;margin:0;display:block;background:#000;overflow:hidden}</style></head><body>
+<script>
+"use strict";
+let player, active = true, speed = 1, previous, virtualTime;
+let savedStorage;
+function syncStorage() {
+    if (savedStorage === undefined) return;
+    const current = JSON.stringify(localStorage);
+    if (current !== savedStorage) {
+        prompt("flash-save",current);
+        savedStorage = current;
+    }
+}
+const requestFrame = window.requestAnimationFrame.bind(window);
+window.requestAnimationFrame = fn => requestFrame(now => {
+    if (previous === undefined) virtualTime = now;
+    else virtualTime += (now - previous) * speed;
+    previous = now;
+    fn(virtualTime);
+});
+function focusMovie() {
+    player.focus();
+    // The non-focusable virtual display needs focus inside Ruffle's shadow tree.
+    const target = player.shadowRoot?.querySelector("canvas");
+    target?.dispatchEvent(new FocusEvent("focusin",{bubbles:true,composed:true}));
+}
+function running(on) {
+    active = on;
+    if (player && player.ruffle().metadata) {
+        if (on) {
+            player.ruffle().resume();
+            focusMovie();
+        } else {
+            window.dispatchEvent(new PageTransitionEvent("pagehide"));
+            syncStorage();
+            player.ruffle().suspend();
+        }
+    }
+}
+function button(code, key, down) {
+    if (!player) return;
+    focusMovie();
+    window.dispatchEvent(new KeyboardEvent(down ? "keydown" : "keyup", {code,key,bubbles:true,cancelable:true}));
+}
+window.RufflePlayer = {config:{
+    publicPath:"/engine/", autoplay:"on", splashScreen:false, unmuteOverlay:"hidden",
+    showSwfDownload:false, contextMenu:"off", allowScriptAccess:false, allowNetworking:"internal",
+    openUrlMode:"deny", preferredRenderer:"canvas", warnOnUnsupportedContent:false
+}};
+</script><script src="/engine/ruffle.js"></script><script>
+(async () => {
+    const state = await (await fetch("/session.json")).json();
+    localStorage.clear();
+    for (const [key,value] of Object.entries(state.saves)) localStorage.setItem(key,value);
+    savedStorage = JSON.stringify(localStorage);
+    window.setInterval(syncStorage, 250);
+    player = window.RufflePlayer.newest().createPlayer();
+    document.body.appendChild(player);
+    const url=new URL(state.url,location.origin);
+    await player.ruffle().load({url:url.href,base:new URL(".",url).href});
+    player.focus();
+    player.ruffle().addFSCommandHandler(command => {
+        if (command.toLowerCase()==="quit") { prompt("flash-exit",""); return true; }
+        return false;
+    });
+    running(active);
+    prompt("flash-ready","");
+})().catch(error => prompt("flash-error",String(error)));
+</script></body></html>

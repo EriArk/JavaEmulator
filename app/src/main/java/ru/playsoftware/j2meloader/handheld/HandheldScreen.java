@@ -23,6 +23,8 @@ final class HandheldScreen extends View implements NativeFrame {
     private final LcdEffect lcd = new LcdEffect();
     private volatile long serial;
     private long nanos;
+    private final android.graphics.Matrix stageToView = new android.graphics.Matrix();
+    private final float[] tapPoint = new float[2];
     private java.io.File preview;
     private long nextPreviewFrame = 240;
     boolean paused = true;
@@ -46,7 +48,7 @@ final class HandheldScreen extends View implements NativeFrame {
         pixels = new int[W * H];
         this.profile = profile;
         touch = new NativeTouchControls(profile, getResources().getDisplayMetrics().density,
-                ViewConfiguration.get(host).getScaledTouchSlop(), keys, this::invalidate, () -> {},
+                ViewConfiguration.get(host).getScaledTouchSlop(), keys, this::invalidate, this::stageTap,
                 () -> TouchFeedback.perform(this, profile.vkFeedback));
         touch.deck.setTheme(host);
     }
@@ -57,7 +59,14 @@ final class HandheldScreen extends View implements NativeFrame {
     }
     void release() { touch.cancel(); }
     @Override protected void onSizeChanged(int w, int h, int oldW, int oldH) { touch.layout(w, h); }
-    @Override public boolean onTouchEvent(MotionEvent event) { return !paused && touch.touch(event); }
+    @Override public boolean onTouchEvent(MotionEvent event) { tapPoint[0]=event.getX(); tapPoint[1]=event.getY(); return !paused && touch.touch(event); }
+    private void stageTap() {
+        android.graphics.Matrix inverse=new android.graphics.Matrix();
+        if (!stageToView.invert(inverse)) return;
+        inverse.mapPoints(tapPoint);
+        if (tapPoint[0]>=0 && tapPoint[1]>=0 && tapPoint[0]<W && tapPoint[1]<H)
+            host.gameTap(tapPoint[0],tapPoint[1]);
+    }
     public int frameWidth() { return W; }
     public int frameHeight() { return H; }
     public long presentationSerial() { return serial; }
@@ -121,6 +130,11 @@ final class HandheldScreen extends View implements NativeFrame {
                 PictureScale.center(area.centerY(), quarter ? w : h, integer));
         canvas.rotate(rotation);
         dest.set(-w / 2f, -h / 2f, w / 2f, h / 2f);
+        stageToView.setScale(w/(float)W,h/(float)H);
+        stageToView.postTranslate(dest.left,dest.top);
+        stageToView.postRotate(rotation);
+        stageToView.postTranslate(PictureScale.center(area.centerX(), quarter ? h : w, integer),
+                PictureScale.center(area.centerY(), quarter ? w : h, integer));
         paint.setFilterBitmap(profile.screenFilter);
         if (!enhanced) canvas.drawBitmap(bitmap, null, dest, paint);
         lcd.draw(canvas, dest, W, H, 0, profile.getRetroShader() == 0 ? profile.screenEffect : 0, profile.screenEffectIntensity);

@@ -60,3 +60,8 @@ if (providers.gradleProperty('cybikoProbe').orNull == 'true') {
     include ':cybiko-probe'
     project(':cybiko-probe').projectDir = file('engines/cybiko/bridge')
 }
+
+if (providers.gradleProperty('flashProbe').orNull == 'true') {
+    include ':flash-probe'
+    project(':flash-probe').projectDir = file('engines/flash/bridge')
+}

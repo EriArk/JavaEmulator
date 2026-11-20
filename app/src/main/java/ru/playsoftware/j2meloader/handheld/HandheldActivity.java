@@ -43,6 +43,7 @@ public abstract class HandheldActivity extends Activity {
     protected abstract int width();
     protected abstract int height();
     protected abstract boolean exited();
+    protected void gameTap(float x,float y) {}
     protected String error() { return null; }
 
     @Override protected void attachBaseContext(Context base) { super.attachBaseContext(AppearanceContext.wrap(base)); }

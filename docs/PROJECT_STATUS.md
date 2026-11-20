@@ -1,6 +1,6 @@
 # AbyssME - Current Product and Development Status
 
-**Last updated: 2026-11-20.** Verification dates are recorded per section.
+**Last updated: 2026-11-21.** Verification dates are recorded per section.
 This is the starting point for website copy,
 announcements, progress posts and project handoffs. It includes work that exists
 only in local experiments or private test builds. Describing that work here
@@ -13,6 +13,10 @@ calling a version "latest" after this date. If local evidence is inaccessible,
 attribute its results to the dated maintainer record below; do not infer a pass.
 
 The [platform issue index](PLATFORM_ISSUES.md) maps the 49 open platform-specific tasks to the maintainer roadmap, including the initial integration order and scope decisions.
+
+## Flash Lite (2026-11-21, private Retroid build)
+
+Flash Lite is the thirteenth platform in the combined build. MicroInvaders and Balloonatroid reached gameplay on Retroid Classic, including a level loaded from a companion SWF. The platform uses the shared handheld controls, graphics settings and portable saves. [Import, gameplay and audio checks](checks/2026-11-21-flash-lite.md).
 
 ## Cybiko and handheld artwork (2026-11-20, private Retroid build)
 

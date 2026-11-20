@@ -25,6 +25,7 @@ public final class HandheldFormat {
     }
     static int platform(String name) {
         String s=name.toLowerCase(Locale.ROOT);
+        if (BuildConfig.FLASH_PROBE && s.endsWith(".swf")) return 13;
         if (s.endsWith(".app")) return BuildConfig.DINGOO_PROBE ? 6 : BuildConfig.CYBIKO_PROBE ? 12 : 0;
         if (BuildConfig.DINGOO_PROBE && (s.endsWith(".cc") || s.endsWith(".c2s") || s.endsWith(".c3s"))) return 7;
         if (BuildConfig.PIECE_PROBE && (s.endsWith(".pfi") || s.endsWith(".pex"))) return 8;
@@ -33,7 +34,7 @@ public final class HandheldFormat {
         if (BuildConfig.GP32_PROBE && (s.endsWith(".smc") || s.endsWith(".fpk") || s.endsWith(".fxe"))) return 9;
         return 0;
     }
-    static boolean enabled() { return BuildConfig.WIPI_PROBE || BuildConfig.DINGOO_PROBE || BuildConfig.PIECE_PROBE || BuildConfig.GP32_PROBE || BuildConfig.SUPERVISION_PROBE || BuildConfig.MEGADUCK_PROBE || BuildConfig.CYBIKO_PROBE; }
+    static boolean enabled() { return BuildConfig.WIPI_PROBE || BuildConfig.DINGOO_PROBE || BuildConfig.PIECE_PROBE || BuildConfig.GP32_PROBE || BuildConfig.SUPERVISION_PROBE || BuildConfig.MEGADUCK_PROBE || BuildConfig.CYBIKO_PROBE || BuildConfig.FLASH_PROBE; }
     static boolean candidate(String name) {
         String s=name.toLowerCase(Locale.ROOT);
         return enabled() && (platform(s)!=0 || s.endsWith(".zip") || s.endsWith(".bin") || s.endsWith(".exe"));
@@ -147,7 +148,7 @@ public final class HandheldFormat {
         return Arrays.copyOf(bytes,n);
     }
     public static int indexedPlatform(String path) {
-        if (path != null && path.matches("pending_([5-9]|1[012])_[a-f0-9]+"))
+        if (path != null && path.matches("pending_([5-9]|1[0-3])_[a-f0-9]+"))
             return Integer.parseInt(path.substring(8, path.indexOf('_', 8)));
         return 0;
     }

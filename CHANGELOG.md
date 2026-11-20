@@ -1,7 +1,7 @@
 # AbyssME Changelog
 
 User-facing development history, reconstructed from commits, release notes and
-local/private build records through **2026-11-20**. This is not a claim that all
+local/private build records through **2026-11-21**. This is not a claim that all
 listed work is in a public APK. See [current status](docs/PROJECT_STATUS.md) for
 availability, verification, known limits and screenshot guidance.
 
@@ -9,6 +9,11 @@ Labels: **Public source** means implemented on `main` but unreleased unless
 stated otherwise. **Experimental** in older checkpoints means local/private
 combined builds; released experimental features are explicitly identified.
 **Released** means an actual GitHub release asset.
+
+## 2026-11-21 - Flash Lite
+
+- Added a Flash Lite tile and tab, raw SWF and ZIP import, relative level loading and per-game SharedObject saves to the optional debug build.
+- Verified two original phone games on Retroid Classic. The private build uses the existing handheld controller, touch and graphics settings. [Device evidence and compatibility limits](docs/checks/2026-11-21-flash-lite.md).
 
 ## 2026-11-20 - Cybiko Classic v1 / Xtreme and handheld library artwork
 

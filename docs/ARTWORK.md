@@ -94,6 +94,7 @@ game files were added as fixtures.
 | GamePark GP32 | The 32 × 32 indexed bitmap in a standard FXE header. Raw executables, SmartMedia and other formats can use packaged art or a runtime preview. |
 | Watara Supervision / Mega Duck | Named art in a cartridge ZIP, or a frame from playback for a bare cartridge. |
 | Cybiko | Original grayscale `root.ico` in a CyOS application, including compressed resources. Both game editions keep their own artwork. |
+| Flash Lite | Named ZIP artwork, or a frame from the movie after playback starts. |
 
 The shared importer checks ZIP artwork before unpacking the game. Existing cards can recover embedded art from their installed files. A ZIP wrapper discarded by an older import can be selected again to recover its cover. The preview comes from a populated framebuffer after 240 presented frames when both icon and cover are missing. It can show an intro or a menu. Cybiko omits this fallback because a cold boot opens the system desktop. User-selected images retain priority.
 
