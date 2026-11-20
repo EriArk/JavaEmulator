@@ -10,6 +10,10 @@ stated otherwise. **Experimental** in older checkpoints means local/private
 combined builds; released experimental features are explicitly identified.
 **Released** means an actual GitHub release asset.
 
+## 2026-11-20 - Retroid library recovery and platform audit (local device)
+
+- Restored Java ME, Mophun, WIPI games and two virtual phones in the single combined installation. Fixed the first visit to Display and Controls when a game has no saved profile. Verified both pages on fresh Mophun cards and installed the updated APK over all nine populated platform libraries. [Inventory, setup and outstanding work](docs/checks/2026-11-20-platform-lifecycle.md).
+
 ## 2026-11-20 - GamePark GP32 (local ARM64 debug build)
 
 - Added the GP32 launcher sticker and library tab with BIOS, FXE, FPK, SmartMedia and ZIP import. GP32 uses the common controller mapper, touch deck and graphics settings, with per-game save states and writable cards.

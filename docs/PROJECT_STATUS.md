@@ -14,6 +14,10 @@ attribute its results to the dated maintainer record below; do not infer a pass.
 
 The [platform issue index](PLATFORM_ISSUES.md) maps the 49 open platform-specific tasks to the maintainer roadmap, including the initial integration order and scope decisions.
 
+## Retroid library and platform coverage (2026-11-20, local device)
+
+All nine platform tabs contain games in the combined installation. The updated debug APK opens Display or Controls directly on first use from a game card. In-place installation preserved the catalog and all 8,895 checked files. The [platform audit](checks/2026-11-20-platform-lifecycle.md) records the available installation, firmware and save paths and the remaining import and portable-backup gaps.
+
 ## Platform launcher and device artwork (2026-11-20, local debug build)
 
 The platform grid is the top level of the library. A sticker opens a library tab. Controller focus lights the device silhouette and enlarges it by 12%. Back or the library’s up arrow returns to the grid. Back from the grid leaves the app. The grid shares the library header with search across installed games, platform-specific import, social and settings. Disable **Show platform launcher** under **Settings → Appearance / Layout** to open the last tab directly. The [device reference catalog](../design-concepts/platform-stickers/README.md) lists all 72 illustrations. With GP32 enabled, the combined debug build shows nine platforms. [Nine-platform grid](checks/2026-11-20-gp32-grid.png). [Retroid screenshot](checks/2026-11-20-platform-launcher.png) · [Controller focus recording](checks/2026-11-20-platform-focus.mp4). Five library instrumentation checks passed. The recording used left-stick events injected through the connected Xbox controller input device.

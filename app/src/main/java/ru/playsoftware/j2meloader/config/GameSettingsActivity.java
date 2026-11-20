@@ -30,11 +30,13 @@ public final class GameSettingsActivity extends AppCompatActivity {
         title = getIntent().getStringExtra(KEY_MIDLET_NAME);
         if (title == null) title = app.getName();
         File dir = new File(app.getParentFile().getParentFile(), "configs/" + app.getName());
-        if (!dir.isDirectory() && !dir.mkdirs()) { finish(); return; }
-        ProfileModel profile = ProfilesManager.loadConfig(dir);
-        if (profile == null) {
-            profile = new ProfileModel(dir);
-            if (!ProfilesManager.saveConfig(profile)) { finish(); return; }
+        ProfileModel profile;
+        try {
+            profile = ProfilesManager.openGameConfig(dir);
+        } catch (java.io.IOException error) {
+            Toast.makeText(this, ru.playsoftware.j2meloader.R.string.library_settings_load_failed, Toast.LENGTH_LONG).show();
+            finish();
+            return;
         }
         menu = new GameMenuDialog(this, title);
         menu.useEdgePanel();

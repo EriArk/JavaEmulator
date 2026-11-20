@@ -176,6 +176,16 @@ public class ProfilesManager {
 		return params;
 	}
 
+	public static ProfileModel openGameConfig(File dir) throws IOException {
+		java.nio.file.Files.createDirectories(dir.toPath());
+		ProfileModel profile = loadConfig(dir);
+		if (profile == null) {
+			profile = new ProfileModel(dir);
+			if (!saveConfig(profile)) throw new IOException("Could not initialize game settings");
+		}
+		return profile;
+	}
+
 	public static boolean saveConfig(ProfileModel p) {
 		// Runtime helpers may request autosave while a reversible preview is active.
 		if (isPreview(p)) return true;

@@ -28,3 +28,13 @@ by default (`tools/remote-build/Invoke-RemoteBuild.ps1`). Keep heavy SDK, Gradle
 and native compilation caches on the server, and signing keys on the Windows
 machine. Do not silently fall back to a heavy local build if the server is
 unavailable. Remote build success is not device or release acceptance.
+
+Keep one current AbyssME installation on the Retroid Pocket Classic. Update
+the combined test build in place using its existing application ID
+(`io.github.eriark.abyssme.dingoocheck.debug`) and signing key. Remove temporary
+instrumentation packages after testing. Use the existing Git branch for
+ongoing platform work.
+
+For platform development, follow the platform lifecycle checks in
+`docs/PLATFORM_ISSUES.md`. On Retroid, check that existing games and saves
+remain visible after updating the installed app.

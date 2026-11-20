@@ -1330,7 +1330,7 @@ public class AppsListFragment extends Fragment implements AppsListAdapter.Listen
             if (external != null) profile = external.loadGameSettings();
             else {
                 File dir = new File(app.getParentFile().getParentFile(), "configs/" + app.getName());
-                profile = ru.playsoftware.j2meloader.config.ProfilesManager.loadConfig(dir);
+                profile = ru.playsoftware.j2meloader.config.ProfilesManager.openGameConfig(dir);
             }
         } catch (IOException error) { dialog.message(getString(R.string.library_settings_load_failed)); return; }
         if (profile == null) { dialog.dismiss(); startApp(item, true); return; }
