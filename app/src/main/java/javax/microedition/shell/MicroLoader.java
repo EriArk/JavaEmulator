@@ -228,14 +228,17 @@ public class MicroLoader {
 		final String country = defaultLocale.getCountry();
 		System.setProperty("microedition.locale", defaultLocale.getLanguage()
 				+ (country.length() == 2 ? "-" + country : ""));
-		// FIXME: 21.10.2020 Config.getDataDir() may be in different storage
-		final String primaryStoragePath = Environment.getExternalStorageDirectory().getPath();
-		String dataUri = "file:///c:" + Config.getDataDir().substring(primaryStoragePath.length()) + appDirName;
-		String musicUri = "file:///c:" + Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_MUSIC)
-				.getPath().substring(primaryStoragePath.length());
+		setFileProperties();
+	}
+
+	void setFileProperties() {
+		// Keep the original guest C: directory. FileConnection maps C: to the
+		// selected library's fs/c, which moves together with the saved files.
+		String dataUri = "file:///c:/Android/data/" + context.getPackageName()
+				+ "/files" + Config.MIDLET_DATA_DIR + appDirName;
 		System.setProperty("fileconn.dir.cache", dataUri + "/cache");
 		System.setProperty("fileconn.dir.private", dataUri + "/private");
-		System.setProperty("fileconn.dir.music", musicUri);
+		System.setProperty("fileconn.dir.music", "file:///c:/" + Environment.DIRECTORY_MUSIC);
 		System.setProperty("user.home", Config.getFsInternalDir());
 	}
 
