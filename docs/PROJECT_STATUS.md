@@ -14,6 +14,12 @@ attribute its results to the dated maintainer record below; do not infer a pass.
 
 The [platform issue index](PLATFORM_ISSUES.md) maps the 49 open platform-specific tasks to the maintainer roadmap, including the initial integration order and scope decisions.
 
+## WIPI and SKVM (2026-11-20, local ARM64 debug build)
+
+The optional AbyssME host runs the existing wie mobile core. On a Retroid Classic running Android 14, instrumentation opened the KTF ARM Clet game Heart Catch, observed its basket move after an injected D-pad Right event, exited and repeated the check. A separate SKT Java fixture moved a slider using the runtime's SKVM-specific math API and passed the same two-launch check. Each test checked pixels from the device display. Heart Catch also opened through the Settings document picker and Back returned to Settings.
+
+The build is local. Commercial games, audio output, persistent save data, physical button presses and LGT execution remain unverified. Full library import and shared control profiles are pending. [Build, fixtures and device test](../engines/wipi/README.md) · [Platform issue #57](https://github.com/EriArk/JavaEmulator/issues/57).
+
 ## Game area calibration (2026-11-20, local debug build)
 
 Under Settings → Appearance / Layout, choose Portrait game area or Landscape game area. Draw a rectangle across the exposed display, drag it or its edges, or enter X, Y, width and height in pixels. Save applies it to games using that orientation. Reset and Save restore the full window. The game and its overlay controls share the same coordinate space.

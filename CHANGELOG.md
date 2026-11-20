@@ -10,6 +10,11 @@ stated otherwise. **Experimental** in older checkpoints means local/private
 combined builds; released experimental features are explicitly identified.
 **Released** means an actual GitHub release asset.
 
+## 2026-11-20 - First WIPI / SKVM games in the local Android host
+
+- Open a carrier ZIP from AbyssME settings in the optional ARM64 debug build. The app displays the guest's 240 × 320 framebuffer and forwards keypad events to the wie core.
+- Verified KTF Heart Catch and a small SKVM program on Retroid Classic. Both responded to input after launch and relaunch. [Device results and remaining coverage](docs/PROJECT_STATUS.md#wipi-and-skvm-2026-11-20-local-arm64-debug-build).
+
 ## 2026-11-20 - Game area calibration (local)
 
 - Draw the visible portion of the screen or enter its exact size and position in pixels. Portrait and landscape each retain a separate calibration for gameplay.

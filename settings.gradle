@@ -25,3 +25,8 @@ if (['symbianExperiment', 'symbianRelease', 'symbianReleaseCheck'].any { provide
 }
 
 include ':storage-core'
+
+if (providers.gradleProperty('wipiProbe').orNull == 'true') {
+    include ':wipi-probe'
+    project(':wipi-probe').projectDir = file('engines/wipi/bridge')
+}

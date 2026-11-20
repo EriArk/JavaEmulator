@@ -69,6 +69,15 @@ public class SettingsFragment extends PreferenceFragmentCompat {
 			language.setOnPreferenceClickListener(p -> { showLanguages(); return true; });
 		}
 		if (rootKey == null) {
+            if (ru.playsoftware.j2meloader.BuildConfig.DEBUG) {
+                Intent probe = new Intent("io.github.eriark.abyssme.WIPI_PROBE").setPackage(requireContext().getPackageName());
+                if (probe.resolveActivity(requireContext().getPackageManager()) != null) {
+                    Preference launch = new Preference(requireContext());
+                    launch.setTitle("Open WIPI test package");
+                    launch.setIntent(probe);
+                    getPreferenceScreen().addPreference(launch);
+                }
+            }
             for (ru.playsoftware.j2meloader.config.SharedProfiles.Store store : new ru.playsoftware.j2meloader.config.SharedProfiles.Store[]{
                     ru.playsoftware.j2meloader.config.SharedProfiles.GRAPHICS, ru.playsoftware.j2meloader.config.SharedProfiles.CONTROLS, ru.playsoftware.j2meloader.config.SharedProfiles.PHYSICAL}) {
                 Preference shared = new Preference(requireContext()); shared.setKey(store.physical?"pref_physical_profiles":store.graphics?"pref_graphics_profiles":"pref_shared_profiles");

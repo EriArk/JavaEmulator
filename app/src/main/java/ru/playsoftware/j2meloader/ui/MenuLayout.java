@@ -79,7 +79,7 @@ public final class MenuLayout {
     }
     private static boolean menu(Activity a) {
         String n=a.getClass().getName();
-        return !(a instanceof GameAreaActivity) && !n.equals("javax.microedition.shell.MicroActivity")&&!n.endsWith("MophunGameActivity")
+        return !(a instanceof GameAreaActivity) && !n.equals("javax.microedition.shell.MicroActivity")&&!n.endsWith("MophunGameActivity")&&!n.endsWith("WipiGameActivity")
             &&!n.endsWith("SymbianActivity")&&!n.endsWith("GameRestartActivity")&&!n.endsWith("CompatibilityTestActivity");
     }
     public static void install(Application app) {

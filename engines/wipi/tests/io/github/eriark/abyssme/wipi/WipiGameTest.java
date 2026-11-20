@@ -1,0 +1,94 @@
+/* SPDX-License-Identifier: GPL-3.0-only */
+package io.github.eriark.abyssme.wipi;
+
+import android.app.*;
+import android.content.*;
+import android.graphics.*;
+import android.net.Uri;
+import android.os.SystemClock;
+import android.view.*;
+import androidx.test.platform.app.InstrumentationRegistry;
+import org.junit.*;
+import java.io.*;
+import static org.junit.Assert.*;
+
+public class WipiGameTest {
+    private final Instrumentation instr=InstrumentationRegistry.getInstrumentation();
+    private final Context context=instr.getTargetContext();
+    private int basket() {
+        Bitmap image=instr.getUiAutomation().takeScreenshot();
+        if(image==null)return -1;
+        try {
+            int[] row=new int[image.getWidth()];
+            for(int y=image.getHeight()*9/10;y>image.getHeight()/2;y-=3) {
+                image.getPixels(row,0,row.length,0,y,row.length,1);
+                int start=-1;
+                for(int x=0;x<row.length;x++) {
+                    int c=row[x];
+                    if(Color.red(c)>235 && Color.green(c)>112 && Color.green(c)<164 && Color.blue(c)<85) {
+                        if(start<0)start=x;
+                    } else {
+                        if(start>=0 && x-start>row.length/16)return (x+start)/2;
+                        start=-1;
+                    }
+                }
+            }
+            return -1;
+        } finally {image.recycle();}
+    }
+    private int awaitBasket(int initial,boolean moved) {
+        long end=SystemClock.uptimeMillis()+15000;
+        do {
+            int x=basket();
+            if(x>=0 && (!moved || x>initial+25))return x;
+            SystemClock.sleep(100);
+        }while(SystemClock.uptimeMillis()<end);
+        throw new AssertionError("Could not see "+(moved?"basket movement":"initial basket"));
+    }
+    private static WipiPackage readArchive(String... names) throws IOException {
+        ByteArrayOutputStream bytes = new ByteArrayOutputStream();
+        try (java.util.zip.ZipOutputStream zip = new java.util.zip.ZipOutputStream(bytes)) {
+            for (String name : names) {
+                zip.putNextEntry(new java.util.zip.ZipEntry(name));
+                zip.write(1);
+                zip.closeEntry();
+            }
+        }
+        return WipiPackage.read(new ByteArrayInputStream(bytes.toByteArray()));
+    }
+
+    @Test public void recognizesCarrierPackageAndLeavesMidletAlone() throws IOException {
+        assertEquals("KTF", readArchive("games/test/__adf__", "games/test/app.jar").carrier);
+        assertEquals("LGT", readArchive("app_info", "app.jar").carrier);
+        assertEquals("SKT", readArchive("app.msd", "app.jar").carrier);
+        try {
+            readArchive("META-INF/MANIFEST.MF", "DemoGame.class", "__adf__");
+            fail("A MIDlet JAR with a descriptor-like resource must stay on Java ME");
+        } catch (IOException expected) {
+            assertTrue(expected.getMessage().contains("carrier ZIP"));
+        }
+    }
+
+    @Test public void gameRespondsToRightAcrossRelaunch() {
+        String fixture=InstrumentationRegistry.getArguments().getString("fixture");
+        Assume.assumeNotNull(fixture);
+        File zip=new File(context.getExternalFilesDir(null),fixture);
+        assertTrue(zip.isFile());
+        Intent launch=new Intent(context,WipiGameActivity.class).setData(Uri.fromFile(zip))
+                .addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+        for(int pass=0;pass<2;pass++){
+            context.startActivity(launch);
+            int initial=awaitBasket(0,false);
+            long now=SystemClock.uptimeMillis();
+            try {
+                instr.getUiAutomation().injectInputEvent(new KeyEvent(now,now,KeyEvent.ACTION_DOWN,KeyEvent.KEYCODE_DPAD_RIGHT,0),true);
+                int moved=awaitBasket(initial,true);
+                android.util.Log.i("AbyssWipiTest",fixture+" basket "+initial+" -> "+moved);
+            } finally {
+                instr.getUiAutomation().injectInputEvent(new KeyEvent(now,SystemClock.uptimeMillis(),KeyEvent.ACTION_UP,KeyEvent.KEYCODE_DPAD_RIGHT,0),true);
+                instr.sendKeyDownUpSync(KeyEvent.KEYCODE_BACK);
+                SystemClock.sleep(600);
+            }
+        }
+    }
+}
