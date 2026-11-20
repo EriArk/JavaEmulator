@@ -1,0 +1,19 @@
+plugins { id 'com.android.library' }
+android {
+    namespace 'io.github.eriark.abyssme.supervision.bridge'
+    compileSdk 34
+    defaultConfig { minSdk 29 }
+    sourceSets.main.jniLibs.srcDir rootProject.file('build/supervision/jniLibs')
+}
+if (!rootProject.file('build/supervision/jniLibs/arm64-v8a/libabysssupervision.so').isFile())
+    throw new GradleException('Build the pinned Supervision frontend first (engines/supervision/README.md)')
+
+def stickers = tasks.register('prepareSupervisionStickers', Sync) {
+    from(rootProject.file('design-concepts/platform-stickers')) {
+        include 'supervision.webp'
+        rename { name -> "sticker_" + name }
+    }
+    into layout.buildDirectory.dir('generated/deviceArt/drawable-nodpi')
+}
+android.sourceSets.main.res.srcDir layout.buildDirectory.dir('generated/deviceArt')
+tasks.named('preBuild').configure { dependsOn stickers }

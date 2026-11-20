@@ -189,6 +189,25 @@ static void *loop(void *arg) {
     return NULL;
 }
 
+#ifdef FRONTEND_MEMORY_ROM
+static bool load_rom(const char *path) {
+    FILE *file = fopen(path, "rb");
+    if (!file) return false;
+    bool loaded = false;
+    if (!fseek(file, 0, SEEK_END)) {
+        long size = ftell(file);
+        if (size > 0 && (unsigned long)size <= UINT32_MAX && !fseek(file, 0, SEEK_SET)) {
+            void *rom = malloc(size);
+            if (rom && fread(rom, 1, size, file) == (size_t)size)
+                loaded = retro_load_game(&(struct retro_game_info){.path=path, .data=rom, .size=size});
+            free(rom); /* The core copies non-persistent game data during load. */
+        }
+    }
+    fclose(file);
+    return loaded;
+}
+#endif
+
 JNIEXPORT jboolean JNICALL JNI_METHOD(start)(JNIEnv *env, jclass cls, jstring game, jstring saves) {
     if (running || retro_api_version() != 1) return JNI_FALSE;
     const char *path = (*env)->GetStringUTFChars(env, game, NULL);
@@ -207,6 +226,8 @@ JNIEXPORT jboolean JNICALL JNI_METHOD(start)(JNIEnv *env, jclass cls, jstring ga
     retro_init();
 #ifdef FRONTEND_FLASH_IMAGE
     bool loaded = load_image(path);
+#elif defined(FRONTEND_MEMORY_ROM)
+    bool loaded = load_rom(path);
 #else
     bool loaded = retro_load_game(&(struct retro_game_info){.path=path});
 #endif

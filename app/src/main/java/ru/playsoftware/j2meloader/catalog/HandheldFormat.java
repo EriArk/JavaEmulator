@@ -28,10 +28,11 @@ public final class HandheldFormat {
         if (BuildConfig.DINGOO_PROBE && s.endsWith(".app")) return 6;
         if (BuildConfig.DINGOO_PROBE && (s.endsWith(".cc") || s.endsWith(".c2s") || s.endsWith(".c3s"))) return 7;
         if (BuildConfig.PIECE_PROBE && (s.endsWith(".pfi") || s.endsWith(".pex"))) return 8;
+        if (BuildConfig.SUPERVISION_PROBE && s.endsWith(".sv")) return 10;
         if (BuildConfig.GP32_PROBE && (s.endsWith(".smc") || s.endsWith(".fpk") || s.endsWith(".fxe"))) return 9;
         return 0;
     }
-    static boolean enabled() { return BuildConfig.WIPI_PROBE || BuildConfig.DINGOO_PROBE || BuildConfig.PIECE_PROBE || BuildConfig.GP32_PROBE; }
+    static boolean enabled() { return BuildConfig.WIPI_PROBE || BuildConfig.DINGOO_PROBE || BuildConfig.PIECE_PROBE || BuildConfig.GP32_PROBE || BuildConfig.SUPERVISION_PROBE; }
     static boolean candidate(String name) {
         String s=name.toLowerCase(Locale.ROOT);
         return enabled() && (platform(s)!=0 || s.endsWith(".zip") || s.endsWith(".bin") || s.endsWith(".exe"));
@@ -74,7 +75,9 @@ public final class HandheldFormat {
                     if (result.isEmpty()) for(Enumeration<? extends ZipEntry> it=zip.entries();it.hasMoreElements();) {
                         ZipEntry e=it.nextElement();
                         if (e.getName().toLowerCase(Locale.ROOT).endsWith(".bin")) try(InputStream in=zip.getInputStream(e)) {
-                            int id=binary(prefix(in,32),e.getSize()); if(id!=0)result.add(id);
+                            byte[] header = prefix(in, 32);
+                            int id = cartridgeOrFirmware(in, header, e.getSize());
+                            if (id != 0) result.add(id);
                         }
                     }
                     if (!result.isEmpty() && (legacy || jar&&!carrier)) result.add(0);
@@ -85,7 +88,14 @@ public final class HandheldFormat {
                 if(in==null)throw new IOException("Could not open "+name);
                 byte[] h=prefix(in,128);
                 if (platform==6 && ccdl(h)) result.add(6);
-                if (s.endsWith(".bin")) {int id=binary(h,-1);if(id!=0)result.add(id);}
+                if (s.endsWith(".bin")) {
+                    long length;
+                    try (android.content.res.AssetFileDescriptor fd = c.getContentResolver().openAssetFileDescriptor(uri,"r")) {
+                        length = fd == null ? -1 : fd.getLength();
+                    }
+                    int id = cartridgeOrFirmware(in, h, length);
+                    if (id != 0) result.add(id);
+                }
                 if (s.endsWith(".exe") && BuildConfig.PIECE_PROBE && new String(h,StandardCharsets.ISO_8859_1).contains("LHA's SFX")) result.add(8);
             }
         } else if (platform!=0) result.add(platform);
@@ -100,13 +110,31 @@ public final class HandheldFormat {
         }
         return 0;
     }
+    private static int cartridgeOrFirmware(InputStream in, byte[] header, long length) throws IOException {
+        int firmware = binary(header, length);
+        if (firmware != 0 || !BuildConfig.SUPERVISION_PROBE) return firmware;
+        if (length < 16384 || length % 16384 != 0) return 0;
+        // A headerless cartridge places the 65C02 reset vector in its last bank.
+        long distance = length - 4 - header.length;
+        while (distance > 0) {
+            long skipped = in.skip(distance);
+            if (skipped == 0) {
+                if (in.read() < 0) return 0;
+                skipped = 1;
+            }
+            distance -= skipped;
+        }
+        int low = in.read(), high = in.read();
+        return low >= 0 && high >= 0x80 ? 10 : 0;
+    }
     private static byte[] prefix(InputStream in,int size) throws IOException {
         byte[] bytes=new byte[size];int n=0;
         while(n<size){int read=in.read(bytes,n,size-n);if(read<0)break;n+=read;}
         return Arrays.copyOf(bytes,n);
     }
     public static int indexedPlatform(String path) {
-        if(path!=null && path.matches("pending_[5-9]_[a-f0-9]+")) return path.charAt(8)-'0';
+        if (path != null && path.matches("pending_([5-9]|10)_[a-f0-9]+"))
+            return Integer.parseInt(path.substring(8, path.indexOf('_', 8)));
         return 0;
     }
 }

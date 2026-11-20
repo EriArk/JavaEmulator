@@ -42,9 +42,12 @@ public class HandheldCycleTest {
         for(LibraryImporter.Entry e:preview.entries) importer.importEntry(e);
         Set<Integer> platforms=new HashSet<>();
         Context isolated=isolated(dest);
-        for(int id:new int[]{5,6,8,9}) for(AppItem item:ExternalLibrary.packageProvider(id).read(isolated))
-            platforms.add(((ExternalLibrary.Item)item).platformId());
-        assertEquals(new HashSet<>(Arrays.asList(5,6,7,8,9)),platforms);
+        for (int id : expectedPlatforms()) {
+            if (id == 7) continue; // Dingoo and Gemei share their package provider.
+            for (AppItem item : ExternalLibrary.packageProvider(id).read(isolated))
+                platforms.add(((ExternalLibrary.Item)item).platformId());
+        }
+        assertEquals(expectedPlatforms(), platforms);
         for(HandheldBackup card:cards) {
             for(String rel:new String[]{card.card(),card.data(),card.engine+"/system"}) verify(new File(source,rel),new File(dest,rel));
             if(new File(source,card.config()+"/config.json").exists())assertTrue(new File(dest,card.config()+"/config.json").isFile());
@@ -63,7 +66,7 @@ public class HandheldCycleTest {
                 detected.addAll(HandheldFormat.detect(c, Uri.fromFile(file), name));
             }
         }
-        assertEquals(new HashSet<>(Arrays.asList(5, 6, 7, 8, 9)), detected);
+        assertEquals(expectedPlatforms(), detected);
         File mixed = new File(work, "mixed.zip");
         try (ZipOutputStream zip = new ZipOutputStream(new FileOutputStream(mixed))) {
             for (String name : Arrays.asList("documentation.cpp", "Game.pex", "Game.smc", "Other.jar")) {
@@ -72,6 +75,13 @@ public class HandheldCycleTest {
             }
         }
         assertEquals(new HashSet<>(Arrays.asList(0, 8, 9)), HandheldFormat.detect(c, Uri.fromFile(mixed), mixed.getName()));
+    }
+
+    private Set<Integer> expectedPlatforms() {
+        Set<Integer> ids = new HashSet<>(Arrays.asList(5, 6, 7, 8, 9));
+        if (ru.playsoftware.j2meloader.BuildConfig.SUPERVISION_PROBE &&
+                new File(source, "supervision/packages").isDirectory()) ids.add(10);
+        return ids;
     }
 
     private static void verify(File a,File b) throws Exception {

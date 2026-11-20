@@ -170,7 +170,7 @@ public final class PlatformGridView extends LinearLayout {
         image.setPadding(dp(6), dp(6), dp(6), dp(6));
         image.setScaleType(ImageView.ScaleType.FIT_CENTER);
         int art = id < ART.length ? ART[id] : getResources().getIdentifier(
-                id == 6 ? "sticker_dingoo" : id == 7 ? "sticker_gemei" : id == 8 ? "sticker_piece" : "sticker_gp32", "drawable", context.getPackageName());
+                id == 6 ? "sticker_dingoo" : id == 7 ? "sticker_gemei" : id == 8 ? "sticker_piece" : id == 9 ? "sticker_gp32" : "sticker_supervision", "drawable", context.getPackageName());
         image.setImageResource(art);
         image.setImportantForAccessibility(IMPORTANT_FOR_ACCESSIBILITY_NO);
         tile.addView(image, new LayoutParams(-1, 0, 1));

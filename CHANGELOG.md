@@ -10,6 +10,10 @@ stated otherwise. **Experimental** in older checkpoints means local/private
 combined builds; released experimental features are explicitly identified.
 **Released** means an actual GitHub release asset.
 
+## 2026-11-20 - Watara Supervision with stereo sound (local Retroid build)
+
+- Added the Supervision platform tile and library tab with cartridge and ZIP import, 44.1 kHz game audio, shared controller and graphics profiles, save states and library backup. Crystball and Challenger Tank reached gameplay with captured audio on Retroid Classic. [Device check](docs/checks/2026-11-20-supervision.md).
+
 ## 2026-11-20 - Handheld library imports, backup and wider tabs (local Retroid build)
 
 - Added portable backup and selective restoration for WIPI/SKVM, Dingoo, Gemei, P/ECE and GP32. Folder discovery and Android file opening recognize their packages.

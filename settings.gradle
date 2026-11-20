@@ -45,3 +45,8 @@ if (providers.gradleProperty('gp32Probe').orNull == 'true') {
     include ':gp32-probe'
     project(':gp32-probe').projectDir = file('engines/gp32/bridge')
 }
+
+if (providers.gradleProperty('supervisionProbe').orNull == 'true') {
+    include ':supervision-probe'
+    project(':supervision-probe').projectDir = file('engines/supervision/bridge')
+}
