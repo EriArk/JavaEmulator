@@ -10,6 +10,12 @@ stated otherwise. **Experimental** in older checkpoints means local/private
 combined builds; released experimental features are explicitly identified.
 **Released** means an actual GitHub release asset.
 
+## 2026-11-20 - Cybiko Classic v1 / Xtreme and handheld library artwork
+
+- Added an optional Cybiko platform with per-game model choice, boot ROM and CyOS import, a guest keyboard, shared controller and graphics settings, audio and portable game volumes.
+- Added automatic library art from WIPI carrier packages, GP32 FXE headers, P/ECE applications and CyOS archives. Handheld ZIPs can supply covers and icons. Bare cartridges can acquire a runtime preview.
+- The combined ARM64 build was installed privately on Retroid. [Verification, firmware compatibility and screenshots](docs/checks/2026-11-20-cybiko.md).
+
 ## 2026-11-20 - Mega Duck / Cougar Boy (private Retroid build)
 
 - Added a Mega Duck tile and library tab, cartridge and ZIP import, folder discovery, shared graphics and controller settings, 48 kHz stereo playback and portable per-game checkpoints.

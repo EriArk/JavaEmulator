@@ -165,6 +165,9 @@ static int64_t now(void) {
     clock_gettime(CLOCK_MONOTONIC, &ts);
     return ts.tv_sec * 1000000000LL + ts.tv_nsec;
 }
+#ifdef FRONTEND_DIRECT_CORE
+static void run_machine_frame(void);
+#endif
 static void *loop(void *arg) {
     (void)arg;
     int64_t deadline = now();
@@ -186,7 +189,11 @@ static void *loop(void *arg) {
             playing = true;
         }
         pthread_mutex_lock(&core_lock);
+#ifdef FRONTEND_DIRECT_CORE
+        run_machine_frame();
+#else
         retro_run();
+#endif
 #ifdef FRONTEND_BUFFER_SAMPLES
         flush_samples();
 #endif
@@ -230,7 +237,10 @@ static bool load_rom(const char *path) {
 #endif
 
 JNIEXPORT jboolean JNICALL JNI_METHOD(start)(JNIEnv *env, jclass cls, jstring game, jstring saves) {
-    if (running || retro_api_version() != 1) return JNI_FALSE;
+    if (running) return JNI_FALSE;
+#ifndef FRONTEND_DIRECT_CORE
+    if (retro_api_version() != 1) return JNI_FALSE;
+#endif
     const char *path = (*env)->GetStringUTFChars(env, game, NULL);
     if (!path) return JNI_FALSE;
     const char *dir = (*env)->GetStringUTFChars(env, saves, NULL);
@@ -241,10 +251,12 @@ JNIEXPORT jboolean JNICALL JNI_METHOD(start)(JNIEnv *env, jclass cls, jstring ga
     memset(minimum_ticks, 0, sizeof(minimum_ticks));
     atomic_store(&speed,100); atomic_store(&paused,true);
     atomic_store(&stopping,false); atomic_store(&exited,false); fresh = false;
+#ifndef FRONTEND_DIRECT_CORE
     retro_set_environment(environment); retro_set_video_refresh(video);
     retro_set_audio_sample(sample); retro_set_audio_sample_batch(pcm);
     retro_set_input_poll(poll); retro_set_input_state(input);
     retro_init();
+#endif
 #ifdef FRONTEND_FLASH_IMAGE
     bool loaded = load_image(path);
 #elif defined(FRONTEND_MEMORY_ROM)
@@ -254,11 +266,14 @@ JNIEXPORT jboolean JNICALL JNI_METHOD(start)(JNIEnv *env, jclass cls, jstring ga
 #endif
     (*env)->ReleaseStringUTFChars(env, game, path);
     if (loaded && pthread_create(&runner,NULL,loop,NULL) == 0) { running = true; return JNI_TRUE; }
+#ifndef FRONTEND_DIRECT_CORE
     if (loaded) retro_unload_game();
+    retro_deinit();
+#endif
 #ifdef FRONTEND_FLASH_IMAGE
     release_image();
 #endif
-    retro_deinit(); free(save_dir); save_dir = NULL;
+    free(save_dir); save_dir = NULL;
     return JNI_FALSE;
 }
 JNIEXPORT void JNICALL JNI_METHOD(stop)(JNIEnv *env,jclass cls) {
@@ -268,7 +283,10 @@ JNIEXPORT void JNICALL JNI_METHOD(stop)(JNIEnv *env,jclass cls) {
     flush_image();
     release_image();
 #endif
-    retro_unload_game(); retro_deinit(); free(save_dir); save_dir = NULL; running = false;
+#ifndef FRONTEND_DIRECT_CORE
+    retro_unload_game(); retro_deinit();
+#endif
+    free(save_dir); save_dir = NULL; running = false;
 }
 JNIEXPORT void JNICALL JNI_METHOD(pause)(JNIEnv *env,jclass cls,jboolean value) {
     atomic_store(&paused,value);

@@ -116,12 +116,16 @@ public final class GameArtwork {
     /** Refresh only generated files. Explicit artwork always remains separate and wins. */
     public static void refresh(File directory, String preferredIcon) throws IOException {
         File jar = new File(directory, "res.jar");
+        extractArchive(jar, directory, preferredIcon, true);
+        write(new File(directory, AUTO_MARKER), new byte[]{1});
+    }
+
+    public static void extractArchive(File jar, File directory, String preferredIcon, boolean replaceMissing) throws IOException {
         Selection selected = select(jar, preferredIcon);
         try (ZipFile zip = new ZipFile(jar)) {
-            extract(zip, selected.icon, new File(directory, "icon.png"));
-            extract(zip, selected.cover, new File(directory, "cover.png"));
+            if (replaceMissing || selected.icon != null) extract(zip, selected.icon, new File(directory, "icon.png"));
+            if (replaceMissing || selected.cover != null) extract(zip, selected.cover, new File(directory, "cover.png"));
         }
-        write(new File(directory, AUTO_MARKER), new byte[]{1});
     }
 
     public static void refresh(File directory) throws IOException {
@@ -156,6 +160,12 @@ public final class GameArtwork {
         if (decoded == null) throw new IOException("Invalid image");
         decoded.recycle();
         write(new File(directory, icon ? USER_ICON : USER_COVER), bytes);
+    }
+
+    public static void writeBitmap(File file, Bitmap image) throws IOException {
+        ByteArrayOutputStream encoded = new ByteArrayOutputStream();
+        if (!image.compress(Bitmap.CompressFormat.PNG, 100, encoded)) throw new IOException("Cannot encode artwork");
+        write(file, encoded.toByteArray());
     }
 
     private static void write(File file, byte[] bytes) throws IOException {

@@ -14,6 +14,10 @@ attribute its results to the dated maintainer record below; do not infer a pass.
 
 The [platform issue index](PLATFORM_ISSUES.md) maps the 49 open platform-specific tasks to the maintainer roadmap, including the initial integration order and scope decisions.
 
+## Cybiko and handheld artwork (2026-11-20, private Retroid build)
+
+Cybiko Classic v1 and Xtreme have a shared platform tile, separate machine profiles and writable volumes, firmware selection, application import, common controls and display settings. Xtreme Homerun Derby reached gameplay with Android playback audio. On Retroid, Classic Snake Battle reached its title and Maze Dweller reached level one. Classic v2 and wireless play remain open. The handheld library now recovers WIPI, P/ECE, GP32 and Cybiko icons, named ZIP artwork and runtime previews where applicable. [Device and artwork checks](checks/2026-11-20-cybiko.md).
+
 ## Mega Duck / Cougar Boy (2026-11-20, local Retroid build)
 
 Mega Duck is the eleventh platform in the combined Retroid build. Its library opens cartridge files and single-game ZIPs and indexes collections by folder. Arctic Zone and The Brick Wall reached gameplay with captured stereo sound. The Brick Wall retained its physical mapping, touch deck, graphics settings and level checkpoint across a cold launch. [Cartridge tests, device checks and availability](checks/2026-11-20-megaduck.md) · [Platform grid](checks/2026-11-20-megaduck-grid.png).

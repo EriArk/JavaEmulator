@@ -79,6 +79,24 @@ public final class Gp32Library extends ManagedGameLibrary {
         info.setProperty("format", ext);
         return SourceIdentity.sha256(file);
     }
+    @Override protected void extractInstalledArt(File game, File dir) throws IOException {
+        if (!game.getName().endsWith(".fxe") || game.length()<1124) return;
+        try (RandomAccessFile f=new RandomAccessFile(game,"r")) {
+            if (f.readInt()!=0x66786520) return;
+            f.seek(92);
+            byte[] icon=new byte[1024];
+            f.readFully(icon);
+            int[] levels={0,51,84,102,127,168,204,255}, blue={0,84,168,255};
+            int[] pixels=new int[1024];
+            for (int x=0;x<32;x++) for (int y=0;y<32;y++) {
+                int index=icon[x*32+31-y]&255;
+                pixels[y*32+x]=0xff000000 | levels[index>>5]<<16 | levels[(index>>2)&7]<<8 | blue[index&3];
+            }
+            android.graphics.Bitmap bitmap=android.graphics.Bitmap.createBitmap(pixels,32,32,android.graphics.Bitmap.Config.ARGB_8888);
+            try { ru.playsoftware.j2meloader.applist.GameArtwork.writeBitmap(new File(dir,"icon.png"),bitmap); }
+            finally { bitmap.recycle(); }
+        }
+    }
     File installed(Context c, String id) throws IOException {
         if (id == null || !id.matches("[0-9a-f]{64}")) throw new IOException("Invalid GP32 game identity");
         File dir = new File(root(c), id);

@@ -83,6 +83,8 @@ public class HandheldCycleTest {
                 new File(source, "supervision/packages").isDirectory()) ids.add(10);
         if (ru.playsoftware.j2meloader.BuildConfig.MEGADUCK_PROBE &&
                 new File(source, "megaduck/packages").isDirectory()) ids.add(11);
+        if (ru.playsoftware.j2meloader.BuildConfig.CYBIKO_PROBE &&
+                new File(source, "cybiko/packages").isDirectory()) ids.add(12);
         return ids;
     }
 

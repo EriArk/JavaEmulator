@@ -23,6 +23,8 @@ final class HandheldScreen extends View implements NativeFrame {
     private final LcdEffect lcd = new LcdEffect();
     private volatile long serial;
     private long nanos;
+    private java.io.File preview;
+    private long nextPreviewFrame = 240;
     boolean paused = true;
     int fps;
     MophunGpuView gpu;
@@ -30,6 +32,15 @@ final class HandheldScreen extends View implements NativeFrame {
     HandheldScreen(HandheldActivity host, ProfileModel profile, ControllerInput.Sink keys) {
         super(host);
         this.host = host;
+        String engine = host.getIntent().getStringExtra("artworkEngine");
+        String id = host.getIntent().getStringExtra("installed");
+        if (engine != null && engine.matches("[a-z0-9]+") && id != null && id.matches("[a-f0-9]{64}")) {
+            java.io.File dir = new java.io.File(io.github.eriark.abyssme.storage.StoragePaths.library(host), engine + "/packages/" + id);
+            if (dir.isDirectory() && !engine.equals("cybiko") && !new java.io.File(dir, "icon.png").exists()
+                    && !new java.io.File(dir, "cover.png").exists()
+                    && !new java.io.File(dir, "preview.png").exists())
+                preview = new java.io.File(dir, "preview.png");
+        }
         W = host.width(); H = host.height();
         bitmap = Bitmap.createBitmap(W, H, Bitmap.Config.ARGB_8888);
         pixels = new int[W * H];
@@ -57,11 +68,38 @@ final class HandheldScreen extends View implements NativeFrame {
         stamp[1] = nanos;
         return true;
     }
+    private boolean hasPreviewContent() {
+        // A busy image can have a unique top-left pixel. Compare against the dominant
+        // colour instead so a blank or nearly blank framebuffer is the only rejection.
+        int candidate=0, votes=0;
+        for (int i=0;i<pixels.length;i+=7) {
+            if (votes==0) candidate=pixels[i];
+            votes+=pixels[i]==candidate ? 1 : -1;
+        }
+        int different=0;
+        for (int i=0;i<pixels.length;i+=7) if (pixels[i]!=candidate) different++;
+        return different>pixels.length/140;
+    }
     private synchronized void poll() {
         if (host.frame(pixels)) {
             bitmap.setPixels(pixels, 0, W, 0, 0, W, H);
             nanos = System.nanoTime();
             serial++;
+            if (preview != null && serial >= nextPreviewFrame) {
+                nextPreviewFrame = serial + 60;
+                if (hasPreviewContent()) {
+                    java.io.File target = preview;
+                    preview = null;
+                    Bitmap copy = bitmap.copy(Bitmap.Config.ARGB_8888, false);
+                    new Thread(() -> {
+                        try {
+                            if (target.getParentFile().isDirectory())
+                                ru.playsoftware.j2meloader.applist.GameArtwork.writeBitmap(target, copy);
+                        } catch (java.io.IOException e) { android.util.Log.d("HandheldScreen", "Preview unavailable", e); }
+                        finally { copy.recycle(); }
+                    }, "Game artwork").start();
+                }
+            }
         }
     }
     @Override protected void onDraw(Canvas canvas) {

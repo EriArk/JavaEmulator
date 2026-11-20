@@ -28,6 +28,7 @@
     <string name="library_no_recent">No recently played games in this collection</string>
     <string name="library_supervision_import_hint">Add a Supervision cartridge (.sv or .bin), or a ZIP containing a game. No BIOS is required.</string>
     <string name="library_megaduck_import_hint">Add a Mega Duck cartridge (.bin, .md1, .md2 or .duck), or a ZIP containing a game. No BIOS is required.</string>
+    <string name="library_cybiko_import_hint">Choose a Cybiko .app or a ZIP containing one application.</string>
     <string name="library_gp32_import_hint">Add an FXE game, FPK package or SmartMedia card (.smc). Add your GP32 BIOS (.bin) for firmware boot. ZIP archives are supported.</string>
     <string name="library_piece_import_hint">Add the system updater (.exe), kernel (all.bin) or a base .pfi image first, then a .pex game or a game ZIP with a .pfs file list.</string>
     <string name="library_no_platform_games">No %1$s games</string>

@@ -56,6 +56,7 @@ public final class PieceLibrary extends ManagedGameLibrary {
                 byte[] program = Files.readAllBytes(file.toPath());
                 PieceImage.checkExecutable(program);
                 image.add(lower, program);
+                extractIcon(program,file.getParentFile());
             } else if (lower.endsWith(".zip")) {
                 addDistribution(image, file);
             } else throw new IOException("Choose a .pfi image, .pex application or game ZIP with a .pfs file list");
@@ -75,6 +76,37 @@ public final class PieceLibrary extends ManagedGameLibrary {
                     java.nio.file.StandardCopyOption.REPLACE_EXISTING);
         } finally { Files.deleteIfExists(tmp); }
         context.getSharedPreferences("piece", 0).edit().putString("base",id).apply();
+    }
+    @Override protected void extractInstalledArt(File game,File dir) throws IOException {
+        if (new File(dir,"icon.png").isFile() || !"PEX".equals(load(dir).getProperty("format"))) return;
+        java.util.Map<String,byte[]> candidates=new PieceImage(game).executableHeaders();
+        File packages=dir.getParentFile();
+        File marker=new File(packages.getParentFile(),"system/base");
+        if (marker.isFile() && marker.length()==64) {
+            String id=new String(Files.readAllBytes(marker.toPath()),StandardCharsets.US_ASCII);
+            if (id.matches("[a-f0-9]{64}")) {
+                File base=new File(new File(packages,id),"image.pfi");
+                if (base.isFile()) {
+                    java.util.Map<String,byte[]> stock=new PieceImage(base).executableHeaders();
+                    candidates.entrySet().removeIf(e->java.util.Arrays.equals(e.getValue(),stock.get(e.getKey())));
+                }
+            }
+        }
+        if (candidates.size()==1) extractIcon(candidates.values().iterator().next(),dir);
+    }
+    private static void extractIcon(byte[] program, File dir) {
+        int offset=(program[6]&255) | (program[7]&255)<<8;
+        int data=(program[2]&255) | (program[3]&255)<<8;
+        if (program[0]!='X' || offset<24 || offset+256>data || offset+256>program.length) return;
+        int[] pixels=new int[32*32];
+        for (int i=0;i<pixels.length;i++) {
+            int shade=3-((program[offset+i/4]>>(6-2*(i%4)))&3);
+            pixels[i]=0xff000000 | shade*0x555555;
+        }
+        android.graphics.Bitmap bitmap=android.graphics.Bitmap.createBitmap(pixels,32,32,android.graphics.Bitmap.Config.ARGB_8888);
+        try { ru.playsoftware.j2meloader.applist.GameArtwork.writeBitmap(new File(dir,"icon.png"),bitmap); }
+        catch (IOException e) { android.util.Log.w("PieceLibrary","Cannot save executable icon",e); }
+        finally { bitmap.recycle(); }
     }
     private static byte[] read(ZipFile zip, ZipEntry entry, int max) throws IOException {
         if (entry == null || entry.isDirectory() || entry.getSize() < 0 || entry.getSize() > max)
@@ -105,7 +137,9 @@ public final class PieceLibrary extends ManagedGameLibrary {
                 if (name.isEmpty()) continue;
                 String lower = name.toLowerCase(Locale.ROOT);
                 byte[] bytes = read(zip, zip.getEntry(dir + name), image.bytes.length);
-                if (lower.endsWith(".pex")) { PieceImage.checkExecutable(bytes); executable = true; }
+                if (lower.endsWith(".pex")) { PieceImage.checkExecutable(bytes);
+                    if (!executable) extractIcon(bytes,file.getParentFile());
+                    executable = true; }
                 image.add(lower, bytes);
             }
             if (!executable) throw new IOException("No executable listed in P/ECE game ZIP");

@@ -55,3 +55,8 @@ if (providers.gradleProperty('megaduckProbe').orNull == 'true') {
     include ':megaduck-probe'
     project(':megaduck-probe').projectDir = file('engines/megaduck/bridge')
 }
+
+if (providers.gradleProperty('cybikoProbe').orNull == 'true') {
+    include ':cybiko-probe'
+    project(':cybiko-probe').projectDir = file('engines/cybiko/bridge')
+}

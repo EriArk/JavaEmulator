@@ -83,3 +83,18 @@ unrelated textures and text, candidate ambiguity, title evidence, custom image
 validation, refresh and reinstall preservation. Backup/import tests cover the
 new artwork files alongside the existing save-transfer checks. No commercial
 game files were added as fixtures.
+
+## Handheld library cards
+
+| Platform | Automatic source for the game list |
+| --- | --- |
+| WIPI / SKVM | The carrier game JAR's MIDlet manifest and named artwork. KTF launcher PNGs named `big.icon`, `middle.icon` or `small.icon` supply the icon in that order. |
+| Dingoo A320 / Gemei A330 | Named icon or cover in the distribution ZIP. Packages without one can acquire an in-game preview. |
+| Aquaplus P/ECE | The embedded 32 × 32 grayscale icon in a PEX executable or a PFS distribution. An older installed game image can recover the icon when its added executable can be identified. |
+| GamePark GP32 | The 32 × 32 indexed bitmap in a standard FXE header. Raw executables, SmartMedia and other formats can use packaged art or a runtime preview. |
+| Watara Supervision / Mega Duck | Named art in a cartridge ZIP, or a frame from playback for a bare cartridge. |
+| Cybiko | Original grayscale `root.ico` in a CyOS application, including compressed resources. Both game editions keep their own artwork. |
+
+The shared importer checks ZIP artwork before unpacking the game. Existing cards can recover embedded art from their installed files. A ZIP wrapper discarded by an older import can be selected again to recover its cover. The preview comes from a populated framebuffer after 240 presented frames when both icon and cover are missing. It can show an intro or a menu. Cybiko omits this fallback because a cold boot opens the system desktop. User-selected images retain priority.
+
+Java ME retains the MIDlet rules above. Mophun retains its existing runtime capture. Symbian and N-Gage retain the native catalog's artwork and per-game overrides. [Retroid checks](checks/2026-11-20-cybiko.md)

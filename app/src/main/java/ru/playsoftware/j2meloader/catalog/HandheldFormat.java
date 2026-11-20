@@ -25,7 +25,7 @@ public final class HandheldFormat {
     }
     static int platform(String name) {
         String s=name.toLowerCase(Locale.ROOT);
-        if (BuildConfig.DINGOO_PROBE && s.endsWith(".app")) return 6;
+        if (s.endsWith(".app")) return BuildConfig.DINGOO_PROBE ? 6 : BuildConfig.CYBIKO_PROBE ? 12 : 0;
         if (BuildConfig.DINGOO_PROBE && (s.endsWith(".cc") || s.endsWith(".c2s") || s.endsWith(".c3s"))) return 7;
         if (BuildConfig.PIECE_PROBE && (s.endsWith(".pfi") || s.endsWith(".pex"))) return 8;
         if (BuildConfig.MEGADUCK_PROBE && (s.endsWith(".md1") || s.endsWith(".md2") || s.endsWith(".duck"))) return 11;
@@ -33,7 +33,7 @@ public final class HandheldFormat {
         if (BuildConfig.GP32_PROBE && (s.endsWith(".smc") || s.endsWith(".fpk") || s.endsWith(".fxe"))) return 9;
         return 0;
     }
-    static boolean enabled() { return BuildConfig.WIPI_PROBE || BuildConfig.DINGOO_PROBE || BuildConfig.PIECE_PROBE || BuildConfig.GP32_PROBE || BuildConfig.SUPERVISION_PROBE || BuildConfig.MEGADUCK_PROBE; }
+    static boolean enabled() { return BuildConfig.WIPI_PROBE || BuildConfig.DINGOO_PROBE || BuildConfig.PIECE_PROBE || BuildConfig.GP32_PROBE || BuildConfig.SUPERVISION_PROBE || BuildConfig.MEGADUCK_PROBE || BuildConfig.CYBIKO_PROBE; }
     static boolean candidate(String name) {
         String s=name.toLowerCase(Locale.ROOT);
         return enabled() && (platform(s)!=0 || s.endsWith(".zip") || s.endsWith(".bin") || s.endsWith(".exe"));
@@ -60,7 +60,11 @@ public final class HandheldFormat {
                         ZipEntry e=it.nextElement(); if (e.isDirectory()) continue;
                         String p=e.getName().replace('\\','/').toLowerCase(Locale.ROOT); paths.add(p);
                         int id=platform(p);
-                        if (id==6 || id==7) try(InputStream in=zip.getInputStream(e)) { if (!ccdl(prefix(in,4))) id=0; }
+                        if (id==6 || id==7 || id==12) try(InputStream in=zip.getInputStream(e)) {
+                            byte[] h = prefix(in, 4);
+                            if (p.endsWith(".app") && cybiko(h)) id=12;
+                            else if (!ccdl(h) || id==12) id=0;
+                        }
                         if (id!=0) result.add(id);
                         if (p.endsWith(".pfs") && BuildConfig.PIECE_PROBE) result.add(8);
                         if (p.endsWith(".jar")) jar=true;
@@ -84,11 +88,12 @@ public final class HandheldFormat {
                     if (!result.isEmpty() && (legacy || jar&&!carrier)) result.add(0);
                 }
             } finally { if(tmp!=null)tmp.delete(); }
-        } else if (platform==6 || s.endsWith(".bin") || s.endsWith(".exe")) {
+        } else if (platform==6 || platform==12 || s.endsWith(".bin") || s.endsWith(".exe")) {
             try (InputStream in=c.getContentResolver().openInputStream(uri)) {
                 if(in==null)throw new IOException("Could not open "+name);
                 byte[] h=prefix(in,128);
                 if (platform==6 && ccdl(h)) result.add(6);
+                if (s.endsWith(".app") && cybiko(h)) result.add(12);
                 if (s.endsWith(".bin")) {
                     long length;
                     try (android.content.res.AssetFileDescriptor fd = c.getContentResolver().openAssetFileDescriptor(uri,"r")) {
@@ -135,13 +140,14 @@ public final class HandheldFormat {
         int low = in.read(), high = in.read();
         return low >= 0 && high >= 0x80 ? 10 : 0;
     }
+    private static boolean cybiko(byte[] h) { return BuildConfig.CYBIKO_PROBE && h.length >= 4 && h[0]=='C' && h[1]=='y'; }
     private static byte[] prefix(InputStream in,int size) throws IOException {
         byte[] bytes=new byte[size];int n=0;
         while(n<size){int read=in.read(bytes,n,size-n);if(read<0)break;n+=read;}
         return Arrays.copyOf(bytes,n);
     }
     public static int indexedPlatform(String path) {
-        if (path != null && path.matches("pending_([5-9]|1[01])_[a-f0-9]+"))
+        if (path != null && path.matches("pending_([5-9]|1[012])_[a-f0-9]+"))
             return Integer.parseInt(path.substring(8, path.indexOf('_', 8)));
         return 0;
     }

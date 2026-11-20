@@ -14,6 +14,9 @@ public final class WipiLibrary extends ManagedGameLibrary {
             return game.id;
         }
     }
+    @Override protected void extractInstalledArt(File game, File directory) throws IOException {
+        WipiArtwork.extract(game, directory);
+    }
     @Override protected String filename(Properties info) { return "game.zip"; }
     @Override protected int firstCardId() { return Integer.MIN_VALUE + 1; }
     @Override protected int platformId(Properties info) { return 5; }

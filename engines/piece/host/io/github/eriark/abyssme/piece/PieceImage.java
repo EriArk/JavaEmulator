@@ -39,6 +39,23 @@ final class PieceImage {
     }
     private int u16(int pos) { return data.getShort(pos) & 0xffff; }
 
+    /** First sector of each executable contains its caption and launcher icon. */
+    java.util.Map<String,byte[]> executableHeaders() {
+        java.util.Map<String,byte[]> result=new java.util.LinkedHashMap<>();
+        for (int i=0;i<DIR_COUNT;i++) {
+            int entry=master+32+i*32;
+            int len=0;
+            while (len<24 && bytes[entry+len]!=0) len++;
+            String name=new String(bytes,entry,len,StandardCharsets.US_ASCII);
+            if (!name.toLowerCase(java.util.Locale.ROOT).endsWith(".pex")) continue;
+            int sector=u16(entry+26), count=Math.min(SECTOR,data.getInt(entry+28));
+            if (sector<=0 || sector>=sectors || count<24) continue;
+            int start=master+sector*SECTOR;
+            result.put(name,Arrays.copyOfRange(bytes,start,start+count));
+        }
+        return result;
+    }
+
     void add(String name, byte[] payload) throws IOException {
         if (!name.matches("[a-z0-9_]{1,8}\\.[a-z0-9_]{1,3}")) throw new IOException("Invalid PFFS filename: " + name);
         if (!"PFFS Master Block".equals(new String(bytes, master + 8, 17, StandardCharsets.US_ASCII))
