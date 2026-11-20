@@ -131,7 +131,7 @@ public class AppsListFragment extends Fragment implements AppsListAdapter.Listen
 	private boolean changingPlatform;
 	private boolean bothNgageGenerations;
 	private boolean databaseLoaded;
-	private boolean externalLoaded = !BuildConfig.SYMBIAN_EXPERIMENT;
+	private boolean externalLoaded = !BuildConfig.SYMBIAN_EXPERIMENT && !BuildConfig.WIPI_PROBE;
 	private boolean restoreLocation = true;
 	private String restoredSelection;
 	private boolean searchExpanded;
@@ -143,17 +143,36 @@ public class AppsListFragment extends Fragment implements AppsListAdapter.Listen
 
 	private FragmentAppsListBinding binding;
 
+	private final ExecutorService folderExecutor = Executors.newSingleThreadExecutor();
 	private final ActivityResultLauncher<String> openFileLauncher = registerForActivityResult(
 			FileUtils.getFilePicker(),
 			this::onPickFileResult);
-	private final ActivityResultLauncher<Uri> openFolderLauncher = registerForActivityResult(
+	private final ActivityResultLauncher<Intent> platformPicker = registerForActivityResult(
+            new ActivityResultContracts.StartActivityForResult(), result -> {
+                if (result.getResultCode() == Activity.RESULT_OK && result.getData() != null)
+                    setPlatform(result.getData().getIntExtra("platform", platform));
+            });
+    private final ActivityResultLauncher<String[]> wipiPicker = registerForActivityResult(
+            new ActivityResultContracts.OpenDocument(), uri -> {
+                if (uri == null) return;
+                Context context = requireContext().getApplicationContext();
+                android.os.Handler main = new android.os.Handler(android.os.Looper.getMainLooper());
+                folderExecutor.execute(() -> {
+                    try {
+                        ExternalLibrary.wipi().install(context, uri);
+                        main.post(this::reloadExternalLibrary);
+                    } catch (IOException | RuntimeException error) {
+                        main.post(() -> Toast.makeText(context, error.getMessage(), Toast.LENGTH_LONG).show());
+                    }
+                });
+            });
+    private final ActivityResultLauncher<Uri> openFolderLauncher = registerForActivityResult(
 			new ActivityResultContracts.OpenDocumentTree(), this::onPickFolderResult);
 	private final ActivityResultLauncher<String> artworkLauncher = registerForActivityResult(
 			new ActivityResultContracts.GetContent(), this::onArtworkPicked);
     private String pendingLauncherLink;
     private final ActivityResultLauncher<String> launcherLinkExporter = registerForActivityResult(
             new ActivityResultContracts.CreateDocument("application/octet-stream"), this::onLauncherLinkExported);
-	private final ExecutorService folderExecutor = Executors.newSingleThreadExecutor();
     private List<AppItem> databaseItems = java.util.Collections.emptyList();
     private List<AppItem> externalItems = java.util.Collections.emptyList();
     private int externalGeneration;
@@ -175,7 +194,7 @@ public class AppsListFragment extends Fragment implements AppsListAdapter.Listen
 		preferences = PreferenceManager.getDefaultSharedPreferences(requireActivity());
 		navigation = new LibraryNavigation(preferences);
 		platform = navigation.active();
-		if (!BuildConfig.SYMBIAN_EXPERIMENT && platform > 2) platform = 1;
+		if (!LibraryNavigation.available(platform)) platform = 1;
 		category = navigation.category(platform);
 		generation = navigation.generation(platform);
 		restoredSearch = navigation.query(platform);
@@ -208,6 +227,10 @@ public class AppsListFragment extends Fragment implements AppsListAdapter.Listen
 	@Override
 	public void onViewCreated(@NonNull View view, Bundle savedInstanceState) {
 		super.onViewCreated(view, savedInstanceState);
+        if (savedInstanceState == null && appUri == null
+                && Intent.ACTION_MAIN.equals(requireActivity().getIntent().getAction())
+                && requireActivity().getIntent().hasCategory(Intent.CATEGORY_LAUNCHER)
+                && preferences.getBoolean(PlatformLauncherActivity.STARTUP, true)) openPlatforms();
 		setHasOptionsMenu(true);
 		binding.appsRecycler.setAdapter(adapter);
 		binding.appsRecycler.setItemAnimator(null);
@@ -249,7 +272,7 @@ public class AppsListFragment extends Fragment implements AppsListAdapter.Listen
 		for (int i = 0; i < binding.libraryPlatformTabs.getChildCount(); i++) {
 			final int target = i + 1;
 			binding.libraryPlatformTabs.getChildAt(i).setVisibility(
-					!BuildConfig.SYMBIAN_EXPERIMENT && target > 2 ? View.GONE : View.VISIBLE);
+					LibraryNavigation.available(target) ? View.VISIBLE : View.GONE);
 			binding.libraryPlatformTabs.getChildAt(i).setOnClickListener(v -> setPlatform(target));
 		}
 		binding.librarySocial.setOnClickListener(v -> showSocial());
@@ -334,6 +357,10 @@ public class AppsListFragment extends Fragment implements AppsListAdapter.Listen
 	}
 
 	private void openLastDirectory() {
+        if (platform == 5) {
+            wipiPicker.launch(new String[]{"*/*"});
+            return;
+        }
 		String path = preferences.getString(PREF_LAST_PATH, null);
 		if (path == null) {
 			File dir = Environment.getExternalStorageDirectory();
@@ -448,6 +475,11 @@ public class AppsListFragment extends Fragment implements AppsListAdapter.Listen
 		}
 	}
 
+    private void openPlatforms() {
+        platformPicker.launch(new Intent(requireContext(), PlatformLauncherActivity.class)
+                .putExtra("platform", platform));
+    }
+
 	private void showLibraryMenu() {
 		GameMenuDialog dialog = libraryDialog(getString(R.string.library_menu_title));
 		populateLibraryMenu(dialog);
@@ -455,6 +487,9 @@ public class AppsListFragment extends Fragment implements AppsListAdapter.Listen
 
 	private void populateLibraryMenu(GameMenuDialog dialog) {
 		dialog.page(getString(R.string.library_menu_title));
+        dialog.action(getString(R.string.platform_launcher), R.drawable.ic_library_layout_grid, () -> {
+            dialog.dismiss(); openPlatforms();
+        });
 		List<AppItem> all = new java.util.ArrayList<>(databaseItems);
 		all.addAll(externalItems);
 		AppItem last = LibraryQuery.lastPlayed(all);
@@ -539,7 +574,7 @@ public class AppsListFragment extends Fragment implements AppsListAdapter.Listen
 	}
 
 	private void setPlatform(int platform) {
-		if (platform < 1 || platform > (BuildConfig.SYMBIAN_EXPERIMENT ? 4 : 2)) return;
+		if (!LibraryNavigation.available(platform)) return;
 		if (this.platform == platform || binding == null) return;
 		saveLibraryLocation();
 		if (!restoreLocation) rememberVisibleSelection();
@@ -566,8 +601,7 @@ public class AppsListFragment extends Fragment implements AppsListAdapter.Listen
 		updateCollectionLabel();
 	}
 	public void stepPlatform(int direction) {
-		int count = BuildConfig.SYMBIAN_EXPERIMENT ? 4 : 2;
-		setPlatform(1 + Math.floorMod(platform - 1 + direction, count));
+		setPlatform(LibraryNavigation.next(platform, direction));
 	}
 	private void saveNavigation() {
 		if (navigation != null && adapter != null)
@@ -707,11 +741,14 @@ public class AppsListFragment extends Fragment implements AppsListAdapter.Listen
 		binding.librarySearchRow.setVisibility(searchExpanded || !restoredSearch.isEmpty() ? View.VISIBLE : View.GONE);
 		if (searchBack != null) searchBack.setEnabled(searchExpanded || !restoredSearch.isEmpty());
 		binding.librarySearchToggle.setSelected(searchExpanded || !restoredSearch.isEmpty());
+		int visibleTabs = 0;
+		for (int id = 1; id < LibraryQuery.PLATFORMS.length; id++)
+			if (LibraryNavigation.available(id)) visibleTabs++;
 		int tabWidth = dp(Math.max(80, Math.round(80 * fontScale)));
 		for (int i = 0; i < binding.libraryPlatformTabs.getChildCount(); i++) {
 			TextView tab = (TextView) binding.libraryPlatformTabs.getChildAt(i);
 			LinearLayout.LayoutParams lp = (LinearLayout.LayoutParams) tab.getLayoutParams();
-			int desired = Math.max(tabWidth, dp(Math.round((width - 24) / 4)));
+			int desired = Math.max(tabWidth, dp(Math.round((width - 24) / visibleTabs)));
 			if (lp.width != desired) { lp.width = desired; lp.weight = 0; tab.setLayoutParams(lp); }
 		}
 		binding.launcherTitle.setTypeface("retro".equals(ru.playsoftware.j2meloader.ui.AppPalette.selected(requireContext()))
@@ -1096,6 +1133,18 @@ public class AppsListFragment extends Fragment implements AppsListAdapter.Listen
                 () -> populateGameMore(dialog, appItem)));
         if (appItem instanceof ExternalLibrary.Item) {
             ExternalLibrary.Item item = (ExternalLibrary.Item) appItem;
+            if (item.platformId() == 5) {
+                dialog.action(getString(R.string.library_delete), android.R.drawable.ic_menu_delete, () -> {
+                    dialog.confirmationPage(getString(R.string.library_delete_question));
+                    dialog.message(item.getTitle());
+                    dialog.action(getString(R.string.library_delete), android.R.drawable.ic_menu_delete, () -> {
+                        try { item.removePackage(); dialog.dismiss(); reloadExternalLibrary(); }
+                        catch (IOException error) { dialog.message(error.getMessage()); }
+                    });
+                    dialog.setBackAction(() -> populateGameMore(dialog, item));
+                });
+                return;
+            }
             dialog.action(getString(R.string.library_launch_export), android.R.drawable.ic_menu_save, () -> {
                 try {
                     pendingLauncherLink = ru.playsoftware.j2meloader.catalog.LauncherLink.encode(
@@ -1199,6 +1248,7 @@ public class AppsListFragment extends Fragment implements AppsListAdapter.Listen
                             dialog.dismiss();
                         } catch (Exception error) { dialog.message(getString(R.string.library_settings_prepare_failed)); }
                     }
+                    public boolean mophunTuning() { return external == null || external.platformId() != 5; }
                     public void mapping(ru.playsoftware.j2meloader.config.ProfileModel draft, Runnable back) {
                         dialog.hide();
                         contextMapper = new ru.playsoftware.j2meloader.input.MapperDialog(requireContext(), item.getTitle(), draft, () -> {
@@ -1347,7 +1397,7 @@ public class AppsListFragment extends Fragment implements AppsListAdapter.Listen
 
 	private void reloadExternalLibrary() {
 		if (!isAdded() || binding == null) return;
-		if (!BuildConfig.SYMBIAN_EXPERIMENT) return;
+		if (!BuildConfig.SYMBIAN_EXPERIMENT && !BuildConfig.WIPI_PROBE) return;
 		Context context = requireContext().getApplicationContext();
 		android.app.Activity activity = requireActivity();
 		int generation = ++externalGeneration;

@@ -10,9 +10,18 @@ import ru.playsoftware.j2meloader.applist.AppItem;
 /** Engine-owned entries. They must never enter the Java install/backup database. */
 public final class ExternalLibrary {
     public interface Provider { List<AppItem> read(Context context) throws IOException; }
+    public interface PackageProvider extends Provider { void install(Context context, android.net.Uri uri) throws IOException; }
+    public static PackageProvider wipi() throws IOException {
+        try {
+            return Class.forName("io.github.eriark.abyssme.wipi.WipiLibrary")
+                    .asSubclass(PackageProvider.class).getDeclaredConstructor().newInstance();
+        } catch (ReflectiveOperationException e) { throw new IOException("Cannot load WIPI library", e); }
+    }
     public abstract static class Item extends AppItem {
         protected Item(String path, String title, String platform, String phone) { super(path, title, platform, phone); }
+        public int platformId() { return getAuthor() != null && getAuthor().toLowerCase(Locale.ROOT).contains("n-gage") ? 4 : 3; }
         public abstract void launch(Activity activity, boolean systemSettings);
+        public void removePackage() throws IOException { throw new IOException("Use the system uninstall screen"); }
         public abstract void favorite();
         public abstract void rename(String title) throws java.io.IOException;
         public void uninstall(Activity activity) { }
@@ -28,10 +37,13 @@ public final class ExternalLibrary {
     }
     private ExternalLibrary() { }
     public static List<AppItem> read(Context context) throws IOException {
-        if (!BuildConfig.SYMBIAN_EXPERIMENT) return Collections.emptyList();
+        List<AppItem> games = new ArrayList<>();
+        if (BuildConfig.WIPI_PROBE) games.addAll(wipi().read(context));
+        if (!BuildConfig.SYMBIAN_EXPERIMENT) return games;
         try {
-            return Class.forName("io.github.eriark.abyssme.symbian.SymbianLauncherLibrary")
-                    .asSubclass(Provider.class).getDeclaredConstructor().newInstance().read(context);
+            games.addAll(Class.forName("io.github.eriark.abyssme.symbian.SymbianLauncherLibrary")
+                    .asSubclass(Provider.class).getDeclaredConstructor().newInstance().read(context));
+            return games;
         } catch (ReflectiveOperationException error) { throw new IOException("Cannot read Symbian library", error); }
     }
 }

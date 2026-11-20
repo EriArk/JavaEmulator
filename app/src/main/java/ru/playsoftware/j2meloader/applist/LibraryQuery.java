@@ -10,12 +10,11 @@ import ru.playsoftware.j2meloader.catalog.ExternalLibrary;
 
 /** Shared collection rules. Platform inspection runs on the adapter's filter worker. */
 public final class LibraryQuery {
-    public static final String[] PLATFORMS = {"All platforms", "Java ME", "Mophun", "Symbian", "N-Gage"};
+    public static final String[] PLATFORMS = {"All platforms", "Java ME", "Mophun", "Symbian", "N-Gage", "WIPI / SKVM"};
     private LibraryQuery() { }
     public static int platform(AppItem item) {
         if (item instanceof ExternalLibrary.Item) {
-            String label = item.getAuthor();
-            return label != null && label.toLowerCase(Locale.ROOT).contains("n-gage") ? 4 : 3;
+            return ((ExternalLibrary.Item) item).platformId();
         }
         return AdditionalGames.isManaged(new File(item.getPathExt())) ? 2 : 1;
     }

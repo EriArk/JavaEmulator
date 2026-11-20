@@ -65,6 +65,7 @@ android {
         buildConfigField 'boolean', 'HANDHELD_MODE', 'false'
         buildConfigField 'String', 'DISTRIBUTION', '"' + (armv7 ? 'ARMv7' : symbianEnabled ? 'ARM64' : 'Java/Mophun') + '"'
         buildConfigField 'boolean', 'EXPERIMENTAL_MULTIPLAYER', 'true'
+        buildConfigField 'boolean', 'WIPI_PROBE', (findProject(':wipi-probe') != null).toString()
         buildConfigField 'boolean', 'SYMBIAN_EXPERIMENT', symbianEnabled.toString()
         vectorDrawables.useSupportLibrary = true
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"

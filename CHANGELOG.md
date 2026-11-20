@@ -10,6 +10,12 @@ stated otherwise. **Experimental** in older checkpoints means local/private
 combined builds; released experimental features are explicitly identified.
 **Released** means an actual GitHub release asset.
 
+## 2026-11-20 - Platform launcher, device stickers and WIPI library (local)
+
+- Open a platform’s library from a grid illustrated with its hardware. Disable **Show platforms at startup** to resume the last library tab. Reopen the grid from the library menu. [Retroid screenshot](docs/checks/2026-11-20-platform-launcher.png).
+- Added 72 hardware stickers for current and planned platforms. Five are Android resources. The other 67 have individual files in the [roadmap artwork catalog](design-concepts/platform-stickers/README.md).
+- In the opt-in WIPI / SKVM build, add carrier ZIPs to the library, then launch, rename, favorite or configure games from their cards. Verified import of Inotia and Metal Slug and launch of Inotia from the library on Retroid Classic.
+
 ## 2026-11-20 - WIPI and SKVM commercial game checks (local ARM64 debug build)
 
 - Connected the WIPI/SKVM host to the shared graphics, touch and physical-controller profiles, in-game menu and settings preview. Back opens the game menu.

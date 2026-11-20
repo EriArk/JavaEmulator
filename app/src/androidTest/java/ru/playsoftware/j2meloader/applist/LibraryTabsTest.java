@@ -45,9 +45,15 @@ public class LibraryTabsTest {
             n = new LibraryNavigation(p);
             assertEquals(1, n.active()); assertEquals(2, n.view(1)); assertEquals(1, n.view(4));
             assertEquals("Bounce", n.query(1)); assertEquals("", n.query(4));
-            assertEquals(4, LibraryNavigation.next(1, -1)); assertEquals(1, LibraryNavigation.next(4, 1));
+            assertEquals(lastVisiblePlatform(), LibraryNavigation.next(1, -1));
+            assertEquals(1, LibraryNavigation.next(lastVisiblePlatform(), 1));
             assertEquals(1, LibraryNavigation.platform(0));
         } finally { p.edit().clear().commit(); }
+    }
+
+    private int lastVisiblePlatform() {
+        return ru.playsoftware.j2meloader.BuildConfig.WIPI_PROBE ? 5
+                : ru.playsoftware.j2meloader.BuildConfig.SYMBIAN_EXPERIMENT ? 4 : 2;
     }
 
     private AppItem nativeItem(String id, String platform) {
@@ -82,7 +88,13 @@ public class LibraryTabsTest {
             try (ActivityScenario<MainActivity> scenario = ActivityScenario.launch(MainActivity.class)) {
                 awaitCount(scenario, 12);
                 scenario.onActivity(a -> {
-                    assertEquals(4, ((LinearLayout) a.findViewById(R.id.library_platform_tabs)).getChildCount());
+                    LinearLayout tabs = a.findViewById(R.id.library_platform_tabs);
+                    int visible = 0;
+                    for (int i = 0; i < tabs.getChildCount(); i++) {
+                        if (tabs.getChildAt(i).getVisibility() == View.VISIBLE) visible++;
+                    }
+                    assertEquals(2 + (ru.playsoftware.j2meloader.BuildConfig.SYMBIAN_EXPERIMENT ? 2 : 0)
+                            + (ru.playsoftware.j2meloader.BuildConfig.WIPI_PROBE ? 1 : 0), visible);
                     assertTrue(a.findViewById(R.id.platform_java).isSelected());
                     a.findViewById(R.id.view_mode_list).performClick();
                     a.findViewById(R.id.library_search_toggle).performClick();
@@ -135,7 +147,9 @@ public class LibraryTabsTest {
                     assertTrue(a.findViewById(R.id.platform_java).isSelected());
                     a.dispatchKeyEvent(new KeyEvent(KeyEvent.ACTION_UP, KeyEvent.KEYCODE_BUTTON_L2));
                     a.dispatchKeyEvent(new KeyEvent(KeyEvent.ACTION_DOWN, KeyEvent.KEYCODE_BUTTON_L2));
-                    assertTrue(a.findViewById(R.id.platform_ngage).isSelected());
+                    int lastTab = lastVisiblePlatform() == 5 ? R.id.platform_wipi
+                            : lastVisiblePlatform() == 4 ? R.id.platform_ngage : R.id.platform_mophun;
+                    assertTrue(a.findViewById(lastTab).isSelected());
                     a.dispatchKeyEvent(new KeyEvent(KeyEvent.ACTION_UP, KeyEvent.KEYCODE_BUTTON_L2));
                     a.dispatchKeyEvent(new KeyEvent(KeyEvent.ACTION_DOWN, KeyEvent.KEYCODE_BUTTON_R2));
                     a.dispatchKeyEvent(new KeyEvent(KeyEvent.ACTION_UP, KeyEvent.KEYCODE_BUTTON_R2));

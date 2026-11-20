@@ -47,6 +47,9 @@ public final class WipiGameActivity extends Activity {
         AppPalette.apply(this);
         getWindow().getDecorView().setSystemUiVisibility(5894);
         selected = state == null ? getIntent().getData() : state.getParcelable("game");
+        String installed = getIntent().getStringExtra("installed");
+        if (installed != null && installed.matches("[a-f0-9]{64}"))
+            selected = Uri.fromFile(new File(StoragePaths.library(this), "wipi/packages/" + installed + "/game.zip"));
         if (selected != null) load();
         else if (state == null) startActivityForResult(new Intent(Intent.ACTION_OPEN_DOCUMENT)
                 .setType("*/*").addCategory(Intent.CATEGORY_OPENABLE), 1);
@@ -105,7 +108,7 @@ public final class WipiGameActivity extends Activity {
                         started = WipiNative.nativeStart(game.bytes, "game.zip", saves.getPath(), bank);
                         if (!started) throw new IOException("Could not start " + game.carrier + " game");
                         activeSession = this;
-                        setTitle(game.carrier + " game");
+                        setTitle(getIntent().hasExtra("title") ? getIntent().getStringExtra("title") : game.carrier + " game");
                         setup();
                     } catch (Exception | LinkageError e) { fail(e.toString()); }
                 });

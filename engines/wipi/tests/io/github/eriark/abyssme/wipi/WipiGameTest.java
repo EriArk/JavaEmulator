@@ -78,6 +78,49 @@ public class WipiGameTest {
                 "게임/__adf__", "게임/app.jar").carrier);
     }
 
+    @Test public void importsOneLibraryCardAndPersistsEdits() throws IOException {
+        File zip = File.createTempFile("wipi-library-", ".zip", context.getCacheDir());
+        ru.playsoftware.j2meloader.catalog.ExternalLibrary.Item card = null;
+        try {
+            try (java.util.zip.ZipOutputStream out = new java.util.zip.ZipOutputStream(new FileOutputStream(zip))) {
+                for (String entry : new String[]{"title.msd", "title.jar"}) {
+                    out.putNextEntry(new java.util.zip.ZipEntry(entry));
+                    out.write(zip.getName().getBytes(java.nio.charset.StandardCharsets.UTF_8));
+                    out.closeEntry();
+                }
+            }
+            WipiLibrary library = new WipiLibrary();
+            library.install(context, Uri.fromFile(zip));
+            library.install(context, Uri.fromFile(zip));
+            String title = zip.getName().replace(".zip", "");
+            int matches = 0;
+            for (ru.playsoftware.j2meloader.applist.AppItem item : library.read(context)) {
+                if (title.equals(item.getTitle())) {
+                    card = (ru.playsoftware.j2meloader.catalog.ExternalLibrary.Item)item;
+                    matches++;
+                }
+            }
+            assertEquals(1, matches);
+            assertEquals(5, ru.playsoftware.j2meloader.applist.LibraryQuery.platform(card));
+            assertEquals("SKVM", card.getAuthor());
+            card.rename(title+" renamed");
+            card.favorite();
+            boolean found = false;
+            for (ru.playsoftware.j2meloader.applist.AppItem item : library.read(context)) {
+                if (item.getPath().equals(card.getPath())) {
+                    assertEquals(card.getId(), item.getId());
+                    assertEquals(title+" renamed", item.getTitle());
+                    assertTrue(item.isFavorite());
+                    found = true;
+                }
+            }
+            assertTrue(found);
+        } finally {
+            if (card != null) card.removePackage();
+            zip.delete();
+        }
+    }
+
     private void clickAction(int labelId) {
         String label = context.getString(labelId);
         long until = SystemClock.uptimeMillis() + 4000;

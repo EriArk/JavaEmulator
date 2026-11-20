@@ -4,6 +4,8 @@ GitHub snapshot reviewed on 2026-11-20. There are 49 open platform research or d
 
 Five distinct native games can justify keeping a platform. An unverified catalog stays under investigation. The roadmap ranks early implementations by existing reusable cores, Android ARM64 feasibility and available game fixtures. The first engine should demonstrate gameplay before the launcher gains another platform tab.
 
+The [device sticker catalog](../design-concepts/platform-stickers/README.md) maps reference hardware to these issues and includes a contact sheet.
+
 ## Checking a platform with a real game
 
 Record the game edition, host and scene reached. Check the picture during gameplay and capture or listen to the game audio. Exercise the virtual controls and a connected physical controller separately. Record whether inputs were pressed by hand or injected. Use the existing AbyssME graphics, touch and physical-controller profiles, change a mapping and a display setting in the shared menu, and check their effect after relaunch. Track any missing capability alongside the result for that game.

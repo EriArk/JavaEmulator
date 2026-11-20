@@ -1,0 +1,6 @@
+<resources>
+    <string name="platform_launcher">Platforms</string>
+    <string name="platform_show_startup">Show platforms at startup</string>
+    <string name="platform_startup_summary">When off, open the last library tab.</string>
+    <string name="game_info_carrier">Platform: %1$s\nCarrier: %2$s</string>
+</resources>

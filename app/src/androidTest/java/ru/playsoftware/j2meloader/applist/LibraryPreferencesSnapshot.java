@@ -15,9 +15,9 @@ public final class LibraryPreferencesSnapshot implements AutoCloseable {
         before = new HashMap<>(preferences.getAll());
         SharedPreferences.Editor edit = preferences.edit();
         for (String key : before.keySet()) if (owned(key)) edit.remove(key);
-        edit.commit();
+        edit.putBoolean(PlatformLauncherActivity.STARTUP, false).commit();
     }
-    private boolean owned(String key) { return key.startsWith("library") || key.equals("pref_library_view_mode"); }
+    private boolean owned(String key) { return key.startsWith("library") || key.equals("pref_library_view_mode") || key.equals(PlatformLauncherActivity.STARTUP); }
     @Override public void close() {
         SharedPreferences.Editor edit = preferences.edit();
         for (String key : preferences.getAll().keySet()) if (owned(key)) edit.remove(key);

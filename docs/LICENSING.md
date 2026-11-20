@@ -38,6 +38,8 @@ source remains MPL-2.0 and is additionally available under GPLv3 as part of this
 larger work under MPL section 3.3; see the
 [Mozilla FAQ](https://www.mozilla.org/en-US/MPL/2.0/FAQ/).
 
+The platform launcher uses hardware illustrations derived from reference photographs. [Bundled credits](../app/src/main/assets/licenses/DEVICE-STICKERS.txt) identify each launcher illustration. The [design catalog](../design-concepts/platform-stickers/README.md) records the reference and attribution for each reserve sticker.
+
 ## Upstream Permission History
 
 [Wolphun issue #1](https://github.com/jamisson2006/wolphun-a-Mophun-emulator/issues/1)

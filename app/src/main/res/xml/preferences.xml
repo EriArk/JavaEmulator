@@ -14,6 +14,8 @@
         app:useSimpleSummaryProvider="true" />
 
     <PreferenceScreen android:key="layout" android:title="Appearance / Layout" android:icon="@drawable/ic_baseline_tune_24">
+        <SwitchPreferenceCompat android:key="pref_platform_launcher" android:defaultValue="true"
+            android:title="@string/platform_show_startup" android:summary="@string/platform_startup_summary" />
         <Preference android:key="game_area_portrait" android:title="Portrait game area" android:summary="Adjust the size and position of the playable area" />
         <Preference android:key="game_area_landscape" android:title="Landscape game area" />
         <ListPreference android:key="pref_menu_orientation" android:title="Menu orientation" android:defaultValue="auto"

@@ -1,6 +1,6 @@
 # WIPI / SKVM Android integration
 
-AbyssME can open a carrier ZIP in a dedicated Android process in the optional ARM64 debug build. The app provides the document picker, calibrated game area, keyboard events and per-package data directory. The existing mobile adapter provides the guest runtime and framebuffer. Open **Settings → Open WIPI test package** and select a ZIP. Back opens the shared game menu. Display and Controls expose the same graphics presets, physical mappings, touch layouts and settings preview used by other platforms. The host supplies the GeneralUser GS bank for MIDI playback.
+AbyssME can open a carrier ZIP in a dedicated Android process in the optional ARM64 debug build. The app provides the document picker, calibrated game area, keyboard events and per-package data directory. The existing mobile adapter provides the guest runtime and framebuffer. Open **Platforms → WIPI / SKVM**, choose **Add game** and select a single-game carrier ZIP. The library retains a managed copy and uses the package content to identify duplicate imports and reopen existing settings and saves. **Settings → Open WIPI test package** also opens a ZIP directly. Back opens the shared game menu. Display and Controls expose the same graphics presets, physical mappings, touch layouts and settings preview used by other platforms. The host supplies the GeneralUser GS bank for MIDI playback.
 
 ## Build the local probe
 

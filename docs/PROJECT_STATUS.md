@@ -14,11 +14,15 @@ attribute its results to the dated maintainer record below; do not infer a pass.
 
 The [platform issue index](PLATFORM_ISSUES.md) maps the 49 open platform-specific tasks to the maintainer roadmap, including the initial integration order and scope decisions.
 
+## Platform launcher and device artwork (2026-11-20, local debug build)
+
+The optional startup grid opens each enabled platform’s library tab. Switch off **Show platforms at startup** to reopen the last tab directly. The library menu includes **Platforms** for returning to the grid. The five tiles in the combined debug build use hardware illustrations with model labels. The [device reference catalog](../design-concepts/platform-stickers/README.md) includes 67 additional stickers for roadmap platforms. [Retroid screenshot](checks/2026-11-20-platform-launcher.png).
+
 ## WIPI and SKVM (2026-11-20, local ARM64 debug build)
 
 On Retroid Pocket Classic (Android 14), the local build ran Com2uS Inotia (KTF WIPI) through character creation into the village and Metal Slug (SKT SKVM) into the first combat stage. Android playback captures contained audio from both games. The games used the shared touch deck, physical mapper, graphics presets and preview controls. Inotia retained B → Right after relaunch. Metal Slug retained the CRT setting and responded to both the touch deck and events injected through the connected Xbox controller's input device.
 
-The original Korean KTF ZIP now opens from the document picker, and audio resumes after an Android output-route change. Heart Catch and the SKVM slider passed launch and relaunch on the same device. Full library import, LGT gameplay, save restoration and hand-operated controller testing remain open. The APK and game captures are local. [Device evidence and scope](checks/2026-11-20-wipi-games.md) · [Build and fixtures](../engines/wipi/README.md) · [Issue #57](https://github.com/EriArk/JavaEmulator/issues/57).
+The original Korean KTF ZIP now opens from the document picker, and audio resumes after an Android output-route change. Heart Catch and the SKVM slider passed launch and relaunch on the same device. The WIPI / SKVM library tab imports individual carrier ZIPs, retains a managed copy and opens the game from its card. Inotia and Metal Slug remained in the library after a cold start on Retroid. LGT gameplay, save restoration and hand-operated controller testing remain open. The APK and game captures are local. [Device evidence and scope](checks/2026-11-20-wipi-games.md) · [Build and fixtures](../engines/wipi/README.md) · [Issue #57](https://github.com/EriArk/JavaEmulator/issues/57).
 
 ## Dingoo (2026-11-20, initial device check)
 
