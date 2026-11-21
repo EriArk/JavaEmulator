@@ -10,6 +10,10 @@ stated otherwise. **Experimental** in older checkpoints means local/private
 combined builds; released experimental features are explicitly identified.
 **Released** means an actual GitHub release asset.
 
+## 2026-11-21 - Palm webOS web games on Retroid
+
+Added an optional Palm webOS library with IPK and ZIP import, package artwork, per-game screen size, Mojo and Enyo 1 web game hosting, shared display and controller settings, and portable localStorage saves. The existing combined Retroid installation was updated in place. [Private build verification](docs/checks/2026-11-21-webos.md).
+
 ## 2026-11-21 - MediaTek MRE on Retroid
 
 Added an optional ARM64 MediaTek MRE engine with VXP and ZIP import, a platform tile, game previews, shared controls and display settings, per-game data, checkpoints and library backup. Crossfire and Flappy Bird reached gameplay in the private combined build. [Verification](docs/checks/2026-11-21-mre.md).

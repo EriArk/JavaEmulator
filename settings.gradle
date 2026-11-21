@@ -70,6 +70,10 @@ if (providers.gradleProperty('mreProbe').orNull == 'true') {
     include ':mre-probe'
     project(':mre-probe').projectDir = file('engines/mre/bridge')
 }
+if (providers.gradleProperty('webosProbe').orNull == 'true') {
+    include ':webos-probe'
+    project(':webos-probe').projectDir = file('engines/webos/bridge')
+}
 if (providers.gradleProperty('palmProbe').orNull == 'true') {
     include ':palm-probe'
     project(':palm-probe').projectDir = file('engines/palm/bridge')

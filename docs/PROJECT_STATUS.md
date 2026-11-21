@@ -14,6 +14,10 @@ attribute its results to the dated maintainer record below; do not infer a pass.
 
 The [platform issue index](PLATFORM_ISSUES.md) maps the 49 open platform-specific tasks to the maintainer roadmap, including the initial integration order and scope decisions.
 
+## Palm webOS web games (2026-11-21, private Retroid build)
+
+The combined build opens Palm webOS IPKs from the platform grid and library. On Retroid Pocket Classic, 2048 restored its board and score, Far Out Fowl produced audible system-feedback tones in Android playback capture, Wordsel restored a submitted guess, and the Enyo version of Tetris reached its falling-block board in tablet mode. [Device checks and limits](checks/2026-11-21-webos.md).
+
 ## MediaTek MRE (2026-11-21, private ARM64 Retroid build)
 
 The platform grid and library open MediaTek MRE VXP games with the shared keypad, controller and graphics settings. Crossfire reached level one with recorded Android audio. Flappy Bird restored a checkpoint after a cold start. Both cards and all previously recorded managed card paths remained present after the combined installation was updated. [Retroid checks and distribution scope](checks/2026-11-21-mre.md).

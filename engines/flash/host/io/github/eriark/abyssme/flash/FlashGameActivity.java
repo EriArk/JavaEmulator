@@ -1,12 +1,7 @@
 /* SPDX-License-Identifier: GPL-3.0-only */
 package io.github.eriark.abyssme.flash;
 
-import android.app.Presentation;
-import android.content.Context;
-import android.graphics.PixelFormat;
-import android.hardware.display.*;
-import android.media.Image;
-import android.media.ImageReader;
+import ru.playsoftware.j2meloader.handheld.HandheldWebDisplay;
 import android.net.Uri;
 import android.os.*;
 import android.util.AtomicFile;
@@ -14,7 +9,6 @@ import android.view.*;
 import android.webkit.*;
 import io.github.eriark.abyssme.storage.StoragePaths;
 import java.io.*;
-import java.nio.*;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.util.*;
@@ -31,9 +25,7 @@ public final class FlashGameActivity extends HandheldActivity {
     private int width, height;
     private boolean done, stopped, paused;
     private int speed=100;
-    private VirtualDisplay display;
-    private Presentation presentation;
-    private ImageReader reader;
+    private HandheldWebDisplay display;
     private WebView web;
     private AtomicFile saves;
     private static boolean webInitialized;
@@ -57,16 +49,8 @@ public final class FlashGameActivity extends HandheldActivity {
     }
     private void startDisplay() throws IOException {
         if (!webInitialized) { WebView.setDataDirectorySuffix("flash"); webInitialized=true; }
-        reader=ImageReader.newInstance(width,height,PixelFormat.RGBA_8888,3);
-        DisplayManager manager=(DisplayManager)getSystemService(Context.DISPLAY_SERVICE);
-        display=manager.createVirtualDisplay("Flash movie",width,height,160,reader.getSurface(),
-                DisplayManager.VIRTUAL_DISPLAY_FLAG_PRESENTATION | DisplayManager.VIRTUAL_DISPLAY_FLAG_OWN_CONTENT_ONLY);
-        if (display==null) throw new IOException("Cannot create Flash display");
-        presentation=new Presentation(this,display.getDisplay());
-        Window window=presentation.getWindow();
-        window.addFlags(WindowManager.LayoutParams.FLAG_NOT_FOCUSABLE | WindowManager.LayoutParams.FLAG_FULLSCREEN);
-        window.getDecorView().setSystemUiVisibility(5894);
-        web=new WebView(presentation.getContext());
+        display = new HandheldWebDisplay(this, "Flash movie", width, height);
+        web = display.web;
         WebSettings settings=web.getSettings();
         settings.setJavaScriptEnabled(true);
         settings.setDomStorageEnabled(true);
@@ -98,7 +82,7 @@ public final class FlashGameActivity extends HandheldActivity {
                 result.confirm(""); return true;
             }
         });
-        presentation.setContentView(web); presentation.show();
+        display.show();
         web.loadUrl(origin+"/player");
     }
     private WebResourceResponse resource(String path) throws IOException, JSONException {
@@ -135,27 +119,9 @@ public final class FlashGameActivity extends HandheldActivity {
     @Override protected void pauseCore(boolean paused) { this.paused=paused; evaluate("window.running && running("+!paused+")"); }
     @Override protected void stopCore() {
         stopped=true;
-        if (presentation!=null) { presentation.dismiss(); presentation=null; }
-        if (web!=null) { web.destroy(); web=null; }
-        if (display!=null) { display.release(); display=null; }
-        if (reader!=null) { reader.close(); reader=null; }
+        if (display != null) { display.close(); display = null; web = null; }
     }
-    @Override protected boolean frame(int[] pixels) {
-        if (reader==null) return false;
-        try (Image img=reader.acquireLatestImage()) {
-            if (img==null) return false;
-            Image.Plane plane=img.getPlanes()[0];
-            IntBuffer src=plane.getBuffer().order(ByteOrder.LITTLE_ENDIAN).asIntBuffer();
-            for (int y=0;y<height;y++) {
-                src.position(y*plane.getRowStride()/4);
-                src.get(pixels,y*width,width);
-            }
-            for (int i=0;i<pixels.length;i++) {
-                int c=pixels[i]; pixels[i]=0xff000000 | ((c&255)<<16) | (c&0xff00) | ((c>>16)&255);
-            }
-            return true;
-        }
-    }
+    @Override protected boolean frame(int[] pixels) { return display != null && display.frame(pixels); }
     @Override protected int width() { return width; }
     @Override protected int height() { return height; }
     @Override protected String error() { return failure; }

@@ -88,20 +88,29 @@ public class HandheldCycleTest {
     @Test public void mreZipUsesSameInstalledIdentityAsLooseGame() throws Exception {
         Assume.assumeTrue(ru.playsoftware.j2meloader.BuildConfig.MRE_PROBE);
         File game = new File(c.getExternalFilesDir(null), "mre-check/FlappyBird.vxp");
+        checkZipIdentity(game, 17);
+    }
+
+    @Test public void webOsZipUsesSameInstalledIdentityAsLooseGame() throws Exception {
+        Assume.assumeTrue(ru.playsoftware.j2meloader.BuildConfig.WEBOS_PROBE);
+        checkZipIdentity(new File(c.getExternalFilesDir(null), "webos-check/2048.ipk"), 18);
+    }
+
+    private void checkZipIdentity(File game, int platform) throws Exception {
         Assume.assumeTrue(game.isFile());
         File zip = new File(work, "collection.zip");
         try (java.util.zip.ZipOutputStream out = new java.util.zip.ZipOutputStream(new FileOutputStream(zip))) {
-            out.putNextEntry(new java.util.zip.ZipEntry("Games/FlappyBird.VXP"));
+            out.putNextEntry(new java.util.zip.ZipEntry("Games/" + game.getName()));
             Files.copy(game.toPath(), out);
             out.closeEntry();
         }
-        assertEquals(Collections.singleton(17), HandheldFormat.detect(c, Uri.fromFile(zip), zip.getName()));
+        assertEquals(Collections.singleton(platform), HandheldFormat.detect(c, Uri.fromFile(zip), zip.getName()));
         Context target = isolated(new File(work, "library"));
-        AppItem loose = ExternalLibrary.packageProvider(17).install(target, Uri.fromFile(game));
-        AppItem zipped = ExternalLibrary.packageProvider(17).install(target, Uri.fromFile(zip));
+        AppItem loose = ExternalLibrary.packageProvider(platform).install(target, Uri.fromFile(game));
+        AppItem zipped = ExternalLibrary.packageProvider(platform).install(target, Uri.fromFile(zip));
         assertEquals(loose.getPath(), zipped.getPath());
-        assertEquals(1, ExternalLibrary.packageProvider(17).read(target).size());
-        assertEquals(17, HandheldFormat.indexedPlatform("pending_17_abcd"));
+        assertEquals(1, ExternalLibrary.packageProvider(platform).read(target).size());
+        assertEquals(platform, HandheldFormat.indexedPlatform("pending_" + platform + "_abcd"));
     }
 
     private Set<Integer> expectedPlatforms() {
@@ -117,6 +126,7 @@ public class HandheldCycleTest {
         if (ru.playsoftware.j2meloader.BuildConfig.GAMEKING_PROBE && new File(source,"gameking/packages").isDirectory()) ids.add(15);
         if (ru.playsoftware.j2meloader.BuildConfig.PALM_PROBE && new File(source,"palm/packages").isDirectory()) ids.add(16);
         if (ru.playsoftware.j2meloader.BuildConfig.MRE_PROBE && new File(source,"mre/packages").isDirectory()) ids.add(17);
+        if (ru.playsoftware.j2meloader.BuildConfig.WEBOS_PROBE && new File(source,"webos/packages").isDirectory()) ids.add(18);
         return ids;
     }
 

@@ -1,0 +1,25 @@
+plugins { id 'com.android.library' }
+android {
+    namespace 'io.github.eriark.abyssme.webos.bridge'
+    compileSdk 34
+    defaultConfig { minSdk 29 }
+}
+def stickers = tasks.register('prepareWebOsStickers', Sync) {
+    from(rootProject.file('design-concepts/platform-stickers')) {
+        include 'webos.webp'
+        rename { name -> "sticker_" + name }
+    }
+    into layout.buildDirectory.dir('generated/deviceArt/drawable-nodpi')
+}
+android.sourceSets.main.res.srcDir layout.buildDirectory.dir('generated/deviceArt')
+tasks.named('preBuild').configure { dependsOn stickers }
+
+def frameworkAssets = rootProject.file('build/webos/assets')
+android.sourceSets.main.assets.srcDir frameworkAssets
+tasks.named('preBuild').configure {
+    doFirst {
+        if (!new File(frameworkAssets, 'webos/enyo/build/enyo-build.js').isFile()) {
+            throw new GradleException('Prepare Enyo with python3 engines/webos/prepare.py <enyo-1.0 checkout>')
+        }
+    }
+}

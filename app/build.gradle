@@ -72,6 +72,7 @@ android {
         buildConfigField 'boolean', 'GAMATE_PROBE', (findProject(':gamate-probe') != null).toString()
         buildConfigField 'boolean', 'GAMEKING_PROBE', (findProject(':gameking-probe') != null).toString()
         buildConfigField 'boolean', 'MRE_PROBE', (findProject(':mre-probe') != null).toString()
+        buildConfigField 'boolean', 'WEBOS_PROBE', (findProject(':webos-probe') != null).toString()
         buildConfigField 'boolean', 'PALM_PROBE', (findProject(':palm-probe') != null).toString()
         buildConfigField 'boolean', 'CYBIKO_PROBE', (findProject(':cybiko-probe') != null).toString()
         buildConfigField 'boolean', 'FLASH_PROBE', (findProject(':flash-probe') != null).toString()
@@ -215,7 +216,7 @@ android {
 
     applicationVariants.all {
         if (buildType.name == 'debug' && flavorName != 'midlet') {
-            resValue 'string', 'app_name', (findProject(':dingoo-probe') != null || findProject(':piece-probe') != null || findProject(':gp32-probe') != null || findProject(':supervision-probe') != null || findProject(':megaduck-probe') != null || findProject(':cybiko-probe') != null || findProject(':flash-probe') != null || findProject(':gamate-probe') != null || findProject(':gameking-probe') != null || findProject(':palm-probe') != null || findProject(':mre-probe') != null) ? 'AbyssME Handhelds' : findProject(':wipi-probe') != null ? 'AbyssME WIPI' : flavorName == 'phone'
+            resValue 'string', 'app_name', (findProject(':dingoo-probe') != null || findProject(':piece-probe') != null || findProject(':gp32-probe') != null || findProject(':supervision-probe') != null || findProject(':megaduck-probe') != null || findProject(':cybiko-probe') != null || findProject(':flash-probe') != null || findProject(':gamate-probe') != null || findProject(':gameking-probe') != null || findProject(':palm-probe') != null || findProject(':mre-probe') != null || findProject(':webos-probe') != null) ? 'AbyssME Handhelds' : findProject(':wipi-probe') != null ? 'AbyssME WIPI' : flavorName == 'phone'
                     ? 'AbyssME Phone Debug' : symbianExperiment ? 'AbyssME Symbian Test' : 'AbyssME Debug'
         }
         def baseName = flavorName == 'midlet' ? "${midletArchivesBaseName}-" : "${rootProject.name}-"
@@ -456,6 +457,15 @@ if (findProject(':mre-probe') != null) {
     android.buildTypes.debug.applicationIdSuffix = findProject(':dingoo-probe') != null ? '.dingoocheck.debug' : '.mrecheck.debug'
     dependencies.add('debugImplementation', project(':mre-probe'))
     android.sourceSets.debug.java.srcDir rootProject.file('engines/mre/host')
+}
+
+if (findProject(':webos-probe') != null) {
+    if (armv7) throw new GradleException('The webOS integration requires ARM64')
+    android.defaultConfig.ndk.abiFilters 'arm64-v8a'
+    android.variantFilter { v -> v.ignore = v.buildType.name != 'debug' || !(v.flavors*.name == ['fdroid']) }
+    android.buildTypes.debug.applicationIdSuffix = findProject(':dingoo-probe') != null ? '.dingoocheck.debug' : '.weboscheck.debug'
+    dependencies.add('debugImplementation', project(':webos-probe'))
+    android.sourceSets.debug.java.srcDir rootProject.file('engines/webos/host')
 }
 
 if (findProject(':palm-probe') != null) {
