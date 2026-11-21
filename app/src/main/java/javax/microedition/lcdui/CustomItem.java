@@ -44,6 +44,15 @@ public abstract class CustomItem extends Item {
 		public InnerView(Context context) {
 			super(context);
 			setWillNotDraw(false);
+			if (ru.playsoftware.j2meloader.BuildConfig.ASHA_PROBE) {
+				setFocusableInTouchMode(true);
+				setOnFocusChangeListener((v, focused) -> {
+					if (!hasOwnerForm()) return;
+					Form form = getOwnerForm();
+					if (focused) form.focusedCustomItem = CustomItem.this;
+					else if (form.focusedCustomItem == CustomItem.this) form.focusedCustomItem = null;
+				});
+			}
 		}
 
 		@Override
@@ -65,6 +74,7 @@ public abstract class CustomItem extends Item {
 		public boolean onTouchEvent(MotionEvent event) {
 			switch (event.getActionMasked()) {
 				case MotionEvent.ACTION_DOWN:
+					if (isFocusableInTouchMode()) requestFocus();
 					pointerPressed(convertPointerX(event.getX()), convertPointerY(event.getY()));
 					break;
 				case MotionEvent.ACTION_MOVE:
@@ -174,6 +184,7 @@ public abstract class CustomItem extends Item {
 	protected View getItemContentView() {
 		if (view == null) {
 			view = new InnerView(ContextHolder.getActivity());
+			if (hasOwnerForm() && getOwnerForm().focusedCustomItem == this) view.post(view::requestFocus);
 			int width = getMinContentWidth();
 			int height = getMinContentHeight();
 			view.setMinimumWidth(width);

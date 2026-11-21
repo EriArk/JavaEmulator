@@ -36,6 +36,23 @@ public class Form extends Screen {
 	private final ArrayList<Item> items = new ArrayList<>();
 	private ItemStateListener listener;
 
+	volatile CustomItem focusedCustomItem;
+	private volatile int keypadInset;
+
+	int fullHeight() { return super.getHeight(); }
+	@Override public int getHeight() { return keypadInset == 0 ? fullHeight() : Math.max(0, fullHeight() - keypadInset); }
+
+	void setKeypadInset(int inset) {
+		if (keypadInset == inset) return;
+		keypadInset = inset;
+		if (scrollview != null) {
+			int pad = fullHeight() > 0 ? Math.round(scrollview.getHeight() * (float) inset / fullHeight()) : inset;
+			scrollview.setPadding(0, 0, 0, pad);
+		}
+		Display.getEventQueue().postEventQueued(javax.microedition.lcdui.event.RunnableEvent.getInstance(
+				() -> doSizeChanged(getWidth(), getHeight())));
+	}
+
 	private ScrollView scrollview;
 	private LinearLayout layout;
 

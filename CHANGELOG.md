@@ -10,6 +10,10 @@ stated otherwise. **Experimental** in older checkpoints means local/private
 combined builds; released experimental features are explicitly identified.
 **Released** means an actual GitHub release asset.
 
+## 2026-11-21 - Nokia game and phone keypads
+
+- Added guest-controlled phone and game keypads to the private Asha build, including layout changes, key repeats, canvas sizing and visibility callbacks. Checked the GameCanvas and CustomItem input paths, switching to Gboard and firing in TouchMare on Retroid Classic. [Device results](docs/checks/2026-11-21-asha.md#game-and-phone-keypads).
+
 ## 2026-11-21 - Nokia system keyboard visibility
 
 - Asha MIDlets can query the docked Android keyboard's overlap with the game and receive show/hide callbacks. Verified that a guest kept its Save button accessible during text entry on the private Retroid build. [Device results](docs/checks/2026-11-21-asha.md#system-keyboard-visibility).

@@ -163,6 +163,7 @@ public abstract class Canvas extends Displayable {
 	private volatile boolean visible;
 	private volatile boolean displayVisible;
 	private volatile boolean sizeChangedCalled;
+	private volatile int keypadInset;
 	private int notifiedWidth, notifiedHeight;
 	private Image offscreen;
 	private Image offscreenCopy;
@@ -355,7 +356,7 @@ public abstract class Canvas extends Displayable {
 	/** Deliver the current size on the guest event thread, not stale queued dimensions. */
 	public final void dispatchSizeChanged() {
 		if (!displayVisible) return;
-		int w = width, h = height;
+		int w = width, h = getHeight();
 		if (sizeChangedCalled && notifiedWidth == w && notifiedHeight == h) return;
 		notifiedWidth = w;
 		notifiedHeight = h;
@@ -831,7 +832,14 @@ public abstract class Canvas extends Displayable {
 
 	@Override
 	public int getHeight() {
-		return height;
+		return Math.max(0, height - keypadInset);
+	}
+
+	void setKeypadInset(int inset) {
+		if (inset == keypadInset) return;
+		keypadInset = inset;
+		postGuestCallback(this::dispatchSizeChanged);
+		repaint();
 	}
 
 	protected abstract void paint(Graphics g);

@@ -3,6 +3,7 @@ package com.nokia.mid.ui;
 
 import android.graphics.Rect;
 import javax.microedition.lcdui.KeyboardViewport;
+import javax.microedition.lcdui.GuestKeypad;
 import javax.microedition.shell.MicroActivity;
 import javax.microedition.util.ContextHolder;
 
@@ -18,6 +19,31 @@ public final class VirtualKeyboard {
     public static final int VKB_MODE_ALPHA_UPPER_CASE_LOCKED = 4;
 
     private VirtualKeyboard() {}
+
+    private static final CustomKeyboardControl CONTROL = new CustomKeyboardControl() {
+        private GuestKeypad keypad() {
+            KeyboardViewport window = viewport();
+            if (window == null) throw new IllegalStateException("Keyboard unavailable");
+            return window.keypad();
+        }
+        public void launch() { launch(VKB_TYPE_ITUT); }
+        public void launch(int type) { launch(type, VKB_MODE_DEFAULT); }
+        public void launch(int type, int mode) { keypad().launch(type, mode); }
+        public void dismiss() { keypad().dismiss(); }
+        public void setKeyboardType(int type) { keypad().setType(type); }
+        public void setKeyboardMode(int mode) { keypad().setMode(mode); }
+        public int getKeyboardType() { return keypad().getType(); }
+        public int getKeyboardMode() { return keypad().getMode(); }
+        public int getSupportedOrientations(int type) {
+            GuestKeypad.validateType(type);
+            return KEYBOARD_LANDSCAPE | KEYBOARD_PORTRAIT | KEYBOARD_LANDSCAPE_180 | KEYBOARD_PORTRAIT_180;
+        }
+    };
+
+    public static CustomKeyboardControl getCustomKeyboardControl() {
+        if (viewport() == null) throw new IllegalStateException("Keyboard unavailable");
+        return CONTROL;
+    }
 
     private static KeyboardViewport viewport() {
         MicroActivity activity = ContextHolder.getActivity();
@@ -41,9 +67,9 @@ public final class VirtualKeyboard {
 
     public static void setVisibilityListener(KeyboardVisibilityListener listener) {
         KeyboardViewport viewport = viewport();
-        if (viewport != null) viewport.setListener(listener == null ? null : visible -> {
-            if (visible) listener.showNotify(SYSTEM_KEYBOARD);
-            else listener.hideNotify(SYSTEM_KEYBOARD);
+        if (viewport != null) viewport.setListener(listener == null ? null : (visible, category) -> {
+            if (visible) listener.showNotify(category);
+            else listener.hideNotify(category);
         });
     }
 

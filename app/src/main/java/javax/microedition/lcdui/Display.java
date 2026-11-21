@@ -186,7 +186,14 @@ public class Display {
 
 	public void setCurrentItem(Item item) {
 		if (item.hasOwnerForm()) {
-			setCurrent(item.getOwnerForm());
+			Form form = item.getOwnerForm();
+			if (ru.playsoftware.j2meloader.BuildConfig.ASHA_PROBE && item instanceof CustomItem) {
+				form.focusedCustomItem = (CustomItem) item;
+				if (getCurrent() == form) ViewHandler.postEvent(() -> {
+					if (getCurrent() == form && item.hasOwnerForm()) item.getItemContentView().requestFocus();
+				});
+			}
+			setCurrent(form);
 		}
 	}
 

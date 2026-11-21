@@ -143,7 +143,6 @@ public class MicroActivity extends AppCompatActivity {
 		if (vk != null) vk.cancel();
 	}
 	private volatile boolean nokiaKeypadCommandHidden;
-	private boolean nokiaKeypadOpened;
 	private KeyboardViewport keyboardViewport;
 
 	public KeyboardViewport getKeyboardViewport() { return keyboardViewport; }
@@ -160,7 +159,7 @@ public class MicroActivity extends AppCompatActivity {
 	private void updateControllerMode() {
 		if (microLoader == null) return;
 		VirtualKeyboard vk = ContextHolder.getVk();
-		if (vk != null) vk.setControlsEnabled(nokiaKeypadOpened || ru.playsoftware.j2meloader.input.DeviceControls.showTouch(
+		if (vk != null) vk.setControlsEnabled(ru.playsoftware.j2meloader.input.DeviceControls.showTouch(
 				microLoader.getTouchSettings(), devices != null && devices.connected()));
 	}
 	private void controllerDisconnected() {
@@ -359,6 +358,7 @@ public class MicroActivity extends AppCompatActivity {
 
 	@Override
 	public void onPause() {
+		if (keyboardViewport != null) keyboardViewport.keypad().dismiss();
 		if (fastForward != null) fastForward.cancel();
 		if (settingsPreview != null) settingsPreview.suspend();
 		controllerInput.clear();
@@ -562,6 +562,10 @@ public class MicroActivity extends AppCompatActivity {
 	public boolean dispatchKeyEvent(KeyEvent event) {
 		if (gameMenu != null && gameMenu.isShowing() || settingsMapper != null && settingsMapper.isShowing()) return true;
 		int key = event.getKeyCode();
+		if (key == KeyEvent.KEYCODE_BACK && keyboardViewport != null && keyboardViewport.keypad().requested()) {
+			if (event.getAction() == KeyEvent.ACTION_UP) keyboardViewport.keypad().dismiss();
+			return true;
+		}
 		if (!isQuickMapVisible() && overlayHeldKeys.contains(key)) {
 			if (event.getAction() == KeyEvent.ACTION_UP) overlayHeldKeys.remove(key);
 			return true;
@@ -1033,12 +1037,14 @@ public class MicroActivity extends AppCompatActivity {
 			String keyboard = System.getProperty("com.nokia.keyboard.type");
 			boolean offerKeypad = !nokiaKeypadCommandHidden && ("None".equals(keyboard) || "OnekeyBack".equals(keyboard))
 					&& !ContextHolder.getVk().isControlsEnabled();
-			if (offerKeypad || nokiaKeypadOpened) {
-				gameMenu.action(getString(nokiaKeypadOpened ? R.string.nokia_close_keypad : R.string.nokia_open_keypad),
+			boolean opened = keyboardViewport.keypad().requested();
+			if (opened || offerKeypad && keyboardViewport.canOpenCustom()) {
+				gameMenu.action(getString(opened ? R.string.nokia_close_keypad : R.string.nokia_open_keypad),
 						R.drawable.ic_action_keyboard, () -> {
-							nokiaKeypadOpened = !nokiaKeypadOpened;
 							gameMenu.dismiss();
-							applyRuntimeDisplaySettings(false);
+							if (opened) keyboardViewport.keypad().dismiss();
+							else if (keyboardViewport.canOpenCustom() && current instanceof Canvas)
+								keyboardViewport.keypad().launch(1, 0);
 						});
 			}
 		}
@@ -1136,6 +1142,10 @@ public class MicroActivity extends AppCompatActivity {
 
 	@Override
 	public void onBackPressed() {
+		if (keyboardViewport != null && keyboardViewport.keypad().requested()) {
+			keyboardViewport.keypad().dismiss();
+			return;
+		}
 		if (microLoader != null && !microLoader.getTouchSettings().gameHandleVisible) openOptionsMenu();
 		else nokiaBack();
 	}
@@ -1363,6 +1373,7 @@ public class MicroActivity extends AppCompatActivity {
 
 		@Override
 		public void process() {
+			if (keyboardViewport != null) keyboardViewport.keypad().screenChanged(next);
 			closeOptionsMenu();
 			updateScreenshotButton();
 			if (current != null) {

@@ -8,7 +8,7 @@ import android.view.Window;
 import android.view.WindowManager;
 import androidx.core.view.ViewCompat;
 import androidx.core.view.WindowInsetsCompat;
-import java.util.function.Consumer;
+import java.util.function.BiConsumer;
 import javax.microedition.lcdui.event.RunnableEvent;
 import javax.microedition.lcdui.graphics.ScreenRotation;
 import javax.microedition.shell.MicroActivity;
@@ -16,27 +16,30 @@ import javax.microedition.shell.MicroActivity;
 /** Reports the system IME's overlap with the guest display, in MIDP pixels. */
 public final class KeyboardViewport {
     private static final class State {
-        final boolean visible;
+        final int category;
         final Rect bounds;
-        State(boolean visible, Rect bounds) {
-            this.visible = visible;
+        State(int category, Rect bounds) {
+            this.category = category;
             this.bounds = bounds;
         }
     }
 
-    private static final State HIDDEN = new State(false, new Rect());
+    private static final State HIDDEN = new State(0, new Rect());
     private final MicroActivity activity;
     private final View root;
     private final ViewTreeObserver.OnGlobalLayoutListener layoutListener = this::measure;
     private final int[] location = new int[2];
     private final ThreadLocal<State> notification = new ThreadLocal<>();
     private volatile State current = HIDDEN;
-    private volatile Consumer<Boolean> listener;
+    private volatile BiConsumer<Boolean, Integer> listener;
+    private final GuestKeypad keypad;
+    private volatile boolean systemVisible;
     private boolean closed;
     private int savedAdjustment = -1;
 
     public KeyboardViewport(MicroActivity activity) {
         this.activity = activity;
+        keypad = new GuestKeypad(activity, this);
         root = activity.binding.getRoot();
         root.getViewTreeObserver().addOnGlobalLayoutListener(layoutListener);
         root.setOnApplyWindowInsetsListener((view, insets) -> {
@@ -46,57 +49,86 @@ public final class KeyboardViewport {
         });
     }
 
-    public boolean isVisible() { return state().visible; }
-    public Rect getBounds() { return new Rect(state().bounds); }
-    private State state() {
+    public boolean isVisible() {
         State event = notification.get();
-        return event == null ? current : event;
+        return event != null ? event.category != 0 : current.category == 2 || keypad.requested();
+    }
+
+    public Rect getBounds() {
+        State event = notification.get();
+        if (event != null) return new Rect(event.bounds);
+        State measured = current;
+        return measured.category == 2 ? new Rect(measured.bounds) : keypad.requestedBounds();
     }
 
     void canvasMoved() {
-        if (current.visible) root.post(this::measure);
+        if (current.category != 0 || keypad.requested()) root.post(this::measure);
     }
 
-    public void setListener(Consumer<Boolean> next) { listener = next; }
+    public GuestKeypad keypad() { return keypad; }
+    boolean systemVisible() { return systemVisible; }
+    boolean suppressesResize() { return savedAdjustment >= 0; }
+
+    public void setListener(BiConsumer<Boolean, Integer> next) { listener = next; }
 
     private void measure() {
         if (closed) return;
         WindowInsetsCompat insets = ViewCompat.getRootWindowInsets(root);
         if (insets == null) return;
         boolean visible = insets.isVisible(WindowInsetsCompat.Type.ime());
-        if (!visible && !current.visible) return;
-        State next = HIDDEN;
-        if (visible) {
-            View decor = root.getRootView();
-            int bottom = decor.getHeight();
-            int top = bottom - insets.getInsets(WindowInsetsCompat.Type.ime()).bottom;
-            Rect covered = new Rect(0, top, decor.getWidth(), bottom);
-            Displayable screen = activity.getCurrent();
-            if (screen instanceof Canvas) {
-                ((Canvas) screen).mapWindowOverlap(covered, location);
-            } else if (screen != null) {
-                View container = activity.binding.displayableContainer;
-                container.getLocationInWindow(location);
-                toGuest(covered, location[0], location[1], container.getWidth(), container.getHeight(),
-                        screen.getWidth(), screen.getHeight(), 0);
-            } else {
-                covered.setEmpty();
-            }
-            if (current.visible && current.bounds.equals(covered)) return;
-            next = new State(true, covered);
+        systemVisible = visible;
+        if (!visible) {
+            keypad.refresh();
+            return;
         }
-        boolean changed = current.visible != visible;
+        keypad.dismiss();
+        View decor = root.getRootView();
+        int bottom = decor.getHeight();
+        int top = bottom - insets.getInsets(WindowInsetsCompat.Type.ime()).bottom;
+        Rect covered = new Rect(0, top, decor.getWidth(), bottom);
+        Displayable screen = activity.getCurrent();
+        if (screen instanceof Canvas) {
+            ((Canvas) screen).mapWindowOverlap(covered, location);
+        } else if (screen != null) {
+            View container = activity.binding.displayableContainer;
+            container.getLocationInWindow(location);
+            toGuest(covered, location[0], location[1], container.getWidth(), container.getHeight(),
+                    screen.getWidth(), screen.getHeight(), 0);
+        } else {
+            covered.setEmpty();
+        }
+        if (current.category == 2 && current.bounds.equals(covered)) return;
+        publish(new State(2, covered));
+    }
+
+    void customHidden() {
+        if (!closed && !systemVisible && current != HIDDEN) publish(HIDDEN);
+    }
+
+    public boolean canOpenCustom() { return !systemVisible; }
+
+    void customBounds(Rect bounds) {
+        if (closed || systemVisible) return;
+        publish(bounds.isEmpty() ? HIDDEN : new State(1, bounds));
+    }
+
+    private void publish(State next) {
+        State previous = current;
         current = next;
-        Consumer<Boolean> recipient = listener;
-        if (changed && recipient != null) {
-            State transition = next;
-            Display.getEventQueue().postEventQueued(RunnableEvent.getInstance(() -> {
-                if (listener != recipient) return;
-                notification.set(transition);
-                try { recipient.accept(transition.visible); }
-                finally { notification.remove(); }
-            }));
-        }
+        if (previous.category == next.category) return;
+        if (previous.category != 0) notifyListener(HIDDEN, previous.category);
+        if (next.category != 0) notifyListener(next, next.category);
+    }
+
+    private void notifyListener(State transition, int category) {
+        BiConsumer<Boolean, Integer> recipient = listener;
+        if (recipient == null) return;
+        Display.getEventQueue().postEventQueued(RunnableEvent.getInstance(() -> {
+            if (listener != recipient) return;
+            notification.set(transition);
+            try { recipient.accept(transition.category != 0, category); }
+            finally { notification.remove(); }
+        }));
     }
 
     static void toGuest(Rect overlap, int left, int top, int width, int height,
@@ -134,12 +166,14 @@ public final class KeyboardViewport {
                 savedAdjustment = -1;
             }
             window.setSoftInputMode((mode & ~mask) | adjustment);
+            keypad.refresh();
         });
     }
 
     public void close() {
         closed = true;
         listener = null;
+        keypad.dismiss();
         current = HIDDEN;
         root.setOnApplyWindowInsetsListener(null);
         root.getViewTreeObserver().removeOnGlobalLayoutListener(layoutListener);
