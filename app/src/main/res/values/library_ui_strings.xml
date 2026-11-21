@@ -70,4 +70,5 @@
     <string name="game_nokia_gesture_keys">Nokia gestures: D-pad flicks, OK taps or holds</string>
     <string name="nokia_open_keypad">Open phone keypad</string>
     <string name="nokia_close_keypad">Close phone keypad</string>
+    <string name="library_gamate_import_hint">Choose a Gamate cartridge (.bin or .gam), a 4 KiB BIOS, or a ZIP.</string>
 </resources>

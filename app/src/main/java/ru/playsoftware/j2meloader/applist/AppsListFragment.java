@@ -131,7 +131,7 @@ public class AppsListFragment extends Fragment implements AppsListAdapter.Listen
 	private boolean changingPlatform;
 	private boolean bothNgageGenerations;
 	private boolean databaseLoaded;
-	private boolean externalLoaded = !BuildConfig.SYMBIAN_EXPERIMENT && !BuildConfig.WIPI_PROBE && !BuildConfig.DINGOO_PROBE && !BuildConfig.PIECE_PROBE && !BuildConfig.GP32_PROBE && !BuildConfig.SUPERVISION_PROBE && !BuildConfig.MEGADUCK_PROBE && !BuildConfig.CYBIKO_PROBE && !BuildConfig.FLASH_PROBE;
+	private boolean externalLoaded = !BuildConfig.SYMBIAN_EXPERIMENT && !BuildConfig.WIPI_PROBE && !BuildConfig.DINGOO_PROBE && !BuildConfig.PIECE_PROBE && !BuildConfig.GP32_PROBE && !BuildConfig.SUPERVISION_PROBE && !BuildConfig.MEGADUCK_PROBE && !BuildConfig.CYBIKO_PROBE && !BuildConfig.FLASH_PROBE && !BuildConfig.GAMATE_PROBE;
 	private boolean restoreLocation = true;
 	private String restoredSelection;
 	private boolean searchExpanded;
@@ -1496,7 +1496,7 @@ public class AppsListFragment extends Fragment implements AppsListAdapter.Listen
 
 	private void reloadExternalLibrary() {
 		if (!isAdded() || binding == null) return;
-		if (!BuildConfig.SYMBIAN_EXPERIMENT && !BuildConfig.WIPI_PROBE && !BuildConfig.DINGOO_PROBE && !BuildConfig.PIECE_PROBE && !BuildConfig.GP32_PROBE && !BuildConfig.SUPERVISION_PROBE && !BuildConfig.MEGADUCK_PROBE && !BuildConfig.CYBIKO_PROBE && !BuildConfig.FLASH_PROBE) return;
+		if (!BuildConfig.SYMBIAN_EXPERIMENT && !BuildConfig.WIPI_PROBE && !BuildConfig.DINGOO_PROBE && !BuildConfig.PIECE_PROBE && !BuildConfig.GP32_PROBE && !BuildConfig.SUPERVISION_PROBE && !BuildConfig.MEGADUCK_PROBE && !BuildConfig.CYBIKO_PROBE && !BuildConfig.FLASH_PROBE && !BuildConfig.GAMATE_PROBE) return;
 		Context context = requireContext().getApplicationContext();
 		android.app.Activity activity = requireActivity();
 		int generation = ++externalGeneration;
@@ -1573,6 +1573,7 @@ public class AppsListFragment extends Fragment implements AppsListAdapter.Listen
 				: platform == 11 ? getString(R.string.library_megaduck_import_hint)
 				: platform == 12 ? getString(R.string.library_cybiko_import_hint)
 				: platform == 13 ? getString(R.string.library_flash_import_hint)
+				: platform == 14 ? getString(R.string.library_gamate_import_hint)
 				: platform == 9 ? getString(R.string.library_gp32_import_hint)
 				: platform == 8 ? getString(R.string.library_piece_import_hint)
 				: platform != 0 ? getString(R.string.library_no_platform_games, LibraryQuery.PLATFORMS[platform])

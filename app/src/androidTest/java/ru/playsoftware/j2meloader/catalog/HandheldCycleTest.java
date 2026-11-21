@@ -86,6 +86,7 @@ public class HandheldCycleTest {
         if (ru.playsoftware.j2meloader.BuildConfig.CYBIKO_PROBE &&
                 new File(source, "cybiko/packages").isDirectory()) ids.add(12);
         if (ru.playsoftware.j2meloader.BuildConfig.FLASH_PROBE && new File(source,"flash/packages").isDirectory()) ids.add(13);
+        if (ru.playsoftware.j2meloader.BuildConfig.GAMATE_PROBE && new File(source,"gamate/packages").isDirectory()) ids.add(14);
         return ids;
     }
 

@@ -56,6 +56,11 @@ if (providers.gradleProperty('megaduckProbe').orNull == 'true') {
     project(':megaduck-probe').projectDir = file('engines/megaduck/bridge')
 }
 
+if (providers.gradleProperty('gamateProbe').orNull == 'true') {
+    include ':gamate-probe'
+    project(':gamate-probe').projectDir = file('engines/gamate/bridge')
+}
+
 if (providers.gradleProperty('cybikoProbe').orNull == 'true') {
     include ':cybiko-probe'
     project(':cybiko-probe').projectDir = file('engines/cybiko/bridge')

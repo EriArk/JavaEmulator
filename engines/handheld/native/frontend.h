@@ -259,6 +259,8 @@ JNIEXPORT jboolean JNICALL JNI_METHOD(start)(JNIEnv *env, jclass cls, jstring ga
 #endif
 #ifdef FRONTEND_FLASH_IMAGE
     bool loaded = load_image(path);
+#elif defined(FRONTEND_OPEN_CARTRIDGE)
+    bool loaded = FRONTEND_OPEN_CARTRIDGE(path, save_dir);
 #elif defined(FRONTEND_MEMORY_ROM)
     bool loaded = load_rom(path);
 #else
@@ -273,6 +275,9 @@ JNIEXPORT jboolean JNICALL JNI_METHOD(start)(JNIEnv *env, jclass cls, jstring ga
 #ifdef FRONTEND_FLASH_IMAGE
     release_image();
 #endif
+#ifdef FRONTEND_CLOSE_CARTRIDGE
+    FRONTEND_CLOSE_CARTRIDGE();
+#endif
     free(save_dir); save_dir = NULL;
     return JNI_FALSE;
 }
@@ -285,6 +290,9 @@ JNIEXPORT void JNICALL JNI_METHOD(stop)(JNIEnv *env,jclass cls) {
 #endif
 #ifndef FRONTEND_DIRECT_CORE
     retro_unload_game(); retro_deinit();
+#endif
+#ifdef FRONTEND_CLOSE_CARTRIDGE
+    FRONTEND_CLOSE_CARTRIDGE();
 #endif
     free(save_dir); save_dir = NULL; running = false;
 }

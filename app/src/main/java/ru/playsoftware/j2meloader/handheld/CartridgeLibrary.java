@@ -16,13 +16,7 @@ public abstract class CartridgeLibrary extends ManagedGameLibrary {
     @Override protected String inspect(Context c, File file, String name, Properties info) throws IOException {
         if (name.toLowerCase(Locale.ROOT).endsWith(".zip")) {
             try (ZipFile zip = new ZipFile(file)) {
-                ZipEntry image = null;
-                for (Enumeration<? extends ZipEntry> entries = zip.entries(); entries.hasMoreElements();) {
-                    ZipEntry entry = entries.nextElement();
-                    if (entry.isDirectory() || !cartridge(entry.getName())) continue;
-                    if (image != null) throw new IOException("Choose one cartridge from this collection");
-                    image = entry;
-                }
+                ZipEntry image = selectImage(zip);
                 if (image == null) throw new IOException("No " + platformName(info) + " cartridge in this ZIP");
                 File extracted = new File(file.getParentFile(), "cartridge");
                 CRC32 crc = new CRC32();
@@ -35,10 +29,25 @@ public abstract class CartridgeLibrary extends ManagedGameLibrary {
                 info.setProperty("title", name.substring(0, name.lastIndexOf('.')));
             }
         }
+        inspectImage(file, name, info);
+        return SourceIdentity.sha256(file);
+    }
+
+    protected ZipEntry selectImage(ZipFile zip) throws IOException {
+        ZipEntry image = null;
+        for (Enumeration<? extends ZipEntry> entries = zip.entries(); entries.hasMoreElements();) {
+            ZipEntry entry = entries.nextElement();
+            if (entry.isDirectory() || !cartridge(entry.getName())) continue;
+            if (image != null) throw new IOException("Choose one cartridge from this collection");
+            image = entry;
+        }
+        return image;
+    }
+
+    protected void inspectImage(File file, String name, Properties info) throws IOException {
         if (!cartridge(name) || file.length() == 0 || file.length() % 16384 != 0)
             throw new IOException("Choose a " + platformName(info) + " cartridge made of complete 16 KiB banks");
         info.setProperty("format", variant(info));
-        return SourceIdentity.sha256(file);
     }
 
     public final File installed(Context c, String id) throws IOException {

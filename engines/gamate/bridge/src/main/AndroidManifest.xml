@@ -1,0 +1,62 @@
+<manifest xmlns:android="http://schemas.android.com/apk/res/android">
+    <application>
+        <activity android:name="io.github.eriark.abyssme.gamate.GamateGameActivity"
+            android:exported="false" android:process=":gamate"
+            android:configChanges="orientation|screenSize|keyboardHidden|screenLayout|smallestScreenSize"/>
+        <activity android:name="ru.playsoftware.j2meloader.MainActivity">
+            <intent-filter>
+                <action android:name="android.intent.action.VIEW" />
+                <category android:name="android.intent.category.DEFAULT" />
+                <category android:name="android.intent.category.BROWSABLE" />
+                <data android:scheme="content" />
+                <data android:scheme="file" />
+                <data android:mimeType="application/octet-stream" />
+            </intent-filter>
+            <intent-filter>
+                <action android:name="android.intent.action.VIEW" />
+                <category android:name="android.intent.category.DEFAULT" />
+                <category android:name="android.intent.category.BROWSABLE" />
+                <data android:scheme="file" />
+                <data android:scheme="content" />
+                <data android:host="*" />
+                <data android:pathSuffix=".bin" android:pathPattern=".*.bin" />
+                <data android:pathSuffix=".BIN" android:pathPattern=".*.BIN" />
+                <data android:pathSuffix=".gam" />
+                <data android:pathPattern=".*.gam" />
+                <data android:pathPattern=".*..*.gam" />
+                <data android:pathSuffix=".GAM" />
+                <data android:pathPattern=".*.GAM" />
+                <data android:pathPattern=".*..*.GAM" />
+            </intent-filter>
+            <intent-filter>
+                <action android:name="android.intent.action.VIEW" />
+                <category android:name="android.intent.category.DEFAULT" />
+                <category android:name="android.intent.category.BROWSABLE" />
+                <data android:scheme="file" />
+                <data android:scheme="content" />
+                <data android:host="*" />
+                <data android:mimeType="*/*" />
+                <data android:pathSuffix=".bin" android:pathPattern=".*.bin" />
+                <data android:pathSuffix=".BIN" android:pathPattern=".*.BIN" />
+                <data android:pathSuffix=".md1" />
+                <data android:pathPattern=".*.md1" />
+                <data android:pathPattern=".*..*.md1" />
+                <data android:pathSuffix=".MD1" />
+                <data android:pathPattern=".*.MD1" />
+                <data android:pathPattern=".*..*.MD1" />
+                <data android:pathSuffix=".md2" />
+                <data android:pathPattern=".*.md2" />
+                <data android:pathPattern=".*..*.md2" />
+                <data android:pathSuffix=".MD2" />
+                <data android:pathPattern=".*.MD2" />
+                <data android:pathPattern=".*..*.MD2" />
+                <data android:pathSuffix=".duck" />
+                <data android:pathPattern=".*.duck" />
+                <data android:pathPattern=".*..*.duck" />
+                <data android:pathSuffix=".DUCK" />
+                <data android:pathPattern=".*.DUCK" />
+                <data android:pathPattern=".*..*.DUCK" />
+            </intent-filter>
+        </activity>
+    </application>
+</manifest>

@@ -69,6 +69,7 @@ android {
         buildConfigField 'boolean', 'GP32_PROBE', (findProject(':gp32-probe') != null).toString()
         buildConfigField 'boolean', 'SUPERVISION_PROBE', (findProject(':supervision-probe') != null).toString()
         buildConfigField 'boolean', 'MEGADUCK_PROBE', (findProject(':megaduck-probe') != null).toString()
+        buildConfigField 'boolean', 'GAMATE_PROBE', (findProject(':gamate-probe') != null).toString()
         buildConfigField 'boolean', 'CYBIKO_PROBE', (findProject(':cybiko-probe') != null).toString()
         buildConfigField 'boolean', 'FLASH_PROBE', (findProject(':flash-probe') != null).toString()
         buildConfigField 'boolean', 'PIECE_PROBE', (findProject(':piece-probe') != null).toString()
@@ -211,7 +212,7 @@ android {
 
     applicationVariants.all {
         if (buildType.name == 'debug' && flavorName != 'midlet') {
-            resValue 'string', 'app_name', (findProject(':dingoo-probe') != null || findProject(':piece-probe') != null || findProject(':gp32-probe') != null || findProject(':supervision-probe') != null || findProject(':megaduck-probe') != null || findProject(':cybiko-probe') != null || findProject(':flash-probe') != null) ? 'AbyssME Handhelds' : findProject(':wipi-probe') != null ? 'AbyssME WIPI' : flavorName == 'phone'
+            resValue 'string', 'app_name', (findProject(':dingoo-probe') != null || findProject(':piece-probe') != null || findProject(':gp32-probe') != null || findProject(':supervision-probe') != null || findProject(':megaduck-probe') != null || findProject(':cybiko-probe') != null || findProject(':flash-probe') != null || findProject(':gamate-probe') != null) ? 'AbyssME Handhelds' : findProject(':wipi-probe') != null ? 'AbyssME WIPI' : flavorName == 'phone'
                     ? 'AbyssME Phone Debug' : symbianExperiment ? 'AbyssME Symbian Test' : 'AbyssME Debug'
         }
         def baseName = flavorName == 'midlet' ? "${midletArchivesBaseName}-" : "${rootProject.name}-"
@@ -423,6 +424,16 @@ if (findProject(':megaduck-probe') != null) {
     dependencies.add('debugImplementation', project(':megaduck-probe'))
     android.sourceSets.debug.java.srcDir rootProject.file('engines/megaduck/host')
     android.sourceSets.androidTest.java.srcDir rootProject.file('engines/megaduck/tests')
+}
+
+if (findProject(':gamate-probe') != null) {
+    if (armv7) throw new GradleException('The Gamate integration requires ARM64')
+    android.defaultConfig.ndk.abiFilters 'arm64-v8a'
+    android.variantFilter { v -> v.ignore = v.buildType.name != 'debug' || !(v.flavors*.name == ['fdroid']) }
+    android.buildTypes.debug.applicationIdSuffix = findProject(':dingoo-probe') != null ? '.dingoocheck.debug' : '.gamatecheck.debug'
+    dependencies.add('debugImplementation', project(':gamate-probe'))
+    android.sourceSets.debug.java.srcDir rootProject.file('engines/gamate/host')
+    android.sourceSets.androidTest.java.srcDir rootProject.file('engines/gamate/tests')
 }
 
 if (findProject(':cybiko-probe') != null) {

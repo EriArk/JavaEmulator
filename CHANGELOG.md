@@ -10,6 +10,11 @@ stated otherwise. **Experimental** in older checkpoints means local/private
 combined builds; released experimental features are explicitly identified.
 **Released** means an actual GitHub release asset.
 
+## 2026-11-21 - Bit Corporation Gamate
+
+- Added the Gamate launcher tile and tab, cartridge and BIOS import, shared controller and display settings, audio and per-game save states to the optional ARM64 test build.
+- On Retroid Classic, XGomoku accepted touch moves and restored a saved board. X-T-Rex responded to a controller jump. Both produced recorded gameplay audio. [Device results](docs/checks/2026-11-21-gamate.md).
+
 ## 2026-11-21 - Nokia game and phone keypads
 
 - Added guest-controlled phone and game keypads to the private Asha build, including layout changes, key repeats, canvas sizing and visibility callbacks. Checked the GameCanvas and CustomItem input paths, switching to Gboard and firing in TouchMare on Retroid Classic. [Device results](docs/checks/2026-11-21-asha.md#game-and-phone-keypads).

@@ -25,6 +25,7 @@ public final class HandheldFormat {
     }
     static int platform(String name) {
         String s=name.toLowerCase(Locale.ROOT);
+        if (BuildConfig.GAMATE_PROBE && s.endsWith(".gam")) return 14;
         if (BuildConfig.FLASH_PROBE && s.endsWith(".swf")) return 13;
         if (s.endsWith(".app")) return BuildConfig.DINGOO_PROBE ? 6 : BuildConfig.CYBIKO_PROBE ? 12 : 0;
         if (BuildConfig.DINGOO_PROBE && (s.endsWith(".cc") || s.endsWith(".c2s") || s.endsWith(".c3s"))) return 7;
@@ -34,10 +35,13 @@ public final class HandheldFormat {
         if (BuildConfig.GP32_PROBE && (s.endsWith(".smc") || s.endsWith(".fpk") || s.endsWith(".fxe"))) return 9;
         return 0;
     }
-    static boolean enabled() { return BuildConfig.WIPI_PROBE || BuildConfig.DINGOO_PROBE || BuildConfig.PIECE_PROBE || BuildConfig.GP32_PROBE || BuildConfig.SUPERVISION_PROBE || BuildConfig.MEGADUCK_PROBE || BuildConfig.CYBIKO_PROBE || BuildConfig.FLASH_PROBE; }
+    private static boolean binaryFile(String name) {
+        return name.endsWith(".bin") || (BuildConfig.GAMATE_PROBE && name.endsWith(".rom"));
+    }
+    static boolean enabled() { return BuildConfig.WIPI_PROBE || BuildConfig.DINGOO_PROBE || BuildConfig.PIECE_PROBE || BuildConfig.GP32_PROBE || BuildConfig.SUPERVISION_PROBE || BuildConfig.MEGADUCK_PROBE || BuildConfig.CYBIKO_PROBE || BuildConfig.FLASH_PROBE || BuildConfig.GAMATE_PROBE; }
     static boolean candidate(String name) {
         String s=name.toLowerCase(Locale.ROOT);
-        return enabled() && (platform(s)!=0 || s.endsWith(".zip") || s.endsWith(".bin") || s.endsWith(".exe"));
+        return enabled() && (platform(s)!=0 || s.endsWith(".zip") || binaryFile(s) || s.endsWith(".exe"));
     }
     static Set<Integer> detect(Context c, Uri uri, String name) throws IOException {
         Set<Integer> result=new LinkedHashSet<>();
@@ -80,7 +84,7 @@ public final class HandheldFormat {
                     if (carrier) result.add(5);
                     if (result.isEmpty()) for(Enumeration<? extends ZipEntry> it=zip.entries();it.hasMoreElements();) {
                         ZipEntry e=it.nextElement();
-                        if (e.getName().toLowerCase(Locale.ROOT).endsWith(".bin")) try(InputStream in=zip.getInputStream(e)) {
+                        if (binaryFile(e.getName().toLowerCase(Locale.ROOT))) try(InputStream in=zip.getInputStream(e)) {
                             byte[] header = prefix(in, 32);
                             int id = cartridgeOrFirmware(in, header, e.getSize());
                             if (id != 0) result.add(id);
@@ -89,13 +93,13 @@ public final class HandheldFormat {
                     if (!result.isEmpty() && (legacy || jar&&!carrier)) result.add(0);
                 }
             } finally { if(tmp!=null)tmp.delete(); }
-        } else if (platform==6 || platform==12 || s.endsWith(".bin") || s.endsWith(".exe")) {
+        } else if (platform==6 || platform==12 || binaryFile(s) || s.endsWith(".exe")) {
             try (InputStream in=c.getContentResolver().openInputStream(uri)) {
                 if(in==null)throw new IOException("Could not open "+name);
                 byte[] h=prefix(in,128);
                 if (platform==6 && ccdl(h)) result.add(6);
                 if (s.endsWith(".app") && cybiko(h)) result.add(12);
-                if (s.endsWith(".bin")) {
+                if (binaryFile(s)) {
                     long length;
                     try (android.content.res.AssetFileDescriptor fd = c.getContentResolver().openAssetFileDescriptor(uri,"r")) {
                         length = fd == null ? -1 : fd.getLength();
@@ -118,6 +122,14 @@ public final class HandheldFormat {
         return 0;
     }
     private static int cartridgeOrFirmware(InputStream in, byte[] header, long length) throws IOException {
+        if (BuildConfig.GAMATE_PROBE) {
+            if (header.length >= 30 && new String(header, 5, 25, StandardCharsets.US_ASCII)
+                    .equals("COPYRIGHT BIT CORPORATION")) return 14;
+            // Identify the boot jump table before trying the other handhelds' binary formats.
+            if ((length == 4096 || length < 0) && header.length >= 9 && header[0] == 0x4c
+                    && header[3] == 0x4c && header[6] == 0x4c
+                    && (header[2] & 255) >= 0xe0 && (header[5] & 255) >= 0xe0) return 14;
+        }
         int firmware = binary(header, length);
         if (firmware != 0) return firmware;
         // Retail Mega Duck cartridges commonly disable interrupts and jump into the first ROM window.
@@ -148,7 +160,7 @@ public final class HandheldFormat {
         return Arrays.copyOf(bytes,n);
     }
     public static int indexedPlatform(String path) {
-        if (path != null && path.matches("pending_([5-9]|1[0-3])_[a-f0-9]+"))
+        if (path != null && path.matches("pending_([5-9]|1[0-4])_[a-f0-9]+"))
             return Integer.parseInt(path.substring(8, path.indexOf('_', 8)));
         return 0;
     }

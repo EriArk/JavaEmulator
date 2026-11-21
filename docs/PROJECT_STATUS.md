@@ -14,6 +14,10 @@ attribute its results to the dated maintainer record below; do not infer a pass.
 
 The [platform issue index](PLATFORM_ISSUES.md) maps the 49 open platform-specific tasks to the maintainer roadmap, including the initial integration order and scope decisions.
 
+## Gamate (2026-11-21, private Retroid build)
+
+Gamate is the fourteenth platform in the combined test build. XGomoku and X-T-Rex reached gameplay through a separately imported UMC BIOS on Retroid Pocket Classic. Touch and controller input, Android playback audio and cold checkpoint restoration were verified. The runtime uses the shared library, profiles, display settings and portable backups. [Device checks and scope](checks/2026-11-21-gamate.md).
+
 ## Nokia Asha / Series 40 (2026-11-21, private Retroid build)
 
 TouchMare 1.3 runs in the Java ME library with guest gestures, optional controller or keypad gestures, per-game graphics and RMS. On Retroid Classic it reached battle and Game Over. Bounce Tales 1.15 also entered its first level with ordinary Series 40 controls. Asha 311 and 501 handset detection is available for explicit model hints. On the 501 profile, Bubblet 1.0.5 completed a round and kept its 478-point high score across restart, update and reimport. The guest Back key and keypad-command visibility are implemented. Double-tap and two-finger pinch now reach guest canvases, verified with a diagnostic MIDlet on Retroid. Canvas-parented Nokia text fields open the Android keyboard and deliver edited text to the MIDlet. On Retroid, a MIDlet used the reported system-keyboard bounds to move its Save button above Gboard and saved the entered name. MIDlets can also launch and switch the phone and game keypads. On Retroid the phone keypad fired shots in TouchMare, and a focused CustomItem received numeric keys. [Device checks and scope](checks/2026-11-21-asha.md).
