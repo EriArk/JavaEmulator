@@ -10,6 +10,10 @@ stated otherwise. **Experimental** in older checkpoints means local/private
 combined builds; released experimental features are explicitly identified.
 **Released** means an actual GitHub release asset.
 
+## 2026-11-21 - Maker handheld integration priorities
+
+**Roadmap and standalone research.** Arduboy / FX, Gamebuino Classic and Pokitto move ahead of Hartung Game Master after core and game checks. The review covers twelve ecosystems, including native PicoSystem firmware and both Thumby generations. [Candidate matrix and test evidence](docs/checks/2026-11-21-maker-handhelds.md).
+
 ## 2026-11-21 - Early iPhone OS games in the combined Android build
 
 **Unreleased source and private ARM64 build.** The platform grid and library gained iPhone OS, IPA installation and original game icons. Games share the display settings, controller mapper and backup flow. In Castle Smasher 2.01 the Retroid fired the catapult with direct touch and a remapped controller button. [Device check](docs/checks/2026-11-21-iphone.md).

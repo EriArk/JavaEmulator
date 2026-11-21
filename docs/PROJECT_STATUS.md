@@ -12,7 +12,11 @@ not a live feed. Verify GitHub Releases, recent commits and build notes before
 calling a version "latest" after this date. If local evidence is inaccessible,
 attribute its results to the dated maintainer record below; do not infer a pass.
 
-The [platform issue index](PLATFORM_ISSUES.md) maps the 49 open platform-specific tasks to the maintainer roadmap, including the initial integration order and scope decisions.
+The [platform issue index](PLATFORM_ISSUES.md) maps the 51 open platform-specific tasks to the maintainer roadmap, including the initial integration order and scope decisions.
+
+## Maker handheld research (2026-11-21)
+
+Arduboy / FX leads the revised integration queue. A standalone ARM64 Ardens core on Retroid produced input-dependent frames in ArduGolf and nonzero PCM in Dazzle Dash FX. Desktop checks covered Bomber on Gamebuino Classic, Pokitto's loader and PicoRacer in the picogame simulator. Nine candidates are scheduled and three need an engine decision. [Results, sources and Android coverage](checks/2026-11-21-maker-handhelds.md).
 
 ## Early iPhone OS (2026-11-21, private Retroid build)
 
