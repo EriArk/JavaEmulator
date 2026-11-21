@@ -1,0 +1,8 @@
+CloudpilotEmu 2.3.0, Copyright the CloudpilotEmu contributors, with POSE and uARM.
+https://github.com/cloudpilot-emu/cloudpilot-emu/tree/2.3.0
+The installation includes the upstream license under licenses/palm/LICENSE.
+
+Palm III launcher photograph by Museo8bits (attributed by Wikimedia Commons),
+adapted for the platform grid. CC BY-SA 2.5.
+https://commons.wikimedia.org/wiki/File:Palm_III_24.jpg
+https://creativecommons.org/licenses/by-sa/2.5/

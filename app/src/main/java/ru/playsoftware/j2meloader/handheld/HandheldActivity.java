@@ -38,6 +38,8 @@ public abstract class HandheldActivity extends Activity {
     protected abstract void pauseCore(boolean paused);
     protected abstract void stopCore();
     protected void more(GameMenuDialog dialog) {}
+    protected boolean canSaveOnExit() { return false; }
+    protected void saveAndExit() { finish(); }
     protected abstract boolean frame(int[] pixels);
     protected boolean artworkReady() { return true; }
     protected void configureProfile(ProfileModel profile) {}
@@ -45,6 +47,8 @@ public abstract class HandheldActivity extends Activity {
     protected int displayWidth() { return width(); }
     protected abstract int height();
     protected abstract boolean exited();
+    protected boolean usesStylus() { return false; }
+    protected void stylus(float x, float y, boolean down) {}
     protected void gameTap(float x,float y) {}
     protected String error() { return null; }
 
@@ -161,6 +165,8 @@ public abstract class HandheldActivity extends Activity {
             public void more() { HandheldActivity.this.more(menu); }
             public void restart() { menu.dismiss(); recreate(); }
             public void exit() { finish(); }
+            public boolean canSaveOnExit() { return HandheldActivity.this.canSaveOnExit(); }
+            public void saveAndExit() { HandheldActivity.this.saveAndExit(); }
             public boolean hasPreview() { return ProfilesManager.isPreview(profile); }
             public void keep() { HandheldActivity.this.keep(); home(); }
             public void undo() { HandheldActivity.this.undo(); home(); }

@@ -10,6 +10,10 @@ stated otherwise. **Experimental** in older checkpoints means local/private
 combined builds; released experimental features are explicitly identified.
 **Released** means an actual GitHub release asset.
 
+## 2026-11-21 - Palm OS on Retroid
+
+**Public source, private ARM64 test APK.** Added the Palm OS tile, a ROM and PRC/PDB game library, an offline in-app runtime, stylus and controller input, DragonBall PWM audio and per-game Palm sessions. Verified a purchase in Space Trader after a cold restart using the m515 ROM. [Checks and current limits](docs/checks/2026-11-21-palm.md).
+
 ## 2026-11-21 - TimeTop GameKing and GameKing 3
 
 **Public source, private ARM64 test APK.** Added the GameKing platform tile and tab, automatic model and firmware selection, per-game states and the shared graphics and controller settings. Opening a BIOS card plays its built-in software. The Retroid folder scan added 21 cartridges and both firmware files. Nine device tests passed, including navigation and an isolated backup/restore. [Verification](docs/checks/2026-11-21-gameking.md).

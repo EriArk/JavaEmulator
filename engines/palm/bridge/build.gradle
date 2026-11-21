@@ -1,0 +1,16 @@
+plugins { id 'com.android.library' }
+android {
+    namespace 'io.github.eriark.abyssme.palm.bridge'
+    compileSdk 34
+    defaultConfig { minSdk 29 }
+    sourceSets.main.assets.srcDir rootProject.file('build/palm/assets')
+}
+if (!rootProject.file('build/palm/assets/palm/cloudpilot_web.wasm').isFile())
+    throw new GradleException('Prepare CloudpilotEmu with engines/palm/prepare.sh')
+def sticker = tasks.register('preparePalmSticker', Sync) {
+    from(rootProject.file('design-concepts/platform-stickers/palm.webp'))
+    rename { 'sticker_palm.webp' }
+    into layout.buildDirectory.dir('generated/deviceArt/drawable-nodpi')
+}
+android.sourceSets.main.res.srcDir layout.buildDirectory.dir('generated/deviceArt')
+tasks.named('preBuild').configure { dependsOn sticker }

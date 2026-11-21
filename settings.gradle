@@ -66,6 +66,11 @@ if (providers.gradleProperty('gamekingProbe').orNull == 'true') {
     project(':gameking-probe').projectDir = file('engines/gameking/bridge')
 }
 
+if (providers.gradleProperty('palmProbe').orNull == 'true') {
+    include ':palm-probe'
+    project(':palm-probe').projectDir = file('engines/palm/bridge')
+}
+
 if (providers.gradleProperty('cybikoProbe').orNull == 'true') {
     include ':cybiko-probe'
     project(':cybiko-probe').projectDir = file('engines/cybiko/bridge')

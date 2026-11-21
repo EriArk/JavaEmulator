@@ -1,0 +1,9 @@
+# Palm OS on Android
+
+The Palm OS tile opens the normal AbyssME library. Start by importing and opening a device ROM. Complete Palm's first-run digitizer setup, then choose **Save and exit** in the game menu or select **More → Save Palm session**. Opening a game uses a copy of that prepared device. Each game saves its own RAM and machine state under its package identity and selected ROM. Opening a different supported ROM selects that model for subsequent launches. The app can retain both profiles.
+
+Import a PRC directly or put a game's PRC and companion PDBs together in a ZIP. For archives containing multiple applications, the launcher offers their Palm database names. Native Android handles display settings, virtual and physical controls, stylus coordinates and the DragonBall speaker. A local Android WebView executes the emulation code packaged with the APK. It loads only app assets and the selected library files.
+
+For an ARM64 combined debug build run `bash engines/palm/prepare.sh`, then enable `-PpalmProbe=true` alongside the other handheld flags. The preparation script verifies the release archive checksum before extracting the two WASM cores and runtime scripts. The adapter uses the raw display canvas, stylus input, snapshot encoder and PWM events from this pinned version. A core upgrade needs a compatibility check of those interfaces. [CloudpilotEmu 2.3.0 source](https://github.com/cloudpilot-emu/cloudpilot-emu/tree/2.3.0) · [Embedded API](https://cloudpilot-emu.github.io/embedded/).
+
+The Retroid run covers the m515 with Space Trader on Palm OS 4.1 and m505 device startup. Tungsten E2 needs both NOR and a complete 34,603,008-byte raw NAND for the stock ROM. OS 5 gameplay, removable cards, Graffiti handwriting entry, HotSync and other peripherals are unverified in AbyssME. [Device checks](../../docs/checks/2026-11-21-palm.md).

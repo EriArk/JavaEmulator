@@ -21,6 +21,7 @@
     <string name="game_exit">Exit game</string>
     <string name="game_exit_question">Exit game?</string>
     <string name="game_exit_warning">Unsaved progress may be lost.</string>
+    <string name="game_save_and_exit">Save and exit</string>
     <string name="game_leave_without_saving">Leave without saving</string>
     <string name="game_restart">Restart game</string>
     <string name="game_restart_question">Restart game?</string>

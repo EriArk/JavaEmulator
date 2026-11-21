@@ -1,0 +1,46 @@
+<manifest xmlns:android="http://schemas.android.com/apk/res/android">
+    <application>
+        <activity android:name="io.github.eriark.abyssme.palm.PalmGameActivity"
+            android:exported="false" android:process=":palm"
+            android:configChanges="orientation|screenSize|keyboardHidden|screenLayout|smallestScreenSize"/>
+        <activity android:name="ru.playsoftware.j2meloader.MainActivity">
+            <intent-filter>
+                <action android:name="android.intent.action.VIEW" />
+                <category android:name="android.intent.category.DEFAULT" />
+                <category android:name="android.intent.category.BROWSABLE" />
+                <data android:scheme="content" />
+                <data android:scheme="file" />
+                <data android:mimeType="application/octet-stream" />
+            </intent-filter>
+            <intent-filter>
+                <action android:name="android.intent.action.VIEW" />
+                <category android:name="android.intent.category.DEFAULT" />
+                <category android:name="android.intent.category.BROWSABLE" />
+                <data android:scheme="content" />
+                <data android:scheme="file" />
+                <data android:host="*" />
+                <data android:pathSuffix=".bin" android:pathPattern=".*.bin" />
+                <data android:pathSuffix=".BIN" android:pathPattern=".*.BIN" />
+                <data android:pathSuffix=".rom" android:pathPattern=".*.rom" />
+                <data android:pathSuffix=".pdb" android:pathPattern=".*.pdb" />
+                <data android:pathSuffix=".prc" android:pathPattern=".*.prc" />
+                <data android:pathSuffix=".PRC" android:pathPattern=".*.PRC" />
+            </intent-filter>
+            <intent-filter>
+                <action android:name="android.intent.action.VIEW" />
+                <category android:name="android.intent.category.DEFAULT" />
+                <category android:name="android.intent.category.BROWSABLE" />
+                <data android:scheme="content" />
+                <data android:scheme="file" />
+                <data android:host="*" />
+                <data android:mimeType="*/*" />
+                <data android:pathSuffix=".bin" android:pathPattern=".*.bin" />
+                <data android:pathSuffix=".BIN" android:pathPattern=".*.BIN" />
+                <data android:pathSuffix=".rom" android:pathPattern=".*.rom" />
+                <data android:pathSuffix=".pdb" android:pathPattern=".*.pdb" />
+                <data android:pathSuffix=".prc" android:pathPattern=".*.prc" />
+                <data android:pathSuffix=".PRC" android:pathPattern=".*.PRC" />
+            </intent-filter>
+        </activity>
+    </application>
+</manifest>

@@ -9,6 +9,8 @@ public final class GameMenuPages {
         void controls();
         void more();
         void exit();
+        default boolean canSaveOnExit() { return false; }
+        default void saveAndExit() { exit(); }
         void restart();
         boolean hasPreview();
         void keep();
@@ -70,6 +72,7 @@ public final class GameMenuPages {
         menu.confirmationPage(menu.text(R.string.game_exit_question));
         menu.message(menu.text(R.string.game_exit_warning));
         menu.action(menu.text(R.string.game_resume), android.R.drawable.ic_media_play, menu::dismiss);
+        if (host.canSaveOnExit()) menu.action(menu.text(R.string.game_save_and_exit), android.R.drawable.ic_menu_save, host::saveAndExit);
         menu.action(menu.text(R.string.game_leave_without_saving), android.R.drawable.ic_menu_close_clear_cancel, host::exit);
         menu.setBackAction(this::home);
     }

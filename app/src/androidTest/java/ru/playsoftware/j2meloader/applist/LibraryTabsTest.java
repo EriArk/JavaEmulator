@@ -90,7 +90,8 @@ public class LibraryTabsTest {
     }
 
     private int lastVisiblePlatform() {
-        return ru.playsoftware.j2meloader.BuildConfig.GAMEKING_PROBE ? 15
+        return ru.playsoftware.j2meloader.BuildConfig.PALM_PROBE ? 16
+                : ru.playsoftware.j2meloader.BuildConfig.GAMEKING_PROBE ? 15
                 : ru.playsoftware.j2meloader.BuildConfig.GAMATE_PROBE ? 14
                 : ru.playsoftware.j2meloader.BuildConfig.FLASH_PROBE ? 13
                 : ru.playsoftware.j2meloader.BuildConfig.CYBIKO_PROBE ? 12
@@ -150,7 +151,8 @@ public class LibraryTabsTest {
                             + (ru.playsoftware.j2meloader.BuildConfig.CYBIKO_PROBE ? 1 : 0)
                             + (ru.playsoftware.j2meloader.BuildConfig.FLASH_PROBE ? 1 : 0)
                             + (ru.playsoftware.j2meloader.BuildConfig.GAMATE_PROBE ? 1 : 0)
-                            + (ru.playsoftware.j2meloader.BuildConfig.GAMEKING_PROBE ? 1 : 0), visible);
+                            + (ru.playsoftware.j2meloader.BuildConfig.GAMEKING_PROBE ? 1 : 0)
+                            + (ru.playsoftware.j2meloader.BuildConfig.PALM_PROBE ? 1 : 0), visible);
                     assertTrue(a.findViewById(R.id.platform_java).isSelected());
                     a.findViewById(R.id.view_mode_list).performClick();
                     a.findViewById(R.id.library_search_toggle).performClick();
@@ -203,7 +205,7 @@ public class LibraryTabsTest {
                     assertTrue(a.findViewById(R.id.platform_java).isSelected());
                     a.dispatchKeyEvent(new KeyEvent(KeyEvent.ACTION_UP, KeyEvent.KEYCODE_BUTTON_L2));
                     a.dispatchKeyEvent(new KeyEvent(KeyEvent.ACTION_DOWN, KeyEvent.KEYCODE_BUTTON_L2));
-                    int lastTab = lastVisiblePlatform() == 15 ? R.id.platform_gameking : lastVisiblePlatform() == 14 ? R.id.platform_gamate : lastVisiblePlatform() == 13 ? R.id.platform_flash : lastVisiblePlatform() == 12 ? R.id.platform_cybiko : lastVisiblePlatform() == 11 ? R.id.platform_megaduck : lastVisiblePlatform() == 10 ? R.id.platform_supervision : lastVisiblePlatform() == 9 ? R.id.platform_gp32 : lastVisiblePlatform() == 8 ? R.id.platform_piece : lastVisiblePlatform() == 7 ? R.id.platform_gemei : lastVisiblePlatform() == 5 ? R.id.platform_wipi
+                    int lastTab = lastVisiblePlatform() == 16 ? R.id.platform_palm : lastVisiblePlatform() == 15 ? R.id.platform_gameking : lastVisiblePlatform() == 14 ? R.id.platform_gamate : lastVisiblePlatform() == 13 ? R.id.platform_flash : lastVisiblePlatform() == 12 ? R.id.platform_cybiko : lastVisiblePlatform() == 11 ? R.id.platform_megaduck : lastVisiblePlatform() == 10 ? R.id.platform_supervision : lastVisiblePlatform() == 9 ? R.id.platform_gp32 : lastVisiblePlatform() == 8 ? R.id.platform_piece : lastVisiblePlatform() == 7 ? R.id.platform_gemei : lastVisiblePlatform() == 5 ? R.id.platform_wipi
                             : lastVisiblePlatform() == 4 ? R.id.platform_ngage : R.id.platform_mophun;
                     assertTrue(a.findViewById(lastTab).isSelected());
                     a.dispatchKeyEvent(new KeyEvent(KeyEvent.ACTION_UP, KeyEvent.KEYCODE_BUTTON_L2));

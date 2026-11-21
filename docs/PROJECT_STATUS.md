@@ -14,6 +14,10 @@ attribute its results to the dated maintainer record below; do not infer a pass.
 
 The [platform issue index](PLATFORM_ISSUES.md) maps the 49 open platform-specific tasks to the maintainer roadmap, including the initial integration order and scope decisions.
 
+## Palm OS (2026-11-21, private Retroid build)
+
+The Palm OS tab runs Space Trader inside AbyssME on Retroid Pocket Classic with the supplied m515 ROM. A cargo purchase persisted across a cold process restart. The m505 reached setup and the DragonBall speaker produced measurable Android playback. Tungsten E2 gameplay remains unverified because the provided NAND image is incomplete. [Device evidence and firmware details](checks/2026-11-21-palm.md).
+
 ## TimeTop GameKing (2026-11-21, private Retroid build)
 
 The fifteenth platform tile opens one GameKing library for GM-218 and color GM-220 cartridges. The app selects the matching user-installed BIOS. On Retroid Pocket Classic the GameKing folder indexed 21 cartridge ZIPs and both BIOS files. The monochrome BIOS ran Drifter, and the color Adventure cartridge reached stage one with touch and controller input. Android playback and a cold checkpoint restore were checked. All 21 supplied cartridges also ran through a separate scripted ARM64 core check. [Device evidence, scope and cartridge measurements](checks/2026-11-21-gameking.md).

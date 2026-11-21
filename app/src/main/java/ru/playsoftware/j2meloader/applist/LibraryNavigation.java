@@ -29,7 +29,8 @@ final class LibraryNavigation {
                 || (id == 12 && BuildConfig.CYBIKO_PROBE)
                 || (id == 13 && BuildConfig.FLASH_PROBE)
                 || (id == 14 && BuildConfig.GAMATE_PROBE)
-                || (id == 15 && BuildConfig.GAMEKING_PROBE);
+                || (id == 15 && BuildConfig.GAMEKING_PROBE)
+                || (id == 16 && BuildConfig.PALM_PROBE);
     }
 
     static int next(int value, int direction) {

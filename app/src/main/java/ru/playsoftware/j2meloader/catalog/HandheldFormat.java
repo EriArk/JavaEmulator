@@ -25,6 +25,7 @@ public final class HandheldFormat {
     }
     static int platform(String name) {
         String s=name.toLowerCase(Locale.ROOT);
+        if (BuildConfig.PALM_PROBE && (s.endsWith(".prc") || s.endsWith(".pdb"))) return 16;
         if (BuildConfig.GAMEKING_PROBE && s.endsWith(".gk")) return 15;
         if (BuildConfig.GAMATE_PROBE && s.endsWith(".gam")) return 14;
         if (BuildConfig.FLASH_PROBE && s.endsWith(".swf")) return 13;
@@ -37,9 +38,9 @@ public final class HandheldFormat {
         return 0;
     }
     private static boolean binaryFile(String name) {
-        return name.endsWith(".bin") || (BuildConfig.GAMATE_PROBE && name.endsWith(".rom"));
+        return name.endsWith(".bin") || ((BuildConfig.GAMATE_PROBE || BuildConfig.PALM_PROBE) && name.endsWith(".rom"));
     }
-    static boolean enabled() { return BuildConfig.WIPI_PROBE || BuildConfig.DINGOO_PROBE || BuildConfig.PIECE_PROBE || BuildConfig.GP32_PROBE || BuildConfig.SUPERVISION_PROBE || BuildConfig.MEGADUCK_PROBE || BuildConfig.CYBIKO_PROBE || BuildConfig.FLASH_PROBE || BuildConfig.GAMATE_PROBE || BuildConfig.GAMEKING_PROBE; }
+    static boolean enabled() { return BuildConfig.WIPI_PROBE || BuildConfig.DINGOO_PROBE || BuildConfig.PIECE_PROBE || BuildConfig.GP32_PROBE || BuildConfig.SUPERVISION_PROBE || BuildConfig.MEGADUCK_PROBE || BuildConfig.CYBIKO_PROBE || BuildConfig.FLASH_PROBE || BuildConfig.GAMATE_PROBE || BuildConfig.GAMEKING_PROBE || BuildConfig.PALM_PROBE; }
     static boolean candidate(String name) {
         String s=name.toLowerCase(Locale.ROOT);
         return enabled() && (platform(s)!=0 || s.endsWith(".zip") || binaryFile(s) || s.endsWith(".exe"));
@@ -86,7 +87,7 @@ public final class HandheldFormat {
                     if (result.isEmpty()) for(Enumeration<? extends ZipEntry> it=zip.entries();it.hasMoreElements();) {
                         ZipEntry e=it.nextElement();
                         if (binaryFile(e.getName().toLowerCase(Locale.ROOT))) try(InputStream in=zip.getInputStream(e)) {
-                            byte[] header = prefix(in, 80);
+                            byte[] header = prefix(in, 128);
                             int id = cartridgeOrFirmware(in, header, e.getSize());
                             if (id != 0) result.add(id);
                         }
@@ -123,6 +124,14 @@ public final class HandheldFormat {
         return 0;
     }
     private static int cartridgeOrFirmware(InputStream in, byte[] header, long length) throws IOException {
+        if (BuildConfig.PALM_PROBE && header.length >= 12) {
+            java.nio.ByteBuffer words = java.nio.ByteBuffer.wrap(header);
+            int card = words.getInt(8);
+            boolean armCard = header.length >= 120 && words.getInt(104) == 0xefbeedfe
+                    && new String(header, 112, 8, StandardCharsets.US_ASCII).equals("PalmCard");
+            boolean palmNand = words.getInt(0) == 0xcefaadba && words.getInt(4) == 0x07000000;
+            if (card == 0xfeedbeef || card == 0xefbeedfe || armCard || palmNand) return 16;
+        }
         if (BuildConfig.GAMATE_PROBE) {
             if (header.length >= 30 && new String(header, 5, 25, StandardCharsets.US_ASCII)
                     .equals("COPYRIGHT BIT CORPORATION")) return 14;
@@ -170,7 +179,7 @@ public final class HandheldFormat {
         return Arrays.copyOf(bytes,n);
     }
     public static int indexedPlatform(String path) {
-        if (path != null && path.matches("pending_([5-9]|1[0-5])_[a-f0-9]+"))
+        if (path != null && path.matches("pending_([5-9]|1[0-6])_[a-f0-9]+"))
             return Integer.parseInt(path.substring(8, path.indexOf('_', 8)));
         return 0;
     }

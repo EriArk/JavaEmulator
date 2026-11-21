@@ -288,6 +288,7 @@ public final class TouchDeck {
         int[] resolved = TouchMappings.index(id) < 0 ? codes.clone() : TouchMappings.resolve(settings.touchGamepadMappings, id);
         keys.add(new Key(new RectF(x, y, x+w, y+h), label, id, codes, resolved));
     }
+    public synchronized boolean containsKey(float x, float y) { return at(x,y) != null; }
     private Key at(float x, float y) {
         for (int i=keys.size()-1;i>=0;i--) if (keys.get(i).bounds.contains(x,y)) return keys.get(i);
         return null;

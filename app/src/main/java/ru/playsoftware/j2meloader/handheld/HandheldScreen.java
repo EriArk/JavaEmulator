@@ -57,9 +57,42 @@ final class HandheldScreen extends View implements NativeFrame {
         touch.layout(getWidth(), getHeight());
         invalidate();
     }
-    void release() { touch.cancel(); }
+    private int penPointer = -1;
+    private void liftPen() {
+        if (penPointer != -1) host.stylus(0, 0, false);
+        penPointer = -1;
+    }
+    void release() { liftPen(); touch.cancel(); }
     @Override protected void onSizeChanged(int w, int h, int oldW, int oldH) { touch.layout(w, h); }
-    @Override public boolean onTouchEvent(MotionEvent event) { tapPoint[0]=event.getX(); tapPoint[1]=event.getY(); return !paused && touch.touch(event); }
+    @Override public boolean onTouchEvent(MotionEvent event) {
+        if (paused) return false;
+        if (host.usesStylus()) routePen(event);
+        tapPoint[0]=event.getX(); tapPoint[1]=event.getY();
+        return touch.touch(event);
+    }
+    private void routePen(MotionEvent event) {
+        int action = event.getActionMasked(), index = event.getActionIndex();
+        if (action == MotionEvent.ACTION_CANCEL) { liftPen(); return; }
+        int id = event.getPointerId(index);
+        if (action == MotionEvent.ACTION_UP || action == MotionEvent.ACTION_POINTER_UP) {
+            if (id == penPointer) liftPen();
+            return;
+        }
+        if (action == MotionEvent.ACTION_DOWN || action == MotionEvent.ACTION_POINTER_DOWN) {
+            if (penPointer != -1 || touch.deck.containsKey(event.getX(index), event.getY(index))) return;
+        } else if (action == MotionEvent.ACTION_MOVE) {
+            index = event.findPointerIndex(penPointer);
+            if (index < 0) return;
+            id = penPointer;
+        } else return;
+        Matrix inverse = new Matrix();
+        if (!stageToView.invert(inverse)) return;
+        float[] point = {event.getX(index), event.getY(index)};
+        inverse.mapPoints(point);
+        if (point[0] < 0 || point[1] < 0 || point[0] >= W || point[1] >= H) { liftPen(); return; }
+        penPointer = id;
+        host.stylus(point[0], point[1], true);
+    }
     private void stageTap() {
         android.graphics.Matrix inverse=new android.graphics.Matrix();
         if (!stageToView.invert(inverse)) return;
