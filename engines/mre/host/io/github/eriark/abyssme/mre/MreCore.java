@@ -1,0 +1,16 @@
+/* SPDX-License-Identifier: GPL-3.0-only */
+package io.github.eriark.abyssme.mre;
+
+final class MreCore {
+    static { System.loadLibrary("abyssmre"); }
+    static synchronized native boolean start(String file, String saves);
+    static synchronized native void stop();
+    static synchronized native boolean checkpoint(String directory, boolean save);
+    static native void speed(int percent);
+    static native void pause(boolean paused);
+    static native boolean frame(int[] pixels);
+    static native boolean exited();
+    static native void assets(android.content.res.AssetManager manager);
+    static native void key(int code, boolean down);
+    static native void pen(int event, int x, int y);
+}

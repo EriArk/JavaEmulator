@@ -85,6 +85,25 @@ public class HandheldCycleTest {
         assertEquals(new HashSet<>(Arrays.asList(0, 8, 9)), HandheldFormat.detect(c, Uri.fromFile(mixed), mixed.getName()));
     }
 
+    @Test public void mreZipUsesSameInstalledIdentityAsLooseGame() throws Exception {
+        Assume.assumeTrue(ru.playsoftware.j2meloader.BuildConfig.MRE_PROBE);
+        File game = new File(c.getExternalFilesDir(null), "mre-check/FlappyBird.vxp");
+        Assume.assumeTrue(game.isFile());
+        File zip = new File(work, "collection.zip");
+        try (java.util.zip.ZipOutputStream out = new java.util.zip.ZipOutputStream(new FileOutputStream(zip))) {
+            out.putNextEntry(new java.util.zip.ZipEntry("Games/FlappyBird.VXP"));
+            Files.copy(game.toPath(), out);
+            out.closeEntry();
+        }
+        assertEquals(Collections.singleton(17), HandheldFormat.detect(c, Uri.fromFile(zip), zip.getName()));
+        Context target = isolated(new File(work, "library"));
+        AppItem loose = ExternalLibrary.packageProvider(17).install(target, Uri.fromFile(game));
+        AppItem zipped = ExternalLibrary.packageProvider(17).install(target, Uri.fromFile(zip));
+        assertEquals(loose.getPath(), zipped.getPath());
+        assertEquals(1, ExternalLibrary.packageProvider(17).read(target).size());
+        assertEquals(17, HandheldFormat.indexedPlatform("pending_17_abcd"));
+    }
+
     private Set<Integer> expectedPlatforms() {
         Set<Integer> ids = new HashSet<>(Arrays.asList(5, 6, 7, 8, 9));
         if (ru.playsoftware.j2meloader.BuildConfig.SUPERVISION_PROBE &&
@@ -97,6 +116,7 @@ public class HandheldCycleTest {
         if (ru.playsoftware.j2meloader.BuildConfig.GAMATE_PROBE && new File(source,"gamate/packages").isDirectory()) ids.add(14);
         if (ru.playsoftware.j2meloader.BuildConfig.GAMEKING_PROBE && new File(source,"gameking/packages").isDirectory()) ids.add(15);
         if (ru.playsoftware.j2meloader.BuildConfig.PALM_PROBE && new File(source,"palm/packages").isDirectory()) ids.add(16);
+        if (ru.playsoftware.j2meloader.BuildConfig.MRE_PROBE && new File(source,"mre/packages").isDirectory()) ids.add(17);
         return ids;
     }
 

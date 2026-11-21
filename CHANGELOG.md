@@ -10,6 +10,10 @@ stated otherwise. **Experimental** in older checkpoints means local/private
 combined builds; released experimental features are explicitly identified.
 **Released** means an actual GitHub release asset.
 
+## 2026-11-21 - MediaTek MRE on Retroid
+
+Added an optional ARM64 MediaTek MRE engine with VXP and ZIP import, a platform tile, game previews, shared controls and display settings, per-game data, checkpoints and library backup. Crossfire and Flappy Bird reached gameplay in the private combined build. [Verification](docs/checks/2026-11-21-mre.md).
+
 ## 2026-11-21 - Palm OS on Retroid
 
 **Public source, private ARM64 test APK.** Added the Palm OS tile, a ROM and PRC/PDB game library, an offline in-app runtime, stylus and controller input, DragonBall PWM audio and per-game Palm sessions. Verified a purchase in Space Trader after a cold restart using the m515 ROM. A follow-up with a complete Tungsten E2 firmware pair verified Bejeweled gameplay, PCM audio and cold restore on Palm OS 5.4 using the same APK. The Retroid startup comparison found little change when bypassing Android frame presentation. The private combined APK now runs Palm OS 5 through native uARM. Bejeweled opened in about five seconds from Android, restored an existing WebView session, and saved subsequent progress. Palm OS 4 retains its existing runtime. [Checks and current limits](docs/checks/2026-11-21-palm.md).

@@ -1,0 +1,38 @@
+<manifest xmlns:android="http://schemas.android.com/apk/res/android">
+    <application>
+        <activity android:name="io.github.eriark.abyssme.mre.MreGameActivity"
+            android:exported="false" android:process=":mre"
+            android:configChanges="orientation|screenSize|keyboardHidden|screenLayout|smallestScreenSize"/>
+        <activity android:name="ru.playsoftware.j2meloader.MainActivity">
+            <intent-filter>
+                <action android:name="android.intent.action.VIEW" />
+                <category android:name="android.intent.category.DEFAULT" />
+                <category android:name="android.intent.category.BROWSABLE" />
+                <data android:scheme="content" />
+                <data android:scheme="file" />
+                <data android:mimeType="application/octet-stream" />
+            </intent-filter>
+            <intent-filter>
+                <action android:name="android.intent.action.VIEW" />
+                <category android:name="android.intent.category.DEFAULT" />
+                <category android:name="android.intent.category.BROWSABLE" />
+                <data android:scheme="file" />
+                <data android:scheme="content" />
+                <data android:host="*" />
+                <data android:pathSuffix=".vxp" android:pathPattern=".*.vxp" />
+                <data android:pathSuffix=".VXP" android:pathPattern=".*.VXP" />
+            </intent-filter>
+            <intent-filter>
+                <action android:name="android.intent.action.VIEW" />
+                <category android:name="android.intent.category.DEFAULT" />
+                <category android:name="android.intent.category.BROWSABLE" />
+                <data android:scheme="file" />
+                <data android:scheme="content" />
+                <data android:host="*" />
+                <data android:mimeType="*/*" />
+                <data android:pathSuffix=".vxp" android:pathPattern=".*.vxp" />
+                <data android:pathSuffix=".VXP" android:pathPattern=".*.VXP" />
+            </intent-filter>
+        </activity>
+    </application>
+</manifest>

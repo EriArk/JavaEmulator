@@ -14,7 +14,7 @@ Check the user journey from the platform grid and document picker through game i
 
 ## Integration queue, easiest first
 
-**Next platform: MediaTek MRE (#58).** This is the working order as of 2026-11-21. Difficulty estimates cover the path from import to a playable game on Android ARM64, including firmware selection where needed, picture and sound, touch and physical controls, shared settings and cold restore. The numbered steps assume earlier work can be reused. Within a tier, shared dependencies break ties. If a required file or upstream decision holds a step, record what is missing and take the next feasible step.
+**Next platform: Mythroad / Sky-Mobi MRP (#59).** Step 1 reached gameplay in the [private Retroid MRE build](checks/2026-11-21-mre.md). This is the working order as of 2026-11-21. Difficulty estimates cover the path from import to a playable game on Android ARM64, including firmware selection where needed, picture and sound, touch and physical controls, shared settings and cold restore. The numbered steps assume earlier work can be reused. Within a tier, shared dependencies break ties. If a required file or upstream decision holds a step, record what is missing and take the next feasible step.
 
 Already represented in the development build: WIPI/SKVM (#57), Dingoo/Gemei (#89), P/ECE (#97), GP32 (#87), the four handheld families in #94, Cybiko (#86), Flash Lite (#64), Asha/S40 (#73) and Palm OS (#65). Remaining model and game compatibility work stays in their issues. The [device reports](PROJECT_STATUS.md) describe the builds and tests for each. Shared host work (#83) follows the next engine that needs it. WonderSwan (#96) stays in scope review.
 
@@ -22,7 +22,7 @@ Already represented in the development build: WIPI/SKVM (#57), Dingoo/Gemei (#89
 
 | Order | Platform | What determines the effort |
 | ---: | --- | --- |
-| 1 | [MediaTek MRE (#58)](https://github.com/EriArk/JavaEmulator/issues/58) | Start with one `.vxp`. Handyplay supplies the libretro interface and needs no BIOS. Build Unicorn for Android ARM64 and review its terms alongside the core. |
+| 1 | [MediaTek MRE (#58)](https://github.com/EriArk/JavaEmulator/issues/58) | Private ARM64 checkpoint reached. Crossfire and Flappy Bird ran on Retroid. Public distribution terms remain open. |
 | 2 | [Mythroad / Sky-Mobi MRP (#59)](https://github.com/EriArk/JavaEmulator/issues/59) | Reuse the MRE host and ARM backend. Import `.mrp` with `cfunction.ext` and the fonts needed by the selected game. |
 | 3 | [In-Fusio ExEn (#60)](https://github.com/EriArk/JavaEmulator/issues/60) | Reuse the Handyplay host with its separate ExEn VM. Test an `.exn` with matching `exen_builtins.bin`. |
 | 4 | [Palm webOS · Mojo / Enyo (#69)](https://github.com/EriArk/JavaEmulator/issues/69) | Lunacy already hosts webOS apps on Android. Extract an `.ipk`, resolve framework assets and exercise an offline game with sound and persistent storage. |

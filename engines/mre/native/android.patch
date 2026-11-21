@@ -1,0 +1,82 @@
+diff --git a/mre-core/core/audio.zig b/mre-core/core/audio.zig
+index 628b3e4..068ee22 100644
+--- a/mre-core/core/audio.zig
++++ b/mre-core/core/audio.zig
+@@ -74,11 +74,12 @@ pub fn drainEvents(vm: *vm_mod.Vm) void {
+
+ var master_synth: ?*tsf.Tsf = null; // lazy-loaded gm.sf2; voices get tsf_copy clones
+
++extern fn mre_load_soundfont() ?*tsf.Tsf;
++
+ fn masterSynth() ?*tsf.Tsf {
+     if (comptime !synth_enabled) return null;
+     if (master_synth == null) {
+-        const sf2 = @embedFile("assets/gm.sf2");
+-        master_synth = tsf.tsf_load_memory(sf2.ptr, @intCast(sf2.len));
++        master_synth = mre_load_soundfont();
+         if (master_synth == null) std.debug.print("[audio] gm.sf2 load FAILED\n", .{});
+     }
+     return master_synth;
+diff --git a/mre-core/core/natives.zig b/mre-core/core/natives.zig
+index 3f58973..2b22fba 100644
+--- a/mre-core/core/natives.zig
++++ b/mre-core/core/natives.zig
+@@ -479,17 +479,7 @@ fn openVFile(vm: *Vm, name_emu: u32, mode: u32) ?vmmod.VFile {
+         return .{ .data = vm.file, .pos = 0 };
+
+     var host: [600]u8 = undefined;
+-    var w: usize = 0;
+-    const prefix = "fs/";
+-    @memcpy(host[0..prefix.len], prefix);
+-    w = prefix.len;
+-    host[w] = std.ascii.toLower(name[0]);
+-    w += 1;
+-    for (name[2..]) |ch| {
+-        host[w] = if (ch == '\\') '/' else ch;
+-        w += 1;
+-    }
+-    const path = host[0..w];
++    const path = hostPath(vm, name_emu, &host) orelse return null;
+     const create = (mode & 0x0C) != 0;
+     const f = if (create)
+         std.fs.cwd().createFile(path, .{ .read = true, .truncate = (mode & 0x04) != 0 }) catch return null
+@@ -508,6 +498,11 @@ fn hostPath(vm: *Vm, name_emu: u32, out: *[600]u8) ?[]const u8 {
+     var ucs2_buf: [512]u8 = undefined;
+     const name = vm.readUcs2(name_emu, &ucs2_buf);
+     if (name.len < 3 or name[1] != ':') return null;
++    if (!std.ascii.isAlphabetic(name[0]) or (name[2] != '/' and name[2] != 92)) return null;
++    var parts = std.mem.tokenizeAny(u8, name[2..], "/\\");
++    while (parts.next()) |part| {
++        if (std.mem.eql(u8, part, "..") or std.mem.indexOfScalar(u8, part, 0) != null) return null;
++    }
+     const prefix = "fs/";
+     @memcpy(out[0..prefix.len], prefix);
+     var w: usize = prefix.len;
+diff --git a/mre-core/frontends/libretro/core.zig b/mre-core/frontends/libretro/core.zig
+index 4f41755..1f0e0e1 100644
+--- a/mre-core/frontends/libretro/core.zig
++++ b/mre-core/frontends/libretro/core.zig
+@@ -135,7 +135,10 @@ export fn retro_load_game(game: ?*const lr.GameInfo) callconv(.c) bool {
+     // We render audio every retro_run and feed the frontend's batch callback
+     // (the wasm player's callback is a no-op — identical path on web).
+     core.audio.rendered_by_frontend = true;
+-    bootRom(g_rom) catch return false;
++    bootRom(g_rom) catch {
++        retro_unload_game();
++        return false;
++    };
+     return true;
+ }
+
+@@ -209,3 +212,11 @@ export fn retro_get_memory_data(_: c_uint) callconv(.c) ?*anyopaque {
+ export fn retro_get_memory_size(_: c_uint) callconv(.c) usize {
+     return 0;
+ }
++
++// Called by the Android host while holding the emulation lock.
++export fn mre_key(event: u32, code: i32) void {
++    if (g_vm) |vm| vm.deliverKey(event, code);
++}
++export fn mre_pen(event: u32, x: i32, y: i32) void {
++    if (g_vm) |vm| vm.deliverPen(event, x, y);
++}

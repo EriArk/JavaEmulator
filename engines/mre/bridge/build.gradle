@@ -1,0 +1,32 @@
+plugins { id 'com.android.library' }
+android {
+    namespace 'io.github.eriark.abyssme.mre.bridge'
+    compileSdk 34
+    defaultConfig { minSdk 29 }
+    sourceSets.main.assets.srcDir rootProject.file('build/mre/assets')
+    sourceSets.main.jniLibs.srcDir rootProject.file('build/mre/jniLibs')
+}
+if (!rootProject.file('build/mre/jniLibs/arm64-v8a/libabyssmre.so').isFile())
+    throw new GradleException('Build the pinned Mre frontend first (engines/mre/README.md)')
+
+def stickers = tasks.register('prepareMreStickers', Sync) {
+    from(rootProject.file('design-concepts/platform-stickers')) {
+        include 'mre.webp'
+        rename { name -> "sticker_" + name }
+    }
+    into layout.buildDirectory.dir('generated/deviceArt/drawable-nodpi')
+}
+android.sourceSets.main.res.srcDir layout.buildDirectory.dir('generated/deviceArt')
+tasks.named('preBuild').configure { dependsOn stickers }
+
+// The combined ARM64 build already contains this bank and its notice.
+if (findProject(':symbian-core') == null && findProject(':wipi-probe') == null) {
+    def bank = tasks.register('copyProbeMidiBank', Sync) {
+        from(rootProject.file('engines/symbian/core/src/main/assets')) {
+            include 'resources/generaluser-gs.sf2', 'licenses/GeneralUser-GS.txt'
+        }
+        into layout.buildDirectory.dir('generated/mreBank')
+    }
+    android.sourceSets.main.assets.srcDir layout.buildDirectory.dir('generated/mreBank')
+    tasks.named('preBuild').configure { dependsOn bank }
+}

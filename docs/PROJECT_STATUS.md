@@ -14,6 +14,10 @@ attribute its results to the dated maintainer record below; do not infer a pass.
 
 The [platform issue index](PLATFORM_ISSUES.md) maps the 49 open platform-specific tasks to the maintainer roadmap, including the initial integration order and scope decisions.
 
+## MediaTek MRE (2026-11-21, private ARM64 Retroid build)
+
+The platform grid and library open MediaTek MRE VXP games with the shared keypad, controller and graphics settings. Crossfire reached level one with recorded Android audio. Flappy Bird restored a checkpoint after a cold start. Both cards and all previously recorded managed card paths remained present after the combined installation was updated. [Retroid checks and distribution scope](checks/2026-11-21-mre.md).
+
 ## Palm OS (2026-11-21, private Retroid build)
 
 The private combined ARM64 APK uses native uARM for the Tungsten E2. On Retroid Pocket Classic, Bejeweled 2.1 reached its title in about five seconds from an Android open-file request with prepared firmware. An older WebView checkpoint restored at 10 points. A touch match took the score to 20, which survived a native save and cold reopen. Both controller input paths paused the game and Android captured its stereo PCM output. The m515 still runs Space Trader through CloudpilotEmu. [Device evidence and scope](checks/2026-11-21-palm.md#integrated-native-palm-os-5).
