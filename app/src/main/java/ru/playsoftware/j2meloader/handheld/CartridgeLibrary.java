@@ -52,7 +52,8 @@ public abstract class CartridgeLibrary extends ManagedGameLibrary {
 
     public final File installed(Context c, String id) throws IOException {
         if (id == null || !id.matches("[0-9a-f]{64}")) throw new IOException("Invalid cartridge identity");
-        return new File(new File(root(c), id), filename(null));
+        File directory = new File(root(c), id);
+        return new File(directory, filename(load(directory)));
     }
     @Override protected void configureProfile(ProfileModel p) { LibretroKeys.defaultMappings(p); }
 }

@@ -1,0 +1,10 @@
+# Attach the Android frontend after the upstream project has defined its libretro target.
+set(ABYSS_ARDUBOY_NATIVE "${CMAKE_CURRENT_LIST_DIR}/native")
+function(add_abyss_arduboy)
+    add_library(abyssarduboy SHARED "${ABYSS_ARDUBOY_NATIVE}/frontend.c" "${ABYSS_ARDUBOY_NATIVE}/ardens.cpp")
+    target_link_libraries(abyssarduboy PRIVATE ardens_libretro_core bitsery aaudio log)
+    get_source_file_property(version_flags src/libretro_core/libretro_impl.cpp COMPILE_DEFINITIONS)
+    set_source_files_properties("${ABYSS_ARDUBOY_NATIVE}/ardens.cpp" PROPERTIES COMPILE_DEFINITIONS "${version_flags}")
+    target_link_options(abyssarduboy PRIVATE -Wl,-z,max-page-size=16384 -Wl,--exclude-libs,ALL -Wl,--no-undefined)
+endfunction()
+cmake_language(DEFER CALL add_abyss_arduboy)

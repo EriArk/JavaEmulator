@@ -1,0 +1,19 @@
+plugins { id 'com.android.library' }
+android {
+    namespace 'io.github.eriark.abyssme.arduboy.bridge'
+    compileSdk 34
+    defaultConfig { minSdk 29 }
+    sourceSets.main.jniLibs.srcDir rootProject.file('build/arduboy/jniLibs')
+}
+if (!rootProject.file('build/arduboy/jniLibs/arm64-v8a/libabyssarduboy.so').isFile())
+    throw new GradleException('Build the pinned Arduboy frontend first (engines/arduboy/README.md)')
+
+def stickers = tasks.register('prepareArduboyStickers', Sync) {
+    from(rootProject.file('design-concepts/platform-stickers')) {
+        include 'arduboy.webp'
+        rename { name -> "sticker_" + name }
+    }
+    into layout.buildDirectory.dir('generated/deviceArt/drawable-nodpi')
+}
+android.sourceSets.main.res.srcDir layout.buildDirectory.dir('generated/deviceArt')
+tasks.named('preBuild').configure { dependsOn stickers }

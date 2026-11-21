@@ -10,6 +10,10 @@ stated otherwise. **Experimental** in older checkpoints means local/private
 combined builds; released experimental features are explicitly identified.
 **Released** means an actual GitHub release asset.
 
+## 2026-11-21 - Arduboy and Arduboy FX
+
+**Unreleased source and private ARM64 build.** Added the Arduboy / FX platform, HEX and FX package import, package screenshots, D-pad and A/B mapping, per-game storage and save states. ArduGolf and Dazzle Dash reached gameplay on the Retroid Pocket Classic. [Device verification](docs/checks/2026-11-21-arduboy.md).
+
 ## 2026-11-21 - Maker handheld integration priorities
 
 **Roadmap and standalone research.** Arduboy / FX, Gamebuino Classic and Pokitto move ahead of Hartung Game Master after core and game checks. The review covers twelve ecosystems, including native PicoSystem firmware and both Thumby generations. [Candidate matrix and test evidence](docs/checks/2026-11-21-maker-handhelds.md).

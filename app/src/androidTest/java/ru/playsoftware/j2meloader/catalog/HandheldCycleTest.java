@@ -129,6 +129,29 @@ public class HandheldCycleTest {
         checkZipIdentity(game, 17);
     }
 
+    @Test public void arduboyFxKeepsFlashAndIdentityAcrossZipImports() throws Exception {
+        Assume.assumeTrue(ru.playsoftware.j2meloader.BuildConfig.ARDUBOY_PROBE);
+        File fx = new File(work, "Dazzle.arduboy");
+        try (ZipOutputStream out = new ZipOutputStream(new FileOutputStream(fx))) {
+            for (String[] entry : new String[][]{
+                    {"info.json", "{\"title\":\"FX fixture\",\"binaries\":[{\"filename\":\"game.hex\",\"flashdata\":\"data.bin\"}]}"},
+                    {"game.hex", ":0100000001FE\n:00000001FF\n"}, {"data.bin", "flash fixture"}}) {
+                out.putNextEntry(new ZipEntry(entry[0]));
+                out.write(entry[1].getBytes(java.nio.charset.StandardCharsets.US_ASCII));
+                out.closeEntry();
+            }
+        }
+        checkZipIdentity(fx, 25);
+        File renamed = new File(work, "Dazzle.zip");
+        Files.copy(fx.toPath(), renamed.toPath());
+        Context target = isolated(new File(work, "renamed"));
+        ExternalLibrary.Item card = ExternalLibrary.packageProvider(25).install(target, Uri.fromFile(renamed));
+        assertEquals("FX fixture", card.getTitle());
+        assertEquals("Arduboy FX", card.getVersion());
+        assertEquals("arduboy/" + SourceIdentity.sha256(fx), card.getPath());
+        assertEquals(Collections.singleton(25), HandheldFormat.detect(c, Uri.fromFile(renamed), renamed.getName()));
+    }
+
     @Test public void webOsZipUsesSameInstalledIdentityAsLooseGame() throws Exception {
         Assume.assumeTrue(ru.playsoftware.j2meloader.BuildConfig.WEBOS_PROBE);
         checkZipIdentity(new File(c.getExternalFilesDir(null), "webos-check/2048.ipk"), 18);
@@ -196,6 +219,7 @@ public class HandheldCycleTest {
         if (ru.playsoftware.j2meloader.BuildConfig.GIZMONDO_PROBE && new File(source,"gizmondo/packages").isDirectory()) ids.add(23);
         if (ru.playsoftware.j2meloader.BuildConfig.POCKETPC_PROBE && new File(source,"pocketpc/packages").isDirectory()) ids.add(22);
         if (ru.playsoftware.j2meloader.BuildConfig.PORTFOLIO_PROBE && new File(source,"portfolio/packages").isDirectory()) ids.add(21);
+        if (ru.playsoftware.j2meloader.BuildConfig.ARDUBOY_PROBE && new File(source,"arduboy/packages").isDirectory()) ids.add(25);
         if (ru.playsoftware.j2meloader.BuildConfig.IPHONE_PROBE && new File(source,"iphone/packages").isDirectory()) ids.add(24);
         return ids;
     }

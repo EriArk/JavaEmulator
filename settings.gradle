@@ -78,6 +78,10 @@ if (providers.gradleProperty('b2gProbe').orNull == 'true') {
     include ':b2g-probe'
     project(':b2g-probe').projectDir = file('engines/b2g/bridge')
 }
+if (providers.gradleProperty('arduboyProbe').orNull == 'true') {
+    include ':arduboy-probe'
+    project(':arduboy-probe').projectDir = file('engines/arduboy/bridge')
+}
 if (providers.gradleProperty('iphoneProbe').orNull == 'true') {
     include ':iphone-probe'
     project(':iphone-probe').projectDir = file('engines/iphone/bridge')
