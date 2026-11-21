@@ -75,7 +75,10 @@ public final class TouchLayoutEditor extends Dialog {
                 preview.rebuild(); buildControls(); return;
             }
             if (tab == 3) {
-                draft.touchGamepadMappings = null;
+                if (preview.deck.platformLayout()) {
+                    if (draft.platformTouchMappings != null)
+                        draft.platformTouchMappings.keySet().removeIf(id -> id.startsWith(draft.platformControls.prefix));
+                } else draft.touchGamepadMappings = null;
                 preview.rebuild(); buildControls(); return;
             }
             if (draft.touchPlacements != null) for (int i=0;i<2;i++) draft.touchPlacements.remove(preview.deck.placementId(i));
@@ -108,11 +111,12 @@ public final class TouchLayoutEditor extends Dialog {
     public static void copyLayout(ProfileModel from, ProfileModel to) {
         ProfileModel copy = ProfilesManager.copy(from);
         to.touchLayout = copy.touchLayout; to.touchSize = copy.touchSize;
-        to.touchKeypadOverlay = copy.touchKeypadOverlay;
+        to.touchKeypadOverlay = copy.touchKeypadOverlay; to.forcePhoneKeypad = copy.forcePhoneKeypad;
         to.touchTheme = copy.touchTheme; to.touchOpacity = copy.touchOpacity;
         to.touchPortraitReach = copy.touchPortraitReach; to.touchLandscapeReach = copy.touchLandscapeReach;
         to.touchPlacements = copy.touchPlacements;
         to.touchGamepadMappings = copy.touchGamepadMappings;
+        to.platformTouchMappings = copy.platformTouchMappings;
         to.extraTouchButtons = copy.extraTouchButtons;
     }
     public static void copyHandle(ProfileModel from, ProfileModel to) {
@@ -146,7 +150,7 @@ public final class TouchLayoutEditor extends Dialog {
         landscape=state.getBoolean("landscape",landscape); tab=Math.max(0,Math.min(4,state.getInt("tab")));
         selectedExtra = state.getString("extraButton");
         String button = state.getString("touchButton", "up");
-        selectedButton = TouchMappings.index(button) >= 0 ? button : "up";
+        selectedButton = TouchMappings.index(button) >= 0 || draft.platformControls != null && button.startsWith(draft.platformControls.prefix) ? button : "up";
         preview.rebuild(); selected=Math.max(0,Math.min(preview.deck.groupCount()-1,state.getInt("block")));
         buildControls();
     }
@@ -186,8 +190,8 @@ public final class TouchLayoutEditor extends Dialog {
             tabs.addView(button,new LinearLayout.LayoutParams(0,dp(48),1));
         }
         if (tab == 0) {
-        choice(getContext().getString(R.string.controls_layout), getContext().getResources().getStringArray(R.array.game_native_touch_layouts), draft.touchLayout == null ? 0 : Math.min(1,draft.touchLayout), i -> {
-            draft.touchLayout=i; selected=0; preview.rebuild(); buildControls();
+        choice(getContext().getString(R.string.controls_layout), PlatformControls.layoutNames(draft, getContext().getResources().getStringArray(R.array.game_native_touch_layouts)), PlatformControls.layoutChoice(draft), i -> {
+            PlatformControls.selectLayout(draft,i); selected=0; preview.rebuild(); buildControls();
         });
         if (draft.touchLayout == null || draft.touchLayout == TouchDeck.PHONE)
             choice(getContext().getString(R.string.game_keypad_placement), getContext().getResources().getStringArray(R.array.game_keypad_placements), draft.touchKeypadOverlay ? 1 : 0,
@@ -225,7 +229,7 @@ public final class TouchLayoutEditor extends Dialog {
         controls.addView(b,new LinearLayout.LayoutParams(-1,dp(48)));
     }
     private void buildExtra() {
-        if (draft.touchLayout == null || draft.touchLayout != TouchDeck.GAMEPAD) {
+        if (!preview.deck.platformLayout() && (draft.touchLayout == null || draft.touchLayout != TouchDeck.GAMEPAD)) {
             controls.addView(label("Extra buttons are available with the Gamepad layout.",14)); return;
         }
         choice(getContext().getString(R.string.controls_preview), getContext().getResources().getStringArray(R.array.controls_preview_orientations), landscape ? 1 : 0,
@@ -234,6 +238,7 @@ public final class TouchLayoutEditor extends Dialog {
             if (draft.extraTouchButtons == null) draft.extraTouchButtons = new java.util.ArrayList<>();
             if (draft.extraTouchButtons.size() >= ExtraTouchButton.LIMIT) return;
             ExtraTouchButton b = new ExtraTouchButton(); int n = draft.extraTouchButtons.size();
+            if (preview.deck.platformLayout()) b.code = javax.microedition.lcdui.Canvas.KEY_FIRE;
             b.portrait.x = b.landscape.x = .25f + (n%3)*.25f;
             b.portrait.y = b.landscape.y = .25f + (n/3)*.12f;
             draft.extraTouchButtons.add(b); selectedExtra = "extra:"+b.id;
@@ -250,7 +255,25 @@ public final class TouchLayoutEditor extends Dialog {
         int[] codes={-1,-2,-3,-4,-5,-6,-7,48,49,50,51,52,53,54,55,56,57,42,35};
         String[] labels=new String[codes.length]; int ci=0;
         for(int i=0;i<codes.length;i++){labels[i]=i<7?new String[]{"Up","Down","Left","Right","OK / Fire","Left soft key","Right soft key"}[i]:TouchMappings.glyph(codes[i]);if(codes[i]==b.code)ci=i;}
-        choice("Key",labels,ci,i->{b.code=codes[i];preview.rebuild();});
+        if (preview.deck.platformLayout()) {
+            java.util.List<PlatformControls.Button> buttons = draft.platformControls.buttons();
+            String[] namesForKeys = new String[buttons.size()];
+            int selectedKey = -1;
+            PlatformControls.Button current = draft.platformControls.binding(b.code);
+            for (int i = 0; i < buttons.size(); i++) {
+                namesForKeys[i] = buttons.get(i).name;
+                if (buttons.get(i) == current) selectedKey = i;
+            }
+            if (selectedKey < 0) {
+                selectedKey = namesForKeys.length;
+                namesForKeys = java.util.Arrays.copyOf(namesForKeys, selectedKey + 1);
+                namesForKeys[selectedKey] = b.title();
+            }
+            choice("Key",namesForKeys,selectedKey,i -> {
+                if (i < buttons.size()) b.code = buttons.get(i).code;
+                preview.rebuild(); buildControls();
+            });
+        } else choice("Key",labels,ci,i->{b.code=codes[i];preview.rebuild();});
         extraAction("Label: "+b.title(),()->{
             android.widget.EditText input=new android.widget.EditText(getContext());input.setSingleLine(true);
             input.setFilters(new android.text.InputFilter[]{new android.text.InputFilter.LengthFilter(8)});
@@ -269,10 +292,36 @@ public final class TouchLayoutEditor extends Dialog {
         controls.addView(label("Drag a button in the preview. Position and size are separate for each orientation. Up to 12 extra buttons; the top edge stays available for the game menu.",14));
     }
 
+    private void platformMapping() {
+        PlatformControls platform = draft.platformControls;
+        java.util.List<PlatformControls.Button> buttons = platform.buttons();
+        String[] names = new String[buttons.size()];
+        int selected = 0;
+        for (int i = 0; i < buttons.size(); i++) {
+            names[i] = buttons.get(i).name;
+            if ((platform.prefix + buttons.get(i).code).equals(selectedButton)) selected = i;
+        }
+        int source = buttons.get(selected).code;
+        selectedButton = platform.prefix + source;
+        choice("On-screen button", names, selected, i -> {
+            selectedButton = platform.prefix + buttons.get(i).code;
+            buildControls(); preview.invalidate();
+        });
+        int target = platform.touchTarget(draft, source);
+        int index = 0;
+        while (buttons.get(index).code != target) index++;
+        choice("Sends", names, index, i -> {
+            if (draft.platformTouchMappings == null) draft.platformTouchMappings = new java.util.HashMap<>();
+            if (buttons.get(i).code == source) draft.platformTouchMappings.remove(selectedButton);
+            else draft.platformTouchMappings.put(selectedButton, buttons.get(i).code);
+            preview.rebuild();
+        });
+    }
     private void buildMapping() {
+        if (preview.deck.platformLayout()) { platformMapping(); return; }
         if (draft.touchLayout == null || draft.touchLayout != TouchDeck.GAMEPAD) {
-            choice(getContext().getString(R.string.controls_layout), getContext().getResources().getStringArray(R.array.game_native_touch_layouts), 0,
-                    i -> { draft.touchLayout = i; preview.rebuild(); buildControls(); });
+            choice(getContext().getString(R.string.controls_layout), PlatformControls.layoutNames(draft, getContext().getResources().getStringArray(R.array.game_native_touch_layouts)), PlatformControls.layoutChoice(draft),
+                    i -> { PlatformControls.selectLayout(draft,i); preview.rebuild(); buildControls(); });
             return;
         }
         int preset = draft.touchGamepadMappings == null || draft.touchGamepadMappings.isEmpty() ? 0

@@ -41,9 +41,9 @@ public final class TouchDeck {
             this.defaults = defaults; this.codes = codes;
         }
         public boolean isLayoutSwitch() { return defaults[0] == NUMBERS; }
-        public boolean isMappable() { return TouchMappings.index(id) >= 0; }
+        public boolean isMappable() { return id.startsWith("platform:") || TouchMappings.index(id) >= 0; }
         public String displayLabel() {
-            if (java.util.Arrays.equals(defaults, codes)) return label;
+            if (id.startsWith("platform:") || java.util.Arrays.equals(defaults, codes)) return label;
             return codes.length == 1 ? TouchMappings.glyph(codes[0])
                     : TouchMappings.glyph(codes[0]) + "+" + TouchMappings.glyph(codes[1]);
         }
@@ -120,13 +120,21 @@ public final class TouchDeck {
         if (overlay()) return new RectF(0, 0, w, h);
         return separateGameArea(w, h);
     }
+    boolean platformLayout() {
+        return settings.platformControls != null && style() == PHONE && !settings.forcePhoneKeypad;
+    }
+    private boolean platformPhone() { return platformLayout() && settings.platformControls.phoneKeypad(); }
+    private int platformRows(boolean landscape) {
+        if (platformPhone()) return landscape ? 5 : 7;
+        return Math.max(3, settings.platformControls.rows.length);
+    }
     private boolean overlay() { return style() == PHONE && settings.touchKeypadOverlay; }
     private int opacity() { return TouchAppearance.opacity(themeContext, settings.touchOpacity); }
     private RectF separateGameArea(float w, float h) {
         if (!enabled) return new RectF(0, 0, w, h);
         float unit = unit(w, h);
         if (w > h) return new RectF(3 * unit + dp(12), dp(8), w - 3 * unit - dp(12), h - dp(8));
-        float rows = style() == PHONE ? 6 : 5;
+        float rows = platformLayout() ? platformRows(w > h) : style() == PHONE ? 6 : 5;
         return new RectF(dp(8), dp(8), w - dp(8), Math.max(dp(96),
                 h - rows * unit - dp(12) - dp(32) * Math.max(0,Math.min(1,settings.touchPortraitReach))));
     }
@@ -134,7 +142,7 @@ public final class TouchDeck {
     private float unit(float w, float h) {
         float requested = dp(48 + Math.max(0, Math.min(2, settings.touchSize)) * 6);
         return Math.min(requested, Math.min((w - dp(24)) / (w > h ? 7 : 6),
-                (h - dp(56)) / (w > h ? 5 : 8)));
+                (h - dp(56)) / (platformLayout() ? platformRows(w > h) + (w > h ? 0 : 2) : w > h ? 5 : 8)));
     }
     private float dp(float value) { return value * density; }
     public synchronized void layout(float w, float h) {
@@ -143,7 +151,9 @@ public final class TouchDeck {
         if (!enabled) { sink.invalidate(); return; }
         float u = unit(w, h);
         boolean landscape = w > h;
-        if (!landscape && style() == PHONE) {
+        if (platformLayout() && !platformPhone()) {
+            layoutPlatform(w, h, u, landscape);
+        } else if (!landscape && style() == PHONE) {
             float x = dp(8), y = viewport.bottom + dp(8), col = (w - dp(16)) / 3;
             float fourth = (w - dp(16)) / 4;
             key(x, y, fourth, u, "L", -6);
@@ -154,6 +164,7 @@ public final class TouchDeck {
             key(x + col, y + u, col, u, "OK", -5);
             key(x + col * 2, y + u, col, u, "\u2192", -4);
             digits(x, y + 2 * u, col, u);
+            if (platformPhone()) phoneSpecials(x, y + 6 * u, w - dp(16), u);
         } else {
             float reach = landscape ? settings.touchLandscapeReach : settings.touchPortraitReach;
             float y = viewport.bottom + dp(8);
@@ -162,6 +173,7 @@ public final class TouchDeck {
             key(left, y, 1.5f * u, u, "L", -6);
             key(left + 1.5f * u, y, 1.5f * u, u, "R", -7);
             dpad(left, y + u, u);
+            if (platformPhone()) phoneSpecials(left, y + 4 * u, 3 * u, u);
             if (style() == PHONE || numbers) {
                 digits(right, y + u, u, u);
             } else {
@@ -177,6 +189,37 @@ public final class TouchDeck {
         sink.invalidate();
     }
 
+    private void phoneSpecials(float x, float y, float w, float h) {
+        PlatformControls.Button[][] rows = settings.platformControls.rows;
+        PlatformControls.Button[] special = rows[rows.length - 1];
+        float col = w / special.length;
+        for (int i = 0; i < special.length; i++)
+            key(x + i * col, y, col, h, special[i].face, special[i].code);
+    }
+
+    private void layoutPlatform(float w, float h, float u, boolean landscape) {
+        PlatformControls controls = settings.platformControls;
+        float reach = Math.max(0, Math.min(1, landscape ? settings.touchLandscapeReach : settings.touchPortraitReach));
+        float y = landscape ? dp(48) + Math.max(0, h - dp(52) - platformRows(landscape) * u) * (1 - reach)
+                : viewport.bottom + dp(8);
+        float padY = y + (platformRows(landscape) - 3) * u / 2;
+        if (controls.supportsDirection(-3)) dpad(dp(4), padY, u);
+        else {
+            key(dp(4) + u, padY, u, u, "↑", -1);
+            key(dp(4) + u, padY + u, u, u, "↓", -2);
+        }
+        float right = w - 3 * u - dp(4);
+        float actionY = y + (platformRows(landscape) - controls.rows.length) * u / 2;
+        for (PlatformControls.Button[] row : controls.rows) {
+            float col = 3 * u / row.length;
+            for (int i = 0; i < row.length; i++) {
+                PlatformControls.Button button = row[i];
+                if (button != null) key(right + col * i, actionY, col, u, button.face, button.code);
+            }
+            actionY += u;
+        }
+    }
+
     public ExtraTouchButton extra(String id) {
         if (settings.extraTouchButtons != null) for (ExtraTouchButton b : settings.extraTouchButtons)
             if (b != null && ("extra:" + b.id).equals(id)) return b;
@@ -184,7 +227,7 @@ public final class TouchDeck {
     }
     private RectF extraLane() { return new RectF(dp(4), dp(56), width-dp(4), height-dp(4)); }
     private void addExtraButtons() {
-        if (style() != GAMEPAD || settings.extraTouchButtons == null) return;
+        if ((!platformLayout() && style() != GAMEPAD) || settings.extraTouchButtons == null) return;
         java.util.HashSet<String> seen = new java.util.HashSet<>();
         int count = 0;
         for (ExtraTouchButton b : settings.extraTouchButtons) {
@@ -195,7 +238,9 @@ public final class TouchDeck {
             float size = Math.max(1, Math.min(dp(48)*p.scale(), Math.min(lane.width(), lane.height())));
             float x = lane.left + Math.max(0,lane.width()-size)*p.x();
             float y = lane.top + Math.max(0,lane.height()-size)*p.y();
-            Key k = new Key(new RectF(x,y,x+size,y+size),b.title(),"extra:"+b.id,new int[]{b.code},new int[]{b.code});
+            PlatformControls.Button target = platformLayout() ? settings.platformControls.binding(b.code) : null;
+            String label = target != null && (b.label == null || b.label.trim().isEmpty()) ? target.face : b.title();
+            Key k = new Key(new RectF(x,y,x+size,y+size),label,"extra:"+b.id,new int[]{b.code},new int[]{b.code});
             k.alpha = TouchAppearance.opacity(themeContext,b.opacity);
             keys.add(k);
         }
@@ -209,9 +254,9 @@ public final class TouchDeck {
         layout(width,height);
     }
 
-    public int groupCount() { return width <= height && style() == PHONE ? 1 : 2; }
+    public int groupCount() { return width <= height && style() == PHONE && (!platformLayout() || platformPhone()) ? 1 : 2; }
     public RectF groupBounds(int group) { return new RectF(groups[group]); }
-    public String placementId(int group) { return (width > height ? "landscape" : "portrait") + ":" + style() + ":" + group
+    public String placementId(int group) { return (width > height ? "landscape" : "portrait") + ":" + (platformLayout() ? "platform" : style()) + ":" + group
             + (overlay() ? ":overlay" : ""); }
     public TouchPlacement placement(int group) {
         if (settings.touchPlacements == null) settings.touchPlacements = new HashMap<>();
@@ -267,7 +312,7 @@ public final class TouchDeck {
     private void dpad(float x, float y, float u) {
         String[] labels = {"\u2196", "\u2191", "\u2197", "\u2190", "OK", "\u2192", "\u2199", "\u2193", "\u2198"};
         int[][] codes = {{-1,-3},{-1},{-1,-4},{-3},{-5},{-4},{-2,-3},{-2},{-2,-4}};
-        for (int i = 0; i < 9; i++) key(x + i % 3 * u, y + i / 3 * u, u, u, labels[i], codes[i]);
+        for (int i = 0; i < 9; i++) if (!platformLayout() || platformPhone() || i != 4) key(x + i % 3 * u, y + i / 3 * u, u, u, labels[i], codes[i]);
     }
     private void digits(float x, float y, float w, float h) {
         String[] labels = {"1","2","3","4","5","6","7","8","9","*","0","#"};
@@ -286,6 +331,14 @@ public final class TouchDeck {
             }
         }
         int[] resolved = TouchMappings.index(id) < 0 ? codes.clone() : TouchMappings.resolve(settings.touchGamepadMappings, id);
+        if (platformLayout()) {
+            PlatformControls platform = settings.platformControls;
+            for (int i = 0; i < codes.length; i++) resolved[i] = platform.touchTarget(settings, codes[i]);
+            if (codes.length == 1) {
+                id = platform.prefix + codes[0];
+                label = platform.find(resolved[0]).face;
+            }
+        }
         keys.add(new Key(new RectF(x, y, x+w, y+h), label, id, codes, resolved));
     }
     public synchronized boolean containsKey(float x, float y) { return at(x,y) != null; }
@@ -356,8 +409,8 @@ public final class TouchDeck {
         // Composite the complete keys once, including action faces, borders and labels.
         int alpha = opacity() * 255 / 100;
         int layer = alpha == 255 ? canvas.save() : canvas.saveLayerAlpha(0, 0, width, height, alpha);
-        boolean cross = style() == GAMEPAD || width > height;
-        if (cross) drawDpadBase(canvas);
+        boolean cross = platformLayout() && !platformPhone() || style() == GAMEPAD || width > height;
+        if (cross && (!platformLayout() || settings.platformControls.supportsDirection(-3))) drawDpadBase(canvas);
         paint.setTextAlign(Paint.Align.CENTER);
         paint.setTypeface(KEY_FONT);
         for (Key key : keys) {
@@ -365,9 +418,9 @@ public final class TouchDeck {
             RectF rect = new RectF(key.bounds); rect.inset(dp(3),dp(3));
             float labelScale = Math.min(1, key.bounds.height() / dp(48));
             boolean pressed = pointers.containsValue(key);
-            boolean dpad = cross && isDpad(key);
+            boolean dpad = cross && isDpad(key) && (!platformLayout() || settings.platformControls.supportsDirection(-3));
             if (dpad && key.defaults.length == 1) pressed = held.get(key.codes[0]) > 0;
-            boolean action = key.isExtra() || style() == GAMEPAD && !numbers && key.defaults[0] > 0 && !key.isLayoutSwitch();
+            boolean action = platformLayout() && !platformPhone() && !dpad && key.label.length() <= 2 || key.isExtra() || style() == GAMEPAD && !numbers && key.defaults[0] > 0 && !key.isLayoutSwitch();
             int opacity = 100;
             paint.setColor(pressed ? accent : button);
             paint.setAlpha(opacity * 255 / 100);
@@ -396,8 +449,11 @@ public final class TouchDeck {
             String label = key.displayLabel();
             paint.setTextSize(dp(dpad && key.defaults.length > 1 ? 13 : label.length() > 2 ? 14 : 20) * labelScale);
             if (dpad && key.defaults.length > 1 && !pressed) paint.setColor(muted);
-            boolean digit = !key.isExtra() && (style() == PHONE || numbers) && key.defaults.length == 1 && key.defaults[0] >= 48 && key.defaults[0] <= 57;
+            boolean digit = (!platformLayout() || platformPhone() && java.util.Arrays.equals(key.defaults,key.codes)) && !key.isExtra() && (style() == PHONE || numbers) && key.defaults.length == 1 && key.defaults[0] >= 48 && key.defaults[0] <= 57;
             if (digit) paint.setTextSize(dp(23) * labelScale);
+            float labelWidth = paint.measureText(label);
+            if (labelWidth > rect.width() - dp(3) && labelWidth > 0)
+                paint.setTextSize(paint.getTextSize() * Math.max(1, rect.width() - dp(3)) / labelWidth);
             canvas.drawText(label,rect.centerX(),rect.centerY()-(paint.ascent()+paint.descent())/2-(digit ? dp(5) * labelScale : 0),paint);
             if (digit) {
                 paint.setTextSize(dp(9) * labelScale);
@@ -441,14 +497,17 @@ public final class TouchDeck {
     }
 
     private boolean isDpad(Key key) {
-        return !key.isExtra() && key.defaults[0] >= -5 && key.defaults[0] <= -1;
+        return !key.isExtra() && key.defaults[0] >= (platformLayout() && !platformPhone() ? -4 : -5) && key.defaults[0] <= -1;
     }
 
     private void drawDpadBase(Canvas canvas) {
-        Key center = null;
-        for (Key key : keys) if (!key.isExtra() && key.defaults.length == 1 && key.defaults[0] == -5) center = key;
-        if (center == null) return;
-        RectF c = center.bounds;
+        RectF c = null;
+        for (Key key : keys) if (!key.isExtra() && key.defaults.length == 1 && key.defaults[0] == -1) {
+            c = new RectF(key.bounds);
+            c.offset(0, c.height());
+            break;
+        }
+        if (c == null) return;
         float u = c.width(), inset = dp(3);
         Path vertical = new Path(), horizontal = new Path();
         vertical.addRoundRect(new RectF(c.left + inset, c.top - u + inset,

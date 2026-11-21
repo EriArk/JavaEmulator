@@ -5,6 +5,7 @@ import android.app.AlertDialog;
 import android.os.Bundle;
 import android.util.AtomicFile;
 import com.pockethle.app.NativeBridge;
+import ru.playsoftware.j2meloader.input.PlatformControls;
 import java.io.*;
 import java.nio.charset.StandardCharsets;
 import java.util.*;
@@ -121,6 +122,10 @@ public final class PocketPcActivity extends HandheldActivity {
             case KEY_UP: vk=0x26; break;
             case KEY_RIGHT: vk=0x27; break;
             case KEY_DOWN: vk=0x28; break;
+            case PlatformControls.APP1: vk=0xc1; break;
+            case PlatformControls.APP2: vk=0xc2; break;
+            case PlatformControls.APP3: vk=0xc3; break;
+            case PlatformControls.APP4: vk=0xc4; break;
             case KEY_FIRE: vk=13; break;
             case KEY_SOFT_LEFT: vk=32; break;
             case KEY_SOFT_RIGHT: vk=27; break;

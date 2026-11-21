@@ -22,6 +22,9 @@ public final class SharedProfileDialog {
     private List<File> prepared = new ArrayList<>();
     private final Map<String,Integer> usages = new HashMap<>();
     private boolean busy;
+    private int platformChoice;
+    private static final String[] ENGINES = {"", "dingoo", "gp32", "piece", "gizmondo", "cybiko", "palm", "palm-classic", "portfolio", "pocketpc", "flash", "webos", "firefox", "wipi", "kaios"};
+    private static final String[] BUTTON_SETS = {"Phone keypad", "Dingoo", "GP32", "Two-button handheld", "Gizmondo", "Cybiko", "Palm five-way", "Palm page buttons", "Atari Portfolio", "Pocket PC", "Flash", "webOS", "Firefox OS", "WIPI / SKVM", "KaiOS / MRE"};
     private SharedProfileDialog(Context context, ProfileModel game, Runnable done, SharedProfiles.Store store) {
         this.store=store;
         this.context=context;this.game=game;this.done=done;root=SharedProfiles.root(game);
@@ -111,14 +114,21 @@ public final class SharedProfileDialog {
     }
     private void edit(SharedProfiles.Entry e){edit(e,store.editor(catalog,e==null?null:e.id));}
     private void edit(SharedProfiles.Entry e,ProfileModel draft){
+        if (game != null) draft.platformControls = game.platformControls;
         menu.page(e==null?"Global default":e.name);
         menu.message("Editing shared settings. "+affected(e==null?null:e.id)+" linked games; game overrides take priority. Other profile categories remain independent.");
+        if (!store.graphics && game == null) {
+            draft.platformControls = ru.playsoftware.j2meloader.input.PlatformControls.forEngine(ENGINES[platformChoice]);
+            menu.choice("Platform button labels", BUTTON_SETS, platformChoice, i -> {
+                platformChoice = i; edit(e, draft);
+            });
+        }
         if(store.graphics) graphicsEditor(e,draft);
         else if(store.physical) {
             action("Edit physical buttons / sticks",()->menu.editPhysicalMapping(draft,()->edit(e,draft)));
         }
         else {
-            menu.choice("Touch layout",new String[]{"Phone keypad","Gamepad"},draft.touchLayout!=null&&draft.touchLayout==1?1:0,i->draft.touchLayout=i);
+            menu.choice("Touch layout",new String[]{draft.platformControls == null ? "Default layout" : "Platform buttons","Gamepad"},draft.touchLayout!=null&&draft.touchLayout==1?1:0,i->draft.touchLayout=i);
             action("Edit touch layout / extra buttons",()->menu.editTouchLayout(draft,()->edit(e,draft)));
             menu.choice("On-screen buttons",menu.labels(R.array.game_touch_visibility_modes),draft.getTouchVisibility(),i->draft.touchVisibility=i);
             menu.toggle("Tactile feedback",draft.vkFeedback,v->draft.vkFeedback=v);

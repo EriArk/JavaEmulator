@@ -43,6 +43,7 @@ public abstract class HandheldActivity extends Activity {
     protected abstract boolean frame(int[] pixels);
     protected boolean artworkReady() { return true; }
     protected void configureProfile(ProfileModel profile) {}
+    protected void usePlatformControls(String engine) { profile.platformControls = PlatformControls.forEngine(engine); }
     protected abstract int width();
     protected int displayWidth() { return width(); }
     protected abstract int height();
@@ -67,6 +68,7 @@ public abstract class HandheldActivity extends Activity {
         }
         profile = ProfilesManager.loadConfig(config);
         if (profile == null) profile = new ProfileModel(config);
+        usePlatformControls(config.getName().split("-", 2)[0]);
         configureProfile(profile);
     }
     protected void sessionStarted(String title) {
@@ -105,7 +107,7 @@ public abstract class HandheldActivity extends Activity {
         releaseKeys();
         profile.ensureKeyMappingProfiles();
         SparseIntArray overrides = profile.getActiveKeyMappings();
-        mappings = KeyMapper.resolveMappings(overrides);
+        mappings = PlatformControls.resolveMappings(profile.platformControls, overrides);
         if (mappings.indexOfKey(KeyEvent.KEYCODE_DEL) < 0) mappings.put(KeyEvent.KEYCODE_DEL, javax.microedition.lcdui.Canvas.KEY_CLEAR);
         setRequestedOrientation(profile.orientation == 3 ? ActivityInfo.SCREEN_ORIENTATION_SENSOR_LANDSCAPE
                 : profile.orientation == 2 ? ActivityInfo.SCREEN_ORIENTATION_SENSOR_PORTRAIT : ActivityInfo.SCREEN_ORIENTATION_FULL_SENSOR);

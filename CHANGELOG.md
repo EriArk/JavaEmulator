@@ -10,6 +10,10 @@ stated otherwise. **Experimental** in older checkpoints means local/private
 combined builds; released experimental features are explicitly identified.
 **Released** means an actual GitHub release asset.
 
+## 2026-11-21 - Native button layouts for handheld games
+
+**Unreleased source and private Retroid build.** Console touch controls and physical mapping now use the device's face letters or symbols. GP32 exposes L/R, Dingoo exposes X/Y, and Gizmondo exposes its playback, shoulder and five piano keys. Pocket PC adds four application buttons and Cybiko adds Del, Ins, F1 and F2. Per-game editing and shared profiles support platform touch assignments. WIPI/SKVM adds Call, Clear and End alongside the numeric keypad. [Coverage and verification](docs/checks/2026-11-21-platform-controls.md).
+
 ## 2026-11-21 - Gizmondo and Carmageddon on Retroid
 
 Added a Gizmondo library tab, card artwork, SD and flash storage, console button mapping and a private ARM64 PocketHLE Reborn host. Fixed silent playback in games whose WinMM mixer polls a ring buffer the same size as the previous Android read. Carmageddon beta reached racing with captured sound. [Device checks](docs/checks/2026-11-21-gizmondo.md).

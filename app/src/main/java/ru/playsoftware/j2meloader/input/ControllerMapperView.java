@@ -58,6 +58,7 @@ public final class ControllerMapperView extends LinearLayout {
     private final Handler handler = new Handler(Looper.getMainLooper());
     private final SparseIntArray captureDpad = new SparseIntArray();
     private final Listener listener;
+    private PlatformControls platform;
     private final ScrollView sourceScroll;
     private final LinearLayout sourceList;
     private final LinearLayout phone;
@@ -313,7 +314,7 @@ public final class ControllerMapperView extends LinearLayout {
         int suffix = 1;
         while (names.contains("Custom " + suffix)) suffix++;
         profiles.add(new ProfileModel.KeyMappingProfile("Custom " + suffix,
-                KeyMapper.resolveMappings(current.mappings)));
+                PlatformControls.resolveMappings(platform, current.mappings)));
         active = profiles.size() - 1;
         refreshProfiles();
         refresh();
@@ -331,7 +332,7 @@ public final class ControllerMapperView extends LinearLayout {
                 || "Numpad diagonals".equals(name) || "Action digits".equals(name) || "8-way numpad".equals(name)) {
             copyProfile();
         }
-        SparseIntArray mappings = KeyMapper.resolveMappings(profiles.get(active).mappings);
+        SparseIntArray mappings = PlatformControls.resolveMappings(platform, profiles.get(active).mappings);
         mappings.put(selected, key);
         profiles.get(active).mappings = mappings;
         refresh();
@@ -348,7 +349,7 @@ public final class ControllerMapperView extends LinearLayout {
     }
 
     private void refresh() {
-        SparseIntArray mappings = KeyMapper.resolveMappings(profiles.get(active).mappings);
+        SparseIntArray mappings = PlatformControls.resolveMappings(platform, profiles.get(active).mappings);
         for (Map.Entry<Integer, View> row : rows.entrySet()) {
             int code = row.getKey();
             int value = mappings.get(code, ControllerInput.UNBOUND);
@@ -363,6 +364,8 @@ public final class ControllerMapperView extends LinearLayout {
     }
 
     private String keyName(int key) {
+        PlatformControls.Button button = platform == null ? null : platform.binding(key);
+        if (button != null) return button.name;
         if (key == ControllerInput.UNBOUND) return getContext().getString(R.string.mapper_unbound);
         switch (key) {
             case Canvas.KEY_SOFT_LEFT: return getContext().getString(R.string.controls_soft_left);
@@ -420,7 +423,8 @@ public final class ControllerMapperView extends LinearLayout {
             select(code, false);
             Button target = phoneKeys.get(Canvas.KEY_FIRE);
             if (target == null) target = phoneKeys.get(53);
-            target.requestFocusFromTouch();
+            if (target == null && !phoneKeys.isEmpty()) target = phoneKeys.values().iterator().next();
+            if (target != null) target.requestFocusFromTouch();
         });
         rows.put(code, row);
         values.put(code, value);
@@ -443,34 +447,58 @@ public final class ControllerMapperView extends LinearLayout {
         keypadTab.setSelected(!navigationPage);
         navigationTab.setSelected(navigationPage);
         LinearLayout navigation = phone, digits = phone;
-        if (compactPhone && !pagedPhone) {
-            LinearLayout keys = new LinearLayout(getContext());
-            phone.addView(keys, new LayoutParams(LayoutParams.MATCH_PARENT, 0, 1));
-            navigation = new LinearLayout(getContext());
-            navigation.setOrientation(VERTICAL);
-            digits = new LinearLayout(getContext());
-            digits.setOrientation(VERTICAL);
-            LayoutParams navParams = new LayoutParams(0, LayoutParams.MATCH_PARENT, 1);
-            navParams.setMargins(0, 0, dp(10), 0);
-            keys.addView(navigation, navParams);
-            keys.addView(digits, new LayoutParams(0, LayoutParams.MATCH_PARENT, 1.2f));
+        if (platform != null) {
+            keypadTab.setText("Keypad");
+            navigationTab.setText("Platform");
+            phoneTabs.setVisibility(VISIBLE);
         }
-        if (!pagedPhone || navigationPage) {
-            addPhoneRow(navigation, new int[]{Canvas.KEY_SOFT_LEFT, Canvas.KEY_UP, Canvas.KEY_SOFT_RIGHT},
-                new String[]{"\u2014", "\u2191", "\u2014"});
-        addPhoneRow(navigation, new int[]{Canvas.KEY_LEFT, Canvas.KEY_FIRE, Canvas.KEY_RIGHT},
-                new String[]{"\u2190", "OK", "\u2192"});
-        addPhoneRow(navigation, new int[]{Canvas.KEY_CLEAR, Canvas.KEY_DOWN, Canvas.KEY_END},
-                new String[]{"C", "\u2193", "End"});
-        }
-        if (!pagedPhone || !navigationPage) {
-        addPhoneRow(digits, new int[]{49, 50, 51}, new String[]{"1\n\u00b7", "2\nABC", "3\nDEF"});
-        addPhoneRow(digits, new int[]{52, 53, 54}, new String[]{"4\nGHI", "5\nJKL", "6\nMNO"});
-        addPhoneRow(digits, new int[]{55, 56, 57}, new String[]{"7\nPQRS", "8\nTUV", "9\nWXYZ"});
-        addPhoneRow(digits, new int[]{42, 48, 35}, new String[]{"*", "0\n+", "#"});
+        if (platform != null && navigationPage) {
+            addPlatformRow(PlatformControls.DIRECTIONS);
+            for (PlatformControls.Button[] row : platform.rows) addPlatformRow(row);
+        } else {
+            if (compactPhone && !pagedPhone) {
+                LinearLayout keys = new LinearLayout(getContext());
+                phone.addView(keys, new LayoutParams(LayoutParams.MATCH_PARENT, 0, 1));
+                navigation = new LinearLayout(getContext());
+                navigation.setOrientation(VERTICAL);
+                digits = new LinearLayout(getContext());
+                digits.setOrientation(VERTICAL);
+                LayoutParams navParams = new LayoutParams(0, LayoutParams.MATCH_PARENT, 1);
+                navParams.setMargins(0, 0, dp(10), 0);
+                keys.addView(navigation, navParams);
+                keys.addView(digits, new LayoutParams(0, LayoutParams.MATCH_PARENT, 1.2f));
+            }
+            if (!pagedPhone || navigationPage) {
+                addPhoneRow(navigation, new int[]{Canvas.KEY_SOFT_LEFT, Canvas.KEY_UP, Canvas.KEY_SOFT_RIGHT},
+                    new String[]{"\u2014", "\u2191", "\u2014"});
+            addPhoneRow(navigation, new int[]{Canvas.KEY_LEFT, Canvas.KEY_FIRE, Canvas.KEY_RIGHT},
+                    new String[]{"\u2190", "OK", "\u2192"});
+            addPhoneRow(navigation, new int[]{Canvas.KEY_CLEAR, Canvas.KEY_DOWN, Canvas.KEY_END},
+                    new String[]{"C", "\u2193", "End"});
+            }
+            if (!pagedPhone || !navigationPage) {
+            addPhoneRow(digits, new int[]{49, 50, 51}, new String[]{"1\n\u00b7", "2\nABC", "3\nDEF"});
+            addPhoneRow(digits, new int[]{52, 53, 54}, new String[]{"4\nGHI", "5\nJKL", "6\nMNO"});
+            addPhoneRow(digits, new int[]{55, 56, 57}, new String[]{"7\nPQRS", "8\nTUV", "9\nWXYZ"});
+            addPhoneRow(digits, new int[]{42, 48, 35}, new String[]{"*", "0\n+", "#"});
+            }
         }
         if (!rows.isEmpty()) refresh();
         if (focusedKey != null && phoneKeys.containsKey(focusedKey)) phoneKeys.get(focusedKey).requestFocus();
+    }
+
+    private void addPlatformRow(PlatformControls.Button[] buttons) {
+        java.util.ArrayList<PlatformControls.Button> targets = new java.util.ArrayList<>();
+        for (PlatformControls.Button button : buttons) if (button != null && (buttons != PlatformControls.DIRECTIONS || platform.supportsDirection(button.code))) targets.add(button);
+        int[] codes = new int[targets.size()];
+        String[] labels = new String[codes.length];
+        for (int i = 0; i < codes.length; i++) {
+            PlatformControls.Button button = targets.get(i);
+            codes[i] = button.code;
+            labels[i] = button.face.length() <= 2 && !button.name.equals(button.face) && buttons != PlatformControls.DIRECTIONS
+                    ? button.face + " " + button.name : button.face;
+        }
+        addPhoneRow(phone, codes, labels);
     }
 
     private void showPhonePage(boolean navigation) {
@@ -500,6 +528,7 @@ public final class ControllerMapperView extends LinearLayout {
     private void addPhoneRow(LinearLayout container, int[] keys, String[] labels) {
         LinearLayout row = new LinearLayout(getContext());
         LayoutParams rowParams = new LayoutParams(LayoutParams.MATCH_PARENT, 0, 1);
+        if (platform != null && navigationPage) rowParams = new LayoutParams(LayoutParams.MATCH_PARENT, dp(46));
         rowParams.setMargins(0, dp(compactPhone ? 3 : 5), 0, 0);
         container.addView(row, rowParams);
         for (int i = 0; i < keys.length; i++) {
@@ -508,7 +537,7 @@ public final class ControllerMapperView extends LinearLayout {
             button.setTextSize(compactPhone ? 15 : 19);
             button.setPadding(0, 0, 0, 0);
             button.setGravity(Gravity.CENTER);
-            button.setContentDescription(getContext().getString(R.string.controls_phone_key, keyName(key)));
+            button.setContentDescription(platform != null && navigationPage ? keyName(key) : getContext().getString(R.string.controls_phone_key, keyName(key)));
             button.setTooltipText(keyName(key));
             button.setBackground(states(ru.playsoftware.j2meloader.ui.AppPalette.color(getContext(), ru.playsoftware.j2meloader.R.color.phone_panel_alt)));
             if (labels[i].contains("\n")) {
@@ -704,6 +733,13 @@ public final class ControllerMapperView extends LinearLayout {
         return view;
     }
 
+    public void setPlatform(PlatformControls platform) {
+        if (platform == null) return;
+        this.platform = platform;
+        navigationPage = true;
+        phoneHeading.setText("Platform buttons");
+        rebuildPhone();
+    }
     public void setSaveLabel(String label) { saveAction.setText(label); }
 
     private Button button(String label) {

@@ -28,6 +28,6 @@ public final class ExtraTouchButton {
                 : label.trim().substring(0, Math.min(8, label.trim().length()));
     }
     public boolean valid() {
-        return id != null && id.matches("[a-zA-Z0-9-]{1,64}") && TouchMappings.validCode(code);
+        return id != null && id.matches("[a-zA-Z0-9-]{1,64}") && (TouchMappings.validCode(code) || PlatformControls.extraCode(code));
     }
 }

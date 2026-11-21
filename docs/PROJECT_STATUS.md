@@ -14,6 +14,10 @@ attribute its results to the dated maintainer record below; do not infer a pass.
 
 The [platform issue index](PLATFORM_ISSUES.md) maps the 49 open platform-specific tasks to the maintainer roadmap, including the initial integration order and scope decisions.
 
+## Platform controls (2026-11-21, private Retroid build)
+
+The new handheld hosts share platform-specific input layouts. Game cards and running games use the same guest button labels in physical mapping. Console face buttons, shoulders and system keys, PDA application buttons and keyboard shortcuts appear where the core supports them. Layout editing supports touch reassignment, extra buttons and a phone-keypad fallback. [Platform coverage and Retroid checks](checks/2026-11-21-platform-controls.md).
+
 ## Gizmondo (2026-11-21, private Retroid build)
 
 The combined ARM64 build imports Gizmondo SD card ZIPs through a dedicated tab. Carmageddon beta reached a playable Main Street race with recorded game audio, on-screen input and controller input. [Device check, save behavior and scope](checks/2026-11-21-gizmondo.md).

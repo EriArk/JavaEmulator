@@ -28,6 +28,7 @@ public final class MapperDialog extends Dialog {
                     }
                     public void cancel() { dismiss(); }
                 });
+        mapper.setPlatform(draft.platformControls);
         mapper.setSaveLabel(getContext().getString(R.string.controls_use_mapping));
         setContentView(mapper);
         setOnDismissListener(d -> closed.run());

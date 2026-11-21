@@ -2,12 +2,13 @@
 package ru.playsoftware.j2meloader.handheld;
 
 import ru.playsoftware.j2meloader.input.ControllerInput;
+import ru.playsoftware.j2meloader.input.PlatformControls;
 import static javax.microedition.lcdui.Canvas.*;
 
 public abstract class LibretroKeys implements ControllerInput.Sink {
     protected abstract void button(int id, boolean down);
 
-    private final int[] holds = new int[12];
+    private final int[] holds = new int[16];
     private int button(int key) {
         switch (key) {
             case KEY_UP: case '2': return 4;
@@ -22,6 +23,10 @@ public abstract class LibretroKeys implements ControllerInput.Sink {
             case '9': case KEY_SEND: return 3;
             case '*': return 10;
             case '#': return 11;
+            case PlatformControls.DELETE: return 12;
+            case PlatformControls.INSERT: return 13;
+            case PlatformControls.F1: return 14;
+            case PlatformControls.F2: return 15;
             default: return -1;
         }
     }

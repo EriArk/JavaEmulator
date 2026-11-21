@@ -98,6 +98,7 @@ public final class GameMenuDialog extends Dialog {
             }
             public void cancel() { dialog.dismiss(); }
         });
+        mapper[0].setPlatform(draft.platformControls);
         mapper[0].setSaveLabel(getContext().getString(R.string.controls_use_mapping));
         editor=dialog;
         dialog.setContentView(mapper[0]);

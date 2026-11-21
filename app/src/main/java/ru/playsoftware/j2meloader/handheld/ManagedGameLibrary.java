@@ -194,6 +194,7 @@ public abstract class ManagedGameLibrary implements ExternalLibrary.PackageProvi
             Files.createDirectories(config.toPath());
             ProfileModel profile=ProfilesManager.loadConfig(config);
             if (profile == null) profile = new ProfileModel(config);
+            profile.platformControls = ru.playsoftware.j2meloader.input.PlatformControls.forEngine(engine);
             configureProfile(profile);
             return profile;
         }

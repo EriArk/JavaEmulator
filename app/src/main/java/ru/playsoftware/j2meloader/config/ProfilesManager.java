@@ -208,6 +208,7 @@ public class ProfilesManager {
 	public static ProfileModel copy(ProfileModel source) {
 		ProfileModel result = gson.fromJson(gson.toJson(source), ProfileModel.class);
 		result.dir = source.dir;
+        result.platformControls = source.platformControls;
         result.sharedRoot = source.sharedRoot;
         result.sharedSnapshot = source.sharedSnapshot == null ? null : source.sharedSnapshot.deepCopy();
 		return result;

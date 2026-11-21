@@ -119,8 +119,11 @@ public final class GameSettingsPages {
             if (javaGame) menu.action(menu.getContext().getString(R.string.game_shortcut_appearance), R.drawable.ic_baseline_tune_24,
                     () -> gameShortcuts(this::controls));
             int layout = draft.touchLayout == null ? 0 : clamp(draft.touchLayout, javaGame ? 3 : 2);
-            menu.choice(menu.text(R.string.game_touch_layout), javaGame ? menu.labels(R.array.game_touch_layouts) : menu.labels(R.array.game_native_touch_layouts), layout, i -> {
-                draft.touchLayout = i; controls();
+            String[] layouts = javaGame ? menu.labels(R.array.game_touch_layouts) : ru.playsoftware.j2meloader.input.PlatformControls.layoutNames(draft, menu.labels(R.array.game_native_touch_layouts));
+            menu.choice(menu.text(R.string.game_touch_layout), layouts, draft.platformControls == null ? layout : ru.playsoftware.j2meloader.input.PlatformControls.layoutChoice(draft), i -> {
+                if (draft.platformControls == null) draft.touchLayout = i;
+                else ru.playsoftware.j2meloader.input.PlatformControls.selectLayout(draft, i);
+                controls();
             });
             menu.toggle(menu.text(R.string.game_feedback), draft.vkFeedback, value -> draft.vkFeedback = value);
             if (layout == 0) menu.choice(menu.text(R.string.game_keypad_placement), menu.labels(R.array.game_keypad_placements),

@@ -223,6 +223,9 @@ public class ProfileModel {
 
 	@SerializedName("touchLayout")
 	public Integer touchLayout;
+    public transient ru.playsoftware.j2meloader.input.PlatformControls platformControls;
+    @SerializedName("forcePhoneKeypad")
+    public boolean forcePhoneKeypad;
 	@SerializedName("touchKeypadOverlay")
 	public boolean touchKeypadOverlay;
 	@SerializedName("touchSize")
@@ -247,6 +250,8 @@ public class ProfileModel {
 	public java.util.HashMap<String, ru.playsoftware.j2meloader.input.TouchPlacement> touchPlacements;
 	@SerializedName("touchGamepadMappings")
 	public java.util.HashMap<String, Integer> touchGamepadMappings;
+    @SerializedName("platformTouchMappings")
+    public java.util.HashMap<String, Integer> platformTouchMappings;
 
 	@SerializedName("ButtonShape")
 	public int vkButtonShape;

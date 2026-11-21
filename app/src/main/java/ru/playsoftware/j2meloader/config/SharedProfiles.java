@@ -17,10 +17,10 @@ public final class SharedProfiles {
     private static final String[] LCD_FIELDS = {"ScreenEffect", "ScreenEffectIntensity", "ScreenshotWithEffect"};
     public static final String[] FIELDS = {"touchLayout", "touchKeypadOverlay", "touchSize", "touchTheme",
             "touchOpacity", "touchPortraitReach", "touchLandscapeReach", "touchPlacements",
-            "touchGamepadMappings", "extraTouchButtons", "TouchVisibility", "VirtualKeyboardFeedback"};
+            "touchGamepadMappings", "extraTouchButtons", "TouchVisibility", "VirtualKeyboardFeedback", "platformTouchMappings"};
     public static final String[] LABELS = {"Touch layout", "Keypad placement", "Button size", "Button theme",
             "Button opacity", "Portrait reach", "Landscape reach", "Control positions",
-            "Touch key mappings", "Extra buttons", "On-screen buttons", "Tactile feedback"};
+            "Touch key mappings", "Extra buttons", "On-screen buttons", "Tactile feedback", "Platform button mappings"};
     public static final Store CONTROLS = new Store(false, FILE, FIELDS, LABELS);
     public static final Store GRAPHICS = new Store(true, GRAPHICS_FILE,
             new String[]{"ScreenScaleType", "ScreenScaleRatio", "ScreenGravity", "ScreenRotation", "Orientation",

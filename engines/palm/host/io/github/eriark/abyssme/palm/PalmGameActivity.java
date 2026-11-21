@@ -140,6 +140,7 @@ public final class PalmGameActivity extends HandheldActivity {
     }
 
     private void startWebHost() {
+        usePlatformControls("palm-classic");
         if (!suffixSet) { WebView.setDataDirectorySuffix("palm"); suffixSet=true; }
         web = new WebView(this);
         web.getSettings().setJavaScriptEnabled(true);
