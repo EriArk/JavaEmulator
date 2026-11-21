@@ -12,7 +12,7 @@ combined builds; released experimental features are explicitly identified.
 
 ## 2026-11-21 - Palm OS on Retroid
 
-**Public source, private ARM64 test APK.** Added the Palm OS tile, a ROM and PRC/PDB game library, an offline in-app runtime, stylus and controller input, DragonBall PWM audio and per-game Palm sessions. Verified a purchase in Space Trader after a cold restart using the m515 ROM. A follow-up with a complete Tungsten E2 firmware pair verified Bejeweled gameplay, PCM audio and cold restore on Palm OS 5.4 using the same APK. [Checks and current limits](docs/checks/2026-11-21-palm.md).
+**Public source, private ARM64 test APK.** Added the Palm OS tile, a ROM and PRC/PDB game library, an offline in-app runtime, stylus and controller input, DragonBall PWM audio and per-game Palm sessions. Verified a purchase in Space Trader after a cold restart using the m515 ROM. A follow-up with a complete Tungsten E2 firmware pair verified Bejeweled gameplay, PCM audio and cold restore on Palm OS 5.4 using the same APK. The Retroid startup comparison found little change when bypassing Android frame presentation. [Checks and current limits](docs/checks/2026-11-21-palm.md).
 
 ## 2026-11-21 - TimeTop GameKing and GameKing 3
 

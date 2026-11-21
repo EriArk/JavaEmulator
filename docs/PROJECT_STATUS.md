@@ -16,7 +16,7 @@ The [platform issue index](PLATFORM_ISSUES.md) maps the 49 open platform-specifi
 
 ## Palm OS (2026-11-21, private Retroid build)
 
-The Palm OS tab runs Space Trader inside AbyssME on Retroid Pocket Classic with the supplied m515 ROM. A cargo purchase persisted across a cold process restart. The m505 reached setup and the DragonBall speaker produced measurable Android playback. The second E2 NOR/NAND pair also booted Palm OS 5.4 and ran Bejeweled 2.1. A scored game, PCM sound, pause controls and cold session restore were verified. First launch took about 75 seconds on this Retroid. [Device evidence and firmware details](checks/2026-11-21-palm.md).
+The Palm OS tab runs Space Trader inside AbyssME on Retroid Pocket Classic with the supplied m515 ROM. A cargo purchase persisted across a cold process restart. The m505 reached setup and the DragonBall speaker produced measurable Android playback. The second E2 NOR/NAND pair also booted Palm OS 5.4 and ran Bejeweled 2.1. A scored game, PCM sound, pause controls and cold session restore were verified. First launch took about 75 seconds on this Retroid. A controlled repeat took 63.7 seconds with Android frame presentation and 62.2 seconds with that step bypassed. [Device evidence and firmware details](checks/2026-11-21-palm.md).
 
 ## TimeTop GameKing (2026-11-21, private Retroid build)
 
