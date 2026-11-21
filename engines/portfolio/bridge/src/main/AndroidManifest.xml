@@ -1,0 +1,42 @@
+<manifest xmlns:android="http://schemas.android.com/apk/res/android">
+    <application>
+        <activity android:name="io.github.eriark.abyssme.portfolio.PortfolioGameActivity"
+            android:exported="false" android:process=":portfolio"
+            android:configChanges="orientation|screenSize|keyboardHidden|screenLayout|smallestScreenSize"/>
+        <activity android:name="ru.playsoftware.j2meloader.MainActivity">
+            <intent-filter>
+                <action android:name="android.intent.action.VIEW" />
+                <category android:name="android.intent.category.DEFAULT" />
+                <category android:name="android.intent.category.BROWSABLE" />
+                <data android:scheme="content" />
+                <data android:scheme="file" />
+                <data android:mimeType="application/octet-stream" />
+            </intent-filter>
+            <intent-filter>
+                <action android:name="android.intent.action.VIEW" />
+                <category android:name="android.intent.category.DEFAULT" />
+                <category android:name="android.intent.category.BROWSABLE" />
+                <data android:scheme="file" />
+                <data android:scheme="content" />
+                <data android:host="*" />
+                <data android:pathSuffix=".com" android:pathPattern=".*.com" />
+                <data android:pathSuffix=".COM" android:pathPattern=".*.COM" />
+                <data android:pathSuffix=".exe" android:pathPattern=".*.exe" />
+                <data android:pathSuffix=".EXE" android:pathPattern=".*.EXE" />
+            </intent-filter>
+            <intent-filter>
+                <action android:name="android.intent.action.VIEW" />
+                <category android:name="android.intent.category.DEFAULT" />
+                <category android:name="android.intent.category.BROWSABLE" />
+                <data android:scheme="file" />
+                <data android:scheme="content" />
+                <data android:host="*" />
+                <data android:mimeType="*/*" />
+                <data android:pathSuffix=".com" android:pathPattern=".*.com" />
+                <data android:pathSuffix=".COM" android:pathPattern=".*.COM" />
+                <data android:pathSuffix=".exe" android:pathPattern=".*.exe" />
+                <data android:pathSuffix=".EXE" android:pathPattern=".*.EXE" />
+            </intent-filter>
+        </activity>
+    </application>
+</manifest>

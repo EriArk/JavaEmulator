@@ -163,6 +163,7 @@ public class HandheldCycleTest {
             if (new File(source,"firefox/packages").isDirectory()) ids.add(19);
             if (new File(source,"kaios/packages").isDirectory()) ids.add(20);
         }
+        if (ru.playsoftware.j2meloader.BuildConfig.PORTFOLIO_PROBE && new File(source,"portfolio/packages").isDirectory()) ids.add(21);
         return ids;
     }
 

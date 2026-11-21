@@ -78,6 +78,10 @@ if (providers.gradleProperty('b2gProbe').orNull == 'true') {
     include ':b2g-probe'
     project(':b2g-probe').projectDir = file('engines/b2g/bridge')
 }
+if (providers.gradleProperty('portfolioProbe').orNull == 'true') {
+    include ':portfolio-probe'
+    project(':portfolio-probe').projectDir = file('engines/portfolio/bridge')
+}
 if (providers.gradleProperty('palmProbe').orNull == 'true') {
     include ':palm-probe'
     project(':palm-probe').projectDir = file('engines/palm/bridge')

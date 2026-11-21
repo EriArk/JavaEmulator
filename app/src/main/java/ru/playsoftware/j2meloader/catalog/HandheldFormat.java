@@ -25,6 +25,7 @@ public final class HandheldFormat {
     }
     static int platform(String name) {
         String s=name.toLowerCase(Locale.ROOT);
+        if (BuildConfig.PORTFOLIO_PROBE && s.endsWith(".com")) return 21;
         if (BuildConfig.WEBOS_PROBE && s.endsWith(".ipk")) return 18;
         if (BuildConfig.MRE_PROBE && s.endsWith(".vxp")) return 17;
         if (BuildConfig.PALM_PROBE && (s.endsWith(".prc") || s.endsWith(".pdb"))) return 16;
@@ -42,7 +43,7 @@ public final class HandheldFormat {
     private static boolean binaryFile(String name) {
         return name.endsWith(".bin") || ((BuildConfig.GAMATE_PROBE || BuildConfig.PALM_PROBE) && name.endsWith(".rom"));
     }
-    static boolean enabled() { return BuildConfig.WIPI_PROBE || BuildConfig.DINGOO_PROBE || BuildConfig.PIECE_PROBE || BuildConfig.GP32_PROBE || BuildConfig.SUPERVISION_PROBE || BuildConfig.MEGADUCK_PROBE || BuildConfig.CYBIKO_PROBE || BuildConfig.FLASH_PROBE || BuildConfig.GAMATE_PROBE || BuildConfig.GAMEKING_PROBE || BuildConfig.PALM_PROBE || BuildConfig.MRE_PROBE || BuildConfig.WEBOS_PROBE || BuildConfig.B2G_PROBE; }
+    static boolean enabled() { return BuildConfig.WIPI_PROBE || BuildConfig.DINGOO_PROBE || BuildConfig.PIECE_PROBE || BuildConfig.GP32_PROBE || BuildConfig.SUPERVISION_PROBE || BuildConfig.MEGADUCK_PROBE || BuildConfig.CYBIKO_PROBE || BuildConfig.FLASH_PROBE || BuildConfig.GAMATE_PROBE || BuildConfig.GAMEKING_PROBE || BuildConfig.PALM_PROBE || BuildConfig.MRE_PROBE || BuildConfig.WEBOS_PROBE || BuildConfig.B2G_PROBE || BuildConfig.PORTFOLIO_PROBE; }
     static boolean candidate(String name) {
         String s=name.toLowerCase(Locale.ROOT);
         return enabled() && (platform(s)!=0 || s.endsWith(".zip") || binaryFile(s) || s.endsWith(".exe"));
@@ -73,6 +74,9 @@ public final class HandheldFormat {
                         ZipEntry e=it.nextElement(); if (e.isDirectory()) continue;
                         String p=e.getName().replace('\\','/').toLowerCase(Locale.ROOT); paths.add(p);
                         int id=platform(p);
+                        if (BuildConfig.PORTFOLIO_PROBE && p.endsWith(".exe")) {
+                            try (InputStream in=zip.getInputStream(e)) { if (dosProgram(in, e.getSize())) id=21; }
+                        }
                         if (id==6 || id==7 || id==12) try(InputStream in=zip.getInputStream(e)) {
                             byte[] h = prefix(in, 4);
                             if (p.endsWith(".app") && cybiko(h)) id=12;
@@ -115,10 +119,32 @@ public final class HandheldFormat {
                     int id = cartridgeOrFirmware(in, h, length);
                     if (id != 0) result.add(id);
                 }
+                if (s.endsWith(".exe") && BuildConfig.PORTFOLIO_PROBE) {
+                    try (InputStream program=c.getContentResolver().openInputStream(uri)) {
+                        if(program!=null && dosProgram(program,-1))result.add(21);
+                    }
+                }
                 if (s.endsWith(".exe") && BuildConfig.PIECE_PROBE && new String(h,StandardCharsets.ISO_8859_1).contains("LHA's SFX")) result.add(8);
             }
         } else if (platform!=0) result.add(platform);
         return result;
+    }
+    private static boolean dosProgram(InputStream in, long size) throws IOException {
+        byte[] h=prefix(in,64);
+        if (h.length<28 || h[0]!='M' || h[1]!='Z') return false;
+        if(new String(h,StandardCharsets.ISO_8859_1).contains("LHA's SFX"))return false;
+        int pages=(h[4]&255)|((h[5]&255)<<8), last=(h[2]&255)|((h[3]&255)<<8);
+        if(pages==0 || last>511 || size>=0 && (pages-1)*512L+(last==0?512:last)>size)return false;
+        if(h.length==64) {
+            int offset=java.nio.ByteBuffer.wrap(h).order(java.nio.ByteOrder.LITTLE_ENDIAN).getInt(60);
+            if(offset>=64 && offset<=1048576) {
+                long skip=offset-64;
+                while(skip>0){long n=in.skip(skip);if(n==0)break;skip-=n;}
+                if(skip==0){byte[] sig=prefix(in,2);if(sig.length==2 && (sig[0]=='P' && sig[1]=='E' ||
+                        sig[0]=='N' && sig[1]=='E' || sig[0]=='L' && (sig[1]=='E'||sig[1]=='X')))return false;}
+            }
+        }
+        return true;
     }
     private static boolean ccdl(byte[] h) {return h.length>=4 && h[0]=='C' && h[1]=='C' && h[2]=='D' && h[3]=='L';}
     private static int binary(byte[] h,long length) {
@@ -185,7 +211,7 @@ public final class HandheldFormat {
         return Arrays.copyOf(bytes,n);
     }
     public static int indexedPlatform(String path) {
-        if (path != null && path.matches("pending_([5-9]|1[0-9]|20)_[a-f0-9]+"))
+        if (path != null && path.matches("pending_([5-9]|1[0-9]|2[01])_[a-f0-9]+"))
             return Integer.parseInt(path.substring(8, path.indexOf('_', 8)));
         return 0;
     }

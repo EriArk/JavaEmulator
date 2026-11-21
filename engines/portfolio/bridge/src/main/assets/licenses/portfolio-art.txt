@@ -1,0 +1,4 @@
+Atari Portfolio photograph by Felix Winkelnkemper, cropped sticker.
+https://commons.wikimedia.org/wiki/File:Atari_Portfolio_Pocket_PC_-_1.jpg
+Creative Commons Attribution-ShareAlike 4.0: https://creativecommons.org/licenses/by-sa/4.0/
+The upstream Portfoliator code and component notices are in portfolio/core/LICENSE.

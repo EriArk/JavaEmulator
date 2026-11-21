@@ -10,6 +10,10 @@ stated otherwise. **Experimental** in older checkpoints means local/private
 combined builds; released experimental features are explicitly identified.
 **Released** means an actual GitHub release asset.
 
+## 2026-11-21 - Atari Portfolio on Retroid
+
+Added an optional Atari Portfolio library and DIP-DOS runtime with firmware import, keyboard and controller input, writable game storage and save states. Bomber, Dozen and Cribbage ran in the private Retroid build. [Device checks](docs/checks/2026-11-21-portfolio.md).
+
 ## 2026-11-21 - Firefox OS and KaiOS packaged games
 
 Added two library platforms with ZIP import, manifest artwork, per-game storage, shared display and controller settings, and KaiOS soft keys. Updated the private combined Retroid build in place. [Device results](docs/checks/2026-11-21-b2g.md).

@@ -31,6 +31,11 @@ public abstract class PackagedWebActivity extends HandheldActivity {
     protected abstract String openGame(String id) throws IOException, JSONException;
     protected abstract InputStream openResource(String path) throws IOException;
     protected abstract int[][] sizes();
+    protected boolean prepareGame() { return true; }
+    protected void evaluate(String script) {
+        if (display != null) display.web.evaluateJavascript(script, null);
+    }
+    protected boolean gamePrompt(String message, String value, JsPromptResult result) { return false; }
     protected String extraScript() { return ""; }
     protected String prepareHtml(String html) { return html; }
     protected String browserProfile() { return engine(); }
@@ -53,7 +58,7 @@ public abstract class PackagedWebActivity extends HandheldActivity {
 
     @Override public void onCreate(Bundle state) {
         super.onCreate(state);
-        if (StorageActivity.guard(this)) return;
+        if (StorageActivity.guard(this) || !prepareGame()) return;
         try {
             String id = getIntent().getStringExtra("installed");
             if (id == null || !id.matches("[0-9a-f]{64}")) throw new IOException("Invalid package identity");
@@ -110,6 +115,7 @@ public abstract class PackagedWebActivity extends HandheldActivity {
                 @Override public boolean onJsPrompt(WebView v, String url, String message, String value, JsPromptResult result) {
                     String reply = "";
                     if (sameOrigin(Uri.parse(url))) {
+                        if (gamePrompt(message, value, result)) return true;
                         if ("abyss-webos-error".equals(message)) failure = value;
                         if ("abyss-webos-restore".equals(message)) {
                             try { reply = new String(storage.readFully(), StandardCharsets.UTF_8); }
@@ -236,7 +242,7 @@ public abstract class PackagedWebActivity extends HandheldActivity {
         display.web.dispatchTouchEvent(event); event.recycle();
         if (!down) pointerStart = 0;
     }
-    private void key(int key, boolean down) {
+    protected void key(int key, boolean down) {
         if (display == null) return;
         if (phoneKeys()) {
             String label = null;

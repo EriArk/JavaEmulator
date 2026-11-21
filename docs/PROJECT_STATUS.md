@@ -14,6 +14,10 @@ attribute its results to the dated maintainer record below; do not infer a pass.
 
 The [platform issue index](PLATFORM_ISSUES.md) maps the 49 open platform-specific tasks to the maintainer roadmap, including the initial integration order and scope decisions.
 
+## Atari Portfolio (2026-11-21, private Retroid build)
+
+The combined build imports Portfolio COM, DOS EXE and ZIP games and guides the user through firmware selection. Bomber reached round one, Dozen restored its board after restart, and Cribbage dealt a hand. [Device results and limits](checks/2026-11-21-portfolio.md).
+
 ## Firefox OS and KaiOS (2026-11-21, private Retroid build)
 
 The combined build has separate platform tabs for packaged Firefox OS and KaiOS games. Canada Goose reached gameplay with sound, reverse 2048 retained its best score, Falling Numbers responded to KaiOS soft keys and played music, and Frogr ran from its modern manifest. [Retroid checks and compatibility limits](checks/2026-11-21-b2g.md).
