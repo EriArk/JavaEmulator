@@ -16,7 +16,7 @@ The [platform issue index](PLATFORM_ISSUES.md) maps the 49 open platform-specifi
 
 ## Palm OS (2026-11-21, private Retroid build)
 
-The Palm OS tab runs Space Trader inside AbyssME on Retroid Pocket Classic with the supplied m515 ROM. A cargo purchase persisted across a cold process restart. The m505 reached setup and the DragonBall speaker produced measurable Android playback. The second E2 NOR/NAND pair also booted Palm OS 5.4 and ran Bejeweled 2.1. A scored game, PCM sound, pause controls and cold session restore were verified. First launch took about 75 seconds on this Retroid. A controlled repeat took 63.7 seconds with Android frame presentation and 62.2 seconds with that step bypassed. A standalone ARM64 uARM probe reached the title in 2.8 seconds on the same Retroid (22× faster than the installed WebView path in the title comparison). [Device evidence and firmware details](checks/2026-11-21-palm.md).
+The private combined ARM64 APK uses native uARM for the Tungsten E2. On Retroid Pocket Classic, Bejeweled 2.1 reached its title in about five seconds from an Android open-file request with prepared firmware. An older WebView checkpoint restored at 10 points. A touch match took the score to 20, which survived a native save and cold reopen. Both controller input paths paused the game and Android captured its stereo PCM output. The m515 still runs Space Trader through CloudpilotEmu. [Device evidence and scope](checks/2026-11-21-palm.md#integrated-native-palm-os-5).
 
 ## TimeTop GameKing (2026-11-21, private Retroid build)
 

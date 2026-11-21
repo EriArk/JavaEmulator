@@ -22,11 +22,15 @@ import ru.playsoftware.j2meloader.storage.StorageActivity;
 
 public final class PalmGameActivity extends HandheldActivity {
     private static final String ORIGIN = "https://palm.abyssme.invalid/";
+    // libretro B/Y/Select/Start/directions/A/X to Palm hard buttons and five-way navigator.
+    private static final int[] NATIVE_KEYS = {2, 4, 0, 9, 5, 6, 7, 8, 1, 3};
     private final Map<String,File> media = new HashMap<>();
     private final List<ZipEntry> entries = new ArrayList<>();
     private final Map<String,String> launches = new LinkedHashMap<>();
     private ZipFile archive;
     private WebView web;
+    private NativePalm machine;
+    private boolean savingNative;
     private final PalmSpeaker speaker = new PalmSpeaker();
     private String id, romId, kind, title, launchKey = "";
     private File state;
@@ -95,6 +99,47 @@ public final class PalmGameActivity extends HandheldActivity {
             state=new File(state.getParentFile(),romId+"-"+launchKey+".session");
             media.put("state",state);
         }
+        setContentView(new ProgressBar(this));
+        File base = media.get("base");
+        boolean resume = state.isFile();
+        File session = resume ? state : base;
+        File runner = new File(getApplicationInfo().nativeLibraryDir, "libabysspalm_runner.so");
+        List<String> args = new ArrayList<>(Arrays.asList(runner.getPath(), media.get("rom").getPath(),
+                media.containsKey("nand") ? media.get("nand").getPath() : "",
+                session.isFile() ? session.getPath() : "", resume ? "resume" : "install",
+                launchKey.isEmpty() ? "-1" : launchKey.substring(2)));
+        if (media.containsKey("db0")) args.add(media.get("db0").getPath());
+        machine = new NativePalm(state, new NativePalm.Listener() {
+            public void ready(int w, int h) {
+                if (closed || isFinishing()) return;
+                try {
+                    if (kind.equals("ROM")) PalmLibrary.select(PalmGameActivity.this, "ROM", id);
+                    width = w;
+                    height = h;
+                    initialized = true;
+                    Log.i("NativePalm", "Native uARM ready " + w + "x" + h);
+                    sessionStarted(title);
+                } catch (IOException e) { fail(e.toString()); }
+            }
+            public void legacy() {
+                machine.close();
+                machine = null;
+                if (!isFinishing()) startWebHost();
+            }
+            public void failed(String reason) { fail(reason); }
+            public void saved(String error) {
+                savingNative = false;
+                if (error == null) {
+                    if (exiting) finish();
+                    else Toast.makeText(PalmGameActivity.this, "Palm session saved", Toast.LENGTH_SHORT).show();
+                } else if (exiting) new Bridge().saveFailed(error);
+                else Toast.makeText(PalmGameActivity.this, error, Toast.LENGTH_LONG).show();
+            }
+        });
+        machine.start(args, getCacheDir(), archive, entries);
+    }
+
+    private void startWebHost() {
         if (!suffixSet) { WebView.setDataDirectorySuffix("palm"); suffixSet=true; }
         web = new WebView(this);
         web.getSettings().setJavaScriptEnabled(true);
@@ -206,34 +251,67 @@ public final class PalmGameActivity extends HandheldActivity {
     }
     private void js(String code) { if(web!=null && !closed)web.evaluateJavascript(code,null); }
     @Override protected void more(GameMenuDialog menu) {
-        if (!kind.equals("ROM")) menu.action("Open installed game",android.R.drawable.ic_media_play,()->{menu.dismiss();js("installGame().catch(problem)");});
-        menu.action("Save Palm session",android.R.drawable.ic_menu_save,()->{js("saveSession().catch(problem)");menu.dismiss();});
+        if (!kind.equals("ROM")) menu.action("Open installed game", android.R.drawable.ic_media_play, () -> {
+            menu.dismiss();
+            if (machine != null) machine.command('I', 0, 0);
+            else js("installGame().catch(problem)");
+        });
+        menu.action("Save Palm session",android.R.drawable.ic_menu_save,()->{save(false);menu.dismiss();});
         if(state.isFile())menu.action("Load Palm session",android.R.drawable.ic_menu_revert,()->{menu.dismiss();recreate();});
     }
     @Override protected ControllerInput.Sink keys(){return new LibretroKeys(){
-        @Override protected void button(int id,boolean down){js("key("+id+","+down+")");}
+        @Override protected void button(int id,boolean down){
+            if (machine == null) { js("key("+id+","+down+")"); return; }
+            if (id >= 0 && id < NATIVE_KEYS.length && NATIVE_KEYS[id] != 0)
+                machine.command('K', NATIVE_KEYS[id], down ? 1 : 0);
+        }
     };}
     @Override protected void configureProfile(ProfileModel p){LibretroKeys.defaultMappings(p);}
     @Override protected boolean usesStylus(){return true;}
     @Override protected void stylus(float x,float y,boolean down){
+        if (machine != null) { machine.command('T', down ? (int)x : -1, (int)y); return; }
         js(down ? "emu.emulationService.handlePointerMove("+x+","+y+",false)" : "emu.emulationService.handlePointerUp()");
     }
-    @Override protected void setSpeed(int percent){js("emu.setSpeed("+percent+"/100)");}
-    @Override protected void pauseCore(boolean paused){speaker.pause(paused);js("setPaused("+paused+")");}
-    @Override protected synchronized boolean frame(int[] out){if(!fresh)return false;System.arraycopy(pixels,0,out,0,out.length);fresh=false;return true;}
+    @Override protected void setSpeed(int percent) {
+        if (machine != null) machine.command('V', percent, 0);
+        else js("emu.setSpeed("+percent+"/100)");
+    }
+    @Override protected void pauseCore(boolean paused) {
+        if (machine != null) machine.command('P', paused ? 1 : 0, 0);
+        else {
+            speaker.pause(paused);
+            js("setPaused("+paused+")");
+        }
+    }
+    @Override protected synchronized boolean frame(int[] out) {
+        if (machine != null) return machine.frame(out);
+        if (!fresh) return false;
+        System.arraycopy(pixels, 0, out, 0, out.length);
+        fresh = false;
+        return true;
+    }
     @Override protected int width(){return width;}
     @Override protected int height(){return height;}
     @Override protected boolean exited(){return false;}
     @Override protected boolean canSaveOnExit(){return true;}
     @Override protected void saveAndExit(){
-        if (!exiting) {
-            exiting=true;
-            js("saveSession(true).catch(e=>PalmHost.saveFailed(String(e)))");
-        }
+        save(true);
+    }
+    private void save(boolean exitAfter) {
+        if (exiting) return;
+        exiting = exitAfter;
+        if (machine != null) {
+            if (!savingNative) {
+                savingNative = true;
+                machine.command('S', 0, 0);
+            }
+        } else if (exitAfter) js("saveSession(true).catch(e=>PalmHost.saveFailed(String(e)))");
+        else js("saveSession().catch(problem)");
     }
     @Override protected void stopCore(){closeHost();}
     private synchronized void closeHost(){
         if(closed)return;closed=true;
+        if(machine!=null) { machine.close(); machine=null; }
         speaker.close();
         if(writing!=null){atomic.failWrite(writing);writing=null;}
         if(web!=null){web.removeJavascriptInterface("PalmHost");ViewParent parent=web.getParent();if(parent instanceof ViewGroup)((ViewGroup)parent).removeView(web);web.destroy();}

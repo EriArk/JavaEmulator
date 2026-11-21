@@ -3,10 +3,13 @@ android {
     namespace 'io.github.eriark.abyssme.palm.bridge'
     compileSdk 34
     defaultConfig { minSdk 29 }
+    sourceSets.main.jniLibs.srcDir rootProject.file('build/palm/jniLibs')
     sourceSets.main.assets.srcDir rootProject.file('build/palm/assets')
 }
 if (!rootProject.file('build/palm/assets/palm/cloudpilot_web.wasm').isFile())
     throw new GradleException('Prepare CloudpilotEmu with engines/palm/prepare.sh')
+if (!rootProject.file('build/palm/jniLibs/arm64-v8a/libabysspalm_runner.so').isFile())
+    throw new GradleException('Build the native Palm OS 5 runner with engines/palm/build-native.sh')
 def sticker = tasks.register('preparePalmSticker', Sync) {
     from(rootProject.file('design-concepts/platform-stickers/palm.webp'))
     rename { 'sticker_palm.webp' }
