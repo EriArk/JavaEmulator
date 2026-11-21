@@ -38,9 +38,10 @@ public final class HandheldOpenDialog extends DialogFragment {
                         return;
                     }
                     if(ids.size()==1){open(uri,ids.iterator().next());return;}
-                    if (ids.contains(B2gManifest.FIREFOX) && ids.contains(B2gManifest.KAIOS)) {
+                    if ((ids.contains(25) && ids.contains(26)) ||
+                            (ids.contains(B2gManifest.FIREFOX) && ids.contains(B2gManifest.KAIOS))) {
                         int preferred = requireArguments().getInt("preferred", -1);
-                        if (!ids.contains(preferred)) preferred = B2gManifest.remembered(context, uri);
+                        if (!ids.contains(preferred)) preferred = HandheldFormat.remembered(context, uri);
                         if (ids.contains(preferred)) { open(uri, preferred); return; }
                     }
                     dialog.page("Choose platform");
@@ -58,8 +59,8 @@ public final class HandheldOpenDialog extends DialogFragment {
         Context c=requireContext().getApplicationContext();
         work=Single.fromCallable(()->ExternalLibrary.packageProvider(platform).install(c,uri))
                 .subscribeOn(Schedulers.io()).observeOn(AndroidSchedulers.mainThread()).subscribe(item->{
-                    if (platform == B2gManifest.FIREFOX || platform == B2gManifest.KAIOS)
-                        B2gManifest.remember(c, uri, platform);
+                    if (platform == 25 || platform == 26 || platform == B2gManifest.FIREFOX || platform == B2gManifest.KAIOS)
+                        HandheldFormat.remember(c, uri, platform);
                     Bundle result=new Bundle();result.putInt("platform",item.platformId());
                     getParentFragmentManager().setFragmentResult("handheld-installed",result);
                     if(requireArguments().getBoolean("play")) item.launch(requireActivity(),false);

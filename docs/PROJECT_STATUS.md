@@ -1,6 +1,6 @@
 # AbyssME - Current Product and Development Status
 
-**Last updated: 2026-11-21.** Verification dates are recorded per section.
+**Last updated: 2026-11-22.** Verification dates are recorded per section.
 This is the starting point for website copy,
 announcements, progress posts and project handoffs. It includes work that exists
 only in local experiments or private test builds. Describing that work here
@@ -14,13 +14,17 @@ attribute its results to the dated maintainer record below; do not infer a pass.
 
 The [platform issue index](PLATFORM_ISSUES.md) maps the 51 open platform-specific tasks to the maintainer roadmap, including the initial integration order and scope decisions.
 
+## Gamebuino Classic (2026-11-22, private Retroid build)
+
+The combined build imports Classic HEX programs, ZIP packages and companion SD images. Bomber reached single-player gameplay with touch and controller input and recorded audio. The CHIP-8 player loaded BRIX from its writable game card. The adapter shares the library, graphics and controller profiles. A guest EEPROM write survived a cold launch. [Device checks](checks/2026-11-22-gamebuino.md).
+
 ## Arduboy / FX (2026-11-21, private Retroid build)
 
 ArduGolf and Dazzle Dash launch from the new Arduboy / FX library. The build supports Intel HEX, packaged FX data, native A/B controls, shared controller profiles, game saves and a save-state slot. ArduGolf restored the first hole after a cold launch. Dazzle Dash produced audio through the Android mixer and responded to touch and controller events. [Device checks](checks/2026-11-21-arduboy.md).
 
 ## Maker handheld research (2026-11-21)
 
-Gamebuino Classic is next in the integration queue after the Arduboy device check. A standalone ARM64 Ardens core on Retroid produced input-dependent frames in ArduGolf and nonzero PCM in Dazzle Dash FX. Desktop checks covered Bomber on Gamebuino Classic, Pokitto's loader and PicoRacer in the picogame simulator. Nine candidates are scheduled and three need an engine decision. [Results, sources and Android coverage](checks/2026-11-21-maker-handhelds.md).
+The review put Gamebuino Classic after Arduboy and before Pokitto. A standalone ARM64 Ardens core on Retroid produced input-dependent frames in ArduGolf and nonzero PCM in Dazzle Dash FX. Desktop checks covered Bomber on Gamebuino Classic, Pokitto's loader and PicoRacer in the picogame simulator. Nine candidates are scheduled and three need an engine decision. [Results, sources and Android coverage](checks/2026-11-21-maker-handhelds.md).
 
 ## Early iPhone OS (2026-11-21, private Retroid build)
 

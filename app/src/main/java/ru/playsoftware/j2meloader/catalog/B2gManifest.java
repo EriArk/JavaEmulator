@@ -40,13 +40,7 @@ public final class B2gManifest {
         }
     }
 
-    static int remembered(android.content.Context c, Uri uri) {
-        return c.getSharedPreferences("web-package-platforms", 0).getInt(SourceIdentity.libraryKey(SourceIdentity.key(uri)), -1);
-    }
-    static void remember(android.content.Context c, Uri uri, int platform) {
-        c.getSharedPreferences("web-package-platforms", 0).edit()
-                .putInt(SourceIdentity.libraryKey(SourceIdentity.key(uri)), platform).apply();
-    }
+
 
     public static String localPath(Uri uri) {
         if (uri.getScheme() != null || uri.getEncodedAuthority() != null) return null;

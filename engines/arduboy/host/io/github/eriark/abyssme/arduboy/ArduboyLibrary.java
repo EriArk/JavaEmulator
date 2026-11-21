@@ -26,7 +26,7 @@ public final class ArduboyLibrary extends CartridgeLibrary {
     @Override protected String inspect(Context context, File file, String name, Properties info) throws IOException {
         if (name.toLowerCase(Locale.ROOT).endsWith(".zip")) {
             try (ZipFile zip = new ZipFile(file)) {
-                if (zip.getEntry("info.json") != null) {
+                if (ru.playsoftware.j2meloader.catalog.HandheldFormat.arduboyBundle(zip)) {
                     // A renamed FX package must keep its flash data and optional save seed together.
                     inspectBundle(zip, info);
                     return SourceIdentity.sha256(file);
@@ -82,30 +82,6 @@ public final class ArduboyLibrary extends CartridgeLibrary {
         ZipEntry entry = zip.getEntry(name);
         if (entry == null || entry.isDirectory()) throw new IOException("Missing Arduboy package file: " + name);
         return entry;
-    }
-
-    private static void checkHex(InputStream in) throws IOException {
-        BufferedReader reader = new BufferedReader(new InputStreamReader(in, StandardCharsets.US_ASCII));
-        boolean data = false;
-        for (String line; (line = reader.readLine()) != null;) {
-            line = line.trim();
-            if (line.isEmpty()) continue;
-            if (!line.startsWith(":") || line.length() < 11 || line.length() > 521 || line.length() % 2 == 0)
-                throw new IOException("Invalid Intel HEX record");
-            int sum = 0, length = 0, type = 0;
-            for (int i = 1; i < line.length(); i += 2) {
-                int hi = Character.digit(line.charAt(i), 16), lo = Character.digit(line.charAt(i + 1), 16);
-                if (hi < 0 || lo < 0) throw new IOException("Invalid Intel HEX digit");
-                int value = hi * 16 + lo;
-                if (i == 1) length = value;
-                if (i == 7) type = value;
-                sum += value;
-            }
-            if (line.length() != length * 2 + 11 || (sum & 255) != 0) throw new IOException("Damaged Intel HEX record");
-            if (type == 0 && length > 0) data = true;
-            if (type == 1) break;
-        }
-        if (!data) throw new IOException("Intel HEX contains no program");
     }
 
     @Override protected void extractInstalledArt(File game, File directory) throws IOException {

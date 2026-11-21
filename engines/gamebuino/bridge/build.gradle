@@ -1,0 +1,25 @@
+plugins { id 'com.android.library' }
+android {
+    namespace 'io.github.eriark.abyssme.gamebuino.bridge'
+    compileSdk 34
+    defaultConfig { minSdk 29 }
+}
+def stickers = tasks.register('prepareGamebuinoStickers', Sync) {
+    from(rootProject.file('design-concepts/platform-stickers')) {
+        include 'gamebuino.webp'
+        rename { name -> "sticker_" + name }
+    }
+    into layout.buildDirectory.dir('generated/deviceArt/drawable-nodpi')
+}
+android.sourceSets.main.res.srcDir layout.buildDirectory.dir('generated/deviceArt')
+tasks.named('preBuild').configure { dependsOn stickers }
+
+def frameworkAssets = rootProject.file('build/gamebuino/assets')
+android.sourceSets.main.assets.srcDir frameworkAssets
+tasks.named('preBuild').configure {
+    doFirst {
+        if (!new File(frameworkAssets, 'gamebuino/core/AtmelProcessor.js').isFile()) {
+            throw new GradleException('Prepare Simbuino with python3 engines/gamebuino/prepare.py <game catalog checkout>')
+        }
+    }
+}

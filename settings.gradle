@@ -82,6 +82,10 @@ if (providers.gradleProperty('arduboyProbe').orNull == 'true') {
     include ':arduboy-probe'
     project(':arduboy-probe').projectDir = file('engines/arduboy/bridge')
 }
+if (providers.gradleProperty('gamebuinoProbe').orNull == 'true') {
+    include ':gamebuino-probe'
+    project(':gamebuino-probe').projectDir = file('engines/gamebuino/bridge')
+}
 if (providers.gradleProperty('iphoneProbe').orNull == 'true') {
     include ':iphone-probe'
     project(':iphone-probe').projectDir = file('engines/iphone/bridge')

@@ -79,6 +79,10 @@ public class HandheldCycleTest {
                     int edition = card.engine.equals("kaios") ? B2gManifest.KAIOS : B2gManifest.FIREFOX;
                     assertTrue(matches.contains(edition));
                     detected.add(edition);
+                } else if (card.engine.equals("arduboy") || card.engine.equals("gamebuino")) {
+                    int edition = card.engine.equals("arduboy") ? 25 : 26;
+                    assertTrue(matches.contains(edition));
+                    detected.add(edition);
                 } else detected.addAll(matches);
             }
         }
@@ -152,6 +156,37 @@ public class HandheldCycleTest {
         assertEquals(Collections.singleton(25), HandheldFormat.detect(c, Uri.fromFile(renamed), renamed.getName()));
     }
 
+    @Test public void classicHexSharesChooserAndKeepsPackageArt() throws Exception {
+        Assume.assumeTrue(ru.playsoftware.j2meloader.BuildConfig.GAMEBUINO_PROBE &&
+                ru.playsoftware.j2meloader.BuildConfig.ARDUBOY_PROBE);
+        File hex = new File(work, "test.hex");
+        Files.write(hex.toPath(), ":0100000001FE\n:00000001FF\n".getBytes(java.nio.charset.StandardCharsets.US_ASCII));
+        Set<Integer> both = new HashSet<>(Arrays.asList(25, 26));
+        assertEquals(both, HandheldFormat.detect(c, Uri.fromFile(hex), hex.getName()));
+        File zip = new File(work, "classic.zip");
+        byte[] inf = new byte[81];
+        System.arraycopy("gbinf".getBytes("US-ASCII"), 0, inf, 0, 5);
+        inf[6] = 1;
+        System.arraycopy("Pocket".getBytes("US-ASCII"), 0, inf, 7, 6);
+        try (ZipOutputStream out = new ZipOutputStream(new FileOutputStream(zip))) {
+            out.putNextEntry(new ZipEntry("test.hex")); Files.copy(hex.toPath(), out);
+            out.putNextEntry(new ZipEntry("test.inf")); out.write(inf);
+            out.putNextEntry(new ZipEntry("disk.img")); out.write(new byte[512]);
+            out.putNextEntry(new ZipEntry("info.json")); out.write("{}".getBytes("US-ASCII"));
+        }
+        assertEquals(both, HandheldFormat.detect(c, Uri.fromFile(zip), zip.getName()));
+        File dest = new File(work, "classic");
+        Context isolated = isolated(dest);
+        ExternalLibrary.Item item = ExternalLibrary.packageProvider(26).install(isolated, Uri.fromFile(zip));
+        assertEquals("Pocket", item.getTitle());
+        String id = SourceIdentity.sha256(hex);
+        assertEquals("gamebuino/" + id, item.getPath());
+        File dir = new File(dest, "gamebuino/packages/" + id);
+        assertTrue(new File(dir, "icon.png").length() > 0);
+        assertEquals(512, new File(dir, "initial-sd.img").length());
+        assertEquals(item.getPath(), ExternalLibrary.packageProvider(26).install(isolated, Uri.fromFile(hex)).getPath());
+    }
+
     @Test public void webOsZipUsesSameInstalledIdentityAsLooseGame() throws Exception {
         Assume.assumeTrue(ru.playsoftware.j2meloader.BuildConfig.WEBOS_PROBE);
         checkZipIdentity(new File(c.getExternalFilesDir(null), "webos-check/2048.ipk"), 18);
@@ -220,6 +255,7 @@ public class HandheldCycleTest {
         if (ru.playsoftware.j2meloader.BuildConfig.POCKETPC_PROBE && new File(source,"pocketpc/packages").isDirectory()) ids.add(22);
         if (ru.playsoftware.j2meloader.BuildConfig.PORTFOLIO_PROBE && new File(source,"portfolio/packages").isDirectory()) ids.add(21);
         if (ru.playsoftware.j2meloader.BuildConfig.ARDUBOY_PROBE && new File(source,"arduboy/packages").isDirectory()) ids.add(25);
+        if (ru.playsoftware.j2meloader.BuildConfig.GAMEBUINO_PROBE && new File(source,"gamebuino/packages").isDirectory()) ids.add(26);
         if (ru.playsoftware.j2meloader.BuildConfig.IPHONE_PROBE && new File(source,"iphone/packages").isDirectory()) ids.add(24);
         return ids;
     }

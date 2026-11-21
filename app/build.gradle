@@ -75,6 +75,7 @@ android {
         buildConfigField 'boolean', 'WEBOS_PROBE', (findProject(':webos-probe') != null).toString()
         buildConfigField 'boolean', 'B2G_PROBE', (findProject(':b2g-probe') != null).toString()
         buildConfigField 'boolean', 'ARDUBOY_PROBE', (findProject(':arduboy-probe') != null).toString()
+        buildConfigField 'boolean', 'GAMEBUINO_PROBE', (findProject(':gamebuino-probe') != null).toString()
         buildConfigField 'boolean', 'IPHONE_PROBE', (findProject(':iphone-probe') != null).toString()
         buildConfigField 'boolean', 'GIZMONDO_PROBE', (findProject(':gizmondo-probe') != null).toString()
         buildConfigField 'boolean', 'POCKETPC_PROBE', (findProject(':pocketpc-probe') != null).toString()
@@ -465,7 +466,7 @@ if (findProject(':mre-probe') != null) {
     android.sourceSets.debug.java.srcDir rootProject.file('engines/mre/host')
 }
 
-if (findProject(':webos-probe') != null || findProject(':b2g-probe') != null || findProject(':portfolio-probe') != null) {
+if (findProject(':webos-probe') != null || findProject(':b2g-probe') != null || findProject(':portfolio-probe') != null || findProject(':gamebuino-probe') != null) {
     android.sourceSets.debug.assets.srcDir rootProject.file('engines/webgames/assets')
 }
 
@@ -488,6 +489,10 @@ if (findProject(':b2g-probe') != null) {
 if (findProject(':arduboy-probe') != null) {
     dependencies.add('debugImplementation', project(':arduboy-probe'))
     android.sourceSets.debug.java.srcDirs rootProject.file('engines/arduboy/host')
+}
+if (findProject(':gamebuino-probe') != null) {
+    dependencies.add('debugImplementation', project(':gamebuino-probe'))
+    android.sourceSets.debug.java.srcDirs rootProject.file('engines/gamebuino/host')
 }
 if (findProject(':iphone-probe') != null) {
     dependencies.add('debugImplementation', project(':iphone-probe'))

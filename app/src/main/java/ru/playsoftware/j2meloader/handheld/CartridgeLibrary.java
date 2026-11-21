@@ -33,6 +33,30 @@ public abstract class CartridgeLibrary extends ManagedGameLibrary {
         return SourceIdentity.sha256(file);
     }
 
+    protected static void checkHex(InputStream in) throws IOException {
+        BufferedReader reader = new BufferedReader(new InputStreamReader(in, java.nio.charset.StandardCharsets.US_ASCII));
+        boolean data = false;
+        for (String line; (line = reader.readLine()) != null;) {
+            line = line.trim();
+            if (line.isEmpty()) continue;
+            if (!line.startsWith(":") || line.length() < 11 || line.length() > 521 || line.length() % 2 == 0)
+                throw new IOException("Invalid Intel HEX record");
+            int sum = 0, length = 0, type = 0;
+            for (int i = 1; i < line.length(); i += 2) {
+                int hi = Character.digit(line.charAt(i), 16), lo = Character.digit(line.charAt(i + 1), 16);
+                if (hi < 0 || lo < 0) throw new IOException("Invalid Intel HEX digit");
+                int value = hi * 16 + lo;
+                if (i == 1) length = value;
+                if (i == 7) type = value;
+                sum += value;
+            }
+            if (line.length() != length * 2 + 11 || (sum & 255) != 0) throw new IOException("Damaged Intel HEX record");
+            if (type == 0 && length > 0) data = true;
+            if (type == 1) break;
+        }
+        if (!data) throw new IOException("Intel HEX contains no program");
+    }
+
     protected ZipEntry selectImage(ZipFile zip) throws IOException {
         ZipEntry image = null;
         for (Enumeration<? extends ZipEntry> entries = zip.entries(); entries.hasMoreElements();) {

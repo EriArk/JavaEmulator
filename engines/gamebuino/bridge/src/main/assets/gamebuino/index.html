@@ -1,0 +1,28 @@
+<!doctype html>
+<html><head><meta name="viewport" content="width=device-width,initial-scale=1">
+<style>*{margin:0}canvas{display:block;width:100vw;height:100vh;image-rendering:pixelated}</style>
+</head><body><canvas width="84" height="48"></canvas>
+<script>
+// The hardware modules use only jQuery's ready and each callbacks.
+window.$ = init => init();
+$.each = (members, visit) => Object.keys(members).forEach(key => visit(key, members[key]));
+</script>
+<script src="core/class.js"></script>
+<script src="core/MemoryMappedRegister.js"></script>
+<script src="core/AtmelRegisters.js"></script>
+<script src="core/FlagsRegister.js"></script>
+<script src="core/AtmelIO.js"></script>
+<script src="core/AtmelContext.js"></script>
+<script src="core/AtmelProcessor.js"></script>
+<script src="core/ADC.js"></script>
+<script src="core/Buttons.js"></script>
+<script src="core/SPI.js"></script>
+<script src="core/USART.js"></script>
+<script src="core/EEPROM.js"></script>
+<script src="core/Lcd.js"></script>
+<script src="core/SdDevice.js"></script>
+<script src="core/AudioPlayer.js"></script>
+<script src="core/HexDecoder.js"></script>
+<script src="core/Bootloader.js"></script>
+<script src="classic.js"></script>
+</body></html>

@@ -16,6 +16,24 @@ public final class HandheldFormat {
     private static final java.util.regex.Pattern GIZMONDO_DIRECTORY =
             java.util.regex.Pattern.compile("(?:^|/)gz[a-z]{2}[0-9]{6}/");
 
+    static int remembered(android.content.Context c, Uri uri) {
+        return c.getSharedPreferences("web-package-platforms", 0).getInt(SourceIdentity.libraryKey(SourceIdentity.key(uri)), -1);
+    }
+    static void remember(android.content.Context c, Uri uri, int platform) {
+        c.getSharedPreferences("web-package-platforms", 0).edit()
+                .putInt(SourceIdentity.libraryKey(SourceIdentity.key(uri)), platform).apply();
+    }
+
+    public static boolean arduboyBundle(ZipFile zip) {
+        ZipEntry manifest = zip.getEntry("info.json");
+        if (manifest == null || manifest.getSize() > 1024 * 1024) return false;
+        try (Reader reader = new InputStreamReader(zip.getInputStream(manifest), StandardCharsets.UTF_8)) {
+            com.google.gson.JsonObject object = com.google.gson.JsonParser.parseReader(reader).getAsJsonObject();
+            String program = object.getAsJsonArray("binaries").get(0).getAsJsonObject().get("filename").getAsString();
+            return zip.getEntry(program) != null;
+        } catch (IOException | RuntimeException invalid) { return false; }
+    }
+
     private HandheldFormat() {}
     static String name(Context c, Uri uri) {
         if ("content".equals(uri.getScheme())) try (Cursor cursor=c.getContentResolver().query(uri,
@@ -29,6 +47,7 @@ public final class HandheldFormat {
     static int platform(String name) {
         String s=name.toLowerCase(Locale.ROOT);
         if (BuildConfig.ARDUBOY_PROBE && (s.endsWith(".hex") || s.endsWith(".arduboy"))) return 25;
+        if (BuildConfig.GAMEBUINO_PROBE && s.endsWith(".hex")) return 26;
         if (BuildConfig.IPHONE_PROBE && s.endsWith(".ipa")) return 24;
         if (BuildConfig.POCKETPC_PROBE && s.endsWith(".cab")) return 22;
         if (BuildConfig.PORTFOLIO_PROBE && s.endsWith(".com")) return 21;
@@ -49,7 +68,7 @@ public final class HandheldFormat {
     private static boolean binaryFile(String name) {
         return name.endsWith(".bin") || ((BuildConfig.GAMATE_PROBE || BuildConfig.PALM_PROBE) && name.endsWith(".rom"));
     }
-    static boolean enabled() { return BuildConfig.ARDUBOY_PROBE || BuildConfig.IPHONE_PROBE || BuildConfig.WIPI_PROBE || BuildConfig.DINGOO_PROBE || BuildConfig.PIECE_PROBE || BuildConfig.GP32_PROBE || BuildConfig.SUPERVISION_PROBE || BuildConfig.MEGADUCK_PROBE || BuildConfig.CYBIKO_PROBE || BuildConfig.FLASH_PROBE || BuildConfig.GAMATE_PROBE || BuildConfig.GAMEKING_PROBE || BuildConfig.PALM_PROBE || BuildConfig.MRE_PROBE || BuildConfig.WEBOS_PROBE || BuildConfig.B2G_PROBE || BuildConfig.PORTFOLIO_PROBE || BuildConfig.POCKETPC_PROBE; }
+    static boolean enabled() { return BuildConfig.GAMEBUINO_PROBE || BuildConfig.ARDUBOY_PROBE || BuildConfig.IPHONE_PROBE || BuildConfig.WIPI_PROBE || BuildConfig.DINGOO_PROBE || BuildConfig.PIECE_PROBE || BuildConfig.GP32_PROBE || BuildConfig.SUPERVISION_PROBE || BuildConfig.MEGADUCK_PROBE || BuildConfig.CYBIKO_PROBE || BuildConfig.FLASH_PROBE || BuildConfig.GAMATE_PROBE || BuildConfig.GAMEKING_PROBE || BuildConfig.PALM_PROBE || BuildConfig.MRE_PROBE || BuildConfig.WEBOS_PROBE || BuildConfig.B2G_PROBE || BuildConfig.PORTFOLIO_PROBE || BuildConfig.POCKETPC_PROBE; }
     static boolean candidate(String name) {
         String s=name.toLowerCase(Locale.ROOT);
         return enabled() && (platform(s)!=0 || s.endsWith(".zip") || binaryFile(s) || s.endsWith(".exe"));
@@ -75,6 +94,7 @@ public final class HandheldFormat {
                         B2gManifest web = B2gManifest.read(zip);
                         if (web != null) return web.platforms;
                     }
+                    boolean arduboyBundle = BuildConfig.ARDUBOY_PROBE && arduboyBundle(zip);
                     Set<String> paths=new HashSet<>(); boolean legacy=false, jar=false, ceProgram=false, gizmondoCard=false;
                     for (Enumeration<? extends ZipEntry> it=zip.entries();it.hasMoreElements();) {
                         ZipEntry e=it.nextElement();
@@ -98,6 +118,7 @@ public final class HandheldFormat {
                             if (p.endsWith(".app") && cybiko(h)) id=12;
                             else if (!ccdl(h) || id==12) id=0;
                         }
+                        if (BuildConfig.GAMEBUINO_PROBE && p.endsWith(".hex") && !arduboyBundle) result.add(26);
                         if (id!=0) result.add(id);
                         if (p.endsWith(".pfs") && BuildConfig.PIECE_PROBE) result.add(8);
                         if (p.endsWith(".jar")) jar=true;
@@ -154,6 +175,7 @@ public final class HandheldFormat {
                 if (s.endsWith(".exe") && BuildConfig.PIECE_PROBE && new String(h,StandardCharsets.ISO_8859_1).contains("LHA's SFX")) result.add(8);
             }
         } else if (platform!=0) result.add(platform);
+        if (BuildConfig.GAMEBUINO_PROBE && s.endsWith(".hex")) result.add(26);
         return result;
     }
     private static boolean cabinet(byte[] header) {
@@ -241,7 +263,7 @@ public final class HandheldFormat {
         return Arrays.copyOf(bytes,n);
     }
     public static int indexedPlatform(String path) {
-        if (path != null && path.matches("pending_([5-9]|1[0-9]|2[0-5])_[a-f0-9]+"))
+        if (path != null && path.matches("pending_([5-9]|1[0-9]|2[0-6])_[a-f0-9]+"))
             return Integer.parseInt(path.substring(8, path.indexOf('_', 8)));
         return 0;
     }

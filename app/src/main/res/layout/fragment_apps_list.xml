@@ -193,6 +193,12 @@
                 android:background="@drawable/bg_library_tab" android:clickable="true" android:focusable="true"
                 android:gravity="center" android:singleLine="true" android:text="Arduboy / FX"
                 android:textSize="16sp" android:textColor="?attr/abyss_text_primary" />
+            <TextView android:id="@+id/platform_gamebuino"
+                android:layout_width="wrap_content" android:layout_height="48dp"
+                android:minWidth="112dp" android:paddingHorizontal="18dp"
+                android:background="@drawable/bg_library_tab" android:clickable="true" android:focusable="true"
+                android:gravity="center" android:singleLine="true" android:text="Gamebuino Classic"
+                android:textSize="16sp" android:textColor="?attr/abyss_text_primary" />
         </LinearLayout>
     </HorizontalScrollView>
     <LinearLayout android:id="@+id/library_screen"

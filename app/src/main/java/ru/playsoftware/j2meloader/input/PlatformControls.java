@@ -54,6 +54,7 @@ public final class PlatformControls {
             row(null,b(KEY_FIRE,"▶","Play"),null),
             row(b('2',"Home"),b('4',"Vol","Volume"),b('6',"Light","Brightness")),
             row(b('8',"Zone","Geofence"),b('0',"Power")));
+    private static final PlatformControls GAMEBUINO = new PlatformControls("gamebuino", true, row(b(KEY_SOFT_LEFT, "C"), null), row(A, B));
     private static final PlatformControls ARDUBOY = new PlatformControls("arduboy", true, row(A,B));
     private static final PlatformControls IPHONE = new PlatformControls("iphone", false, row(b(KEY_FIRE,"Touch")));
     private static final PlatformControls CYBIKO = new PlatformControls("cybiko", true,
@@ -96,6 +97,7 @@ public final class PlatformControls {
         if (engine == null) return null;
         switch (engine) {
             case "arduboy": return ARDUBOY;
+            case "gamebuino": return GAMEBUINO;
             case "iphone": return IPHONE;
             case "wipi": return WIPI;
             case "mre": case "kaios": return KEYPAD;

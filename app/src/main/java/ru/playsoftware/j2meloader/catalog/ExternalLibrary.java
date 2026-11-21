@@ -24,6 +24,7 @@ public final class ExternalLibrary {
             case 14: provider = "io.github.eriark.abyssme.gamate.GamateLibrary"; break;
             case 15: provider = "io.github.eriark.abyssme.gameking.GameKingLibrary"; break;
             case 25: provider = "io.github.eriark.abyssme.arduboy.ArduboyLibrary"; break;
+            case 26: provider = "io.github.eriark.abyssme.gamebuino.GamebuinoLibrary"; break;
             case 24: provider = "io.github.eriark.abyssme.iphone.IphoneLibrary"; break;
             case 23: provider = "io.github.eriark.abyssme.pocketpc.GizmondoLibrary"; break;
             case 22: provider = "io.github.eriark.abyssme.pocketpc.PocketPcLibrary"; break;
@@ -72,6 +73,7 @@ public final class ExternalLibrary {
         if (BuildConfig.GAMATE_PROBE) games.addAll(packageProvider(14).read(context));
         if (BuildConfig.GAMEKING_PROBE) games.addAll(packageProvider(15).read(context));
         if (BuildConfig.ARDUBOY_PROBE) games.addAll(packageProvider(25).read(context));
+        if (BuildConfig.GAMEBUINO_PROBE) games.addAll(packageProvider(26).read(context));
         if (BuildConfig.IPHONE_PROBE) games.addAll(packageProvider(24).read(context));
         if (BuildConfig.GIZMONDO_PROBE) games.addAll(packageProvider(23).read(context));
         if (BuildConfig.POCKETPC_PROBE) games.addAll(packageProvider(22).read(context));
