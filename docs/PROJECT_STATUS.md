@@ -14,6 +14,10 @@ attribute its results to the dated maintainer record below; do not infer a pass.
 
 The [platform issue index](PLATFORM_ISSUES.md) maps the 49 open platform-specific tasks to the maintainer roadmap, including the initial integration order and scope decisions.
 
+## TimeTop GameKing (2026-11-21, private Retroid build)
+
+The fifteenth platform tile opens one GameKing library for GM-218 and color GM-220 cartridges. The app selects the matching user-installed BIOS. On Retroid Pocket Classic the GameKing folder indexed 21 cartridge ZIPs and both BIOS files. The monochrome BIOS ran Drifter, and the color Adventure cartridge reached stage one with touch and controller input. Android playback and a cold checkpoint restore were checked. All 21 supplied cartridges also ran through a separate scripted ARM64 core check. [Device evidence, scope and cartridge measurements](checks/2026-11-21-gameking.md).
+
 ## Gamate (2026-11-21, private Retroid build)
 
 Gamate is the fourteenth platform in the combined test build. XGomoku and X-T-Rex reached gameplay through a separately imported UMC BIOS on Retroid Pocket Classic. Touch and controller input, Android playback audio and cold checkpoint restoration were verified. The supplied 58 retail game images booted in short host runs with both BIOS variants. On Retroid, the 4-in-1 cartridge played Mini Golf and Cube Up, and Galaxy Invaders entered its first wave. The runtime uses the shared library, profiles, display settings and portable backups. Opening a folder-indexed cartridge from a file manager also keeps one visible card. [Device checks and scope](checks/2026-11-21-gamate.md).

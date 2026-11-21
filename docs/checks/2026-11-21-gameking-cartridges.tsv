@@ -1,0 +1,22 @@
+model	cartridge	rom_sha1	changed_frames_after_frame_180	nonuniform_frames_after_frame_180	pcm_samples_above_64	state_roundtrip
+GM-218	2004 (200x)(TimeTop)	b5dea250829224ce8cf18ec310ad503cb928667f	58	419	527292	pass
+GM-218	Adventure Legend Carlo (200x)(TimeTop)	741684b5379d4be732a98beace5d09f37ff19bbf	45	419	402682	pass
+GM-218	Aries (200x)(TimeTop)	1ad7a325aba2cf3593165b53e7ae3973388335f7	54	419	527098	pass
+GM-218	Dino Adventure Legend (200x)(TimeTop)	df4b5dc80a758d9e3c9b00384e3099ad8331faad	55	419	416728	pass
+GM-218	Dino Adventure Legend (200x)(TimeTop)[a]	c2ea6cb2976d02a90f382f289aa8ddd4339bad98	55	419	416728	pass
+GM-218	Duck Man (200x)(TimeTop)	376606097f66105d1a9e97e9793362f6f1e3b1a7	52	395	529596	pass
+GM-218	F1-2004 Racing (200x)(TimeTop)	939931d1eed8a353fb0cd065612479b52ee36242	96	417	518810	pass
+GM-218	Feichuan VII (200x)(TimeTop)	98b1cd7d3d1fe1b1341bef0b2f7d4ae0052fdb01	50	419	518942	pass
+GM-218	Happy Ball (200x)(TimeTop)	fc14712260ed6e3d6313055046546d37b7c838d2	56	411	517212	pass
+GM-218	Happy Killer (200x)(TimeTop)	705309829ee87689793c15be1f781d52471908d6	49	419	493108	pass
+GM-218	Lanneret (200x)(TimeTop)	bcf92ab85cc97ffe94d6a363a87b0b5de62c3c66	48	419	527318	pass
+GM-218	Penguin (200x)(TimeTop)	2f253b6ab6f6b9fc114ffca120d13df2e1e5f860	51	416	529210	pass
+GM-218	Popper (200x)(TimeTop)	314931548578303e5e80a2bcb03c92472cb014d9	51	416	402682	pass
+GM-218	Seatercel (200x)(TimeTop)	a31e8361baad16bf0ad02fa809421e3a8f8607f7	54	419	527210	pass
+GM-218	Soldier (200x)(TimeTop)	590e2ed2b72ad2e3a8c1d6b115c7c9acabf9aa63	48	412	402682	pass
+GM-218	Street Hero (200x)(TimeTop)	2c442126999e4b112a48e42a82dfa9ad9d6efa22	70	419	402682	pass
+GM-218	Supermoto (200x)(TimeTop)	0c3011da35170241637907bb23d79355db38f343	55	418	529892	pass
+GM-218	Trojan Legend (200x)(TimeTop)	5a152bfb2ba2150cff9dc66729ceadc0b47d4f17	57	412	517648	pass
+GM-220	Adventure (200x)(TimeTop)	83b164719b2c2d5c133ca05c9fac0102b0d88e4c	40	419	706910	pass
+GM-220	Fly Cab (200x)(TimeTop)	ea901fe7a7aea203afe6fe0d33e374163cec0262	73	419	925724	pass
+GM-220	Urgent Action (200x)(TimeTop)	9c1375c622caab9e328ee66434087a18a16ea036	53	419	797804	pass

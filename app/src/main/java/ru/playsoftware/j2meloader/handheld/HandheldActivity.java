@@ -42,6 +42,7 @@ public abstract class HandheldActivity extends Activity {
     protected boolean artworkReady() { return true; }
     protected void configureProfile(ProfileModel profile) {}
     protected abstract int width();
+    protected int displayWidth() { return width(); }
     protected abstract int height();
     protected abstract boolean exited();
     protected void gameTap(float x,float y) {}

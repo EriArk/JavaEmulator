@@ -25,6 +25,7 @@ public final class HandheldFormat {
     }
     static int platform(String name) {
         String s=name.toLowerCase(Locale.ROOT);
+        if (BuildConfig.GAMEKING_PROBE && s.endsWith(".gk")) return 15;
         if (BuildConfig.GAMATE_PROBE && s.endsWith(".gam")) return 14;
         if (BuildConfig.FLASH_PROBE && s.endsWith(".swf")) return 13;
         if (s.endsWith(".app")) return BuildConfig.DINGOO_PROBE ? 6 : BuildConfig.CYBIKO_PROBE ? 12 : 0;
@@ -38,7 +39,7 @@ public final class HandheldFormat {
     private static boolean binaryFile(String name) {
         return name.endsWith(".bin") || (BuildConfig.GAMATE_PROBE && name.endsWith(".rom"));
     }
-    static boolean enabled() { return BuildConfig.WIPI_PROBE || BuildConfig.DINGOO_PROBE || BuildConfig.PIECE_PROBE || BuildConfig.GP32_PROBE || BuildConfig.SUPERVISION_PROBE || BuildConfig.MEGADUCK_PROBE || BuildConfig.CYBIKO_PROBE || BuildConfig.FLASH_PROBE || BuildConfig.GAMATE_PROBE; }
+    static boolean enabled() { return BuildConfig.WIPI_PROBE || BuildConfig.DINGOO_PROBE || BuildConfig.PIECE_PROBE || BuildConfig.GP32_PROBE || BuildConfig.SUPERVISION_PROBE || BuildConfig.MEGADUCK_PROBE || BuildConfig.CYBIKO_PROBE || BuildConfig.FLASH_PROBE || BuildConfig.GAMATE_PROBE || BuildConfig.GAMEKING_PROBE; }
     static boolean candidate(String name) {
         String s=name.toLowerCase(Locale.ROOT);
         return enabled() && (platform(s)!=0 || s.endsWith(".zip") || binaryFile(s) || s.endsWith(".exe"));
@@ -85,7 +86,7 @@ public final class HandheldFormat {
                     if (result.isEmpty()) for(Enumeration<? extends ZipEntry> it=zip.entries();it.hasMoreElements();) {
                         ZipEntry e=it.nextElement();
                         if (binaryFile(e.getName().toLowerCase(Locale.ROOT))) try(InputStream in=zip.getInputStream(e)) {
-                            byte[] header = prefix(in, 32);
+                            byte[] header = prefix(in, 80);
                             int id = cartridgeOrFirmware(in, header, e.getSize());
                             if (id != 0) result.add(id);
                         }
@@ -130,6 +131,15 @@ public final class HandheldFormat {
                     && header[3] == 0x4c && header[6] == 0x4c
                     && (header[2] & 255) >= 0xe0 && (header[5] & 255) >= 0xe0) return 14;
         }
+        if (BuildConfig.GAMEKING_PROBE && header.length >= 64 &&
+                new String(header, 26, 37, StandardCharsets.US_ASCII).equals("GZ Daidaixing Tec.Electronics Co.,ltd")) return 15;
+        if (BuildConfig.GAMEKING_PROBE && (length == 524288 || length < 0) && header.length >= 8
+                && header[0] == (byte)0xea && header[1] == (byte)0xea && header[2] == (byte)0xea && header[3] == 0x78
+                && header[4] == (byte)0xd8 && header[5] == (byte)0xa2 && header[6] == (byte)0xff && header[7] == (byte)0x9a) return 15;
+        // The GM-218 begins with this little-endian firmware jump table.
+        if (BuildConfig.GAMEKING_PROBE && (length == 524288 || length < 0) && header.length >= 8
+                && header[0] == 7 && header[1] == 0x43 && header[2] == (byte)0xd6 && header[3] == 0x43
+                && header[4] == (byte)0xe4 && header[5] == 0x43 && header[6] == (byte)0xfd && header[7] == 0x43) return 15;
         int firmware = binary(header, length);
         if (firmware != 0) return firmware;
         // Retail Mega Duck cartridges commonly disable interrupts and jump into the first ROM window.
@@ -160,7 +170,7 @@ public final class HandheldFormat {
         return Arrays.copyOf(bytes,n);
     }
     public static int indexedPlatform(String path) {
-        if (path != null && path.matches("pending_([5-9]|1[0-4])_[a-f0-9]+"))
+        if (path != null && path.matches("pending_([5-9]|1[0-5])_[a-f0-9]+"))
             return Integer.parseInt(path.substring(8, path.indexOf('_', 8)));
         return 0;
     }

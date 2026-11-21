@@ -31,7 +31,10 @@ extern void retro_set_input_state(int16_t (*)(unsigned,unsigned,unsigned,unsigne
 static char *save_dir;
 static pthread_t runner;
 static pthread_mutex_t frame_lock = PTHREAD_MUTEX_INITIALIZER;
-static uint32_t pixels[W * H];
+#ifndef FRONTEND_PIXEL_CAPACITY
+#define FRONTEND_PIXEL_CAPACITY (W * H)
+#endif
+static uint32_t pixels[FRONTEND_PIXEL_CAPACITY];
 static bool fresh, running;
 static atomic_bool stopping, paused, exited;
 static atomic_int buttons, pressed_since_poll, speed;

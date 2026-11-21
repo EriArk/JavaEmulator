@@ -71,4 +71,5 @@
     <string name="nokia_open_keypad">Open phone keypad</string>
     <string name="nokia_close_keypad">Close phone keypad</string>
     <string name="library_gamate_import_hint">Choose a Gamate cartridge (.bin or .gam), a 4 KiB BIOS, or a ZIP.</string>
+    <string name="library_gameking_import_hint">Choose a GameKing or GameKing 3 cartridge (.bin or .gk), or the matching GM-218 or GM-220 BIOS. ZIP files are supported.</string>
 </resources>

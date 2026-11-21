@@ -1,0 +1,20 @@
+plugins { id 'com.android.library' }
+android {
+    namespace 'io.github.eriark.abyssme.gameking.bridge'
+    compileSdk 34
+    defaultConfig { minSdk 29 }
+    sourceSets.main.assets.srcDir rootProject.file('build/gameking/assets')
+    sourceSets.main.jniLibs.srcDir rootProject.file('build/gameking/jniLibs')
+}
+if (!rootProject.file('build/gameking/jniLibs/arm64-v8a/libabyssgameking.so').isFile())
+    throw new GradleException('Build the pinned GameKing frontend first (engines/gameking/README.md)')
+
+def stickers = tasks.register('prepareGameKingStickers', Sync) {
+    from(rootProject.file('design-concepts/platform-stickers')) {
+        include 'gameking.webp'
+        rename { name -> "sticker_" + name }
+    }
+    into layout.buildDirectory.dir('generated/deviceArt/drawable-nodpi')
+}
+android.sourceSets.main.res.srcDir layout.buildDirectory.dir('generated/deviceArt')
+tasks.named('preBuild').configure { dependsOn stickers }

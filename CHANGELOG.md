@@ -10,6 +10,10 @@ stated otherwise. **Experimental** in older checkpoints means local/private
 combined builds; released experimental features are explicitly identified.
 **Released** means an actual GitHub release asset.
 
+## 2026-11-21 - TimeTop GameKing and GameKing 3
+
+**Public source, private ARM64 test APK.** Added the GameKing platform tile and tab, automatic model and firmware selection, per-game states and the shared graphics and controller settings. Opening a BIOS card plays its built-in software. The Retroid folder scan added 21 cartridges and both firmware files. Nine device tests passed, including navigation and an isolated backup/restore. [Verification](docs/checks/2026-11-21-gameking.md).
+
 ## 2026-11-21 - Indexed handheld game cards
 
 - Fixed duplicate cards when the folder scanner and an Android file manager opened the same document using different URI encodings or folder grants. Existing games, saves and document permissions are preserved. [Retroid library check](docs/checks/2026-11-21-gamate.md#supplied-retail-collection).

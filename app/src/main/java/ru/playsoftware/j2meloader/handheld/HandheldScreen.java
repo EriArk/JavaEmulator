@@ -118,9 +118,10 @@ final class HandheldScreen extends View implements NativeFrame {
         boolean quarter = rotation % 180 != 0;
         float aw = quarter ? area.height() : area.width(), ah = quarter ? area.width() : area.height();
         boolean integer = profile.screenScaleType == PictureScale.INTEGER;
-        float scale = integer ? PictureScale.integerFit(W, H, aw, ah)
-                : profile.screenScaleType == 0 ? 1 : Math.min(aw / W, ah / H);
-        int w = Math.round(profile.screenScaleType == 2 ? aw : W * scale);
+        int displayWidth = host.displayWidth();
+        float scale = integer ? PictureScale.integerFit(displayWidth, H, aw, ah)
+                : profile.screenScaleType == 0 ? 1 : Math.min(aw / displayWidth, ah / H);
+        int w = Math.round(profile.screenScaleType == 2 ? aw : displayWidth * scale);
         int h = Math.round(profile.screenScaleType == 2 ? ah : H * scale);
         boolean enhanced = gpu != null && MophunGpuView.enabled(profile) && gpu.update(this, area, w, h, rotation, profile, paused);
         if (!enhanced) canvas.drawColor(0xff101417);
