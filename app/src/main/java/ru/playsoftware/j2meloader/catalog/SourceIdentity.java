@@ -32,6 +32,20 @@ public final class SourceIdentity {
 		return uri.normalizeScheme().buildUpon().fragment(null).build().toString();
 	}
 
+	/** Comparison key for an installed card and a folder index row. Keep the original URI for access. */
+	public static String libraryKey(String key) {
+		if (key == null || !key.startsWith("content://")) return key;
+		Uri uri = Uri.parse(key);
+		if (uri.getEncodedQuery() != null) return key;
+		java.util.List<String> segments = uri.getPathSegments();
+		boolean treeDocument = segments.size() == 4 && "tree".equals(segments.get(0))
+				&& "document".equals(segments.get(2));
+		boolean document = segments.size() == 2 && "document".equals(segments.get(0));
+		if (!treeDocument && !document) return key;
+		return android.provider.DocumentsContract.buildDocumentUri(uri.getAuthority(),
+				segments.get(segments.size() - 1)).toString();
+	}
+
 	public static String sha256(File file) throws IOException {
 		try {
 			MessageDigest digest = MessageDigest.getInstance("SHA-256");

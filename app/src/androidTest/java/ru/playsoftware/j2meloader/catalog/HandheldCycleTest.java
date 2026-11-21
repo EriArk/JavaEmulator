@@ -27,6 +27,14 @@ public class HandheldCycleTest {
         files=new File(c.getExternalFilesDir(null),"cycle-fixtures");
     }
     @After public void cleanup() throws Exception { if(work!=null)LibraryArchive.remove(work); }
+    @Test public void indexedAndInstalledDocumentCompareByProviderAndId() {
+        String indexed = "content://test.documents/tree/primary%3AROMs/document/primary%3AROMs%2FGame%20(1991).zip";
+        String direct = "content://test.documents/document/primary%3AROMs%2FGame%20%281991%29.zip";
+        assertEquals(SourceIdentity.libraryKey(indexed), SourceIdentity.libraryKey(direct));
+        assertNotEquals(SourceIdentity.libraryKey(indexed), SourceIdentity.libraryKey(direct.replace("1991","1992")));
+        assertNotEquals(SourceIdentity.libraryKey(indexed), SourceIdentity.libraryKey(direct.replace("test.documents","other.documents")));
+        assertNotEquals(SourceIdentity.libraryKey(indexed), SourceIdentity.libraryKey(direct + "?variant=2"));
+    }
     @Test public void populatedLibraryRoundTrip() throws Exception {
         File zip=new File(work,"backup.zip"),dest=new File(work,"restored");
         List<HandheldBackup> cards=HandheldBackup.list(source);

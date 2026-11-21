@@ -10,6 +10,10 @@ stated otherwise. **Experimental** in older checkpoints means local/private
 combined builds; released experimental features are explicitly identified.
 **Released** means an actual GitHub release asset.
 
+## 2026-11-21 - Indexed handheld game cards
+
+- Fixed duplicate cards when the folder scanner and an Android file manager opened the same document using different URI encodings or folder grants. Existing games, saves and document permissions are preserved. [Retroid library check](docs/checks/2026-11-21-gamate.md#supplied-retail-collection).
+
 ## 2026-11-21 - Gamate retail cartridge checks
 
 - Improved library previews by waiting for the game to take over from the BIOS. The 4-in-1 card now shows its game selector.

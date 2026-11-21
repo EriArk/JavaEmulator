@@ -18,6 +18,7 @@
 
 package ru.playsoftware.j2meloader.applist;
 
+import ru.playsoftware.j2meloader.catalog.SourceIdentity;
 import static ru.playsoftware.j2meloader.util.Constants.KEY_APP_URI;
 import static ru.playsoftware.j2meloader.util.Constants.KEY_MIDLET_NAME;
 import static ru.playsoftware.j2meloader.util.Constants.PREF_APP_SORT;
@@ -1525,8 +1526,11 @@ public class AppsListFragment extends Fragment implements AppsListAdapter.Listen
 		restoreLocation = true;
 		List<AppItem> items = new java.util.ArrayList<>(databaseItems);
 		java.util.HashSet<String> installedSources = new java.util.HashSet<>();
-        for (AppItem external : externalItems) if (external.getSourceKey()!=null) installedSources.add(external.getSourceKey());
-        items.removeIf(item -> "indexed".equals(item.getPreparationState()) && installedSources.contains(item.getSourceKey()));
+		for (AppItem external : externalItems) {
+			if (external.getSourceKey() != null) installedSources.add(SourceIdentity.libraryKey(external.getSourceKey()));
+		}
+		items.removeIf(item -> "indexed".equals(item.getPreparationState())
+				&& installedSources.contains(SourceIdentity.libraryKey(item.getSourceKey())));
         items.addAll(externalItems);
 		bothNgageGenerations = LibraryQuery.hasBothNgageGenerations(externalItems);
 		if (externalLoaded && !bothNgageGenerations && generation != 0) {
