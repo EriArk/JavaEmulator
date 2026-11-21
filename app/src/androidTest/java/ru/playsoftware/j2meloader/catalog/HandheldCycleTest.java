@@ -49,11 +49,14 @@ public class HandheldCycleTest {
         assertEquals(cards.size(),preview.entries.size());
         for(LibraryImporter.Entry e:preview.entries) importer.importEntry(e);
         Set<Integer> platforms=new HashSet<>();
+        Set<Integer> cardIds = new HashSet<>();
         Context isolated=isolated(dest);
         for (int id : expectedPlatforms()) {
             if (id == 7) continue; // Dingoo and Gemei share their package provider.
-            for (AppItem item : ExternalLibrary.packageProvider(id).read(isolated))
+            for (AppItem item : ExternalLibrary.packageProvider(id).read(isolated)) {
                 platforms.add(((ExternalLibrary.Item)item).platformId());
+                assertTrue("Duplicate library ID for " + item.getTitle(), cardIds.add(item.getId()));
+            }
         }
         assertEquals(expectedPlatforms(), platforms);
         for(HandheldBackup card:cards) {
@@ -71,7 +74,12 @@ public class HandheldCycleTest {
             for (File file : dir.listFiles()) {
                 String name = file.getName();
                 if (!file.isFile() || !HandheldFormat.candidate(name)) continue;
-                detected.addAll(HandheldFormat.detect(c, Uri.fromFile(file), name));
+                Set<Integer> matches = HandheldFormat.detect(c, Uri.fromFile(file), name);
+                if (card.engine.equals("kaios") || card.engine.equals("firefox")) {
+                    int edition = card.engine.equals("kaios") ? B2gManifest.KAIOS : B2gManifest.FIREFOX;
+                    assertTrue(matches.contains(edition));
+                    detected.add(edition);
+                } else detected.addAll(matches);
             }
         }
         assertEquals(expectedPlatforms(), detected);
@@ -113,6 +121,30 @@ public class HandheldCycleTest {
         assertEquals(platform, HandheldFormat.indexedPlatform("pending_" + platform + "_abcd"));
     }
 
+    @Test public void packagedPhoneGameRequiresLocalEntryAndPlatformManifest() throws Exception {
+        Assume.assumeTrue(ru.playsoftware.j2meloader.BuildConfig.B2G_PROBE);
+        assertTrue(phoneManifest("manifest.webmanifest", "{'name':'Generic','start_url':'/index.html'}").isEmpty());
+        assertTrue(phoneManifest("manifest.webapp", "{'name':'Remote','launch_path':'https://example.org/'}").isEmpty());
+        assertTrue(phoneManifest("manifest.webapp", "{'name':'Missing','launch_path':'/missing.html'}").isEmpty());
+        assertEquals(new HashSet<>(Arrays.asList(19, 20)), phoneManifest("manifest.webapp",
+                "{'name':'Phone','launch_path':'/index.html?play=1#board'}"));
+        assertEquals(Collections.singleton(20), phoneManifest("manifest.webmanifest",
+                "{'name':'Phone','start_url':'/','b2g_features':{'version':'1.0'}}"));
+        assertEquals(20, HandheldFormat.indexedPlatform("pending_20_abcd"));
+    }
+
+    private Set<Integer> phoneManifest(String manifest, String json) throws IOException {
+        File file = new File(work, "phone.zip");
+        try (ZipOutputStream out = new ZipOutputStream(new FileOutputStream(file))) {
+            out.putNextEntry(new ZipEntry("game/" + manifest));
+            out.write(json.replace((char)39, (char)34).getBytes(java.nio.charset.StandardCharsets.UTF_8));
+            out.closeEntry();
+            out.putNextEntry(new ZipEntry("game/index.html"));
+            out.closeEntry();
+        }
+        return HandheldFormat.detect(c, Uri.fromFile(file), file.getName());
+    }
+
     private Set<Integer> expectedPlatforms() {
         Set<Integer> ids = new HashSet<>(Arrays.asList(5, 6, 7, 8, 9));
         if (ru.playsoftware.j2meloader.BuildConfig.SUPERVISION_PROBE &&
@@ -127,6 +159,10 @@ public class HandheldCycleTest {
         if (ru.playsoftware.j2meloader.BuildConfig.PALM_PROBE && new File(source,"palm/packages").isDirectory()) ids.add(16);
         if (ru.playsoftware.j2meloader.BuildConfig.MRE_PROBE && new File(source,"mre/packages").isDirectory()) ids.add(17);
         if (ru.playsoftware.j2meloader.BuildConfig.WEBOS_PROBE && new File(source,"webos/packages").isDirectory()) ids.add(18);
+        if (ru.playsoftware.j2meloader.BuildConfig.B2G_PROBE) {
+            if (new File(source,"firefox/packages").isDirectory()) ids.add(19);
+            if (new File(source,"kaios/packages").isDirectory()) ids.add(20);
+        }
         return ids;
     }
 

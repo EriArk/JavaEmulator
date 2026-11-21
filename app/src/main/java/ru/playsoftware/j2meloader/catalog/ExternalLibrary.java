@@ -23,6 +23,8 @@ public final class ExternalLibrary {
             case 13: provider = "io.github.eriark.abyssme.flash.FlashLibrary"; break;
             case 14: provider = "io.github.eriark.abyssme.gamate.GamateLibrary"; break;
             case 15: provider = "io.github.eriark.abyssme.gameking.GameKingLibrary"; break;
+            case 19: provider = "io.github.eriark.abyssme.b2g.B2gLibrary$Firefox"; break;
+            case 20: provider = "io.github.eriark.abyssme.b2g.B2gLibrary$Kai"; break;
             case 18: provider = "io.github.eriark.abyssme.webos.WebOsLibrary"; break;
             case 17: provider = "io.github.eriark.abyssme.mre.MreLibrary"; break;
             case 16: provider = "io.github.eriark.abyssme.palm.PalmLibrary"; break;
@@ -64,6 +66,10 @@ public final class ExternalLibrary {
         if (BuildConfig.FLASH_PROBE) games.addAll(packageProvider(13).read(context));
         if (BuildConfig.GAMATE_PROBE) games.addAll(packageProvider(14).read(context));
         if (BuildConfig.GAMEKING_PROBE) games.addAll(packageProvider(15).read(context));
+        if (BuildConfig.B2G_PROBE) {
+            games.addAll(packageProvider(19).read(context));
+            games.addAll(packageProvider(20).read(context));
+        }
         if (BuildConfig.WEBOS_PROBE) games.addAll(packageProvider(18).read(context));
         if (BuildConfig.MRE_PROBE) games.addAll(packageProvider(17).read(context));
         if (BuildConfig.PALM_PROBE) games.addAll(packageProvider(16).read(context));

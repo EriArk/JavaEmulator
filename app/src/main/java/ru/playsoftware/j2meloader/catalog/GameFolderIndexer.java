@@ -124,6 +124,10 @@ public final class GameFolderIndexer {
                 try { detected = HandheldFormat.detect(context,uri,name); }
                 catch (IOException unsupported) { detected = java.util.Collections.emptySet(); }
                 if (detected.size()==1) platform=detected.iterator().next();
+                if (detected.contains(B2gManifest.FIREFOX) && detected.contains(B2gManifest.KAIOS)) {
+                    int chosen = B2gManifest.remembered(context, uri);
+                    if (detected.contains(chosen)) platform = chosen;
+                }
                 if (detected.isEmpty() && !isLegacyFormat(name)) continue;
             }
             String sourceKey = SourceIdentity.key(uri);

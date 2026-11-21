@@ -14,6 +14,10 @@ attribute its results to the dated maintainer record below; do not infer a pass.
 
 The [platform issue index](PLATFORM_ISSUES.md) maps the 49 open platform-specific tasks to the maintainer roadmap, including the initial integration order and scope decisions.
 
+## Firefox OS and KaiOS (2026-11-21, private Retroid build)
+
+The combined build has separate platform tabs for packaged Firefox OS and KaiOS games. Canada Goose reached gameplay with sound, reverse 2048 retained its best score, Falling Numbers responded to KaiOS soft keys and played music, and Frogr ran from its modern manifest. [Retroid checks and compatibility limits](checks/2026-11-21-b2g.md).
+
 ## Palm webOS web games (2026-11-21, private Retroid build)
 
 The combined build opens Palm webOS IPKs from the platform grid and library. On Retroid Pocket Classic, 2048 restored its board and score, Far Out Fowl produced audible system-feedback tones in Android playback capture, Wordsel restored a submitted guess, and the Enyo version of Tetris reached its falling-block board in tablet mode. [Device checks and limits](checks/2026-11-21-webos.md).

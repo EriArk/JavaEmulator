@@ -16,8 +16,8 @@ import ru.playsoftware.j2meloader.input.GameMenuDialog;
 
 public final class HandheldOpenDialog extends DialogFragment {
     private Disposable work;
-    static HandheldOpenDialog create(Uri uri, boolean play, boolean finish) {
-        Bundle args=new Bundle(); args.putParcelable("uri",uri); args.putBoolean("play",play); args.putBoolean("finish",finish);
+    static HandheldOpenDialog create(Uri uri, boolean play, boolean finish, int preferred) {
+        Bundle args=new Bundle(); args.putParcelable("uri",uri); args.putInt("preferred",preferred); args.putBoolean("play",play); args.putBoolean("finish",finish);
         HandheldOpenDialog fragment=new HandheldOpenDialog();fragment.setArguments(args);return fragment;
     }
     @Override public Dialog onCreateDialog(Bundle state) { return new GameMenuDialog(requireContext(),"Open game"); }
@@ -32,6 +32,11 @@ public final class HandheldOpenDialog extends DialogFragment {
                 .subscribe(ids->{
                     if(ids.isEmpty()){legacy(uri);return;}
                     if(ids.size()==1){open(uri,ids.iterator().next());return;}
+                    if (ids.contains(B2gManifest.FIREFOX) && ids.contains(B2gManifest.KAIOS)) {
+                        int preferred = requireArguments().getInt("preferred", -1);
+                        if (!ids.contains(preferred)) preferred = B2gManifest.remembered(context, uri);
+                        if (ids.contains(preferred)) { open(uri, preferred); return; }
+                    }
                     dialog.page("Choose platform");
                     for(int id:ids)dialog.action(id==0?"Java ME, Mophun or Symbian":LibraryQuery.PLATFORMS[id],0,()->open(uri,id));
                 }, error->legacy(uri));
@@ -47,6 +52,8 @@ public final class HandheldOpenDialog extends DialogFragment {
         Context c=requireContext().getApplicationContext();
         work=Single.fromCallable(()->ExternalLibrary.packageProvider(platform).install(c,uri))
                 .subscribeOn(Schedulers.io()).observeOn(AndroidSchedulers.mainThread()).subscribe(item->{
+                    if (platform == B2gManifest.FIREFOX || platform == B2gManifest.KAIOS)
+                        B2gManifest.remember(c, uri, platform);
                     Bundle result=new Bundle();result.putInt("platform",item.platformId());
                     getParentFragmentManager().setFragmentResult("handheld-installed",result);
                     if(requireArguments().getBoolean("play")) item.launch(requireActivity(),false);

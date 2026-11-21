@@ -57,6 +57,10 @@ public final class AdditionalGames {
 
     public static void install(Context context, FragmentManager fragments, Uri uri,
                                boolean autoStart, boolean finishHost) {
+        install(context, fragments, uri, autoStart, finishHost, -1);
+    }
+    public static void install(Context context, FragmentManager fragments, Uri uri,
+                               boolean autoStart, boolean finishHost, int preferredPlatform) {
         if (fragments.findFragmentByTag("installer") != null) return;
         uri = io.github.eriark.abyssme.storage.StoragePaths.resolve(context, uri);
         if (LauncherLink.accepts(context, uri)) {
@@ -64,7 +68,7 @@ public final class AdditionalGames {
             return;
         }
         if (HandheldFormat.enabled() && HandheldFormat.candidate(HandheldFormat.name(context,uri))) {
-            HandheldOpenDialog.create(uri,autoStart,finishHost).show(fragments,"installer");
+            HandheldOpenDialog.create(uri,autoStart,finishHost,preferredPlatform).show(fragments,"installer");
             return;
         }
         installLegacy(context,fragments,uri,autoStart,finishHost);
