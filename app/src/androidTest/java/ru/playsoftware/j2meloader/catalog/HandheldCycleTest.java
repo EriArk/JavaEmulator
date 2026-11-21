@@ -93,6 +93,23 @@ public class HandheldCycleTest {
         assertEquals(new HashSet<>(Arrays.asList(0, 8, 9)), HandheldFormat.detect(c, Uri.fromFile(mixed), mixed.getName()));
     }
 
+    @Test public void pocketPcRoutesArmCeSeparatelyFromDesktopAndDos() throws Exception {
+        Assume.assumeTrue(ru.playsoftware.j2meloader.BuildConfig.POCKETPC_PROBE);
+        java.nio.ByteBuffer pe=java.nio.ByteBuffer.allocate(512).order(java.nio.ByteOrder.LITTLE_ENDIAN);
+        pe.putShort(0,(short)0x5a4d).putShort(4,(short)1).putInt(60,128);
+        pe.putInt(128,0x4550).putShort(132,(short)0x1c0).putShort(152,(short)0x10b).putShort(220,(short)9);
+        File exe=new File(work,"game.exe");
+        Files.write(exe.toPath(),pe.array());
+        assertEquals(Collections.singleton(22),HandheldFormat.detect(c,Uri.fromFile(exe),exe.getName()));
+        assertEquals(22,HandheldFormat.indexedPlatform("pending_22_abcd"));
+        pe.putShort(132,(short)0x14c).putShort(220,(short)2);
+        Files.write(exe.toPath(),pe.array());
+        assertTrue(HandheldFormat.detect(c,Uri.fromFile(exe),exe.getName()).isEmpty());
+        File cab=new File(work,"game.cab");
+        Files.write(cab.toPath(),new byte[]{0,1});
+        assertTrue(HandheldFormat.detect(c,Uri.fromFile(cab),cab.getName()).isEmpty());
+    }
+
     @Test public void mreZipUsesSameInstalledIdentityAsLooseGame() throws Exception {
         Assume.assumeTrue(ru.playsoftware.j2meloader.BuildConfig.MRE_PROBE);
         File game = new File(c.getExternalFilesDir(null), "mre-check/FlappyBird.vxp");
@@ -163,6 +180,7 @@ public class HandheldCycleTest {
             if (new File(source,"firefox/packages").isDirectory()) ids.add(19);
             if (new File(source,"kaios/packages").isDirectory()) ids.add(20);
         }
+        if (ru.playsoftware.j2meloader.BuildConfig.POCKETPC_PROBE && new File(source,"pocketpc/packages").isDirectory()) ids.add(22);
         if (ru.playsoftware.j2meloader.BuildConfig.PORTFOLIO_PROBE && new File(source,"portfolio/packages").isDirectory()) ids.add(21);
         return ids;
     }

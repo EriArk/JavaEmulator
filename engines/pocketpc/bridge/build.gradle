@@ -1,0 +1,20 @@
+plugins { id 'com.android.library' }
+android {
+    namespace 'io.github.eriark.abyssme.pocketpc.bridge'
+    compileSdk 34
+    defaultConfig { minSdk 29 }
+    sourceSets.main.assets.srcDir rootProject.file('build/pocketpc/assets')
+    sourceSets.main.jniLibs.srcDir rootProject.file('build/pocketpc/jniLibs')
+}
+if (!rootProject.file('build/pocketpc/jniLibs/arm64-v8a/libpockethle_jni.so').isFile())
+    throw new GradleException('Build the pinned PocketPc frontend first (engines/pocketpc/README.md)')
+
+def stickers = tasks.register('preparePocketPcStickers', Sync) {
+    from(rootProject.file('design-concepts/platform-stickers')) {
+        include 'pocketpc.webp'
+        rename { name -> "sticker_" + name }
+    }
+    into layout.buildDirectory.dir('generated/deviceArt/drawable-nodpi')
+}
+android.sourceSets.main.res.srcDir layout.buildDirectory.dir('generated/deviceArt')
+tasks.named('preBuild').configure { dependsOn stickers }

@@ -34,7 +34,8 @@ final class LibraryNavigation {
                 || (id == 17 && BuildConfig.MRE_PROBE)
                 || (id == 18 && BuildConfig.WEBOS_PROBE)
                 || ((id == 19 || id == 20) && BuildConfig.B2G_PROBE)
-                || (id == 21 && BuildConfig.PORTFOLIO_PROBE);
+                || (id == 21 && BuildConfig.PORTFOLIO_PROBE)
+                || (id == 22 && BuildConfig.POCKETPC_PROBE);
     }
 
     static int next(int value, int direction) {

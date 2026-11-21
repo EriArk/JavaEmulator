@@ -132,7 +132,7 @@ public class AppsListFragment extends Fragment implements AppsListAdapter.Listen
 	private boolean changingPlatform;
 	private boolean bothNgageGenerations;
 	private boolean databaseLoaded;
-	private boolean externalLoaded = !BuildConfig.SYMBIAN_EXPERIMENT && !BuildConfig.WIPI_PROBE && !BuildConfig.DINGOO_PROBE && !BuildConfig.PIECE_PROBE && !BuildConfig.GP32_PROBE && !BuildConfig.SUPERVISION_PROBE && !BuildConfig.MEGADUCK_PROBE && !BuildConfig.CYBIKO_PROBE && !BuildConfig.FLASH_PROBE && !BuildConfig.GAMATE_PROBE && !BuildConfig.GAMEKING_PROBE && !BuildConfig.PALM_PROBE && !BuildConfig.MRE_PROBE && !BuildConfig.WEBOS_PROBE && !BuildConfig.B2G_PROBE && !BuildConfig.PORTFOLIO_PROBE;
+	private boolean externalLoaded = !BuildConfig.SYMBIAN_EXPERIMENT && !BuildConfig.WIPI_PROBE && !BuildConfig.DINGOO_PROBE && !BuildConfig.PIECE_PROBE && !BuildConfig.GP32_PROBE && !BuildConfig.SUPERVISION_PROBE && !BuildConfig.MEGADUCK_PROBE && !BuildConfig.CYBIKO_PROBE && !BuildConfig.FLASH_PROBE && !BuildConfig.GAMATE_PROBE && !BuildConfig.GAMEKING_PROBE && !BuildConfig.PALM_PROBE && !BuildConfig.MRE_PROBE && !BuildConfig.WEBOS_PROBE && !BuildConfig.B2G_PROBE && !BuildConfig.PORTFOLIO_PROBE && !BuildConfig.POCKETPC_PROBE;
 	private boolean restoreLocation = true;
 	private String restoredSelection;
 	private boolean searchExpanded;
@@ -1497,7 +1497,7 @@ public class AppsListFragment extends Fragment implements AppsListAdapter.Listen
 
 	private void reloadExternalLibrary() {
 		if (!isAdded() || binding == null) return;
-		if (!BuildConfig.SYMBIAN_EXPERIMENT && !BuildConfig.WIPI_PROBE && !BuildConfig.DINGOO_PROBE && !BuildConfig.PIECE_PROBE && !BuildConfig.GP32_PROBE && !BuildConfig.SUPERVISION_PROBE && !BuildConfig.MEGADUCK_PROBE && !BuildConfig.CYBIKO_PROBE && !BuildConfig.FLASH_PROBE && !BuildConfig.GAMATE_PROBE && !BuildConfig.GAMEKING_PROBE && !BuildConfig.PALM_PROBE && !BuildConfig.MRE_PROBE && !BuildConfig.WEBOS_PROBE && !BuildConfig.B2G_PROBE && !BuildConfig.PORTFOLIO_PROBE) return;
+		if (!BuildConfig.SYMBIAN_EXPERIMENT && !BuildConfig.WIPI_PROBE && !BuildConfig.DINGOO_PROBE && !BuildConfig.PIECE_PROBE && !BuildConfig.GP32_PROBE && !BuildConfig.SUPERVISION_PROBE && !BuildConfig.MEGADUCK_PROBE && !BuildConfig.CYBIKO_PROBE && !BuildConfig.FLASH_PROBE && !BuildConfig.GAMATE_PROBE && !BuildConfig.GAMEKING_PROBE && !BuildConfig.PALM_PROBE && !BuildConfig.MRE_PROBE && !BuildConfig.WEBOS_PROBE && !BuildConfig.B2G_PROBE && !BuildConfig.PORTFOLIO_PROBE && !BuildConfig.POCKETPC_PROBE) return;
 		Context context = requireContext().getApplicationContext();
 		android.app.Activity activity = requireActivity();
 		int generation = ++externalGeneration;
@@ -1579,6 +1579,7 @@ public class AppsListFragment extends Fragment implements AppsListAdapter.Listen
 				: platform == 13 ? getString(R.string.library_flash_import_hint)
 				: platform == 14 ? getString(R.string.library_gamate_import_hint)
 				: platform == 15 ? getString(R.string.library_gameking_import_hint)
+				: platform == 22 ? getString(R.string.library_pocketpc_import_hint)
 				: platform == 21 ? getString(R.string.library_portfolio_import_hint)
 				: platform == 19 || platform == 20 ? getString(R.string.library_b2g_import_hint)
 				: platform == 18 ? getString(R.string.library_webos_import_hint)

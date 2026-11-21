@@ -98,7 +98,7 @@ public abstract class ManagedGameLibrary implements ExternalLibrary.PackageProvi
             if (tmp.exists()) removeTree(tmp);
         }
     }
-    private static void removeTree(File file) throws IOException {
+    protected static void removeTree(File file) throws IOException {
         if (!Files.isSymbolicLink(file.toPath()) && file.isDirectory()) {
             File[] children = file.listFiles();
             if (children == null) throw new IOException("Cannot read package directory");

@@ -1,0 +1,259 @@
+diff --git a/crates/pocket-kernel/src/native_thunks.rs b/crates/pocket-kernel/src/native_thunks.rs
+index 2accce8..9caa8b0 100644
+--- a/crates/pocket-kernel/src/native_thunks.rs
++++ b/crates/pocket-kernel/src/native_thunks.rs
+@@ -323,10 +323,7 @@ pub fn native_thunk_for(dll: &str, name: &str) -> Option<[u32; 8]> {
+ /// also kept running silently when its underlying clock call
+ /// failed, so we preserve that behaviour.
+ pub fn refresh_tick_page(cpu: &mut dyn crate::Cpu, last_written: &mut Option<u32>) {
+-    use std::sync::OnceLock;
+-    use std::time::Instant;
+-    static START: OnceLock<Instant> = OnceLock::new();
+-    let delta = START.get_or_init(Instant::now).elapsed().as_millis() as u32;
++    let delta = guest_millis() as u32;
+     if *last_written == Some(delta) {
+         return;
+     }
+@@ -334,6 +331,27 @@ pub fn refresh_tick_page(cpu: &mut dyn crate::Cpu, last_written: &mut Option<u32
+     let _ = cpu.write_mem(TICK_PAGE_VA + TICK_VALUE_OFFSET, &delta.to_le_bytes());
+ }
+
++// Each emulator worker owns its clock. Rebase it before a speed or pause change.
++thread_local! {
++    static GUEST_CLOCK: std::cell::Cell<(std::time::Instant, u128, u32)> =
++        std::cell::Cell::new((std::time::Instant::now(), 0, 100));
++}
++
++pub fn guest_millis() -> u64 {
++    GUEST_CLOCK.with(|clock| {
++        let (since, nanos, rate) = clock.get();
++        ((nanos + since.elapsed().as_nanos() * rate as u128 / 100) / 1_000_000) as u64
++    })
++}
++
++pub fn guest_rate(rate: u32) {
++    GUEST_CLOCK.with(|clock| {
++        let (since, acc, old) = clock.get();
++        let now = std::time::Instant::now();
++        clock.set((now, acc + (now - since).as_nanos() * old as u128 / 100, rate));
++    });
++}
++
+ /// Convert an instruction array into a flat little-endian byte
+ /// buffer suitable for `cpu.write_mem`.
+ pub fn thunk_bytes(words: &[u32; 8]) -> [u8; 32] {
+diff --git a/crates/pocket-library/src/lib.rs b/crates/pocket-library/src/lib.rs
+index fbbeacb..31e8e8f 100644
+--- a/crates/pocket-library/src/lib.rs
++++ b/crates/pocket-library/src/lib.rs
+@@ -381,6 +381,8 @@ pub enum ScreenPref {
+     /// clipped, so they need their own entry rather than being
+     /// squeezed into `Landscape`.
+     Hpc,
++    Vga,
++    Square,
+ }
+
+ impl ScreenPref {
+@@ -391,6 +393,8 @@ impl ScreenPref {
+             ScreenPref::SmallPortrait => "176x220 (small)",
+             ScreenPref::Wvga => "480x800 (WVGA)",
+             ScreenPref::Hpc => "480x320 (Handheld PC)",
++            ScreenPref::Vga => "480x640 (VGA)",
++            ScreenPref::Square => "240x240 (square)",
+         }
+     }
+
+@@ -402,6 +406,8 @@ impl ScreenPref {
+             ScreenPref::SmallPortrait => (176, 220),
+             ScreenPref::Wvga => (480, 800),
+             ScreenPref::Hpc => (480, 320),
++            ScreenPref::Vga => (480, 640),
++            ScreenPref::Square => (240, 240),
+         }
+     }
+ }
+diff --git a/crates/pocket-winceapi/build.rs b/crates/pocket-winceapi/build.rs
+new file mode 100644
+index 0000000..e54900f
+--- /dev/null
++++ b/crates/pocket-winceapi/build.rs
+@@ -0,0 +1,4 @@
++fn main() {
++    if let Ok(path) = std::env::var("ABYSS_XMP_LIB") { println!("cargo:rustc-link-search=native={path}"); }
++    println!("cargo:rerun-if-env-changed=ABYSS_XMP_LIB");
++}
+diff --git a/crates/pocket-winceapi/src/coredll.rs b/crates/pocket-winceapi/src/coredll.rs
+index b283998..e3df077 100644
+--- a/crates/pocket-winceapi/src/coredll.rs
++++ b/crates/pocket-winceapi/src/coredll.rs
+@@ -1890,16 +1890,7 @@ fn get_tick_count(_ctx: &mut CallCtx<'_>) -> Result<DispatchOutcome, KernelError
+ }
+
+ fn get_tick_count_value() -> u32 {
+-    use std::sync::atomic::{AtomicU64, Ordering};
+-    static START: AtomicU64 = AtomicU64::new(0);
+-    let now = std::time::SystemTime::now()
+-        .duration_since(std::time::UNIX_EPOCH)
+-        .map(|d| d.as_millis() as u64)
+-        .unwrap_or(0);
+-    if START.load(Ordering::Relaxed) == 0 {
+-        START.store(now, Ordering::Relaxed);
+-    }
+-    now.saturating_sub(START.load(Ordering::Relaxed)) as u32
++    pocket_kernel::native_thunks::guest_millis() as u32
+ }
+
+ fn read_guest_regs(cpu: &mut dyn pocket_cpu::Cpu) -> Result<[u32; 17], KernelError> {
+@@ -8621,10 +8612,7 @@ fn get_capture(_ctx: &mut CallCtx<'_>) -> Result<DispatchOutcome, KernelError> {
+ }
+
+ fn monotonic_ms() -> u64 {
+-    use std::sync::OnceLock;
+-    use std::time::Instant;
+-    static START: OnceLock<Instant> = OnceLock::new();
+-    START.get_or_init(Instant::now).elapsed().as_millis() as u64
++    pocket_kernel::native_thunks::guest_millis()
+ }
+
+ fn update_key_state(ctx: &mut CallCtx<'_>, ev: pocket_kernel::InputEvent) {
+diff --git a/crates/pocket-winceapi/src/lib.rs b/crates/pocket-winceapi/src/lib.rs
+index 51de3ae..5a932cb 100644
+--- a/crates/pocket-winceapi/src/lib.rs
++++ b/crates/pocket-winceapi/src/lib.rs
+@@ -112,7 +112,12 @@ fn ignored_dll(dll: &str) -> Option<&'static IgnoredDll> {
+ /// because a [`Handler`] is a plain `fn` pointer with nothing to
+ /// capture into; the table is three entries long, so the scan costs
+ /// nothing next to the dispatch itself.
++#[cfg(target_os="android")]
++pub mod fmod;
++
+ fn ignored_dll_stub(ctx: &mut CallCtx<'_>) -> Result<DispatchOutcome, KernelError> {
++    #[cfg(target_os="android")]
++    if let Some(result)=fmod::call(ctx)? { return Ok(result); }
+     let value =
+         ignored_dll(&ctx.thunk.dll).map_or(0, |i| i.value_for(import_name(ctx.thunk).as_ref()));
+     Ok(DispatchOutcome::ReturnedR0(value))
+diff --git a/frontends/pocket-android-jni/src/lib.rs b/frontends/pocket-android-jni/src/lib.rs
+index 060a76d..09ec0d9 100644
+--- a/frontends/pocket-android-jni/src/lib.rs
++++ b/frontends/pocket-android-jni/src/lib.rs
+@@ -697,6 +697,15 @@ pub extern "system" fn Java_com_pockethle_app_NativeBridge_nativePollAudio<'loca
+     array.into_raw()
+ }
+
++#[no_mangle]
++pub extern "system" fn Java_com_pockethle_app_NativeBridge_nativeRate(
++    _env: JNIEnv, _class: JClass, handle: jlong, rate: jint,
++) {
++    if let Some(session) = session_from_handle(handle) {
++        session.send_input(InputCommand::Rate(rate.clamp(0, 1600) as u32));
++    }
++}
++
+ #[no_mangle]
+ pub extern "system" fn Java_com_pockethle_app_NativeBridge_nativeIsRunning<'local>(
+     _env: JNIEnv<'local>,
+diff --git a/frontends/pocket-android-jni/src/managed_game.rs b/frontends/pocket-android-jni/src/managed_game.rs
+index 7e9ed58..0c5c2cc 100644
+--- a/frontends/pocket-android-jni/src/managed_game.rs
++++ b/frontends/pocket-android-jni/src/managed_game.rs
+@@ -325,6 +325,7 @@ pub(crate) fn run(
+         loop {
+             match input_rx.try_recv() {
+                 Ok(InputCommand::Input(event)) => game.handle(event),
++                Ok(InputCommand::Rate(_)) => {},
+                 Ok(InputCommand::Stop) => stop = true,
+                 Err(TryRecvError::Empty) => break,
+                 Err(TryRecvError::Disconnected) => stop = true,
+diff --git a/frontends/pocket-android-jni/src/runner.rs b/frontends/pocket-android-jni/src/runner.rs
+index 54c7233..4535262 100644
+--- a/frontends/pocket-android-jni/src/runner.rs
++++ b/frontends/pocket-android-jni/src/runner.rs
+@@ -101,6 +101,7 @@ impl FrameSnapshot {
+ #[derive(Debug, Clone, Copy)]
+ pub enum InputCommand {
+     Input(InputEvent),
++    Rate(u32),
+     Stop,
+ }
+
+@@ -315,7 +316,7 @@ fn run_game_to_completion(
+     summary_lines.push(format!("Effective backend: {}", effective_backend.label()));
+
+     emu.set_halt_on_unimplemented(entry.settings.halt_on_unimplemented);
+-    emu.max_slices = entry.settings.max_slices;
++    emu.max_slices = 0; // Interactive sessions end on exit or an explicit stop.
+     emu.instruction_budget_per_slice = entry.settings.instructions_per_slice;
+
+     if let Err(e) = emu.load_pe(&exe) {
+@@ -344,7 +345,13 @@ fn run_game_to_completion(
+     emu.set_screen_size(screen_width, screen_height);
+     summary_lines.push(format!("Screen: {screen_width}x{screen_height}"));
+     let extracted = entry.extracted_dir(library_root);
+-    emu.mount_read_only_dir("\\Application\\", &extracted);
++    // Some independently packaged apps install directly into the CE object store.
++    // Back both their root-relative paths and their normal install path with the
++    // same isolated game files and writable save directory.
++    let program_dir = exe.parent().unwrap_or(&extracted);
++    emu.mount_save_dir("\\", entry.save_dir(library_root));
++    emu.mount_read_only_dir("\\", program_dir);
++    emu.mount_read_only_dir("\\Application\\", program_dir);
+     emu.mount_read_only_dir("\\Program Files\\", &extracted);
+     emu.mount_read_only_dir("\\Program Files\\Game\\", &extracted);
+     let is_gizmondo = is_gizmondo_game(entry, library_root);
+@@ -368,7 +375,7 @@ fn run_game_to_completion(
+         emu.mount_read_only_dir(prefix, &extracted);
+     }
+     if let Some(prefix) = entry.guest_install_prefix() {
+-        emu.mount_read_only_dir(&prefix, &extracted);
++        emu.mount_read_only_dir(&prefix, program_dir);
+         // Report the installed path so a game that builds absolute
+         // asset paths off its own module name finds its archive.
+         if let Some(guest_exe) = entry.guest_exe_path() {
+@@ -442,6 +449,7 @@ struct SessionHook {
+     last_emit_at: Option<Instant>,
+     scratch: Vec<u8>,
+     saw_non_black: bool,
++    rate: u32,
+ }
+
+ impl SessionHook {
+@@ -454,6 +462,7 @@ impl SessionHook {
+             last_emit_at: None,
+             scratch: Vec::new(),
+             saw_non_black: false,
++            rate: 100,
+         }
+     }
+ }
+@@ -464,9 +473,18 @@ impl FrameHook for SessionHook {
+         let mut stop_requested = false;
+         if !self.input_disconnected {
+             loop {
+-                match self.input_rx.try_recv() {
++                let next = if self.rate == 0 {
++                    self.input_rx.recv().map_err(|_| TryRecvError::Disconnected)
++                } else {
++                    self.input_rx.try_recv()
++                };
++                match next {
++                    Ok(InputCommand::Rate(rate)) => {
++                        self.rate = rate;
++                        pocket_core::kernel::native_thunks::guest_rate(rate);
++                    }
+                     Ok(InputCommand::Input(ev)) => kernel.pending_input.push_back(ev),
+-                    Ok(InputCommand::Stop) => stop_requested = true,
++                    Ok(InputCommand::Stop) => { stop_requested = true; break; },
+                     Err(TryRecvError::Empty) => break,
+                     Err(TryRecvError::Disconnected) => {
+                         self.input_disconnected = true;
+@@ -476,6 +494,8 @@ impl FrameHook for SessionHook {
+             }
+         }
+
++        #[cfg(target_os="android")]
++        pocket_core::winceapi::fmod::pump(kernel);
+         // Stream a fresh framebuffer if the guest produced one.
+         let counter = kernel.framebuffer.frame_counter;
+         if counter != self.last_frame {

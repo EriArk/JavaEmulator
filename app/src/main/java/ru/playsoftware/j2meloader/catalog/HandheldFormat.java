@@ -25,6 +25,7 @@ public final class HandheldFormat {
     }
     static int platform(String name) {
         String s=name.toLowerCase(Locale.ROOT);
+        if (BuildConfig.POCKETPC_PROBE && s.endsWith(".cab")) return 22;
         if (BuildConfig.PORTFOLIO_PROBE && s.endsWith(".com")) return 21;
         if (BuildConfig.WEBOS_PROBE && s.endsWith(".ipk")) return 18;
         if (BuildConfig.MRE_PROBE && s.endsWith(".vxp")) return 17;
@@ -43,7 +44,7 @@ public final class HandheldFormat {
     private static boolean binaryFile(String name) {
         return name.endsWith(".bin") || ((BuildConfig.GAMATE_PROBE || BuildConfig.PALM_PROBE) && name.endsWith(".rom"));
     }
-    static boolean enabled() { return BuildConfig.WIPI_PROBE || BuildConfig.DINGOO_PROBE || BuildConfig.PIECE_PROBE || BuildConfig.GP32_PROBE || BuildConfig.SUPERVISION_PROBE || BuildConfig.MEGADUCK_PROBE || BuildConfig.CYBIKO_PROBE || BuildConfig.FLASH_PROBE || BuildConfig.GAMATE_PROBE || BuildConfig.GAMEKING_PROBE || BuildConfig.PALM_PROBE || BuildConfig.MRE_PROBE || BuildConfig.WEBOS_PROBE || BuildConfig.B2G_PROBE || BuildConfig.PORTFOLIO_PROBE; }
+    static boolean enabled() { return BuildConfig.WIPI_PROBE || BuildConfig.DINGOO_PROBE || BuildConfig.PIECE_PROBE || BuildConfig.GP32_PROBE || BuildConfig.SUPERVISION_PROBE || BuildConfig.MEGADUCK_PROBE || BuildConfig.CYBIKO_PROBE || BuildConfig.FLASH_PROBE || BuildConfig.GAMATE_PROBE || BuildConfig.GAMEKING_PROBE || BuildConfig.PALM_PROBE || BuildConfig.MRE_PROBE || BuildConfig.WEBOS_PROBE || BuildConfig.B2G_PROBE || BuildConfig.PORTFOLIO_PROBE || BuildConfig.POCKETPC_PROBE; }
     static boolean candidate(String name) {
         String s=name.toLowerCase(Locale.ROOT);
         return enabled() && (platform(s)!=0 || s.endsWith(".zip") || binaryFile(s) || s.endsWith(".exe"));
@@ -77,6 +78,12 @@ public final class HandheldFormat {
                         if (BuildConfig.PORTFOLIO_PROBE && p.endsWith(".exe")) {
                             try (InputStream in=zip.getInputStream(e)) { if (dosProgram(in, e.getSize())) id=21; }
                         }
+                        if (BuildConfig.POCKETPC_PROBE && p.endsWith(".exe")) {
+                            try (InputStream in=zip.getInputStream(e)) { if (PocketPcFormat.armExecutable(in)) id=22; }
+                        }
+                        if (id==22 && p.endsWith(".cab")) {
+                            try (InputStream in=zip.getInputStream(e)) { if (!cabinet(prefix(in,4))) id=0; }
+                        }
                         if (id==6 || id==7 || id==12) try(InputStream in=zip.getInputStream(e)) {
                             byte[] h = prefix(in, 4);
                             if (p.endsWith(".app") && cybiko(h)) id=12;
@@ -105,10 +112,11 @@ public final class HandheldFormat {
                     if (!result.isEmpty() && (legacy || jar&&!carrier)) result.add(0);
                 }
             } finally { if(tmp!=null)tmp.delete(); }
-        } else if (platform==6 || platform==12 || binaryFile(s) || s.endsWith(".exe")) {
+        } else if (platform==6 || platform==12 || platform==22 || binaryFile(s) || s.endsWith(".exe")) {
             try (InputStream in=c.getContentResolver().openInputStream(uri)) {
                 if(in==null)throw new IOException("Could not open "+name);
                 byte[] h=prefix(in,128);
+                if (platform==22 && cabinet(h)) result.add(22);
                 if (platform==6 && ccdl(h)) result.add(6);
                 if (s.endsWith(".app") && cybiko(h)) result.add(12);
                 if (binaryFile(s)) {
@@ -119,6 +127,11 @@ public final class HandheldFormat {
                     int id = cartridgeOrFirmware(in, h, length);
                     if (id != 0) result.add(id);
                 }
+                if (s.endsWith(".exe") && BuildConfig.POCKETPC_PROBE) {
+                    try (InputStream program=c.getContentResolver().openInputStream(uri)) {
+                        if (program!=null && PocketPcFormat.armExecutable(program)) result.add(22);
+                    }
+                }
                 if (s.endsWith(".exe") && BuildConfig.PORTFOLIO_PROBE) {
                     try (InputStream program=c.getContentResolver().openInputStream(uri)) {
                         if(program!=null && dosProgram(program,-1))result.add(21);
@@ -128,6 +141,9 @@ public final class HandheldFormat {
             }
         } else if (platform!=0) result.add(platform);
         return result;
+    }
+    private static boolean cabinet(byte[] header) {
+        return header.length>=4 && header[0]=='M' && header[1]=='S' && header[2]=='C' && header[3]=='F';
     }
     private static boolean dosProgram(InputStream in, long size) throws IOException {
         byte[] h=prefix(in,64);
@@ -211,7 +227,7 @@ public final class HandheldFormat {
         return Arrays.copyOf(bytes,n);
     }
     public static int indexedPlatform(String path) {
-        if (path != null && path.matches("pending_([5-9]|1[0-9]|2[01])_[a-f0-9]+"))
+        if (path != null && path.matches("pending_([5-9]|1[0-9]|2[0-2])_[a-f0-9]+"))
             return Integer.parseInt(path.substring(8, path.indexOf('_', 8)));
         return 0;
     }

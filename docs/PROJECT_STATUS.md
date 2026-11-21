@@ -14,6 +14,10 @@ attribute its results to the dated maintainer record below; do not infer a pass.
 
 The [platform issue index](PLATFORM_ISSUES.md) maps the 49 open platform-specific tasks to the maintainer roadmap, including the initial integration order and scope decisions.
 
+## Pocket PC (2026-11-21, private Retroid build)
+
+Age of Empires Pocket PC Edition reached gameplay on Retroid with the alternative program included in the supplied archive. The original CAB reached its registration menu. The device played the game music, accepted stylus and controller input and reopened a saved match. [Package, evidence and limits](checks/2026-11-21-pocketpc.md).
+
 ## Atari Portfolio (2026-11-21, private Retroid build)
 
 The combined build imports Portfolio COM, DOS EXE and ZIP games and guides the user through firmware selection. Bomber reached round one, Dozen restored its board after restart, and Cribbage dealt a hand. [Device results and limits](checks/2026-11-21-portfolio.md).

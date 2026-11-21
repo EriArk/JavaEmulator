@@ -10,6 +10,10 @@ stated otherwise. **Experimental** in older checkpoints means local/private
 combined builds; released experimental features are explicitly identified.
 **Released** means an actual GitHub release asset.
 
+## 2026-11-21 - Pocket PC and Age of Empires on Retroid
+
+Added optional native ARM Pocket PC support, CAB and ZIP installation, per-game program selection, stylus and controller input, and FMOD CE tracker and sample playback. Age of Empires reached a random map and restored an in-game save in the private combined build. [Device check and executable details](docs/checks/2026-11-21-pocketpc.md).
+
 ## 2026-11-21 - Atari Portfolio on Retroid
 
 Added an optional Atari Portfolio library and DIP-DOS runtime with firmware import, keyboard and controller input, writable game storage and save states. Bomber, Dozen and Cribbage ran in the private Retroid build. [Device checks](docs/checks/2026-11-21-portfolio.md).
