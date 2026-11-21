@@ -1,0 +1,379 @@
+diff --git a/build.rs b/build.rs
+index 1fb78eb..6188902 100644
+--- a/build.rs
++++ b/build.rs
+@@ -12,6 +12,9 @@ fn rerun_if_changed(path: &Path) {
+ }
+
+ pub fn main() {
++    if std::env::var("CARGO_CFG_TARGET_OS").as_deref() == Ok("android") {
++        println!("cargo:rustc-link-search=native={}/android-sdl", env!("CARGO_MANIFEST_DIR"));
++    }
+     let out_dir = PathBuf::from(std::env::var("OUT_DIR").unwrap());
+     let package_root = Path::new(env!("CARGO_MANIFEST_DIR"));
+
+diff --git a/src/environment.rs b/src/environment.rs
+index 131c45d..a1f380b 100644
+--- a/src/environment.rs
++++ b/src/environment.rs
+@@ -168,7 +168,7 @@ impl std::fmt::Display for ThreadBlock {
+         match self {
+             ThreadBlock::NotBlocked => write!(f, "Running"),
+             ThreadBlock::Sleeping(wake_time) => {
+-                let remaining = wake_time.checked_duration_since(Instant::now());
++                let remaining = wake_time.checked_duration_since(crate::guest_clock::now());
+                 match remaining {
+                     Some(dur) => write!(f, "Sleeping for {:.3}s", dur.as_secs_f32()),
+                     None => write!(f, "Waking"),
+@@ -302,7 +302,7 @@ impl Environment {
+         mut options: options::Options,
+         app_args: Vec<String>,
+     ) -> Result<Environment, String> {
+-        let startup_time = Instant::now();
++        let startup_time = crate::guest_clock::now();
+
+         // Enforces the one (real) Environment limit. See `with_yielder` for
+         // why this is needed.
+@@ -750,7 +750,7 @@ impl Environment {
+         let bundle = bundle::Bundle::new_fake_bundle();
+         let fs = fs::Fs::new_fake_fs();
+
+-        let startup_time = Instant::now();
++        let startup_time = crate::guest_clock::now();
+
+         let launch_image = None;
+
+@@ -855,7 +855,7 @@ impl Environment {
+     /// any real problems, just a null pointer deref.
+     unsafe fn new_fake() -> Self {
+         Self {
+-            startup_time: Instant::now(),
++            startup_time: crate::guest_clock::now(),
+             bundle: NullableBox::null(),
+             fs: NullableBox::null(),
+             window: None,
+@@ -1132,7 +1132,7 @@ impl Environment {
+             self.current_thread,
+             duration
+         );
+-        let until = Instant::now().checked_add(duration).unwrap();
++        let until = crate::guest_clock::now().checked_add(duration).unwrap();
+         self.yield_thread(ThreadBlock::Sleeping(until));
+     }
+
+@@ -1317,8 +1317,8 @@ impl Environment {
+             match self.threads[0].blocked_by {
+                 ThreadBlock::NotBlocked => {}
+                 ThreadBlock::Sleeping(until) => {
+-                    let duration = until.duration_since(Instant::now());
+-                    std::thread::sleep(duration);
++                    let duration = until.duration_since(crate::guest_clock::now());
++                    crate::guest_clock::sleep(duration);
+                 }
+                 _ => {
+                     panic!("Unexpected ThreadBlock in app picker!");
+@@ -1338,6 +1338,8 @@ impl Environment {
+             self.gdb_server = Some(gdb_server);
+         }
+         loop {
++            #[cfg(target_os = "android")]
++            crate::abyss_android::wait_if_paused();
+             if self.threads[self.current_thread].state == ThreadState::Stepping {
+                 self.remaining_ticks = None;
+             } else {
+@@ -1727,7 +1729,7 @@ impl Environment {
+                 }
+                 match candidate.blocked_by {
+                     ThreadBlock::Sleeping(sleeping_until) => {
+-                        if sleeping_until <= Instant::now() {
++                        if sleeping_until <= crate::guest_clock::now() {
+                             log_dbg!("Thread {} finished sleeping.", thread_id);
+                             candidate.blocked_by = ThreadBlock::NotBlocked;
+                             return thread_id;
+@@ -1853,9 +1855,9 @@ impl Environment {
+             // All suitable threads are blocked and at least one is asleep.
+             // Sleep until one of them wakes up.
+             if let Some(next_awakening) = next_awakening {
+-                let duration = next_awakening.duration_since(Instant::now());
++                let duration = next_awakening.duration_since(crate::guest_clock::now());
+                 log_dbg!("All threads blocked/asleep, sleeping for {:?}.", duration);
+-                std::thread::sleep(duration);
++                crate::guest_clock::sleep(duration);
+                 // Try again, there should be some thread awake now (or
+                 // there will be soon, since timing is approximate).
+                 continue;
+diff --git a/src/frameworks/core_animation.rs b/src/frameworks/core_animation.rs
+index 2e9b52a..f94b159 100644
+--- a/src/frameworks/core_animation.rs
++++ b/src/frameworks/core_animation.rs
+@@ -64,7 +64,7 @@ pub struct ThreadLocalState {
+ // nanoseconds, Instant::now, we can just do the same in seconds and save
+ // the calls to the guest functions.
+ pub fn CACurrentMediaTime(env: &mut Environment) -> CFTimeInterval {
+-    Instant::now()
++    crate::guest_clock::now()
+         .duration_since(env.startup_time)
+         .as_secs_f64()
+ }
+diff --git a/src/frameworks/core_animation/composition.rs b/src/frameworks/core_animation/composition.rs
+index 8470613..d0aaca4 100644
+--- a/src/frameworks/core_animation/composition.rs
++++ b/src/frameworks/core_animation/composition.rs
+@@ -85,7 +85,7 @@ pub fn recomposite_if_necessary(env: &mut Environment, force: bool) -> Option<In
+             .count_frame(format_args!("Core Animation compositor"));
+     }
+
+-    let now = Instant::now();
++    let now = crate::guest_clock::now();
+     let interval = 1.0 / 60.0; // 60Hz
+     let new_recomposite_next = if let Some(recomposite_next) = env
+         .framework_state
+diff --git a/src/frameworks/foundation/ns_process_info.rs b/src/frameworks/foundation/ns_process_info.rs
+index c95dbd1..a27f8c3 100644
+--- a/src/frameworks/foundation/ns_process_info.rs
++++ b/src/frameworks/foundation/ns_process_info.rs
+@@ -47,7 +47,7 @@ pub const CLASSES: ClassExports = objc_classes! {
+
+ - (NSTimeInterval)systemUptime {
+     assert_process_info_singleton(env, this); // TODO
+-    Instant::now().duration_since(env.startup_time).as_secs_f64()
++    crate::guest_clock::now().duration_since(env.startup_time).as_secs_f64()
+ }
+
+ - (u64)physicalMemory {
+diff --git a/src/frameworks/foundation/ns_run_loop.rs b/src/frameworks/foundation/ns_run_loop.rs
+index f473e09..3c1458e 100644
+--- a/src/frameworks/foundation/ns_run_loop.rs
++++ b/src/frameworks/foundation/ns_run_loop.rs
+@@ -231,7 +231,7 @@ pub(super) fn add_perform_request(
+         selector_objects, ..
+     } = &mut env.objc.borrow_mut::<NSRunLoopHostObject>(run_loop);
+     let due_by = delay.map(|dur| {
+-        Instant::now()
++        crate::guest_clock::now()
+             .checked_add(Duration::from_secs_f64(dur))
+             .unwrap()
+     });
+@@ -400,7 +400,7 @@ pub fn run_run_loop(
+             let to_run = selector_objects
+                 .iter()
+                 .enumerate()
+-                .find(|(_, oss)| oss.due_by.is_none_or(|due_by| Instant::now() >= due_by))
++                .find(|(_, oss)| oss.due_by.is_none_or(|due_by| crate::guest_clock::now() >= due_by))
+                 .map(|(index, _)| index);
+
+             match to_run {
+@@ -457,7 +457,7 @@ pub fn run_run_loop(
+         // or until the next scheduled event, whichever is sooner. iPhone OS
+         // apps can't do more than 60fps so this should be fine.
+         let limit = Duration::from_millis(1000 / 60);
+-        env.sleep(sleep_until.map_or(limit, |i| i.duration_since(Instant::now()).min(limit)));
++        env.sleep(sleep_until.map_or(limit, |i| i.duration_since(crate::guest_clock::now()).min(limit)));
+
+         if single_iteration {
+             break;
+diff --git a/src/frameworks/foundation/ns_timer.rs b/src/frameworks/foundation/ns_timer.rs
+index 68fc992..7cd79f8 100644
+--- a/src/frameworks/foundation/ns_timer.rs
++++ b/src/frameworks/foundation/ns_timer.rs
+@@ -60,7 +60,7 @@ pub const CLASSES: ClassExports = objc_classes! {
+         selector,
+         user_info,
+         repeats,
+-        due_by: Some(Instant::now().checked_add(rust_interval).unwrap()),
++        due_by: Some(crate::guest_clock::now().checked_add(rust_interval).unwrap()),
+         run_loop: nil,
+         is_running_callback: false
+     });
+@@ -201,7 +201,7 @@ pub(super) fn handle_timer(env: &mut Environment, timer: id) -> Option<Instant>
+     // run loop it might still be run.
+     let due_by = due_by?;
+
+-    let now = Instant::now();
++    let now = crate::guest_clock::now();
+
+     if due_by > now {
+         return Some(due_by);
+diff --git a/src/frameworks/media_player/movie_player.rs b/src/frameworks/media_player/movie_player.rs
+index 63a782f..69253e2 100644
+--- a/src/frameworks/media_player/movie_player.rs
++++ b/src/frameworks/media_player/movie_player.rs
+@@ -105,7 +105,7 @@ pub const CLASSES: ClassExports = objc_classes! {
+
+     // Act as if loading immediately completed (Spore Origins waits for this).
+     State::get(env).pending_notifications.push_back(
+-        (MPMoviePlayerContentPreloadDidFinishNotification, this, Instant::now())
++        (MPMoviePlayerContentPreloadDidFinishNotification, this, crate::guest_clock::now())
+     );
+
+     this
+@@ -178,7 +178,7 @@ pub const CLASSES: ClassExports = objc_classes! {
+
+     // Act as if playback immediately completed after 1 second
+     // (various apps wait for this, such as BIA and Hero of Sparta).
+-    let notif = (MPMoviePlayerPlaybackDidFinishNotification, this, Instant::now().checked_add(Duration::from_millis(1000)).unwrap());
++    let notif = (MPMoviePlayerPlaybackDidFinishNotification, this, crate::guest_clock::now().checked_add(Duration::from_millis(1000)).unwrap());
+     for (name, obj, _) in &mut State::get(env).pending_notifications {
+         // De-duplicate similar notifications. This can happen if app is calling
+         // `play` twice on the same player object (case of NOVA2).
+@@ -231,7 +231,7 @@ pub(super) fn handle_players(env: &mut Environment) {
+     let mut i = 0;
+     while i < pending_notifs.len() {
+         let (name_str, object, time) = pending_notifs[i];
+-        if Instant::now() >= time {
++        if crate::guest_clock::now() >= time {
+             notifs_to_run.push((name_str, object));
+             pending_notifs.swap_remove_back(i);
+         } else {
+diff --git a/src/frameworks/opengles/eagl.rs b/src/frameworks/opengles/eagl.rs
+index 32a0b5c..a876cdd 100644
+--- a/src/frameworks/opengles/eagl.rs
++++ b/src/frameworks/opengles/eagl.rs
+@@ -391,11 +391,11 @@ fn limit_framerate(next_frame_due: &mut Option<Instant>, options: &Options) -> O
+
+     let &mut Some(current_frame_due) = next_frame_due else {
+         // First frame presented: no delay yet.
+-        *next_frame_due = Some(Instant::now() + interval_rust);
++        *next_frame_due = Some(crate::guest_clock::now() + interval_rust);
+         return None;
+     };
+
+-    let now = Instant::now();
++    let now = crate::guest_clock::now();
+     *next_frame_due = if now > current_frame_due + interval_rust {
+         // Too much slop has accumulated. Make the next frame wait for the next
+         // interval.
+@@ -515,7 +515,7 @@ unsafe fn read_renderbuffer(gles: &mut dyn GLES, mut pixel_buffer: Vec<u8>) -> (
+         .unwrap();
+     pixel_buffer.clear();
+     pixel_buffer.reserve_exact(size);
+-    let before = Instant::now();
++    let before = crate::guest_clock::now();
+     gles.ReadPixels(
+         0,
+         0,
+@@ -529,7 +529,7 @@ unsafe fn read_renderbuffer(gles: &mut dyn GLES, mut pixel_buffer: Vec<u8>) -> (
+         "glReadPixels(0, 0, {}, {}, …) took {:?}",
+         width,
+         height,
+-        Instant::now().saturating_duration_since(before)
++        crate::guest_clock::now().saturating_duration_since(before)
+     );
+     pixel_buffer.set_len(size);
+
+diff --git a/src/frameworks/uikit/ui_accelerometer.rs b/src/frameworks/uikit/ui_accelerometer.rs
+index d768521..1a472b8 100644
+--- a/src/frameworks/uikit/ui_accelerometer.rs
++++ b/src/frameworks/uikit/ui_accelerometer.rs
+@@ -132,7 +132,7 @@ pub(super) fn handle_accelerometer(env: &mut Environment) -> Option<Instant> {
+     let ns_interval = state.update_interval.unwrap_or(DEFAULT_UPDATE_INTERVAL);
+     let rust_interval = Duration::from_secs_f64(ns_interval);
+
+-    let now = Instant::now();
++    let now = crate::guest_clock::now();
+     if let Some(due_by) = state.due_by {
+         if due_by > now {
+             return Some(due_by);
+diff --git a/src/lib.rs b/src/lib.rs
+index fcfec3f..64ccda7 100644
+--- a/src/lib.rs
++++ b/src/lib.rs
+@@ -58,6 +58,19 @@ mod window;
+ // via re-exports.
+ use environment::{Environment, MutexId, MutexType, ThreadId, PTHREAD_MUTEX_DEFAULT};
+
++#[cfg(target_os = "android")]
++mod abyss_android;
++
++// Keep host input polling and audio output on the real clock. Guest scheduling,
++// animation and monotonic system calls share the configurable emulation clock.
++mod guest_clock {
++    #[cfg(target_os = "android")]
++    pub use crate::abyss_android::{now, sleep};
++    #[cfg(not(target_os = "android"))]
++    pub use std::thread::sleep;
++    #[cfg(not(target_os = "android"))]
++    pub fn now() -> std::time::Instant { std::time::Instant::now() }
++}
+ use std::path::PathBuf;
+
+ pub use touchHLE_version::*;
+@@ -67,8 +80,8 @@ pub use touchHLE_version::*;
+ #[cfg(target_os = "android")]
+ #[no_mangle]
+ pub extern "C" fn SDL_main(
+-    _argc: std::ffi::c_int,
+-    _argv: *const *const std::ffi::c_char,
++    argc: std::ffi::c_int,
++    argv: *const *const std::ffi::c_char,
+ ) -> std::ffi::c_int {
+     // Rust's default panic handler prints to stderr, but on Android that just
+     // gets discarded, so we set a custom hook to make debugging easier.
+@@ -87,8 +100,12 @@ pub extern "C" fn SDL_main(
+         }
+     }));
+
+-    // Empty args: brings up app picker.
+-    match main([String::new()].into_iter()) {
++    // SDL owns argv for the duration of SDL_main.
++    let args = unsafe { std::slice::from_raw_parts(argv, argc as usize) };
++    let args = args.iter().map(|&arg| unsafe {
++        std::ffi::CStr::from_ptr(arg).to_string_lossy().into_owned()
++    });
++    match main(args) {
+         Ok(_) => echo!("touchHLE finished"),
+         Err(e) => echo!("touchHLE errored: {e:?}"),
+     }
+diff --git a/src/libc/mach/time.rs b/src/libc/mach/time.rs
+index ce0772b..0441322 100644
+--- a/src/libc/mach/time.rs
++++ b/src/libc/mach/time.rs
+@@ -39,7 +39,7 @@ fn mach_timebase_info(
+ /// [mach_timebase_info], should be the absolute time in nanoseconds.
+ /// The absolute time is a monotonic clock with an arbitrary starting point.
+ fn mach_absolute_time(env: &mut Environment) -> u64 {
+-    let now = Instant::now();
++    let now = crate::guest_clock::now();
+     now.duration_since(env.startup_time)
+         .as_nanos()
+         .try_into()
+diff --git a/src/libc/time.rs b/src/libc/time.rs
+index 37ee947..f842b4d 100644
+--- a/src/libc/time.rs
++++ b/src/libc/time.rs
+@@ -33,7 +33,7 @@ type clock_t = u64;
+ const CLOCKS_PER_SEC: clock_t = 1000000;
+
+ fn clock(env: &mut Environment) -> clock_t {
+-    Instant::now()
++    crate::guest_clock::now()
+         .duration_since(env.startup_time)
+         .as_secs()
+         .wrapping_mul(CLOCKS_PER_SEC)
+diff --git a/src/paths.rs b/src/paths.rs
+index d0ab20b..571ffed 100644
+--- a/src/paths.rs
++++ b/src/paths.rs
+@@ -113,6 +113,10 @@ pub const SANDBOX_DIR: &str = "touchHLE_sandbox";
+ /// Get a platform-specific base path needed for accessing touchHLE's
+ /// user-modifiable files. This is empty on platforms other than Android.
+ pub fn user_data_base_path() -> Cow<'static, Path> {
++    #[cfg(target_os = "android")]
++    if let Some(path) = std::env::var_os("ABYSSME_IPHONE_DATA") {
++        return Cow::Owned(PathBuf::from(path));
++    }
+     #[cfg(target_os = "android")]
+     unsafe {
+         // This is an exception to the rule that SDL2 should only be used
+diff --git a/src/window.rs b/src/window.rs
+index d4eae99..ae1eea8 100644
+--- a/src/window.rs
++++ b/src/window.rs
+@@ -712,6 +712,7 @@ impl Window {
+                         continue;
+                     }
+                 }
++                E::AppWillEnterBackground { .. } if cfg!(target_os = "android") => continue,
+                 E::AppWillEnterBackground { .. } => {
+                     log!("Received app-will-resign-active event.");
+                     assert!(self.high_priority_event.is_none());

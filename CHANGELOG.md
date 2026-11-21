@@ -10,6 +10,10 @@ stated otherwise. **Experimental** in older checkpoints means local/private
 combined builds; released experimental features are explicitly identified.
 **Released** means an actual GitHub release asset.
 
+## 2026-11-21 - Early iPhone OS games in the combined Android build
+
+**Unreleased source and private ARM64 build.** The platform grid and library gained iPhone OS, IPA installation and original game icons. Games share the display settings, controller mapper and backup flow. In Castle Smasher 2.01 the Retroid fired the catapult with direct touch and a remapped controller button. [Device check](docs/checks/2026-11-21-iphone.md).
+
 ## 2026-11-21 - Native button layouts for handheld games
 
 **Unreleased source and private Retroid build.** Console touch controls and physical mapping now use the device's face letters or symbols. GP32 exposes L/R, Dingoo exposes X/Y, and Gizmondo exposes its playback, shoulder and five piano keys. Pocket PC adds four application buttons and Cybiko adds Del, Ins, F1 and F2. Per-game editing and shared profiles support platform touch assignments. WIPI/SKVM adds Call, Clear and End alongside the numeric keypad. [Coverage and verification](docs/checks/2026-11-21-platform-controls.md).

@@ -150,3 +150,8 @@ and PROJECT_STATUS for actual release availability. Original upstream SF2/HSB
 banks, optional shader packs and Lua scripts are not shipped in the combined APK.
 Games and firmware are not covered by AbyssME's license and must be supplied
 separately.
+
+
+## Optional early iPhone OS test host
+
+The private Android ARM64 build uses [touchHLE v0.3.0](https://github.com/touchHLE/touchHLE/releases/tag/v0.3.0). Its emulator source and local Rust changes use MPL-2.0. The complete upstream distribution includes GPL and other third-party components. The staging tool carries the upstream distribution license, SDL notice and guest library/font notices into the APK. The optional importer uses dd-plist 1.28 (MIT). The repository contains integration code and patches. Commercial IPA files and native release binaries stay local. Distribution review for a public combined APK is outstanding.

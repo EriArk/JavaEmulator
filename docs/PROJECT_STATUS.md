@@ -14,6 +14,10 @@ attribute its results to the dated maintainer record below; do not infer a pass.
 
 The [platform issue index](PLATFORM_ISSUES.md) maps the 49 open platform-specific tasks to the maintainer roadmap, including the initial integration order and scope decisions.
 
+## Early iPhone OS (2026-11-21, private Retroid build)
+
+The combined ARM64 build imports IPA games with bundle artwork and launches them from the iPhone OS tab. Castle Smasher 2.01 reached The Wall with landscape graphics, captured game audio, direct touch and a controller-driven touch cursor. The populated-library backup and restore test included its guest data. [Retroid check and scope](checks/2026-11-21-iphone.md).
+
 ## Platform controls (2026-11-21, private Retroid build)
 
 The new handheld hosts share platform-specific input layouts. Game cards and running games use the same guest button labels in physical mapping. Console face buttons, shoulders and system keys, PDA application buttons and keyboard shortcuts appear where the core supports them. Layout editing supports touch reassignment, extra buttons and a phone-keypad fallback. [Platform coverage and Retroid checks](checks/2026-11-21-platform-controls.md).

@@ -1,0 +1,78 @@
+diff --git a/android-project/app/src/main/java/org/libsdl/app/SDLActivity.java b/android-project/app/src/main/java/org/libsdl/app/SDLActivity.java
+index 037600b..9cdec07 100644
+--- a/android-project/app/src/main/java/org/libsdl/app/SDLActivity.java
++++ b/android-project/app/src/main/java/org/libsdl/app/SDLActivity.java
+@@ -57,7 +57,7 @@ import java.util.Locale;
+ /**
+     SDL Activity
+ */
+-public class SDLActivity extends Activity implements View.OnSystemUiVisibilityChangeListener {
++public abstract class SDLActivity extends ru.playsoftware.j2meloader.handheld.HandheldActivity implements View.OnSystemUiVisibilityChangeListener {
+     private static final String TAG = "SDL";
+     private static final int SDL_MAJOR_VERSION = 2;
+     private static final int SDL_MINOR_VERSION = 26;
+@@ -318,7 +318,7 @@ public class SDLActivity extends Activity implements View.OnSystemUiVisibilityCh
+
+     // Setup
+     @Override
+-    protected void onCreate(Bundle savedInstanceState) {
++    public void onCreate(Bundle savedInstanceState) {
+         Log.v(TAG, "Device: " + Build.DEVICE);
+         Log.v(TAG, "Model: " + Build.MODEL);
+         Log.v(TAG, "onCreate()");
+@@ -412,7 +412,7 @@ public class SDLActivity extends Activity implements View.OnSystemUiVisibilityCh
+         } catch(Exception ignored) {
+         }
+
+-        setContentView(mLayout);
++        // The shared handheld host attaches mLayout behind the game display.
+
+         setWindowStyle(false);
+
+@@ -453,7 +453,7 @@ public class SDLActivity extends Activity implements View.OnSystemUiVisibilityCh
+
+     // Events
+     @Override
+-    protected void onPause() {
++    public void onPause() {
+         Log.v(TAG, "onPause()");
+         super.onPause();
+
+@@ -466,7 +466,7 @@ public class SDLActivity extends Activity implements View.OnSystemUiVisibilityCh
+     }
+
+     @Override
+-    protected void onResume() {
++    public void onResume() {
+         Log.v(TAG, "onResume()");
+         super.onResume();
+
+@@ -580,7 +580,7 @@ public class SDLActivity extends Activity implements View.OnSystemUiVisibilityCh
+     }
+
+     @Override
+-    protected void onDestroy() {
++    public void onDestroy() {
+         Log.v(TAG, "onDestroy()");
+
+         if (mHIDDeviceManager != null) {
+diff --git a/android-project/app/src/main/java/org/libsdl/app/SDLSurface.java b/android-project/app/src/main/java/org/libsdl/app/SDLSurface.java
+index dcd26d4..5541eea 100644
+--- a/android-project/app/src/main/java/org/libsdl/app/SDLSurface.java
++++ b/android-project/app/src/main/java/org/libsdl/app/SDLSurface.java
+@@ -132,13 +132,13 @@ public class SDLSurface extends SurfaceView implements SurfaceHolder.Callback,
+
+         Log.v("SDL", "Window size: " + width + "x" + height);
+         Log.v("SDL", "Device size: " + nDeviceWidth + "x" + nDeviceHeight);
+-        SDLActivity.nativeSetScreenResolution(width, height, nDeviceWidth, nDeviceHeight, mDisplay.getRefreshRate());
++        SDLActivity.nativeSetScreenResolution(width, height, width, height, mDisplay.getRefreshRate());
+         SDLActivity.onNativeResize();
+
+         // Prevent a screen distortion glitch,
+         // for instance when the device is in Landscape and a Portrait App is resumed.
+         boolean skip = false;
+-        int requestedOrientation = SDLActivity.mSingleton.getRequestedOrientation();
++        int requestedOrientation = ActivityInfo.SCREEN_ORIENTATION_UNSPECIFIED;
+
+         if (requestedOrientation == ActivityInfo.SCREEN_ORIENTATION_PORTRAIT || requestedOrientation == ActivityInfo.SCREEN_ORIENTATION_SENSOR_PORTRAIT) {
+             if (mWidth > mHeight) {

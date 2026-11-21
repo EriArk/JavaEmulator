@@ -1,0 +1,20 @@
+plugins { id 'com.android.library' }
+android {
+    namespace 'io.github.eriark.abyssme.iphone.bridge'
+    compileSdk 34
+    defaultConfig { minSdk 29 }
+    sourceSets.main.assets.srcDir rootProject.file('build/iphone/assets')
+    sourceSets.main.jniLibs.srcDir rootProject.file('build/iphone/jniLibs')
+}
+if (!rootProject.file('build/iphone/jniLibs/arm64-v8a/libtouchHLE.so').isFile())
+    throw new GradleException('Build the pinned Iphone frontend first (engines/iphone/README.md)')
+
+def stickers = tasks.register('prepareIphoneStickers', Sync) {
+    from(rootProject.file('design-concepts/platform-stickers')) {
+        include 'iphone.webp'
+        rename { name -> "sticker_" + name }
+    }
+    into layout.buildDirectory.dir('generated/deviceArt/drawable-nodpi')
+}
+android.sourceSets.main.res.srcDir layout.buildDirectory.dir('generated/deviceArt')
+tasks.named('preBuild').configure { dependsOn stickers }

@@ -36,6 +36,7 @@ final class LibraryNavigation {
                 || ((id == 19 || id == 20) && BuildConfig.B2G_PROBE)
                 || (id == 21 && BuildConfig.PORTFOLIO_PROBE)
                 || (id == 22 && BuildConfig.POCKETPC_PROBE)
+                || (id == 24 && BuildConfig.IPHONE_PROBE)
                 || (id == 23 && BuildConfig.GIZMONDO_PROBE);
     }
 

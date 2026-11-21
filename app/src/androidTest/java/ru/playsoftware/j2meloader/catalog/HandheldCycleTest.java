@@ -113,6 +113,7 @@ public class HandheldCycleTest {
             }
             assertEquals(Collections.singleton(23), HandheldFormat.detect(c,Uri.fromFile(card),card.getName()));
             assertEquals(23, HandheldFormat.indexedPlatform("pending_23_abcd"));
+            assertEquals(24, HandheldFormat.indexedPlatform("pending_24_abcd"));
         }
         pe.putShort(132,(short)0x14c).putShort(220,(short)2);
         Files.write(exe.toPath(),pe.array());
@@ -195,6 +196,7 @@ public class HandheldCycleTest {
         if (ru.playsoftware.j2meloader.BuildConfig.GIZMONDO_PROBE && new File(source,"gizmondo/packages").isDirectory()) ids.add(23);
         if (ru.playsoftware.j2meloader.BuildConfig.POCKETPC_PROBE && new File(source,"pocketpc/packages").isDirectory()) ids.add(22);
         if (ru.playsoftware.j2meloader.BuildConfig.PORTFOLIO_PROBE && new File(source,"portfolio/packages").isDirectory()) ids.add(21);
+        if (ru.playsoftware.j2meloader.BuildConfig.IPHONE_PROBE && new File(source,"iphone/packages").isDirectory()) ids.add(24);
         return ids;
     }
 

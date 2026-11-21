@@ -48,6 +48,10 @@ public abstract class HandheldActivity extends Activity {
     protected int displayWidth() { return width(); }
     protected abstract int height();
     protected abstract boolean exited();
+    protected View guestSurface() { return null; }
+    protected boolean directTouchFirst() { return false; }
+    protected boolean multiTouch() { return false; }
+    protected void guestTouch(int id, int action, float x, float y) {}
     protected boolean usesStylus() { return false; }
     protected void stylus(float x, float y, boolean down) {}
     protected void gameTap(float x,float y) {}
@@ -82,6 +86,8 @@ public abstract class HandheldActivity extends Activity {
         physical = new ControllerInput(code -> mappings.get(code, 0), keys);
         root = new FrameLayout(this);
         screen = new HandheldScreen(this, profile, keys);
+        View surface = guestSurface();
+        if (surface != null) root.addView(surface, new FrameLayout.LayoutParams(width(), height()));
         root.addView(screen);
         ImageButton button = new ImageButton(this);
         button.setId(R.id.game_menu_button);
@@ -121,7 +127,8 @@ public abstract class HandheldActivity extends Activity {
                 screen.invalidate();
                 Toast.makeText(this, R.string.game_enhancements_unavailable, Toast.LENGTH_LONG).show();
             });
-            root.addView(screen.gpu, 0, new FrameLayout.LayoutParams(-1, -1));
+            if (guestSurface() != null) screen.gpu.setZOrderMediaOverlay(true);
+            root.addView(screen.gpu, root.indexOfChild(screen), new FrameLayout.LayoutParams(-1, -1));
         }
         if (screen.gpu != null) {
             screen.gpu.active(enhanced && resumed);

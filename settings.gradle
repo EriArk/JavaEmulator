@@ -78,6 +78,10 @@ if (providers.gradleProperty('b2gProbe').orNull == 'true') {
     include ':b2g-probe'
     project(':b2g-probe').projectDir = file('engines/b2g/bridge')
 }
+if (providers.gradleProperty('iphoneProbe').orNull == 'true') {
+    include ':iphone-probe'
+    project(':iphone-probe').projectDir = file('engines/iphone/bridge')
+}
 def gizmondoProbe = providers.gradleProperty('gizmondoProbe').orNull == 'true'
 if (gizmondoProbe) {
     include ':gizmondo-probe'

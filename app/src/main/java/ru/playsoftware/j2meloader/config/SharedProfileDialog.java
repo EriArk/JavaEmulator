@@ -23,8 +23,8 @@ public final class SharedProfileDialog {
     private final Map<String,Integer> usages = new HashMap<>();
     private boolean busy;
     private int platformChoice;
-    private static final String[] ENGINES = {"", "dingoo", "gp32", "piece", "gizmondo", "cybiko", "palm", "palm-classic", "portfolio", "pocketpc", "flash", "webos", "firefox", "wipi", "kaios"};
-    private static final String[] BUTTON_SETS = {"Phone keypad", "Dingoo", "GP32", "Two-button handheld", "Gizmondo", "Cybiko", "Palm five-way", "Palm page buttons", "Atari Portfolio", "Pocket PC", "Flash", "webOS", "Firefox OS", "WIPI / SKVM", "KaiOS / MRE"};
+    private static final String[] ENGINES = {"", "dingoo", "gp32", "piece", "gizmondo", "cybiko", "palm", "palm-classic", "portfolio", "pocketpc", "flash", "webos", "firefox", "wipi", "kaios", "iphone"};
+    private static final String[] BUTTON_SETS = {"Phone keypad", "Dingoo", "GP32", "Two-button handheld", "Gizmondo", "Cybiko", "Palm five-way", "Palm page buttons", "Atari Portfolio", "Pocket PC", "Flash", "webOS", "Firefox OS", "WIPI / SKVM", "KaiOS / MRE", "iPhone OS"};
     private SharedProfileDialog(Context context, ProfileModel game, Runnable done, SharedProfiles.Store store) {
         this.store=store;
         this.context=context;this.game=game;this.done=done;root=SharedProfiles.root(game);

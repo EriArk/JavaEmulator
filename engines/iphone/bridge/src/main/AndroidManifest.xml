@@ -1,0 +1,19 @@
+<manifest xmlns:android="http://schemas.android.com/apk/res/android">
+    <application>
+        <activity android:name="ru.playsoftware.j2meloader.MainActivity">
+            <intent-filter>
+                <action android:name="android.intent.action.VIEW" />
+                <category android:name="android.intent.category.DEFAULT" />
+                <category android:name="android.intent.category.BROWSABLE" />
+                <data android:scheme="file" />
+                <data android:scheme="content" />
+                <data android:host="*" />
+                <data android:pathPattern=".*.ipa" android:pathSuffix=".ipa" />
+                <data android:pathPattern=".*.IPA" android:pathSuffix=".IPA" />
+            </intent-filter>
+        </activity>
+        <activity android:name="io.github.eriark.abyssme.iphone.IphoneActivity"
+            android:process=":iphone" android:exported="false"
+            android:configChanges="orientation|screenSize|keyboardHidden|screenLayout|smallestScreenSize|keyboard|navigation|uiMode" />
+    </application>
+</manifest>

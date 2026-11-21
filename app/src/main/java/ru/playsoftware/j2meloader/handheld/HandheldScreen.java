@@ -53,7 +53,8 @@ final class HandheldScreen extends View implements NativeFrame {
         touch.deck.setTheme(host);
     }
     void layoutControls(boolean connected) {
-        touch.deck.setEnabled(DeviceControls.showTouch(profile, connected));
+        boolean automatic = profile.getTouchVisibility() == 0 && profile.controlMode == 0;
+        touch.deck.setEnabled(!(host.directTouchFirst() && automatic) && DeviceControls.showTouch(profile, connected));
         touch.layout(getWidth(), getHeight());
         invalidate();
     }
@@ -62,11 +63,45 @@ final class HandheldScreen extends View implements NativeFrame {
         if (penPointer != -1) host.stylus(0, 0, false);
         penPointer = -1;
     }
-    void release() { liftPen(); touch.cancel(); }
+    private final android.util.SparseArray<float[]> fingers = new android.util.SparseArray<>();
+    private void releaseFingers() {
+        for (int i=0; i<fingers.size(); i++) {
+            float[] point = fingers.valueAt(i);
+            host.guestTouch(fingers.keyAt(i), MotionEvent.ACTION_UP, point[0], point[1]);
+        }
+        fingers.clear();
+    }
+    void release() { liftPen(); releaseFingers(); touch.cancel(); }
+    private void routeFingers(MotionEvent event) {
+        int action = event.getActionMasked();
+        if (action == MotionEvent.ACTION_CANCEL) { releaseFingers(); return; }
+        boolean move = action == MotionEvent.ACTION_MOVE;
+        boolean down = action == MotionEvent.ACTION_DOWN || action == MotionEvent.ACTION_POINTER_DOWN;
+        boolean up = action == MotionEvent.ACTION_UP || action == MotionEvent.ACTION_POINTER_UP;
+        if (!move && !down && !up) return;
+        Matrix inverse = new Matrix();
+        if (!stageToView.invert(inverse)) return;
+        for (int i=0; i<event.getPointerCount(); i++) {
+            if (!move && i != event.getActionIndex()) continue;
+            int id = event.getPointerId(i);
+            float x = event.getX(i), y = event.getY(i);
+            if (down && touch.deck.containsKey(x,y)) continue;
+            float[] point = fingers.get(id);
+            if (point == null && !down) continue;
+            if (point == null) point = new float[2];
+            point[0] = x; point[1] = y; inverse.mapPoints(point);
+            if (down && (point[0]<0 || point[1]<0 || point[0]>=W || point[1]>=H)) continue;
+            point[0] = Math.max(0, Math.min(W-1, point[0]));
+            point[1] = Math.max(0, Math.min(H-1, point[1]));
+            host.guestTouch(id, down ? MotionEvent.ACTION_DOWN : up ? MotionEvent.ACTION_UP : MotionEvent.ACTION_MOVE, point[0],point[1]);
+            if (up) fingers.remove(id); else fingers.put(id,point);
+        }
+    }
     @Override protected void onSizeChanged(int w, int h, int oldW, int oldH) { touch.layout(w, h); }
     @Override public boolean onTouchEvent(MotionEvent event) {
         if (paused) return false;
-        if (host.usesStylus()) routePen(event);
+        if (host.multiTouch()) routeFingers(event);
+        else if (host.usesStylus()) routePen(event);
         tapPoint[0]=event.getX(); tapPoint[1]=event.getY();
         return touch.touch(event);
     }

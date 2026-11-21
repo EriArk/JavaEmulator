@@ -54,6 +54,7 @@ public final class PlatformControls {
             row(null,b(KEY_FIRE,"▶","Play"),null),
             row(b('2',"Home"),b('4',"Vol","Volume"),b('6',"Light","Brightness")),
             row(b('8',"Zone","Geofence"),b('0',"Power")));
+    private static final PlatformControls IPHONE = new PlatformControls("iphone", false, row(b(KEY_FIRE,"Touch")));
     private static final PlatformControls CYBIKO = new PlatformControls("cybiko", true,
             row(b(KEY_FIRE,"Enter"),b(KEY_SOFT_RIGHT,"Esc"),b(KEY_SOFT_LEFT,"Select")),
             row(b('5',"Space"),b('7',"Tab"),b('9',"Menu")), row(b('*',"Shift"),b('#',"Help")),
@@ -93,6 +94,7 @@ public final class PlatformControls {
     public static PlatformControls forEngine(String engine) {
         if (engine == null) return null;
         switch (engine) {
+            case "iphone": return IPHONE;
             case "wipi": return WIPI;
             case "mre": case "kaios": return KEYPAD;
             case "piece": case "supervision": case "megaduck": case "gamate": case "gameking": return TWO_BUTTON;

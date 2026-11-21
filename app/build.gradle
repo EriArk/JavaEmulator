@@ -74,6 +74,7 @@ android {
         buildConfigField 'boolean', 'MRE_PROBE', (findProject(':mre-probe') != null).toString()
         buildConfigField 'boolean', 'WEBOS_PROBE', (findProject(':webos-probe') != null).toString()
         buildConfigField 'boolean', 'B2G_PROBE', (findProject(':b2g-probe') != null).toString()
+        buildConfigField 'boolean', 'IPHONE_PROBE', (findProject(':iphone-probe') != null).toString()
         buildConfigField 'boolean', 'GIZMONDO_PROBE', (findProject(':gizmondo-probe') != null).toString()
         buildConfigField 'boolean', 'POCKETPC_PROBE', (findProject(':pocketpc-probe') != null).toString()
         buildConfigField 'boolean', 'PORTFOLIO_PROBE', (findProject(':portfolio-probe') != null).toString()
@@ -483,6 +484,11 @@ if (findProject(':b2g-probe') != null) {
     android.sourceSets.debug.java.srcDir rootProject.file('engines/b2g/host')
 }
 
+if (findProject(':iphone-probe') != null) {
+    dependencies.add('debugImplementation', project(':iphone-probe'))
+    dependencies.add('debugImplementation', 'com.googlecode.plist:dd-plist:1.28')
+    android.sourceSets.debug.java.srcDirs rootProject.file('engines/iphone/host'), rootProject.file('build/iphone/sdl-java')
+}
 if (findProject(':gizmondo-probe') != null) {
     dependencies.add('debugImplementation', project(':gizmondo-probe'))
     android.sourceSets.debug.java.srcDir rootProject.file('engines/gizmondo/host')
