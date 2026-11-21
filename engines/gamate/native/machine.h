@@ -7,6 +7,7 @@
 enum { GAMATE_WIDTH = 160, GAMATE_HEIGHT = 150, GAMATE_RATE = 48000 };
 bool gamate_open(const char *cartridge, const char *bios);
 void gamate_close(void);
+bool gamate_artwork_ready(void);
 /* One LCD refresh produces at most 800 stereo frames at 48 kHz. */
 size_t gamate_run(uint8_t held_keys, uint32_t *pixels, int16_t *stereo);
 size_t gamate_state_size(void);

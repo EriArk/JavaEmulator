@@ -29,6 +29,9 @@ static uint8_t bios[4096], *cart;
 static size_t cart_size;
 static uint32_t identity;
 static uint8_t joystick;
+/* Presentation state, measured from the first cartridge opcode fetch. */
+static unsigned cartridge_frames;
+bool gamate_artwork_ready(void) { return cartridge_frames >= 90; }
 
 static uint32_t hash(const void *data, size_t length, uint32_t seed) {
     const uint8_t *p = data;
@@ -59,6 +62,7 @@ bool gamate_open(const char *path, const char *boot) {
     memset(&m, 0, sizeof(m));
     memset(m.ram, 0xff, sizeof(m.ram));
     m.high_bank = cart_size <= 32768 ? 1 : 0;
+    cartridge_frames = 0;
     m.scroll_y = 10;
     m.pins = m6502_init(&m.cpu, &(m6502_desc_t){0});
     ay38910_init(&m.psg, &(ay38910_desc_t){.tick_hz=1108250, .sound_hz=GAMATE_RATE, .magnitude=0.30f});
@@ -179,6 +183,7 @@ size_t gamate_run(uint8_t keys, uint32_t *pixels, int16_t *audio) {
         else m.pins &= ~M6502_IRQ;
         m.pins = m6502_tick(&m.cpu,m.pins);
         uint16_t a = M6502_GET_ADDR(m.pins);
+        if (!cartridge_frames && (m.pins & M6502_SYNC) && a >= 0x6000 && a < 0xe000) cartridge_frames = 1;
         if (m.pins & M6502_RW) {
             uint8_t value = read_bus(a);
             M6502_SET_DATA(m.pins,value);
@@ -190,6 +195,7 @@ size_t gamate_run(uint8_t keys, uint32_t *pixels, int16_t *audio) {
             count++;
         }
     }
+    if (cartridge_frames && !gamate_artwork_ready()) cartridge_frames++;
     draw(pixels);
     return count;
 }

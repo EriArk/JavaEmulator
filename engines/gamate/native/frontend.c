@@ -11,7 +11,10 @@ enum { W = GAMATE_WIDTH, H = GAMATE_HEIGHT, RATE = GAMATE_RATE };
 static bool load_cartridge(const char *game, const char *saves);
 #include "../../handheld/native/frontend.h"
 
+static atomic_bool allow_artwork;
+
 static bool load_cartridge(const char *game, const char *saves) {
+    atomic_store(&allow_artwork, false);
     char path[4096];
     int length = snprintf(path, sizeof(path), "%s/../../system/boot.rom", saves);
     return length > 0 && (size_t)length < sizeof(path) && gamate_open(game, path);
@@ -26,8 +29,13 @@ static void run_machine_frame(void) {
     for (unsigned bit = 0; bit < 8; bit++)
         if (input(0,1,0,ids[bit])) keys |= 1u << bit;
     size_t frames = gamate_run(keys,lcd,audio_data);
+    atomic_store(&allow_artwork, gamate_artwork_ready());
     video(lcd,W,H,W*sizeof(*lcd));
     pcm(audio_data,frames);
+}
+
+JNIEXPORT jboolean JNICALL JNI_METHOD(artworkReady)(JNIEnv *env,jclass cls) {
+    return atomic_load(&allow_artwork);
 }
 
 size_t retro_serialize_size(void) { return gamate_state_size(); }

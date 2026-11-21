@@ -67,5 +67,6 @@ public final class GamateGameActivity extends HandheldActivity {
     @Override protected boolean frame(int[] pixels) { return GamateCore.frame(pixels); }
     @Override protected int width() { return 160; }
     @Override protected int height() { return 150; }
+    @Override protected boolean artworkReady() { return GamateCore.artworkReady(); }
     @Override protected boolean exited() { return GamateCore.exited(); }
 }

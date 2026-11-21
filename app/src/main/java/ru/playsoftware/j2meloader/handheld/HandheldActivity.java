@@ -39,6 +39,7 @@ public abstract class HandheldActivity extends Activity {
     protected abstract void stopCore();
     protected void more(GameMenuDialog dialog) {}
     protected abstract boolean frame(int[] pixels);
+    protected boolean artworkReady() { return true; }
     protected void configureProfile(ProfileModel profile) {}
     protected abstract int width();
     protected abstract int height();

@@ -10,6 +10,11 @@ stated otherwise. **Experimental** in older checkpoints means local/private
 combined builds; released experimental features are explicitly identified.
 **Released** means an actual GitHub release asset.
 
+## 2026-11-21 - Gamate retail cartridge checks
+
+- Improved library previews by waiting for the game to take over from the BIOS. The 4-in-1 card now shows its game selector.
+- Indexed 58 retail games on Retroid, checked all 58 with both BIOS variants on the host, and reached gameplay in Mini Golf, Cube Up and Galaxy Invaders on the handheld. [Measurements and screenshots](docs/checks/2026-11-21-gamate.md#supplied-retail-collection).
+
 ## 2026-11-21 - Bit Corporation Gamate
 
 - Added the Gamate launcher tile and tab, cartridge and BIOS import, shared controller and display settings, audio and per-game save states to the optional ARM64 test build.

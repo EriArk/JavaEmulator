@@ -96,7 +96,7 @@ final class HandheldScreen extends View implements NativeFrame {
             serial++;
             if (preview != null && serial >= nextPreviewFrame) {
                 nextPreviewFrame = serial + 60;
-                if (hasPreviewContent()) {
+                if (host.artworkReady() && hasPreviewContent()) {
                     java.io.File target = preview;
                     preview = null;
                     Bitmap copy = bitmap.copy(Bitmap.Config.ARGB_8888, false);

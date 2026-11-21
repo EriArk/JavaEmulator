@@ -16,7 +16,7 @@ The [platform issue index](PLATFORM_ISSUES.md) maps the 49 open platform-specifi
 
 ## Gamate (2026-11-21, private Retroid build)
 
-Gamate is the fourteenth platform in the combined test build. XGomoku and X-T-Rex reached gameplay through a separately imported UMC BIOS on Retroid Pocket Classic. Touch and controller input, Android playback audio and cold checkpoint restoration were verified. The runtime uses the shared library, profiles, display settings and portable backups. [Device checks and scope](checks/2026-11-21-gamate.md).
+Gamate is the fourteenth platform in the combined test build. XGomoku and X-T-Rex reached gameplay through a separately imported UMC BIOS on Retroid Pocket Classic. Touch and controller input, Android playback audio and cold checkpoint restoration were verified. The supplied 58 retail game images booted in short host runs with both BIOS variants. On Retroid, the 4-in-1 cartridge played Mini Golf and Cube Up, and Galaxy Invaders entered its first wave. The runtime uses the shared library, profiles, display settings and portable backups. [Device checks and scope](checks/2026-11-21-gamate.md).
 
 ## Nokia Asha / Series 40 (2026-11-21, private Retroid build)
 

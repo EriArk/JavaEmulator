@@ -9,6 +9,7 @@ final class GamateCore {
     static native void speed(int percent);
     static native void pause(boolean paused);
     static native boolean frame(int[] pixels);
+    static native boolean artworkReady();
     static native boolean exited();
     static native void button(int id, boolean down);
 }
