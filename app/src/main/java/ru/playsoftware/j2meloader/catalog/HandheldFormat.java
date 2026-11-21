@@ -13,6 +13,9 @@ import java.util.*;
 import java.util.zip.*;
 
 public final class HandheldFormat {
+    private static final java.util.regex.Pattern GIZMONDO_DIRECTORY =
+            java.util.regex.Pattern.compile("(?:^|/)gz[a-z]{2}[0-9]{6}/");
+
     private HandheldFormat() {}
     static String name(Context c, Uri uri) {
         if ("content".equals(uri.getScheme())) try (Cursor cursor=c.getContentResolver().query(uri,
@@ -70,16 +73,20 @@ public final class HandheldFormat {
                         B2gManifest web = B2gManifest.read(zip);
                         if (web != null) return web.platforms;
                     }
-                    Set<String> paths=new HashSet<>(); boolean legacy=false, jar=false;
+                    Set<String> paths=new HashSet<>(); boolean legacy=false, jar=false, ceProgram=false, gizmondoCard=false;
                     for (Enumeration<? extends ZipEntry> it=zip.entries();it.hasMoreElements();) {
-                        ZipEntry e=it.nextElement(); if (e.isDirectory()) continue;
+                        ZipEntry e=it.nextElement();
                         String p=e.getName().replace('\\','/').toLowerCase(Locale.ROOT); paths.add(p);
+                        if (BuildConfig.GIZMONDO_PROBE && !gizmondoCard) {
+                            gizmondoCard = GIZMONDO_DIRECTORY.matcher(p).find();
+                        }
+                        if (e.isDirectory()) continue;
                         int id=platform(p);
                         if (BuildConfig.PORTFOLIO_PROBE && p.endsWith(".exe")) {
                             try (InputStream in=zip.getInputStream(e)) { if (dosProgram(in, e.getSize())) id=21; }
                         }
                         if (BuildConfig.POCKETPC_PROBE && p.endsWith(".exe")) {
-                            try (InputStream in=zip.getInputStream(e)) { if (PocketPcFormat.armExecutable(in)) id=22; }
+                            try (InputStream in=zip.getInputStream(e)) { if (PocketPcFormat.armExecutable(in)) ceProgram=true; }
                         }
                         if (id==22 && p.endsWith(".cab")) {
                             try (InputStream in=zip.getInputStream(e)) { if (!cabinet(prefix(in,4))) id=0; }
@@ -93,6 +100,11 @@ public final class HandheldFormat {
                         if (p.endsWith(".pfs") && BuildConfig.PIECE_PROBE) result.add(8);
                         if (p.endsWith(".jar")) jar=true;
                         if (p.endsWith(".mpn")||p.endsWith(".sis")||p.endsWith(".sisx")||p.endsWith(".n-gage")) legacy=true;
+                    }
+                    if (ceProgram) {
+                        boolean alienCard = paths.stream().anyMatch(p -> p.endsWith("/alien hominid.exe") || p.equals("alien hominid.exe"))
+                                && paths.stream().anyMatch(p -> p.endsWith("/sky.bmp") || p.equals("sky.bmp"));
+                        result.add(BuildConfig.GIZMONDO_PROBE && (gizmondoCard || alienCard) ? 23 : 22);
                     }
                     boolean carrier=false;
                     if (jar && BuildConfig.WIPI_PROBE) for (String p:paths) {
@@ -227,7 +239,7 @@ public final class HandheldFormat {
         return Arrays.copyOf(bytes,n);
     }
     public static int indexedPlatform(String path) {
-        if (path != null && path.matches("pending_([5-9]|1[0-9]|2[0-2])_[a-f0-9]+"))
+        if (path != null && path.matches("pending_([5-9]|1[0-9]|2[0-3])_[a-f0-9]+"))
             return Integer.parseInt(path.substring(8, path.indexOf('_', 8)));
         return 0;
     }

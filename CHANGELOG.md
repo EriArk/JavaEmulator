@@ -10,6 +10,10 @@ stated otherwise. **Experimental** in older checkpoints means local/private
 combined builds; released experimental features are explicitly identified.
 **Released** means an actual GitHub release asset.
 
+## 2026-11-21 - Gizmondo and Carmageddon on Retroid
+
+Added a Gizmondo library tab, card artwork, SD and flash storage, console button mapping and a private ARM64 PocketHLE Reborn host. Fixed silent playback in games whose WinMM mixer polls a ring buffer the same size as the previous Android read. Carmageddon beta reached racing with captured sound. [Device checks](docs/checks/2026-11-21-gizmondo.md).
+
 ## 2026-11-21 - Pocket PC and Age of Empires on Retroid
 
 Added optional native ARM Pocket PC support, CAB and ZIP installation, per-game program selection, stylus and controller input, and FMOD CE tracker and sample playback. Age of Empires reached a random map and restored an in-game save in the private combined build. [Device check and executable details](docs/checks/2026-11-21-pocketpc.md).

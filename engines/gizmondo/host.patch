@@ -1,0 +1,255 @@
+diff --git a/crates/pocket-kernel/src/native_thunks.rs b/crates/pocket-kernel/src/native_thunks.rs
+index 1915c74..d86dd55 100644
+--- a/crates/pocket-kernel/src/native_thunks.rs
++++ b/crates/pocket-kernel/src/native_thunks.rs
+@@ -649,10 +649,7 @@ pub fn native_thunk_for(dll: &str, name: &str) -> Option<[u32; 8]> {
+ /// also kept running silently when its underlying clock call
+ /// failed, so we preserve that behaviour.
+ pub fn refresh_tick_page(cpu: &mut dyn crate::Cpu, last_written: &mut Option<u32>) {
+-    use std::sync::OnceLock;
+-    use std::time::Instant;
+-    static START: OnceLock<Instant> = OnceLock::new();
+-    let delta = START.get_or_init(Instant::now).elapsed().as_millis() as u32;
++    let delta = (guest_micros() / 1000) as u32;
+     if *last_written == Some(delta) {
+         return;
+     }
+@@ -660,6 +657,27 @@ pub fn refresh_tick_page(cpu: &mut dyn crate::Cpu, last_written: &mut Option<u32
+     let _ = cpu.write_mem(TICK_PAGE_VA + TICK_VALUE_OFFSET, &delta.to_le_bytes());
+ }
+
++// Rebase each guest worker's elapsed time on pause and speed transitions.
++thread_local! {
++    static CLOCK: std::cell::Cell<(std::time::Instant, u128, u32)> =
++        std::cell::Cell::new((std::time::Instant::now(), 0, 100));
++}
++pub fn guest_micros() -> u64 {
++    CLOCK.with(|clock| {
++        let (since, micros, rate) = clock.get();
++        (micros + since.elapsed().as_micros() * u128::from(rate) / 100) as u64
++    })
++}
++pub fn guest_rate(rate: u32) {
++    CLOCK.with(|clock| {
++        let (since, micros, old) = clock.get();
++        if old != rate {
++            let now = std::time::Instant::now();
++            clock.set((now, micros + (now - since).as_micros() * u128::from(old) / 100, rate));
++        }
++    });
++}
++
+ /// Convert an instruction array into a flat little-endian byte
+ /// buffer suitable for `cpu.write_mem`.
+ pub fn thunk_bytes(words: &[u32; 8]) -> [u8; 32] {
+diff --git a/crates/pocket-winceapi/src/coredll.rs b/crates/pocket-winceapi/src/coredll.rs
+index fc9d3a0..4a620e6 100644
+--- a/crates/pocket-winceapi/src/coredll.rs
++++ b/crates/pocket-winceapi/src/coredll.rs
+@@ -2055,17 +2055,7 @@ fn get_idle_time(_ctx: &mut CallCtx<'_>) -> Result<DispatchOutcome, KernelError>
+ }
+
+ pub(crate) fn get_tick_count(_ctx: &mut CallCtx<'_>) -> Result<DispatchOutcome, KernelError> {
+-    use std::sync::atomic::{AtomicU64, Ordering};
+-    static START: AtomicU64 = AtomicU64::new(0);
+-    let now = std::time::SystemTime::now()
+-        .duration_since(std::time::UNIX_EPOCH)
+-        .map(|d| d.as_millis() as u64)
+-        .unwrap_or(0);
+-    if START.load(Ordering::Relaxed) == 0 {
+-        START.store(now, Ordering::Relaxed);
+-    }
+-    let delta = now - START.load(Ordering::Relaxed);
+-    Ok(DispatchOutcome::ReturnedR0(delta as u32))
++    Ok(DispatchOutcome::ReturnedR0(monotonic_ms() as u32))
+ }
+
+ fn read_guest_regs(cpu: &mut dyn pocket_cpu::Cpu) -> Result<[u32; 17], KernelError> {
+@@ -14838,10 +14828,7 @@ pub(crate) fn monotonic_ms() -> u64 {
+ }
+
+ fn monotonic_micros() -> u64 {
+-    use std::sync::OnceLock;
+-    use std::time::Instant;
+-    static START: OnceLock<Instant> = OnceLock::new();
+-    START.get_or_init(Instant::now).elapsed().as_micros() as u64
++    pocket_kernel::native_thunks::guest_micros()
+ }
+
+ fn update_key_state(ctx: &mut CallCtx<'_>, ev: pocket_kernel::InputEvent) {
+diff --git a/frontends/pocket-android-jni/src/lib.rs b/frontends/pocket-android-jni/src/lib.rs
+index 2858cc2..32f1231 100644
+--- a/frontends/pocket-android-jni/src/lib.rs
++++ b/frontends/pocket-android-jni/src/lib.rs
+@@ -875,6 +875,51 @@ fn init_logger() {
+ // `nativeFinishGame`. After that call the handle is invalid and Kotlin must
+ // not pass it back into any of the methods above.
+
++#[no_mangle]
++pub extern "system" fn Java_io_github_eriark_abyssme_pocketpc_GizmondoBridge_start<'local>(
++    mut env: JNIEnv<'local>, _class: JClass<'local>, library: JString<'local>, game: JString<'local>,
++) -> jstring {
++    init_logger();
++    let result = (|| -> anyhow::Result<_> {
++        let root = jstring_to_path(&mut env, library).context("missing library root")?;
++        let id = jstring_to_string(&mut env, game).context("missing game id")?;
++        let mut count = LIBRARY_SESSIONS.lock().unwrap_or_else(|e| e.into_inner());
++        let session = runner::start_with_presentation(root, id, None)?;
++        *count += 1;
++        Ok(serde_json::json!({"handle": Box::into_raw(Box::new(session)) as jlong}))
++    })();
++    new_jstring(&env, result.map(|v| v.to_string()).unwrap_or_else(|e| error_json(&format!("{e:#}"))))
++}
++
++#[no_mangle]
++pub extern "system" fn Java_io_github_eriark_abyssme_pocketpc_GizmondoBridge_importCard<'local>(
++    mut env: JNIEnv<'local>, _class: JClass<'local>, library: JString<'local>, source: JString<'local>,
++) -> jstring {
++    let result = (|| -> anyhow::Result<String> {
++        let root = jstring_to_path(&mut env, library).context("missing library root")?;
++        let path = jstring_to_path(&mut env, source).context("missing card archive")?;
++        let mut lib = Library::open(&root)?;
++        let id = lib.import_zip(path)?.id.clone();
++        for entry in lib.games().to_vec() {
++            if let Some(stored) = lib.get_mut(&entry.id) {
++                stored.platform = Some(pocket_library::GamePlatform::Gizmondo);
++            }
++        }
++        lib.save()?;
++        Ok(serde_json::to_string(lib.get(&id).context("imported game disappeared")?)?)
++    })();
++    new_jstring(&env, result.unwrap_or_else(|e| error_json(&format!("{e:#}"))))
++}
++
++#[no_mangle]
++pub extern "system" fn Java_io_github_eriark_abyssme_pocketpc_GizmondoBridge_rate(
++    _env: JNIEnv, _class: JClass, handle: jlong, percent: jint,
++) {
++    if let Some(session) = session_from_handle(handle) {
++        session.rate(percent.clamp(0, 1600) as u32);
++    }
++}
++
+ /// `kind` ordinals exchanged with Kotlin. See `NativeBridge.kt`.
+ const INPUT_KIND_STYLUS_AIM: jint = 6;
+ const INPUT_KIND_KEY_DOWN: jint = 0;
+@@ -996,8 +1041,8 @@ pub extern "system" fn Java_com_pockethle_app_NativeBridge_nativeSystemMediaComm
+     }
+ }
+
+-#[no_mangle]
+-pub extern "system" fn Java_com_pockethle_app_NativeBridge_nativePollFrame<'local>(
++#[export_name = "Java_io_github_eriark_abyssme_pocketpc_GizmondoBridge_nativePollFrame"]
++pub extern "system" fn native_poll_frame<'local>(
+     env: JNIEnv<'local>,
+     _class: JClass<'local>,
+     handle: jlong,
+@@ -1084,8 +1129,8 @@ pub extern "system" fn Java_com_pockethle_app_NativeBridge_nativePollFrame<'loca
+ /// `(sample_rate << 16) | channels`, or `0` while the game has not
+ /// opened its `waveOut` device yet. Kotlin needs this to size its
+ /// `AudioTrack` before it starts pulling samples.
+-#[no_mangle]
+-pub extern "system" fn Java_com_pockethle_app_NativeBridge_nativeAudioFormat<'local>(
++#[export_name = "Java_io_github_eriark_abyssme_pocketpc_GizmondoBridge_nativeAudioFormat"]
++pub extern "system" fn native_audio_format<'local>(
+     _env: JNIEnv<'local>,
+     _class: JClass<'local>,
+     handle: jlong,
+@@ -1099,8 +1144,8 @@ pub extern "system" fn Java_com_pockethle_app_NativeBridge_nativeAudioFormat<'lo
+     }
+ }
+
+-#[no_mangle]
+-pub extern "system" fn Java_com_pockethle_app_NativeBridge_nativePollAudio<'local>(
++#[export_name = "Java_io_github_eriark_abyssme_pocketpc_GizmondoBridge_nativePollAudio"]
++pub extern "system" fn native_poll_audio<'local>(
+     env: JNIEnv<'local>,
+     _class: JClass<'local>,
+     handle: jlong,
+@@ -1127,8 +1172,8 @@ pub extern "system" fn Java_com_pockethle_app_NativeBridge_nativePollAudio<'loca
+     array.into_raw()
+ }
+
+-#[no_mangle]
+-pub extern "system" fn Java_com_pockethle_app_NativeBridge_nativeIsRunning<'local>(
++#[export_name = "Java_io_github_eriark_abyssme_pocketpc_GizmondoBridge_nativeIsRunning"]
++pub extern "system" fn native_is_running<'local>(
+     _env: JNIEnv<'local>,
+     _class: JClass<'local>,
+     handle: jlong,
+@@ -1170,8 +1215,8 @@ pub extern "system" fn Java_com_pockethle_app_NativeBridge_nativeSetAcceleromete
+     pocket_core::kernel::accelerometer::publish(present, present.then_some([x, y, z]));
+ }
+
+-#[no_mangle]
+-pub extern "system" fn Java_com_pockethle_app_NativeBridge_nativeSendInput<'local>(
++#[export_name = "Java_io_github_eriark_abyssme_pocketpc_GizmondoBridge_nativeSendInput"]
++pub extern "system" fn native_send_input<'local>(
+     _env: JNIEnv<'local>,
+     _class: JClass<'local>,
+     handle: jlong,
+@@ -1217,8 +1262,8 @@ pub extern "system" fn Java_com_pockethle_app_NativeBridge_nativeSendInput<'loca
+     1
+ }
+
+-#[no_mangle]
+-pub extern "system" fn Java_com_pockethle_app_NativeBridge_nativeRequestStop<'local>(
++#[export_name = "Java_io_github_eriark_abyssme_pocketpc_GizmondoBridge_nativeRequestStop"]
++pub extern "system" fn native_request_stop<'local>(
+     _env: JNIEnv<'local>,
+     _class: JClass<'local>,
+     handle: jlong,
+@@ -1228,8 +1273,8 @@ pub extern "system" fn Java_com_pockethle_app_NativeBridge_nativeRequestStop<'lo
+     }
+ }
+
+-#[no_mangle]
+-pub extern "system" fn Java_com_pockethle_app_NativeBridge_nativeFinishGame<'local>(
++#[export_name = "Java_io_github_eriark_abyssme_pocketpc_GizmondoBridge_nativeFinishGame"]
++pub extern "system" fn native_finish_game<'local>(
+     env: JNIEnv<'local>,
+     _class: JClass<'local>,
+     handle: jlong,
+diff --git a/frontends/pocket-android-jni/src/runner.rs b/frontends/pocket-android-jni/src/runner.rs
+index fd361c1..593118d 100644
+--- a/frontends/pocket-android-jni/src/runner.rs
++++ b/frontends/pocket-android-jni/src/runner.rs
+@@ -115,6 +115,7 @@ pub enum InputCommand {
+ /// Shared between the worker thread and the UI thread for the
+ /// lifetime of one game session.
+ pub(crate) struct SessionState {
++    rate: AtomicU32,
+     presentation: Option<Arc<crate::graphics::Presentation>>,
+     system_media: Mutex<Option<SystemMediaStatus>>,
+     stop_all: Arc<AtomicBool>,
+@@ -142,6 +143,7 @@ pub(crate) struct SessionState {
+ impl SessionState {
+     fn new() -> Self {
+         Self {
++            rate: AtomicU32::new(100),
+             presentation: None,
+             stop_all: Arc::new(AtomicBool::new(false)),
+             latest_frame: Mutex::new(None),
+@@ -166,6 +168,9 @@ pub struct Session {
+ }
+
+ impl Session {
++    pub(crate) fn rate(&self, percent: u32) {
++        self.state.rate.store(percent, Ordering::Release);
++    }
+     pub(crate) fn presentation(&self) -> Option<Arc<crate::graphics::Presentation>> {
+         self.state.presentation.clone()
+     }
+@@ -1316,6 +1321,12 @@ impl SessionHook {
+
+ impl FrameHook for SessionHook {
+     fn on_frame(&mut self, kernel: &mut KernelState) -> FrameAction {
++        loop {
++            let rate = self.state.rate.load(Ordering::Acquire);
++            pocket_core::kernel::native_thunks::guest_rate(rate);
++            if rate != 0 || self.stop_all.load(Ordering::Acquire) { break; }
++            std::thread::sleep(Duration::from_millis(8));
++        }
+         // Drain any pending UI input into the kernel's queue.
+         self.reap_children();
+         let mut stop_requested = self.stop_all.load(Ordering::Acquire);

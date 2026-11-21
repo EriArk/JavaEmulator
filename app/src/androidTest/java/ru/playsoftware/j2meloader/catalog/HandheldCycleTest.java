@@ -102,6 +102,18 @@ public class HandheldCycleTest {
         Files.write(exe.toPath(),pe.array());
         assertEquals(Collections.singleton(22),HandheldFormat.detect(c,Uri.fromFile(exe),exe.getName()));
         assertEquals(22,HandheldFormat.indexedPlatform("pending_22_abcd"));
+        if (ru.playsoftware.j2meloader.BuildConfig.GIZMONDO_PROBE) {
+            File card = new File(work, "wrapped.zip");
+            try (ZipOutputStream zip = new ZipOutputStream(new FileOutputStream(card))) {
+                zip.putNextEntry(new ZipEntry("card/game.exe"));
+                zip.write(pe.array());
+                zip.closeEntry();
+                zip.putNextEntry(new ZipEntry("card/GZGA200036/GZGA200036"));
+                zip.closeEntry();
+            }
+            assertEquals(Collections.singleton(23), HandheldFormat.detect(c,Uri.fromFile(card),card.getName()));
+            assertEquals(23, HandheldFormat.indexedPlatform("pending_23_abcd"));
+        }
         pe.putShort(132,(short)0x14c).putShort(220,(short)2);
         Files.write(exe.toPath(),pe.array());
         assertTrue(HandheldFormat.detect(c,Uri.fromFile(exe),exe.getName()).isEmpty());
@@ -180,6 +192,7 @@ public class HandheldCycleTest {
             if (new File(source,"firefox/packages").isDirectory()) ids.add(19);
             if (new File(source,"kaios/packages").isDirectory()) ids.add(20);
         }
+        if (ru.playsoftware.j2meloader.BuildConfig.GIZMONDO_PROBE && new File(source,"gizmondo/packages").isDirectory()) ids.add(23);
         if (ru.playsoftware.j2meloader.BuildConfig.POCKETPC_PROBE && new File(source,"pocketpc/packages").isDirectory()) ids.add(22);
         if (ru.playsoftware.j2meloader.BuildConfig.PORTFOLIO_PROBE && new File(source,"portfolio/packages").isDirectory()) ids.add(21);
         return ids;

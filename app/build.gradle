@@ -74,6 +74,7 @@ android {
         buildConfigField 'boolean', 'MRE_PROBE', (findProject(':mre-probe') != null).toString()
         buildConfigField 'boolean', 'WEBOS_PROBE', (findProject(':webos-probe') != null).toString()
         buildConfigField 'boolean', 'B2G_PROBE', (findProject(':b2g-probe') != null).toString()
+        buildConfigField 'boolean', 'GIZMONDO_PROBE', (findProject(':gizmondo-probe') != null).toString()
         buildConfigField 'boolean', 'POCKETPC_PROBE', (findProject(':pocketpc-probe') != null).toString()
         buildConfigField 'boolean', 'PORTFOLIO_PROBE', (findProject(':portfolio-probe') != null).toString()
         buildConfigField 'boolean', 'PALM_PROBE', (findProject(':palm-probe') != null).toString()
@@ -480,6 +481,11 @@ if (findProject(':b2g-probe') != null) {
     android.buildTypes.debug.applicationIdSuffix = findProject(':dingoo-probe') != null ? '.dingoocheck.debug' : '.b2gcheck.debug'
     dependencies.add('debugImplementation', project(':b2g-probe'))
     android.sourceSets.debug.java.srcDir rootProject.file('engines/b2g/host')
+}
+
+if (findProject(':gizmondo-probe') != null) {
+    dependencies.add('debugImplementation', project(':gizmondo-probe'))
+    android.sourceSets.debug.java.srcDir rootProject.file('engines/gizmondo/host')
 }
 
 if (findProject(':pocketpc-probe') != null) {

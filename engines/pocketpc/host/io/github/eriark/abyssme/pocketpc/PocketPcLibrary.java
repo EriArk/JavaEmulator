@@ -13,8 +13,13 @@ import ru.playsoftware.j2meloader.catalog.PocketPcFormat;
 import ru.playsoftware.j2meloader.catalog.SourceIdentity;
 import ru.playsoftware.j2meloader.handheld.ManagedGameLibrary;
 
-public final class PocketPcLibrary extends ManagedGameLibrary {
-    public PocketPcLibrary() { super("pocketpc", PocketPcActivity.class); }
+public class PocketPcLibrary extends ManagedGameLibrary {
+    private final String engine;
+    public PocketPcLibrary() { this("pocketpc", PocketPcActivity.class); }
+    PocketPcLibrary(String engine, Class<? extends android.app.Activity> activity) {
+        super(engine, activity);
+        this.engine = engine;
+    }
 
     static List<String> programs(File directory) throws IOException {
         Path base = directory.toPath(), extracted = base.resolve("extracted");
@@ -32,6 +37,12 @@ public final class PocketPcLibrary extends ManagedGameLibrary {
         return result;
     }
 
+    String importSource(File runtime, File input, String ext) throws IOException {
+        if (ext.equals(".cab")) return NativeBridge.importCab(runtime.getPath(), input.getPath());
+        if (ext.equals(".zip")) return NativeBridge.importZip(runtime.getPath(), input.getPath());
+        return NativeBridge.importExe(runtime.getPath(), input.getPath());
+    }
+
     @Override protected String inspect(Context c, File content, String name, Properties info) throws IOException {
         String lower = name.toLowerCase(Locale.ROOT);
         String ext = lower.endsWith(".cab") ? ".cab" : lower.endsWith(".zip") ? ".zip" : ".exe";
@@ -41,11 +52,7 @@ public final class PocketPcLibrary extends ManagedGameLibrary {
         Files.move(content.toPath(), input.toPath());
         File runtime = new File(dir, "installed");
         try {
-            String raw;
-            if (ext.equals(".cab")) raw = NativeBridge.importCab(runtime.getPath(), input.getPath());
-            else if (ext.equals(".zip")) raw = NativeBridge.importZip(runtime.getPath(), input.getPath());
-            else raw = NativeBridge.importExe(runtime.getPath(), input.getPath());
-            JSONObject entry = new JSONObject(raw);
+            JSONObject entry = new JSONObject(importSource(runtime, input, ext));
             if (entry.has("error")) throw new IOException(entry.getString("error"));
             String id = entry.getString("id");
             if (!id.matches("[a-zA-Z0-9_-]+")) throw new IOException("Invalid Pocket PC installation ID");
@@ -54,7 +61,7 @@ public final class PocketPcLibrary extends ManagedGameLibrary {
             if (choices.isEmpty()) throw new IOException("Package needs a native Windows CE ARM executable");
             info.setProperty("guest", id);
             String title = entry.getString("display_name");
-            if (ext.equals(".zip")) {
+            if (ext.equals(".zip") && "pocketpc".equals(engine)) {
                 for (String executable : choices) {
                     String basename = new File(executable).getName();
                     if (basename.substring(0,basename.length()-4).equalsIgnoreCase(title)) {
@@ -65,14 +72,15 @@ public final class PocketPcLibrary extends ManagedGameLibrary {
             }
             info.setProperty("title", title);
             info.setProperty("file", "game" + ext);
-            File icon = new File(game, "icon.png");
+            String iconName = entry.optString("icon", "icon.png");
+            File icon = new File(game, new File(iconName).getName());
             if (icon.isFile()) Files.copy(icon.toPath(), new File(dir, "icon.png").toPath(), StandardCopyOption.REPLACE_EXISTING);
             return SourceIdentity.sha256(input);
         } catch (JSONException | LinkageError e) { throw new IOException("Pocket PC import failed", e); }
         finally { Files.move(input.toPath(), content.toPath()); Files.delete(input.getParentFile().toPath()); }
     }
 
-    static File runtime(Context c, String hash) { return new File(StoragePaths.library(c), "pocketpc/data/" + hash); }
+    File runtime(Context c, String hash) { return new File(StoragePaths.library(c), engine + "/data/" + hash); }
 
     @Override protected void imported(Context c, String hash, Properties info) throws IOException {
         File destination = runtime(c, hash);
@@ -85,8 +93,8 @@ public final class PocketPcLibrary extends ManagedGameLibrary {
         try { Files.move(pending.toPath(), destination.toPath()); }
         catch (IOException race) { if (!destination.isDirectory()) throw race; }
     }
-    static String guest(Context c, String hash) throws IOException {
-        Properties info = load(new File(new PocketPcLibrary().root(c),hash));
+    String guest(Context c, String hash) throws IOException {
+        Properties info = load(new File(root(c),hash));
         String id = info.getProperty("guest","");
         if (!id.matches("[a-zA-Z0-9_-]+")) throw new IOException("Invalid Pocket PC installation");
         return id;

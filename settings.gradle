@@ -78,7 +78,12 @@ if (providers.gradleProperty('b2gProbe').orNull == 'true') {
     include ':b2g-probe'
     project(':b2g-probe').projectDir = file('engines/b2g/bridge')
 }
-if (providers.gradleProperty('pocketpcProbe').orNull == 'true') {
+def gizmondoProbe = providers.gradleProperty('gizmondoProbe').orNull == 'true'
+if (gizmondoProbe) {
+    include ':gizmondo-probe'
+    project(':gizmondo-probe').projectDir = file('engines/gizmondo/bridge')
+}
+if (gizmondoProbe || providers.gradleProperty('pocketpcProbe').orNull == 'true') {
     include ':pocketpc-probe'
     project(':pocketpc-probe').projectDir = file('engines/pocketpc/bridge')
 }

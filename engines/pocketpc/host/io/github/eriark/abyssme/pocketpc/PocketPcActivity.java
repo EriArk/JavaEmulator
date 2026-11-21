@@ -36,8 +36,9 @@ public final class PocketPcActivity extends HandheldActivity {
         try {
             String id = getIntent().getStringExtra("installed");
             prepareSession(new File(Config.getConfigsDir(),"pocketpc-"+id));
-            runtime = PocketPcLibrary.runtime(this,id);
-            guest = PocketPcLibrary.guest(this,id);
+            PocketPcLibrary library = new PocketPcLibrary();
+            runtime = library.runtime(this,id);
+            guest = library.guest(this,id);
             File dir = new File(runtime, "games/"+guest);
             metadata = new AtomicFile(new File(runtime, "library.json"));
             catalog = new JSONObject(new String(metadata.readFully(), StandardCharsets.UTF_8));

@@ -31,6 +31,12 @@ public final class HandheldOpenDialog extends DialogFragment {
                 .subscribeOn(Schedulers.io()).observeOn(AndroidSchedulers.mainThread())
                 .subscribe(ids->{
                     if(ids.isEmpty()){legacy(uri);return;}
+                    if (ru.playsoftware.j2meloader.BuildConfig.GIZMONDO_PROBE
+                            && requireArguments().getInt("preferred", -1) == 23 && ids.contains(22)
+                            && HandheldFormat.name(context,uri).toLowerCase(java.util.Locale.ROOT).endsWith(".zip")) {
+                        open(uri, 23);
+                        return;
+                    }
                     if(ids.size()==1){open(uri,ids.iterator().next());return;}
                     if (ids.contains(B2gManifest.FIREFOX) && ids.contains(B2gManifest.KAIOS)) {
                         int preferred = requireArguments().getInt("preferred", -1);

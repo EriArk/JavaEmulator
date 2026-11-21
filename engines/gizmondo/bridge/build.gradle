@@ -1,0 +1,20 @@
+plugins { id 'com.android.library' }
+android {
+    namespace 'io.github.eriark.abyssme.gizmondo.bridge'
+    compileSdk 34
+    defaultConfig { minSdk 29 }
+    sourceSets.main.assets.srcDir rootProject.file('build/gizmondo/assets')
+    sourceSets.main.jniLibs.srcDir rootProject.file('build/gizmondo/jniLibs')
+}
+if (!rootProject.file('build/gizmondo/jniLibs/arm64-v8a/libgizmondo_jni.so').isFile())
+    throw new GradleException('Build the pinned Gizmondo frontend first (engines/gizmondo/README.md)')
+
+def stickers = tasks.register('prepareGizmondoStickers', Sync) {
+    from(rootProject.file('design-concepts/platform-stickers')) {
+        include 'gizmondo.webp'
+        rename { name -> "sticker_" + name }
+    }
+    into layout.buildDirectory.dir('generated/deviceArt/drawable-nodpi')
+}
+android.sourceSets.main.res.srcDir layout.buildDirectory.dir('generated/deviceArt')
+tasks.named('preBuild').configure { dependsOn stickers }
