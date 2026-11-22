@@ -23,7 +23,8 @@
       "image": "app/src/main/res/drawable-nodpi/sticker_java.webp",
       "imageAttribution": "design-concepts/platform-stickers/README.md",
       "sources": [
-        "https://fcc.report/FCC-ID/QTKRH-28/398672.pdf"
+        "https://www.globenewswire.com/news-release/2003/10/28/1846253/0/en/Nokia-6230-classic-design-and-advanced-functionality-for-mobile-professionals.html",
+        "https://museumofeveryth.ing/mobilephones/nokia-6230-2003/"
       ],
       "specs": {
         "display": "128 × 128 px",
@@ -69,12 +70,13 @@
       "id": "mophun",
       "device": "Sony Ericsson T610",
       "year": "2003",
-      "maker": "Sony Ericsson / Synergenix",
+      "maker": "Sony Ericsson",
       "country": "SE",
       "image": "app/src/main/res/drawable-nodpi/sticker_mophun.webp",
       "imageAttribution": "design-concepts/platform-stickers/README.md",
       "sources": [
-        "https://www.mobilephonemuseum.com/phone-detail/sony-ericsson-t610"
+        "https://www.mobilephonemuseum.com/phone-detail/sony-ericsson-t610",
+        "https://www.ericsson.com/en/about-us/history/products/the-telephones/sony-ericsson-t610-from-2003"
       ],
       "specs": {
         "display": "128 × 160 px",
@@ -125,7 +127,8 @@
       "image": "app/src/main/res/drawable-nodpi/sticker_symbian.webp",
       "imageAttribution": "design-concepts/platform-stickers/README.md",
       "sources": [
-        "https://www.mobilephonemuseum.com/phone-detail/nokia-6600"
+        "https://museumofeveryth.ing/mobilephones/nokia-6600-2003/",
+        "https://www.nokiamuseum.net/nokia-6600---2003"
       ],
       "specs": {
         "display": "176 × 208 px",
@@ -176,7 +179,8 @@
       "image": "app/src/main/res/drawable-nodpi/sticker_ngage.webp",
       "imageAttribution": "design-concepts/platform-stickers/README.md",
       "sources": [
-        "https://wakkatobakka.github.io/ngage-archive/history/index.html"
+        "https://wakkatobakka.github.io/ngage-archive/history/index.html",
+        "https://www.rcrwireless.com/20040414/archived-articles/nokia-releases-n-gage-qd"
       ],
       "specs": {
         "display": "176 × 208 px",
