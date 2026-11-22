@@ -16,18 +16,19 @@
   "cards": [
     {
       "id": "wipi-skvm",
-      "device": "Samsung Anycall handset (representative)",
-      "year": "2000s",
-      "maker": "Samsung / Korean mobile operators",
+      "device": "Samsung Anycall Yuna's Haptic (representative)",
+      "year": "2009",
+      "maker": "Samsung Electronics",
       "country": "KR",
       "image": "app/src/main/res/drawable-nodpi/sticker_wipi.webp",
       "imageAttribution": "design-concepts/platform-stickers/README.md",
       "sources": [
-        "https://github.com/EriArk/JavaEmulator/issues/57"
+        "https://www.yna.co.kr/view/AKR20090522178300017",
+        "https://www.yna.co.kr/view/AKR20080704182300003"
       ],
       "specs": {
         "software": "WIPI / SKVM",
-        "input": "Phone keypad",
+        "input": "Touchscreen",
         "region": "South Korea"
       },
       "copy": {
@@ -68,13 +69,14 @@
     {
       "id": "mre",
       "device": "Nokia 215 (representative handset)",
-      "year": "2010s",
-      "maker": "MediaTek",
-      "country": "TW",
+      "year": "2015",
+      "maker": "Microsoft Mobile (Nokia brand)",
+      "country": "FI",
       "image": "design-concepts/platform-stickers/mre.webp",
       "imageAttribution": "design-concepts/platform-stickers/README.md",
       "sources": [
-        "https://github.com/EriArk/JavaEmulator/issues/58"
+        "https://news.microsoft.com/source/2015/01/05/meet-the-new-nokia-215-microsofts-most-affordable-internet-ready-phone/",
+        "https://github.com/gtrxAC/peanut.vxp"
       ],
       "specs": {
         "software": "MediaTek MRE",
@@ -120,12 +122,12 @@
       "id": "flash-lite",
       "device": "Nokia 6300",
       "year": "2007",
-      "maker": "Nokia / Adobe",
+      "maker": "Nokia",
       "country": "FI",
       "image": "design-concepts/platform-stickers/flash.webp",
       "imageAttribution": "design-concepts/platform-stickers/README.md",
       "sources": [
-        "https://github.com/EriArk/JavaEmulator/issues/64"
+        "https://www.formeeting.it/download/Devices-with-FL-pre-installed.pdf"
       ],
       "specs": {
         "software": "Flash Lite",
@@ -176,7 +178,8 @@
       "image": "design-concepts/platform-stickers/webos.webp",
       "imageAttribution": "design-concepts/platform-stickers/README.md",
       "sources": [
-        "https://www.edn.com/palms-pre-and-webos/"
+        "https://www.palminfocenter.com/news/9666/palm-announces-the-palm-webos/",
+        "https://www.eetimes.com/palms-pre-and-webos/"
       ],
       "specs": {
         "display": "320 × 480 px",
@@ -222,12 +225,13 @@
       "id": "firefox-os",
       "device": "ZTE Open",
       "year": "2013",
-      "maker": "ZTE / Mozilla",
+      "maker": "ZTE",
       "country": "CN",
       "image": "design-concepts/platform-stickers/firefox.webp",
       "imageAttribution": "design-concepts/platform-stickers/README.md",
       "sources": [
-        "https://blog.mozilla.org/en/mozilla/mozilla-and-partners-prepare-to-launch-first-firefox-os-smartphones/"
+        "https://blog.mozilla.org/en/mozilla/mozilla-and-partners-prepare-to-launch-first-firefox-os-smartphones/",
+        "https://blog.mozilla.org/press/2013/02/firefox-os-expansion/"
       ],
       "specs": {
         "software": "Firefox OS",
@@ -273,7 +277,7 @@
       "id": "kaios",
       "device": "Nokia 8110 4G",
       "year": "2018",
-      "maker": "HMD Global / KaiOS Technologies",
+      "maker": "HMD Global",
       "country": "FI",
       "image": "design-concepts/platform-stickers/kaios.webp",
       "imageAttribution": "design-concepts/platform-stickers/README.md",
