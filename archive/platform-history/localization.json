@@ -185,7 +185,8 @@
       "CN": "China",
       "HK": "Hong Kong",
       "—": "Not specified",
-      "RU": "Russia"
+      "RU": "Russia",
+      "DE": "Germany"
     },
     "es": {
       "FI": "Finlandia",
@@ -199,7 +200,8 @@
       "CN": "China",
       "HK": "Hong Kong",
       "—": "Sin especificar",
-      "RU": "Rusia"
+      "RU": "Rusia",
+      "DE": "Alemania"
     },
     "pt-BR": {
       "FI": "Finlândia",
@@ -213,7 +215,8 @@
       "CN": "China",
       "HK": "Hong Kong",
       "—": "Não informado",
-      "RU": "Rússia"
+      "RU": "Rússia",
+      "DE": "Alemanha"
     },
     "ru": {
       "FI": "Финляндия",
@@ -227,7 +230,8 @@
       "CN": "Китай",
       "HK": "Гонконг",
       "—": "Не указана",
-      "RU": "Россия"
+      "RU": "Россия",
+      "DE": "Германия"
     },
     "fr": {
       "FI": "Finlande",
@@ -241,7 +245,8 @@
       "CN": "Chine",
       "HK": "Hong Kong",
       "—": "Non précisé",
-      "RU": "Russie"
+      "RU": "Russie",
+      "DE": "Allemagne"
     },
     "de": {
       "FI": "Finnland",
@@ -255,7 +260,8 @@
       "CN": "China",
       "HK": "Hongkong",
       "—": "Nicht angegeben",
-      "RU": "Russland"
+      "RU": "Russland",
+      "DE": "Deutschland"
     },
     "ja": {
       "FI": "フィンランド",
@@ -269,7 +275,8 @@
       "CN": "中国",
       "HK": "香港",
       "—": "記載なし",
-      "RU": "ロシア"
+      "RU": "ロシア",
+      "DE": "ドイツ"
     },
     "zh-CN": {
       "FI": "芬兰",
@@ -283,7 +290,8 @@
       "CN": "中国",
       "HK": "中国香港",
       "—": "未注明",
-      "RU": "俄罗斯"
+      "RU": "俄罗斯",
+      "DE": "德国"
     }
   },
   "specValues": {
