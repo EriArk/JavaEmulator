@@ -1,0 +1,324 @@
+{
+  "schemaVersion": 1,
+  "editorialStatus": "draft-for-review",
+  "snapshot": "2026-11-22",
+  "group": "commercial-handhelds-b",
+  "locales": [
+    "en",
+    "es",
+    "pt-BR",
+    "ru",
+    "fr",
+    "de",
+    "ja",
+    "zh-CN"
+  ],
+  "cards": [
+    {
+      "id": "cybiko",
+      "device": "Cybiko Classic",
+      "year": "2000",
+      "maker": "Cybiko Inc. / David Yang",
+      "country": "US",
+      "image": "design-concepts/platform-stickers/cybiko.webp",
+      "imageAttribution": "design-concepts/platform-stickers/README.md",
+      "sources": [
+        "https://artsandculture.google.com/asset/electronic-toy-cybiko-cybiko-inc/mQE1DEDqIvmXmw?hl=en"
+      ],
+      "specs": {
+        "display": "160 × 100 px",
+        "input": "QWERTY keyboard",
+        "connectivity": "Short-range radio"
+      },
+      "copy": {
+        "en": {
+          "headline": "A social network before smartphones",
+          "article": "The Cybiko Classic arrived in 2000, created by David Yang's company for teenagers who wanted to chat, share and play. Its small keyboard and built-in radio let nearby devices exchange messages without a mobile network. Hundreds of games and applications added to the appeal. The later Xtreme changed the hardware, but kept the same adventurous spirit. Cybiko was a remarkably early glimpse of social pocket computing before modern smartphones made it ordinary."
+        },
+        "es": {
+          "headline": "Una red social antes del smartphone",
+          "article": "Cybiko Classic llegó en 2000 de la mano de la empresa de David Yang, pensado para adolescentes que querían charlar, compartir y jugar. Su pequeño teclado y la radio integrada permitían enviar mensajes entre dispositivos cercanos sin red móvil. Cientos de juegos y aplicaciones ampliaron sus posibilidades. El posterior Xtreme cambió el hardware, pero conservó el espíritu. Cybiko anticipó la informática social de bolsillo antes de los smartphones."
+        },
+        "pt-BR": {
+          "headline": "Uma rede social antes dos smartphones",
+          "article": "O Cybiko Classic chegou em 2000, criado pela empresa de David Yang para jovens que queriam conversar, compartilhar e jogar. O pequeno teclado e o rádio embutido permitiam trocar mensagens entre aparelhos próximos sem rede celular. Centenas de jogos e aplicativos completavam a experiência. O Xtreme posterior mudou o hardware, mas manteve a ideia. O Cybiko antecipou a computação social de bolso muito antes dos smartphones."
+        },
+        "ru": {
+          "headline": "Соцсеть до смартфонов",
+          "article": "Cybiko Classic появилась в 2000 году. Компания Дэвида Яна придумала устройство для подростков, которые хотели общаться, обмениваться сообщениями и играть. Маленькая клавиатура и встроенная радиосвязь позволяли переписываться с соседними Cybiko без мобильной сети. Для карманного компьютера вышли сотни игр и приложений. Позднее модель Xtreme обновила железо, сохранив идею. Cybiko удивительно рано показала, каким может быть социальный карманный гаджет."
+        },
+        "fr": {
+          "headline": "Un réseau social avant les smartphones",
+          "article": "Le Cybiko Classic arrive en 2000, conçu par la société de David Yang pour les adolescents qui veulent discuter, partager et jouer. Son petit clavier et sa radio intégrée permettent d'échanger des messages entre appareils voisins, sans réseau mobile. Des centaines de jeux et d'applications enrichissent l'ensemble. Le modèle Xtreme fera évoluer le matériel. Cybiko avait déjà entrevu l'informatique sociale de poche avant l'ère des smartphones."
+        },
+        "de": {
+          "headline": "Ein soziales Netz vor Smartphones",
+          "article": "Der Cybiko Classic erschien 2000, entwickelt von David Yangs Firma für Jugendliche, die chatten, teilen und spielen wollten. Über kleine Tastatur und integriertes Funkmodul konnten Geräte in der Nähe ohne Mobilfunknetz Nachrichten austauschen. Hunderte Spiele und Anwendungen erweiterten das Angebot. Das spätere Xtreme modernisierte die Hardware. Cybiko nahm das soziale Rechnen in der Hosentasche lange vor modernen Smartphones vorweg."
+        },
+        "ja": {
+          "headline": "スマートフォン以前の小さなSNS",
+          "article": "2000年に登場したCybiko Classicは、デビッド・ヤンの会社が若者の会話、共有、遊びのために作った端末だ。小さなキーボードと内蔵無線により、携帯電話網を使わず近くの端末同士でメッセージを交換できた。数百のゲームやアプリも用意された。後のXtremeではハードが進化したが、考え方は同じ。現代のスマートフォンに先立つ、驚くほど早いポケットSNSだった。"
+        },
+        "zh-CN": {
+          "headline": "智能手机之前的社交网络",
+          "article": "Cybiko Classic 于 2000 年问世，出自大卫·杨创办的公司，面向喜欢聊天、分享和游戏的青少年。小键盘和内置无线电让附近设备无需蜂窝网络也能互发消息，数百款游戏和应用丰富了体验。后来的 Xtreme 更新了硬件，却保留了理念。早在现代智能手机普及前，Cybiko 就已展示掌上社交计算的可能。"
+        }
+      }
+    },
+    {
+      "id": "gamate",
+      "device": "Bit Corporation Gamate",
+      "year": "1990",
+      "maker": "Bit Corporation / UMC",
+      "country": "TW",
+      "image": "design-concepts/platform-stickers/gamate.webp",
+      "imageAttribution": "design-concepts/platform-stickers/README.md",
+      "sources": [
+        "https://www.computinghistory.org.uk/det/47352/Bitcorp-Gamate/"
+      ],
+      "specs": {
+        "display": "160 × 152 px",
+        "media": "ROM cards",
+        "input": "D-pad / A / B"
+      },
+      "copy": {
+        "en": {
+          "headline": "A Taiwanese answer to the Game Boy",
+          "article": "Taiwanese company Bit Corporation released the Gamate in 1990, joining the rush to compete with Nintendo's Game Boy. Its landscape body, monochrome LCD and slender ROM cards gave it a character of its own. The company disappeared only a few years later, but production continued under UMC. Games circulated across several countries, sometimes with little surviving documentation. The Gamate is a reminder of how many distinct handheld ideas lived in Nintendo's shadow."
+        },
+        "es": {
+          "headline": "La respuesta taiwanesa a Game Boy",
+          "article": "La empresa taiwanesa Bit Corporation lanzó Gamate en 1990, en plena carrera por competir con Game Boy. Su cuerpo horizontal, pantalla LCD monocroma y tarjetas ROM delgadas le daban personalidad propia. La empresa desapareció pocos años después, pero UMC continuó la producción. Los juegos circularon por varios países, a veces sin dejar mucha documentación. Gamate recuerda cuántas portátiles diferentes existieron a la sombra de Nintendo."
+        },
+        "pt-BR": {
+          "headline": "A resposta taiwanesa ao Game Boy",
+          "article": "A taiwanesa Bit Corporation lançou o Gamate em 1990, durante a corrida para competir com o Game Boy. O corpo horizontal, a tela LCD monocromática e os cartões ROM finos davam identidade própria ao aparelho. A empresa desapareceu poucos anos depois, mas a UMC continuou a produção. Os jogos chegaram a vários países e deixaram pouca documentação. Gamate lembra quantas ideias diferentes viveram à sombra da Nintendo."
+        },
+        "ru": {
+          "headline": "Тайваньский ответ Game Boy",
+          "article": "Тайваньская Bit Corporation выпустила Gamate в 1990 году, присоединившись к гонке конкурентов Nintendo Game Boy. Горизонтальный корпус, монохромный LCD и тонкие ROM-карты придавали устройству свой характер. Компания вскоре исчезла, но производство продолжила UMC. Игры распространялись в разных странах, нередко оставляя мало документации. Gamate напоминает, сколько самостоятельных идей существовало в тени популярной консоли Nintendo."
+        },
+        "fr": {
+          "headline": "La réponse taïwanaise à la Game Boy",
+          "article": "La société taïwanaise Bit Corporation lança la Gamate en 1990, pendant la course pour concurrencer la Game Boy. Son boîtier horizontal, son écran LCD monochrome et ses fines cartes ROM lui donnaient une identité propre. La société disparut rapidement, mais UMC poursuivit la production. Les jeux circulèrent dans plusieurs pays, souvent avec peu d'archives. La Gamate rappelle combien de machines originales ont vécu dans l'ombre de Nintendo."
+        },
+        "de": {
+          "headline": "Taiwans Antwort auf den Game Boy",
+          "article": "Das taiwanische Unternehmen Bit Corporation brachte 1990 den Gamate auf den Markt, mitten im Wettlauf gegen Nintendos Game Boy. Querformat, Monochrom-LCD und dünne ROM-Karten gaben ihm einen eigenen Charakter. Die Firma verschwand bald, doch UMC führte die Produktion fort. Spiele erschienen in mehreren Ländern, oft mit wenig Dokumentation. Gamate erinnert an die vielen eigenen Handheld-Ideen im Schatten von Nintendo."
+        },
+        "ja": {
+          "headline": "台湾からのゲームボーイ対抗機",
+          "article": "台湾のBit Corporationは1990年、ゲームボーイに対抗する携帯機Gamateを発売した。横長の本体、モノクロ液晶、薄いROMカードには独自の個性があった。会社は数年後に姿を消したが、UMCが生産を引き継いだ。ゲームは各国に流通したものの、記録は十分に残っていない。Gamateは、任天堂の陰にも多様な携帯ゲーム機が存在したことを伝えている。"
+        },
+        "zh-CN": {
+          "headline": "台湾对 Game Boy 的回应",
+          "article": "台湾 Bit Corporation 在 1990 年推出 Gamate，加入挑战任天堂 Game Boy 的竞争。横向机身、黑白液晶和薄型 ROM 卡让它拥有自己的个性。公司数年后消失，但 UMC 继续生产。游戏流向多个国家，留下的资料却不多。Gamate 让人想起：在任天堂的光芒之下，还有许多不同的掌机尝试。"
+        }
+      }
+    },
+    {
+      "id": "gameking",
+      "device": "TimeTop GameKing",
+      "year": "2003",
+      "maker": "TimeTop",
+      "country": "CN",
+      "image": "design-concepts/platform-stickers/gameking.webp",
+      "imageAttribution": "design-concepts/platform-stickers/README.md",
+      "sources": [
+        "https://github.com/EriArk/JavaEmulator/issues/94"
+      ],
+      "specs": {
+        "display": "48 × 32 px (original)",
+        "media": "ROM cartridges",
+        "input": "D-pad / buttons"
+      },
+      "copy": {
+        "en": {
+          "headline": "A tiny screen with big ambition",
+          "article": "TimeTop's GameKing arrived in 2003 with an extraordinary limitation: the first model drew games on just 48 by 32 monochrome pixels. Rather than matching the screens of larger handhelds, its developers made recognizable action and puzzle games out of blocks and movement. Later GameKing models experimented with color and different displays. It is an unusual reminder that a game can still feel alive when the picture is almost impossibly small."
+        },
+        "es": {
+          "headline": "Una pantalla mínima, grandes ideas",
+          "article": "El GameKing de TimeTop apareció en 2003 con una limitación extraordinaria: el primer modelo dibujaba juegos en solo 48 por 32 píxeles monocromos. En vez de igualar las pantallas de otras portátiles, sus creadores construyeron juegos de acción y puzles reconocibles con bloques y movimiento. Los modelos posteriores probaron pantallas distintas y color. Demostró que un juego puede sentirse vivo incluso con una imagen diminuta."
+        },
+        "pt-BR": {
+          "headline": "Tela mínima, ideias enormes",
+          "article": "O GameKing da TimeTop chegou em 2003 com uma limitação incrível: o primeiro modelo desenhava jogos em apenas 48 por 32 pixels monocromáticos. Em vez de competir com telas maiores, os criadores fizeram jogos de ação e quebra-cabeças reconhecíveis usando blocos e movimento. Modelos posteriores exploraram outras telas e cores. A história mostra que um jogo pode ganhar vida mesmo com uma imagem minúscula."
+        },
+        "ru": {
+          "headline": "Большие идеи на крошечном экране",
+          "article": "GameKing от TimeTop вышла в 2003 году с почти невероятным ограничением: экран первой модели показывал всего 48 × 32 монохромных пикселя. Вместо гонки за качеством изображения разработчики создавали узнаваемые аркады и головоломки из крупных блоков и движения. Поздние версии GameKing экспериментировали с цветом и другими дисплеями. Эта приставка напоминает, что игра может оставаться живой даже на почти невозможном разрешении."
+        },
+        "fr": {
+          "headline": "Un tout petit écran, de grandes idées",
+          "article": "La GameKing de TimeTop arrive en 2003 avec une limite étonnante : le premier modèle affiche seulement 48 × 32 pixels monochromes. Au lieu de rivaliser avec les grands écrans, ses créateurs composent des jeux d'action et de réflexion reconnaissables à partir de blocs et de mouvements. Les versions suivantes tentent d'autres écrans et la couleur. Même une image minuscule peut faire vivre un jeu."
+        },
+        "de": {
+          "headline": "Winziges Bild, große Ideen",
+          "article": "Der GameKing von TimeTop erschien 2003 mit einer ungewöhnlichen Grenze: Das erste Modell zeichnete Spiele auf nur 48 mal 32 monochromen Pixeln. Statt mit größeren Bildschirmen zu konkurrieren, entwickelten die Macher erkennbare Action- und Rätselspiele aus Blöcken und Bewegung. Spätere Modelle experimentierten mit Farbe und anderen Displays. Die Konsole zeigt, dass ein Spiel selbst auf kaum vorstellbar kleiner Auflösung lebendig wirken kann."
+        },
+        "ja": {
+          "headline": "小さな画面に大きな発想",
+          "article": "TimeTopのGameKingは2003年、驚くほど厳しい制約とともに登場した。初代の画面はわずか48×32ドットのモノクロ表示だ。開発者は大きな画面を追う代わりに、ブロックと動きだけでアクションやパズルを成立させた。後継機ではカラーや異なる表示方式も試みられた。どれほど小さな映像でもゲームは生き生きと動ける、と教えてくれる機械だ。"
+        },
+        "zh-CN": {
+          "headline": "微小屏幕，大胆想象",
+          "article": "TimeTop 的 GameKing 于 2003 年推出，初代机型只有惊人的 48×32 像素黑白屏幕。开发者没有追逐更大的显示面积，而是用方块和运动构成可以辨认的动作与益智游戏。后续 GameKing 又尝试彩色及不同显示技术。它提醒我们：即使画面小得难以置信，游戏仍然可以充满生命力。"
+        }
+      }
+    },
+    {
+      "id": "gizmondo",
+      "device": "Tiger Telematics Gizmondo",
+      "year": "2005",
+      "maker": "Tiger Telematics",
+      "country": "GB",
+      "image": "design-concepts/platform-stickers/gizmondo.webp",
+      "imageAttribution": "design-concepts/platform-stickers/README.md",
+      "sources": [
+        "https://www.sec.gov/Archives/edgar/data/1065581/000126967805000204/tiger10q033105.txt"
+      ],
+      "specs": {
+        "display": "320 × 240 px",
+        "software": "Windows CE",
+        "features": "GPS / camera"
+      },
+      "copy": {
+        "en": {
+          "headline": "The handheld that tried everything",
+          "article": "The Gizmondo launched broadly in 2005 with a remarkable list of features for a games machine: 3D graphics, GPS, a camera, messaging and wireless connectivity. Built around Windows CE, it aimed to be much more than a simple cartridge console. The ambitious hardware and troubled business behind it never found a lasting audience. Today it stands as one of the most peculiar examples of how far handheld makers were willing to experiment."
+        },
+        "es": {
+          "headline": "La portátil que lo intentó todo",
+          "article": "Gizmondo se lanzó ampliamente en 2005 con una lista insólita de funciones para una consola: gráficos 3D, GPS, cámara, mensajería y conexiones inalámbricas. Basada en Windows CE, quería ser mucho más que una máquina de juegos. El ambicioso hardware y los problemas empresariales no lograron conquistar al público. Hoy sigue siendo uno de los ejemplos más extraños de hasta dónde estaban dispuestos a experimentar los fabricantes."
+        },
+        "pt-BR": {
+          "headline": "O portátil que tentou de tudo",
+          "article": "O Gizmondo chegou ao mercado em 2005 com recursos impressionantes para um videogame de bolso: gráficos 3D, GPS, câmera, mensagens e conexão sem fio. Baseado em Windows CE, pretendia ser muito mais que um console de cartuchos. O hardware ambicioso e os problemas da empresa não conquistaram um público duradouro. Hoje é um dos exemplos mais curiosos da vontade de experimentar na história dos portáteis."
+        },
+        "ru": {
+          "headline": "Портативка, которая хотела всё",
+          "article": "Gizmondo широко вышла на рынок в 2005 году с невероятным для игровой приставки набором функций: 3D-графика, GPS, камера, сообщения и беспроводная связь. На базе Windows CE создатели пытались построить нечто большее, чем просто консоль. Смелое железо и проблемы компании не помогли завоевать аудиторию. Сегодня Gizmondo остаётся одним из самых причудливых примеров инженерных амбиций эпохи портативных устройств."
+        },
+        "fr": {
+          "headline": "La console qui voulait tout faire",
+          "article": "La Gizmondo arrive largement sur le marché en 2005 avec une liste étonnante de fonctions : graphismes 3D, GPS, appareil photo, messages et liaisons sans fil. Fondée sur Windows CE, elle voulait être bien plus qu'une simple console. Son matériel ambitieux et les difficultés de l'entreprise ne lui apportèrent pas de public durable. Elle reste l'une des expériences les plus singulières de l'histoire du jeu portable."
+        },
+        "de": {
+          "headline": "Der Handheld, der alles wollte",
+          "article": "Der Gizmondo kam 2005 mit einer erstaunlichen Ausstattung auf den Markt: 3D-Grafik, GPS, Kamera, Nachrichten und Funkverbindungen. Auf Basis von Windows CE sollte er weit mehr als eine Spielkonsole sein. Die ambitionierte Hardware und geschäftliche Probleme fanden jedoch kein dauerhaftes Publikum. Heute steht Gizmondo für einen der eigenwilligsten Versuche, möglichst viel Technik in einen Handheld zu stecken."
+        },
+        "ja": {
+          "headline": "何でも目指した携帯機",
+          "article": "2005年に本格発売されたGizmondoは、携帯ゲーム機としては驚くほど多機能だった。3D描画、GPS、カメラ、メッセージ、無線通信を備え、Windows CEを基盤にゲーム機以上の存在を目指した。しかし意欲的なハードウェアと企業の問題は、長続きする市場につながらなかった。いまでは携帯機メーカーの大胆な実験を象徴する珍しい一台となっている。"
+        },
+        "zh-CN": {
+          "headline": "什么都想做到的掌机",
+          "article": "Gizmondo 在 2005 年广泛上市时，拥有当时游戏掌机中罕见的功能组合：3D 图形、GPS、摄像头、消息和无线连接。它基于 Windows CE，希望成为远不止游戏机的设备。然而激进的硬件构想与公司的经营问题没能换来持久的用户群。如今它是掌机发展史上最奇特的技术实验之一。"
+        }
+      }
+    },
+    {
+      "id": "hartung",
+      "device": "Hartung Game Master",
+      "year": "1990",
+      "maker": "Hartung",
+      "country": "DE",
+      "image": "design-concepts/platform-stickers/hartung.webp",
+      "imageAttribution": "design-concepts/platform-stickers/README.md",
+      "sources": [
+        "https://en.wikipedia.org/wiki/Game_Master_%28console%29"
+      ],
+      "specs": {
+        "display": "61 × 64 px",
+        "media": "ROM cartridges",
+        "input": "D-pad / buttons"
+      },
+      "copy": {
+        "en": {
+          "headline": "A Game Boy challenger with many labels",
+          "article": "Hartung's Game Master appeared in Germany in 1990, during a rush of companies trying to challenge the Game Boy. It used a very small monochrome display and removable game cartridges. Other distributors sold related hardware under names such as Systema 2000 and Game Plus. The changing labels and modest game library left little cultural footprint, but that is exactly what makes its preserved software and hardware interesting to explore today."
+        },
+        "es": {
+          "headline": "Una rival con muchos nombres",
+          "article": "Game Master de Hartung apareció en Alemania en 1990, cuando varias empresas intentaban competir con Game Boy. Usaba una pantalla monocroma muy pequeña y cartuchos intercambiables. Otros distribuidores vendieron equipos relacionados con nombres como Systema 2000 y Game Plus. Los cambios de marca y el catálogo reducido dejaron poca huella cultural, pero precisamente por eso resulta interesante conservar sus juegos y su hardware."
+        },
+        "pt-BR": {
+          "headline": "Uma rival com vários nomes",
+          "article": "O Game Master da Hartung surgiu na Alemanha em 1990, quando muitas empresas tentavam competir com o Game Boy. Tinha uma tela monocromática pequena e cartuchos removíveis. Outras distribuidoras venderam aparelhos semelhantes como Systema 2000 e Game Plus. As mudanças de marca e a biblioteca limitada deixaram pouca marca cultural, mas por isso mesmo seus jogos e hardware merecem ser explorados e preservados."
+        },
+        "ru": {
+          "headline": "Соперник Game Boy с множеством имён",
+          "article": "Game Master от Hartung появилась в Германии в 1990 году, когда разные компании пытались бросить вызов Game Boy. У неё был совсем небольшой монохромный экран и сменные картриджи. В других странах похожее устройство продавали под названиями Systema 2000 и Game Plus. Смена брендов и скромный каталог не оставили большого следа в культуре, но именно поэтому сохранившиеся игры и железо особенно любопытны."
+        },
+        "fr": {
+          "headline": "Une rivale aux nombreux noms",
+          "article": "La Game Master de Hartung apparaît en Allemagne en 1990, à l'époque où beaucoup cherchent à défier la Game Boy. Elle dispose d'un tout petit écran monochrome et de cartouches interchangeables. D'autres distributeurs la proposent sous des noms voisins comme Systema 2000 et Game Plus. Les changements de marque et la ludothèque limitée ont laissé peu de traces, ce qui rend son patrimoine particulièrement intéressant aujourd'hui."
+        },
+        "de": {
+          "headline": "Ein Game-Boy-Rivale mit vielen Namen",
+          "article": "Hartungs Game Master erschien 1990 in Deutschland, als zahlreiche Firmen den Game Boy herausfordern wollten. Sie nutzte ein sehr kleines Monochromdisplay und austauschbare Module. Andere Vertriebe verkauften verwandte Geräte als Systema 2000 oder Game Plus. Die wechselnden Namen und die kleine Spielebibliothek hinterließen kaum kulturelle Spuren. Gerade deshalb lohnt es sich heute, die erhaltenen Spiele und die Hardware zu erkunden."
+        },
+        "ja": {
+          "headline": "いくつもの名前を持つ対抗機",
+          "article": "HartungのGame Masterは1990年、ゲームボーイに多くの企業が挑戦していた時代のドイツで登場した。小さなモノクロ画面と交換式カートリッジを備え、地域によってSystema 2000やGame Plusなど別の名前でも売られた。ブランドの違いと少ないソフト数のため大きな足跡は残らなかったが、だからこそ現存するゲームとハードが興味深い。"
+        },
+        "zh-CN": {
+          "headline": "拥有许多名字的挑战者",
+          "article": "Hartung 的 Game Master 于 1990 年在德国出现，当时许多厂商都想挑战 Game Boy。它使用很小的黑白屏幕和可更换卡带，其他经销商还以 Systema 2000、Game Plus 等名字销售相关机型。品牌混乱和有限的游戏阵容让它没有留下太多文化印记，也正因如此，保存下来的游戏和硬件更值得探索。"
+        }
+      }
+    },
+    {
+      "id": "epoch",
+      "device": "Epoch Game Pocket Computer",
+      "year": "1984",
+      "maker": "Epoch",
+      "country": "JP",
+      "image": "design-concepts/platform-stickers/epoch.webp",
+      "imageAttribution": "design-concepts/platform-stickers/README.md",
+      "sources": [
+        "https://en.wikipedia.org/wiki/Epoch_Game_Pocket_Computer"
+      ],
+      "specs": {
+        "display": "75 × 64 px",
+        "media": "ROM cartridges",
+        "input": "8-way pad / 4 buttons"
+      },
+      "copy": {
+        "en": {
+          "headline": "An early window into portable games",
+          "article": "In 1984, years before the Game Boy, Japan's Epoch released the Game Pocket Computer. Its 75-by-64-pixel monochrome display could show far more than simple fixed LCD segments, while removable cartridges offered new games. A drawing program and puzzle were built in. The commercial catalog remained tiny, and the machine never found a mass audience. Today it offers a rare glimpse of the different paths handheld gaming might have taken."
+        },
+        "es": {
+          "headline": "Una ventana temprana al juego portátil",
+          "article": "En 1984, años antes de Game Boy, la japonesa Epoch lanzó Game Pocket Computer. Su pantalla monocroma de 75 por 64 píxeles podía mostrar gráficos más complejos que los segmentos LCD fijos, mientras que los cartuchos añadían juegos. Incluía un programa de dibujo y un puzle. El catálogo comercial fue muy pequeño y nunca alcanzó al gran público. Hoy permite imaginar otros caminos que pudo seguir el juego portátil."
+        },
+        "pt-BR": {
+          "headline": "Uma janela antiga dos jogos portáteis",
+          "article": "Em 1984, anos antes do Game Boy, a japonesa Epoch lançou o Game Pocket Computer. A tela monocromática de 75 por 64 pixels exibia mais que os segmentos fixos de LCD, e os cartuchos traziam novos jogos. Havia até um programa de desenho e um quebra-cabeça internos. A biblioteca comercial ficou pequena e o aparelho não virou sucesso. Hoje ele mostra caminhos alternativos que os jogos portáteis poderiam ter seguido."
+        },
+        "ru": {
+          "headline": "Ранний взгляд на портативные игры",
+          "article": "В 1984 году, задолго до Game Boy, японская Epoch выпустила Game Pocket Computer. Монохромный экран 75 × 64 пикселя позволял показывать куда больше, чем привычные фиксированные сегменты LCD, а картриджи приносили новые игры. Внутри уже были программа рисования и головоломка. Коммерческий каталог остался крошечным, массового успеха не случилось. Сегодня устройство показывает, по каким ещё путям могла пойти история портативного гейминга."
+        },
+        "fr": {
+          "headline": "Une autre voie du jeu portable",
+          "article": "En 1984, bien avant la Game Boy, la société japonaise Epoch lance la Game Pocket Computer. Son écran monochrome de 75 × 64 pixels affiche bien plus que les segments LCD fixes habituels, tandis que des cartouches apportent de nouveaux jeux. Un logiciel de dessin et un puzzle sont intégrés. Le catalogue commercial reste minuscule et la machine ne devient jamais populaire. Elle révèle aujourd'hui une voie possible du jeu portable."
+        },
+        "de": {
+          "headline": "Ein früher Blick auf tragbare Spiele",
+          "article": "1984, lange vor dem Game Boy, erschien in Japan Epochs Game Pocket Computer. Das monochrome Display mit 75 × 64 Pixeln konnte deutlich mehr als starre LCD-Segmente zeigen; Module brachten neue Spiele. Ein Zeichenprogramm und ein Rätsel waren bereits eingebaut. Die kommerzielle Bibliothek blieb sehr klein, und ein Massenerfolg wurde daraus nicht. Heute zeigt das Gerät, welche anderen Wege Handheld-Spiele hätten nehmen können."
+        },
+        "ja": {
+          "headline": "携帯ゲームのもう一つの未来",
+          "article": "1984年、ゲームボーイよりずっと前に、日本のエポック社はゲームポケコンを発売した。75×64ドットのモノクロ画面は固定セグメント式液晶より自由な描画が可能で、交換式カートリッジでゲームを増やせた。お絵描きソフトとパズルも内蔵していた。しかし市販作品はごく少なく、大きな成功には至らなかった。携帯ゲームが進み得た別の道を示す貴重な一台だ。"
+        },
+        "zh-CN": {
+          "headline": "掌上游戏的另一种未来",
+          "article": "1984 年，远早于 Game Boy，日本 Epoch 推出了 Game Pocket Computer。75×64 像素的黑白屏幕可以呈现比固定液晶段丰富得多的画面，卡带则能带来新游戏。机内还预装绘图程序和拼图游戏。商业游戏目录始终很小，机器也未能大众化。今天，它让我们窥见掌机历史本可能走向的另一条道路。"
+        }
+      }
+    }
+  ]
+}
