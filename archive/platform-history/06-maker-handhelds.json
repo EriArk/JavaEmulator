@@ -17,8 +17,8 @@
     {
       "id": "arduboy",
       "device": "Arduboy / Arduboy FX",
-      "year": "2014–2015",
-      "maker": "Kevin Bates / Arduboy",
+      "year": "2016",
+      "maker": "Arduboy",
       "country": "US",
       "image": "design-concepts/platform-stickers/arduboy.webp",
       "imageAttribution": "design-concepts/platform-stickers/README.md",
@@ -69,12 +69,13 @@
       "id": "gamebuino",
       "device": "Gamebuino Classic",
       "year": "2014",
-      "maker": "Aurélien Rodot / Gamebuino",
+      "maker": "Gamebuino",
       "country": "FR",
       "image": "design-concepts/platform-stickers/gamebuino.webp",
       "imageAttribution": "design-concepts/platform-stickers/README.md",
       "sources": [
-        "https://gamebuino.com/gamebuino-classic"
+        "https://gamebuino.com/gamebuino-classic",
+        "https://github.com/Gamebuino/Gamebuino-Classic"
       ],
       "specs": {
         "display": "84 × 48 LCD",
@@ -120,11 +121,12 @@
       "id": "pokitto",
       "device": "Pokitto",
       "year": "2017–2018",
-      "maker": "Jonne Valola / Pokitto",
+      "maker": "Pokitto",
       "country": "FI",
       "image": "design-concepts/platform-stickers/pokitto.webp",
       "imageAttribution": "design-concepts/platform-stickers/README.md",
       "sources": [
+        "https://www.pokitto.com/",
         "https://makerfaire.com/maker/entry/pokitto-a-diy-game-console-60070/"
       ],
       "specs": {
@@ -170,13 +172,14 @@
     {
       "id": "thumby",
       "device": "Original Thumby",
-      "year": "2021–2022",
-      "maker": "TinyCircuits / Ken Burns",
+      "year": "2022",
+      "maker": "TinyCircuits",
       "country": "US",
       "image": "design-concepts/platform-stickers/thumby.webp",
       "imageAttribution": "design-concepts/platform-stickers/README.md",
       "sources": [
-        "https://thumby.us/"
+        "https://tinycircuits.com/products/thumby",
+        "https://www.indiegogo.com/en/projects/tinycircuits/thumby-the-tiny-playable-keychain"
       ],
       "specs": {
         "display": "72 × 40 OLED",
@@ -222,12 +225,13 @@
       "id": "thumby-color",
       "device": "Thumby Color",
       "year": "2024",
-      "maker": "TinyCircuits / Ken Burns",
+      "maker": "TinyCircuits",
       "country": "US",
       "image": "design-concepts/platform-stickers/thumby_color.webp",
       "imageAttribution": "design-concepts/platform-stickers/README.md",
       "sources": [
-        "https://tinycircuits.com/products/thumby-color"
+        "https://tinycircuits.com/products/thumby-color",
+        "https://tinycircuits.com/blogs/news/thumby-color-kickstarter-is-here"
       ],
       "specs": {
         "display": "128 × 128 color TFT",
@@ -273,11 +277,13 @@
       "id": "espboy",
       "device": "ESPboy (Little Game Engine)",
       "year": "2019",
-      "maker": "Roman S. / ESPboy",
-      "country": "—",
+      "maker": "ESPboy / Roman Sokolov",
+      "country": "RU",
       "image": "design-concepts/platform-stickers/espboy.webp",
       "imageAttribution": "design-concepts/platform-stickers/README.md",
       "sources": [
+        "https://certification.oshwa.org/ru000001.html",
+        "https://community.espboy.com/t/espboy-description-and-discussion/20",
         "https://www.espboy.com/"
       ],
       "specs": {
@@ -288,35 +294,35 @@
       "copy": {
         "en": {
           "headline": "A little console with room to grow",
-          "article": "ESPboy grew from maker Roman S.'s idea of a pocket device for games, learning and electronic experiments. Its ESP8266 chip, color screen, Wi-Fi and expansion connector make it more than a fixed game console. The Little Game Engine even gives it a small programming environment and its own games, alongside other community projects. Swapping software or adding hardware is part of the fun: ESPboy is a playable workshop in your pocket."
+          "article": "ESPboy grew from maker Roman Sokolov's idea of a pocket device for games, learning and electronic experiments. Its ESP8266 chip, color screen, Wi-Fi and expansion connector make it more than a fixed game console. The Little Game Engine even gives it a small programming environment and its own games, alongside other community projects. Swapping software or adding hardware is part of the fun: ESPboy is a playable workshop in your pocket."
         },
         "es": {
           "headline": "Una consola que puede crecer",
-          "article": "ESPboy nació de la idea del creador Roman S.: un dispositivo de bolsillo para jugar, aprender y experimentar con electrónica. Su chip ESP8266, pantalla en color, Wi-Fi y conector de expansión le permiten ser más que una consola fija. Little Game Engine aporta un pequeño entorno de programación y juegos propios, junto a otros proyectos comunitarios. Cambiar software o añadir módulos forma parte de la diversión: un taller jugable de bolsillo."
+          "article": "ESPboy nació de la idea del creador Roman Sokolov: un dispositivo de bolsillo para jugar, aprender y experimentar con electrónica. Su chip ESP8266, pantalla en color, Wi-Fi y conector de expansión le permiten ser más que una consola fija. Little Game Engine aporta un pequeño entorno de programación y juegos propios, junto a otros proyectos comunitarios. Cambiar software o añadir módulos forma parte de la diversión: un taller jugable de bolsillo."
         },
         "pt-BR": {
           "headline": "Um console que pode crescer",
-          "article": "ESPboy nasceu da ideia do criador Roman S. de fazer um aparelho de bolso para jogar, aprender e experimentar eletrônica. O chip ESP8266, a tela colorida, o Wi-Fi e o conector de expansão fazem dele mais que um console fixo. O Little Game Engine oferece um ambiente pequeno de programação e jogos próprios. Trocar programas ou acrescentar módulos faz parte da diversão: uma oficina jogável no bolso."
+          "article": "ESPboy nasceu da ideia do criador Roman Sokolov de fazer um aparelho de bolso para jogar, aprender e experimentar eletrônica. O chip ESP8266, a tela colorida, o Wi-Fi e o conector de expansão fazem dele mais que um console fixo. O Little Game Engine oferece um ambiente pequeno de programação e jogos próprios. Trocar programas ou acrescentar módulos faz parte da diversão: uma oficina jogável no bolso."
         },
         "ru": {
           "headline": "Приставка, которую можно расширять",
-          "article": "ESPboy выросла из идеи разработчика Романа С. объединить в карманном гаджете игры, обучение и электронные эксперименты. Чип ESP8266, цветной экран, Wi-Fi и разъём расширения делают её больше, чем обычной приставкой. Little Game Engine добавляет собственные игры и небольшую среду разработки наряду с проектами сообщества. Менять программы или подключать новые модули — часть удовольствия. ESPboy — настоящая игровая мастерская в кармане."
+          "article": "ESPboy выросла из идеи разработчика Романа Соколова объединить в карманном гаджете игры, обучение и электронные эксперименты. Чип ESP8266, цветной экран, Wi-Fi и разъём расширения делают её больше, чем обычной приставкой. Little Game Engine добавляет собственные игры и небольшую среду разработки наряду с проектами сообщества. Менять программы или подключать новые модули — часть удовольствия. ESPboy — настоящая игровая мастерская в кармане."
         },
         "fr": {
           "headline": "Une console à faire évoluer",
-          "article": "ESPboy vient de l'idée de Roman S. : un appareil de poche pour jouer, apprendre et expérimenter l'électronique. Sa puce ESP8266, son écran couleur, le Wi-Fi et le connecteur d'extension en font plus qu'une console figée. Little Game Engine lui apporte un petit environnement de création et des jeux propres. Changer les logiciels ou ajouter des modules fait partie du plaisir : un atelier jouable dans la poche."
+          "article": "ESPboy vient de l'idée de Roman Sokolov : un appareil de poche pour jouer, apprendre et expérimenter l'électronique. Sa puce ESP8266, son écran couleur, le Wi-Fi et le connecteur d'extension en font plus qu'une console figée. Little Game Engine lui apporte un petit environnement de création et des jeux propres. Changer les logiciels ou ajouter des modules fait partie du plaisir : un atelier jouable dans la poche."
         },
         "de": {
           "headline": "Eine Konsole, die mitwächst",
-          "article": "ESPboy entstand aus Roman S.s Idee eines Taschengeräts zum Spielen, Lernen und Experimentieren. ESP8266-Chip, Farbbildschirm, WLAN und Erweiterungsanschluss machen es zu mehr als einer festen Konsole. Die Little Game Engine bringt eine kleine Programmierumgebung und eigene Spiele neben weiteren Community-Projekten. Neue Software oder Module auszuprobieren gehört zum Vergnügen: ESPboy ist eine spielbare Werkstatt für unterwegs."
+          "article": "ESPboy entstand aus Roman Sokolovs Idee eines Taschengeräts zum Spielen, Lernen und Experimentieren. ESP8266-Chip, Farbbildschirm, WLAN und Erweiterungsanschluss machen es zu mehr als einer festen Konsole. Die Little Game Engine bringt eine kleine Programmierumgebung und eigene Spiele neben weiteren Community-Projekten. Neue Software oder Module auszuprobieren gehört zum Vergnügen: ESPboy ist eine spielbare Werkstatt für unterwegs."
         },
         "ja": {
           "headline": "拡張できる小さなゲーム機",
-          "article": "ESPboyは、開発者Roman S.がゲーム、学習、電子工作を一つの携帯機にまとめようとした構想から生まれた。ESP8266、カラー画面、Wi-Fi、拡張端子を備え、固定されたゲーム機以上のことができる。Little Game Engineには独自ゲームと小さな開発環境があり、コミュニティの作品も広がる。ソフトを入れ替え、モジュールを増やす楽しさを持った、ポケットの工作室だ。"
+          "article": "ESPboyは、開発者Roman Sokolovがゲーム、学習、電子工作を一つの携帯機にまとめようとした構想から生まれた。ESP8266、カラー画面、Wi-Fi、拡張端子を備え、固定されたゲーム機以上のことができる。Little Game Engineには独自ゲームと小さな開発環境があり、コミュニティの作品も広がる。ソフトを入れ替え、モジュールを増やす楽しさを持った、ポケットの工作室だ。"
         },
         "zh-CN": {
           "headline": "能够不断扩展的小主机",
-          "article": "ESPboy 源于创作者 Roman S. 的想法：把游戏、学习和电子实验装进同一个口袋设备。ESP8266 芯片、彩色屏幕、Wi-Fi 和扩展接口让它不仅是一台固定用途的游戏机。Little Game Engine 提供小型编程环境和自己的游戏，社区也创造了其他项目。更换软件、加装模块本身就是乐趣：ESPboy 是一间可以玩耍的口袋工作室。"
+          "article": "ESPboy 源于创作者 Roman Sokolov 的想法：把游戏、学习和电子实验装进同一个口袋设备。ESP8266 芯片、彩色屏幕、Wi-Fi 和扩展接口让它不仅是一台固定用途的游戏机。Little Game Engine 提供小型编程环境和自己的游戏，社区也创造了其他项目。更换软件、加装模块本身就是乐趣：ESPboy 是一间可以玩耍的口袋工作室。"
         }
       }
     }
