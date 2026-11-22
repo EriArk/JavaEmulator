@@ -14,6 +14,10 @@ attribute its results to the dated maintainer record below; do not infer a pass.
 
 The [platform issue index](PLATFORM_ISSUES.md) maps the 51 open platform-specific tasks to the maintainer roadmap, including the initial integration order and scope decisions.
 
+## Platform launcher (2026-11-22, private Retroid build)
+
+The launcher shows platforms with games by default. Its **Show platforms without games** checkbox also reveals available empty platforms. Select a gray device to see its firmware requirements, open the system installer or add games. The preference survives restarts. [Launcher and import checks](checks/2026-11-22-empty-platforms.md).
+
 ## ESPboy Little Game Engine (2026-11-22, private Retroid build)
 
 The ESPboy tile opens a dedicated shelf for LGE games with cartridge artwork, shared controls and guest saves. NinjaEscape reached the scrolling stage with gamepad input and recorded sound. Cityrunner restored a record of 105 after a cold launch. [Device checks](checks/2026-11-22-espboy.md).

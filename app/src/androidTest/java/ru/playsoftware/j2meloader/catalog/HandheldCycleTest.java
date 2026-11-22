@@ -438,6 +438,37 @@ public class HandheldCycleTest {
             }
         };
     }
+    @Test public void installSystemFilesBeforeFirstCybikoOrPortfolioGame() throws Exception {
+        Assume.assumeTrue(ru.playsoftware.j2meloader.BuildConfig.CYBIKO_PROBE
+                && ru.playsoftware.j2meloader.BuildConfig.PORTFOLIO_PROBE);
+        Context target = isolated(work);
+        ExternalLibrary.PackageProvider cybiko = ExternalLibrary.packageProvider(12);
+        ExternalLibrary.PackageProvider portfolio = ExternalLibrary.packageProvider(21);
+        for (String model : Arrays.asList("classic", "xtreme")) {
+            for (String name : Arrays.asList("boot.bin", "system.bin")) {
+                String relative = "cybiko/system/" + model + "/" + name;
+                File original = new File(source, relative);
+                Assume.assumeTrue(original.isFile());
+                cybiko.installSystemFile(target, Uri.fromFile(original), model);
+                assertEquals(SourceIdentity.sha256(original), SourceIdentity.sha256(new File(work, relative)));
+            }
+        }
+        for (String name : Arrays.asList("c101782-007.u4", "c101781-007.u3", "c101783-001a-01.u3", "hd61830.bin")) {
+            String relative = "portfolio/system/" + name;
+            File original = new File(source, relative);
+            Assume.assumeTrue(original.isFile());
+            portfolio.installSystemFile(target, Uri.fromFile(original), null);
+            assertEquals(SourceIdentity.sha256(original), SourceIdentity.sha256(new File(work, relative)));
+        }
+        assertTrue(cybiko.read(target).isEmpty());
+        assertTrue(portfolio.read(target).isEmpty());
+        File[] packages = new File(source, "portfolio/packages").listFiles(File::isDirectory);
+        Assume.assumeTrue(packages != null && packages.length >= 2);
+        for (int i = 0; i < 2; i++)
+            portfolio.install(target, Uri.fromFile(new File(packages[i], "game.zip")));
+        assertEquals(2, portfolio.read(target).size());
+    }
+
     @Test public void actualUpdaterAndPackagedGames() throws Exception {
         Context target=isolated(work);
         File updater=new File(files,"update120.exe");

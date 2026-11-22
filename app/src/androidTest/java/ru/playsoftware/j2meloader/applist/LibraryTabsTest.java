@@ -18,6 +18,7 @@ import java.lang.reflect.Method;
 import java.nio.file.Files;
 import java.util.Arrays;
 import java.util.Collections;
+import java.util.List;
 import java.util.concurrent.atomic.AtomicBoolean;
 import org.junit.Test;
 import ru.playsoftware.j2meloader.MainActivity;
@@ -63,6 +64,17 @@ public class LibraryTabsTest {
                     assertTrue(a.findViewById(R.id.rail_add_game).isShown());
                     assertTrue(a.findViewById(R.id.library_social).isShown());
                     assertTrue(a.findViewById(R.id.library_menu).isShown());
+                    AppItem mophun = new ExternalLibrary.Item("fixture", "Game", "Mophun", "1") {
+                        public int platformId() { return 2; }
+                        public void launch(Activity activity, boolean settings) { }
+                        public void favorite() { }
+                        public void rename(String title) { }
+                    };
+                    home.setGames(Collections.singletonList(mophun));
+                    assertNull(home.findViewWithTag(1));
+                    a.findViewById(R.id.platform_show_empty).performClick();
+                    assertTrue(home.findViewWithTag(1).isFocusable());
+                    assertTrue(prefs.getBoolean("libraryShowEmptyPlatforms", false));
                     home.findViewWithTag(2).performClick();
                     assertTrue(a.findViewById(R.id.platform_mophun).isSelected());
                     assertFalse(home.isShown());
@@ -87,6 +99,84 @@ public class LibraryTabsTest {
                 });
             }
         }
+    }
+
+    @Test public void emptyPlatformSetupUsesWholeLibraryAndSurvivesRecreation() {
+        try (LibraryPreferencesSnapshot snapshot = new LibraryPreferencesSnapshot(context)) {
+            PreferenceManager.getDefaultSharedPreferences(context).edit().putBoolean(PlatformGridView.STARTUP, true).commit();
+            try (ActivityScenario<MainActivity> scenario = ActivityScenario.launch(MainActivity.class)) {
+                scenario.onActivity(a -> {
+                    PlatformGridView home = a.findViewById(R.id.platform_grid);
+                    home.setGames(Collections.emptyList());
+                    assertNull(home.findViewWithTag(1));
+                    a.findViewById(R.id.platform_show_empty).performClick();
+                });
+                scenario.recreate();
+                scenario.onActivity(a -> {
+                    PlatformGridView home = a.findViewById(R.id.platform_grid);
+                    assertTrue(((android.widget.CheckBox) a.findViewById(R.id.platform_show_empty)).isChecked());
+                    home.setGames(Collections.emptyList());
+                    View java = home.findViewWithTag(1);
+                    assertTrue(java.isEnabled());
+                    assertTrue(java.requestFocusFromTouch());
+                    assertEquals(context.getString(R.string.platform_without_games, "Java ME"), java.getContentDescription());
+                    android.widget.ImageView sticker = (android.widget.ImageView) ((LinearLayout) java).getChildAt(0);
+                    assertNotNull(sticker.getColorFilter());
+                    home.setGames(Collections.singletonList(new AppItem("fixture", "Game", "Test", "1")));
+                    assertNull(sticker.getColorFilter());
+                    assertEquals("Java ME", java.getContentDescription());
+                    home.setGames(Collections.emptyList());
+                    java.performClick();
+                    if (android.os.Build.VERSION.SDK_INT >= 29) {
+                        android.widget.Button install = dialogButton(R.string.platform_install_system);
+                        assertFalse(install.isEnabled());
+                        dialogButton(R.string.platform_add_games).performClick();
+                        assertTrue(dialogButton(R.string.library_add_folder).isEnabled());
+                    }
+                });
+            }
+        }
+    }
+
+    @Test public void emptyPortfolioOpensExistingMultiFilePickerAndCancelKeepsHome() {
+        org.junit.Assume.assumeTrue(ru.playsoftware.j2meloader.BuildConfig.PORTFOLIO_PROBE
+                && android.os.Build.VERSION.SDK_INT >= 29);
+        java.util.concurrent.atomic.AtomicReference<android.content.Intent> picker = new java.util.concurrent.atomic.AtomicReference<>();
+        Instrumentation.ActivityMonitor monitor = new Instrumentation.ActivityMonitor() {
+            @Override public Instrumentation.ActivityResult onStartActivity(android.content.Intent intent) {
+                if (!android.content.Intent.ACTION_OPEN_DOCUMENT.equals(intent.getAction())) return null;
+                picker.set(intent);
+                return new Instrumentation.ActivityResult(Activity.RESULT_CANCELED, null);
+            }
+        };
+        instrumentation.addMonitor(monitor);
+        try (LibraryPreferencesSnapshot snapshot = new LibraryPreferencesSnapshot(context)) {
+            PreferenceManager.getDefaultSharedPreferences(context).edit().putBoolean(PlatformGridView.STARTUP, true)
+                    .putBoolean("libraryShowEmptyPlatforms", true).commit();
+            try (ActivityScenario<MainActivity> scenario = ActivityScenario.launch(MainActivity.class)) {
+                scenario.onActivity(a -> {
+                    PlatformGridView home = a.findViewById(R.id.platform_grid);
+                    home.setGames(Collections.emptyList());
+                    home.findViewWithTag(21).performClick();
+                    dialogButton(R.string.platform_install_system).performClick();
+                });
+                instrumentation.waitForIdleSync();
+                assertNotNull(picker.get());
+                assertTrue(picker.get().getBooleanExtra(android.content.Intent.EXTRA_ALLOW_MULTIPLE, false));
+                scenario.onActivity(a -> assertTrue(a.findViewById(R.id.platform_grid).isShown()));
+            }
+        } finally { instrumentation.removeMonitor(monitor); }
+    }
+
+    private android.widget.Button dialogButton(int label) {
+        List<View> windows = android.view.inspector.WindowInspector.getGlobalWindowViews();
+        for (int i = windows.size() - 1; i >= 0; i--) {
+            java.util.ArrayList<View> found = new java.util.ArrayList<>();
+            windows.get(i).findViewsWithText(found, context.getString(label), View.FIND_VIEWS_WITH_TEXT);
+            for (View v : found) if (v instanceof android.widget.Button && v.isShown())
+                return (android.widget.Button) v;
+        }
+        throw new AssertionError("Missing button: " + context.getString(label));
     }
 
     private int lastVisiblePlatform() {

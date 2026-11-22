@@ -20,6 +20,20 @@ public final class LibraryQuery {
         if(indexed!=0)return indexed;
         return AdditionalGames.isManaged(new File(item.getPathExt())) ? 2 : 1;
     }
+    static boolean countsAsGame(int platform, AppItem item) {
+        if (!(item instanceof ExternalLibrary.Item)) return true;
+        String format = item.getVersion();
+        // GameKing and Epoch firmware cards include playable built-in games.
+        switch (platform) {
+            case 8: return !"PFI".equals(format);
+            case 9: return !"bin".equals(format);
+            case 14: return !"BIOS".equals(format);
+            case 16: return !"ROM".equals(format) && !"NAND".equals(format) && !"Database".equals(format);
+            case 28: return !"System BIOS".equals(format);
+            default: return true;
+        }
+    }
+
     public static List<AppItem> select(List<AppItem> items, int category, int platform, String query) {
         return select(items, category, platform, 0, query);
     }

@@ -14,6 +14,10 @@
             android:layout_width="0dp" android:layout_height="match_parent" android:layout_weight="1"
             android:gravity="center_vertical" android:text="@string/platform_library_brand" android:textSize="18sp"
             android:textStyle="bold" android:singleLine="true" android:textColor="?attr/abyss_text_primary" />
+        <CheckBox android:id="@+id/platform_show_empty"
+            android:layout_width="48dp" android:layout_height="48dp" android:visibility="gone"
+            android:paddingStart="8dp" android:paddingEnd="8dp"
+            android:contentDescription="@string/platform_show_empty" android:tooltipText="@string/platform_show_empty" />
         <ImageButton android:id="@+id/library_search_toggle"
             android:layout_width="48dp" android:layout_height="48dp"
             android:background="@drawable/bg_library_tab" android:src="@drawable/ic_library_search"

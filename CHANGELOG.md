@@ -10,6 +10,10 @@ stated otherwise. **Experimental** in older checkpoints means local/private
 combined builds; released experimental features are explicitly identified.
 **Released** means an actual GitHub release asset.
 
+## 2026-11-22 - Empty platform setup
+
+**Unreleased source and private ARM64 build.** Added a checkbox to reveal empty platforms and open their setup directly from the launcher. The setup lists model-specific system files and reuses the existing importers. The handheld document picker now accepts several files in one selection. [Retroid checks](docs/checks/2026-11-22-empty-platforms.md).
+
 ## 2026-11-22 - ESPboy Little Game Engine
 
 **Unreleased source and private ARM64 build.** Added an ESPboy platform tile using a photograph of the hardware, offline LGE execution, game and ZIP import, embedded icons, audio, physical and touch controls, and portable game saves. [Retroid results](docs/checks/2026-11-22-espboy.md).

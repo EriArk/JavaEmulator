@@ -88,4 +88,22 @@
     <string name="library_iphone_import_hint">Choose an iPhone OS game (.ipa).</string>
     <string name="library_gizmondo_import_hint">Choose a ZIP containing the Gizmondo SD card files and game executable.</string>
     <string name="library_pocketpc_import_hint">Choose a Pocket PC CAB, ARM Windows CE executable or ZIP with the game files.</string>
+    <string name="platform_show_empty">Show platforms without games</string>
+    <string name="platform_without_games">%1$s, no games</string>
+    <string name="platform_empty_hint">Your library is empty. Check “Show platforms without games” above to choose a platform.</string>
+    <string name="platform_add_games">Add games</string>
+    <string name="platform_install_system">Install system files</string>
+    <string name="platform_no_system">No additional system files are required.</string>
+    <string name="platform_files_symbian">A compatible S60 phone dump (ZIP/7z, or ROM with its matching RPKG).</string>
+    <string name="platform_files_ngage">Original games need an N-Gage or QD phone dump. N-Gage 2.0 needs an S60 3rd edition dump and the N-Gage 2.0 installer (SIS or ZIP).</string>
+    <string name="platform_files_piece">System updater (.exe), kernel (all.bin), or a base flash image (.pfi).</string>
+    <string name="platform_files_gp32">GP32 BIOS (.bin or ZIP) for encrypted cards and firmware boot. FXE games can boot directly.</string>
+    <string name="platform_files_cybiko">Boot ROM and CyOS flash image for the same Classic or Xtreme model. Individual files or a ZIP.</string>
+    <string name="platform_files_gamate">A 4 KiB Gamate BIOS (BIT or UMC), raw or zipped.</string>
+    <string name="platform_files_gameking">GM-218 BIOS (gm218.bin) for GameKing or GM-220 BIOS (gm220.bin) for GameKing 3. ZIP files are supported.</string>
+    <string name="platform_files_palm">A compatible Palm OS ROM. Tungsten E2 needs its matching NOR and NAND images.</string>
+    <string name="platform_files_portfolio">Portfolio system and font ROMs: c101782-007.u4, c101781-007.u3, c101783-001a-01.u3 and hd61830.bin.</string>
+    <string name="platform_files_hartung">Game Master BIOS (d78c11agf_e19.u1 or gmaster.zip).</string>
+    <string name="platform_files_epoch">Game Pocket Computer BIOS (egpcboot.bin or gamepock.zip).</string>
+    <string name="platform_files_added">System files added</string>
 </resources>

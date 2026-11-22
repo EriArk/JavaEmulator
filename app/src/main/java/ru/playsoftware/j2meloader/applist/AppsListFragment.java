@@ -150,21 +150,48 @@ public class AppsListFragment extends Fragment implements AppsListAdapter.Listen
 	private final ActivityResultLauncher<String> openFileLauncher = registerForActivityResult(
 			FileUtils.getFilePicker(),
 			this::onPickFileResult);
+    private int pickerPlatform;
+    private boolean pickingSystemFiles;
+    private String pickerModel;
+
     private final ActivityResultLauncher<String[]> handheldPicker = registerForActivityResult(
-            new ActivityResultContracts.OpenDocument(), uri -> {
-                if (uri == null) return;
-                final int importPlatform = platform;
-                Context context = requireContext().getApplicationContext();
-                android.os.Handler main = new android.os.Handler(android.os.Looper.getMainLooper());
-                folderExecutor.execute(() -> {
-                    try {
-                        ExternalLibrary.packageProvider(importPlatform).install(context, uri);
-                        main.post(this::reloadExternalLibrary);
-                    } catch (IOException | RuntimeException error) {
-                        main.post(() -> Toast.makeText(context, error.getMessage(), Toast.LENGTH_LONG).show());
-                    }
-                });
+            new ActivityResultContracts.OpenMultipleDocuments(), this::onHandheldFiles);
+
+    private void pickHandheldFiles(int id, boolean system, String model) {
+        pickerPlatform = id;
+        pickingSystemFiles = system;
+        pickerModel = model;
+        handheldPicker.launch(new String[]{"*/*"});
+    }
+
+    private void onHandheldFiles(List<Uri> files) {
+        if (files.isEmpty()) return;
+        int id = pickerPlatform;
+        boolean system = pickingSystemFiles;
+        String model = pickerModel;
+        Context context = requireContext().getApplicationContext();
+        android.os.Handler main = new android.os.Handler(android.os.Looper.getMainLooper());
+        folderExecutor.execute(() -> {
+            List<String> failures = new java.util.ArrayList<>();
+            for (Uri file : files) {
+                try {
+                    ExternalLibrary.PackageProvider provider = ExternalLibrary.packageProvider(id);
+                    if (system) provider.installSystemFile(context, file, model);
+                    else provider.install(context, file);
+                } catch (IOException | RuntimeException error) {
+                    failures.add(error.getLocalizedMessage() == null ? error.toString() : error.getLocalizedMessage());
+                }
+            }
+            main.post(() -> {
+                if (!isAdded() || binding == null) return;
+                reloadExternalLibrary();
+                if (!failures.isEmpty())
+                    Toast.makeText(context, android.text.TextUtils.join("\n", failures), Toast.LENGTH_LONG).show();
+                else if (system)
+                    Toast.makeText(context, R.string.platform_files_added, Toast.LENGTH_SHORT).show();
             });
+        });
+    }
     private final ActivityResultLauncher<Uri> openFolderLauncher = registerForActivityResult(
 			new ActivityResultContracts.OpenDocumentTree(), this::onPickFolderResult);
 	private final ActivityResultLauncher<String> artworkLauncher = registerForActivityResult(
@@ -200,6 +227,9 @@ public class AppsListFragment extends Fragment implements AppsListAdapter.Listen
 		searchExpanded = !restoredSearch.isEmpty();
 		restoredSelection = navigation.selection(platform);
 		if (savedInstanceState != null) {
+            pickerPlatform = savedInstanceState.getInt("pickerPlatform", platform);
+            pickingSystemFiles = savedInstanceState.getBoolean("pickingSystemFiles");
+            pickerModel = savedInstanceState.getString("pickerModel");
             pendingLauncherLink = savedInstanceState.getString("launcherLink");
 			artworkTargetId = savedInstanceState.getInt("artworkTargetId", -1);
 			pickingIcon = savedInstanceState.getBoolean("pickingIcon");
@@ -233,7 +263,13 @@ public class AppsListFragment extends Fragment implements AppsListAdapter.Listen
         platformHome = launcherEnabled() && (savedInstanceState != null
                 ? savedInstanceState.getBoolean("platformHome")
                 : appUri == null && (entry.getAction() == null || Intent.ACTION_MAIN.equals(entry.getAction())));
-        binding.platformGrid.bind(this::enterPlatform, item -> {
+        binding.platformShowEmpty.setChecked(preferences.getBoolean("libraryShowEmptyPlatforms", false));
+        binding.platformGrid.setShowEmpty(binding.platformShowEmpty.isChecked());
+        binding.platformShowEmpty.setOnCheckedChangeListener((button, checked) -> {
+            preferences.edit().putBoolean("libraryShowEmptyPlatforms", checked).apply();
+            binding.platformGrid.setShowEmpty(checked);
+        });
+        binding.platformGrid.bind(this::enterPlatform, this::showEmptyPlatform, item -> {
             enterPlatform(LibraryQuery.platform(item));
             startApp(item, false);
         });
@@ -352,7 +388,7 @@ public class AppsListFragment extends Fragment implements AppsListAdapter.Listen
 		libraryObserver.onChanged();
         if (platformHome && savedInstanceState == null && ru.playsoftware.j2meloader.input.DeviceControls.connected(requireContext())) {
             binding.platformGrid.post(() -> {
-                if (binding != null && platformHome && !binding.platformGrid.isSearching()) binding.platformGrid.focusPlatform(platform);
+                if (binding != null && platformHome && !binding.platformGrid.isSearching()) focusPlatformHome();
             });
         }
 	}
@@ -399,7 +435,7 @@ public class AppsListFragment extends Fragment implements AppsListAdapter.Listen
             return;
         }
         if (platform >= 5) {
-            handheldPicker.launch(new String[]{"*/*"});
+            pickHandheldFiles(platform, false, null);
             return;
         }
 		String path = preferences.getString(PREF_LAST_PATH, null);
@@ -522,11 +558,15 @@ public class AppsListFragment extends Fragment implements AppsListAdapter.Listen
         return preferences.getBoolean(PlatformGridView.STARTUP, true);
     }
 
+    private void focusPlatformHome() {
+        if (!binding.platformGrid.focusPlatform(platform)) binding.platformShowEmpty.requestFocusFromTouch();
+    }
+
     private void showPlatforms() {
         platformHome = true;
         pendingGameFocus = -1;
         updateResponsiveToolbar();
-        binding.platformGrid.focusPlatform(platform);
+        focusPlatformHome();
     }
 
     private void revealPlatformTab() {
@@ -538,6 +578,57 @@ public class AppsListFragment extends Fragment implements AppsListAdapter.Listen
             int left = tab.getLeft(), right = tab.getRight() - strip.getWidth();
             strip.scrollTo(Math.max(right, Math.min(left, strip.getScrollX())), 0);
         });
+    }
+
+    private static int systemFilesHint(int id) {
+        switch (id) {
+            case 3: return R.string.platform_files_symbian;
+            case 4: return R.string.platform_files_ngage;
+            case 8: return R.string.platform_files_piece;
+            case 9: return R.string.platform_files_gp32;
+            case 12: return R.string.platform_files_cybiko;
+            case 14: return R.string.platform_files_gamate;
+            case 15: return R.string.platform_files_gameking;
+            case 16: return R.string.platform_files_palm;
+            case 21: return R.string.platform_files_portfolio;
+            case 28: return R.string.platform_files_hartung;
+            case 29: return R.string.platform_files_epoch;
+            default: return R.string.platform_no_system;
+        }
+    }
+
+    private void showEmptyPlatform(int id) {
+        int hint = systemFilesHint(id);
+        GameMenuDialog dialog = new GameMenuDialog(requireContext(), LibraryQuery.PLATFORMS[id]);
+        dialog.useEdgePanel();
+        dialog.show();
+        dialog.page(LibraryQuery.PLATFORMS[id]);
+        dialog.primaryAction(getString(R.string.platform_add_games), R.drawable.ic_add_white, () -> {
+            dialog.dismiss();
+            enterPlatform(id);
+            if (id >= 5) openLastDirectory();
+            else {
+                GameMenuDialog source = libraryDialog(getString(R.string.platform_add_games));
+                source.action(getString(R.string.library_add_game), R.drawable.ic_add_white,
+                        () -> { source.dismiss(); openLastDirectory(); });
+                source.action(getString(R.string.library_add_folder), R.drawable.ic_setting_folder,
+                        () -> { source.dismiss(); openFolderLauncher.launch(null); });
+            }
+        });
+        dialog.action(getString(R.string.platform_install_system), R.drawable.ic_setting_folder, () -> {
+            dialog.dismiss();
+            if (id == 3 || id == 4) openSymbianSystemFiles();
+            else if (id == 12) {
+                GameMenuDialog models = libraryDialog("Cybiko");
+                models.action("Classic (v1)", 0, () -> { models.dismiss(); pickHandheldFiles(id, true, "classic"); });
+                models.action("Xtreme", 0, () -> { models.dismiss(); pickHandheldFiles(id, true, "xtreme"); });
+            } else pickHandheldFiles(id, true, null);
+        }).setEnabled(hint != R.string.platform_no_system);
+        dialog.message(getString(hint));
+    }
+
+    private void openSymbianSystemFiles() {
+        startActivity(new Intent().setClassName(requireContext(), "io.github.eriark.abyssme.symbian.SymbianActivity"));
     }
 
     private void enterPlatform(int id) {
@@ -567,8 +658,7 @@ public class AppsListFragment extends Fragment implements AppsListAdapter.Listen
 		if (BuildConfig.SYMBIAN_EXPERIMENT) {
 			dialog.action(getString(R.string.settings_system_files), R.drawable.ic_baseline_tune_24, () -> {
 				dialog.dismiss();
-				startActivity(new Intent().setClassName(requireContext(),
-						"io.github.eriark.abyssme.symbian.SymbianActivity"));
+				openSymbianSystemFiles();
 			});
 		}
 		if (!platformHome) addGameViewActions(dialog);
@@ -801,6 +891,7 @@ public class AppsListFragment extends Fragment implements AppsListAdapter.Listen
 			wantedParent.addView(binding.libraryTools, shortScreen ? 0 : 1, lp);
 		}
 		binding.platformGrid.setVisibility(platformHome ? View.VISIBLE : View.GONE);
+        binding.platformShowEmpty.setVisibility(platformHome && !binding.platformGrid.isSearching() ? View.VISIBLE : View.GONE);
         binding.libraryScreen.setVisibility(platformHome ? View.GONE : View.VISIBLE);
         binding.libraryPlatformScroll.setVisibility(platformHome ? View.GONE : View.VISIBLE);
         boolean parentAvailable = launcherEnabled() && requireActivity().getIntent().getData() == null;
@@ -1008,6 +1099,9 @@ public class AppsListFragment extends Fragment implements AppsListAdapter.Listen
 		if (!restoreLocation) rememberVisibleSelection();
 		saveNavigation();
 		super.onSaveInstanceState(state);
+        state.putInt("pickerPlatform", pickerPlatform);
+        state.putBoolean("pickingSystemFiles", pickingSystemFiles);
+        state.putString("pickerModel", pickerModel);
         state.putBoolean("platformHome", platformHome);
         if (platformHome && binding != null && binding.platformGrid.isSearching())
             state.putString("platformSearch", binding.platformGrid.query());
@@ -1130,7 +1224,7 @@ public class AppsListFragment extends Fragment implements AppsListAdapter.Listen
 		if (platformHome) {
             if (!binding.platformGrid.isSearching() && binding.getRoot().findFocus() == null
                     && ru.playsoftware.j2meloader.input.ControllerInput.direction(keyCode) != 0) {
-                binding.platformGrid.focusPlatform(platform);
+                focusPlatformHome();
                 return true;
             }
             if (keyCode == KeyEvent.KEYCODE_BUTTON_START || keyCode == KeyEvent.KEYCODE_MENU) {
@@ -1139,7 +1233,7 @@ public class AppsListFragment extends Fragment implements AppsListAdapter.Listen
             }
             if (keyCode == KeyEvent.KEYCODE_BUTTON_A) {
                 View focus = binding.getRoot().findFocus();
-                if (focus == null) binding.platformGrid.focusPlatform(platform);
+                if (focus == null) focusPlatformHome();
                 else if (focus.isClickable()) focus.performClick();
                 else return false;
                 return true;
@@ -1550,7 +1644,7 @@ public class AppsListFragment extends Fragment implements AppsListAdapter.Listen
 			if (sort < 0) order = order.reversed();
 			items.sort(order.thenComparing(byTitle).thenComparing(AppItem::getPath));
 		}
-		if (binding != null) binding.platformGrid.setGames(items);
+		if (binding != null && databaseLoaded && externalLoaded) binding.platformGrid.setGames(items);
 		adapter.setItems(items);
 	}
 

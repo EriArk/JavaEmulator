@@ -11,6 +11,13 @@ import ru.playsoftware.j2meloader.config.ProfileModel;
 import ru.playsoftware.j2meloader.handheld.*;
 
 public final class CybikoLibrary extends ManagedGameLibrary {
+    @Override public void installSystemFile(Context context, android.net.Uri uri, String model) throws IOException {
+        if (!"classic".equals(model) && !"xtreme".equals(model)) throw new IOException("Choose a Cybiko model");
+        File dir = new File(io.github.eriark.abyssme.storage.StoragePaths.library(context), "cybiko/system/" + model);
+        if (CybikoFirmware.install(context, uri, dir, "classic".equals(model)) == 0)
+            throw new IOException("No matching Cybiko system files");
+    }
+
     public CybikoLibrary() { super("cybiko", CybikoGameActivity.class); }
     @Override protected String inspect(Context c, File file, String name, Properties info) throws IOException {
         if (name.toLowerCase(Locale.ROOT).endsWith(".zip")) {

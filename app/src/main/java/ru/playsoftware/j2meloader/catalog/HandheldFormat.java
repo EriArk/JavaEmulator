@@ -312,7 +312,7 @@ public final class HandheldFormat {
         return Arrays.copyOf(bytes,n);
     }
     public static int indexedPlatform(String path) {
-        if (path != null && path.matches("pending_([5-9]|1[0-9]|2[0-9]|3[01])_[a-f0-9]+"))
+        if (path != null && path.matches("pending_([5-9]|1[0-9]|2[0-9]|3[0-2])_[a-f0-9]+"))
             return Integer.parseInt(path.substring(8, path.indexOf('_', 8)));
         return 0;
     }

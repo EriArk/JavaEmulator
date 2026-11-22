@@ -10,6 +10,10 @@ import ru.playsoftware.j2meloader.catalog.SourceIdentity;
 import ru.playsoftware.j2meloader.handheld.ManagedGameLibrary;
 
 public final class PortfolioLibrary extends ManagedGameLibrary {
+    @Override public void installSystemFile(Context context, android.net.Uri uri, String model) throws IOException {
+        PortfolioFirmware.install(context, uri);
+    }
+
     public PortfolioLibrary() { super("portfolio", PortfolioGameActivity.class); }
 
     static List<String> programs(ZipFile zip) {

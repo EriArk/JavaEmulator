@@ -35,6 +35,12 @@ public final class PlatformGridView extends LinearLayout {
     private final TextView empty;
     private final ArrayAdapter<AppItem> matches;
     private List<AppItem> games = Collections.emptyList();
+    private final View[] tiles = new View[LibraryQuery.PLATFORMS.length];
+    private final boolean[] populated = new boolean[tiles.length];
+    private final android.graphics.ColorMatrixColorFilter grayscale;
+    private boolean showEmpty;
+    private boolean loaded;
+    private IntConsumer setupPlatform;
     private IntConsumer openPlatform;
     private Consumer<AppItem> play;
 
@@ -46,8 +52,11 @@ public final class PlatformGridView extends LinearLayout {
         grid.setPadding(dp(6), dp(8), dp(6), dp(8));
         scroll.addView(grid);
         addView(scroll, new LayoutParams(-1, -1));
+        android.graphics.ColorMatrix colors = new android.graphics.ColorMatrix();
+        colors.setSaturation(0);
+        grayscale = new android.graphics.ColorMatrixColorFilter(colors);
         for (int id = 1; id < LibraryQuery.PLATFORMS.length; id++) {
-            if (LibraryNavigation.available(id)) grid.addView(sticker(id));
+            if (LibraryNavigation.available(id)) tiles[id] = sticker(id);
         }
         scroll.addOnLayoutChangeListener((v,l,t,r,b,ol,ot,or,ob) -> {
             if (r - l != or - ol || b - t != ob - ot) layoutStickers(r - l, b - t);
@@ -76,7 +85,9 @@ public final class PlatformGridView extends LinearLayout {
         empty = new TextView(context);
         empty.setText(R.string.platform_search_empty);
         empty.setGravity(Gravity.CENTER);
-        addView(empty, new LayoutParams(-1, dp(64)));
+        empty.setMinHeight(dp(64));
+        empty.setPadding(dp(16), dp(8), dp(16), dp(8));
+        addView(empty, new LayoutParams(-1, -2));
         search.addTextChangedListener(new TextWatcher() {
             @Override public void beforeTextChanged(CharSequence s, int start, int count, int after) {}
             @Override public void onTextChanged(CharSequence s, int start, int before, int count) { refresh(); }
@@ -85,9 +96,64 @@ public final class PlatformGridView extends LinearLayout {
         setSearching(false);
     }
 
-    void bind(IntConsumer open, Consumer<AppItem> launch) { openPlatform = open; play = launch; }
+    void bind(IntConsumer open, IntConsumer setup, Consumer<AppItem> launch) {
+        openPlatform = open;
+        setupPlatform = setup;
+        play = launch;
+    }
 
-    void setGames(List<AppItem> items) { games = items; if (isSearching()) refresh(); }
+    void setGames(List<AppItem> items) {
+        games = items;
+        loaded = true;
+        java.util.Arrays.fill(populated, false);
+        for (AppItem item : items) {
+            int id = LibraryQuery.platform(item);
+            if (LibraryQuery.countsAsGame(id, item)) populated[id] = true;
+        }
+        updateTiles();
+        if (isSearching()) refresh();
+    }
+
+    void setShowEmpty(boolean enabled) {
+        showEmpty = enabled;
+        updateTiles();
+    }
+
+    private void updateTiles() {
+        // Detached tiles retain their old column spec when the compact grid shrinks.
+        grid.setColumnCount(GridLayout.UNDEFINED);
+        int position = 0;
+        for (int id = 1; id < tiles.length; id++) {
+            LinearLayout tile = (LinearLayout) tiles[id];
+            if (tile == null) continue;
+            if (!loaded || (!populated[id] && !showEmpty)) {
+                if (tile.getParent() == grid) grid.removeView(tile);
+                continue;
+            }
+            if (tile.getParent() == null) grid.addView(tile, position);
+            position++;
+            ImageView image = (ImageView) tile.getChildAt(0);
+            image.setColorFilter(populated[id] ? null : grayscale);
+            image.setImageAlpha(populated[id] ? 255 : 155);
+            tile.setContentDescription(populated[id] ? LibraryQuery.PLATFORMS[id]
+                    : getResources().getString(R.string.platform_without_games, LibraryQuery.PLATFORMS[id]));
+            updateLabel(tile, id);
+        }
+        layoutStickers(scroll.getWidth(), scroll.getHeight());
+        if (!isSearching()) showGrid();
+    }
+
+    private void showGrid() {
+        boolean noTiles = loaded && grid.getChildCount() == 0;
+        scroll.setVisibility(noTiles ? GONE : VISIBLE);
+        empty.setText(R.string.platform_empty_hint);
+        empty.setVisibility(noTiles ? VISIBLE : GONE);
+    }
+
+    private void updateLabel(LinearLayout tile, int id) {
+        ((TextView) tile.getChildAt(1)).setTextColor(AppPalette.color(getContext(), tile.isFocused()
+                ? R.color.accent : populated[id] ? R.color.text_primary : R.color.text_secondary));
+    }
 
     boolean isSearching() { return search.getVisibility() == VISIBLE; }
 
@@ -102,7 +168,7 @@ public final class PlatformGridView extends LinearLayout {
             if (search.hasFocus()) keyboard().hideSoftInputFromWindow(search.getWindowToken(), 0);
             search.setText("");
             results.setVisibility(GONE);
-            empty.setVisibility(GONE);
+            showGrid();
         }
     }
 
@@ -125,18 +191,21 @@ public final class PlatformGridView extends LinearLayout {
         matches.addAll(LibraryQuery.select(games, 0, 0, search.getText().toString()));
         matches.notifyDataSetChanged();
         results.setVisibility(matches.isEmpty() ? GONE : VISIBLE);
+        empty.setText(R.string.platform_search_empty);
         empty.setVisibility(matches.isEmpty() ? VISIBLE : GONE);
     }
 
-    void focusPlatform(int id) {
+    boolean focusPlatform(int id) {
         View target = grid.findViewWithTag(id);
-        if (target != null) target.requestFocusFromTouch();
+        if (target == null && grid.getChildCount() > 0) target = grid.getChildAt(0);
+        return target != null && target.requestFocusFromTouch();
     }
 
     private void layoutStickers(int w, int h) {
         if (w <= 0 || h <= 0) return;
         int width = w - grid.getPaddingLeft() - grid.getPaddingRight();
         int count = grid.getChildCount();
+        if (count == 0) return;
         int cols = Math.min(count, Math.max(1, width / dp(146)));
         if (cols == 4 && (count == 5 || count == 9)) cols = 3;
         int rows = (count + cols - 1) / cols;
@@ -165,7 +234,7 @@ public final class PlatformGridView extends LinearLayout {
         tile.setDefaultFocusHighlightEnabled(false);
         tile.setFocusable(true);
         tile.setContentDescription(LibraryQuery.PLATFORMS[id]);
-        tile.setOnClickListener(v -> openPlatform.accept(id));
+        tile.setOnClickListener(v -> (populated[id] ? openPlatform : setupPlatform).accept(id));
         StickerImage image = new StickerImage(context);
         image.setPadding(dp(6), dp(6), dp(6), dp(6));
         image.setScaleType(ImageView.ScaleType.FIT_CENTER);
@@ -185,7 +254,7 @@ public final class PlatformGridView extends LinearLayout {
         tile.addView(label, new LayoutParams(-1, -2));
         tile.setOnFocusChangeListener((v, focused) -> {
             image.highlight(focused);
-            label.setTextColor(AppPalette.color(context, focused ? R.color.accent : R.color.text_primary));
+            updateLabel(tile, id);
         });
         return tile;
     }
