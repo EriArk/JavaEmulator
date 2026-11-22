@@ -1,0 +1,324 @@
+{
+  "schemaVersion": 1,
+  "editorialStatus": "draft-for-review",
+  "snapshot": "2026-11-22",
+  "group": "phone-runtimes",
+  "locales": [
+    "en",
+    "es",
+    "pt-BR",
+    "ru",
+    "fr",
+    "de",
+    "ja",
+    "zh-CN"
+  ],
+  "cards": [
+    {
+      "id": "wipi-skvm",
+      "device": "Samsung Anycall handset (representative)",
+      "year": "2000s",
+      "maker": "Samsung / Korean mobile operators",
+      "country": "KR",
+      "image": "app/src/main/res/drawable-nodpi/sticker_wipi.webp",
+      "imageAttribution": "design-concepts/platform-stickers/README.md",
+      "sources": [
+        "https://github.com/EriArk/JavaEmulator/issues/57"
+      ],
+      "specs": {
+        "software": "WIPI / SKVM",
+        "input": "Phone keypad",
+        "region": "South Korea"
+      },
+      "copy": {
+        "en": {
+          "headline": "A different world of phone games",
+          "article": "South Korea's feature-phone era had game ecosystems of its own. Operators such as SK Telecom, KTF and LG Telecom shipped applications using native and Java-related platforms, including WIPI and SKVM. A title could be tied closely to a carrier, handset family or software package. Familiar names sometimes appeared in unfamiliar versions. Their distinctive formats preserve a chapter of mobile gaming that was easy to overlook outside Korea."
+        },
+        "es": {
+          "headline": "Un mundo distinto de juegos móviles",
+          "article": "La era de los teléfonos clásicos en Corea del Sur tuvo sus propios juegos. Operadores como SK Telecom, KTF y LG Telecom distribuyeron aplicaciones mediante plataformas como WIPI y SKVM. Un título podía depender del operador, la familia de teléfonos o un paquete concreto. Incluso los juegos conocidos aparecían en versiones diferentes. Esos formatos conservan una parte de la historia móvil poco visible fuera de Corea."
+        },
+        "pt-BR": {
+          "headline": "Um outro mundo de jogos móveis",
+          "article": "A era dos celulares tradicionais na Coreia do Sul tinha seus próprios jogos. Operadoras como SK Telecom, KTF e LG Telecom distribuíam aplicativos usando plataformas como WIPI e SKVM. Um jogo podia depender da operadora, da família do aparelho ou de um pacote específico. Até títulos conhecidos apareciam em versões diferentes. Esses formatos preservam um capítulo pouco lembrado dos jogos para celular."
+        },
+        "ru": {
+          "headline": "Другая вселенная мобильных игр",
+          "article": "У кнопочных телефонов Южной Кореи была собственная игровая экосистема. Операторы SK Telecom, KTF и LG Telecom распространяли приложения для платформ вроде WIPI и SKVM. Игра могла зависеть от оператора, семейства телефонов и конкретного пакета. Даже знакомые названия встречались в непривычных версиях. Эти форматы сохранили особую главу мобильного гейминга, о которой за пределами Кореи знали немногие."
+        },
+        "fr": {
+          "headline": "Un autre monde de jeux mobiles",
+          "article": "Les téléphones classiques de Corée du Sud avaient leurs propres écosystèmes de jeux. Les opérateurs SK Telecom, KTF et LG Telecom distribuaient des applications via des plateformes comme WIPI et SKVM. Un titre dépendait parfois d'un opérateur ou d'une gamme de téléphones. Même des jeux connus existaient dans des versions inattendues. Ces formats racontent un pan du jeu mobile peu visible hors de Corée."
+        },
+        "de": {
+          "headline": "Eine andere Welt der Handyspiele",
+          "article": "Südkoreas klassische Handys besaßen eigene Spielewelten. Anbieter wie SK Telecom, KTF und LG Telecom vertrieben Anwendungen über Plattformen wie WIPI und SKVM. Ein Spiel war oft an einen Netzbetreiber, eine Gerätefamilie oder ein bestimmtes Paket gebunden. Selbst bekannte Titel erschienen in ungewohnten Fassungen. Diese Formate bewahren ein Kapitel der Handyspielgeschichte, das außerhalb Koreas kaum wahrgenommen wurde."
+        },
+        "ja": {
+          "headline": "韓国独自の携帯ゲーム文化",
+          "article": "韓国のフィーチャーフォンには、独自のゲーム文化があった。SK Telecom、KTF、LG Telecomなどの通信事業者は、WIPIやSKVMといった環境向けにアプリを配信した。ゲームは通信会社、機種、パッケージ形式によって異なり、有名な作品にも別バージョンが存在した。こうした形式は、韓国外では見過ごされがちな携帯ゲーム史を伝えている。"
+        },
+        "zh-CN": {
+          "headline": "另一片手机游戏天地",
+          "article": "韩国功能手机时代有自己独特的游戏生态。SK Telecom、KTF 和 LG Telecom 等运营商通过 WIPI、SKVM 等平台提供应用。游戏往往与运营商、机型家族或特定软件包绑定，熟悉的作品也可能有完全不同的版本。这些格式记录了韩国以外鲜为人知的一段移动游戏史。"
+        }
+      }
+    },
+    {
+      "id": "mre",
+      "device": "Nokia 215 (representative handset)",
+      "year": "2010s",
+      "maker": "MediaTek",
+      "country": "TW",
+      "image": "design-concepts/platform-stickers/mre.webp",
+      "imageAttribution": "design-concepts/platform-stickers/README.md",
+      "sources": [
+        "https://github.com/EriArk/JavaEmulator/issues/58"
+      ],
+      "specs": {
+        "software": "MediaTek MRE",
+        "package": ".vxp",
+        "input": "Phone keypad"
+      },
+      "copy": {
+        "en": {
+          "headline": "Games for the affordable phone",
+          "article": "Smartphones did not replace inexpensive keypad phones overnight. MediaTek's MRE runtime offered a way to run compact applications and games on supported feature-phone hardware, commonly packaged as VXP files. These titles were made for small displays and simple controls, not for an app store full of touch-first software. Today the surviving packages reveal how much gaming culture continued on modest phones alongside the smartphone boom."
+        },
+        "es": {
+          "headline": "Juegos para el teléfono asequible",
+          "article": "Los smartphones no sustituyeron de golpe a los teléfonos económicos con teclado. El entorno MRE de MediaTek permitía ejecutar aplicaciones y juegos compactos, habitualmente en archivos VXP, en modelos compatibles. Eran títulos pensados para pantallas pequeñas y controles sencillos, no para grandes tiendas de apps táctiles. Los paquetes conservados muestran cuánto siguió creciendo el juego móvil en teléfonos modestos."
+        },
+        "pt-BR": {
+          "headline": "Jogos para o celular acessível",
+          "article": "Os smartphones não substituíram de uma vez os celulares baratos com teclado. O ambiente MRE da MediaTek permitia executar aplicativos e jogos compactos, normalmente em arquivos VXP, em aparelhos compatíveis. Eram jogos feitos para telas pequenas e controles simples, não para lojas cheias de aplicativos de toque. Os pacotes preservados mostram como os jogos continuaram vivos nos celulares modestos."
+        },
+        "ru": {
+          "headline": "Игры для доступных телефонов",
+          "article": "Смартфоны не вытеснили недорогие кнопочные телефоны за один день. Среда MediaTek MRE позволяла запускать небольшие приложения и игры на совместимых моделях, обычно в формате VXP. Эти проекты создавались для маленьких экранов и простого управления, а не для сенсорных магазинов приложений. Сохранившиеся файлы напоминают, что жизнь мобильных игр на скромном железе продолжалась и в эпоху смартфонов."
+        },
+        "fr": {
+          "headline": "Des jeux pour les téléphones abordables",
+          "article": "Les smartphones n'ont pas remplacé immédiatement les mobiles à clavier bon marché. Le système MRE de MediaTek permettait d'exécuter de petites applications et des jeux, souvent au format VXP, sur les appareils compatibles. Ces titres visaient de petits écrans et des commandes simples, loin des grandes boutiques tactiles. Les fichiers conservés rappellent que le jeu mobile continuait aussi sur des téléphones modestes."
+        },
+        "de": {
+          "headline": "Spiele für günstige Handys",
+          "article": "Smartphones verdrängten preiswerte Tastenhandys nicht über Nacht. MediaTeks MRE-Umgebung konnte auf kompatiblen Geräten kleine Programme und Spiele ausführen, häufig als VXP-Dateien. Diese Titel waren für kleine Displays und einfache Tasten gedacht, nicht für große Touch-App-Stores. Die erhaltenen Pakete zeigen, wie lebendig Handyspiele auf bescheidener Hardware auch während des Smartphone-Booms blieben."
+        },
+        "ja": {
+          "headline": "手頃な携帯電話のゲーム",
+          "article": "スマートフォンが普及しても、安価なキー付き携帯電話がすぐ消えたわけではない。MediaTekのMREは対応機種で小規模なアプリやゲームを動かす環境で、VXP形式がよく使われた。作品は小画面と単純な操作向けに作られ、タッチ主体のアプリストアとは別の世界にあった。残されたファイルは、スマートフォン時代にも続いた携帯ゲーム文化を映している。"
+        },
+        "zh-CN": {
+          "headline": "经济型手机上的游戏",
+          "article": "智能手机并没有一夜之间取代廉价的按键手机。MediaTek 的 MRE 让兼容设备能够运行小型应用和游戏，常见格式为 VXP。这些作品面向小屏幕与简单按键，而非触屏应用商店。如今保存下来的软件包提醒我们：即使在智能手机蓬勃发展的年代，普通功能手机上的游戏文化依然活跃。"
+        }
+      }
+    },
+    {
+      "id": "flash-lite",
+      "device": "Nokia 6300",
+      "year": "2007",
+      "maker": "Nokia / Adobe",
+      "country": "FI",
+      "image": "design-concepts/platform-stickers/flash.webp",
+      "imageAttribution": "design-concepts/platform-stickers/README.md",
+      "sources": [
+        "https://github.com/EriArk/JavaEmulator/issues/64"
+      ],
+      "specs": {
+        "software": "Flash Lite",
+        "content": "SWF",
+        "input": "Phone keypad"
+      },
+      "copy": {
+        "en": {
+          "headline": "Animation in a tiny pocket",
+          "article": "In the 2000s, Flash was everywhere on the web. Flash Lite adapted parts of that animation and interactive-content world for mobile phones, where memory and processing power were far smaller. It appeared across different handset families and could drive menus, animations and small games. Each phone's supported Flash Lite version and keys still mattered. The result was a curious bridge between early web creativity and the age of downloadable mobile apps."
+        },
+        "es": {
+          "headline": "Animación en el bolsillo",
+          "article": "En los años 2000, Flash estaba por todas partes en la web. Flash Lite adaptó parte de ese mundo de animación y contenido interactivo a teléfonos con poca memoria y potencia. Apareció en distintas familias de dispositivos y sirvió para menús, animaciones y pequeños juegos. La versión de Flash Lite y las teclas admitidas cambiaban entre modelos. Fue un curioso puente entre la web creativa y las aplicaciones móviles."
+        },
+        "pt-BR": {
+          "headline": "Animação no bolso",
+          "article": "Nos anos 2000, o Flash estava em toda a web. O Flash Lite adaptou parte daquele universo de animações e conteúdo interativo para celulares com pouca memória e processamento. Apareceu em várias famílias de aparelhos e serviu para menus, animações e pequenos jogos. A versão do Flash Lite e as teclas disponíveis variavam conforme o modelo. Foi uma ponte curiosa entre a web criativa e os aplicativos móveis."
+        },
+        "ru": {
+          "headline": "Анимация в кармане",
+          "article": "В 2000-х Flash был повсюду в интернете. Flash Lite перенёс часть этого мира анимации и интерактивного контента на телефоны с куда меньшей памятью и мощностью. Его использовали для меню, роликов и небольших игр на разных моделях. При этом версия Flash Lite и доступные клавиши зависели от устройства. Так появилась необычная связь между ранним творческим вебом и будущими мобильными приложениями."
+        },
+        "fr": {
+          "headline": "L'animation au fond de la poche",
+          "article": "Dans les années 2000, Flash était partout sur le Web. Flash Lite a adapté une partie de cet univers animé et interactif aux téléphones bien moins puissants. On le retrouvait sur plusieurs familles de mobiles, pour des menus, des animations et de petits jeux. La version du moteur et les touches disponibles variaient selon l'appareil. C'était un pont singulier entre le Web créatif et les applications mobiles."
+        },
+        "de": {
+          "headline": "Animation für die Hosentasche",
+          "article": "In den 2000ern war Flash überall im Web. Flash Lite brachte einen Teil dieser animierten und interaktiven Welt auf Handys mit sehr wenig Speicher und Rechenleistung. Auf verschiedenen Geräten diente es für Menüs, Animationen und kleine Spiele. Unterstützte Versionen und Tasten unterschieden sich je nach Modell. So entstand eine ungewöhnliche Brücke zwischen kreativem frühem Web und mobilen Apps."
+        },
+        "ja": {
+          "headline": "ポケットの中のアニメーション",
+          "article": "2000年代、Flashはウェブの至る所にあった。Flash Liteはそのアニメーションと双方向コンテンツの一部を、メモリーや処理能力の限られた携帯電話へ持ち込んだ。メニュー、動画的な演出、小さなゲームなどに利用されたが、対応バージョンやキー操作は機種ごとに異なる。初期ウェブ文化と携帯アプリの時代をつなぐ、独特の存在だった。"
+        },
+        "zh-CN": {
+          "headline": "口袋里的动画",
+          "article": "2000 年代，Flash 曾遍布互联网。Flash Lite 把其中一部分动画和交互内容带到了内存与性能都十分有限的手机上。不同机型用它制作菜单、动画和小游戏，但支持的版本及按键各不相同。它成为早期创意网页与后来移动应用之间一座有趣的桥梁。"
+        }
+      }
+    },
+    {
+      "id": "palm-webos",
+      "device": "Palm Pre",
+      "year": "2009",
+      "maker": "Palm",
+      "country": "US",
+      "image": "design-concepts/platform-stickers/webos.webp",
+      "imageAttribution": "design-concepts/platform-stickers/README.md",
+      "sources": [
+        "https://www.edn.com/palms-pre-and-webos/"
+      ],
+      "specs": {
+        "display": "320 × 480 px",
+        "software": "webOS",
+        "input": "Touch / QWERTY"
+      },
+      "copy": {
+        "en": {
+          "headline": "Apps as a deck of cards",
+          "article": "Palm unveiled the Pre in 2009 as a fresh start after years of stylus-driven handhelds. Its webOS interface let people switch between running apps as cards, using gestures instead of dense menus. Beneath the polished surface, many apps were built with web technologies. The platform never displaced iPhone or Android, but its ideas about multitasking and interaction found admirers far beyond the phones that carried it."
+        },
+        "es": {
+          "headline": "Aplicaciones como cartas",
+          "article": "Palm presentó el Pre en 2009 como un nuevo comienzo tras años de dispositivos con lápiz. La interfaz webOS permitía cambiar entre aplicaciones abiertas como si fueran cartas, usando gestos en vez de menús densos. Muchas apps se construían con tecnologías web. La plataforma no desplazó al iPhone ni a Android, pero sus ideas sobre multitarea e interacción influyeron mucho más allá de sus teléfonos."
+        },
+        "pt-BR": {
+          "headline": "Aplicativos como cartas",
+          "article": "A Palm apresentou o Pre em 2009 como um recomeço após anos de dispositivos com caneta. A interface webOS permitia alternar entre aplicativos abertos como cartas, usando gestos em vez de menus complicados. Muitos aplicativos eram feitos com tecnologias web. A plataforma não substituiu iPhone nem Android, mas suas ideias de multitarefa e interação ganharam admiradores muito além desses celulares."
+        },
+        "ru": {
+          "headline": "Приложения как колода карт",
+          "article": "В 2009 году Palm представила Pre — новую попытку начать с чистого листа после эпохи КПК со стилусами. В webOS открытые приложения выглядели как карточки, между которыми можно было переключаться жестами. Многие программы создавались на веб-технологиях. Система не смогла вытеснить iPhone и Android, но её идеи многозадачности и управления запомнились далеко за пределами самих телефонов Palm."
+        },
+        "fr": {
+          "headline": "Les applications comme des cartes",
+          "article": "En 2009, Palm présentait le Pre pour repartir de zéro après des années d'assistants à stylet. Son interface webOS affichait les applications ouvertes sous forme de cartes entre lesquelles on naviguait par gestes. De nombreuses applications utilisaient les technologies du Web. La plateforme n'a pas détrôné iPhone ou Android, mais ses idées de multitâche et d'interaction ont marqué bien au-delà de ses propres téléphones."
+        },
+        "de": {
+          "headline": "Apps als Kartenstapel",
+          "article": "2009 stellte Palm mit dem Pre einen Neuanfang nach der Zeit der Stift-PDAs vor. In webOS erschienen laufende Anwendungen als Karten, zwischen denen man mit Gesten wechseln konnte. Viele Apps basierten auf Webtechnologien. Die Plattform konnte iPhone und Android nicht verdrängen, doch ihre Ideen zu Multitasking und Bedienung fanden weit über die Palm-Geräte hinaus Bewunderer."
+        },
+        "ja": {
+          "headline": "カードで切り替えるアプリ",
+          "article": "Palmは2009年、スタイラス式PDAの時代を経てPreを発表した。webOSでは起動中のアプリがカードのように並び、複雑なメニューではなくジェスチャーで切り替えられた。多くのアプリはウェブ技術で作られていた。iPhoneやAndroidに取って代わることはなかったが、そのマルチタスクと操作の発想は端末を超えて評価された。"
+        },
+        "zh-CN": {
+          "headline": "像纸牌一样切换应用",
+          "article": "2009 年，Palm 在多年手写笔 PDA 之后推出 Pre，试图重新出发。webOS 把运行中的应用展示成一张张卡片，让用户通过手势切换，而不必钻进复杂菜单。许多应用采用网页技术制作。它最终没能撼动 iPhone 和 Android，却凭借多任务与交互设计留下了超越硬件本身的影响。"
+        }
+      }
+    },
+    {
+      "id": "firefox-os",
+      "device": "ZTE Open",
+      "year": "2013",
+      "maker": "ZTE / Mozilla",
+      "country": "CN",
+      "image": "design-concepts/platform-stickers/firefox.webp",
+      "imageAttribution": "design-concepts/platform-stickers/README.md",
+      "sources": [
+        "https://blog.mozilla.org/en/mozilla/mozilla-and-partners-prepare-to-launch-first-firefox-os-smartphones/"
+      ],
+      "specs": {
+        "software": "Firefox OS",
+        "technology": "HTML5",
+        "input": "Touchscreen"
+      },
+      "copy": {
+        "en": {
+          "headline": "A smartphone built from the web",
+          "article": "Firefox OS began with a bold question: what if the web itself could be the app platform of a smartphone? Mozilla and manufacturing partners introduced affordable devices such as the ZTE Open in 2013. Interfaces and games were written using HTML5, JavaScript and other web standards rather than a closed native app stack. The commercial effort was short-lived, but the experiment remains a striking chapter of open mobile software."
+        },
+        "es": {
+          "headline": "Un teléfono construido con la web",
+          "article": "Firefox OS nació de una pregunta atrevida: ¿y si la propia web fuera la plataforma de aplicaciones de un smartphone? Mozilla y sus socios presentaron en 2013 modelos asequibles como el ZTE Open. Sus interfaces y juegos utilizaban HTML5, JavaScript y otros estándares web, en lugar de depender por completo de apps nativas cerradas. La iniciativa comercial duró poco, pero dejó un capítulo singular del software móvil abierto."
+        },
+        "pt-BR": {
+          "headline": "Um smartphone feito da web",
+          "article": "O Firefox OS nasceu de uma pergunta ousada: e se a própria web fosse a plataforma de aplicativos do smartphone? A Mozilla e suas parceiras apresentaram em 2013 aparelhos acessíveis como o ZTE Open. Interfaces e jogos usavam HTML5, JavaScript e outros padrões da web em vez de depender de aplicativos nativos fechados. A aventura comercial foi curta, mas marcou a história do software móvel aberto."
+        },
+        "ru": {
+          "headline": "Смартфон, построенный из веба",
+          "article": "Firefox OS выросла из смелого вопроса: что, если веб сам станет платформой приложений смартфона? В 2013 году Mozilla и партнёры представили доступные устройства вроде ZTE Open. Интерфейс и игры создавались на HTML5, JavaScript и других веб-стандартах, а не только с помощью закрытых нативных инструментов. Коммерческая жизнь системы оказалась короткой, но эксперимент занял особое место в истории открытого мобильного ПО."
+        },
+        "fr": {
+          "headline": "Un smartphone façonné par le Web",
+          "article": "Firefox OS partait d'une question audacieuse : et si le Web devenait lui-même la plateforme d'applications du smartphone ? Mozilla et ses partenaires ont lancé en 2013 des modèles abordables comme le ZTE Open. Interfaces et jeux utilisaient HTML5, JavaScript et d'autres standards ouverts plutôt qu'une pile d'applications natives fermée. L'aventure commerciale fut brève, mais reste une expérience marquante du logiciel mobile libre."
+        },
+        "de": {
+          "headline": "Ein Smartphone aus dem Web",
+          "article": "Firefox OS stellte eine mutige Frage: Was wäre, wenn das Web selbst die App-Plattform eines Smartphones sein könnte? Mozilla und Partner brachten 2013 günstige Geräte wie das ZTE Open heraus. Oberflächen und Spiele nutzten HTML5, JavaScript und andere Webstandards statt einer geschlossenen nativen App-Welt. Das kommerzielle Projekt war kurzlebig, bleibt aber ein bemerkenswertes Experiment offener Mobilsoftware."
+        },
+        "ja": {
+          "headline": "ウェブから生まれたスマートフォン",
+          "article": "Firefox OSは「ウェブそのものをスマートフォンのアプリ基盤にできないか」という大胆な発想から生まれた。Mozillaと協力企業は2013年、ZTE Openなど手頃な端末を発売した。画面やゲームは閉じた専用環境だけでなく、HTML5やJavaScriptなどのウェブ標準で作られた。商業的な展開は短かったが、開かれたモバイルソフトウェアの重要な実験だった。"
+        },
+        "zh-CN": {
+          "headline": "由网页技术构成的智能手机",
+          "article": "Firefox OS 提出了一个大胆的问题：网页本身能否成为智能手机的应用平台？2013 年，Mozilla 与合作厂商推出了 ZTE Open 等平价设备。界面和游戏以 HTML5、JavaScript 等开放网页标准构建，而不是完全依赖封闭的原生应用体系。商业历程虽然短暂，这次尝试却在开放移动软件史上留下了独特的一页。"
+        }
+      }
+    },
+    {
+      "id": "kaios",
+      "device": "Nokia 8110 4G",
+      "year": "2018",
+      "maker": "HMD Global / KaiOS Technologies",
+      "country": "FI",
+      "image": "design-concepts/platform-stickers/kaios.webp",
+      "imageAttribution": "design-concepts/platform-stickers/README.md",
+      "sources": [
+        "https://www.hmd.com/en_int/nokia-8110-4g"
+      ],
+      "specs": {
+        "display": "2.4-inch",
+        "software": "KaiOS",
+        "input": "Numeric keypad"
+      },
+      "copy": {
+        "en": {
+          "headline": "The web returns to the keypad",
+          "article": "The Nokia 8110 4G revived a famous curved slider shape in 2018, but the software inside belonged to a new generation. KaiOS brought web-based apps, 4G connectivity and a store to affordable phones with physical number keys. Games and interfaces had to work without a touchscreen. The result was neither a traditional Java handset nor a full smartphone: a reminder that the simple phone kept evolving."
+        },
+        "es": {
+          "headline": "La web vuelve al teclado",
+          "article": "El Nokia 8110 4G recuperó en 2018 la famosa forma curvada con tapa deslizante, pero su software era nuevo. KaiOS llevó aplicaciones web, conectividad 4G y una tienda a teléfonos económicos con teclas físicas. Los juegos y las interfaces debían funcionar sin pantalla táctil. No era un teléfono Java tradicional ni un smartphone completo: era la prueba de que el teléfono sencillo seguía evolucionando."
+        },
+        "pt-BR": {
+          "headline": "A web volta ao teclado",
+          "article": "O Nokia 8110 4G retomou em 2018 o famoso formato curvado com tampa deslizante, mas trazia software de uma nova geração. O KaiOS levou aplicativos web, conexão 4G e loja a celulares acessíveis com teclas físicas. Jogos e interfaces precisavam funcionar sem tela sensível ao toque. Não era um celular Java antigo nem um smartphone completo: o telefone simples continuava evoluindo."
+        },
+        "ru": {
+          "headline": "Веб возвращается к кнопкам",
+          "article": "В 2018 году Nokia 8110 4G вернула узнаваемый изогнутый корпус со слайдером, но внутри работала новая система. KaiOS принесла веб-приложения, связь 4G и магазин программ на недорогие телефоны с физическими клавишами. Игры и интерфейсы создавались без расчёта на сенсорный экран. Это был уже не привычный Java-телефон, но ещё и не полноценный смартфон: кнопочная эпоха продолжала развиваться."
+        },
+        "fr": {
+          "headline": "Le Web retrouve le clavier",
+          "article": "En 2018, le Nokia 8110 4G ressuscitait une célèbre forme incurvée à clapet coulissant, mais avec un logiciel bien différent. KaiOS apportait les applications Web, la 4G et une boutique aux téléphones abordables à touches physiques. Les jeux devaient fonctionner sans écran tactile. Ni ancien téléphone Java ni smartphone classique : la preuve que le mobile simple continuait d'évoluer."
+        },
+        "de": {
+          "headline": "Das Web kehrt zu den Tasten zurück",
+          "article": "2018 belebte das Nokia 8110 4G die berühmte gebogene Schiebeform wieder, diesmal mit moderner Software. KaiOS brachte Web-Apps, 4G und einen Store auf günstige Telefone mit echten Zifferntasten. Spiele und Oberflächen mussten ohne Touchscreen funktionieren. Es war weder ein klassisches Java-Handy noch ein gewöhnliches Smartphone: Das einfache Tastenhandy entwickelte sich weiter."
+        },
+        "ja": {
+          "headline": "ウェブが数字キーへ戻る",
+          "article": "2018年のNokia 8110 4Gは、特徴的な曲線とスライドカバーを復活させながら、中身には新しいソフトウェアを採用した。KaiOSはウェブアプリ、4G通信、アプリストアを物理キー付きの手頃な携帯電話へ届けた。ゲームや画面はタッチ操作なしで使える必要がある。昔ながらのJava端末でも一般的なスマートフォンでもない、キー付き携帯の進化形だった。"
+        },
+        "zh-CN": {
+          "headline": "网页重返数字键盘",
+          "article": "2018 年的 Nokia 8110 4G 让经典的弧形滑盖造型重获新生，但内部软件已属于新时代。KaiOS 把网页应用、4G 网络和应用商店带到带有实体数字键的平价手机上。游戏和界面必须在没有触屏的情况下运行。它既不是旧式 Java 手机，也不是完整意义上的智能手机，证明简单的按键手机仍在进化。"
+        }
+      }
+    }
+  ]
+}
