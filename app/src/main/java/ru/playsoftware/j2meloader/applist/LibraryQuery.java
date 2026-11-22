@@ -10,7 +10,7 @@ import ru.playsoftware.j2meloader.catalog.ExternalLibrary;
 
 /** Shared collection rules. Platform inspection runs on the adapter's filter worker. */
 public final class LibraryQuery {
-    public static final String[] PLATFORMS = {"All platforms", "Java ME", "Mophun", "Symbian", "N-Gage", "WIPI / SKVM", "Dingoo A320", "Gemei A330", "Aquaplus P/ECE", "GamePark GP32", "Watara Supervision", "Mega Duck", "Cybiko", "Flash Lite", "Gamate", "GameKing", "Palm OS", "MediaTek MRE", "Palm webOS", "Firefox OS", "KaiOS", "Atari Portfolio", "Pocket PC", "Gizmondo", "iPhone OS", "Arduboy / FX", "Gamebuino Classic", "Pokitto"};
+    public static final String[] PLATFORMS = {"All platforms", "Java ME", "Mophun", "Symbian", "N-Gage", "WIPI / SKVM", "Dingoo A320", "Gemei A330", "Aquaplus P/ECE", "GamePark GP32", "Watara Supervision", "Mega Duck", "Cybiko", "Flash Lite", "Gamate", "GameKing", "Palm OS", "MediaTek MRE", "Palm webOS", "Firefox OS", "KaiOS", "Atari Portfolio", "Pocket PC", "Gizmondo", "iPhone OS", "Arduboy / FX", "Gamebuino Classic", "Pokitto", "Hartung Game Master"};
     private LibraryQuery() { }
     public static int platform(AppItem item) {
         if (item instanceof ExternalLibrary.Item) {

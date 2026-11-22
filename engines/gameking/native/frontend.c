@@ -2,11 +2,11 @@
 #include <stdbool.h>
 #include <string.h>
 
-static bool color;
+static bool color, hartung;
 extern bool gameking_environment(unsigned, void *, const char *);
 static bool load_game(const char *, const char *);
-#define W (color ? 160 : 48)
-#define H (color ? 160 : 32)
+#define W (hartung ? 61 : color ? 160 : 48)
+#define H (hartung ? 64 : color ? 160 : 32)
 #define FRONTEND_PIXEL_CAPACITY (160 * 160)
 #define FRONTEND_XRGB8888
 #define FRONTEND_FRAME_PERIOD_NS (color ? 25439996LL : 16666667LL)
@@ -20,7 +20,9 @@ enum { RATE = 48000 };
 static bool load_game(const char *path, const char *saves) {
     (void)saves;
     const char *base = strrchr(path, '/');
-    color = !strcmp(base ? base + 1 : path, "gamekin3.cmd");
+    base = base ? base + 1 : path;
+    hartung = !strcmp(base, "gmaster.cmd");
+    color = !strcmp(base, "gamekin3.cmd");
     return retro_load_game(&(struct retro_game_info){.path = path});
 }
 

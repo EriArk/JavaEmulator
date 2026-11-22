@@ -10,6 +10,10 @@ stated otherwise. **Experimental** in older checkpoints means local/private
 combined builds; released experimental features are explicitly identified.
 **Released** means an actual GitHub release asset.
 
+## 2026-11-22 - Hartung Game Master
+
+**Unreleased source and private ARM64 build.** Added a Game Master library, device sticker, MCU firmware and cartridge import, two-button controller mapping and per-game save states. The existing Retroid installation retained its 74 managed cards and gained 18 cartridges plus the BIOS. Hyper Space audio remains unconfirmed. [Device check](docs/checks/2026-11-22-hartung.md).
+
 ## 2026-11-22 - Pokitto
 
 **Unreleased source and private ARM64 build.** Added the Pokitto sticker, library tab, BIN and POP import, bundled SD files, writable storage and native controls. On Retroid, MicroCity restored a saved city and Galaxy Fighter played stage one with audio. [Device check](docs/checks/2026-11-22-pokitto.md).

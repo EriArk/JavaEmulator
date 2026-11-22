@@ -187,6 +187,33 @@ public class HandheldCycleTest {
         assertEquals(item.getPath(), ExternalLibrary.packageProvider(26).install(isolated, Uri.fromFile(hex)).getPath());
     }
 
+    @Test public void hartungRoutesCartridgesAndInstallsFirmwareSeparately() throws Exception {
+        Assume.assumeTrue(ru.playsoftware.j2meloader.BuildConfig.GAMEKING_PROBE);
+        File library = new File(work, "game-master");
+        Context sandbox = isolated(library);
+        byte[] rom = new byte[8192];
+        rom[0] = (byte) 0xaa;
+        File game = new File(work, "Demo.bin");
+        Files.write(game.toPath(), rom);
+        assertEquals(Collections.singleton(28), HandheldFormat.detect(c, Uri.fromFile(game), game.getName()));
+        ExternalLibrary.Item cart = ExternalLibrary.packageProvider(28).install(sandbox, Uri.fromFile(game));
+        File renamed = new File(work, "Demo.rom");
+        Files.copy(game.toPath(), renamed.toPath());
+        assertEquals(Collections.singleton(28), HandheldFormat.detect(c, Uri.fromFile(renamed), renamed.getName()));
+        assertEquals(cart.getPath(), ExternalLibrary.packageProvider(28).install(sandbox, Uri.fromFile(renamed)).getPath());
+        File zip = new File(work, "Firmware.zip");
+        byte[] bios = new byte[4096];
+        try (ZipOutputStream out = new ZipOutputStream(new FileOutputStream(zip))) {
+            out.putNextEntry(new ZipEntry("ROM/d78c11agf_e19.u1"));
+            out.write(bios);
+        }
+        assertEquals(Collections.singleton(28), HandheldFormat.detect(c, Uri.fromFile(zip), zip.getName()));
+        ExternalLibrary.Item firmware = ExternalLibrary.packageProvider(28).install(sandbox, Uri.fromFile(zip));
+        assertNotEquals(cart.getPath(), firmware.getPath());
+        assertArrayEquals(bios, Files.readAllBytes(new File(library, "hartung/system/gmaster/d78c11agf_e19.u1").toPath()));
+        assertEquals(cart.getPath(), ExternalLibrary.packageProvider(28).install(sandbox, Uri.fromFile(game)).getPath());
+    }
+
     @Test public void pokittoAddsSdCompanionsOnReimportAndRecognizesTheProgram() throws Exception {
         Assume.assumeTrue(ru.playsoftware.j2meloader.BuildConfig.POKITTO_PROBE);
         File game = new File(work, "Town.bin");
@@ -280,6 +307,7 @@ public class HandheldCycleTest {
         if (ru.playsoftware.j2meloader.BuildConfig.ARDUBOY_PROBE && new File(source,"arduboy/packages").isDirectory()) ids.add(25);
         if (ru.playsoftware.j2meloader.BuildConfig.GAMEBUINO_PROBE && new File(source,"gamebuino/packages").isDirectory()) ids.add(26);
         if (ru.playsoftware.j2meloader.BuildConfig.POKITTO_PROBE && new File(source,"pokitto/packages").isDirectory()) ids.add(27);
+        if (ru.playsoftware.j2meloader.BuildConfig.GAMEKING_PROBE && new File(source,"hartung/packages").isDirectory()) ids.add(28);
         if (ru.playsoftware.j2meloader.BuildConfig.IPHONE_PROBE && new File(source,"iphone/packages").isDirectory()) ids.add(24);
         return ids;
     }

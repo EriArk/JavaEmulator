@@ -14,6 +14,10 @@ attribute its results to the dated maintainer record below; do not infer a pass.
 
 The [platform issue index](PLATFORM_ISSUES.md) maps the 51 open platform-specific tasks to the maintainer roadmap, including the initial integration order and scope decisions.
 
+## Hartung Game Master (2026-11-22, private Retroid build)
+
+The platform tile opens a separate library with BIOS and cartridge import. All 18 supplied games produced changing 61 × 64 frames in a native device sweep. Bubble Boy responded to controller events and produced audio in AbyssME. Falling Block responded to touch and restored a saved position after a cold launch. Hyper Space reached level one, but the tested sequences produced silent output. [Device check](checks/2026-11-22-hartung.md).
+
 ## Pokitto (2026-11-22, private Retroid build)
 
 The Pokitto tile opens a library for BIN, POP and ZIP packages. MicroCity saved and reopened a city from its virtual SD card. Galaxy Fighter imported its artwork and music from the author’s ZIP and reached first-stage combat with digital audio. The shared graphics and physical mapping settings persisted through relaunch. [Device results and launcher screenshot](checks/2026-11-22-pokitto.md).

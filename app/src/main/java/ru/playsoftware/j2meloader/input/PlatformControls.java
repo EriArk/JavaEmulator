@@ -104,7 +104,7 @@ public final class PlatformControls {
             case "iphone": return IPHONE;
             case "wipi": return WIPI;
             case "mre": case "kaios": return KEYPAD;
-            case "piece": case "supervision": case "megaduck": case "gamate": case "gameking": return TWO_BUTTON;
+            case "piece": case "supervision": case "megaduck": case "gamate": case "gameking": case "hartung": return TWO_BUTTON;
             case "gp32": return GP32;
             case "dingoo": return DINGOO;
             case "gizmondo": return GIZMONDO;

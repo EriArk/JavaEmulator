@@ -10,7 +10,7 @@ import ru.playsoftware.j2meloader.handheld.HandheldActivity;
 import ru.playsoftware.j2meloader.input.ControllerInput;
 import ru.playsoftware.j2meloader.storage.StorageActivity;
 
-public final class GameKingGameActivity extends HandheldActivity {
+public class GameKingGameActivity extends HandheldActivity {
     private File saves;
     private boolean saving;
     private boolean color;
@@ -21,25 +21,36 @@ public final class GameKingGameActivity extends HandheldActivity {
         if (StorageActivity.guard(this)) return;
         try {
             String id = getIntent().getStringExtra("installed");
-            File game = new GameKingLibrary().installed(this,id);
-            saves = new File(StoragePaths.library(this),"gameking/data/" + id);
+            saves = new File(StoragePaths.library(this), engine() + "/data/" + id);
             Files.createDirectories(saves.toPath());
-            boolean colorBios = GameKingLibrary.COLOR_BIOS.equals(id);
-            color = colorBios || GameKingLibrary.colorCartridge(game);
-            prepareSession(new File(Config.getConfigsDir(),"gameking-" + id));
-            File bios = GameKingLibrary.systemBios(this, color);
-            boolean builtIn = colorBios || GameKingLibrary.BUILT_IN.equals(id);
-            if (builtIn && !bios.isFile()) GameKingLibrary.selectBios(this, game, color);
-            if (!bios.isFile()) throw new IOException(color ? "Import the GameKing 3 GM-220 BIOS (gm220.bin or gamekin3.zip), then open this game again." : "Import the GM-218 BIOS (gm218.bin or gameking.zip), then open this game again.");
-            // Only the app writes this command. Library filenames never become MAME options.
-            File command = new File(getFilesDir(), color ? "gamekin3.cmd" : "gameking.cmd");
-            String options = (color ? "gamekin3" : "gameking") + " -skip_gameinfo -nothrottle -rompath " + quoted(bios.getParentFile().getParentFile());
-            if (!builtIn) options += " -cart " + quoted(game);
-            Files.write(command.toPath(), options.getBytes(java.nio.charset.StandardCharsets.UTF_8));
-            if (!GameKingCore.start(command.getPath(), saves.getPath())) throw new IOException("Could not start GameKing.");
+            prepareSession(new File(Config.getConfigsDir(), engine() + "-" + id));
+            File command = prepareCommand(id);
+            if (command == null) return;
+            if (!GameKingCore.start(command.getPath(), saves.getPath())) throw new IOException("Could not start the emulation core.");
             sessionStarted(getIntent().getStringExtra("title"));
         } catch (IOException | LinkageError e) { fail(e.toString()); }
     }
+    protected String engine() { return "gameking"; }
+
+    protected File prepareCommand(String id) throws IOException {
+        File game = new GameKingLibrary().installed(this, id);
+        boolean colorBios = GameKingLibrary.COLOR_BIOS.equals(id);
+        color = colorBios || GameKingLibrary.colorCartridge(game);
+        File bios = GameKingLibrary.systemBios(this, color);
+        boolean builtIn = colorBios || GameKingLibrary.BUILT_IN.equals(id);
+        if (builtIn && !bios.isFile()) GameKingLibrary.selectBios(this, game, color);
+        if (!bios.isFile()) throw new IOException(color ? "Import the GameKing 3 GM-220 BIOS (gm220.bin or gamekin3.zip), then open this game again." : "Import the GM-218 BIOS (gm218.bin or gameking.zip), then open this game again.");
+        return writeCommand(color ? "gamekin3" : "gameking", bios, builtIn ? null : game);
+    }
+
+    protected File writeCommand(String driver, File bios, File cartridge) throws IOException {
+        File command = new File(getFilesDir(), driver + ".cmd");
+        String options = driver + " -skip_gameinfo -nothrottle -rompath " + quoted(bios.getParentFile().getParentFile());
+        if (cartridge != null) options += " -cart " + quoted(cartridge);
+        Files.write(command.toPath(), options.getBytes(java.nio.charset.StandardCharsets.UTF_8));
+        return command;
+    }
+
     private static String quoted(File file) throws IOException {
         String path = file.getCanonicalPath();
         if (path.contains("\"") || path.contains("\n") || path.contains("\r")
@@ -68,8 +79,9 @@ public final class GameKingGameActivity extends HandheldActivity {
             });
         }, "GameKing save state").start();
     }
+    protected void sendButton(int id, boolean down) { GameKingCore.button(id, down); }
     @Override protected ControllerInput.Sink keys() { return new ru.playsoftware.j2meloader.handheld.LibretroKeys() {
-        @Override protected void button(int id, boolean down) { GameKingCore.button(id, down); }
+        @Override protected void button(int id, boolean down) { sendButton(id, down); }
     }; }
     @Override protected void configureProfile(ru.playsoftware.j2meloader.config.ProfileModel profile) {
         ru.playsoftware.j2meloader.handheld.LibretroKeys.defaultMappings(profile);

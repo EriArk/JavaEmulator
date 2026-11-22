@@ -55,6 +55,7 @@ public final class HandheldFormat {
         if (BuildConfig.WEBOS_PROBE && s.endsWith(".ipk")) return 18;
         if (BuildConfig.MRE_PROBE && s.endsWith(".vxp")) return 17;
         if (BuildConfig.PALM_PROBE && (s.endsWith(".prc") || s.endsWith(".pdb"))) return 16;
+        if (BuildConfig.GAMEKING_PROBE && (s.endsWith(".gm") || s.endsWith(".u1"))) return 28;
         if (BuildConfig.GAMEKING_PROBE && s.endsWith(".gk")) return 15;
         if (BuildConfig.GAMATE_PROBE && s.endsWith(".gam")) return 14;
         if (BuildConfig.FLASH_PROBE && s.endsWith(".swf")) return 13;
@@ -67,7 +68,7 @@ public final class HandheldFormat {
         return 0;
     }
     private static boolean binaryFile(String name) {
-        return name.endsWith(".bin") || ((BuildConfig.GAMATE_PROBE || BuildConfig.PALM_PROBE) && name.endsWith(".rom"));
+        return name.endsWith(".bin") || ((BuildConfig.GAMATE_PROBE || BuildConfig.GAMEKING_PROBE || BuildConfig.PALM_PROBE) && name.endsWith(".rom"));
     }
     static boolean enabled() { return BuildConfig.POKITTO_PROBE || BuildConfig.GAMEBUINO_PROBE || BuildConfig.ARDUBOY_PROBE || BuildConfig.IPHONE_PROBE || BuildConfig.WIPI_PROBE || BuildConfig.DINGOO_PROBE || BuildConfig.PIECE_PROBE || BuildConfig.GP32_PROBE || BuildConfig.SUPERVISION_PROBE || BuildConfig.MEGADUCK_PROBE || BuildConfig.CYBIKO_PROBE || BuildConfig.FLASH_PROBE || BuildConfig.GAMATE_PROBE || BuildConfig.GAMEKING_PROBE || BuildConfig.PALM_PROBE || BuildConfig.MRE_PROBE || BuildConfig.WEBOS_PROBE || BuildConfig.B2G_PROBE || BuildConfig.PORTFOLIO_PROBE || BuildConfig.POCKETPC_PROBE; }
     static boolean candidate(String name) {
@@ -214,6 +215,7 @@ public final class HandheldFormat {
         return 0;
     }
     private static int cartridgeOrFirmware(InputStream in, byte[] header, long length) throws IOException {
+        if (BuildConfig.GAMEKING_PROBE && (length == 4096 || length < 0) && hartungBootVector(header)) return 28;
         if (BuildConfig.POKITTO_PROBE && pokittoVector(header, length)) return 27;
         if (BuildConfig.PALM_PROBE && header.length >= 12) {
             java.nio.ByteBuffer words = java.nio.ByteBuffer.wrap(header);
@@ -248,6 +250,9 @@ public final class HandheldFormat {
             int entry = (header[2] & 255) | (header[3] & 255) << 8;
             if (entry >= 4 && entry < 0x8000) return 11;
         }
+        // Game Master cartridges carry a marker at 0x8000. Check stronger headers first.
+        if (BuildConfig.GAMEKING_PROBE && header.length > 1 && header[0] == (byte) 0xaa
+                && (length < 0 || length <= 32768)) return 28;
         if (!BuildConfig.SUPERVISION_PROBE) return 0;
         if (length < 16384 || length % 16384 != 0) return 0;
         // A headerless cartridge places the 65C02 reset vector in its last bank.
@@ -262,6 +267,10 @@ public final class HandheldFormat {
         }
         int low = in.read(), high = in.read();
         return low >= 0 && high >= 0x80 ? 10 : 0;
+    }
+    public static boolean hartungBootVector(byte[] h) {
+        return h.length >= 8 && h[0] == 0x54 && h[1] == (byte) 0xc0 && h[2] == 0 && h[3] == 0
+                && h[4] == 0x54 && h[5] == (byte) 0xc0 && h[6] == 0 && h[7] == 0;
     }
     public static boolean pokittoVector(byte[] header, long length) {
         if (header.length < 8 || (length >= 0 && (length < 8 || length > 262144))) return false;
@@ -278,7 +287,7 @@ public final class HandheldFormat {
         return Arrays.copyOf(bytes,n);
     }
     public static int indexedPlatform(String path) {
-        if (path != null && path.matches("pending_([5-9]|1[0-9]|2[0-7])_[a-f0-9]+"))
+        if (path != null && path.matches("pending_([5-9]|1[0-9]|2[0-8])_[a-f0-9]+"))
             return Integer.parseInt(path.substring(8, path.indexOf('_', 8)));
         return 0;
     }
