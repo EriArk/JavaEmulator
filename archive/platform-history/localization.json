@@ -296,6 +296,35 @@
   },
   "specValues": {
     "en": {
+      "Numeric keypad": "Numeric keypad",
+      "Phone keypad": "Phone keypad",
+      "Short-range radio": "Short-range radio",
+      "QWERTY keyboard": "QWERTY keyboard",
+      "Stylus / Graffiti": "Stylus / Graffiti",
+      "Stylus / hardware keys": "Stylus / hardware keys",
+      "Touch / QWERTY": "Touch / QWERTY",
+      "Touchscreen": "Touchscreen",
+      "Mini keyboard": "Mini keyboard",
+      "Multi-touch": "Multi-touch",
+      "D-pad / face buttons": "D-pad / face buttons",
+      "D-pad / A / B": "D-pad / A / B",
+      "D-pad / A / B / shoulders": "D-pad / A / B / shoulders",
+      "D-pad / buttons": "D-pad / buttons",
+      "8-way pad / 4 buttons": "8-way pad / 4 buttons",
+      "GPS / camera": "GPS / camera",
+      "Wi-Fi / expansion header": "Wi-Fi / expansion header",
+      "Native ARM applications": "Native ARM applications",
+      "Native MIPS games / Dingux": "Native MIPS games / Dingux",
+      "ROM cartridges": "ROM cartridges",
+      "ROM cards": "ROM cards",
+      "2.4-inch": "2.4-inch",
+      "128 × 128 color TFT": "128 × 128 color TFT",
+      "220 × 176 color TFT": "220 × 176 color TFT",
+      "48 × 32 px (original)": "48 × 32 px (original)",
+      "South Korea": "South Korea",
+      "Monochrome LCD": "Monochrome LCD"
+    },
+    "es": {
       "Numeric keypad": "Teclado numérico",
       "Phone keypad": "Teclado del teléfono",
       "Short-range radio": "Radio de corto alcance",
@@ -322,9 +351,9 @@
       "220 × 176 color TFT": "TFT en color 220 × 176",
       "48 × 32 px (original)": "48 × 32 px (original)",
       "South Korea": "Corea del Sur",
-      "Monochrome LCD": "Monochrome LCD"
+      "Monochrome LCD": "LCD monocroma"
     },
-    "es": {
+    "pt-BR": {
       "Numeric keypad": "Teclado numérico",
       "Phone keypad": "Teclado do celular",
       "Short-range radio": "Rádio de curto alcance",
@@ -351,9 +380,9 @@
       "220 × 176 color TFT": "TFT colorida 220 × 176",
       "48 × 32 px (original)": "48 × 32 px (original)",
       "South Korea": "Coreia do Sul",
-      "Monochrome LCD": "LCD monocroma"
+      "Monochrome LCD": "LCD monocromático"
     },
-    "pt-BR": {
+    "ru": {
       "Numeric keypad": "Цифровая клавиатура",
       "Phone keypad": "Клавиатура телефона",
       "Short-range radio": "Радиосвязь ближнего действия",
@@ -380,9 +409,9 @@
       "220 × 176 color TFT": "Цветной TFT 220 × 176",
       "48 × 32 px (original)": "48 × 32 пикс. (оригинал)",
       "South Korea": "Южная Корея",
-      "Monochrome LCD": "LCD monocromático"
+      "Monochrome LCD": "Монохромный LCD"
     },
-    "ru": {
+    "fr": {
       "Numeric keypad": "Clavier numérique",
       "Phone keypad": "Clavier de téléphone",
       "Short-range radio": "Radio courte portée",
@@ -409,9 +438,9 @@
       "220 × 176 color TFT": "TFT couleur 220 × 176",
       "48 × 32 px (original)": "48 × 32 px (original)",
       "South Korea": "Corée du Sud",
-      "Monochrome LCD": "Монохромный LCD"
+      "Monochrome LCD": "LCD monochrome"
     },
-    "fr": {
+    "de": {
       "Numeric keypad": "Zifferntasten",
       "Phone keypad": "Handytastatur",
       "Short-range radio": "Kurzstreckenfunk",
@@ -438,9 +467,9 @@
       "220 × 176 color TFT": "Farb-TFT 220 × 176",
       "48 × 32 px (original)": "48 × 32 px (Original)",
       "South Korea": "Südkorea",
-      "Monochrome LCD": "LCD monochrome"
+      "Monochrome LCD": "Monochrom-LCD"
     },
-    "de": {
+    "ja": {
       "Numeric keypad": "数字キー",
       "Phone keypad": "携帯電話のキー",
       "Short-range radio": "近距離無線",
@@ -467,9 +496,10 @@
       "220 × 176 color TFT": "220 × 176 カラーTFT",
       "48 × 32 px (original)": "48 × 32 px（初代）",
       "South Korea": "韓国",
-      "Monochrome LCD": "Monochrom-LCD"
+      "Monochrome LCD": "モノクロ液晶"
     },
-    "ja": {
+    "zh-CN": {
+      "Monochrome LCD": "黑白液晶屏",
       "Numeric keypad": "数字键盘",
       "Phone keypad": "手机键盘",
       "Short-range radio": "短距离无线电",
@@ -495,49 +525,49 @@
       "128 × 128 color TFT": "128 × 128 彩色 TFT",
       "220 × 176 color TFT": "220 × 176 彩色 TFT",
       "48 × 32 px (original)": "48 × 32 像素（初代）",
-      "South Korea": "韩国",
-      "Monochrome LCD": "モノクロ液晶"
-    },
-    "zh-CN": {
-      "Monochrome LCD": "黑白液晶屏"
+      "South Korea": "韩国"
     }
   },
   "periods": {
     "en": {
+      "Early 2010s": "Early 2010s",
+      "2000s": "2000s",
+      "2010s": "2010s"
+    },
+    "es": {
       "Early 2010s": "Principios de 2010",
       "2000s": "Años 2000",
       "2010s": "Años 2010"
     },
-    "es": {
+    "pt-BR": {
       "Early 2010s": "Início dos anos 2010",
       "2000s": "Anos 2000",
       "2010s": "Anos 2010"
     },
-    "pt-BR": {
+    "ru": {
       "Early 2010s": "Начало 2010-х",
       "2000s": "2000-е",
       "2010s": "2010-е"
     },
-    "ru": {
+    "fr": {
       "Early 2010s": "Début des années 2010",
       "2000s": "Années 2000",
       "2010s": "Années 2010"
     },
-    "fr": {
+    "de": {
       "Early 2010s": "Frühe 2010er",
       "2000s": "2000er-Jahre",
       "2010s": "2010er-Jahre"
     },
-    "de": {
+    "ja": {
       "Early 2010s": "2010年代初頭",
       "2000s": "2000年代",
       "2010s": "2010年代"
     },
-    "ja": {
+    "zh-CN": {
       "Early 2010s": "2010 年代初",
       "2000s": "2000 年代",
       "2010s": "2010 年代"
-    },
-    "zh-CN": {}
+    }
   }
 }
