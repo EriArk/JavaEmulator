@@ -1,0 +1,324 @@
+{
+  "schemaVersion": 1,
+  "editorialStatus": "draft-for-review",
+  "snapshot": "2026-11-22",
+  "group": "commercial-handhelds-a",
+  "locales": [
+    "en",
+    "es",
+    "pt-BR",
+    "ru",
+    "fr",
+    "de",
+    "ja",
+    "zh-CN"
+  ],
+  "cards": [
+    {
+      "id": "dingoo-a320",
+      "device": "Dingoo A320",
+      "year": "2009",
+      "maker": "Dingoo Digital",
+      "country": "CN",
+      "image": "design-concepts/platform-stickers/dingoo.webp",
+      "imageAttribution": "design-concepts/platform-stickers/README.md",
+      "sources": [
+        "https://github.com/EriArk/JavaEmulator/issues/89"
+      ],
+      "specs": {
+        "display": "320 × 240 px",
+        "software": "Native MIPS games / Dingux",
+        "input": "D-pad / face buttons"
+      },
+      "copy": {
+        "en": {
+          "headline": "A pocket for experiments",
+          "article": "The Dingoo A320 arrived in 2009 as an inexpensive handheld for games, music and video. Its built-in emulators drew attention, but the more interesting story grew around the machine itself: developers explored native games and alternative firmware, including the Linux-based Dingux project. It became a playground for a small, determined community. Remembering Dingoo means remembering those device-specific programs too—not only the better-known console games that it could emulate."
+        },
+        "es": {
+          "headline": "Un bolsillo para experimentar",
+          "article": "El Dingoo A320 apareció en 2009 como una portátil económica para juegos, música y vídeo. Sus emuladores llamaron la atención, pero la historia más interesante surgió del propio aparato: desarrolladores crearon juegos nativos y firmware alternativo, incluido Dingux basado en Linux. Se convirtió en un pequeño laboratorio comunitario. Recordar Dingoo también significa conservar sus programas propios, no solo los juegos de consolas famosas que podía emular."
+        },
+        "pt-BR": {
+          "headline": "Um bolso para experimentar",
+          "article": "O Dingoo A320 chegou em 2009 como portátil acessível para jogos, música e vídeo. Seus emuladores chamaram atenção, mas a história mais interessante surgiu no próprio aparelho: desenvolvedores exploraram jogos nativos e firmware alternativo, inclusive o Dingux baseado em Linux. Virou um laboratório para uma comunidade dedicada. Preservar o Dingoo também é guardar seus programas próprios, não apenas os jogos de outros consoles que ele emulava."
+        },
+        "ru": {
+          "headline": "Карманная лаборатория",
+          "article": "Dingoo A320 вышла в 2009 году как недорогая портативка для игр, музыки и видео. Встроенные эмуляторы привлекли внимание, но интереснее оказалась история самого устройства: энтузиасты создавали нативные игры и альтернативные прошивки, включая Linux-систему Dingux. Консоль стала небольшой лабораторией сообщества. Сохранять Dingoo — значит помнить и её собственные программы, а не только игры известных приставок, которые она умела эмулировать."
+        },
+        "fr": {
+          "headline": "Une poche pour expérimenter",
+          "article": "La Dingoo A320 arrive en 2009 comme console portable abordable, capable de lire jeux, musique et vidéo. Ses émulateurs attirent d'abord l'attention, mais sa véritable histoire tient aussi aux jeux natifs et aux firmwares alternatifs, notamment Dingux, fondé sur Linux. L'appareil devient un terrain d'expérimentation communautaire. Préserver Dingoo, c'est conserver aussi ses propres créations et non seulement les classiques qu'elle pouvait émuler."
+        },
+        "de": {
+          "headline": "Eine Tasche voller Experimente",
+          "article": "Der Dingoo A320 kam 2009 als günstiger Handheld für Spiele, Musik und Video auf den Markt. Seine Emulatoren machten ihn bekannt, doch eine weitere Geschichte entstand rund um eigene Spiele und alternative Firmware, darunter das Linux-basierte Dingux. Das Gerät wurde zur Spielwiese einer engagierten Community. Dingoo zu bewahren heißt deshalb auch, seine eigenen Programme zu erhalten – nicht nur die Konsolenspiele, die es emulieren konnte."
+        },
+        "ja": {
+          "headline": "実験のためのポケット",
+          "article": "2009年のDingoo A320は、ゲーム、音楽、動画を楽しめる手頃な携帯機だった。内蔵エミュレーターで注目されたが、独自ゲームやLinuxベースのDinguxなど、別のファームウェアを作る人々の活動も重要だ。小さな開発コミュニティの実験場となったこの機械を残すとは、有名な家庭用ゲーム機の作品だけでなく、Dingoo固有のソフトを守ることでもある。"
+        },
+        "zh-CN": {
+          "headline": "口袋里的实验平台",
+          "article": "2009 年的 Dingoo A320 是一款价格亲民、能玩游戏和播放影音的掌机。内置模拟器让它受到关注，但更有趣的是围绕设备本身诞生的原生游戏和替代固件，包括基于 Linux 的 Dingux。它逐渐成为小型开发社区的实验乐园。保存 Dingoo 的历史，也意味着保存它自己的软件，而不只是它能模拟的经典主机游戏。"
+        }
+      }
+    },
+    {
+      "id": "gemei-a330",
+      "device": "Gemei A330",
+      "year": "Early 2010s",
+      "maker": "Gemei",
+      "country": "CN",
+      "image": "design-concepts/platform-stickers/gemei.webp",
+      "imageAttribution": "design-concepts/platform-stickers/README.md",
+      "sources": [
+        "https://github.com/EriArk/JavaEmulator/issues/89"
+      ],
+      "specs": {
+        "software": "Native ARM applications",
+        "formats": "CC / C2S / C3S",
+        "input": "D-pad / face buttons"
+      },
+      "copy": {
+        "en": {
+          "headline": "A handheld with its own software",
+          "article": "Gemei A330 belonged to a wave of inexpensive Chinese multimedia handhelds. Like Dingoo, it could play familiar retro games, but its native ARM software was a different world, distributed in device-specific executable formats. Those programs were easy to miss when collectors focused only on emulators. Its surviving games show why similar-looking handhelds should not automatically be treated as the same platform: the software behind the shell matters."
+        },
+        "es": {
+          "headline": "Una portátil con software propio",
+          "article": "La Gemei A330 perteneció a la ola de portátiles multimedia económicas fabricadas en China. Como Dingoo, podía ejecutar juegos retro conocidos, pero su software nativo ARM formaba un mundo distinto, distribuido en formatos específicos del dispositivo. Estos programas pasaban desapercibidos cuando solo se miraban los emuladores. Sus juegos recuerdan que dos portátiles parecidas no son necesariamente la misma plataforma: importa el software que llevan dentro."
+        },
+        "pt-BR": {
+          "headline": "Um portátil com software próprio",
+          "article": "O Gemei A330 fez parte de uma onda de portáteis multimídia baratos da China. Como o Dingoo, podia rodar jogos retrô conhecidos, mas tinha um mundo diferente de aplicativos ARM nativos, distribuídos em formatos próprios do aparelho. Esses programas eram facilmente esquecidos por quem olhava apenas os emuladores. Os jogos preservados mostram que aparelhos parecidos não são necessariamente a mesma plataforma: o software interno importa."
+        },
+        "ru": {
+          "headline": "Приставка со своими программами",
+          "article": "Gemei A330 принадлежала к волне недорогих китайских мультимедийных портативок. Как и Dingoo, она запускала знакомые ретроигры, но её нативные ARM-программы представляли отдельный мир со своими форматами файлов. Эти игры легко не заметить, если смотреть только на эмуляторы. Сохранившиеся проекты напоминают, что две внешне похожие портативки не обязательно принадлежат одной платформе: важно то, какое ПО живёт внутри."
+        },
+        "fr": {
+          "headline": "Une portable avec ses propres jeux",
+          "article": "La Gemei A330 appartient à la vague des petites consoles multimédias chinoises abordables. Comme la Dingoo, elle pouvait lancer des jeux rétro connus, mais ses logiciels ARM natifs formaient un univers distinct, distribué dans des formats propres à l'appareil. Ces programmes passaient inaperçus quand on ne regardait que les émulateurs. Ils rappellent que deux consoles semblables ne sont pas forcément la même plateforme : le logiciel compte."
+        },
+        "de": {
+          "headline": "Ein Handheld mit eigener Software",
+          "article": "Der Gemei A330 gehörte zu einer Welle preiswerter chinesischer Multimedia-Handhelds. Wie der Dingoo konnte er bekannte Retrospiele abspielen, doch seine nativen ARM-Programme bildeten eine eigene Welt mit gerätespezifischen Dateiformaten. Wer nur auf Emulatoren achtete, übersah solche Titel leicht. Die erhaltenen Spiele zeigen, warum ähnlich aussehende Geräte nicht automatisch dieselbe Plattform sind: Die Software unter der Hülle zählt."
+        },
+        "ja": {
+          "headline": "独自ソフトを持つ携帯機",
+          "article": "Gemei A330は、中国から登場した手頃なマルチメディア携帯機の一つだった。Dingooと同様に昔のゲームを動かせたが、ARM向けの独自アプリは機種固有の形式で配布される別の世界だ。エミュレーターだけに注目すると、その存在は見落とされやすい。残されたゲームは、見た目が似た携帯機でも同じプラットフォームとは限らず、中で動くソフトこそ重要だと教えてくれる。"
+        },
+        "zh-CN": {
+          "headline": "拥有独立软件的掌机",
+          "article": "Gemei A330 属于一批价格低廉的中国多媒体掌机。它和 Dingoo 一样能玩熟悉的复古游戏，但原生 ARM 软件是另一个世界，采用设备专属的可执行格式。若只关注模拟器，这些作品很容易被忽视。留下的游戏提醒我们：外形相似的掌机不一定属于同一平台，机壳内部的软件同样重要。"
+        }
+      }
+    },
+    {
+      "id": "piece",
+      "device": "Aquaplus P/ECE",
+      "year": "2001",
+      "maker": "Aquaplus",
+      "country": "JP",
+      "image": "design-concepts/platform-stickers/piece.webp",
+      "imageAttribution": "design-concepts/platform-stickers/README.md",
+      "sources": [
+        "https://aquaplus.jp/piece/spec.html"
+      ],
+      "specs": {
+        "display": "128 × 88 px",
+        "processor": "Epson S1C33 24 MHz",
+        "media": "Flash"
+      },
+      "copy": {
+        "en": {
+          "headline": "A tiny console made for creators",
+          "article": "Japanese company Aquaplus released the P/ECE in 2001 as a small monochrome handheld with an unusual ambition: owners were encouraged to write their own software. Development tools and documentation accompanied the device, which used an Epson processor and writable flash memory. Games, utilities and experiments shared the same little screen. It was never a mainstream rival to large console brands, but its creative openness made it distinctive."
+        },
+        "es": {
+          "headline": "Una consola para crear",
+          "article": "La empresa japonesa Aquaplus lanzó P/ECE en 2001: una portátil monocroma diminuta con una idea especial, animar a sus dueños a programar. El aparato incluía herramientas y documentación para crear software, además de un procesador Epson y memoria flash grabable. Juegos, utilidades y experimentos compartían la pequeña pantalla. Nunca quiso dominar el mercado de las grandes consolas, pero destacaba por su apertura creativa."
+        },
+        "pt-BR": {
+          "headline": "Um console feito para criar",
+          "article": "A japonesa Aquaplus lançou o P/ECE em 2001 como um portátil monocromático com uma proposta incomum: incentivar os donos a criar seus próprios programas. Ferramentas e documentação acompanhavam o aparelho, que tinha processador Epson e memória flash gravável. Jogos, utilitários e experiências conviviam na telinha. Ele nunca disputou o grande mercado dos consoles, mas sua abertura criativa o tornou especial."
+        },
+        "ru": {
+          "headline": "Маленькая приставка для творчества",
+          "article": "Японская Aquaplus выпустила P/ECE в 2001 году с необычной идеей: владельцы должны не только играть, но и писать собственные программы. Вместе с крошечной монохромной портативкой предлагались инструменты разработки и документация. Внутри работал процессор Epson, а программы хранились во флеш-памяти. Игры, утилиты и эксперименты делили один небольшой экран. P/ECE не соперничала с массовыми приставками, зато выделялась свободой творчества."
+        },
+        "fr": {
+          "headline": "Une petite console pour créer",
+          "article": "La société japonaise Aquaplus lance la P/ECE en 2001 avec une ambition rare : permettre aux utilisateurs de programmer eux-mêmes. Outils et documentation accompagnent cette minuscule portable monochrome équipée d'un processeur Epson et de mémoire flash réinscriptible. Jeux, utilitaires et expériences se partagent le même petit écran. La P/ECE n'a jamais rivalisé avec les grandes consoles, mais son ouverture à la création lui donne une identité particulière."
+        },
+        "de": {
+          "headline": "Eine kleine Konsole zum Selbermachen",
+          "article": "2001 brachte die japanische Firma Aquaplus den P/ECE heraus – einen winzigen Monochrom-Handheld mit ungewöhnlicher Idee: Besitzer sollten eigene Software schreiben können. Entwicklungswerkzeuge und Dokumentation gehörten dazu; im Inneren arbeiteten ein Epson-Prozessor und beschreibbarer Flash-Speicher. Spiele, Werkzeuge und Experimente teilten sich denselben kleinen Bildschirm. Als Massenkonsole war er nie gedacht, doch seine Offenheit machte ihn besonders."
+        },
+        "ja": {
+          "headline": "作る人のための小さなゲーム機",
+          "article": "2001年、アクアプラスは小さなモノクロ携帯機P/ECEを発売した。珍しかったのは、ユーザー自身がソフトを作ることを強く意識していた点だ。開発ツールと資料が用意され、Epson製プロセッサーと書き換え可能なフラッシュメモリーを備えていた。ゲームも道具も実験作品も同じ画面で動く。大手ゲーム機と競う存在ではなかったが、創作への開放性が魅力となった。"
+        },
+        "zh-CN": {
+          "headline": "为创作者准备的小主机",
+          "article": "日本公司 Aquaplus 在 2001 年推出 P/ECE，这款小巧的黑白掌机有一个独特目标：鼓励用户自己编写软件。设备提供开发工具和文档，使用 Epson 处理器及可写入的闪存。游戏、工具和实验作品共享同一块小屏幕。它从未成为主流游戏机的竞争者，却因开放的创作空间而格外特别。"
+        }
+      }
+    },
+    {
+      "id": "gp32",
+      "device": "GamePark GP32",
+      "year": "2001",
+      "maker": "GamePark",
+      "country": "KR",
+      "image": "design-concepts/platform-stickers/gp32.webp",
+      "imageAttribution": "design-concepts/platform-stickers/README.md",
+      "sources": [
+        "https://github.com/EriArk/JavaEmulator/issues/87"
+      ],
+      "specs": {
+        "display": "320 × 240 px",
+        "media": "SmartMedia",
+        "input": "D-pad / face buttons"
+      },
+      "copy": {
+        "en": {
+          "headline": "A handheld that welcomed homebrew",
+          "article": "South Korea's GamePark released the GP32 in 2001, with a color screen and SmartMedia cards at a time when portable gaming was changing rapidly. Its lasting reputation comes as much from independent developers as from commercial releases. Enthusiasts created games, tools, emulators and demonstrations for the machine, finding ways to use its hardware far beyond the original catalog. The GP32 became an early symbol of the open handheld scene."
+        },
+        "es": {
+          "headline": "Una portátil abierta a los creadores",
+          "article": "GamePark lanzó la GP32 en Corea del Sur en 2001, con pantalla en color y tarjetas SmartMedia. Su legado se debe tanto a desarrolladores independientes como a juegos comerciales. Los aficionados crearon títulos, herramientas, emuladores y demostraciones para aprovechar el hardware mucho más allá del catálogo oficial. La GP32 terminó convirtiéndose en un símbolo temprano de la escena de portátiles abiertas a la creación."
+        },
+        "pt-BR": {
+          "headline": "Um portátil aberto a novos jogos",
+          "article": "A GamePark lançou o GP32 na Coreia do Sul em 2001, com tela colorida e cartões SmartMedia. Sua história é marcada tanto por desenvolvedores independentes quanto por jogos comerciais. Entusiastas criaram jogos, ferramentas, emuladores e demonstrações que exploravam o hardware além do catálogo original. O GP32 acabou se tornando um dos primeiros símbolos da cena de portáteis abertos à criação."
+        },
+        "ru": {
+          "headline": "Портативка, открытая для энтузиастов",
+          "article": "Южнокорейская GamePark выпустила GP32 в 2001 году: цветной экран и карты SmartMedia появились здесь в эпоху стремительных перемен портативного гейминга. Устройство запомнилось не только коммерческими играми, но и сообществом независимых разработчиков. Энтузиасты создавали игры, инструменты, эмуляторы и технические демонстрации, раскрывая возможности железа за пределами официального каталога. GP32 стала ранним символом открытой портативной сцены."
+        },
+        "fr": {
+          "headline": "Une console ouverte aux passionnés",
+          "article": "La société sud-coréenne GamePark lance la GP32 en 2001, avec écran couleur et cartes SmartMedia. Sa réputation durable vient autant des développeurs indépendants que des jeux commerciaux. Les passionnés créent des jeux, outils, émulateurs et démonstrations, poussant la machine bien au-delà de son catalogue initial. La GP32 devient ainsi l'un des premiers symboles d'une scène portable ouverte à la création."
+        },
+        "de": {
+          "headline": "Ein Handheld für eigene Ideen",
+          "article": "GamePark aus Südkorea brachte 2001 den GP32 mit Farbdisplay und SmartMedia-Karten heraus. Seine Bedeutung verdankt er nicht nur kommerziellen Spielen, sondern auch unabhängigen Entwicklern. Fans schufen eigene Spiele, Werkzeuge, Emulatoren und Demos und nutzten die Hardware weit über den ursprünglichen Katalog hinaus. Der GP32 wurde zu einem frühen Symbol der offenen Handheld-Szene."
+        },
+        "ja": {
+          "headline": "自作ゲームを歓迎した携帯機",
+          "article": "韓国のGameParkは2001年、カラー画面とSmartMediaカードを備えたGP32を発売した。この携帯機を特別な存在にしたのは、商用ゲームだけではなく独立開発者の活動だ。愛好家はゲーム、ツール、エミュレーター、技術デモを作り、公式作品の枠を越えて性能を引き出した。GP32は自由な携帯ゲーム開発コミュニティの初期の象徴となった。"
+        },
+        "zh-CN": {
+          "headline": "欢迎自制游戏的掌机",
+          "article": "韩国 GamePark 在 2001 年推出了配备彩色屏幕和 SmartMedia 卡的 GP32。它的名声不仅来自商业游戏，更来自独立开发者。爱好者编写游戏、工具、模拟器和技术演示，探索远超官方软件目录的硬件潜力。GP32 因而成为开放式掌机开发社区早期的重要象征。"
+        }
+      }
+    },
+    {
+      "id": "supervision",
+      "device": "Watara Supervision",
+      "year": "1992",
+      "maker": "Watara",
+      "country": "HK",
+      "image": "design-concepts/platform-stickers/supervision.webp",
+      "imageAttribution": "design-concepts/platform-stickers/README.md",
+      "sources": [
+        "https://www.tietokonemuseo.net/retro-game-consoles/watara-supervision/"
+      ],
+      "specs": {
+        "display": "160 × 160 px",
+        "media": "ROM cartridges",
+        "input": "D-pad / A / B"
+      },
+      "copy": {
+        "en": {
+          "headline": "The other Game Boy rival",
+          "article": "In 1992, Hong Kong-based Watara offered the Supervision as a cheaper alternative to Nintendo's Game Boy. Its monochrome cartridge games appeared on a relatively large square screen; one familiar model even had a display that tilted upward. A TV-link accessory was another unusual idea. The console could not match Nintendo's game library or recognition, but it represents the many inventive challengers that briefly filled store shelves during the handheld boom."
+        },
+        "es": {
+          "headline": "La otra rival de Game Boy",
+          "article": "En 1992, la empresa Watara de Hong Kong presentó Supervision como alternativa más barata a Game Boy. Sus juegos en cartucho aparecían en una pantalla monocroma cuadrada, y uno de sus modelos permitía inclinar el display hacia arriba. También existió un accesorio para conectarla al televisor. Nunca igualó el catálogo ni la fama de Nintendo, pero representa a las ingeniosas rivales del auge de las portátiles."
+        },
+        "pt-BR": {
+          "headline": "Outra rival do Game Boy",
+          "article": "Em 1992, a Watara de Hong Kong lançou o Supervision como alternativa mais barata ao Game Boy. Seus jogos em cartucho usavam uma tela monocromática quadrada; um modelo conhecido permitia inclinar a tela para cima. Havia até um acessório para ligar o portátil à TV. Ele não igualou o catálogo nem a fama da Nintendo, mas representa as alternativas criativas que surgiram durante a febre dos portáteis."
+        },
+        "ru": {
+          "headline": "Ещё один соперник Game Boy",
+          "article": "В 1992 году гонконгская Watara предложила Supervision как более дешёвую альтернативу Game Boy. Картриджные игры работали на сравнительно крупном квадратном монохромном экране, а у одной известной модели дисплей можно было наклонять вверх. Существовал даже аксессуар для подключения к телевизору. Supervision не смогла сравниться с каталогом и популярностью Nintendo, но сохранила дух множества изобретательных соперников портативного бума."
+        },
+        "fr": {
+          "headline": "Une autre rivale de la Game Boy",
+          "article": "En 1992, la société hongkongaise Watara proposa la Supervision comme alternative moins chère à la Game Boy. Ses jeux sur cartouche s'affichaient sur un écran monochrome presque carré ; certains modèles permettaient même de l'incliner. Un accessoire pour la télévision complétait l'ensemble. La console n'a rivalisé ni avec le catalogue ni avec la renommée de Nintendo, mais témoigne des concurrents inventifs de cette époque."
+        },
+        "de": {
+          "headline": "Noch ein Game-Boy-Gegner",
+          "article": "1992 stellte Watara aus Hongkong den Supervision als günstigere Alternative zum Game Boy vor. Seine Modulspiele erschienen auf einem recht großen quadratischen Monochromdisplay; bei einer bekannten Ausführung ließ sich der Bildschirm hochklappen. Sogar ein TV-Adapter war erhältlich. An Nintendos Spieleauswahl und Bekanntheit kam die Konsole nicht heran, doch sie erinnert an die vielen erfinderischen Herausforderer des Handheld-Booms."
+        },
+        "ja": {
+          "headline": "もう一つのゲームボーイ対抗機",
+          "article": "1992年、香港のWataraはゲームボーイより安価な選択肢としてSupervisionを発売した。カートリッジ式ゲームを大きめの正方形モノクロ画面に映し、画面を傾けられるモデルまであった。テレビ接続用の周辺機器も珍しい特徴だ。任天堂の作品数や知名度には及ばなかったが、携帯ゲーム機ブームに現れた工夫に富む挑戦者の一つだった。"
+        },
+        "zh-CN": {
+          "headline": "另一位 Game Boy 挑战者",
+          "article": "1992 年，香港 Watara 推出 Supervision，试图以更低价格与 Game Boy 竞争。卡带游戏显示在较大的方形黑白屏幕上，某些机型甚至可以把屏幕向上倾斜，还推出过电视连接配件。它最终无法匹敌任天堂的游戏阵容和知名度，却代表了掌机热潮中许多富有创意的挑战者。"
+        }
+      }
+    },
+    {
+      "id": "mega-duck",
+      "device": "Mega Duck / Cougar Boy",
+      "year": "1993",
+      "maker": "Welback Holdings / Timlex",
+      "country": "HK",
+      "image": "design-concepts/platform-stickers/megaduck.webp",
+      "imageAttribution": "design-concepts/platform-stickers/README.md",
+      "sources": [
+        "https://wiki.recalbox.com/en/emulators/handhelds/megaduck"
+      ],
+      "specs": {
+        "display": "160 × 144 px",
+        "media": "ROM cartridges",
+        "input": "D-pad / A / B"
+      },
+      "copy": {
+        "en": {
+          "headline": "One console, several names",
+          "article": "Welback Holdings introduced the Mega Duck in 1993, another cartridge handheld hoping to compete with the Game Boy. Its hardware looked familiar, but its games were made for a different system. Depending on the market, shoppers might encounter the same family under names such as Cougar Boy or Creatronic. The changing labels make its history surprisingly easy to lose: beneath them lies a small, separate game catalog worthy of preservation."
+        },
+        "es": {
+          "headline": "Una consola, varios nombres",
+          "article": "Welback Holdings presentó Mega Duck en 1993, otra portátil de cartuchos que quería competir con Game Boy. Su aspecto resultaba familiar, pero sus juegos pertenecían a un sistema distinto. Según el país, la misma familia se vendía como Cougar Boy o Creatronic. Los cambios de nombre facilitan que su historia se pierda: debajo de las etiquetas existe un pequeño catálogo propio que merece conservarse."
+        },
+        "pt-BR": {
+          "headline": "Um console, vários nomes",
+          "article": "A Welback Holdings apresentou o Mega Duck em 1993, outro portátil de cartuchos criado para competir com o Game Boy. O visual parecia familiar, mas seus jogos pertenciam a um sistema diferente. Conforme o mercado, a mesma família aparecia como Cougar Boy ou Creatronic. A mudança de nomes torna fácil perder sua história, embora exista ali um pequeno catálogo próprio que merece ser preservado."
+        },
+        "ru": {
+          "headline": "Одна приставка, несколько имён",
+          "article": "В 1993 году Welback Holdings выпустила Mega Duck — ещё одну картриджную портативку, пытавшуюся соперничать с Game Boy. Внешне она выглядела знакомо, но игры предназначались для собственной системы. В разных странах устройства этого семейства встречались под названиями Cougar Boy и Creatronic. Из-за смены брендов историю легко потерять, хотя за ними скрывается небольшой самостоятельный игровой каталог, достойный сохранения."
+        },
+        "fr": {
+          "headline": "Une console, plusieurs noms",
+          "article": "Welback Holdings lança la Mega Duck en 1993 pour concurrencer la Game Boy. Son apparence était familière, mais les jeux appartenaient à un système distinct. Selon les pays, la même famille pouvait porter les noms Cougar Boy ou Creatronic. Ces marques changeantes brouillent facilement son histoire, alors qu'elles cachent un petit catalogue de jeux bien à elle, digne d'être préservé."
+        },
+        "de": {
+          "headline": "Eine Konsole, mehrere Namen",
+          "article": "1993 brachte Welback Holdings mit dem Mega Duck einen weiteren Modul-Handheld als Rivalen zum Game Boy heraus. Sein Äußeres wirkte vertraut, doch die Spiele gehörten zu einem eigenen System. Je nach Markt tauchte dieselbe Gerätefamilie als Cougar Boy oder Creatronic auf. Die wechselnden Namen lassen ihre Geschichte leicht verschwinden, obwohl dahinter eine kleine, eigenständige Spielebibliothek steckt."
+        },
+        "ja": {
+          "headline": "一つのゲーム機、いくつもの名前",
+          "article": "Welback Holdingsは1993年、ゲームボーイの対抗機としてカートリッジ式携帯機Mega Duckを発売した。外見は見慣れたものでも、ゲームは独自のシステム向けに作られていた。地域によってCougar BoyやCreatronicなど別の名前で売られたため、歴史が見えにくくなっている。異なるブランド名の下には、残す価値のある小さな専用ゲーム群が存在する。"
+        },
+        "zh-CN": {
+          "headline": "一款主机，多个名字",
+          "article": "Welback Holdings 在 1993 年推出 Mega Duck，试图成为 Game Boy 的又一位卡带掌机对手。外形似曾相识，但游戏属于独立的平台。在不同市场，它还以 Cougar Boy、Creatronic 等名称出现。不断变化的品牌让这段历史容易被忽略，而这些名字背后其实藏着一套值得保存的小型专属游戏目录。"
+        }
+      }
+    }
+  ]
+}
