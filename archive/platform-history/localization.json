@@ -184,7 +184,8 @@
       "JP": "Japan",
       "CN": "China",
       "HK": "Hong Kong",
-      "—": "Not specified"
+      "—": "Not specified",
+      "RU": "Russia"
     },
     "es": {
       "FI": "Finlandia",
@@ -197,7 +198,8 @@
       "JP": "Japón",
       "CN": "China",
       "HK": "Hong Kong",
-      "—": "Sin especificar"
+      "—": "Sin especificar",
+      "RU": "Rusia"
     },
     "pt-BR": {
       "FI": "Finlândia",
@@ -210,7 +212,8 @@
       "JP": "Japão",
       "CN": "China",
       "HK": "Hong Kong",
-      "—": "Não informado"
+      "—": "Não informado",
+      "RU": "Rússia"
     },
     "ru": {
       "FI": "Финляндия",
@@ -223,7 +226,8 @@
       "JP": "Япония",
       "CN": "Китай",
       "HK": "Гонконг",
-      "—": "Не указана"
+      "—": "Не указана",
+      "RU": "Россия"
     },
     "fr": {
       "FI": "Finlande",
@@ -236,7 +240,8 @@
       "JP": "Japon",
       "CN": "Chine",
       "HK": "Hong Kong",
-      "—": "Non précisé"
+      "—": "Non précisé",
+      "RU": "Russie"
     },
     "de": {
       "FI": "Finnland",
@@ -249,7 +254,8 @@
       "JP": "Japan",
       "CN": "China",
       "HK": "Hongkong",
-      "—": "Nicht angegeben"
+      "—": "Nicht angegeben",
+      "RU": "Russland"
     },
     "ja": {
       "FI": "フィンランド",
@@ -262,7 +268,8 @@
       "JP": "日本",
       "CN": "中国",
       "HK": "香港",
-      "—": "記載なし"
+      "—": "記載なし",
+      "RU": "ロシア"
     },
     "zh-CN": {
       "FI": "芬兰",
@@ -275,7 +282,8 @@
       "JP": "日本",
       "CN": "中国",
       "HK": "中国香港",
-      "—": "未注明"
+      "—": "未注明",
+      "RU": "俄罗斯"
     }
   },
   "specValues": {
@@ -305,7 +313,8 @@
       "128 × 128 color TFT": "TFT en color 128 × 128",
       "220 × 176 color TFT": "TFT en color 220 × 176",
       "48 × 32 px (original)": "48 × 32 px (original)",
-      "South Korea": "Corea del Sur"
+      "South Korea": "Corea del Sur",
+      "Monochrome LCD": "Monochrome LCD"
     },
     "es": {
       "Numeric keypad": "Teclado numérico",
@@ -333,7 +342,8 @@
       "128 × 128 color TFT": "TFT colorida 128 × 128",
       "220 × 176 color TFT": "TFT colorida 220 × 176",
       "48 × 32 px (original)": "48 × 32 px (original)",
-      "South Korea": "Coreia do Sul"
+      "South Korea": "Coreia do Sul",
+      "Monochrome LCD": "LCD monocroma"
     },
     "pt-BR": {
       "Numeric keypad": "Цифровая клавиатура",
@@ -361,7 +371,8 @@
       "128 × 128 color TFT": "Цветной TFT 128 × 128",
       "220 × 176 color TFT": "Цветной TFT 220 × 176",
       "48 × 32 px (original)": "48 × 32 пикс. (оригинал)",
-      "South Korea": "Южная Корея"
+      "South Korea": "Южная Корея",
+      "Monochrome LCD": "LCD monocromático"
     },
     "ru": {
       "Numeric keypad": "Clavier numérique",
@@ -389,7 +400,8 @@
       "128 × 128 color TFT": "TFT couleur 128 × 128",
       "220 × 176 color TFT": "TFT couleur 220 × 176",
       "48 × 32 px (original)": "48 × 32 px (original)",
-      "South Korea": "Corée du Sud"
+      "South Korea": "Corée du Sud",
+      "Monochrome LCD": "Монохромный LCD"
     },
     "fr": {
       "Numeric keypad": "Zifferntasten",
@@ -417,7 +429,8 @@
       "128 × 128 color TFT": "Farb-TFT 128 × 128",
       "220 × 176 color TFT": "Farb-TFT 220 × 176",
       "48 × 32 px (original)": "48 × 32 px (Original)",
-      "South Korea": "Südkorea"
+      "South Korea": "Südkorea",
+      "Monochrome LCD": "LCD monochrome"
     },
     "de": {
       "Numeric keypad": "数字キー",
@@ -445,7 +458,8 @@
       "128 × 128 color TFT": "128 × 128 カラーTFT",
       "220 × 176 color TFT": "220 × 176 カラーTFT",
       "48 × 32 px (original)": "48 × 32 px（初代）",
-      "South Korea": "韓国"
+      "South Korea": "韓国",
+      "Monochrome LCD": "Monochrom-LCD"
     },
     "ja": {
       "Numeric keypad": "数字键盘",
@@ -473,9 +487,12 @@
       "128 × 128 color TFT": "128 × 128 彩色 TFT",
       "220 × 176 color TFT": "220 × 176 彩色 TFT",
       "48 × 32 px (original)": "48 × 32 像素（初代）",
-      "South Korea": "韩国"
+      "South Korea": "韩国",
+      "Monochrome LCD": "モノクロ液晶"
     },
-    "zh-CN": {}
+    "zh-CN": {
+      "Monochrome LCD": "黑白液晶屏"
+    }
   },
   "periods": {
     "en": {
