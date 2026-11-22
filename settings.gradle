@@ -90,6 +90,11 @@ if (providers.gradleProperty('pokittoProbe').orNull == 'true') {
     include ':pokitto-probe'
     project(':pokitto-probe').projectDir = file('engines/pokitto/bridge')
 }
+if (providers.gradleProperty('espboyProbe').orNull == 'true') {
+    include ':espboy-probe'
+    project(':espboy-probe').projectDir = file('engines/espboy/bridge')
+}
+
 if (providers.gradleProperty('thumbyProbe').orNull == 'true' || providers.gradleProperty('thumbyColorProbe').orNull == 'true') {
     include ':thumby-probe'
     project(':thumby-probe').projectDir = file('engines/thumby/bridge')

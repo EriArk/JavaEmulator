@@ -1,0 +1,3 @@
+ESPboy platform sticker is a cutout of the device photograph in ESPboy EBT Tracker.
+https://github.com/ESPboy-edu/ESPboy_EBT_Tracker/blob/master/ESPboy2_EBT_Tracker_look.png
+The project identifies its license as WTFPL in its README.

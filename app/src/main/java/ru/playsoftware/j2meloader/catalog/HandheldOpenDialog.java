@@ -31,6 +31,12 @@ public final class HandheldOpenDialog extends DialogFragment {
                 .subscribeOn(Schedulers.io()).observeOn(AndroidSchedulers.mainThread())
                 .subscribe(ids->{
                     int selected = requireArguments().getInt("preferred", -1);
+                    if (selected == 32 && ru.playsoftware.j2meloader.BuildConfig.ESPBOY_PROBE) {
+                        String file=HandheldFormat.name(context,uri).toLowerCase(java.util.Locale.ROOT);
+                        if (file.endsWith(".bin") || (file.endsWith(".zip") && ids.isEmpty())) {
+                            open(uri,32); return;
+                        }
+                    }
                     if (selected == 31 && ru.playsoftware.j2meloader.BuildConfig.THUMBY_COLOR_PROBE
                             && ids.isEmpty() && HandheldFormat.name(context, uri).toLowerCase(java.util.Locale.ROOT).endsWith(".zip")) {
                         open(uri, 31);

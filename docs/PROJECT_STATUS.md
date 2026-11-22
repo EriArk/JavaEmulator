@@ -14,6 +14,10 @@ attribute its results to the dated maintainer record below; do not infer a pass.
 
 The [platform issue index](PLATFORM_ISSUES.md) maps the 51 open platform-specific tasks to the maintainer roadmap, including the initial integration order and scope decisions.
 
+## ESPboy Little Game Engine (2026-11-22, private Retroid build)
+
+The ESPboy tile opens a dedicated shelf for LGE games with cartridge artwork, shared controls and guest saves. NinjaEscape reached the scrolling stage with gamepad input and recorded sound. Cityrunner restored a record of 105 after a cold launch. [Device checks](checks/2026-11-22-espboy.md).
+
 ## Thumby Color (2026-11-22, private Retroid build)
 
 The Color shelf imports Tiny Game Engine scripts and arcade ZIPs with their assets and artwork. FroggyRoad restored its world and high score after an APK update. BustAThumb reached 70 points with controller input and produced title music and gameplay sounds. The shared touch and controller settings expose the D-pad, A/B, LB/RB and Menu. [Retroid results and screenshots](checks/2026-11-22-thumby-color.md).

@@ -216,6 +216,30 @@ public class HandheldCycleTest {
         assertNotEquals(identity, provider.install(sandbox, Uri.fromFile(game)).getPath());
     }
 
+    @Test public void espboyPackedAndRawGamesShareAProgramAndPreserveIcon() throws Exception {
+        Assume.assumeTrue(ru.playsoftware.j2meloader.BuildConfig.ESPBOY_PROBE);
+        Context sandbox = isolated(new File(work, "espboy-library"));
+        ExternalLibrary.PackageProvider provider = ExternalLibrary.packageProvider(32);
+        File raw = new File(work, "Demo.bin"), archive = new File(work, "Demo.zip");
+        Files.write(raw.toPath(), new byte[]{1, 2, 1, 2, 1, 2});
+        String card = provider.install(sandbox, Uri.fromFile(raw)).getPath();
+        try (ZipOutputStream out = new ZipOutputStream(new FileOutputStream(archive))) {
+            out.putNextEntry(new ZipEntry("Games/Demo.lge"));
+            out.write(new byte[]{'l','g','e',3,(byte)197});
+            out.write(new byte[192]);
+            out.write(new byte[]{0,2,1,2,(byte)136,2});
+        }
+        assertEquals(Collections.singleton(32), HandheldFormat.detect(c, Uri.fromFile(archive), archive.getName()));
+        assertEquals(card, provider.install(sandbox, Uri.fromFile(archive)).getPath());
+        File[] cards=new File(StoragePaths.library(sandbox),"espboy/packages").listFiles();
+        assertNotNull(cards);
+        assertEquals(1,cards.length);
+        assertTrue(new File(cards[0],"icon.png").length()>0);
+        File installed=new File(cards[0],"program.bin");
+        assertEquals(Collections.singleton(32), HandheldFormat.detect(c, Uri.fromFile(installed), installed.getName()));
+        assertEquals(card,provider.install(sandbox,Uri.fromFile(installed)).getPath());
+    }
+
     @Test public void colorImportKeepsGameFolderAndRoutesEngineHelpers() throws Exception {
         Assume.assumeTrue(ru.playsoftware.j2meloader.BuildConfig.THUMBY_COLOR_PROBE);
         Context sandbox = isolated(new File(work, "color-library"));
@@ -392,6 +416,7 @@ public class HandheldCycleTest {
         if (ru.playsoftware.j2meloader.BuildConfig.GAMEBUINO_PROBE && new File(source,"gamebuino/packages").isDirectory()) ids.add(26);
         if (ru.playsoftware.j2meloader.BuildConfig.POKITTO_PROBE && new File(source,"pokitto/packages").isDirectory()) ids.add(27);
         if (ru.playsoftware.j2meloader.BuildConfig.THUMBY_PROBE && new File(source,"thumby/packages").isDirectory()) ids.add(30);
+        if (ru.playsoftware.j2meloader.BuildConfig.ESPBOY_PROBE && new File(source,"espboy/packages").isDirectory()) ids.add(32);
         if (ru.playsoftware.j2meloader.BuildConfig.THUMBY_COLOR_PROBE && new File(source,"thumby_color/packages").isDirectory()) ids.add(31);
         if (ru.playsoftware.j2meloader.BuildConfig.GAMEKING_PROBE && new File(source,"hartung/packages").isDirectory()) ids.add(28);
         if (ru.playsoftware.j2meloader.BuildConfig.GAMEKING_PROBE && new File(source,"epoch/packages").isDirectory()) ids.add(29);

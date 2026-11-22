@@ -1,0 +1,20 @@
+plugins { id 'com.android.library' }
+android {
+    namespace 'io.github.eriark.abyssme.espboy.bridge'
+    compileSdk 34
+    defaultConfig { minSdk 29 }
+}
+def sticker = tasks.register('prepareEspboySticker', Sync) {
+    from(rootProject.file('design-concepts/platform-stickers/espboy.webp'))
+    rename { 'sticker_espboy.webp' }
+    into layout.buildDirectory.dir('generated/deviceArt/drawable-nodpi')
+}
+android.sourceSets.main.res.srcDir layout.buildDirectory.dir('generated/deviceArt')
+android.sourceSets.main.assets.srcDirs rootProject.file('engines/espboy/assets'), rootProject.file('build/espboy/assets')
+tasks.named('preBuild').configure {
+    dependsOn sticker
+    doFirst {
+        if (!rootProject.file('build/espboy/assets/espboy/cpu.js').isFile())
+            throw new GradleException('Stage the ESPboy SDK with engines/espboy/prepare.py first')
+    }
+}

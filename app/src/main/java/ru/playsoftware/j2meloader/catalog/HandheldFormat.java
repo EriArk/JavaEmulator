@@ -48,6 +48,7 @@ public final class HandheldFormat {
         String s=name.toLowerCase(Locale.ROOT);
         if (BuildConfig.ARDUBOY_PROBE && (s.endsWith(".hex") || s.endsWith(".arduboy"))) return 25;
         if (BuildConfig.GAMEBUINO_PROBE && s.endsWith(".hex")) return 26;
+        if (BuildConfig.ESPBOY_PROBE && s.endsWith(".lge")) return 32;
         if (BuildConfig.THUMBY_PROBE && s.endsWith(".py")) return 30;
         if (BuildConfig.POKITTO_PROBE && s.endsWith(".pop")) return 27;
         if (BuildConfig.IPHONE_PROBE && s.endsWith(".ipa")) return 24;
@@ -72,7 +73,7 @@ public final class HandheldFormat {
     private static boolean binaryFile(String name) {
         return name.endsWith(".bin") || ((BuildConfig.GAMATE_PROBE || BuildConfig.GAMEKING_PROBE || BuildConfig.PALM_PROBE) && name.endsWith(".rom"));
     }
-    static boolean enabled() { return BuildConfig.THUMBY_PROBE || BuildConfig.POKITTO_PROBE || BuildConfig.GAMEBUINO_PROBE || BuildConfig.ARDUBOY_PROBE || BuildConfig.IPHONE_PROBE || BuildConfig.WIPI_PROBE || BuildConfig.DINGOO_PROBE || BuildConfig.PIECE_PROBE || BuildConfig.GP32_PROBE || BuildConfig.SUPERVISION_PROBE || BuildConfig.MEGADUCK_PROBE || BuildConfig.CYBIKO_PROBE || BuildConfig.FLASH_PROBE || BuildConfig.GAMATE_PROBE || BuildConfig.GAMEKING_PROBE || BuildConfig.PALM_PROBE || BuildConfig.MRE_PROBE || BuildConfig.WEBOS_PROBE || BuildConfig.B2G_PROBE || BuildConfig.PORTFOLIO_PROBE || BuildConfig.POCKETPC_PROBE; }
+    static boolean enabled() { return BuildConfig.ESPBOY_PROBE || BuildConfig.THUMBY_PROBE || BuildConfig.POKITTO_PROBE || BuildConfig.GAMEBUINO_PROBE || BuildConfig.ARDUBOY_PROBE || BuildConfig.IPHONE_PROBE || BuildConfig.WIPI_PROBE || BuildConfig.DINGOO_PROBE || BuildConfig.PIECE_PROBE || BuildConfig.GP32_PROBE || BuildConfig.SUPERVISION_PROBE || BuildConfig.MEGADUCK_PROBE || BuildConfig.CYBIKO_PROBE || BuildConfig.FLASH_PROBE || BuildConfig.GAMATE_PROBE || BuildConfig.GAMEKING_PROBE || BuildConfig.PALM_PROBE || BuildConfig.MRE_PROBE || BuildConfig.WEBOS_PROBE || BuildConfig.B2G_PROBE || BuildConfig.PORTFOLIO_PROBE || BuildConfig.POCKETPC_PROBE; }
     static boolean candidate(String name) {
         String s=name.toLowerCase(Locale.ROOT);
         return enabled() && (platform(s)!=0 || s.endsWith(".zip") || binaryFile(s) || s.endsWith(".exe"));
@@ -224,6 +225,7 @@ public final class HandheldFormat {
         return 0;
     }
     private static int cartridgeOrFirmware(InputStream in, byte[] header, long length) throws IOException {
+        if (BuildConfig.ESPBOY_PROBE && header.length >= 5 && header[0]=='l' && header[1]=='g' && header[2]=='e') return 32;
         if (BuildConfig.GAMEKING_PROBE && (length == 4096 || length < 0) && hartungBootVector(header)) return 28;
         if (BuildConfig.GAMEKING_PROBE && (epochBootRom(header, length) || epochCartridge(header, length))) return 29;
         if (BuildConfig.POKITTO_PROBE && pokittoVector(header, length)) return 27;

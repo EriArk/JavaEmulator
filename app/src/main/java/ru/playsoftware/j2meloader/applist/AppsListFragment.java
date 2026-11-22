@@ -132,7 +132,7 @@ public class AppsListFragment extends Fragment implements AppsListAdapter.Listen
 	private boolean changingPlatform;
 	private boolean bothNgageGenerations;
 	private boolean databaseLoaded;
-	private boolean externalLoaded = !BuildConfig.SYMBIAN_EXPERIMENT && !BuildConfig.WIPI_PROBE && !BuildConfig.DINGOO_PROBE && !BuildConfig.PIECE_PROBE && !BuildConfig.GP32_PROBE && !BuildConfig.SUPERVISION_PROBE && !BuildConfig.MEGADUCK_PROBE && !BuildConfig.CYBIKO_PROBE && !BuildConfig.FLASH_PROBE && !BuildConfig.GAMATE_PROBE && !BuildConfig.GAMEKING_PROBE && !BuildConfig.PALM_PROBE && !BuildConfig.MRE_PROBE && !BuildConfig.WEBOS_PROBE && !BuildConfig.B2G_PROBE && !BuildConfig.PORTFOLIO_PROBE && !BuildConfig.THUMBY_PROBE && !BuildConfig.POCKETPC_PROBE;
+	private boolean externalLoaded = !BuildConfig.SYMBIAN_EXPERIMENT && !BuildConfig.WIPI_PROBE && !BuildConfig.DINGOO_PROBE && !BuildConfig.PIECE_PROBE && !BuildConfig.GP32_PROBE && !BuildConfig.SUPERVISION_PROBE && !BuildConfig.MEGADUCK_PROBE && !BuildConfig.CYBIKO_PROBE && !BuildConfig.FLASH_PROBE && !BuildConfig.GAMATE_PROBE && !BuildConfig.GAMEKING_PROBE && !BuildConfig.PALM_PROBE && !BuildConfig.MRE_PROBE && !BuildConfig.WEBOS_PROBE && !BuildConfig.B2G_PROBE && !BuildConfig.PORTFOLIO_PROBE && !BuildConfig.ESPBOY_PROBE && !BuildConfig.THUMBY_PROBE && !BuildConfig.POCKETPC_PROBE;
 	private boolean restoreLocation = true;
 	private String restoredSelection;
 	private boolean searchExpanded;
@@ -1497,7 +1497,7 @@ public class AppsListFragment extends Fragment implements AppsListAdapter.Listen
 
 	private void reloadExternalLibrary() {
 		if (!isAdded() || binding == null) return;
-		if (!BuildConfig.SYMBIAN_EXPERIMENT && !BuildConfig.WIPI_PROBE && !BuildConfig.DINGOO_PROBE && !BuildConfig.PIECE_PROBE && !BuildConfig.GP32_PROBE && !BuildConfig.SUPERVISION_PROBE && !BuildConfig.MEGADUCK_PROBE && !BuildConfig.CYBIKO_PROBE && !BuildConfig.FLASH_PROBE && !BuildConfig.GAMATE_PROBE && !BuildConfig.GAMEKING_PROBE && !BuildConfig.PALM_PROBE && !BuildConfig.MRE_PROBE && !BuildConfig.WEBOS_PROBE && !BuildConfig.B2G_PROBE && !BuildConfig.PORTFOLIO_PROBE && !BuildConfig.THUMBY_PROBE && !BuildConfig.POCKETPC_PROBE) return;
+		if (!BuildConfig.SYMBIAN_EXPERIMENT && !BuildConfig.WIPI_PROBE && !BuildConfig.DINGOO_PROBE && !BuildConfig.PIECE_PROBE && !BuildConfig.GP32_PROBE && !BuildConfig.SUPERVISION_PROBE && !BuildConfig.MEGADUCK_PROBE && !BuildConfig.CYBIKO_PROBE && !BuildConfig.FLASH_PROBE && !BuildConfig.GAMATE_PROBE && !BuildConfig.GAMEKING_PROBE && !BuildConfig.PALM_PROBE && !BuildConfig.MRE_PROBE && !BuildConfig.WEBOS_PROBE && !BuildConfig.B2G_PROBE && !BuildConfig.PORTFOLIO_PROBE && !BuildConfig.ESPBOY_PROBE && !BuildConfig.THUMBY_PROBE && !BuildConfig.POCKETPC_PROBE) return;
 		Context context = requireContext().getApplicationContext();
 		android.app.Activity activity = requireActivity();
 		int generation = ++externalGeneration;
@@ -1583,6 +1583,7 @@ public class AppsListFragment extends Fragment implements AppsListAdapter.Listen
 				: platform == 26 ? getString(R.string.library_gamebuino_import_hint)
 				: platform == 27 ? getString(R.string.library_pokitto_import_hint)
 				: platform == 30 ? getString(R.string.library_thumby_import_hint)
+				: platform == 32 ? getString(R.string.library_espboy_import_hint)
 				: platform == 31 ? getString(R.string.library_thumby_color_import_hint)
 				: platform == 28 ? getString(R.string.library_hartung_import_hint)
 				: platform == 29 ? getString(R.string.library_epoch_import_hint)
