@@ -1,0 +1,324 @@
+{
+  "schemaVersion": 1,
+  "editorialStatus": "draft-for-review",
+  "snapshot": "2026-11-22",
+  "group": "maker-handhelds",
+  "locales": [
+    "en",
+    "es",
+    "pt-BR",
+    "ru",
+    "fr",
+    "de",
+    "ja",
+    "zh-CN"
+  ],
+  "cards": [
+    {
+      "id": "arduboy",
+      "device": "Arduboy / Arduboy FX",
+      "year": "2014–2015",
+      "maker": "Kevin Bates / Arduboy",
+      "country": "US",
+      "image": "design-concepts/platform-stickers/arduboy.webp",
+      "imageAttribution": "design-concepts/platform-stickers/README.md",
+      "sources": [
+        "https://www.arduboy.com/blog/the-arduboy-history"
+      ],
+      "specs": {
+        "display": "128 × 64 OLED",
+        "processor": "Arduino-compatible AVR",
+        "input": "D-pad / A / B"
+      },
+      "copy": {
+        "en": {
+          "headline": "A business card that became a console",
+          "article": "Kevin Bates began the Arduboy as a credit-card-sized electronic experiment in 2014. The tiny monochrome game system attracted enough interest to become a real product and a home for independent games. Its Arduino-compatible hardware and open tools invited owners to learn programming instead of just buying software. Later Arduboy FX hardware made room for larger collections. The charm lies in how much play can fit on such a simple board."
+        },
+        "es": {
+          "headline": "Una tarjeta que se volvió consola",
+          "article": "Kevin Bates empezó Arduboy en 2014 como un experimento electrónico del tamaño de una tarjeta. La diminuta consola monocroma despertó tanto interés que se convirtió en producto y hogar de juegos independientes. Su hardware compatible con Arduino y sus herramientas abiertas invitaban a programar, no solo a jugar. Más tarde, Arduboy FX amplió el espacio para colecciones. Su encanto está en todo lo que cabe en una placa tan sencilla."
+        },
+        "pt-BR": {
+          "headline": "Um cartão que virou console",
+          "article": "Kevin Bates começou o Arduboy em 2014 como uma experiência eletrônica do tamanho de um cartão. O minúsculo console monocromático chamou tanta atenção que virou produto e recebeu jogos independentes. O hardware compatível com Arduino e as ferramentas abertas convidavam as pessoas a programar, não só a jogar. O Arduboy FX trouxe espaço para coleções maiores. O charme está em quanto diversão cabe numa placa tão simples."
+        },
+        "ru": {
+          "headline": "Визитка, ставшая приставкой",
+          "article": "В 2014 году Кевин Бейтс начал Arduboy как электронный эксперимент размером с банковскую карту. Крошечная монохромная приставка привлекла столько внимания, что превратилась в настоящий продукт и дом для независимых игр. Совместимое с Arduino железо и открытые инструменты приглашали не только играть, но и программировать. Позднее Arduboy FX позволила хранить большие коллекции. Удивительно, сколько игр помещается на такой простой плате."
+        },
+        "fr": {
+          "headline": "La carte qui devient console",
+          "article": "En 2014, Kevin Bates imagine l'Arduboy comme une expérience électronique de la taille d'une carte bancaire. Cette minuscule console monochrome attire tant d'intérêt qu'elle devient un produit et accueille des jeux indépendants. Son matériel compatible Arduino et ses outils ouverts invitent à programmer, pas seulement à jouer. L'Arduboy FX offrira ensuite plus de place aux collections. Tout son charme tient au jeu dans un circuit si simple."
+        },
+        "de": {
+          "headline": "Von der Visitenkarte zur Konsole",
+          "article": "Kevin Bates begann Arduboy 2014 als elektronisches Experiment im Kartenformat. Die winzige Monochromkonsole fand so viel Interesse, dass daraus ein Produkt und eine Heimat für unabhängige Spiele wurde. Arduino-kompatible Hardware und offene Werkzeuge luden dazu ein, selbst zu programmieren statt nur Software zu kaufen. Der spätere Arduboy FX bot mehr Platz für Sammlungen. Sein Reiz liegt darin, wie viel Spiel in eine kleine Platine passt."
+        },
+        "ja": {
+          "headline": "名刺サイズから生まれたゲーム機",
+          "article": "ケビン・ベイツは2014年、カードサイズの電子工作としてArduboyを作り始めた。小さなモノクロゲーム機は大きな注目を集め、独立開発者のゲームが集まる製品へ育った。Arduino互換の回路と公開されたツールは、遊ぶだけでなく自分で作ることも勧めた。後のArduboy FXでは多くの作品を保存できるようになった。こんなに単純な基板でこれほど遊べることが魅力だ。"
+        },
+        "zh-CN": {
+          "headline": "从卡片变成游戏机",
+          "article": "凯文·贝茨在 2014 年把 Arduboy 作为一项信用卡大小的电子实验。小小的黑白游戏机引发关注，最终成为真正的产品和独立游戏的家园。兼容 Arduino 的硬件与开放工具鼓励用户不仅玩游戏，还亲手编程。后来的 Arduboy FX 可以容纳更多作品。它的魅力就在于：如此简单的一块电路板，也能装下这么多乐趣。"
+        }
+      }
+    },
+    {
+      "id": "gamebuino",
+      "device": "Gamebuino Classic",
+      "year": "2014",
+      "maker": "Aurélien Rodot / Gamebuino",
+      "country": "FR",
+      "image": "design-concepts/platform-stickers/gamebuino.webp",
+      "imageAttribution": "design-concepts/platform-stickers/README.md",
+      "sources": [
+        "https://gamebuino.com/gamebuino-classic"
+      ],
+      "specs": {
+        "display": "84 × 48 LCD",
+        "processor": "Arduino-compatible AVR",
+        "media": "microSD"
+      },
+      "copy": {
+        "en": {
+          "headline": "Play a game, then write one",
+          "article": "French creator Aurélien Rodot launched Gamebuino Classic in 2014 to make game development feel approachable. The little Arduino-based handheld used a simple monochrome screen, physical buttons and a microSD card. Owners could download open-source games, inspect their code and write something of their own. Its limits were part of the lesson: with only a few pixels and modest processing power, careful design mattered more than spectacle."
+        },
+        "es": {
+          "headline": "Juega y luego crea",
+          "article": "El francés Aurélien Rodot lanzó Gamebuino Classic en 2014 para acercar el desarrollo de juegos a cualquiera. La pequeña portátil basada en Arduino tenía pantalla monocroma, botones físicos y tarjeta microSD. Se podían descargar juegos de código abierto, estudiar su código y crear otros nuevos. Sus limitaciones eran parte del aprendizaje: con pocos píxeles y poca potencia, el diseño cuidadoso importaba más que los efectos espectaculares."
+        },
+        "pt-BR": {
+          "headline": "Jogue e depois crie",
+          "article": "O francês Aurélien Rodot lançou o Gamebuino Classic em 2014 para tornar o desenvolvimento de jogos mais acessível. O pequeno portátil baseado em Arduino tinha tela monocromática, botões físicos e cartão microSD. Era possível baixar jogos de código aberto, estudar seu código e criar outros. Os limites faziam parte da lição: com poucos pixels e processamento modesto, o bom design valia mais que grandes efeitos."
+        },
+        "ru": {
+          "headline": "Сначала сыграй, потом создай",
+          "article": "Француз Орельен Родо выпустил Gamebuino Classic в 2014 году, чтобы сделать разработку игр доступнее. Маленькая портативка на базе Arduino получила монохромный экран, кнопки и microSD. Владельцы могли скачивать открытые игры, изучать их код и создавать собственные. Ограничения железа стали частью урока: при небольшом числе пикселей и скромной мощности важнее продуманный дизайн, а не спецэффекты."
+        },
+        "fr": {
+          "headline": "Jouer, puis créer",
+          "article": "Le Français Aurélien Rodot lance la Gamebuino Classic en 2014 pour rendre la création de jeux accessible. Cette petite console fondée sur Arduino possède écran monochrome, boutons et carte microSD. Les utilisateurs peuvent télécharger des jeux libres, étudier leur code et en fabriquer de nouveaux. Ses limites font partie de l'apprentissage : avec peu de pixels et de puissance, une bonne idée compte davantage que les effets spectaculaires."
+        },
+        "de": {
+          "headline": "Erst spielen, dann selbst entwickeln",
+          "article": "Der Franzose Aurélien Rodot brachte Gamebuino Classic 2014 heraus, um Spieleentwicklung zugänglich zu machen. Der kleine Arduino-basierte Handheld besaß Monochromdisplay, Tasten und microSD-Karte. Besitzer konnten Open-Source-Spiele laden, ihren Code ansehen und eigene Projekte schreiben. Die Grenzen gehörten zum Lernprozess: Bei wenigen Pixeln und bescheidener Leistung zählte gutes Design mehr als Effekte."
+        },
+        "ja": {
+          "headline": "遊んだら、自分でも作ろう",
+          "article": "フランスのオーレリアン・ロドは2014年、ゲーム作りを身近にするためGamebuino Classicを発表した。Arduinoベースの小さな携帯機にはモノクロ画面、物理ボタン、microSDカードがある。公開ゲームを遊び、コードを読み、自分の作品を作れる。少ないドットと限られた性能は欠点であると同時に教材でもあり、派手な演出より工夫が大切になる。"
+        },
+        "zh-CN": {
+          "headline": "玩过之后，自己也来做",
+          "article": "法国创作者 Aurélien Rodot 于 2014 年推出 Gamebuino Classic，希望让游戏开发更容易上手。这台基于 Arduino 的小掌机配备黑白屏幕、实体按键和 microSD 卡。用户可以下载开源游戏、阅读代码并制作自己的作品。有限的像素与性能也是学习的一部分：精心设计往往比华丽特效更重要。"
+        }
+      }
+    },
+    {
+      "id": "pokitto",
+      "device": "Pokitto",
+      "year": "2017–2018",
+      "maker": "Jonne Valola / Pokitto",
+      "country": "FI",
+      "image": "design-concepts/platform-stickers/pokitto.webp",
+      "imageAttribution": "design-concepts/platform-stickers/README.md",
+      "sources": [
+        "https://makerfaire.com/maker/entry/pokitto-a-diy-game-console-60070/"
+      ],
+      "specs": {
+        "display": "220 × 176 color TFT",
+        "processor": "ARM Cortex-M0+",
+        "media": "microSD"
+      },
+      "copy": {
+        "en": {
+          "headline": "Build the console, build the game",
+          "article": "Finnish inventor Jonne Valola introduced Pokitto as an open handheld for people who wanted to learn by making. Its bright color screen, programmable ARM hardware and interchangeable case parts gave it the appeal of both a game console and an electronics project. Some owners assembled their own kits; others simply played the growing library. Pokitto shows that a handheld can be a finished toy and a creative workshop at the same time."
+        },
+        "es": {
+          "headline": "Construye la consola y el juego",
+          "article": "El inventor finlandés Jonne Valola creó Pokitto como portátil abierta para aprender haciendo. Su pantalla en color, hardware ARM programable y carcasa configurable la convertían en consola y proyecto electrónico a la vez. Algunos usuarios montaban sus propios kits; otros disfrutaban de la biblioteca creciente de juegos. Pokitto demuestra que una portátil puede ser un juguete terminado y un taller creativo al mismo tiempo."
+        },
+        "pt-BR": {
+          "headline": "Monte o console e crie o jogo",
+          "article": "O inventor finlandês Jonne Valola criou o Pokitto como portátil aberto para aprender construindo. A tela colorida, o hardware ARM programável e as peças de caixa intercambiáveis faziam dele um console e projeto de eletrônica ao mesmo tempo. Alguns montavam seus próprios kits; outros só jogavam. Pokitto mostra que um portátil pode ser um brinquedo completo e uma oficina criativa ao mesmo tempo."
+        },
+        "ru": {
+          "headline": "Собери приставку — создай игру",
+          "article": "Финский изобретатель Йонне Валола придумал Pokitto как открытую портативку для тех, кто хочет учиться через создание вещей. Яркий цветной экран, программируемое ARM-железо и сменные детали корпуса делали её одновременно приставкой и электронным конструктором. Одни владельцы собирали наборы самостоятельно, другие просто играли в растущий каталог. Pokitto показывает, что готовая игрушка может оставаться мастерской для творчества."
+        },
+        "fr": {
+          "headline": "Construire la console, créer le jeu",
+          "article": "L'inventeur finlandais Jonne Valola présente Pokitto comme une console ouverte pour apprendre en fabriquant. Écran couleur, matériel ARM programmable et pièces de boîtier interchangeables en font à la fois un jeu et un projet d'électronique. Certains montent leur kit, d'autres profitent simplement des jeux disponibles. Pokitto montre qu'une console peut être un jouet fini et un atelier de création à la fois."
+        },
+        "de": {
+          "headline": "Konsole bauen, Spiel entwickeln",
+          "article": "Der finnische Erfinder Jonne Valola stellte Pokitto als offenen Handheld zum Lernen durch Selbermachen vor. Farbdisplay, programmierbare ARM-Hardware und austauschbare Gehäuseteile verbanden Spielkonsole und Elektronikprojekt. Manche Besitzer bauten ihren Bausatz zusammen, andere spielten einfach die wachsende Bibliothek. Pokitto zeigt, dass ein fertiges Spielzeug gleichzeitig eine kreative Werkstatt sein kann."
+        },
+        "ja": {
+          "headline": "本体もゲームも作ってみよう",
+          "article": "フィンランドの発明家ヨンネ・ヴァロラは、ものづくりを通して学べるオープンな携帯機としてPokittoを紹介した。鮮やかなカラー画面、プログラム可能なARM回路、交換できるケース部品を備え、ゲーム機と電子工作キットの両方の魅力を持つ。自分で組み立てる人も、作品を遊ぶ人もいる。完成品でありながら創作の工房でもあることを示す携帯機だ。"
+        },
+        "zh-CN": {
+          "headline": "自己组装主机，也自己创作游戏",
+          "article": "芬兰发明家 Jonne Valola 将 Pokitto 设计成一台能边制作边学习的开放式掌机。彩色屏幕、可编程 ARM 硬件和可更换的外壳部件，让它同时像游戏机和电子制作项目。有的用户亲手装配套件，有的只是享受不断增加的游戏。Pokitto 证明，一件完整的玩具也能是一间创作工作室。"
+        }
+      }
+    },
+    {
+      "id": "thumby",
+      "device": "Original Thumby",
+      "year": "2021–2022",
+      "maker": "TinyCircuits / Ken Burns",
+      "country": "US",
+      "image": "design-concepts/platform-stickers/thumby.webp",
+      "imageAttribution": "design-concepts/platform-stickers/README.md",
+      "sources": [
+        "https://thumby.us/"
+      ],
+      "specs": {
+        "display": "72 × 40 OLED",
+        "processor": "Raspberry Pi RP2040",
+        "input": "D-pad / A / B"
+      },
+      "copy": {
+        "en": {
+          "headline": "A game console on a keychain",
+          "article": "TinyCircuits' Thumby drew crowdfunding support in 2021 with a wonderfully simple idea: make a real playable game system small enough to hang on your keys. Its monochrome OLED and tiny buttons were not just decoration. Owners could play games, link two devices and write new ones with MicroPython in a browser editor. Thumby is a playful celebration of miniature engineering, where squeezing down the hardware makes every pixel feel valuable."
+        },
+        "es": {
+          "headline": "Una consola en un llavero",
+          "article": "Thumby, de TinyCircuits, consiguió apoyo colectivo en 2021 con una idea maravillosa: crear una consola jugable tan pequeña que cupiera en un llavero. Su OLED monocromo y sus botones diminutos no eran decoración. Los usuarios podían jugar, conectar dos dispositivos y programar juegos con MicroPython desde el navegador. Thumby celebra la ingeniería en miniatura: cuando el hardware se reduce tanto, cada píxel importa."
+        },
+        "pt-BR": {
+          "headline": "Um console no chaveiro",
+          "article": "O Thumby da TinyCircuits ganhou apoio coletivo em 2021 com uma ideia encantadora: criar um videogame de verdade pequeno o bastante para levar no chaveiro. A tela OLED monocromática e os minúsculos botões funcionavam de verdade. Era possível jogar, conectar dois aparelhos e programar novos jogos com MicroPython no navegador. Thumby celebra a engenharia em miniatura, onde cada pixel ganha valor."
+        },
+        "ru": {
+          "headline": "Приставка на связке ключей",
+          "article": "Thumby от TinyCircuits получила поддержку краудфандинга в 2021 году благодаря чудесной идее: сделать настоящую игровую приставку размером с брелок. Монохромный OLED и крошечные кнопки здесь не декорация. Владельцы могли играть, соединять два устройства и писать собственные игры на MicroPython в браузере. Thumby — праздник миниатюрной инженерии, где из-за размеров корпуса каждый пиксель становится особенно ценным."
+        },
+        "fr": {
+          "headline": "Une console sur un porte-clés",
+          "article": "La Thumby de TinyCircuits reçoit le soutien du financement participatif en 2021 avec une idée charmante : une vraie console assez petite pour tenir sur un porte-clés. Écran OLED monochrome et boutons minuscules sont parfaitement fonctionnels. On peut jouer, relier deux appareils et créer des jeux en MicroPython depuis un navigateur. Thumby célèbre l'ingénierie miniature, où chaque pixel devient précieux."
+        },
+        "de": {
+          "headline": "Eine Konsole am Schlüsselbund",
+          "article": "TinyCircuits' Thumby fand 2021 Unterstützer mit einer wunderbaren Idee: eine echte spielbare Konsole, klein genug für den Schlüsselbund. Monochromes OLED und winzige Tasten waren kein Schmuck, sondern funktionierten wirklich. Besitzer konnten spielen, zwei Geräte verbinden und eigene Spiele mit MicroPython im Browser schreiben. Thumby feiert Miniaturtechnik, bei der jeder einzelne Pixel kostbar wird."
+        },
+        "ja": {
+          "headline": "キーホルダーに付くゲーム機",
+          "article": "TinyCircuitsのThumbyは2021年、「鍵に付けられるほど小さな本物のゲーム機」という発想で資金を集めた。モノクロOLEDも小さなボタンも飾りではなく、実際に遊べる。二台をつなげたり、ブラウザーのMicroPython環境で新しいゲームを作ったりもできた。小型化によって一つ一つのドットが愛おしくなる、ミニチュア電子工作の楽しさを凝縮した製品だ。"
+        },
+        "zh-CN": {
+          "headline": "钥匙扣上的游戏机",
+          "article": "TinyCircuits 的 Thumby 在 2021 年众筹成功，想法可爱而直接：做一台小到能挂在钥匙上的真正游戏机。黑白 OLED 和微型按键都能实际使用。玩家可以玩游戏、连接两台设备，还能在浏览器中用 MicroPython 编写新游戏。Thumby 赞美微型工程的乐趣，让每一个像素都显得珍贵。"
+        }
+      }
+    },
+    {
+      "id": "thumby-color",
+      "device": "Thumby Color",
+      "year": "2024",
+      "maker": "TinyCircuits / Ken Burns",
+      "country": "US",
+      "image": "design-concepts/platform-stickers/thumby_color.webp",
+      "imageAttribution": "design-concepts/platform-stickers/README.md",
+      "sources": [
+        "https://tinycircuits.com/products/thumby-color"
+      ],
+      "specs": {
+        "display": "128 × 128 color TFT",
+        "processor": "Raspberry Pi RP2350",
+        "input": "D-pad / A / B / shoulders"
+      },
+      "copy": {
+        "en": {
+          "headline": "A tiny screen learns new colors",
+          "article": "Thumby Color returned to TinyCircuits' keychain-console idea with a color display, a faster RP2350 processor and more controls. Its 2024 crowdfunding campaign promised a surprisingly capable little game engine while keeping the delight of a miniature device. Games are made to be shared and modified, rather than locked away. It proves that a modern maker console can celebrate nostalgia without merely copying old hardware."
+        },
+        "es": {
+          "headline": "La pantallita descubre el color",
+          "article": "Thumby Color retomó la idea de la consola-llavero de TinyCircuits con pantalla en color, procesador RP2350 más rápido y nuevos botones. Su campaña de 2024 prometía un motor de juegos sorprendentemente capaz sin perder el encanto de lo diminuto. Los juegos se crean para compartirlos y modificarlos. Demuestra que una consola moderna de creadores puede celebrar la nostalgia sin limitarse a copiar hardware antiguo."
+        },
+        "pt-BR": {
+          "headline": "A telinha ganha cores",
+          "article": "O Thumby Color retomou a ideia do console de chaveiro da TinyCircuits com tela colorida, processador RP2350 mais rápido e mais botões. Sua campanha de 2024 apresentou um motor de jogos surpreendentemente poderoso sem perder o encanto da miniatura. Os jogos são feitos para compartilhar e modificar. É a prova de que um console moderno de criadores pode celebrar a nostalgia sem apenas copiar hardware antigo."
+        },
+        "ru": {
+          "headline": "Крошечный экран обретает цвета",
+          "article": "Thumby Color продолжила идею приставки-брелока TinyCircuits, но получила цветной дисплей, более быстрый процессор RP2350 и дополнительные кнопки. Кампания 2024 года обещала неожиданно мощный игровой движок, сохраняя очарование миниатюрного устройства. Игры здесь рассчитаны на обмен и модификацию, а не на закрытый магазин. Thumby Color показывает, что современная авторская портативка может любить ретро, не копируя старое железо."
+        },
+        "fr": {
+          "headline": "Le minuscule écran prend des couleurs",
+          "article": "La Thumby Color reprend l'idée de la console-porte-clés de TinyCircuits avec écran couleur, processeur RP2350 plus rapide et davantage de touches. Sa campagne de 2024 présente un moteur de jeu étonnamment riche sans perdre le charme de la miniature. Les jeux sont faits pour être partagés et modifiés. Une console de créateurs moderne peut ainsi célébrer la nostalgie sans seulement imiter de vieux appareils."
+        },
+        "de": {
+          "headline": "Ein Winzling entdeckt die Farben",
+          "article": "Thumby Color führte TinyCircuits' Schlüsselbund-Konsole mit Farbdisplay, schnellerem RP2350-Prozessor und mehr Tasten weiter. Die Crowdfunding-Kampagne von 2024 versprach eine erstaunlich vielseitige Spiele-Engine, ohne den Charme des Miniaturformats zu verlieren. Spiele sollten geteilt und verändert werden können. Das zeigt, wie ein moderner Maker-Handheld Nostalgie feiern kann, ohne alte Geräte bloß zu kopieren."
+        },
+        "ja": {
+          "headline": "小さな画面に色が付いた",
+          "article": "Thumby ColorはTinyCircuitsのキーホルダー型ゲーム機を、カラー画面、高速なRP2350、追加ボタンで進化させた。2024年のクラウドファンディングでは、極小サイズの魅力を保ちながら本格的なゲームエンジンを掲げた。作品は共有や改造を前提としている。昔の機械をただ再現するのではなく、懐かしさを新しい創作へつなぐ現代の小さな携帯機だ。"
+        },
+        "zh-CN": {
+          "headline": "微型屏幕有了颜色",
+          "article": "Thumby Color 延续 TinyCircuits 的钥匙扣游戏机理念，加入彩色屏幕、更快的 RP2350 处理器和更多按键。2024 年的众筹提出了一个令人惊讶的丰富游戏引擎，同时保留微型设备的可爱。游戏鼓励分享和修改，而非被封闭起来。它证明现代创客掌机可以致敬怀旧，却不必只是复制旧硬件。"
+        }
+      }
+    },
+    {
+      "id": "espboy",
+      "device": "ESPboy (Little Game Engine)",
+      "year": "2019",
+      "maker": "Roman S. / ESPboy",
+      "country": "—",
+      "image": "design-concepts/platform-stickers/espboy.webp",
+      "imageAttribution": "design-concepts/platform-stickers/README.md",
+      "sources": [
+        "https://www.espboy.com/"
+      ],
+      "specs": {
+        "display": "128 × 128 color TFT",
+        "processor": "ESP8266",
+        "connectivity": "Wi-Fi / expansion header"
+      },
+      "copy": {
+        "en": {
+          "headline": "A little console with room to grow",
+          "article": "ESPboy grew from maker Roman S.'s idea of a pocket device for games, learning and electronic experiments. Its ESP8266 chip, color screen, Wi-Fi and expansion connector make it more than a fixed game console. The Little Game Engine even gives it a small programming environment and its own games, alongside other community projects. Swapping software or adding hardware is part of the fun: ESPboy is a playable workshop in your pocket."
+        },
+        "es": {
+          "headline": "Una consola que puede crecer",
+          "article": "ESPboy nació de la idea del creador Roman S.: un dispositivo de bolsillo para jugar, aprender y experimentar con electrónica. Su chip ESP8266, pantalla en color, Wi-Fi y conector de expansión le permiten ser más que una consola fija. Little Game Engine aporta un pequeño entorno de programación y juegos propios, junto a otros proyectos comunitarios. Cambiar software o añadir módulos forma parte de la diversión: un taller jugable de bolsillo."
+        },
+        "pt-BR": {
+          "headline": "Um console que pode crescer",
+          "article": "ESPboy nasceu da ideia do criador Roman S. de fazer um aparelho de bolso para jogar, aprender e experimentar eletrônica. O chip ESP8266, a tela colorida, o Wi-Fi e o conector de expansão fazem dele mais que um console fixo. O Little Game Engine oferece um ambiente pequeno de programação e jogos próprios. Trocar programas ou acrescentar módulos faz parte da diversão: uma oficina jogável no bolso."
+        },
+        "ru": {
+          "headline": "Приставка, которую можно расширять",
+          "article": "ESPboy выросла из идеи разработчика Романа С. объединить в карманном гаджете игры, обучение и электронные эксперименты. Чип ESP8266, цветной экран, Wi-Fi и разъём расширения делают её больше, чем обычной приставкой. Little Game Engine добавляет собственные игры и небольшую среду разработки наряду с проектами сообщества. Менять программы или подключать новые модули — часть удовольствия. ESPboy — настоящая игровая мастерская в кармане."
+        },
+        "fr": {
+          "headline": "Une console à faire évoluer",
+          "article": "ESPboy vient de l'idée de Roman S. : un appareil de poche pour jouer, apprendre et expérimenter l'électronique. Sa puce ESP8266, son écran couleur, le Wi-Fi et le connecteur d'extension en font plus qu'une console figée. Little Game Engine lui apporte un petit environnement de création et des jeux propres. Changer les logiciels ou ajouter des modules fait partie du plaisir : un atelier jouable dans la poche."
+        },
+        "de": {
+          "headline": "Eine Konsole, die mitwächst",
+          "article": "ESPboy entstand aus Roman S.s Idee eines Taschengeräts zum Spielen, Lernen und Experimentieren. ESP8266-Chip, Farbbildschirm, WLAN und Erweiterungsanschluss machen es zu mehr als einer festen Konsole. Die Little Game Engine bringt eine kleine Programmierumgebung und eigene Spiele neben weiteren Community-Projekten. Neue Software oder Module auszuprobieren gehört zum Vergnügen: ESPboy ist eine spielbare Werkstatt für unterwegs."
+        },
+        "ja": {
+          "headline": "拡張できる小さなゲーム機",
+          "article": "ESPboyは、開発者Roman S.がゲーム、学習、電子工作を一つの携帯機にまとめようとした構想から生まれた。ESP8266、カラー画面、Wi-Fi、拡張端子を備え、固定されたゲーム機以上のことができる。Little Game Engineには独自ゲームと小さな開発環境があり、コミュニティの作品も広がる。ソフトを入れ替え、モジュールを増やす楽しさを持った、ポケットの工作室だ。"
+        },
+        "zh-CN": {
+          "headline": "能够不断扩展的小主机",
+          "article": "ESPboy 源于创作者 Roman S. 的想法：把游戏、学习和电子实验装进同一个口袋设备。ESP8266 芯片、彩色屏幕、Wi-Fi 和扩展接口让它不仅是一台固定用途的游戏机。Little Game Engine 提供小型编程环境和自己的游戏，社区也创造了其他项目。更换软件、加装模块本身就是乐趣：ESPboy 是一间可以玩耍的口袋工作室。"
+        }
+      }
+    }
+  ]
+}
