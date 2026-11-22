@@ -1,0 +1,226 @@
+{
+  "schemaVersion": 1,
+  "editorialStatus": "draft-for-review",
+  "snapshot": "2026-11-22",
+  "group": "pocket-computers",
+  "locales": [
+    "en",
+    "es",
+    "pt-BR",
+    "ru",
+    "fr",
+    "de",
+    "ja",
+    "zh-CN"
+  ],
+  "cards": [
+    {
+      "id": "palm-os",
+      "device": "Palm III",
+      "year": "1998",
+      "maker": "Palm Computing / 3Com",
+      "country": "US",
+      "image": "design-concepts/platform-stickers/palm.webp",
+      "imageAttribution": "design-concepts/platform-stickers/README.md",
+      "sources": [
+        "https://www.homecomputermuseum.nl/en/collectie/3com/3com-palm-iii/",
+        "https://arstechnica.com/gadgets/2024/04/palm-os-and-the-devices-that-ran-it-an-ars-retrospective/"
+      ],
+      "specs": {
+        "display": "160 × 160 px",
+        "software": "Palm OS 3",
+        "input": "Stylus / Graffiti"
+      },
+      "copy": {
+        "en": {
+          "headline": "A pocket organizer becomes a game machine",
+          "article": "The Palm III arrived in 1998 with a simple promise: keep a calendar, addresses and notes within reach. Its stylus, Graffiti handwriting system and crisp monochrome display made a small personal computer practical long before modern smartphones. Developers soon filled Palm OS with games as well as work tools. The handheld's restrained design reflects the philosophy associated with Palm co-founder Jeff Hawkins: do a few everyday things quickly, and do them well."
+        },
+        "es": {
+          "headline": "Una agenda que también jugaba",
+          "article": "El Palm III llegó en 1998 con una promesa sencilla: llevar agenda, contactos y notas a todas partes. Su lápiz, la escritura Graffiti y la pantalla monocroma permitían usar un pequeño ordenador mucho antes de los smartphones actuales. Pronto aparecieron juegos junto a las aplicaciones de trabajo. Su diseño sobrio reflejaba la idea de Jeff Hawkins, cofundador de Palm: hacer pocas tareas cotidianas, pero hacerlas rápidas y bien."
+        },
+        "pt-BR": {
+          "headline": "Uma agenda que também jogava",
+          "article": "O Palm III chegou em 1998 com uma promessa simples: levar agenda, contatos e notas no bolso. A caneta, a escrita Graffiti e a tela monocromática tornavam um pequeno computador útil muito antes dos smartphones atuais. Logo surgiram jogos ao lado dos aplicativos de trabalho. Seu projeto direto refletia a ideia do cofundador Jeff Hawkins: fazer poucas tarefas diárias, mas fazê-las de forma rápida e eficiente."
+        },
+        "ru": {
+          "headline": "Органайзер, который умел играть",
+          "article": "Palm III вышел в 1998 году с простой идеей: календарь, контакты и заметки всегда под рукой. Стилус, рукописный ввод Graffiti и чёткий монохромный экран сделали карманный компьютер удобным задолго до современных смартфонов. Вскоре рядом с деловыми программами появились игры. Лаконичность Palm отражала философию сооснователя компании Джеффа Хокинса: лучше быстро и хорошо выполнять несколько повседневных задач, чем пытаться уместить всё сразу."
+        },
+        "fr": {
+          "headline": "L'agenda qui savait jouer",
+          "article": "Le Palm III arrive en 1998 avec une idée simple : garder agenda, contacts et notes à portée de main. Son stylet, l'écriture Graffiti et son écran monochrome rendaient utile un petit ordinateur bien avant les smartphones modernes. Des jeux sont vite venus rejoindre les outils de travail. Sa sobriété reflétait la philosophie de Jeff Hawkins, cofondateur de Palm : accomplir quelques tâches quotidiennes rapidement, et les accomplir bien."
+        },
+        "de": {
+          "headline": "Der Organizer, der auch spielen konnte",
+          "article": "Der Palm III erschien 1998 mit einem einfachen Versprechen: Kalender, Kontakte und Notizen immer griffbereit. Eingabestift, Graffiti-Handschrift und ein klares Monochromdisplay machten einen Taschencomputer lange vor heutigen Smartphones alltagstauglich. Bald ergänzten Spiele die Büroprogramme. Das schlichte Konzept spiegelte die Idee von Palm-Mitgründer Jeff Hawkins wider: wenige Aufgaben schnell und gut erledigen."
+        },
+        "ja": {
+          "headline": "ゲームもできる手帳",
+          "article": "1998年発売のPalm IIIは、予定表、連絡先、メモをポケットに入れるというシンプルな目的から生まれた。スタイラス、Graffiti手書き入力、見やすいモノクロ画面によって、スマートフォン以前に小さなコンピューターを身近にした。やがて仕事用アプリだけでなくゲームも増えていく。簡潔な設計には、Palm共同創業者ジェフ・ホーキンスの「日常の大切な操作を素早く確実に」という思想が表れていた。"
+        },
+        "zh-CN": {
+          "headline": "也能玩游戏的掌上记事本",
+          "article": "1998 年推出的 Palm III 有一个朴素的目标：把日程、联系人和笔记装进口袋。手写笔、Graffiti 手写识别和清晰的黑白屏幕，让小型电脑在现代智能手机出现前就变得实用。开发者很快在办公工具之外带来了游戏。它简洁的设计体现了 Palm 联合创始人杰夫·霍金斯的理念：把少数日常事情做得又快又好。"
+        }
+      }
+    },
+    {
+      "id": "pocket-pc",
+      "device": "HP iPAQ h4150",
+      "year": "2003",
+      "maker": "Hewlett-Packard",
+      "country": "US",
+      "image": "design-concepts/platform-stickers/pocketpc.webp",
+      "imageAttribution": "design-concepts/platform-stickers/README.md",
+      "sources": [
+        "https://www.golem.de/0310/28031.html",
+        "https://www.itmedia.co.jp/mobile/articles/0401/29/news061.html"
+      ],
+      "specs": {
+        "display": "240 × 320 px",
+        "software": "Windows Mobile 2003",
+        "input": "Stylus / hardware keys"
+      },
+      "copy": {
+        "en": {
+          "headline": "Windows, small enough to hold",
+          "article": "Pocket PC devices brought a miniature Windows CE-based world to a stylus-driven screen. The HP iPAQ h4150, sold in the Windows Mobile 2003 era, packed wireless networking, Bluetooth and a bright color display into a handheld organizer. Alongside calendars and documents, owners could install games with surprisingly ambitious interfaces. Before phones absorbed the PDA market, these pocket computers were a place where developers tried to shrink desktop experiences into one hand."
+        },
+        "es": {
+          "headline": "Windows en la palma de la mano",
+          "article": "Los Pocket PC llevaron un pequeño mundo basado en Windows CE a pantallas manejadas con lápiz. El HP iPAQ h4150, de la época de Windows Mobile 2003, reunía conexión inalámbrica, Bluetooth y pantalla en color en una agenda de bolsillo. Además de calendarios y documentos, podía ejecutar juegos con interfaces ambiciosas. Antes de que los teléfonos absorbieran los PDA, estos ordenadores intentaron reducir experiencias de escritorio al tamaño de una mano."
+        },
+        "pt-BR": {
+          "headline": "Windows na palma da mão",
+          "article": "Os Pocket PC levaram um pequeno mundo baseado em Windows CE a telas controladas por caneta. O HP iPAQ h4150, da época do Windows Mobile 2003, reunia rede sem fio, Bluetooth e tela colorida num organizador de bolso. Além de agenda e documentos, podia executar jogos com interfaces surpreendentes. Antes de os celulares dominarem o mercado de PDAs, esses computadores tentavam colocar experiências de desktop na palma da mão."
+        },
+        "ru": {
+          "headline": "Windows на ладони",
+          "article": "Pocket PC принесли миниатюрный мир Windows CE на экраны со стилусом. HP iPAQ h4150 эпохи Windows Mobile 2003 объединял беспроводную сеть, Bluetooth и яркий цветной дисплей в карманном органайзере. Помимо календарей и документов, пользователи устанавливали игры с неожиданно сложными интерфейсами. Прежде чем смартфоны вытеснили КПК, разработчики пытались уместить почти настольный компьютер в одной ладони."
+        },
+        "fr": {
+          "headline": "Windows au creux de la main",
+          "article": "Les Pocket PC ont apporté un petit univers fondé sur Windows CE aux écrans à stylet. Le HP iPAQ h4150, de l'époque Windows Mobile 2003, réunissait réseau sans fil, Bluetooth et écran couleur dans un organiseur de poche. Aux agendas et documents s'ajoutaient des jeux parfois étonnamment complexes. Avant que les téléphones n'absorbent le marché des PDA, ces machines tentaient de miniaturiser le monde du PC."
+        },
+        "de": {
+          "headline": "Windows für die Handfläche",
+          "article": "Pocket PCs brachten eine verkleinerte Windows-CE-Welt auf stiftbediente Bildschirme. Der HP iPAQ h4150 aus der Windows-Mobile-2003-Ära bot WLAN, Bluetooth und ein helles Farbdisplay im Organizer-Format. Neben Kalender und Dokumenten ließen sich auch überraschend aufwendige Spiele installieren. Bevor Smartphones den PDA-Markt verdrängten, versuchten diese Taschencomputer, Desktop-Erlebnisse in eine Hand zu packen."
+        },
+        "ja": {
+          "headline": "手のひらサイズのWindows",
+          "article": "Pocket PCは、Windows CEを基盤とする小さな世界をスタイラス操作の画面へ届けた。Windows Mobile 2003時代のHP iPAQ h4150は、無線通信、Bluetooth、カラー画面を手帳サイズにまとめている。予定表や文書だけでなく、意外に本格的なゲームも楽しめた。スマートフォンがPDA市場を飲み込む前、開発者はデスクトップの体験を片手へ縮めようとしていた。"
+        },
+        "zh-CN": {
+          "headline": "握在手中的 Windows",
+          "article": "Pocket PC 把基于 Windows CE 的小小世界带到了手写笔屏幕上。Windows Mobile 2003 时代的 HP iPAQ h4150 将无线网络、蓝牙和彩色屏幕装进掌上记事本。除了日程和文档，用户还能安装界面相当复杂的游戏。在智能手机吞并 PDA 市场之前，开发者曾努力把桌面电脑的体验缩到一只手里。"
+        }
+      }
+    },
+    {
+      "id": "iphone-os",
+      "device": "Apple iPhone (first generation)",
+      "year": "2007",
+      "maker": "Apple",
+      "country": "US",
+      "image": "design-concepts/platform-stickers/iphone.webp",
+      "imageAttribution": "design-concepts/platform-stickers/README.md",
+      "sources": [
+        "https://www.apple.com/newsroom/2007/01/09Apple-Reinvents-the-Phone-with-iPhone/",
+        "https://www.apple.com/newsroom/2008/07/14iPhone-App-Store-Downloads-Top-10-Million-in-First-Weekend/"
+      ],
+      "specs": {
+        "display": "320 × 480 px",
+        "software": "iPhone OS",
+        "input": "Multi-touch"
+      },
+      "copy": {
+        "en": {
+          "headline": "A screen becomes the controller",
+          "article": "When Apple introduced the first iPhone in 2007, the multi-touch display took the place of most physical phone buttons. Native third-party apps followed with the App Store in 2008, giving rise to an entirely new style of pocket games built for taps, swipes and tilting the device. Early iPhone OS titles were often small experiments, created before modern mobile game conventions had settled. Many disappeared as the operating system and its hardware moved on."
+        },
+        "es": {
+          "headline": "La pantalla toma el control",
+          "article": "Cuando Apple presentó el primer iPhone en 2007, la pantalla multitáctil sustituyó a la mayoría de teclas del teléfono. Las apps nativas de terceros llegaron con la App Store en 2008 y dieron paso a juegos diseñados para toques, gestos e inclinaciones. Muchos títulos tempranos de iPhone OS eran experimentos pequeños, anteriores a las reglas actuales del juego móvil. Numerosos juegos desaparecieron a medida que cambiaron el sistema y el hardware."
+        },
+        "pt-BR": {
+          "headline": "A tela vira controle",
+          "article": "Quando a Apple apresentou o primeiro iPhone em 2007, a tela multitoque tomou o lugar de quase todos os botões físicos. Aplicativos nativos de terceiros chegaram com a App Store em 2008 e abriram espaço para jogos feitos para toques, gestos e inclinação do aparelho. Muitos títulos antigos do iPhone OS eram experiências pequenas, antes das convenções atuais dos jogos móveis. Vários se perderam com a evolução do sistema e do hardware."
+        },
+        "ru": {
+          "headline": "Когда экран стал контроллером",
+          "article": "В 2007 году Apple представила первый iPhone, где мультитач-экран заменил большинство физических клавиш. С открытием App Store в 2008-м появились сторонние нативные приложения и новая волна игр для касаний, жестов и наклона устройства. Ранние игры iPhone OS часто были небольшими экспериментами: привычные правила мобильного гейминга ещё только складывались. Многие из этих проектов исчезли с обновлениями системы и сменой железа."
+        },
+        "fr": {
+          "headline": "Quand l'écran devient manette",
+          "article": "Quand Apple présente le premier iPhone en 2007, l'écran multipoint remplace presque toutes les touches physiques. Les applications natives tierces arrivent avec l'App Store en 2008, ouvrant la voie à des jeux pensés pour les gestes, les glissements et l'inclinaison. Les premiers titres iPhone OS sont souvent de petites expériences, avant la naissance des habitudes du jeu mobile moderne. Beaucoup ont disparu au fil des changements du système."
+        },
+        "de": {
+          "headline": "Der Bildschirm wird zum Controller",
+          "article": "Mit dem ersten iPhone ersetzte Apple 2007 viele Handytasten durch einen Multi-Touch-Bildschirm. Native Apps von Drittanbietern folgten 2008 mit dem App Store. Damit entstand eine neue Art von Spielen, gesteuert durch Tippen, Wischen und Neigen. Frühe iPhone-OS-Titel waren oft kleine Experimente, bevor heutige Mobilspiel-Konventionen entstanden. Viele verschwanden, als sich Betriebssystem und Hardware weiterentwickelten."
+        },
+        "ja": {
+          "headline": "画面そのものがコントローラー",
+          "article": "2007年にAppleが初代iPhoneを発表すると、マルチタッチ画面が多くの物理キーに取って代わった。2008年のApp Storeで外部開発者によるネイティブアプリが登場し、タップ、スワイプ、傾きで遊ぶ新しい携帯ゲームが広がる。初期のiPhone OS作品は、まだ定番の操作方法が固まる前の小さな実験も多かった。その一部はOSとハードウェアの進化の中で失われていった。"
+        },
+        "zh-CN": {
+          "headline": "当屏幕成为控制器",
+          "article": "Apple 在 2007 年推出首款 iPhone 时，多点触控屏幕取代了手机上的大部分实体按键。2008 年 App Store 开放第三方原生应用，催生了依靠点按、滑动和倾斜操作的新一代掌上游戏。早期 iPhone OS 作品常是小巧而大胆的实验，当时移动游戏的惯例尚未形成。随着系统和硬件更迭，许多作品逐渐消失。"
+        }
+      }
+    },
+    {
+      "id": "atari-portfolio",
+      "device": "Atari Portfolio",
+      "year": "1989",
+      "maker": "Atari Corporation",
+      "country": "US",
+      "image": "design-concepts/platform-stickers/portfolio.webp",
+      "imageAttribution": "design-concepts/platform-stickers/README.md",
+      "sources": [
+        "https://www.homecomputermuseum.nl/en/collectie/atari/atari-portfolio/",
+        "https://www.atari-history.com/computers/"
+      ],
+      "specs": {
+        "display": "240 × 64 px",
+        "software": "DIP DOS",
+        "input": "Mini keyboard"
+      },
+      "copy": {
+        "en": {
+          "headline": "A DOS computer in a coat pocket",
+          "article": "The Atari Portfolio appeared in 1989 as a pocket computer with a partly IBM PC-compatible DOS environment, but not full PC hardware compatibility. Designed by Britain's DIP Research and sold by Atari, it combined a small keyboard, a monochrome screen and a DOS-like system. Built-in tools made it useful for notes and spreadsheets; small programs and games gave it another life. Its appearance in Terminator 2 later made the little machine famous to a much wider audience."
+        },
+        "es": {
+          "headline": "Un ordenador DOS de bolsillo",
+          "article": "El Atari Portfolio llegó en 1989 como un ordenador de bolsillo con DOS parcialmente compatible con IBM PC, pero no con todo su hardware. Diseñado por la británica DIP Research y vendido por Atari, reunía un teclado pequeño, pantalla monocroma y un sistema parecido a DOS. Servía para notas y hojas de cálculo, pero también ejecutaba programas y juegos. Su aparición en Terminator 2 lo hizo famoso fuera del mundo de la informática."
+        },
+        "pt-BR": {
+          "headline": "Um computador DOS no bolso",
+          "article": "O Atari Portfolio surgiu em 1989 como computador de bolso com um DOS parcialmente compatível com IBM PC, mas não com todo o hardware. Projetado pela britânica DIP Research e vendido pela Atari, reunia teclado pequeno, tela monocromática e um sistema parecido com DOS. Tinha ferramentas para notas e planilhas, além de rodar programas e jogos. Sua aparição em Terminator 2 tornou o aparelho conhecido também fora do mundo da computação."
+        },
+        "ru": {
+          "headline": "DOS-компьютер в кармане",
+          "article": "Atari Portfolio появился в 1989 году как карманный компьютер с DOS, частично совместимой с IBM PC, но не со всем его оборудованием. Его разработала британская DIP Research, а продавала Atari. Маленькая клавиатура, монохромный экран и DOS-подобная система позволяли вести заметки, считать таблицы и запускать небольшие программы и игры. Позднее крошечный компьютер прославился далеко за пределами компьютерного сообщества благодаря появлению в фильме «Терминатор 2»."
+        },
+        "fr": {
+          "headline": "Un ordinateur DOS dans la poche",
+          "article": "L'Atari Portfolio est apparu en 1989 comme ordinateur de poche avec un DOS partiellement compatible IBM PC, mais pas avec tout son matériel. Conçu par la société britannique DIP Research et vendu par Atari, il associait petit clavier, écran monochrome et système proche de DOS. Notes, tableurs, programmes et jeux y trouvaient leur place. Son apparition dans Terminator 2 l'a rendu célèbre bien au-delà des amateurs d'informatique."
+        },
+        "de": {
+          "headline": "Ein DOS-Rechner für die Jackentasche",
+          "article": "Der Atari Portfolio erschien 1989 als Taschencomputer mit teilweise IBM-PC-kompatiblem DOS, aber ohne volle Hardwarekompatibilität. Entwickelt wurde er von der britischen DIP Research, verkauft von Atari. Kleine Tastatur, Monochromdisplay und DOS-ähnliches System eigneten sich für Notizen, Tabellen, Programme und Spiele. Durch seinen Auftritt in Terminator 2 wurde das winzige Gerät auch außerhalb der Computerszene bekannt."
+        },
+        "ja": {
+          "headline": "ポケットに入るDOSパソコン",
+          "article": "1989年のAtari Portfolioは、IBM PCに一部対応したDOSを持つポケットコンピューターだったが、ハードウェアまで完全互換ではなかった。英国DIP Researchが設計し、Atariが販売。小さなキーボード、モノクロ画面、DOSに似たシステムで、メモや表計算だけでなくプログラムやゲームも動かせた。後に映画『ターミネーター2』への登場で、コンピューター愛好家以外にも広く知られるようになった。"
+        },
+        "zh-CN": {
+          "headline": "装进口袋的 DOS 电脑",
+          "article": "1989 年问世的 Atari Portfolio 是一台口袋电脑，搭载与 IBM PC 部分兼容的 DOS，但硬件并不完全兼容。它由英国 DIP Research 设计、Atari 销售，配备小键盘、黑白屏幕和类似 DOS 的系统。除了笔记和电子表格，还能运行小程序及游戏。后来它在电影《终结者 2》中亮相，让这台小电脑走出了计算机爱好者的圈子。"
+        }
+      }
+    }
+  ]
+}

@@ -1,0 +1,226 @@
+{
+  "schemaVersion": 1,
+  "editorialStatus": "draft-for-review",
+  "snapshot": "2026-11-22",
+  "group": "public",
+  "locales": [
+    "en",
+    "es",
+    "pt-BR",
+    "ru",
+    "fr",
+    "de",
+    "ja",
+    "zh-CN"
+  ],
+  "cards": [
+    {
+      "id": "java-me",
+      "device": "Nokia 6230",
+      "year": "2004",
+      "maker": "Nokia",
+      "country": "FI",
+      "image": "app/src/main/res/drawable-nodpi/sticker_java.webp",
+      "imageAttribution": "design-concepts/platform-stickers/README.md",
+      "sources": [
+        "https://www.globenewswire.com/news-release/2003/10/28/1846253/0/en/Nokia-6230-classic-design-and-advanced-functionality-for-mobile-professionals.html",
+        "https://museumofeveryth.ing/mobilephones/nokia-6230-2003/"
+      ],
+      "specs": {
+        "display": "128 × 128 px",
+        "software": "Java ME / MIDP",
+        "input": "Numeric keypad"
+      },
+      "copy": {
+        "en": {
+          "headline": "Games behind the number keys",
+          "article": "Before app stores, a phone's Games menu held entire little adventures. Nokia's 6230, released in 2004, could run and download Java ME games alongside its everyday phone functions. Developers designed around tiny screens, strict memory limits and number keys, often making multiple versions of the same title for different handsets. That ingenuity turned ordinary mobile phones into an enormous, wonderfully varied gaming platform."
+        },
+        "es": {
+          "headline": "Juegos bajo las teclas",
+          "article": "Antes de las tiendas de aplicaciones, el menú Juegos de un teléfono guardaba pequeñas aventuras. El Nokia 6230 de 2004 podía ejecutar y descargar juegos Java ME. Los desarrolladores trabajaban con pantallas diminutas, poca memoria y teclados numéricos, y creaban versiones diferentes para distintos modelos. Así, un teléfono corriente se convirtió en una plataforma de juegos sorprendentemente diversa."
+        },
+        "pt-BR": {
+          "headline": "Jogos atrás das teclas",
+          "article": "Antes das lojas de aplicativos, o menu Jogos de um celular guardava pequenas aventuras. O Nokia 6230, de 2004, podia executar e baixar jogos Java ME. Os desenvolvedores precisavam lidar com telas minúsculas, pouca memória e teclados numéricos, criando versões diferentes para aparelhos distintos. Essa criatividade transformou celulares comuns em uma plataforma de jogos enorme e variada."
+        },
+        "ru": {
+          "headline": "Игры за цифровыми клавишами",
+          "article": "До магазинов приложений целые приключения прятались в меню «Игры». Nokia 6230 2004 года умела запускать и загружать игры Java ME. Разработчики приспосабливались к крошечным экранам, нехватке памяти и цифровой клавиатуре, нередко создавая разные версии одной игры для разных моделей. Так обычный телефон превратился в удивительно разнообразную игровую платформу."
+        },
+        "fr": {
+          "headline": "Des jeux derrière les touches",
+          "article": "Avant les boutiques d'applications, le menu Jeux d'un téléphone cachait de petites aventures. Lancé en 2004, le Nokia 6230 pouvait exécuter et télécharger des jeux Java ME. Les créateurs composaient avec de minuscules écrans, très peu de mémoire et un clavier numérique, adaptant souvent un même titre à plusieurs modèles. Cette inventivité a transformé le téléphone ordinaire en une plateforme de jeu étonnamment riche."
+        },
+        "de": {
+          "headline": "Spiele hinter den Zahlentasten",
+          "article": "Vor den App-Stores verbargen sich kleine Abenteuer im Spielemenü eines Handys. Das Nokia 6230 von 2004 konnte Java-ME-Spiele starten und herunterladen. Entwickler mussten winzige Bildschirme, knappen Speicher und Zifferntasten berücksichtigen und erstellten oft mehrere Fassungen desselben Spiels für verschiedene Geräte. So wurde aus einem gewöhnlichen Telefon eine erstaunlich vielseitige Spieleplattform."
+        },
+        "ja": {
+          "headline": "数字キーの向こうのゲーム",
+          "article": "アプリストアが普及する前、携帯電話の「ゲーム」メニューには小さな冒険が詰まっていた。2004年登場のNokia 6230はJava MEゲームの実行やダウンロードができた。開発者は小さな画面、少ないメモリー、数字キーに合わせ、同じ作品を機種別に作り直すことも多かった。その工夫が、ごく普通の携帯電話を多彩なゲーム機に変えた。"
+        },
+        "zh-CN": {
+          "headline": "数字键背后的游戏",
+          "article": "在应用商店出现之前，手机的“游戏”菜单里就藏着小小的冒险。2004 年推出的 Nokia 6230 能运行和下载 Java ME 游戏。开发者必须适应狭小的屏幕、有限的内存和数字键盘，常常为不同机型制作同一游戏的多个版本。正是这些巧思，让普通手机变成了丰富多彩的游戏平台。"
+        }
+      }
+    },
+    {
+      "id": "mophun",
+      "device": "Sony Ericsson T610",
+      "year": "2003",
+      "maker": "Sony Ericsson",
+      "country": "SE",
+      "image": "app/src/main/res/drawable-nodpi/sticker_mophun.webp",
+      "imageAttribution": "design-concepts/platform-stickers/README.md",
+      "sources": [
+        "https://www.mobilephonemuseum.com/phone-detail/sony-ericsson-t610",
+        "https://www.ericsson.com/en/about-us/history/products/the-telephones/sony-ericsson-t610-from-2003"
+      ],
+      "specs": {
+        "display": "128 × 160 px",
+        "software": "Mophun",
+        "input": "Numeric keypad"
+      },
+      "copy": {
+        "en": {
+          "headline": "The other mobile-game engine",
+          "article": "Java was not the only way to play on a feature phone. Swedish company Synergenix developed Mophun as a dedicated environment for downloadable games, and Sony Ericsson put it beside Java on phones such as the 2003 T610. Its compact runtime helped bring action and arcade games to small color displays. The engine eventually faded from the market, leaving a distinctive library of games and phone-specific versions behind."
+        },
+        "es": {
+          "headline": "El otro motor móvil",
+          "article": "Java no era la única forma de jugar en un teléfono clásico. La empresa sueca Synergenix creó Mophun como entorno para juegos descargables, y Sony Ericsson lo incorporó junto a Java en modelos como el T610 de 2003. Su entorno compacto llevó juegos de acción y arcade a pequeñas pantallas en color. Con el tiempo desapareció del mercado, pero dejó títulos y versiones propios de cada teléfono."
+        },
+        "pt-BR": {
+          "headline": "O outro motor de jogos",
+          "article": "Java não era a única forma de jogar em celulares antigos. A sueca Synergenix criou o Mophun como ambiente dedicado a jogos para download, e a Sony Ericsson o incluiu junto do Java em aparelhos como o T610 de 2003. O sistema compacto levou ação e arcade a pequenas telas coloridas. Com o tempo, o Mophun desapareceu do mercado, deixando jogos e versões próprias."
+        },
+        "ru": {
+          "headline": "Другой движок мобильных игр",
+          "article": "Java была не единственным способом играть на кнопочном телефоне. Шведская Synergenix создала Mophun — отдельную среду для загружаемых игр. Sony Ericsson использовала её наряду с Java, например в T610 2003 года. Компактный движок помог перенести аркады и экшен на маленькие цветные дисплеи. Позже Mophun ушёл с рынка, оставив самобытные игры и версии для разных телефонов."
+        },
+        "fr": {
+          "headline": "L'autre moteur du jeu mobile",
+          "article": "Java n'était pas la seule façon de jouer sur un téléphone classique. La société suédoise Synergenix avait créé Mophun pour les jeux téléchargeables, et Sony Ericsson l'a proposé aux côtés de Java sur le T610 de 2003. Ce moteur compact a accueilli des jeux d'action et d'arcade sur de petits écrans couleur. Il a disparu, laissant derrière lui des titres et des versions propres à certains téléphones."
+        },
+        "de": {
+          "headline": "Die andere Handy-Spielwelt",
+          "article": "Java war nicht der einzige Weg zu Spielen auf klassischen Handys. Das schwedische Unternehmen Synergenix entwickelte Mophun als eigene Umgebung für herunterladbare Spiele. Sony Ericsson bot es neben Java etwa auf dem T610 von 2003 an. Die kompakte Laufzeitumgebung brachte Action- und Arcade-Spiele auf kleine Farbbildschirme. Später verschwand Mophun vom Markt und hinterließ eine eigenständige Sammlung gerätespezifischer Spiele."
+        },
+        "ja": {
+          "headline": "もう一つの携帯ゲーム環境",
+          "article": "従来型の携帯電話で遊ぶ方法はJavaだけではなかった。スウェーデンのSynergenixが開発したMophunは、ダウンロードゲーム向けの専用実行環境だ。Sony Ericssonは2003年のT610などにJavaとともに搭載した。小さなカラー画面にもアクションやアーケードゲームを届けたが、やがて市場から姿を消し、独特の作品群が残された。"
+        },
+        "zh-CN": {
+          "headline": "另一套手机游戏引擎",
+          "article": "在功能手机时代，Java 并非唯一的游戏方式。瑞典公司 Synergenix 开发了专供下载游戏使用的 Mophun，Sony Ericsson 则在 2003 年的 T610 等手机上将它与 Java 并列提供。这套轻量环境把动作和街机游戏带到小小的彩色屏幕上。后来 Mophun 逐渐淡出市场，却留下了独特的游戏作品和机型专用版本。"
+        }
+      }
+    },
+    {
+      "id": "symbian",
+      "device": "Nokia 6600",
+      "year": "2003",
+      "maker": "Nokia",
+      "country": "FI",
+      "image": "app/src/main/res/drawable-nodpi/sticker_symbian.webp",
+      "imageAttribution": "design-concepts/platform-stickers/README.md",
+      "sources": [
+        "https://museumofeveryth.ing/mobilephones/nokia-6600-2003/",
+        "https://www.nokiamuseum.net/nokia-6600---2003"
+      ],
+      "specs": {
+        "display": "176 × 208 px",
+        "software": "Symbian / Series 60",
+        "media": "MMC"
+      },
+      "copy": {
+        "en": {
+          "headline": "A computer in your pocket",
+          "article": "The Nokia 6600 arrived in 2003, when a smartphone still looked much like a regular mobile phone. Behind its rounded keypad was Symbian OS and Nokia's Series 60 interface, capable of running installed applications as well as games. Memory cards, Bluetooth and a color screen made it unusually flexible for its day. Symbian would power many different phones before touchscreen smartphones changed the direction of the industry."
+        },
+        "es": {
+          "headline": "Un ordenador de bolsillo",
+          "article": "El Nokia 6600 llegó en 2003, cuando un smartphone aún parecía un teléfono corriente. Tras su teclado curvado se escondían Symbian OS y la interfaz Series 60, capaces de ejecutar aplicaciones y juegos. Las tarjetas de memoria, Bluetooth y la pantalla en color lo hacían muy flexible para su época. Symbian impulsaría numerosos modelos antes de que los teléfonos táctiles cambiaran el rumbo del sector."
+        },
+        "pt-BR": {
+          "headline": "Um computador no bolso",
+          "article": "O Nokia 6600 chegou em 2003, quando um smartphone ainda se parecia com um celular comum. Atrás do teclado arredondado estavam o Symbian OS e a interface Series 60, capazes de executar aplicativos e jogos. Cartões de memória, Bluetooth e tela colorida ofereciam muita liberdade para a época. O Symbian equiparia muitos outros aparelhos antes que os smartphones com toque mudassem o mercado."
+        },
+        "ru": {
+          "headline": "Компьютер в кармане",
+          "article": "Nokia 6600 появилась в 2003 году, когда смартфон ещё выглядел почти как обычный телефон. За округлой клавиатурой скрывались Symbian OS и интерфейс Series 60, позволявшие устанавливать приложения и игры. Карты памяти, Bluetooth и цветной экран делали устройство необычно гибким для своего времени. Позже Symbian поселилась во множестве моделей, пока сенсорные смартфоны не изменили направление всей индустрии."
+        },
+        "fr": {
+          "headline": "Un ordinateur dans la poche",
+          "article": "Le Nokia 6600 est arrivé en 2003, à une époque où un smartphone ressemblait encore à un téléphone ordinaire. Derrière son clavier arrondi se trouvaient Symbian OS et l'interface Series 60, capables de lancer des applications et des jeux. Carte mémoire, Bluetooth et écran couleur lui offraient une rare souplesse. Symbian allait équiper bien d'autres mobiles avant la révolution des smartphones tactiles."
+        },
+        "de": {
+          "headline": "Ein Computer in der Tasche",
+          "article": "Das Nokia 6600 erschien 2003, als ein Smartphone noch wie ein gewöhnliches Handy aussah. Hinter der abgerundeten Tastatur arbeiteten Symbian OS und Nokias Series 60: Anwendungen und Spiele ließen sich installieren. Speicherkarte, Bluetooth und Farbdisplay boten damals ungewöhnlich viel Freiheit. Symbian sollte viele weitere Mobiltelefone antreiben, bevor Touchscreen-Smartphones die Branche veränderten."
+        },
+        "ja": {
+          "headline": "ポケットの中のコンピューター",
+          "article": "Nokia 6600が登場した2003年、スマートフォンの姿はまだ普通の携帯電話に近かった。丸みを帯びたキーの奥にはSymbian OSとNokiaのSeries 60があり、アプリもゲームもインストールして動かせた。メモリーカード、Bluetooth、カラー画面は当時としては大きな自由をもたらした。Symbianはその後多くの端末を支え、タッチ式スマートフォンの時代へとつながっていく。"
+        },
+        "zh-CN": {
+          "headline": "口袋里的电脑",
+          "article": "2003 年 Nokia 6600 登场时，智能手机看起来还像普通手机。圆润的键盘背后运行着 Symbian OS 和 Nokia 的 Series 60 界面，用户可以安装应用和游戏。存储卡、蓝牙和彩色屏幕让它在当时格外灵活。此后 Symbian 走进了众多机型，直到触屏智能手机改变整个行业的方向。"
+        }
+      }
+    },
+    {
+      "id": "n-gage",
+      "device": "Nokia N-Gage",
+      "year": "2003",
+      "maker": "Nokia",
+      "country": "FI",
+      "image": "app/src/main/res/drawable-nodpi/sticker_ngage.webp",
+      "imageAttribution": "design-concepts/platform-stickers/README.md",
+      "sources": [
+        "https://wakkatobakka.github.io/ngage-archive/history/index.html",
+        "https://www.rcrwireless.com/20040414/archived-articles/nokia-releases-n-gage-qd"
+      ],
+      "specs": {
+        "display": "176 × 208 px",
+        "media": "MMC",
+        "connectivity": "Bluetooth"
+      },
+      "copy": {
+        "en": {
+          "headline": "The phone that wanted to be a console",
+          "article": "Nokia launched the N-Gage in 2003, combining a mobile phone with cartridge-based games and Bluetooth multiplayer. The original model was memorable for its unusual shape—and for hiding the memory-card slot beneath the battery. Nokia improved the design with the N-Gage QD in 2004. Later, the name returned as a gaming service on other Symbian phones. One name, two distinct generations, and a bold experiment in pocket gaming."
+        },
+        "es": {
+          "headline": "El teléfono que quería ser consola",
+          "article": "Nokia lanzó N-Gage en 2003: un teléfono con juegos en tarjetas y multijugador por Bluetooth. El primer modelo destacó por su forma poco común y por esconder la ranura de juego bajo la batería. Nokia mejoró el diseño con N-Gage QD en 2004. Más tarde, el nombre volvió como servicio de juegos para otros teléfonos Symbian. Un nombre, dos generaciones distintas y un experimento muy atrevido en el juego portátil."
+        },
+        "pt-BR": {
+          "headline": "O celular que queria ser console",
+          "article": "A Nokia lançou o N-Gage em 2003, juntando telefone, jogos em cartões e multiplayer por Bluetooth. O primeiro modelo chamou atenção pelo formato estranho e pelo slot do jogo escondido sob a bateria. A Nokia melhorou o projeto com o N-Gage QD em 2004. Depois, o nome voltou como serviço de jogos para outros celulares Symbian. Um nome, duas gerações diferentes e uma experiência ousada nos jogos de bolso."
+        },
+        "ru": {
+          "headline": "Телефон, мечтавший стать приставкой",
+          "article": "В 2003 году Nokia выпустила N-Gage — телефон с играми на картах памяти и мультиплеером по Bluetooth. Первая модель прославилась необычной формой и слотом для игр, спрятанным под аккумулятором. В 2004-м появилась исправленная N-Gage QD. Позднее имя N-Gage вернулось как игровой сервис для других телефонов Symbian. Одно название, два разных поколения и смелый эксперимент в истории портативных игр."
+        },
+        "fr": {
+          "headline": "Le téléphone qui rêvait d'être console",
+          "article": "En 2003, Nokia lançait la N-Gage : un téléphone capable de lire des jeux sur carte et de jouer en multijoueur par Bluetooth. Son premier modèle se distinguait par sa forme étrange et son logement de carte sous la batterie. La N-Gage QD corrigea ce détail en 2004. Le nom revint ensuite pour un service de jeux sur d'autres téléphones Symbian. Une marque, deux générations et une expérience audacieuse du jeu de poche."
+        },
+        "de": {
+          "headline": "Das Handy, das Konsole sein wollte",
+          "article": "2003 verband Nokia mit dem N-Gage ein Telefon, Spiele auf Speicherkarten und Bluetooth-Mehrspielerpartien. Das erste Modell blieb wegen seiner seltsamen Form und des Kartenschachts unter dem Akku in Erinnerung. 2004 folgte das verbesserte N-Gage QD. Später nutzte Nokia den Namen erneut für einen Spieledienst auf anderen Symbian-Handys. Ein Name, zwei unterschiedliche Generationen und ein mutiger Versuch im mobilen Spielen."
+        },
+        "ja": {
+          "headline": "ゲーム機になりたかった電話",
+          "article": "2003年、Nokiaは携帯電話にカード式ゲームとBluetooth対戦を組み合わせたN-Gageを発売した。初代は独特の形と、電池の下に隠れたゲームカードスロットで知られる。2004年のN-Gage QDでは設計が見直された。その後、N-Gageの名は別のSymbian端末向けゲームサービスとして復活する。一つの名前に二つの世代がある、携帯ゲーム史の大胆な挑戦だった。"
+        },
+        "zh-CN": {
+          "headline": "想成为游戏机的手机",
+          "article": "2003 年，Nokia 推出 N-Gage，把手机、存储卡游戏和蓝牙多人游戏结合在一起。初代机型因奇特外形和藏在电池下方的游戏卡槽而出名。2004 年的 N-Gage QD 改进了设计。后来，这个名字又成为其他 Symbian 手机上的游戏服务。同一个名字，两代不同的体验，也是一场大胆的掌上游戏实验。"
+        }
+      }
+    }
+  ]
+}
