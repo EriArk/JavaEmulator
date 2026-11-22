@@ -64,9 +64,13 @@ async function main() {
       for (const source of card.sources) {
         assert(typeof source === "string" && source.startsWith("https://"), tag + ": source must use HTTPS");
       }
-      assert(Object.hasOwn(vocabulary.countries.en, card.country), tag + ": unknown country code");
       const isNumericYear = /^\d{4}(?:[–-]\d{4})?$/.test(card.year);
-      assert(isNumericYear || Object.hasOwn(vocabulary.periods.en, card.year), tag + ": unknown year period");
+      for (const locale of locales) {
+        assert(Object.hasOwn(vocabulary.countries[locale], card.country),
+          tag + ": missing " + card.country + " country translation for " + locale);
+        assert(isNumericYear || Object.hasOwn(vocabulary.periods[locale], card.year),
+          tag + ": missing year-period translation for " + locale);
+      }
       const facts = Object.entries(card.specs ?? {});
       assert(facts.length >= 2 && facts.length <= 4, tag + ": expected 2–4 compact facts");
       for (const [key, value] of facts) {
