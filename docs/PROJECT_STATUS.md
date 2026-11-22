@@ -16,7 +16,7 @@ The [platform issue index](PLATFORM_ISSUES.md) maps the 51 open platform-specifi
 
 ## Epoch Game Pocket Computer (2026-11-22, private Retroid build)
 
-The Epoch tile opens a separate library for system firmware and cartridges. On Retroid, the built-in puzzle started with touch controls and restored its board after a cold launch. Chris Covell’s cartridge reached the Epoch Land scrolling scene and played music through Android. The launcher, touch controls and checkpoint are shown in the [device check](checks/2026-11-22-epoch.md).
+The Epoch tile opens a separate library for system firmware and cartridges. On Retroid, the built-in puzzle started with touch controls and restored its board after a cold launch. Chris Covell’s cartridge reached the Epoch Land scrolling scene and played music through Android. Retail Astro Bomber reached level 1 with touch and controller input, digital audio and a cold checkpoint restore. The launcher, touch controls and checkpoint are shown in the [device check](checks/2026-11-22-epoch.md).
 
 ## Hartung Game Master (2026-11-22, private Retroid build)
 

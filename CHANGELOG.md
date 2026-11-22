@@ -12,7 +12,7 @@ combined builds; released experimental features are explicitly identified.
 
 ## 2026-11-22 - Epoch Game Pocket Computer
 
-**Unreleased source and private ARM64 build.** Added a dedicated platform sticker and tab, automatic firmware and cartridge import, four numbered action buttons, shared controller profiles and per-game checkpoints. The Retroid check covered the built-in puzzle, an external homebrew cartridge, digital audio and cold restoration. [Device check](docs/checks/2026-11-22-epoch.md).
+**Unreleased source and private ARM64 build.** Added a dedicated platform sticker and tab, automatic firmware and cartridge import, four numbered action buttons, shared controller profiles and per-game checkpoints. The Retroid check covered the built-in puzzle, an external homebrew cartridge and retail Astro Bomber. Astro Bomber reached level 1 with touch and controller input, digital audio and cold checkpoint restoration. [Device check](docs/checks/2026-11-22-epoch.md).
 
 ## 2026-11-22 - Hartung Game Master
 
