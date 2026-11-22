@@ -33,7 +33,7 @@ public final class ExternalLibrary {
             case 27: provider = "io.github.eriark.abyssme.pokitto.PokittoLibrary"; break;
             case 30: provider = "io.github.eriark.abyssme.thumby.ThumbyLibrary"; break;
             case 32: provider = "io.github.eriark.abyssme.espboy.EspboyLibrary"; break;
-            case 31: provider = "io.github.eriark.abyssme.thumby.ThumbyLibrary$Color"; break;
+            case 31: provider = "io.github.eriark.abyssme.thumby.ThumbyColorLibrary"; break;
             case 28: provider = "io.github.eriark.abyssme.gameking.HartungLibrary"; break;
             case 29: provider = "io.github.eriark.abyssme.gameking.EpochLibrary"; break;
             case 24: provider = "io.github.eriark.abyssme.iphone.IphoneLibrary"; break;

@@ -160,6 +160,6 @@ Games and firmware are not covered by AbyssME's license and must be supplied
 separately.
 
 
-## Optional early iPhone OS test host
+## Early iPhone OS host
 
-The private Android ARM64 build uses [touchHLE v0.3.0](https://github.com/touchHLE/touchHLE/releases/tag/v0.3.0). Its emulator source and local Rust changes use MPL-2.0. The complete upstream distribution includes GPL and other third-party components. The staging tool carries the upstream distribution license, SDL notice and guest library/font notices into the APK. The optional importer uses dd-plist 1.28 (MIT). The repository contains integration code and patches. Commercial IPA files and native release binaries stay local. Distribution review for a public combined APK is outstanding.
+The Android ARM64 platform edition uses [touchHLE v0.3.0](https://github.com/touchHLE/touchHLE/releases/tag/v0.3.0). Its emulator source and local Rust changes use MPL-2.0. The complete upstream distribution includes GPL and other third-party components. The staging tool carries the upstream distribution license, SDL notice and guest library/font notices into the APK. The optional importer uses dd-plist 1.28 (MIT). The repository contains integration code and patches. Commercial IPA files and native release binaries stay local. The 0.8.0 Beta 1 source package includes the pinned engine, SDL and other native sources, and the GNU guest library source archives. See the [public platform selection](releases/v0.8.0-beta.1.md).

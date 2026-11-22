@@ -3,9 +3,6 @@
         <activity android:name="io.github.eriark.abyssme.thumby.ThumbyGameActivity"
             android:exported="false" android:process=":thumby"
             android:configChanges="orientation|screenSize|keyboardHidden|screenLayout|smallestScreenSize"/>
-        <activity android:name="io.github.eriark.abyssme.thumby.ThumbyColorActivity"
-            android:exported="false" android:process=":thumby_color"
-            android:configChanges="orientation|screenSize|keyboardHidden|screenLayout|smallestScreenSize"/>
         <activity android:name="ru.playsoftware.j2meloader.MainActivity">
             <intent-filter>
                 <action android:name="android.intent.action.VIEW" />

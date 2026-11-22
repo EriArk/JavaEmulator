@@ -10,6 +10,10 @@ stated otherwise. **Experimental** in older checkpoints means local/private
 combined builds; released experimental features are explicitly identified.
 **Released** means an actual GitHub release asset.
 
+## 2026-11-22 - 24-platform ARM64 release configuration
+
+The ARM64 edition packages 24 platform shelves and their shared launcher. Games and system files can be added from an empty shelf. The separate 32-bit edition retains Java ME and Mophun. The build also removes the desktop Enyo Java applet, updates SDL USB receiver registration and preserves Nokia Asha text styles. [Platform list](docs/releases/v0.8.0-beta.1.md).
+
 ## 2026-11-22 - Watara CPU replacement and Thumby system files
 
 **Unreleased source and private Retroid build.** Watara uses an MIT-licensed 65C02 and opens existing checkpoints. The original Thumby accepts user-supplied firmware and builds its flash filesystem from source. WIPI packages font and Rust dependency notices. The iPhone OS build verifies guest libraries and fonts against upstream. Fixed the ARMv7 guest keypad release lint failure. [Tests and permission requests](docs/checks/2026-11-22-license-remediation.md).

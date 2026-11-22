@@ -15,7 +15,7 @@ import android.view.Gravity;
 import android.view.MotionEvent;
 import android.view.inputmethod.EditorInfo;
 import android.view.inputmethod.InputMethodManager;
-import android.widget.EditText;
+import androidx.appcompat.widget.AppCompatEditText;
 import android.widget.FrameLayout;
 
 import javax.microedition.lcdui.Canvas;
@@ -184,7 +184,10 @@ public class TextEditor extends CanvasItem {
 
     private Typeface typeface() {
         Typeface face = font.getFace() == Font.FACE_MONOSPACE ? Typeface.MONOSPACE : Typeface.DEFAULT;
-        return Typeface.create(face, font.getStyle() & Typeface.BOLD_ITALIC);
+        int style = font.isBold()
+                ? (font.isItalic() ? Typeface.BOLD_ITALIC : Typeface.BOLD)
+                : (font.isItalic() ? Typeface.ITALIC : Typeface.NORMAL);
+        return Typeface.create(face, style);
     }
 
     private float textSize() {
@@ -284,7 +287,7 @@ public class TextEditor extends CanvasItem {
         return type;
     }
 
-    private final class Field extends EditText implements TextWatcher {
+    private final class Field extends AppCompatEditText implements TextWatcher {
         Field(Context context) {
             super(context);
             setPadding(0, 0, 0, 0);

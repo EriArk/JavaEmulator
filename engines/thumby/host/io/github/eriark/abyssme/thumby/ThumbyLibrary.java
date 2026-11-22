@@ -12,13 +12,10 @@ import ru.playsoftware.j2meloader.catalog.*;
 import ru.playsoftware.j2meloader.handheld.ManagedGameLibrary;
 
 public class ThumbyLibrary extends ManagedGameLibrary {
-    public static final class Color extends ThumbyLibrary {
-        public Color() { super(true); }
-    }
     private final boolean color;
-    public ThumbyLibrary() { this(false); }
-    private ThumbyLibrary(boolean color) {
-        super(color ? "thumby_color" : "thumby", color ? ThumbyColorActivity.class : ThumbyGameActivity.class);
+    public ThumbyLibrary() { this(false, ThumbyGameActivity.class); }
+    protected ThumbyLibrary(boolean color, Class<? extends android.app.Activity> activity) {
+        super(color ? "thumby_color" : "thumby", activity);
         this.color = color;
     }
 

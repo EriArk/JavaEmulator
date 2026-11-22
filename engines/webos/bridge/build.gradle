@@ -15,7 +15,13 @@ android.sourceSets.main.res.srcDir layout.buildDirectory.dir('generated/deviceAr
 tasks.named('preBuild').configure { dependsOn stickers }
 
 def frameworkAssets = rootProject.file('build/webos/assets')
-android.sourceSets.main.assets.srcDir frameworkAssets
+// Android WebView uses our service bridge. The desktop Java applet is unused.
+def webRuntime = tasks.register('prepareWebOsRuntime', Sync) {
+    from(frameworkAssets) { exclude '**/webOSconnect_1_3.jar' }
+    into layout.buildDirectory.dir('generated/webRuntime')
+}
+android.sourceSets.main.assets.srcDir layout.buildDirectory.dir('generated/webRuntime')
+tasks.named('preBuild').configure { dependsOn webRuntime }
 tasks.named('preBuild').configure {
     doFirst {
         if (!new File(frameworkAssets, 'webos/enyo/build/enyo-build.js').isFile()) {

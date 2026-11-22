@@ -76,3 +76,25 @@ index dcd26d4..5541eea 100644
 
          if (requestedOrientation == ActivityInfo.SCREEN_ORIENTATION_PORTRAIT || requestedOrientation == ActivityInfo.SCREEN_ORIENTATION_SENSOR_PORTRAIT) {
              if (mWidth > mHeight) {
+diff --git a/android-project/app/src/main/java/org/libsdl/app/HIDDeviceManager.java b/android-project/app/src/main/java/org/libsdl/app/HIDDeviceManager.java
+--- a/android-project/app/src/main/java/org/libsdl/app/HIDDeviceManager.java
++++ b/android-project/app/src/main/java/org/libsdl/app/HIDDeviceManager.java
+@@ -193,7 +193,8 @@
+         filter.addAction(UsbManager.ACTION_USB_DEVICE_ATTACHED);
+         filter.addAction(UsbManager.ACTION_USB_DEVICE_DETACHED);
+         filter.addAction(HIDDeviceManager.ACTION_USB_PERMISSION);
+-        mContext.registerReceiver(mUsbBroadcast, filter);
++        androidx.core.content.ContextCompat.registerReceiver(mContext, mUsbBroadcast, filter,
++                androidx.core.content.ContextCompat.RECEIVER_NOT_EXPORTED);
+ 
+         for (UsbDevice usbDevice : mUsbManager.getDeviceList().values()) {
+             handleUsbDeviceAttached(usbDevice);
+@@ -578,7 +579,7 @@
+                 } else {
+                     flags = 0;
+                 }
+-                mUsbManager.requestPermission(usbDevice, PendingIntent.getBroadcast(mContext, 0, new Intent(HIDDeviceManager.ACTION_USB_PERMISSION), flags));
++                mUsbManager.requestPermission(usbDevice, PendingIntent.getBroadcast(mContext, 0, new Intent(HIDDeviceManager.ACTION_USB_PERMISSION).setPackage(mContext.getPackageName()), flags));
+             } catch (Exception e) {
+                 Log.v(TAG, "Couldn't request permission for USB device " + usbDevice);
+                 HIDDeviceOpenResult(deviceID, false);

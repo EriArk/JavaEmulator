@@ -11,7 +11,28 @@ test-games/sudoku-j2me/*.zip -text
 /test-builds export-ignore
 /screenshots export-ignore
 /test-screenshots export-ignore
-/design-concepts export-ignore
+/design-concepts/* export-ignore
+/design-concepts/platform-stickers -export-ignore
+/design-concepts/platform-stickers/* export-ignore
+/design-concepts/platform-stickers/arduboy.webp -export-ignore
+/design-concepts/platform-stickers/cybiko.webp -export-ignore
+/design-concepts/platform-stickers/dingoo.webp -export-ignore
+/design-concepts/platform-stickers/espboy.webp -export-ignore
+/design-concepts/platform-stickers/firefox.webp -export-ignore
+/design-concepts/platform-stickers/flash.webp -export-ignore
+/design-concepts/platform-stickers/gamate.webp -export-ignore
+/design-concepts/platform-stickers/gamebuino.webp -export-ignore
+/design-concepts/platform-stickers/gemei.webp -export-ignore
+/design-concepts/platform-stickers/iphone.webp -export-ignore
+/design-concepts/platform-stickers/kaios.webp -export-ignore
+/design-concepts/platform-stickers/megaduck.webp -export-ignore
+/design-concepts/platform-stickers/palm.webp -export-ignore
+/design-concepts/platform-stickers/piece.webp -export-ignore
+/design-concepts/platform-stickers/pokitto.webp -export-ignore
+/design-concepts/platform-stickers/portfolio.webp -export-ignore
+/design-concepts/platform-stickers/supervision.webp -export-ignore
+/design-concepts/platform-stickers/thumby.webp -export-ignore
+/design-concepts/platform-stickers/webos.webp -export-ignore
 
 /tools/remote-build/*.sh text eol=lf
 /tools/remote-build/Dockerfile text eol=lf

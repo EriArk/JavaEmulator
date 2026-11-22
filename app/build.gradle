@@ -380,6 +380,23 @@ dependencies {
 
 dependencies { implementation project(':storage-core') }
 
+if (providers.gradleProperty('platformRelease').orNull == 'true') {
+    android.variantFilter { variant -> variant.ignore = variant.flavors*.name != ['fdroid'] }
+    android.defaultConfig.buildConfigField 'boolean', 'ASHA_PROBE', 'true'
+    android.packagingOptions.jniLibs.useLegacyPackaging = true
+    gradle.ext.releaseHandhelds.each { name ->
+        dependencies.add('implementation', project(":$name-probe"))
+        android.sourceSets.main.java.srcDir rootProject.file("engines/$name/host")
+    }
+    android.sourceSets.main.java.srcDirs rootProject.file('engines/asha/java'), rootProject.file('build/iphone/sdl-java')
+    android.sourceSets.main.java.exclude '**/ThumbyColorActivity.java', '**/ThumbyColorLibrary.java'
+    android.sourceSets.main.assets.srcDir rootProject.file('engines/webgames/assets')
+    dependencies.add('implementation', 'com.orangesignal:orangesignal-csv:2.2.1') { transitive = false }
+    dependencies.add('implementation', 'com.googlecode.plist:dd-plist:1.28')
+    android.buildTypes.release.proguardFile file('proguard-platforms.pro')
+    return
+}
+
 if (findProject(':wipi-probe') != null) {
     if (armv7) throw new GradleException('The WIPI probe requires ARM64')
     android.defaultConfig.ndk.abiFilters 'arm64-v8a'

@@ -14,6 +14,10 @@ attribute its results to the dated maintainer record below; do not infer a pass.
 
 The [platform issue index](PLATFORM_ISSUES.md) maps the 51 open platform-specific tasks to the maintainer roadmap, including the initial integration order and scope decisions.
 
+## 0.8.0 Beta 1 public build selection (2026-11-22)
+
+The ARM64 release configuration exposes 24 shelves. Eight private integrations are excluded from its native libraries, manifest and gallery. ARMv7 retains Java ME and Mophun. The signed ARM64 candidate passed 447 JVM tests and an Android 11 emulator upgrade from 0.7.0 Beta 10 with the Sudoku library and RMS data intact. [Platform list and build materials](releases/v0.8.0-beta.1.md).
+
 ## Platform distribution review (2026-11-22)
 
 The private 32-platform build now uses an MIT CPU for Watara Supervision, imports original Thumby firmware and builds its LittleFS runtime from source. Existing saves reopened on Retroid. Permission requests remain open for GP32, the shared MAME build, the Unicorn-based engines and Color artwork. [Checks, notices and upstream requests](checks/2026-11-22-license-remediation.md) · [Initial audit](checks/2026-11-22-platform-distribution.md).

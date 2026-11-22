@@ -26,6 +26,22 @@ if (['symbianExperiment', 'symbianRelease', 'symbianReleaseCheck'].any { provide
 
 include ':storage-core'
 
+// Public ARM64 selection. The private laboratory switches below are independent.
+if (providers.gradleProperty('platformRelease').orNull == 'true') {
+    if (providers.gradleProperty('symbianRelease').orNull != 'true' ||
+            gradle.startParameter.projectProperties.any { name, value -> name.endsWith('Probe') && value == 'true' }) {
+        throw new GradleException('Use platformRelease with symbianRelease and without individual probe flags')
+    }
+    gradle.ext.releaseHandhelds = ['wipi', 'dingoo', 'piece', 'supervision', 'megaduck',
+            'cybiko', 'flash', 'gamate', 'palm', 'webos', 'b2g', 'portfolio', 'iphone',
+            'arduboy', 'gamebuino', 'pokitto', 'thumby', 'espboy']
+    gradle.ext.releaseHandhelds.each { name ->
+        include ":$name-probe"
+        project(":$name-probe").projectDir = file("engines/$name/bridge")
+    }
+    return
+}
+
 if (providers.gradleProperty('wipiProbe').orNull == 'true') {
     include ':wipi-probe'
     project(':wipi-probe').projectDir = file('engines/wipi/bridge')
