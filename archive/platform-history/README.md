@@ -6,6 +6,8 @@ Short, readable historical portraits for AbyssME's platform gallery. The style i
 
 **Editorial snapshot: 2026-11-22.** The initial collection covers **32 existing development platform shelves**, with **8 complete locale versions per card (256 articles)**. These are content drafts stored in the repository. **No history-card UI or long-press behavior has been added to the Android app by these files.** Interaction and release acceptance remain under [issue #114](https://github.com/EriArk/JavaEmulator/issues/114).
 
+**Historical fact-check:** [2026-11-22 editorial review](HISTORICAL_REVIEW.md) covers every existing card, source upgrades, chronology corrections, and unresolved ambiguities. Core historical facts have been cross-checked, but native-speaker proofreading and image licensing remain separate acceptance steps.
+
 ## The collection
 
 | File | Covered platforms | Cards |
@@ -71,7 +73,9 @@ Each group file has `schemaVersion`, `editorialStatus`, `snapshot`, `group`, `lo
 
 **All media paths are repository-root-relative.** They point to images already in the AbyssME sticker collections; this content addition does not duplicate or alter artwork. Consult [sticker catalog credits](../../design-concepts/platform-stickers/README.md) and source records before packaging or redistributing photographs and derived art.
 
-The `device` is an **illustrative historical device**, not an assertion that it is the only device for that software family or that every game has been verified on it. For broad runtimes such as WIPI or MRE, one representative handset is pictured, clearly described as such in the underlying data. Similarly, a shelf such as N-Gage can cover more than one generation.
+The `device` is an **illustrative historical device**, not an assertion that it is the only device for that software family or that every game has been verified on it.
+
+The `year` is the year the **representative hardware first became commercially available**, not necessarily the first prototype, crowdfunding announcement or first appearance of the software ecosystem. The `maker` and `country` describe the pictured device's manufacturer/brand origin, not every company involved in its operating system or the country where each unit was physically assembled. Qualified exceptions and uncertain details are documented in [HISTORICAL_REVIEW.md](HISTORICAL_REVIEW.md). For broad runtimes such as WIPI or MRE, one representative handset is pictured, clearly described as such in the underlying data. Similarly, a shelf such as N-Gage can cover more than one generation.
 
 ### Suggested rendering behavior (future UI)
 
