@@ -1,0 +1,9 @@
+--- a/src/vrEmu6502.c
++++ b/src/vrEmu6502.c
+@@ -222 +222 @@
+-  VrEmu6502* vr6502 = (VrEmu6502*)malloc(sizeof(VrEmu6502));
++  VrEmu6502* vr6502 = (VrEmu6502*)calloc(1, sizeof(VrEmu6502));
+@@ -319,0 +320,3 @@
++  if (is65c02(vr6502))
++    vr6502->flags &= ~FlagD;
++  vr6502->step = 6; /* six more clocks after interrupt acceptance */

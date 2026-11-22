@@ -1,0 +1,113 @@
+--- a/common/watara.c
++++ b/common/watara.c
+@@ -12 +12 @@
+-#include "./m6502/m6502.h"
++#include "watara_cpu.h"
+@@ -18,18 +17,0 @@
+-static M6502 m6502_registers;
+-static BOOL irq = FALSE;
+-
+-void m6502_set_irq_line(BOOL assertLine)
+-{
+-    m6502_registers.IRequest = assertLine ? INT_IRQ : INT_NONE;
+-    irq = assertLine;
+-}
+-
+-byte Loop6502(register M6502 *R)
+-{
+-    if (irq) {
+-        irq = FALSE;
+-        return INT_IRQ;
+-    }
+-    return INT_QUIT;
+-}
+-
+@@ -40,4 +21,0 @@
+-    // 256 * 256 -- 1 frame (61 FPS)
+-    // 256 - 4MHz,
+-    // 512 - 8MHz, ...
+-    m6502_registers.IPeriod = 256;
+@@ -54,2 +32 @@
+-    Reset6502(&m6502_registers);
+-    irq = FALSE;
++    watara_cpu_reset();
+@@ -59,0 +37 @@
++    watara_cpu_done();
+@@ -69 +47 @@
+-    return TRUE;
++    return watara_cpu_ready();
+@@ -78 +55,0 @@
+-    // Number of iterations = 256 * 256 / m6502_registers.IPeriod
+@@ -80,2 +57,2 @@
+-        Run6502(&m6502_registers);
+-        timer_exec(m6502_registers.IPeriod);
++        watara_cpu_run(256);
++        timer_exec(256);
+@@ -101 +78 @@
+-        Int6502(&m6502_registers, INT_NMI);
++        watara_cpu_nmi();
+@@ -126,14 +102,0 @@
+-#define EXPAND_M6502 \
+-    X(uint8, A) \
+-    X(uint8, P) \
+-    X(uint8, X) \
+-    X(uint8, Y) \
+-    X(uint8, S) \
+-    X(uint8, PC.B.l) \
+-    X(uint8, PC.B.h) \
+-    X(int32, IPeriod) \
+-    X(int32, ICount) \
+-    X(uint8, IRequest) \
+-    X(uint8, AfterCLI) \
+-    X(int32, IBackup)
+-
+@@ -145,14 +108 @@
+-           sizeof(uint8) +
+-           sizeof(uint8) +
+-           sizeof(uint8) +
+-           sizeof(uint8) +
+-           sizeof(uint8) +
+-           sizeof(uint8) +
+-           sizeof(uint8) +
+-           sizeof(int32) +
+-           sizeof(int32) +
+-           sizeof(uint8) +
+-           sizeof(uint8) +
+-           sizeof(int32) +
+-           sizeof(uint8) +
+-           128; /* Add some padding, just in case... */
++           WATARA_CPU_STATE_SIZE;
+@@ -176,5 +126 @@
+-#define X(type, member) WRITE_BUF_##type(m6502_registers.member, data);
+-    EXPAND_M6502
+-#undef X
+-    WRITE_BUF_BOOL(irq, data);
+-
++    watara_cpu_save(data);
+@@ -199,5 +145 @@
+-#define X(type, member) READ_BUF_##type(m6502_registers.member, data);
+-    EXPAND_M6502
+-#undef X
+-    READ_BUF_BOOL(irq, data);
+-
++    watara_cpu_load(data);
+--- a/common/memorymap.c
++++ b/common/memorymap.c
+@@ -6 +6 @@
+-#include "./m6502/m6502.h"
++#include "watara_cpu.h"
+@@ -29,2 +29 @@
+-    void m6502_set_irq_line(BOOL); // watara.c
+-    m6502_set_irq_line(irq);
++    watara_cpu_irq(irq);
+@@ -210 +209 @@
+-void Wr6502(register word Addr, register byte Value)
++void Wr6502(uint16_t Addr, uint8_t Value)
+@@ -229 +228 @@
+-byte Rd6502(register word Addr)
++uint8_t Rd6502(uint16_t Addr)
+--- a/common/sound.c
++++ b/common/sound.c
+@@ -4 +4 @@
+-#include "./m6502/m6502.h"
++#include "watara_cpu.h"

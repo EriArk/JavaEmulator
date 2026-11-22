@@ -9,7 +9,7 @@ import android.view.Gravity;
 import android.view.MotionEvent;
 import android.view.ViewConfiguration;
 import android.widget.LinearLayout;
-import android.widget.TextView;
+import androidx.appcompat.widget.AppCompatTextView;
 import java.util.Locale;
 
 /** Buttons are sized in the parent's coordinates, including a rotated MIDP canvas. */
@@ -83,7 +83,7 @@ final class GuestKeypadView extends LinearLayout {
         }
     }
 
-    private final class Key extends TextView implements Runnable {
+    private final class Key extends AppCompatTextView implements Runnable {
         private final int code;
         private boolean held;
         Key(int code) {

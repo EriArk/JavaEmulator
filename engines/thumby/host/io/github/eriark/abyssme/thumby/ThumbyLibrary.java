@@ -22,6 +22,11 @@ public class ThumbyLibrary extends ManagedGameLibrary {
         this.color = color;
     }
 
+    @Override public void installSystemFile(Context context, android.net.Uri uri, String model) throws IOException {
+        if (color) throw new IOException("Thumby Color uses its built-in runtime");
+        ThumbyFirmware.install(context, uri);
+    }
+
     @Override protected String inspect(Context c, File file, String name, Properties info) throws IOException {
         if (name.toLowerCase(Locale.ROOT).endsWith(".py")) {
             File packed = new File(file.getParentFile(), "script.zip");

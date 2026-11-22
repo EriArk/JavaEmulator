@@ -513,6 +513,7 @@ if (findProject(':thumby-probe') != null) {
     android.buildTypes.debug.applicationIdSuffix = findProject(':dingoo-probe') != null ? '.dingoocheck.debug' : '.thumbycheck.debug'
     dependencies.add('debugImplementation', project(':thumby-probe'))
     android.sourceSets.debug.java.srcDirs rootProject.file('engines/thumby/host')
+    android.sourceSets.androidTest.java.srcDir rootProject.file('engines/thumby/tests')
 }
 if (findProject(':iphone-probe') != null) {
     dependencies.add('debugImplementation', project(':iphone-probe'))

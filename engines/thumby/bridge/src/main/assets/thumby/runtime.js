@@ -29,27 +29,24 @@ async function install(flash, game) {
         return 0;
     }, 'iii');
     const sync = fs.addFunction(() => 0, 'ii');
-    const cfg = fs._new_lfs_config(read, write, erase, sync, (flash.length-offset)/sectorSize, sectorSize);
-    const disk = fs._new_lfs();
-    const mkdir = fs.cwrap('lfs_mkdir','number',['number','string']);
-    const store = fs.cwrap('lfs_write_file','number',['number','string','number','number']);
-    check(fs._lfs_format(disk,cfg), 'Format');
-    check(fs._lfs_mount(disk,cfg), 'Mount');
+    check(fs._start_disk(read,write,erase,sync,(flash.length-offset)/sectorSize,sectorSize), 'Prepare flash');
+    const mkdir = fs.cwrap('make_directory','number',['string']);
+    const store = fs.cwrap('store_file','number',['string','number','number']);
     const libs = await (await fetch('/lib.json')).json();
     const entries = libs.map(n => ['/lib/'+n, '/lib/'+n]);
     game.files.forEach((name,i) => entries.push(['/Games/'+game.title+'/'+name, '/file/'+i]));
     for (const [name, url] of entries) {
         const data = await bytes(url);
         for (let i = name.indexOf('/',1); i >= 0; i = name.indexOf('/',i+1)) {
-            const rc = mkdir(disk,name.slice(0,i));
+            const rc = mkdir(name.slice(0,i));
             if (rc !== -17) check(rc,'Create directory');
         }
         const ptr = fs._malloc(data.length || 1);
         fs.HEAPU8.set(data,ptr);
-        check(store(disk,name,ptr,data.length), 'Install '+name);
+        check(store(name,ptr,data.length), 'Install '+name);
         fs._free(ptr);
     }
-    check(fs._lfs_unmount(disk), 'Unmount');
+    check(fs._finish_disk(), 'Unmount');
 }
 
 // Restore the first private build's save if present, then apply newer atomic sector files.

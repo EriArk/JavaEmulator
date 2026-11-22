@@ -593,6 +593,7 @@ public class AppsListFragment extends Fragment implements AppsListAdapter.Listen
             case 21: return R.string.platform_files_portfolio;
             case 28: return R.string.platform_files_hartung;
             case 29: return R.string.platform_files_epoch;
+            case 30: return R.string.platform_files_thumby;
             default: return R.string.platform_no_system;
         }
     }
@@ -655,7 +656,10 @@ public class AppsListFragment extends Fragment implements AppsListAdapter.Listen
 		if (!platformHome) dialog.action(getString(R.string.library_collection), R.drawable.ic_list, () -> {
 			dialog.dismiss(); showCategoryMenu();
 		});
-		if (BuildConfig.SYMBIAN_EXPERIMENT) {
+		if (!platformHome && platform == 30) {
+            dialog.action(getString(R.string.platform_install_system), R.drawable.ic_setting_folder,
+                    () -> { dialog.dismiss(); pickHandheldFiles(30, true, null); });
+        } else if (BuildConfig.SYMBIAN_EXPERIMENT) {
 			dialog.action(getString(R.string.settings_system_files), R.drawable.ic_baseline_tune_24, () -> {
 				dialog.dismiss();
 				openSymbianSystemFiles();

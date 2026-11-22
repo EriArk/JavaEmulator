@@ -2,6 +2,8 @@
 
 The review used the private 32-platform ARM64 APK, build scripts at `1dc0dc86`, pinned source notices and the last public Beta 10 verification. It covers the following release questions. It does not certify every transitive dependency or artwork file. No APK, game or firmware is distributed with this report.
 
+This was the initial audit. The [same-day follow-up](2026-11-22-license-remediation.md) records the replacement CPU, firmware import, rebuilt LittleFS, notices and upstream requests.
+
 | Platform | Evidence from the current integration | Path to a release decision |
 | --- | --- | --- |
 | Watara Supervision | Potator links `common/m6502/m6502.c`. This file expressly disallows commercial distribution. The APK includes the same M65C02 notice alongside the repository's Unlicense. | Replace the CPU with a compatible 65C02 implementation and retest, or obtain a compatible grant for this file. [Pinned CPU notice](https://github.com/libretro/potator/blob/227c5f6f3ce74d32e9002ce24c1420288559a860/common/m6502/m6502.c) |

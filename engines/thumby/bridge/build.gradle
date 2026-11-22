@@ -15,11 +15,20 @@ def stickers = tasks.register('prepareThumbyStickers', Sync) {
 android.sourceSets.main.res.srcDir layout.buildDirectory.dir('generated/deviceArt')
 tasks.named('preBuild').configure { dependsOn stickers }
 
-android.sourceSets.main.assets.srcDir rootProject.file('build/thumby/assets')
+// Copy only runtime inputs used by this build, even when the staging directory is reused.
+def runtime = tasks.register('prepareThumbyAssets', Sync) {
+    from(rootProject.file('build/thumby/assets')) {
+        include 'licenses/thumby-*.txt', 'thumby/rp2040/**', 'thumby/lib/**', 'thumby/lib.json',
+                'thumby/littlefs.js', 'thumby/littlefs.wasm'
+    }
+    into layout.buildDirectory.dir('generated/offlineRuntime')
+}
+android.sourceSets.main.assets.srcDir layout.buildDirectory.dir('generated/offlineRuntime')
+tasks.named('preBuild').configure { dependsOn runtime }
 tasks.named('preBuild').configure {
     doFirst {
-        if (!rootProject.file('build/thumby/assets/thumby/emulator-firmware.uf2').isFile())
-            throw new GradleException('Prepare the Thumby runtime with engines/thumby/prepare.py first')
+        if (!rootProject.file('build/thumby/assets/licenses/thumby-littlefs.txt').isFile())
+            throw new GradleException('Prepare the Thumby runtime with prepare.py and build-littlefs.sh first')
     }
 }
 

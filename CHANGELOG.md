@@ -10,6 +10,10 @@ stated otherwise. **Experimental** in older checkpoints means local/private
 combined builds; released experimental features are explicitly identified.
 **Released** means an actual GitHub release asset.
 
+## 2026-11-22 - Watara CPU replacement and Thumby system files
+
+**Unreleased source and private Retroid build.** Watara uses an MIT-licensed 65C02 and opens existing checkpoints. The original Thumby accepts user-supplied firmware and builds its flash filesystem from source. WIPI packages font and Rust dependency notices. The iPhone OS build verifies guest libraries and fonts against upstream. Fixed the ARMv7 guest keypad release lint failure. [Tests and permission requests](docs/checks/2026-11-22-license-remediation.md).
+
 ## 2026-11-22 - Platform distribution review
 
 Reviewed components present in the private ARM64 APK for the 0.8.0 Beta 1 release decision. [Findings for the individual engines, bundled firmware and fonts](docs/checks/2026-11-22-platform-distribution.md).

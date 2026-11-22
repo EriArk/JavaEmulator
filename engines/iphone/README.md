@@ -13,3 +13,5 @@ Use an external checkout of [touchHLE v0.3.0](https://github.com/touchHLE/touchH
 5. Add `-PiphoneProbe=true` to the combined ARM64 debug build. The combined app supplies the NDK C++ shared runtime.
 
 The SDL host presents a guest surface. The common handheld UI composites its frames, maps touches into the game area and handles overlays, controller mapping and display settings. The D-pad moves a cursor and the Touch action holds/releases a finger. Device acceptance is recorded in the [project check](../../docs/checks/2026-11-21-iphone.md).
+
+The staging tool compares the guest libraries, fonts, notices and source manifests in the upstream APK with all 28 entries in the pinned Git directories. For the GNU guest libraries, run `bash engines/iphone/prepare-guest-sources.sh /path/to/release-sources` to produce the Apple source archives and checksums identified by touchHLE. The Android host, modified touchHLE/SDL code and other native dependencies still belong in the corresponding-source package for the final APK.

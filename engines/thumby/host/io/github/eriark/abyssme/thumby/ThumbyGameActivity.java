@@ -59,6 +59,11 @@ public final class ThumbyGameActivity extends PackagedWebActivity {
     @Override protected boolean usesStylus() { return false; }
     @Override protected void more(GameMenuDialog menu) {}
     @Override protected String openGame(String id) throws IOException, JSONException {
+        File system = ThumbyFirmware.directory(this);
+        for (String name : new String[]{ThumbyFirmware.BOOT, ThumbyFirmware.FLASH}) {
+            if (!new File(system, name).isFile())
+                throw new IOException("Open the Thumby library menu and choose Install system files. Missing " + name);
+        }
         zip = new ZipFile(new File(StoragePaths.library(this), "thumby/packages/" + id + "/game.zip"));
         ThumbyPackage game = ThumbyPackage.read(zip);
         files.addAll(game.files.values());
@@ -71,6 +76,8 @@ public final class ThumbyGameActivity extends PackagedWebActivity {
         return "/index.html";
     }
     @Override protected InputStream openResource(String path) throws IOException {
+        if (path.equals("/" + ThumbyFirmware.BOOT) || path.equals("/" + ThumbyFirmware.FLASH))
+            return new FileInputStream(new File(ThumbyFirmware.directory(this), path.substring(1)));
         if (path.equals("/game.json")) return new ByteArrayInputStream(manifest);
         if (path.startsWith("/disk/") && validSector(path.substring(6)))
             return new AtomicFile(new File(disk, path.substring(6))).openRead();

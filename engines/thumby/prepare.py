@@ -10,8 +10,9 @@ parser.add_argument('output', type=Path, help='build/thumby/assets')
 args = parser.parse_args()
 target = args.output / 'thumby'
 target.mkdir(parents=True, exist_ok=True)
-for name in ('bootrom.bin', 'emulator-firmware.uf2', 'js/littlefs.js', 'js/littlefs.wasm'):
-    shutil.copyfile(args.editor / name, target / Path(name).name)
+# Remove files left by the old editor-binary staging process.
+for name in ('bootrom.bin', 'emulator-firmware.uf2'):
+    (target / name).unlink(missing_ok=True)
 for file in (args.editor / 'rp2040js/dist/esm').rglob('*.js'):
     dest = target / 'rp2040' / file.relative_to(args.editor / 'rp2040js/dist/esm')
     dest.parent.mkdir(parents=True, exist_ok=True)

@@ -16,7 +16,7 @@ The [platform issue index](PLATFORM_ISSUES.md) maps the 51 open platform-specifi
 
 ## Platform distribution review (2026-11-22)
 
-The 32-platform build is private. The APK audit identified a CPU redistribution restriction, license-scope questions for linked cores, firmware provenance and source/notice work. [Component evidence and next decisions](checks/2026-11-22-platform-distribution.md).
+The private 32-platform build now uses an MIT CPU for Watara Supervision, imports original Thumby firmware and builds its LittleFS runtime from source. Existing saves reopened on Retroid. Permission requests remain open for GP32, the shared MAME build, the Unicorn-based engines and Color artwork. [Checks, notices and upstream requests](checks/2026-11-22-license-remediation.md) · [Initial audit](checks/2026-11-22-platform-distribution.md).
 
 ## Platform launcher (2026-11-22, private Retroid build)
 
