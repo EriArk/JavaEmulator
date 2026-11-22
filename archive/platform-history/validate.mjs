@@ -40,6 +40,14 @@ async function main() {
     assert(vocabulary.countries?.[locale], "Missing country names for " + locale);
     assert(vocabulary.specValues?.[locale], "Missing specification translations for " + locale);
     assert(vocabulary.periods?.[locale], "Missing date-period translations for " + locale);
+    for (const key of Object.keys(vocabulary.specValues.en)) {
+      assert(typeof vocabulary.specValues[locale][key] === "string" && vocabulary.specValues[locale][key].trim(),
+        "Missing specification translation: " + locale + " / " + key);
+    }
+    for (const key of Object.keys(vocabulary.periods.en)) {
+      assert(typeof vocabulary.periods[locale][key] === "string" && vocabulary.periods[locale][key].trim(),
+        "Missing date-period translation: " + locale + " / " + key);
+    }
   }
 
   const ids = new Set();
