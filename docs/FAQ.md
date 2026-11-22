@@ -2,9 +2,11 @@
 
 *Java ME • Mophun • Symbian • N-Gage • Android phones & gaming handhelds*
 
-**Guide for the current public release: AbyssME 0.7.0 Beta 5 (Android 10+, ARM64 or ARMv7). Download guidance reviewed November 13, 2026; earlier game/transfer checks retain their recorded dates.** AbyssME is still in beta. Not every game, phone firmware or network combination will work yet.
+**Guide for the current public release: AbyssME 0.8.0 Beta 1 (Android 10+, ARM64 or ARMv7). Download guidance reviewed November 22, 2026; earlier game/transfer checks retain their recorded dates.** AbyssME is still in beta. Not every game, phone firmware or network combination will work yet.
 
 **New here?** Start with [What files do I need?](#what-files-do-i-need), then follow the section for your platform. **Having trouble with buttons?** Jump to [Touchscreen controls](#7-touchscreen-controls) or [Physical controllers](#8-physical-controllers). If you're stuck, the [Troubleshooting](#12-troubleshooting) section tells you what to check.
+
+On ARM64, open the platform gallery and turn on **Show platforms without games** to discover all 24 systems. Select an empty shelf to see which firmware it needs or to add games. The 32-bit edition includes Java ME and Mophun. [Complete platform list](releases/v0.8.0-beta.1.md).
 
 ## 1. Getting started
 
@@ -21,7 +23,7 @@ It is an independent J2ME Loader fork and uses an integrated Symbian/N-Gage engi
 - **Questions, game reports and help:** https://github.com/EriArk/JavaEmulator/issues
 - The previous Discord invitation expired; a replacement is pending.
 
-Download the latest **signed APK** from an official link. Choose `AbyssME-0.7.0-beta.5.apk` for ARM64, or `AbyssME-0.7.0-beta.5-armv7.apk` for 32-bit ARM Android. Android may ask you to allow installation from your browser or file manager.
+Download the latest **signed APK** from an official link. Choose `AbyssME-0.8.0-beta.1.apk` for ARM64, or `AbyssME-0.8.0-beta.1-armv7.apk` for 32-bit ARM Android. Android may ask you to allow installation from your browser or file manager.
 
 **Requirements:** Android 10 or newer. The **ARM64** APK includes all four platforms; the **ARMv7** APK requires 32-bit ARM Android support and includes only Java ME/Mophun. Prefer ARM64 when supported. The app adapts to touchscreens and gaming handhelds. A controller is optional.
 
