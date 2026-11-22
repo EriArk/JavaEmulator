@@ -14,6 +14,10 @@ attribute its results to the dated maintainer record below; do not infer a pass.
 
 The [platform issue index](PLATFORM_ISSUES.md) maps the 51 open platform-specific tasks to the maintainer roadmap, including the initial integration order and scope decisions.
 
+## Original Thumby (2026-11-22, private Retroid build)
+
+The Thumby tile opens its own library. Games can be imported as loose Python scripts or arcade ZIPs with assets. Alien Invasion reached combat with sound and controller input, 4Connect accepted moves on the touch deck and Donut Clicker restored its counter on a cold launch. [Device checks and screenshots](checks/2026-11-22-thumby.md).
+
 ## Epoch Game Pocket Computer (2026-11-22, private Retroid build)
 
 The Epoch tile opens a separate library for system firmware and cartridges. On Retroid, the built-in puzzle started with touch controls and restored its board after a cold launch. Chris Covell’s cartridge reached the Epoch Land scrolling scene and played music through Android. Retail Astro Bomber reached level 1 with touch and controller input, digital audio and a cold checkpoint restore. The launcher, touch controls and checkpoint are shown in the [device check](checks/2026-11-22-epoch.md).

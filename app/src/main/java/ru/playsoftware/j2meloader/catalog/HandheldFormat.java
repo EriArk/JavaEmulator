@@ -48,6 +48,7 @@ public final class HandheldFormat {
         String s=name.toLowerCase(Locale.ROOT);
         if (BuildConfig.ARDUBOY_PROBE && (s.endsWith(".hex") || s.endsWith(".arduboy"))) return 25;
         if (BuildConfig.GAMEBUINO_PROBE && s.endsWith(".hex")) return 26;
+        if (BuildConfig.THUMBY_PROBE && s.endsWith(".py")) return 30;
         if (BuildConfig.POKITTO_PROBE && s.endsWith(".pop")) return 27;
         if (BuildConfig.IPHONE_PROBE && s.endsWith(".ipa")) return 24;
         if (BuildConfig.POCKETPC_PROBE && s.endsWith(".cab")) return 22;
@@ -71,7 +72,7 @@ public final class HandheldFormat {
     private static boolean binaryFile(String name) {
         return name.endsWith(".bin") || ((BuildConfig.GAMATE_PROBE || BuildConfig.GAMEKING_PROBE || BuildConfig.PALM_PROBE) && name.endsWith(".rom"));
     }
-    static boolean enabled() { return BuildConfig.POKITTO_PROBE || BuildConfig.GAMEBUINO_PROBE || BuildConfig.ARDUBOY_PROBE || BuildConfig.IPHONE_PROBE || BuildConfig.WIPI_PROBE || BuildConfig.DINGOO_PROBE || BuildConfig.PIECE_PROBE || BuildConfig.GP32_PROBE || BuildConfig.SUPERVISION_PROBE || BuildConfig.MEGADUCK_PROBE || BuildConfig.CYBIKO_PROBE || BuildConfig.FLASH_PROBE || BuildConfig.GAMATE_PROBE || BuildConfig.GAMEKING_PROBE || BuildConfig.PALM_PROBE || BuildConfig.MRE_PROBE || BuildConfig.WEBOS_PROBE || BuildConfig.B2G_PROBE || BuildConfig.PORTFOLIO_PROBE || BuildConfig.POCKETPC_PROBE; }
+    static boolean enabled() { return BuildConfig.THUMBY_PROBE || BuildConfig.POKITTO_PROBE || BuildConfig.GAMEBUINO_PROBE || BuildConfig.ARDUBOY_PROBE || BuildConfig.IPHONE_PROBE || BuildConfig.WIPI_PROBE || BuildConfig.DINGOO_PROBE || BuildConfig.PIECE_PROBE || BuildConfig.GP32_PROBE || BuildConfig.SUPERVISION_PROBE || BuildConfig.MEGADUCK_PROBE || BuildConfig.CYBIKO_PROBE || BuildConfig.FLASH_PROBE || BuildConfig.GAMATE_PROBE || BuildConfig.GAMEKING_PROBE || BuildConfig.PALM_PROBE || BuildConfig.MRE_PROBE || BuildConfig.WEBOS_PROBE || BuildConfig.B2G_PROBE || BuildConfig.PORTFOLIO_PROBE || BuildConfig.POCKETPC_PROBE; }
     static boolean candidate(String name) {
         String s=name.toLowerCase(Locale.ROOT);
         return enabled() && (platform(s)!=0 || s.endsWith(".zip") || binaryFile(s) || s.endsWith(".exe"));
@@ -97,6 +98,7 @@ public final class HandheldFormat {
                         B2gManifest web = B2gManifest.read(zip);
                         if (web != null) return web.platforms;
                     }
+                    if (BuildConfig.THUMBY_PROBE && ThumbyPackage.recognizes(zip)) return Collections.singleton(30);
                     boolean arduboyBundle = BuildConfig.ARDUBOY_PROBE && arduboyBundle(zip);
                     Set<String> paths=new HashSet<>(); boolean legacy=false, jar=false, ceProgram=false, gizmondoCard=false;
                     for (Enumeration<? extends ZipEntry> it=zip.entries();it.hasMoreElements();) {
@@ -107,6 +109,7 @@ public final class HandheldFormat {
                         }
                         if (e.isDirectory()) continue;
                         int id=platform(p);
+                        if (id == 30) continue; // Python helpers alone do not identify a Thumby archive.
                         if (BuildConfig.POKITTO_PROBE && p.endsWith(".bin") && e.getSize() <= 262144) {
                             try (InputStream in = zip.getInputStream(e)) {
                                 if (pokittoVector(prefix(in, 8), e.getSize())) id = 27;
@@ -302,7 +305,7 @@ public final class HandheldFormat {
         return Arrays.copyOf(bytes,n);
     }
     public static int indexedPlatform(String path) {
-        if (path != null && path.matches("pending_([5-9]|1[0-9]|2[0-9])_[a-f0-9]+"))
+        if (path != null && path.matches("pending_([5-9]|1[0-9]|2[0-9]|30)_[a-f0-9]+"))
             return Integer.parseInt(path.substring(8, path.indexOf('_', 8)));
         return 0;
     }

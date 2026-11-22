@@ -90,6 +90,10 @@ if (providers.gradleProperty('pokittoProbe').orNull == 'true') {
     include ':pokitto-probe'
     project(':pokitto-probe').projectDir = file('engines/pokitto/bridge')
 }
+if (providers.gradleProperty('thumbyProbe').orNull == 'true') {
+    include ':thumby-probe'
+    project(':thumby-probe').projectDir = file('engines/thumby/bridge')
+}
 if (providers.gradleProperty('iphoneProbe').orNull == 'true') {
     include ':iphone-probe'
     project(':iphone-probe').projectDir = file('engines/iphone/bridge')

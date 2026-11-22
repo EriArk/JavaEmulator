@@ -10,6 +10,10 @@ stated otherwise. **Experimental** in older checkpoints means local/private
 combined builds; released experimental features are explicitly identified.
 **Released** means an actual GitHub release asset.
 
+## 2026-11-22 - Original Thumby
+
+**Unreleased source and private ARM64 build.** Added the Thumby shelf and device sticker, offline MicroPython runtime, script and ZIP import, arcade artwork, shared D-pad and B/A mapping, and per-game flash saves. Three catalog games ran on Retroid. [Device checks](docs/checks/2026-11-22-thumby.md).
+
 ## 2026-11-22 - Epoch Game Pocket Computer
 
 **Unreleased source and private ARM64 build.** Added a dedicated platform sticker and tab, automatic firmware and cartridge import, four numbered action buttons, shared controller profiles and per-game checkpoints. The Retroid check covered the built-in puzzle, an external homebrew cartridge and retail Astro Bomber. Astro Bomber reached level 1 with touch and controller input, digital audio and cold checkpoint restoration. [Device check](docs/checks/2026-11-22-epoch.md).

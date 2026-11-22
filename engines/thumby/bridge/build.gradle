@@ -1,0 +1,23 @@
+plugins { id 'com.android.library' }
+android {
+    namespace 'io.github.eriark.abyssme.thumby.bridge'
+    compileSdk 34
+    defaultConfig { minSdk 29 }
+}
+def stickers = tasks.register('prepareThumbyStickers', Sync) {
+    from(rootProject.file('design-concepts/platform-stickers')) {
+        include 'thumby.webp'
+        rename { name -> "sticker_" + name }
+    }
+    into layout.buildDirectory.dir('generated/deviceArt/drawable-nodpi')
+}
+android.sourceSets.main.res.srcDir layout.buildDirectory.dir('generated/deviceArt')
+tasks.named('preBuild').configure { dependsOn stickers }
+
+android.sourceSets.main.assets.srcDir rootProject.file('build/thumby/assets')
+tasks.named('preBuild').configure {
+    doFirst {
+        if (!rootProject.file('build/thumby/assets/thumby/emulator-firmware.uf2').isFile())
+            throw new GradleException('Prepare the Thumby runtime with engines/thumby/prepare.py first')
+    }
+}

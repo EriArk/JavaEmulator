@@ -187,6 +187,35 @@ public class HandheldCycleTest {
         assertEquals(item.getPath(), ExternalLibrary.packageProvider(26).install(isolated, Uri.fromFile(hex)).getPath());
     }
 
+    @Test public void thumbyRawAndNestedPackagesShareIdentityAndFlatHelpersArePreserved() throws Exception {
+        Assume.assumeTrue(ru.playsoftware.j2meloader.BuildConfig.THUMBY_PROBE);
+        Context sandbox = isolated(new File(work, "thumby-library"));
+        File raw = new File(work, "Puzzle.py");
+        byte[] program = "import thumby\n".getBytes("UTF-8");
+        Files.write(raw.toPath(), program);
+        ExternalLibrary.PackageProvider provider = ExternalLibrary.packageProvider(30);
+        String identity = provider.install(sandbox, Uri.fromFile(raw)).getPath();
+        File game = new File(work, "game.zip");
+        try (ZipOutputStream out = new ZipOutputStream(new FileOutputStream(game))) {
+            out.putNextEntry(new ZipEntry("archive/Games/Puzzle/Puzzle.py"));
+            out.write(program);
+        }
+        assertEquals(Collections.singleton(30), HandheldFormat.detect(c, Uri.fromFile(game), game.getName()));
+        assertEquals(identity, provider.install(sandbox, Uri.fromFile(game)).getPath());
+        try (ZipOutputStream out = new ZipOutputStream(new FileOutputStream(game))) {
+            out.putNextEntry(new ZipEntry("Puzzle.py"));
+            out.write("import helper\nimport thumby\n".getBytes("UTF-8"));
+            out.putNextEntry(new ZipEntry("helper.py"));
+            out.write("value = 1".getBytes("UTF-8"));
+        }
+        try (ZipFile zip = new ZipFile(game)) {
+            ThumbyPackage parsed = ThumbyPackage.read(zip);
+            assertEquals("Puzzle.py", parsed.main);
+            assertEquals(2, parsed.files.size());
+        }
+        assertNotEquals(identity, provider.install(sandbox, Uri.fromFile(game)).getPath());
+    }
+
     @Test public void epochRecognizesRenamedFirmwareAndCartridges() throws Exception {
         Assume.assumeTrue(ru.playsoftware.j2meloader.BuildConfig.GAMEKING_PROBE);
         File library = new File(work, "epoch-library");
@@ -338,6 +367,7 @@ public class HandheldCycleTest {
         if (ru.playsoftware.j2meloader.BuildConfig.ARDUBOY_PROBE && new File(source,"arduboy/packages").isDirectory()) ids.add(25);
         if (ru.playsoftware.j2meloader.BuildConfig.GAMEBUINO_PROBE && new File(source,"gamebuino/packages").isDirectory()) ids.add(26);
         if (ru.playsoftware.j2meloader.BuildConfig.POKITTO_PROBE && new File(source,"pokitto/packages").isDirectory()) ids.add(27);
+        if (ru.playsoftware.j2meloader.BuildConfig.THUMBY_PROBE && new File(source,"thumby/packages").isDirectory()) ids.add(30);
         if (ru.playsoftware.j2meloader.BuildConfig.GAMEKING_PROBE && new File(source,"hartung/packages").isDirectory()) ids.add(28);
         if (ru.playsoftware.j2meloader.BuildConfig.GAMEKING_PROBE && new File(source,"epoch/packages").isDirectory()) ids.add(29);
         if (ru.playsoftware.j2meloader.BuildConfig.IPHONE_PROBE && new File(source,"iphone/packages").isDirectory()) ids.add(24);

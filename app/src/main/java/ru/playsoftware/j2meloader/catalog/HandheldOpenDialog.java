@@ -30,6 +30,12 @@ public final class HandheldOpenDialog extends DialogFragment {
         work=Single.fromCallable(()->HandheldFormat.detect(context,uri,HandheldFormat.name(context,uri)))
                 .subscribeOn(Schedulers.io()).observeOn(AndroidSchedulers.mainThread())
                 .subscribe(ids->{
+                    if (ids.isEmpty() && ru.playsoftware.j2meloader.BuildConfig.THUMBY_PROBE
+                            && requireArguments().getInt("preferred", -1) == 30
+                            && HandheldFormat.name(context, uri).toLowerCase(java.util.Locale.ROOT).endsWith(".zip")) {
+                        open(uri, 30);
+                        return;
+                    }
                     if(ids.isEmpty()){legacy(uri);return;}
                     if (ru.playsoftware.j2meloader.BuildConfig.GIZMONDO_PROBE
                             && requireArguments().getInt("preferred", -1) == 23 && ids.contains(22)

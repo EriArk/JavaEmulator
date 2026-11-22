@@ -77,6 +77,7 @@ android {
         buildConfigField 'boolean', 'ARDUBOY_PROBE', (findProject(':arduboy-probe') != null).toString()
         buildConfigField 'boolean', 'GAMEBUINO_PROBE', (findProject(':gamebuino-probe') != null).toString()
         buildConfigField 'boolean', 'POKITTO_PROBE', (findProject(':pokitto-probe') != null).toString()
+        buildConfigField 'boolean', 'THUMBY_PROBE', (findProject(':thumby-probe') != null).toString()
         buildConfigField 'boolean', 'IPHONE_PROBE', (findProject(':iphone-probe') != null).toString()
         buildConfigField 'boolean', 'GIZMONDO_PROBE', (findProject(':gizmondo-probe') != null).toString()
         buildConfigField 'boolean', 'POCKETPC_PROBE', (findProject(':pocketpc-probe') != null).toString()
@@ -467,7 +468,7 @@ if (findProject(':mre-probe') != null) {
     android.sourceSets.debug.java.srcDir rootProject.file('engines/mre/host')
 }
 
-if (findProject(':webos-probe') != null || findProject(':b2g-probe') != null || findProject(':portfolio-probe') != null || findProject(':gamebuino-probe') != null) {
+if (findProject(':thumby-probe') != null || findProject(':webos-probe') != null || findProject(':b2g-probe') != null || findProject(':portfolio-probe') != null || findProject(':gamebuino-probe') != null) {
     android.sourceSets.debug.assets.srcDir rootProject.file('engines/webgames/assets')
 }
 
@@ -498,6 +499,12 @@ if (findProject(':gamebuino-probe') != null) {
 if (findProject(':pokitto-probe') != null) {
     dependencies.add('debugImplementation', project(':pokitto-probe'))
     android.sourceSets.debug.java.srcDirs rootProject.file('engines/pokitto/host')
+}
+if (findProject(':thumby-probe') != null) {
+    android.variantFilter { v -> v.ignore = v.buildType.name != 'debug' || !(v.flavors*.name == ['fdroid']) }
+    android.buildTypes.debug.applicationIdSuffix = findProject(':dingoo-probe') != null ? '.dingoocheck.debug' : '.thumbycheck.debug'
+    dependencies.add('debugImplementation', project(':thumby-probe'))
+    android.sourceSets.debug.java.srcDirs rootProject.file('engines/thumby/host')
 }
 if (findProject(':iphone-probe') != null) {
     dependencies.add('debugImplementation', project(':iphone-probe'))
