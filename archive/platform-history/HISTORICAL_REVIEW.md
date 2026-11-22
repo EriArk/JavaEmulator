@@ -67,6 +67,12 @@ Legend: **Checked** = main model/date and distinguishing claims cross-referenced
 | Maker | Thumby Color | Checked — 2024 funding/first units, RP2350 color system |
 | Maker | ESPboy | Checked — 2019 maker project and Russian open-hardware certification |
 
+## Localization and data-quality fixes
+
+The same review also uncovered a **locale-indexing bug** in the existing shared glossary. Descriptive specifications and period labels had shifted to the next language, leaving the simplified-Chinese versions empty. This was repaired for **all 27 specification phrases and 3 date-period phrases across the eight locale keys**. The previously missing `DE` country entry (Germany) and the new `RU` entry (Russia) were completed for all eight languages.
+
+The collection's validator now checks actual country/date label coverage and **nonempty translations for every glossary entry in every supported locale**, rather than merely checking that a language object exists. The historical articles themselves were not misindexed; this affected their short fact labels and descriptions.
+
 ## Editorial rules for future cards
 
 1. **Label the year carefully.** Prefer the year the pictured *device first shipped*. If the first prototype, announcement, crowdfunding, local pilot and international launch differ, name the event explicitly in the article.
