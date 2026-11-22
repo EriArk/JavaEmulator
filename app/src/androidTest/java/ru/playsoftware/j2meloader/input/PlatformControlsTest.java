@@ -28,7 +28,7 @@ public class PlatformControlsTest {
     }
     @Test public void nativeButtonsAreReachableInBothOrientationsAndReleaseOnCancel() {
         InstrumentationRegistry.getInstrumentation().runOnMainSync(() -> {
-            for (String engine : Arrays.asList("dingoo","gp32","piece","supervision","megaduck","gamate","gameking","arduboy","gamebuino","pokitto","hartung",
+            for (String engine : Arrays.asList("dingoo","gp32","piece","supervision","megaduck","gamate","gameking","arduboy","gamebuino","pokitto","hartung","epoch",
                     "wipi","kaios","mre","gizmondo","cybiko","palm","palm-classic","portfolio","pocketpc","flash","webos","firefox")) {
                 ProfileModel p = new ProfileModel();
                 p.platformControls = PlatformControls.forEngine(engine);

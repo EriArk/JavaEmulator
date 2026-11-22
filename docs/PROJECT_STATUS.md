@@ -14,6 +14,10 @@ attribute its results to the dated maintainer record below; do not infer a pass.
 
 The [platform issue index](PLATFORM_ISSUES.md) maps the 51 open platform-specific tasks to the maintainer roadmap, including the initial integration order and scope decisions.
 
+## Epoch Game Pocket Computer (2026-11-22, private Retroid build)
+
+The Epoch tile opens a separate library for system firmware and cartridges. On Retroid, the built-in puzzle started with touch controls and restored its board after a cold launch. Chris Covell’s cartridge reached the Epoch Land scrolling scene and played music through Android. The launcher, touch controls and checkpoint are shown in the [device check](checks/2026-11-22-epoch.md).
+
 ## Hartung Game Master (2026-11-22, private Retroid build)
 
 The platform tile opens a separate library with BIOS and cartridge import. All 18 supplied games produced changing 61 × 64 frames in a native device sweep. Bubble Boy responded to controller events and produced audio in AbyssME. Falling Block responded to touch and restored a saved position after a cold launch. Hyper Space reached level one, but the tested sequences produced silent output. [Device check](checks/2026-11-22-hartung.md).

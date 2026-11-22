@@ -54,6 +54,9 @@ public final class PlatformControls {
             row(null,b(KEY_FIRE,"▶","Play"),null),
             row(b('2',"Home"),b('4',"Vol","Volume"),b('6',"Light","Brightness")),
             row(b('8',"Zone","Geofence"),b('0',"Power")));
+    private static final PlatformControls EPOCH = new PlatformControls("epoch", true,
+            row(b(KEY_SOFT_LEFT, "1", "Button 1"), b('5', "2", "Button 2")),
+            row(b(KEY_FIRE, "3", "Button 3"), b(KEY_SOFT_RIGHT, "4", "Button 4")), row(SELECT, START));
     private static final PlatformControls POKITTO = new PlatformControls("pokitto", true,
             row(null, A), row(B, null), row(b(KEY_SOFT_LEFT, "C"), b(KEY_CLEAR, "Flash")));
     private static final PlatformControls GAMEBUINO = new PlatformControls("gamebuino", true, row(b(KEY_SOFT_LEFT, "C"), null), row(A, B));
@@ -99,6 +102,7 @@ public final class PlatformControls {
         if (engine == null) return null;
         switch (engine) {
             case "arduboy": return ARDUBOY;
+            case "epoch": return EPOCH;
             case "pokitto": return POKITTO;
             case "gamebuino": return GAMEBUINO;
             case "iphone": return IPHONE;

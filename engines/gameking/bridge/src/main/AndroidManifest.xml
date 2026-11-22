@@ -6,6 +6,9 @@
         <activity android:name="io.github.eriark.abyssme.gameking.HartungGameActivity"
             android:exported="false" android:process=":hartung"
             android:configChanges="orientation|screenSize|keyboardHidden|screenLayout|smallestScreenSize"/>
+        <activity android:name="io.github.eriark.abyssme.gameking.EpochGameActivity"
+            android:exported="false" android:process=":epoch"
+            android:configChanges="orientation|screenSize|keyboardHidden|screenLayout|smallestScreenSize"/>
         <activity android:name="ru.playsoftware.j2meloader.MainActivity">
             <intent-filter>
                 <action android:name="android.intent.action.VIEW" />
@@ -29,6 +32,8 @@
                 <data android:pathSuffix=".rom" android:pathPattern=".*.rom" />
                 <data android:pathSuffix=".ROM" android:pathPattern=".*.ROM" />
                 <data android:pathSuffix=".gm" android:pathPattern=".*.gm" />
+                <data android:pathSuffix=".egpc" android:pathPattern=".*.egpc" />
+                <data android:pathSuffix=".EGPC" android:pathPattern=".*.EGPC" />
                 <data android:pathSuffix=".GM" android:pathPattern=".*.GM" />
                 <data android:pathSuffix=".u1" android:pathPattern=".*.u1" />
                 <data android:pathSuffix=".U1" android:pathPattern=".*.U1" />
@@ -48,6 +53,8 @@
                 <data android:pathSuffix=".rom" android:pathPattern=".*.rom" />
                 <data android:pathSuffix=".ROM" android:pathPattern=".*.ROM" />
                 <data android:pathSuffix=".gm" android:pathPattern=".*.gm" />
+                <data android:pathSuffix=".egpc" android:pathPattern=".*.egpc" />
+                <data android:pathSuffix=".EGPC" android:pathPattern=".*.EGPC" />
                 <data android:pathSuffix=".GM" android:pathPattern=".*.GM" />
                 <data android:pathSuffix=".u1" android:pathPattern=".*.u1" />
                 <data android:pathSuffix=".U1" android:pathPattern=".*.U1" />

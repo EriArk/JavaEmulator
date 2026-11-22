@@ -77,6 +77,7 @@
     <string name="library_webos_import_hint">Choose a Palm webOS web game package (.ipk).</string>
     <string name="library_mre_import_hint">Choose a MediaTek MRE game (.vxp) or a ZIP containing one game.</string>
     <string name="library_palm_import_hint">Choose a Palm OS application (.prc), game ZIP, or device firmware (.rom or .bin).</string>
+    <string name="library_epoch_import_hint">Import gamepock.zip or egpcboot.bin to use the built-in programs. Add cartridges as BIN, ROM, EGPC or individual ZIP files.</string>
     <string name="library_hartung_import_hint">Import the Game Master BIOS (gmaster.zip or U1), then choose a cartridge (BIN, ROM, GM or individual ZIP).</string>
     <string name="library_pokitto_import_hint">Choose a Pokitto BIN, POP or a ZIP containing a game and its SD files.</string>
     <string name="library_gamebuino_import_hint">Choose a Gamebuino Classic .hex or a ZIP containing one game.</string>

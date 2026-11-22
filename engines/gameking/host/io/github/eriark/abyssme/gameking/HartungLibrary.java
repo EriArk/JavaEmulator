@@ -4,7 +4,6 @@ package io.github.eriark.abyssme.gameking;
 import android.content.Context;
 import io.github.eriark.abyssme.storage.StoragePaths;
 import java.io.*;
-import java.nio.file.*;
 import java.util.Locale;
 import java.util.Properties;
 import ru.playsoftware.j2meloader.catalog.HandheldFormat;
@@ -42,13 +41,7 @@ public final class HartungLibrary extends CartridgeLibrary {
 
     @Override protected void imported(Context context, String id, Properties info) throws IOException {
         if (!BIOS.equals(filename(info))) return;
-        Path target = bios(context).toPath();
-        Files.createDirectories(target.getParent());
-        Path temporary = Files.createTempFile(target.getParent(), ".bios-", ".tmp");
-        try {
-            Files.copy(installed(context, id).toPath(), temporary, StandardCopyOption.REPLACE_EXISTING);
-            Files.move(temporary, target, StandardCopyOption.ATOMIC_MOVE, StandardCopyOption.REPLACE_EXISTING);
-        } finally { Files.deleteIfExists(temporary); }
+        GameKingLibrary.copyFirmware(installed(context, id), bios(context));
     }
 
     @Override protected String filename(Properties info) { return "System BIOS".equals(variant(info)) ? BIOS : "game.bin"; }

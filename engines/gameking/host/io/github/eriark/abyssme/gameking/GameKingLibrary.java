@@ -51,7 +51,11 @@ public final class GameKingLibrary extends CartridgeLibrary {
     }
 
     static void selectBios(Context c, File source, boolean color) throws IOException {
-        Path target = systemBios(c,color).toPath();
+        copyFirmware(source, systemBios(c, color));
+    }
+
+    static void copyFirmware(File source, File destination) throws IOException {
+        Path target = destination.toPath();
         Files.createDirectories(target.getParent());
         Path tmp = Files.createTempFile(target.getParent(),".bios-", ".tmp");
         try {

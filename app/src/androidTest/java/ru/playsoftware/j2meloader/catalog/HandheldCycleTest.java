@@ -187,6 +187,37 @@ public class HandheldCycleTest {
         assertEquals(item.getPath(), ExternalLibrary.packageProvider(26).install(isolated, Uri.fromFile(hex)).getPath());
     }
 
+    @Test public void epochRecognizesRenamedFirmwareAndCartridges() throws Exception {
+        Assume.assumeTrue(ru.playsoftware.j2meloader.BuildConfig.GAMEKING_PROBE);
+        File library = new File(work, "epoch-library");
+        Context sandbox = isolated(library);
+        byte[] firmware = new byte[4096];
+        byte[] vector = {0, 0x48, 0x24, (byte) 0xcf, 0x54, 0x0c, 0x40};
+        System.arraycopy(vector, 0, firmware, 0, vector.length);
+        File bios = new File(work, "renamed.rom");
+        Files.write(bios.toPath(), firmware);
+        assertEquals(Collections.singleton(29), HandheldFormat.detect(c, Uri.fromFile(bios), bios.getName()));
+        ExternalLibrary.packageProvider(29).install(sandbox, Uri.fromFile(bios));
+        File system = new File(library, "epoch/system/gamepock/egpcboot.bin");
+        assertArrayEquals(firmware, Files.readAllBytes(system.toPath()));
+
+        byte[] cartridge = new byte[8192];
+        cartridge[0] = 0x55;
+        cartridge[1] = 18;
+        cartridge[2] = 0x40;
+        File raw = new File(work, "cart.bin");
+        Files.write(raw.toPath(), cartridge);
+        File zip = new File(work, "cart.zip");
+        try (ZipOutputStream out = new ZipOutputStream(new FileOutputStream(zip))) {
+            out.putNextEntry(new ZipEntry("nested/cart.bin"));
+            out.write(cartridge);
+        }
+        assertEquals(Collections.singleton(29), HandheldFormat.detect(c, Uri.fromFile(zip), zip.getName()));
+        ExternalLibrary.Item item = ExternalLibrary.packageProvider(29).install(sandbox, Uri.fromFile(zip));
+        assertEquals(item.getPath(), ExternalLibrary.packageProvider(29).install(sandbox, Uri.fromFile(raw)).getPath());
+        assertArrayEquals(firmware, Files.readAllBytes(system.toPath()));
+    }
+
     @Test public void hartungRoutesCartridgesAndInstallsFirmwareSeparately() throws Exception {
         Assume.assumeTrue(ru.playsoftware.j2meloader.BuildConfig.GAMEKING_PROBE);
         File library = new File(work, "game-master");
@@ -308,6 +339,7 @@ public class HandheldCycleTest {
         if (ru.playsoftware.j2meloader.BuildConfig.GAMEBUINO_PROBE && new File(source,"gamebuino/packages").isDirectory()) ids.add(26);
         if (ru.playsoftware.j2meloader.BuildConfig.POKITTO_PROBE && new File(source,"pokitto/packages").isDirectory()) ids.add(27);
         if (ru.playsoftware.j2meloader.BuildConfig.GAMEKING_PROBE && new File(source,"hartung/packages").isDirectory()) ids.add(28);
+        if (ru.playsoftware.j2meloader.BuildConfig.GAMEKING_PROBE && new File(source,"epoch/packages").isDirectory()) ids.add(29);
         if (ru.playsoftware.j2meloader.BuildConfig.IPHONE_PROBE && new File(source,"iphone/packages").isDirectory()) ids.add(24);
         return ids;
     }

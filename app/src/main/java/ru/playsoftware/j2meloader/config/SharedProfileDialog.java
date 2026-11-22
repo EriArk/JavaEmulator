@@ -23,8 +23,8 @@ public final class SharedProfileDialog {
     private final Map<String,Integer> usages = new HashMap<>();
     private boolean busy;
     private int platformChoice;
-    private static final String[] ENGINES = {"", "dingoo", "gp32", "piece", "gizmondo", "cybiko", "palm", "palm-classic", "portfolio", "pocketpc", "flash", "webos", "firefox", "wipi", "kaios", "iphone", "arduboy", "gamebuino", "pokitto"};
-    private static final String[] BUTTON_SETS = {"Phone keypad", "Dingoo", "GP32", "Two-button handheld", "Gizmondo", "Cybiko", "Palm five-way", "Palm page buttons", "Atari Portfolio", "Pocket PC", "Flash", "webOS", "Firefox OS", "WIPI / SKVM", "KaiOS / MRE", "iPhone OS", "Arduboy / FX", "Gamebuino Classic", "Pokitto"};
+    private static final String[] ENGINES = {"", "dingoo", "gp32", "piece", "gizmondo", "cybiko", "palm", "palm-classic", "portfolio", "pocketpc", "flash", "webos", "firefox", "wipi", "kaios", "iphone", "arduboy", "gamebuino", "pokitto", "epoch"};
+    private static final String[] BUTTON_SETS = {"Phone keypad", "Dingoo", "GP32", "Two-button handheld", "Gizmondo", "Cybiko", "Palm five-way", "Palm page buttons", "Atari Portfolio", "Pocket PC", "Flash", "webOS", "Firefox OS", "WIPI / SKVM", "KaiOS / MRE", "iPhone OS", "Arduboy / FX", "Gamebuino Classic", "Pokitto", "Epoch Game Pocket Computer"};
     private SharedProfileDialog(Context context, ProfileModel game, Runnable done, SharedProfiles.Store store) {
         this.store=store;
         this.context=context;this.game=game;this.done=done;root=SharedProfiles.root(game);

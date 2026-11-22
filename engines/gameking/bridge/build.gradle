@@ -11,7 +11,7 @@ if (!rootProject.file('build/gameking/jniLibs/arm64-v8a/libabyssgameking.so').is
 
 def stickers = tasks.register('prepareGameKingStickers', Sync) {
     from(rootProject.file('design-concepts/platform-stickers')) {
-        include 'gameking.webp', 'hartung.webp'
+        include 'gameking.webp', 'hartung.webp', 'epoch.webp'
         rename { name -> "sticker_" + name }
     }
     into layout.buildDirectory.dir('generated/deviceArt/drawable-nodpi')

@@ -55,6 +55,7 @@ public final class HandheldFormat {
         if (BuildConfig.WEBOS_PROBE && s.endsWith(".ipk")) return 18;
         if (BuildConfig.MRE_PROBE && s.endsWith(".vxp")) return 17;
         if (BuildConfig.PALM_PROBE && (s.endsWith(".prc") || s.endsWith(".pdb"))) return 16;
+        if (BuildConfig.GAMEKING_PROBE && s.endsWith(".egpc")) return 29;
         if (BuildConfig.GAMEKING_PROBE && (s.endsWith(".gm") || s.endsWith(".u1"))) return 28;
         if (BuildConfig.GAMEKING_PROBE && s.endsWith(".gk")) return 15;
         if (BuildConfig.GAMATE_PROBE && s.endsWith(".gam")) return 14;
@@ -216,6 +217,7 @@ public final class HandheldFormat {
     }
     private static int cartridgeOrFirmware(InputStream in, byte[] header, long length) throws IOException {
         if (BuildConfig.GAMEKING_PROBE && (length == 4096 || length < 0) && hartungBootVector(header)) return 28;
+        if (BuildConfig.GAMEKING_PROBE && (epochBootRom(header, length) || epochCartridge(header, length))) return 29;
         if (BuildConfig.POKITTO_PROBE && pokittoVector(header, length)) return 27;
         if (BuildConfig.PALM_PROBE && header.length >= 12) {
             java.nio.ByteBuffer words = java.nio.ByteBuffer.wrap(header);
@@ -268,6 +270,19 @@ public final class HandheldFormat {
         int low = in.read(), high = in.read();
         return low >= 0 && high >= 0x80 ? 10 : 0;
     }
+    public static boolean epochBootRom(byte[] h, long length) {
+        return (length == 4096 || length < 0) && h.length >= 7
+                && h[0] == 0 && h[1] == 0x48 && h[2] == 0x24 && h[3] == (byte) 0xcf
+                && h[4] == 0x54 && h[5] == 0x0c && h[6] == 0x40;
+    }
+
+    private static boolean epochCartridge(byte[] h, long length) {
+        if (h.length < 5 || h[0] != 0x55 || length > 32768) return false;
+        // The BIOS reads two little-endian entry addresses after the cartridge identifier.
+        int start = (h[1] & 255) | ((h[2] & 255) << 8);
+        return start >= 0x4000 && start < 0x4000 + (length < 0 ? 32768 : length);
+    }
+
     public static boolean hartungBootVector(byte[] h) {
         return h.length >= 8 && h[0] == 0x54 && h[1] == (byte) 0xc0 && h[2] == 0 && h[3] == 0
                 && h[4] == 0x54 && h[5] == (byte) 0xc0 && h[6] == 0 && h[7] == 0;
@@ -287,7 +302,7 @@ public final class HandheldFormat {
         return Arrays.copyOf(bytes,n);
     }
     public static int indexedPlatform(String path) {
-        if (path != null && path.matches("pending_([5-9]|1[0-9]|2[0-8])_[a-f0-9]+"))
+        if (path != null && path.matches("pending_([5-9]|1[0-9]|2[0-9])_[a-f0-9]+"))
             return Integer.parseInt(path.substring(8, path.indexOf('_', 8)));
         return 0;
     }

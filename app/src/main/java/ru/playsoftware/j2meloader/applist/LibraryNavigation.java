@@ -40,6 +40,7 @@ final class LibraryNavigation {
                 || (id == 26 && BuildConfig.GAMEBUINO_PROBE)
                 || (id == 27 && BuildConfig.POKITTO_PROBE)
                 || (id == 28 && BuildConfig.GAMEKING_PROBE)
+                || (id == 29 && BuildConfig.GAMEKING_PROBE)
                 || (id == 24 && BuildConfig.IPHONE_PROBE)
                 || (id == 23 && BuildConfig.GIZMONDO_PROBE);
     }

@@ -90,7 +90,7 @@ public class LibraryTabsTest {
     }
 
     private int lastVisiblePlatform() {
-        return ru.playsoftware.j2meloader.BuildConfig.GAMEKING_PROBE ? 28 : ru.playsoftware.j2meloader.BuildConfig.POKITTO_PROBE ? 27 : ru.playsoftware.j2meloader.BuildConfig.GAMEBUINO_PROBE ? 26 : ru.playsoftware.j2meloader.BuildConfig.ARDUBOY_PROBE ? 25 : ru.playsoftware.j2meloader.BuildConfig.IPHONE_PROBE ? 24 : ru.playsoftware.j2meloader.BuildConfig.GIZMONDO_PROBE ? 23 : ru.playsoftware.j2meloader.BuildConfig.POCKETPC_PROBE ? 22 : ru.playsoftware.j2meloader.BuildConfig.PORTFOLIO_PROBE ? 21
+        return ru.playsoftware.j2meloader.BuildConfig.GAMEKING_PROBE ? 29 : ru.playsoftware.j2meloader.BuildConfig.POKITTO_PROBE ? 27 : ru.playsoftware.j2meloader.BuildConfig.GAMEBUINO_PROBE ? 26 : ru.playsoftware.j2meloader.BuildConfig.ARDUBOY_PROBE ? 25 : ru.playsoftware.j2meloader.BuildConfig.IPHONE_PROBE ? 24 : ru.playsoftware.j2meloader.BuildConfig.GIZMONDO_PROBE ? 23 : ru.playsoftware.j2meloader.BuildConfig.POCKETPC_PROBE ? 22 : ru.playsoftware.j2meloader.BuildConfig.PORTFOLIO_PROBE ? 21
                 : ru.playsoftware.j2meloader.BuildConfig.B2G_PROBE ? 20
                 : ru.playsoftware.j2meloader.BuildConfig.WEBOS_PROBE ? 18
                 : ru.playsoftware.j2meloader.BuildConfig.MRE_PROBE ? 17
@@ -163,7 +163,7 @@ public class LibraryTabsTest {
                             + (ru.playsoftware.j2meloader.BuildConfig.PORTFOLIO_PROBE ? 1 : 0)
                             + (ru.playsoftware.j2meloader.BuildConfig.POCKETPC_PROBE ? 1 : 0)
                             + (ru.playsoftware.j2meloader.BuildConfig.GIZMONDO_PROBE ? 1 : 0)
-                            + (ru.playsoftware.j2meloader.BuildConfig.GAMEKING_PROBE ? 1 : 0)
+                            + (ru.playsoftware.j2meloader.BuildConfig.GAMEKING_PROBE ? 2 : 0)
                             + (ru.playsoftware.j2meloader.BuildConfig.POKITTO_PROBE ? 1 : 0)
                             + (ru.playsoftware.j2meloader.BuildConfig.GAMEBUINO_PROBE ? 1 : 0)
                             + (ru.playsoftware.j2meloader.BuildConfig.ARDUBOY_PROBE ? 1 : 0)
@@ -220,7 +220,7 @@ public class LibraryTabsTest {
                     assertTrue(a.findViewById(R.id.platform_java).isSelected());
                     a.dispatchKeyEvent(new KeyEvent(KeyEvent.ACTION_UP, KeyEvent.KEYCODE_BUTTON_L2));
                     a.dispatchKeyEvent(new KeyEvent(KeyEvent.ACTION_DOWN, KeyEvent.KEYCODE_BUTTON_L2));
-                    int lastTab = lastVisiblePlatform() == 28 ? R.id.platform_hartung : lastVisiblePlatform() == 27 ? R.id.platform_pokitto : lastVisiblePlatform() == 26 ? R.id.platform_gamebuino : lastVisiblePlatform() == 25 ? R.id.platform_arduboy : lastVisiblePlatform() == 24 ? R.id.platform_iphone : lastVisiblePlatform() == 23 ? R.id.platform_gizmondo : lastVisiblePlatform() == 22 ? R.id.platform_pocketpc : lastVisiblePlatform() == 21 ? R.id.platform_portfolio : lastVisiblePlatform() == 20 ? R.id.platform_kaios : lastVisiblePlatform() == 18 ? R.id.platform_webos : lastVisiblePlatform() == 17 ? R.id.platform_mre : lastVisiblePlatform() == 16 ? R.id.platform_palm : lastVisiblePlatform() == 15 ? R.id.platform_gameking : lastVisiblePlatform() == 14 ? R.id.platform_gamate : lastVisiblePlatform() == 13 ? R.id.platform_flash : lastVisiblePlatform() == 12 ? R.id.platform_cybiko : lastVisiblePlatform() == 11 ? R.id.platform_megaduck : lastVisiblePlatform() == 10 ? R.id.platform_supervision : lastVisiblePlatform() == 9 ? R.id.platform_gp32 : lastVisiblePlatform() == 8 ? R.id.platform_piece : lastVisiblePlatform() == 7 ? R.id.platform_gemei : lastVisiblePlatform() == 5 ? R.id.platform_wipi
+                    int lastTab = lastVisiblePlatform() == 29 ? R.id.platform_epoch : lastVisiblePlatform() == 27 ? R.id.platform_pokitto : lastVisiblePlatform() == 26 ? R.id.platform_gamebuino : lastVisiblePlatform() == 25 ? R.id.platform_arduboy : lastVisiblePlatform() == 24 ? R.id.platform_iphone : lastVisiblePlatform() == 23 ? R.id.platform_gizmondo : lastVisiblePlatform() == 22 ? R.id.platform_pocketpc : lastVisiblePlatform() == 21 ? R.id.platform_portfolio : lastVisiblePlatform() == 20 ? R.id.platform_kaios : lastVisiblePlatform() == 18 ? R.id.platform_webos : lastVisiblePlatform() == 17 ? R.id.platform_mre : lastVisiblePlatform() == 16 ? R.id.platform_palm : lastVisiblePlatform() == 15 ? R.id.platform_gameking : lastVisiblePlatform() == 14 ? R.id.platform_gamate : lastVisiblePlatform() == 13 ? R.id.platform_flash : lastVisiblePlatform() == 12 ? R.id.platform_cybiko : lastVisiblePlatform() == 11 ? R.id.platform_megaduck : lastVisiblePlatform() == 10 ? R.id.platform_supervision : lastVisiblePlatform() == 9 ? R.id.platform_gp32 : lastVisiblePlatform() == 8 ? R.id.platform_piece : lastVisiblePlatform() == 7 ? R.id.platform_gemei : lastVisiblePlatform() == 5 ? R.id.platform_wipi
                             : lastVisiblePlatform() == 4 ? R.id.platform_ngage : R.id.platform_mophun;
                     assertTrue(a.findViewById(lastTab).isSelected());
                     a.dispatchKeyEvent(new KeyEvent(KeyEvent.ACTION_UP, KeyEvent.KEYCODE_BUTTON_L2));

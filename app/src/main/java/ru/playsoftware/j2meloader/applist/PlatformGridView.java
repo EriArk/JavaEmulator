@@ -170,13 +170,13 @@ public final class PlatformGridView extends LinearLayout {
         image.setPadding(dp(6), dp(6), dp(6), dp(6));
         image.setScaleType(ImageView.ScaleType.FIT_CENTER);
         int art = id < ART.length ? ART[id] : getResources().getIdentifier(
-                id == 6 ? "sticker_dingoo" : id == 7 ? "sticker_gemei" : id == 8 ? "sticker_piece" : id == 9 ? "sticker_gp32" : id == 10 ? "sticker_supervision" : id == 11 ? "sticker_megaduck" : id == 12 ? "sticker_cybiko" : id == 13 ? "sticker_flash" : id == 14 ? "sticker_gamate" : id == 15 ? "sticker_gameking" : id == 16 ? "sticker_palm" : id == 17 ? "sticker_mre" : id == 18 ? "sticker_webos" : id == 19 ? "sticker_firefox" : id == 20 ? "sticker_kaios" : id == 21 ? "sticker_portfolio" : id == 22 ? "sticker_pocketpc" : id == 28 ? "sticker_hartung" : id == 27 ? "sticker_pokitto" : id == 26 ? "sticker_gamebuino" : id == 25 ? "sticker_arduboy" : id == 24 ? "sticker_iphone" : "sticker_gizmondo", "drawable", context.getPackageName());
+                id == 6 ? "sticker_dingoo" : id == 7 ? "sticker_gemei" : id == 8 ? "sticker_piece" : id == 9 ? "sticker_gp32" : id == 10 ? "sticker_supervision" : id == 11 ? "sticker_megaduck" : id == 12 ? "sticker_cybiko" : id == 13 ? "sticker_flash" : id == 14 ? "sticker_gamate" : id == 15 ? "sticker_gameking" : id == 16 ? "sticker_palm" : id == 17 ? "sticker_mre" : id == 18 ? "sticker_webos" : id == 19 ? "sticker_firefox" : id == 20 ? "sticker_kaios" : id == 21 ? "sticker_portfolio" : id == 22 ? "sticker_pocketpc" : id == 29 ? "sticker_epoch" : id == 28 ? "sticker_hartung" : id == 27 ? "sticker_pokitto" : id == 26 ? "sticker_gamebuino" : id == 25 ? "sticker_arduboy" : id == 24 ? "sticker_iphone" : "sticker_gizmondo", "drawable", context.getPackageName());
         image.setImageResource(art);
         image.setImportantForAccessibility(IMPORTANT_FOR_ACCESSIBILITY_NO);
         tile.addView(image, new LayoutParams(-1, 0, 1));
         TextView label = new TextView(context);
-        label.setText(id == 8 ? "Aquaplus\nP/ECE" : LibraryQuery.PLATFORMS[id]);
-        label.setTextSize(17);
+        label.setText(id == 8 ? "Aquaplus\nP/ECE" : id == 29 ? "Epoch Game\nPocket Computer" : LibraryQuery.PLATFORMS[id]);
+        label.setTextSize(id == 29 ? 14 : 17);
         label.setTextColor(AppPalette.color(context, R.color.text_primary));
         label.setGravity(Gravity.CENTER);
         label.setTypeface(Typeface.DEFAULT, Typeface.BOLD);
