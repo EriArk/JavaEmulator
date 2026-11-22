@@ -23,9 +23,9 @@ It began as an independent [J2ME Loader](https://github.com/nikita36078/J2ME-Loa
 > [!IMPORTANT]
 > **What's available right now — November 22, 2026**
 >
-> **Public release:** **AbyssME 0.7.0 Beta 10**, for Android 10+. It includes **Java ME, Mophun, Symbian and N-Gage** (Symbian/N-Gage require ARM64).
+> **Public release:** **AbyssME 0.8.0 Beta 1** runs on Android 10 and newer. The ARM64 download includes **24 platforms**. The ARMv7 download includes **Java ME and Mophun**.
 >
-> **Development builds:** **32 platform shelves** have been integrated into the shared Android library and exercised in private Retroid Pocket Classic tests. **These new platforms are not included in the public Beta 10 APK.** Integration and short gameplay checks are not a promise of complete game compatibility.
+> **Development builds:** **32 platform shelves** have been integrated into the shared Android library and exercised in private Retroid Pocket Classic tests. Eight shelves remain exclusive to development builds. Integration and short gameplay checks are not a promise of complete game compatibility.
 >
 > See [current development and test status](docs/PROJECT_STATUS.md) for dated evidence. Public downloads live on the [Releases page](https://github.com/EriArk/JavaEmulator/releases), not in private test-build reports.
 
@@ -33,7 +33,7 @@ It began as an independent [J2ME Loader](https://github.com/nikita36078/J2ME-Loa
 
 Don't start with a list of emulator cores. Start with the devices themselves.
 
-AbyssME's developing platform gallery is made of illustrated phones, handhelds and pocket computers. Select one and its game shelf opens. When using a controller, the device in focus lights up. By default, the gallery shows platforms that already have games; choose **Show platforms without games** to discover the empty shelves and add games or required system files. Or skip the gallery and return directly to the last library tab.
+AbyssME's platform gallery is made of illustrated phones, handhelds and pocket computers. Select one and its game shelf opens. When using a controller, the device in focus lights up. By default, the gallery shows platforms that already have games; choose **Show platforms without games** to discover the empty shelves and add games or required system files. Or skip the gallery and return directly to the last library tab.
 
 **A glimpse of the archive — private development build, not the public download:**
 
@@ -62,7 +62,7 @@ This is a living project, not a claim that every device is perfectly emulated. T
 
 The archive's experimental platform count describes **library entries in development**, not the number of public, fully compatible emulator releases. Related models may share a shelf, and some newer mobile-OS integrations run *packaged games*, not the entire original operating system.
 
-### The four platforms you can download today
+### The original four platforms
 
 | Platform | What it brings back | What to know |
 | --- | --- | --- |
@@ -71,9 +71,9 @@ The archive's experimental platform count describes **library entries in develop
 | **Symbian / S60** | Native smartphone applications and games through integrated EKA2L1 | ARM64 only; compatible user-provided phone system files required |
 | **N-Gage / N-Gage 2.0** | Two generations of Nokia's mobile gaming experiments | ARM64 only; original N-Gage and N-Gage 2.0 need different compatible phone/platform setups |
 
-### The other 28 shelves in the workshop
+### The 20 additional public shelves and eight development shelves
 
-These are **real development integrations with limited on-device tests**, not features promised in Beta 10.
+The ARM64 edition includes the following shelves except **MediaTek MRE, Pocket PC, GP32, GameKing, Gizmondo, Hartung, Epoch and Thumby Color**. The [release list](docs/releases/v0.8.0-beta.1.md) identifies each included system. Game compatibility varies by title.
 
 | Part of the archive | Platform shelves |
 | --- | --- |
@@ -109,12 +109,12 @@ For the full picture, including original GameKing, Gamate, GP32, Cybiko, MRE, we
 
 ## Take a game out of the archive
 
-The currently downloadable release is **AbyssME 0.7.0 Beta 10**. It needs **Android 10 or newer**; touch works without a controller.
+The currently downloadable release is **AbyssME 0.8.0 Beta 1**. It needs **Android 10 or newer**; touch works without a controller.
 
 | Download | Android architecture | Included engines |
 | --- | --- | --- |
-| **[ARM64 APK](https://github.com/EriArk/JavaEmulator/releases/download/v0.7.0-beta.10/AbyssME-0.7.0-beta.10.apk)** | 64-bit ARM | Java ME, Mophun, experimental Symbian and N-Gage |
-| **[ARMv7 APK](https://github.com/EriArk/JavaEmulator/releases/download/v0.7.0-beta.10/AbyssME-0.7.0-beta.10-armv7.apk)** | 32-bit ARM | Java ME and Mophun only |
+| **[ARM64 APK](https://github.com/EriArk/JavaEmulator/releases/download/v0.8.0-beta.1/AbyssME-0.8.0-beta.1.apk)** | 64-bit ARM | 24 platforms, including Java ME, Mophun, Symbian and N-Gage |
+| **[ARMv7 APK](https://github.com/EriArk/JavaEmulator/releases/download/v0.8.0-beta.1/AbyssME-0.8.0-beta.1-armv7.apk)** | 32-bit ARM | Java ME and Mophun only |
 
 Choose ARM64 when supported. ARMv7 does not run on every ARM64-only device. Both official APKs share the package ID `io.github.eriark.abyssme` and can update a compatible installation.
 
@@ -127,7 +127,7 @@ Choose ARM64 when supported. ARMv7 does not run on every ARM64-only device. Both
 
 **Upgrading or moving from another app?** Back up your games and saves first. The former separate AbyssME Phone package (`io.github.eriark.abyssme.phone`) uses a [migration flow](docs/LIBRARY_TRANSFER.md); don't uninstall it until you've checked the transfer. J2ME Loader has its own import workflow.
 
-For the history of public builds, see the [changelog](CHANGELOG.md) and [Beta 10 notes](docs/releases/v0.7.0-beta.10.md).
+For the history of public builds, see the [changelog](CHANGELOG.md) and [0.8.0 Beta 1 notes](docs/releases/v0.8.0-beta.1.md).
 
 ## Some worlds can be shared
 

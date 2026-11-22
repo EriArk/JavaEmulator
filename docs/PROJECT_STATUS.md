@@ -14,9 +14,9 @@ attribute its results to the dated maintainer record below; do not infer a pass.
 
 The [platform issue index](PLATFORM_ISSUES.md) maps the 51 open platform-specific tasks to the maintainer roadmap, including the initial integration order and scope decisions.
 
-## 0.8.0 Beta 1 public build selection (2026-11-22)
+## 0.8.0 Beta 1 released (2026-11-22)
 
-The ARM64 release configuration exposes 24 shelves. Eight private integrations are excluded from its native libraries, manifest and gallery. ARMv7 retains Java ME and Mophun. The signed ARM64 candidate passed 447 JVM tests and an Android 11 emulator upgrade from 0.7.0 Beta 10 with the Sudoku library and RMS data intact. [Platform list and build materials](releases/v0.8.0-beta.1.md).
+The ARM64 release configuration exposes 24 shelves. Eight private integrations are excluded from its native libraries, manifest and gallery. ARMv7 retains Java ME and Mophun. Both official APKs were published at 14:36 UTC. Each passed 447 JVM tests. The ARM64 emulator upgrade and the signed 32-bit Retroid upgrade retained the previous libraries. Both website download buttons served the verified APKs. [Signed-build and device checks](releases/v0.8.0-beta.1-checks.md). [Platform list and build materials](releases/v0.8.0-beta.1.md).
 
 ## Platform distribution review (2026-11-22)
 

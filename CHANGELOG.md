@@ -10,9 +10,9 @@ stated otherwise. **Experimental** in older checkpoints means local/private
 combined builds; released experimental features are explicitly identified.
 **Released** means an actual GitHub release asset.
 
-## 2026-11-22 - 24-platform ARM64 release configuration
+## 2026-11-22 - 0.8.0 Beta 1 released
 
-The ARM64 edition packages 24 platform shelves and their shared launcher. Games and system files can be added from an empty shelf. The separate 32-bit edition retains Java ME and Mophun. The build also removes the desktop Enyo Java applet, updates SDL USB receiver registration and preserves Nokia Asha text styles. [Platform list](docs/releases/v0.8.0-beta.1.md).
+**Released.** The ARM64 edition packages 24 platform shelves and their shared launcher. Games and system files can be added from an empty shelf. The separate 32-bit edition retains Java ME and Mophun. The build also removes the desktop Enyo Java applet, updates SDL USB receiver registration and preserves Nokia Asha text styles. [Platform list](docs/releases/v0.8.0-beta.1.md) · [Signed release checks](docs/releases/v0.8.0-beta.1-checks.md).
 
 ## 2026-11-22 - Watara CPU replacement and Thumby system files
 

@@ -5,11 +5,11 @@ not one of the old experimental APKs in this directory.
 
 ## Current published beta
 
-[AbyssME 0.7.0 Beta 10](https://github.com/EriArk/JavaEmulator/releases/tag/v0.7.0-beta.10)
-provides two adaptive APKs for phones and handhelds, both Android 10+ / code 324:
+[AbyssME 0.8.0 Beta 1](https://github.com/EriArk/JavaEmulator/releases/tag/v0.8.0-beta.1)
+provides two adaptive APKs for phones and handhelds, both Android 10+ / code 325:
 
-- `AbyssME-0.7.0-beta.10.apk`: ARM64, Java/Mophun and experimental Symbian/N-Gage.
-- `AbyssME-0.7.0-beta.10-armv7.apk`: 32-bit ARM Android, Java/Mophun only.
+- `AbyssME-0.8.0-beta.1.apk`: ARM64, 24 platforms.
+- `AbyssME-0.8.0-beta.1-armv7.apk`: 32-bit ARM Android, Java/Mophun only.
 - Both include global physical-controller profiles, independent graphics/touch profiles,
   right-stick mapping and general Mophun audio/timing improvements. About identifies
   the distribution. Choose ARM64 when supported; older low-memory ARM32 device
@@ -20,8 +20,8 @@ provides two adaptive APKs for phones and handhelds, both Android 10+ / code 324
 - Use the in-app migration workflow for the separate old Phone app. Keep that
   app installed until saves are checked. Older release files remain historical.
 
-Use the [SHA-256 list](../docs/releases/0.7.0-beta.10/SHA256SUMS.txt) to verify downloads.
-See the [release notes](../docs/releases/v0.7.0-beta.10.md) and
+Use the [SHA-256 list](../docs/releases/0.8.0-beta.1/SHA256SUMS.txt) to verify downloads.
+See the [release notes](../docs/releases/v0.8.0-beta.1.md) and
 [current limitations](../README.md#known-limitations).
 
 ## Historical files
