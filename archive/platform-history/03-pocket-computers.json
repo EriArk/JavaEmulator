@@ -23,7 +23,8 @@
       "image": "design-concepts/platform-stickers/palm.webp",
       "imageAttribution": "design-concepts/platform-stickers/README.md",
       "sources": [
-        "https://en.wikipedia.org/wiki/Palm_III"
+        "https://www.homecomputermuseum.nl/en/collectie/3com/3com-palm-iii/",
+        "https://arstechnica.com/gadgets/2024/04/palm-os-and-the-devices-that-ran-it-an-ars-retrospective/"
       ],
       "specs": {
         "display": "160 × 160 px",
@@ -68,12 +69,13 @@
     {
       "id": "pocket-pc",
       "device": "HP iPAQ h4150",
-      "year": "2003–2004",
-      "maker": "Hewlett-Packard / Microsoft",
+      "year": "2003",
+      "maker": "Hewlett-Packard",
       "country": "US",
       "image": "design-concepts/platform-stickers/pocketpc.webp",
       "imageAttribution": "design-concepts/platform-stickers/README.md",
       "sources": [
+        "https://www.golem.de/0310/28031.html",
         "https://www.itmedia.co.jp/mobile/articles/0401/29/news061.html"
       ],
       "specs": {
@@ -125,7 +127,8 @@
       "image": "design-concepts/platform-stickers/iphone.webp",
       "imageAttribution": "design-concepts/platform-stickers/README.md",
       "sources": [
-        "https://www.apple.com/newsroom/2007/01/09Apple-Reinvents-the-Phone-with-iPhone/"
+        "https://www.apple.com/newsroom/2007/01/09Apple-Reinvents-the-Phone-with-iPhone/",
+        "https://www.apple.com/newsroom/2008/07/14iPhone-App-Store-Downloads-Top-10-Million-in-First-Weekend/"
       ],
       "specs": {
         "display": "320 × 480 px",
@@ -171,12 +174,13 @@
       "id": "atari-portfolio",
       "device": "Atari Portfolio",
       "year": "1989",
-      "maker": "Atari / DIP Research",
+      "maker": "Atari Corporation",
       "country": "US",
       "image": "design-concepts/platform-stickers/portfolio.webp",
       "imageAttribution": "design-concepts/platform-stickers/README.md",
       "sources": [
-        "https://www.homecomputermuseum.nl/en/collectie/atari/atari-portfolio/"
+        "https://www.homecomputermuseum.nl/en/collectie/atari/atari-portfolio/",
+        "https://www.atari-history.com/computers/"
       ],
       "specs": {
         "display": "240 × 64 px",
@@ -186,35 +190,35 @@
       "copy": {
         "en": {
           "headline": "A DOS computer in a coat pocket",
-          "article": "The Atari Portfolio appeared in 1989 as one of the earliest truly pocketable IBM PC-compatible computers. Designed by Britain's DIP Research and sold by Atari, it combined a small keyboard, a monochrome screen and a DOS-like system. Built-in tools made it useful for notes and spreadsheets; small programs and games gave it another life. Its appearance in Terminator 2 later made the little machine famous to a much wider audience."
+          "article": "The Atari Portfolio appeared in 1989 as a pocket computer with a partly IBM PC-compatible DOS environment, but not full PC hardware compatibility. Designed by Britain's DIP Research and sold by Atari, it combined a small keyboard, a monochrome screen and a DOS-like system. Built-in tools made it useful for notes and spreadsheets; small programs and games gave it another life. Its appearance in Terminator 2 later made the little machine famous to a much wider audience."
         },
         "es": {
           "headline": "Un ordenador DOS de bolsillo",
-          "article": "El Atari Portfolio apareció en 1989 como uno de los primeros ordenadores compatibles con IBM PC que cabían realmente en un bolsillo. Diseñado por la británica DIP Research y vendido por Atari, reunía un teclado pequeño, pantalla monocroma y un sistema parecido a DOS. Servía para notas y hojas de cálculo, pero también ejecutaba programas y juegos. Su aparición en Terminator 2 lo hizo famoso fuera del mundo de la informática."
+          "article": "El Atari Portfolio llegó en 1989 como un ordenador de bolsillo con DOS parcialmente compatible con IBM PC, pero no con todo su hardware. Diseñado por la británica DIP Research y vendido por Atari, reunía un teclado pequeño, pantalla monocroma y un sistema parecido a DOS. Servía para notas y hojas de cálculo, pero también ejecutaba programas y juegos. Su aparición en Terminator 2 lo hizo famoso fuera del mundo de la informática."
         },
         "pt-BR": {
           "headline": "Um computador DOS no bolso",
-          "article": "O Atari Portfolio surgiu em 1989 como um dos primeiros computadores compatíveis com IBM PC realmente de bolso. Projetado pela britânica DIP Research e vendido pela Atari, reunia teclado pequeno, tela monocromática e um sistema parecido com DOS. Tinha ferramentas para notas e planilhas, além de rodar programas e jogos. Sua aparição em Terminator 2 tornou o aparelho conhecido também fora do mundo da computação."
+          "article": "O Atari Portfolio surgiu em 1989 como computador de bolso com um DOS parcialmente compatível com IBM PC, mas não com todo o hardware. Projetado pela britânica DIP Research e vendido pela Atari, reunia teclado pequeno, tela monocromática e um sistema parecido com DOS. Tinha ferramentas para notas e planilhas, além de rodar programas e jogos. Sua aparição em Terminator 2 tornou o aparelho conhecido também fora do mundo da computação."
         },
         "ru": {
           "headline": "DOS-компьютер в кармане",
-          "article": "Atari Portfolio появился в 1989 году как один из первых по-настоящему карманных компьютеров, совместимых с IBM PC. Его разработала британская DIP Research, а продавала Atari. Маленькая клавиатура, монохромный экран и DOS-подобная система позволяли вести заметки, считать таблицы и запускать небольшие программы и игры. Позднее крошечный компьютер прославился далеко за пределами компьютерного сообщества благодаря появлению в фильме «Терминатор 2»."
+          "article": "Atari Portfolio появился в 1989 году как карманный компьютер с DOS, частично совместимой с IBM PC, но не со всем его оборудованием. Его разработала британская DIP Research, а продавала Atari. Маленькая клавиатура, монохромный экран и DOS-подобная система позволяли вести заметки, считать таблицы и запускать небольшие программы и игры. Позднее крошечный компьютер прославился далеко за пределами компьютерного сообщества благодаря появлению в фильме «Терминатор 2»."
         },
         "fr": {
           "headline": "Un ordinateur DOS dans la poche",
-          "article": "L'Atari Portfolio est apparu en 1989 parmi les premiers ordinateurs compatibles IBM PC tenant réellement dans une poche. Conçu par la société britannique DIP Research et vendu par Atari, il associait petit clavier, écran monochrome et système proche de DOS. Notes, tableurs, programmes et jeux y trouvaient leur place. Son apparition dans Terminator 2 l'a rendu célèbre bien au-delà des amateurs d'informatique."
+          "article": "L'Atari Portfolio est apparu en 1989 comme ordinateur de poche avec un DOS partiellement compatible IBM PC, mais pas avec tout son matériel. Conçu par la société britannique DIP Research et vendu par Atari, il associait petit clavier, écran monochrome et système proche de DOS. Notes, tableurs, programmes et jeux y trouvaient leur place. Son apparition dans Terminator 2 l'a rendu célèbre bien au-delà des amateurs d'informatique."
         },
         "de": {
           "headline": "Ein DOS-Rechner für die Jackentasche",
-          "article": "Der Atari Portfolio erschien 1989 als einer der ersten wirklich taschentauglichen IBM-PC-kompatiblen Computer. Entwickelt wurde er von der britischen DIP Research, verkauft von Atari. Kleine Tastatur, Monochromdisplay und DOS-ähnliches System eigneten sich für Notizen, Tabellen, Programme und Spiele. Durch seinen Auftritt in Terminator 2 wurde das winzige Gerät auch außerhalb der Computerszene bekannt."
+          "article": "Der Atari Portfolio erschien 1989 als Taschencomputer mit teilweise IBM-PC-kompatiblem DOS, aber ohne volle Hardwarekompatibilität. Entwickelt wurde er von der britischen DIP Research, verkauft von Atari. Kleine Tastatur, Monochromdisplay und DOS-ähnliches System eigneten sich für Notizen, Tabellen, Programme und Spiele. Durch seinen Auftritt in Terminator 2 wurde das winzige Gerät auch außerhalb der Computerszene bekannt."
         },
         "ja": {
           "headline": "ポケットに入るDOSパソコン",
-          "article": "1989年登場のAtari Portfolioは、IBM PC互換機を本当にポケットサイズへ縮めた先駆的な製品の一つだった。英国DIP Researchが設計し、Atariが販売。小さなキーボード、モノクロ画面、DOSに似たシステムで、メモや表計算だけでなくプログラムやゲームも動かせた。後に映画『ターミネーター2』への登場で、コンピューター愛好家以外にも広く知られるようになった。"
+          "article": "1989年のAtari Portfolioは、IBM PCに一部対応したDOSを持つポケットコンピューターだったが、ハードウェアまで完全互換ではなかった。英国DIP Researchが設計し、Atariが販売。小さなキーボード、モノクロ画面、DOSに似たシステムで、メモや表計算だけでなくプログラムやゲームも動かせた。後に映画『ターミネーター2』への登場で、コンピューター愛好家以外にも広く知られるようになった。"
         },
         "zh-CN": {
           "headline": "装进口袋的 DOS 电脑",
-          "article": "1989 年出现的 Atari Portfolio 是最早真正能装进口袋的 IBM PC 兼容电脑之一。它由英国 DIP Research 设计、Atari 销售，配备小键盘、黑白屏幕和类似 DOS 的系统。除了笔记和电子表格，还能运行小程序及游戏。后来它在电影《终结者 2》中亮相，让这台小电脑走出了计算机爱好者的圈子。"
+          "article": "1989 年问世的 Atari Portfolio 是一台口袋电脑，搭载与 IBM PC 部分兼容的 DOS，但硬件并不完全兼容。它由英国 DIP Research 设计、Atari 销售，配备小键盘、黑白屏幕和类似 DOS 的系统。除了笔记和电子表格，还能运行小程序及游戏。后来它在电影《终结者 2》中亮相，让这台小电脑走出了计算机爱好者的圈子。"
         }
       }
     }
