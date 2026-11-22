@@ -23,7 +23,8 @@
       "image": "design-concepts/platform-stickers/cybiko.webp",
       "imageAttribution": "design-concepts/platform-stickers/README.md",
       "sources": [
-        "https://artsandculture.google.com/asset/electronic-toy-cybiko-cybiko-inc/mQE1DEDqIvmXmw?hl=en"
+        "https://artsandculture.google.com/asset/electronic-toy-cybiko-cybiko-inc/mQE1DEDqIvmXmw?hl=en",
+        "https://en.wikipedia.org/wiki/Cybiko"
       ],
       "specs": {
         "display": "160 × 100 px",
@@ -125,7 +126,8 @@
       "image": "design-concepts/platform-stickers/gameking.webp",
       "imageAttribution": "design-concepts/platform-stickers/README.md",
       "sources": [
-        "https://github.com/EriArk/JavaEmulator/issues/94"
+        "https://adb.arcadeitalia.net/dettaglio_mame.php?game_name=gameking",
+        "https://github.com/mamedev/mame/blob/master/src/mame/handheld/gameking.cpp"
       ],
       "specs": {
         "display": "48 × 32 px (original)",
@@ -176,7 +178,9 @@
       "image": "design-concepts/platform-stickers/gizmondo.webp",
       "imageAttribution": "design-concepts/platform-stickers/README.md",
       "sources": [
-        "https://www.sec.gov/Archives/edgar/data/1065581/000126967805000204/tiger10q033105.txt"
+        "https://www.sec.gov/Archives/edgar/data/1065581/000126967805000204/tiger10q033105.txt",
+        "https://www.sec.gov/Archives/edgar/data/1065581/000126967805000239/tiger10q093005.txt",
+        "https://www.gamespress.com/pl/Gizmondo-Launch-Brings-Londons-West-End-to-a-Standstill"
       ],
       "specs": {
         "display": "320 × 240 px",
@@ -186,35 +190,35 @@
       "copy": {
         "en": {
           "headline": "The handheld that tried everything",
-          "article": "The Gizmondo launched broadly in 2005 with a remarkable list of features for a games machine: 3D graphics, GPS, a camera, messaging and wireless connectivity. Built around Windows CE, it aimed to be much more than a simple cartridge console. The ambitious hardware and troubled business behind it never found a lasting audience. Today it stands as one of the most peculiar examples of how far handheld makers were willing to experiment."
+          "article": "The Gizmondo reached UK shops in 2005 with a remarkable list of features for a games machine: 3D graphics, GPS, a camera, messaging and wireless connectivity. Built around Windows CE, it aimed to be much more than a simple cartridge console. The ambitious hardware and troubled business behind it never found a lasting audience. Today it stands as one of the most peculiar examples of how far handheld makers were willing to experiment."
         },
         "es": {
           "headline": "La portátil que lo intentó todo",
-          "article": "Gizmondo se lanzó ampliamente en 2005 con una lista insólita de funciones para una consola: gráficos 3D, GPS, cámara, mensajería y conexiones inalámbricas. Basada en Windows CE, quería ser mucho más que una máquina de juegos. El ambicioso hardware y los problemas empresariales no lograron conquistar al público. Hoy sigue siendo uno de los ejemplos más extraños de hasta dónde estaban dispuestos a experimentar los fabricantes."
+          "article": "Gizmondo llegó a las tiendas británicas en 2005 con funciones insólitas para una consola: gráficos 3D, GPS, cámara, mensajería y conexiones inalámbricas. Basada en Windows CE, quería ser mucho más que una máquina de juegos. El ambicioso hardware y los problemas empresariales no lograron conquistar al público. Hoy sigue siendo uno de los ejemplos más extraños de hasta dónde estaban dispuestos a experimentar los fabricantes."
         },
         "pt-BR": {
           "headline": "O portátil que tentou de tudo",
-          "article": "O Gizmondo chegou ao mercado em 2005 com recursos impressionantes para um videogame de bolso: gráficos 3D, GPS, câmera, mensagens e conexão sem fio. Baseado em Windows CE, pretendia ser muito mais que um console de cartuchos. O hardware ambicioso e os problemas da empresa não conquistaram um público duradouro. Hoje é um dos exemplos mais curiosos da vontade de experimentar na história dos portáteis."
+          "article": "O Gizmondo chegou às lojas britânicas em 2005 com recursos impressionantes para um videogame de bolso: gráficos 3D, GPS, câmera, mensagens e conexão sem fio. Baseado em Windows CE, pretendia ser muito mais que um console de cartuchos. O hardware ambicioso e os problemas da empresa não conquistaram um público duradouro. Hoje é um dos exemplos mais curiosos da vontade de experimentar na história dos portáteis."
         },
         "ru": {
           "headline": "Портативка, которая хотела всё",
-          "article": "Gizmondo широко вышла на рынок в 2005 году с невероятным для игровой приставки набором функций: 3D-графика, GPS, камера, сообщения и беспроводная связь. На базе Windows CE создатели пытались построить нечто большее, чем просто консоль. Смелое железо и проблемы компании не помогли завоевать аудиторию. Сегодня Gizmondo остаётся одним из самых причудливых примеров инженерных амбиций эпохи портативных устройств."
+          "article": "Gizmondo появилась в британских магазинах в 2005 году с необычным для приставки набором функций: 3D-графика, GPS, камера, сообщения и беспроводная связь. На базе Windows CE создатели пытались построить нечто большее, чем просто консоль. Смелое железо и проблемы компании не помогли завоевать аудиторию. Сегодня Gizmondo остаётся одним из самых причудливых примеров инженерных амбиций эпохи портативных устройств."
         },
         "fr": {
           "headline": "La console qui voulait tout faire",
-          "article": "La Gizmondo arrive largement sur le marché en 2005 avec une liste étonnante de fonctions : graphismes 3D, GPS, appareil photo, messages et liaisons sans fil. Fondée sur Windows CE, elle voulait être bien plus qu'une simple console. Son matériel ambitieux et les difficultés de l'entreprise ne lui apportèrent pas de public durable. Elle reste l'une des expériences les plus singulières de l'histoire du jeu portable."
+          "article": "La Gizmondo arrive dans les boutiques britanniques en 2005 avec une liste étonnante de fonctions : graphismes 3D, GPS, appareil photo, messages et liaisons sans fil. Fondée sur Windows CE, elle voulait être bien plus qu'une simple console. Son matériel ambitieux et les difficultés de l'entreprise ne lui apportèrent pas de public durable. Elle reste l'une des expériences les plus singulières de l'histoire du jeu portable."
         },
         "de": {
           "headline": "Der Handheld, der alles wollte",
-          "article": "Der Gizmondo kam 2005 mit einer erstaunlichen Ausstattung auf den Markt: 3D-Grafik, GPS, Kamera, Nachrichten und Funkverbindungen. Auf Basis von Windows CE sollte er weit mehr als eine Spielkonsole sein. Die ambitionierte Hardware und geschäftliche Probleme fanden jedoch kein dauerhaftes Publikum. Heute steht Gizmondo für einen der eigenwilligsten Versuche, möglichst viel Technik in einen Handheld zu stecken."
+          "article": "Der Gizmondo kam 2005 zunächst in Großbritannien mit einer erstaunlichen Ausstattung auf den Markt: 3D-Grafik, GPS, Kamera, Nachrichten und Funkverbindungen. Auf Basis von Windows CE sollte er weit mehr als eine Spielkonsole sein. Die ambitionierte Hardware und geschäftliche Probleme fanden jedoch kein dauerhaftes Publikum. Heute steht Gizmondo für einen der eigenwilligsten Versuche, möglichst viel Technik in einen Handheld zu stecken."
         },
         "ja": {
           "headline": "何でも目指した携帯機",
-          "article": "2005年に本格発売されたGizmondoは、携帯ゲーム機としては驚くほど多機能だった。3D描画、GPS、カメラ、メッセージ、無線通信を備え、Windows CEを基盤にゲーム機以上の存在を目指した。しかし意欲的なハードウェアと企業の問題は、長続きする市場につながらなかった。いまでは携帯機メーカーの大胆な実験を象徴する珍しい一台となっている。"
+          "article": "Gizmondoは2005年に英国で発売され、携帯ゲーム機としては驚くほど多機能だった。3D描画、GPS、カメラ、メッセージ、無線通信を備え、Windows CEを基盤にゲーム機以上の存在を目指した。しかし意欲的なハードウェアと企業の問題は、長続きする市場につながらなかった。いまでは携帯機メーカーの大胆な実験を象徴する珍しい一台となっている。"
         },
         "zh-CN": {
           "headline": "什么都想做到的掌机",
-          "article": "Gizmondo 在 2005 年广泛上市时，拥有当时游戏掌机中罕见的功能组合：3D 图形、GPS、摄像头、消息和无线连接。它基于 Windows CE，希望成为远不止游戏机的设备。然而激进的硬件构想与公司的经营问题没能换来持久的用户群。如今它是掌机发展史上最奇特的技术实验之一。"
+          "article": "Gizmondo 于 2005 年在英国上市，拥有当时掌机中罕见的功能组合：3D 图形、GPS、摄像头、消息和无线连接。它基于 Windows CE，希望成为远不止游戏机的设备。然而激进的硬件构想与公司的经营问题没能换来持久的用户群。如今它是掌机发展史上最奇特的技术实验之一。"
         }
       }
     },
@@ -227,10 +231,12 @@
       "image": "design-concepts/platform-stickers/hartung.webp",
       "imageAttribution": "design-concepts/platform-stickers/README.md",
       "sources": [
-        "https://en.wikipedia.org/wiki/Game_Master_%28console%29"
+        "https://en.wikipedia.org/wiki/Game_Master_%28console%29",
+        "https://www.vgdb.co/platforms/hartung-game-master",
+        "https://www.rfgeneration.com/PHP/gethwinfo.php?ID=E-096-H-00011-A"
       ],
       "specs": {
-        "display": "61 × 64 px",
+        "display": "Monochrome LCD",
         "media": "ROM cartridges",
         "input": "D-pad / buttons"
       },
@@ -278,7 +284,8 @@
       "image": "design-concepts/platform-stickers/epoch.webp",
       "imageAttribution": "design-concepts/platform-stickers/README.md",
       "sources": [
-        "https://en.wikipedia.org/wiki/Epoch_Game_Pocket_Computer"
+        "https://miniarcade.com/epoch/pgc.php",
+        "https://adb.arcadeitalia.net/dettaglio_mame.php?game_name=gamepock"
       ],
       "specs": {
         "display": "75 × 64 px",
