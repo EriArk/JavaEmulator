@@ -179,7 +179,7 @@
       "image": "design-concepts/platform-stickers/gp32.webp",
       "imageAttribution": "design-concepts/platform-stickers/README.md",
       "sources": [
-        "https://www.coleka.com/en/video-games/game-park/gp32_r12017",
+        "https://gamesdb.launchbox-app.com/platforms/details/135-gamepark-gp32",
         "https://github.com/gameblabla/gp32emu"
       ],
       "specs": {
@@ -231,8 +231,7 @@
       "image": "design-concepts/platform-stickers/supervision.webp",
       "imageAttribution": "design-concepts/platform-stickers/README.md",
       "sources": [
-        "https://en.wikipedia.org/wiki/Watara_Supervision",
-        "https://www.retrogames.cz/hardware.php?id=24"
+        "https://en.wikipedia.org/wiki/Watara_Supervision"
       ],
       "specs": {
         "display": "160 × 160 px",
@@ -283,7 +282,7 @@
       "image": "design-concepts/platform-stickers/megaduck.webp",
       "imageAttribution": "design-concepts/platform-stickers/README.md",
       "sources": [
-        "https://wiki.recalbox.com/en/emulators/handhelds/megaduck",
+        "https://www.ithistory.org/hardware/mega-duck",
         "https://en.wikipedia.org/wiki/Mega_Duck"
       ],
       "specs": {
