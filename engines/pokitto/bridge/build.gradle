@@ -1,0 +1,19 @@
+plugins { id 'com.android.library' }
+android {
+    namespace 'io.github.eriark.abyssme.pokitto.bridge'
+    compileSdk 34
+    defaultConfig { minSdk 29 }
+    sourceSets.main.jniLibs.srcDir rootProject.file('build/pokitto/jniLibs')
+}
+if (!rootProject.file('build/pokitto/jniLibs/arm64-v8a/libabysspokitto.so').isFile())
+    throw new GradleException('Build the pinned Pokitto frontend first (engines/pokitto/README.md)')
+
+def stickers = tasks.register('preparePokittoStickers', Sync) {
+    from(rootProject.file('design-concepts/platform-stickers')) {
+        include 'pokitto.webp'
+        rename { name -> "sticker_" + name }
+    }
+    into layout.buildDirectory.dir('generated/deviceArt/drawable-nodpi')
+}
+android.sourceSets.main.res.srcDir layout.buildDirectory.dir('generated/deviceArt')
+tasks.named('preBuild').configure { dependsOn stickers }

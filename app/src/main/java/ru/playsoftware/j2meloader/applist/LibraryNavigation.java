@@ -38,6 +38,7 @@ final class LibraryNavigation {
                 || (id == 22 && BuildConfig.POCKETPC_PROBE)
                 || (id == 25 && BuildConfig.ARDUBOY_PROBE)
                 || (id == 26 && BuildConfig.GAMEBUINO_PROBE)
+                || (id == 27 && BuildConfig.POKITTO_PROBE)
                 || (id == 24 && BuildConfig.IPHONE_PROBE)
                 || (id == 23 && BuildConfig.GIZMONDO_PROBE);
     }

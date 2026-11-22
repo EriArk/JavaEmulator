@@ -10,6 +10,10 @@ stated otherwise. **Experimental** in older checkpoints means local/private
 combined builds; released experimental features are explicitly identified.
 **Released** means an actual GitHub release asset.
 
+## 2026-11-22 - Pokitto
+
+**Unreleased source and private ARM64 build.** Added the Pokitto sticker, library tab, BIN and POP import, bundled SD files, writable storage and native controls. On Retroid, MicroCity restored a saved city and Galaxy Fighter played stage one with audio. [Device check](docs/checks/2026-11-22-pokitto.md).
+
 ## 2026-11-22 - Gamebuino Classic
 
 **Unreleased source and private ARM64 build.** Added the Classic platform tile and library tab, HEX and ZIP import, D-pad and A/B/C mapping, SD image mounting and per-game EEPROM. Bomber produced gameplay audio on Retroid and the Gamebuino CHIP-8 player loaded BRIX from SD. [Device verification](docs/checks/2026-11-22-gamebuino.md).

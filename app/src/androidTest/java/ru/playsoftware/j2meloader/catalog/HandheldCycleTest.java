@@ -187,6 +187,29 @@ public class HandheldCycleTest {
         assertEquals(item.getPath(), ExternalLibrary.packageProvider(26).install(isolated, Uri.fromFile(hex)).getPath());
     }
 
+    @Test public void pokittoAddsSdCompanionsOnReimportAndRecognizesTheProgram() throws Exception {
+        Assume.assumeTrue(ru.playsoftware.j2meloader.BuildConfig.POKITTO_PROBE);
+        File game = new File(work, "Town.bin");
+        byte[] bytes = new byte[32];
+        java.nio.ByteBuffer.wrap(bytes).order(java.nio.ByteOrder.LITTLE_ENDIAN).putInt(0x10008000).putInt(17);
+        Files.write(game.toPath(), bytes);
+        assertEquals(Collections.singleton(27), HandheldFormat.detect(c, Uri.fromFile(game), game.getName()));
+        File destination = new File(work, "pokitto");
+        Context sandbox = isolated(destination);
+        ExternalLibrary.Item loose = ExternalLibrary.packageProvider(27).install(sandbox, Uri.fromFile(game));
+        File bundle = new File(work, "Town.zip");
+        try (ZipOutputStream out = new ZipOutputStream(new FileOutputStream(bundle))) {
+            out.putNextEntry(new ZipEntry("Town/Town.bin")); out.write(bytes);
+            out.putNextEntry(new ZipEntry("Town/music/track.bin")); out.write(new byte[]{1, 2, 3});
+        }
+        assertEquals(Collections.singleton(27), HandheldFormat.detect(c, Uri.fromFile(bundle), bundle.getName()));
+        ExternalLibrary.Item complete = ExternalLibrary.packageProvider(27).install(sandbox, Uri.fromFile(bundle));
+        assertEquals(loose.getPath(), complete.getPath());
+        File pkg = new File(destination, "pokitto/packages/" + SourceIdentity.sha256(game));
+        assertArrayEquals(new byte[]{1, 2, 3}, Files.readAllBytes(new File(pkg, "sd-files/music/track.bin").toPath()));
+        assertEquals(64, new File(pkg, "sd-version").length());
+    }
+
     @Test public void webOsZipUsesSameInstalledIdentityAsLooseGame() throws Exception {
         Assume.assumeTrue(ru.playsoftware.j2meloader.BuildConfig.WEBOS_PROBE);
         checkZipIdentity(new File(c.getExternalFilesDir(null), "webos-check/2048.ipk"), 18);
@@ -256,6 +279,7 @@ public class HandheldCycleTest {
         if (ru.playsoftware.j2meloader.BuildConfig.PORTFOLIO_PROBE && new File(source,"portfolio/packages").isDirectory()) ids.add(21);
         if (ru.playsoftware.j2meloader.BuildConfig.ARDUBOY_PROBE && new File(source,"arduboy/packages").isDirectory()) ids.add(25);
         if (ru.playsoftware.j2meloader.BuildConfig.GAMEBUINO_PROBE && new File(source,"gamebuino/packages").isDirectory()) ids.add(26);
+        if (ru.playsoftware.j2meloader.BuildConfig.POKITTO_PROBE && new File(source,"pokitto/packages").isDirectory()) ids.add(27);
         if (ru.playsoftware.j2meloader.BuildConfig.IPHONE_PROBE && new File(source,"iphone/packages").isDirectory()) ids.add(24);
         return ids;
     }

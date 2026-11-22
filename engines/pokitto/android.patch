@@ -1,0 +1,65 @@
+--- a/screen.cpp
++++ b/screen.cpp
+@@ -5 +5 @@
+-#include <SDL2/SDL.h>
++
+--- a/thumb2.cpp
++++ b/thumb2.cpp
+@@ -1757 +1757 @@
+-#if !defined(__EMSCRIPTEN__)
++#if !defined(__EMSCRIPTEN__) && !defined(POKITTO_ANDROID)
+--- a/iap.cpp
++++ b/iap.cpp
+@@ -13,0 +14,4 @@
++        if (eeAddress > sizeof(MMU::eeprom) || byteCount > sizeof(MMU::eeprom) - eeAddress) {
++            MMU::write32(r1, 13);
++            return;
++        }
+@@ -25,0 +30,4 @@
++        if (eeAddress > sizeof(MMU::eeprom) || byteCount > sizeof(MMU::eeprom) - eeAddress) {
++            MMU::write32(r1, 13);
++            return;
++        }
+@@ -52 +60,2 @@
+-	if( dst + len > sizeof(MMU::flash) ){
++	if (dst >= sizeof(MMU::flash)) { MMU::write32(r1, 3); return; }
++	if( len > sizeof(MMU::flash) - dst ){
+--- a/sd.cpp
++++ b/sd.cpp
+@@ -11,0 +12,4 @@
++namespace Card {
++    bool read(u32 block, u8 *data);
++    bool write(u32 block, const u8 *data);
++}
+@@ -13,0 +18 @@
++    static u8 sector[512];
+@@ -161 +166 @@
+-	    u32 addr = arg*512;
++	    if (!Card::read(arg, sector)) { response = {0x20}; state = 1; return; }
+@@ -167 +172 @@
+-		u8 ret = image[addr++];
++		u8 ret = sector[i];
+@@ -178 +183 @@
+-	    u32 addr = arg*512;
++	    if (!Card::read(arg, sector)) { response = {0x20}; state = 1; return; }
+@@ -186 +191 @@
+-		u8 ret = image[addr++];
++		u8 ret = sector[i];
+@@ -202 +207 @@
+-	    writeAddress = arg * 512;
++	    writeAddress = arg;
+@@ -370 +375 @@
+-	    image[ writeAddress++ ] = b;
++	    sector[512 - writeCount] = b;
+@@ -372,2 +377,4 @@
+-	    if( !writeCount )
+-		state++;
++	    if (!writeCount) {
++                if (!Card::write(writeAddress++, sector)) { state = 1; SPI::spi0In(0x0D, true); return; }
++                state++;
++            }
+--- a/ChaN/file_integer.h
++++ b/ChaN/file_integer.h
+@@ -34 +34 @@
+-typedef unsigned long   DWORD;
++typedef unsigned int    DWORD;

@@ -48,6 +48,7 @@ public final class HandheldFormat {
         String s=name.toLowerCase(Locale.ROOT);
         if (BuildConfig.ARDUBOY_PROBE && (s.endsWith(".hex") || s.endsWith(".arduboy"))) return 25;
         if (BuildConfig.GAMEBUINO_PROBE && s.endsWith(".hex")) return 26;
+        if (BuildConfig.POKITTO_PROBE && s.endsWith(".pop")) return 27;
         if (BuildConfig.IPHONE_PROBE && s.endsWith(".ipa")) return 24;
         if (BuildConfig.POCKETPC_PROBE && s.endsWith(".cab")) return 22;
         if (BuildConfig.PORTFOLIO_PROBE && s.endsWith(".com")) return 21;
@@ -68,7 +69,7 @@ public final class HandheldFormat {
     private static boolean binaryFile(String name) {
         return name.endsWith(".bin") || ((BuildConfig.GAMATE_PROBE || BuildConfig.PALM_PROBE) && name.endsWith(".rom"));
     }
-    static boolean enabled() { return BuildConfig.GAMEBUINO_PROBE || BuildConfig.ARDUBOY_PROBE || BuildConfig.IPHONE_PROBE || BuildConfig.WIPI_PROBE || BuildConfig.DINGOO_PROBE || BuildConfig.PIECE_PROBE || BuildConfig.GP32_PROBE || BuildConfig.SUPERVISION_PROBE || BuildConfig.MEGADUCK_PROBE || BuildConfig.CYBIKO_PROBE || BuildConfig.FLASH_PROBE || BuildConfig.GAMATE_PROBE || BuildConfig.GAMEKING_PROBE || BuildConfig.PALM_PROBE || BuildConfig.MRE_PROBE || BuildConfig.WEBOS_PROBE || BuildConfig.B2G_PROBE || BuildConfig.PORTFOLIO_PROBE || BuildConfig.POCKETPC_PROBE; }
+    static boolean enabled() { return BuildConfig.POKITTO_PROBE || BuildConfig.GAMEBUINO_PROBE || BuildConfig.ARDUBOY_PROBE || BuildConfig.IPHONE_PROBE || BuildConfig.WIPI_PROBE || BuildConfig.DINGOO_PROBE || BuildConfig.PIECE_PROBE || BuildConfig.GP32_PROBE || BuildConfig.SUPERVISION_PROBE || BuildConfig.MEGADUCK_PROBE || BuildConfig.CYBIKO_PROBE || BuildConfig.FLASH_PROBE || BuildConfig.GAMATE_PROBE || BuildConfig.GAMEKING_PROBE || BuildConfig.PALM_PROBE || BuildConfig.MRE_PROBE || BuildConfig.WEBOS_PROBE || BuildConfig.B2G_PROBE || BuildConfig.PORTFOLIO_PROBE || BuildConfig.POCKETPC_PROBE; }
     static boolean candidate(String name) {
         String s=name.toLowerCase(Locale.ROOT);
         return enabled() && (platform(s)!=0 || s.endsWith(".zip") || binaryFile(s) || s.endsWith(".exe"));
@@ -104,6 +105,11 @@ public final class HandheldFormat {
                         }
                         if (e.isDirectory()) continue;
                         int id=platform(p);
+                        if (BuildConfig.POKITTO_PROBE && p.endsWith(".bin") && e.getSize() <= 262144) {
+                            try (InputStream in = zip.getInputStream(e)) {
+                                if (pokittoVector(prefix(in, 8), e.getSize())) id = 27;
+                            }
+                        }
                         if (BuildConfig.PORTFOLIO_PROBE && p.endsWith(".exe")) {
                             try (InputStream in=zip.getInputStream(e)) { if (dosProgram(in, e.getSize())) id=21; }
                         }
@@ -208,6 +214,7 @@ public final class HandheldFormat {
         return 0;
     }
     private static int cartridgeOrFirmware(InputStream in, byte[] header, long length) throws IOException {
+        if (BuildConfig.POKITTO_PROBE && pokittoVector(header, length)) return 27;
         if (BuildConfig.PALM_PROBE && header.length >= 12) {
             java.nio.ByteBuffer words = java.nio.ByteBuffer.wrap(header);
             int card = words.getInt(8);
@@ -256,6 +263,14 @@ public final class HandheldFormat {
         int low = in.read(), high = in.read();
         return low >= 0 && high >= 0x80 ? 10 : 0;
     }
+    public static boolean pokittoVector(byte[] header, long length) {
+        if (header.length < 8 || (length >= 0 && (length < 8 || length > 262144))) return false;
+        java.nio.ByteBuffer words = java.nio.ByteBuffer.wrap(header).order(java.nio.ByteOrder.LITTLE_ENDIAN);
+        int stack = words.getInt(), reset = words.getInt();
+        boolean ram = (stack > 0x10000000 && stack <= 0x10008000)
+                || (stack > 0x20000000 && stack <= 0x20000800) || (stack > 0x20004000 && stack <= 0x20004800);
+        return ram && (stack & 3) == 0 && (reset & 1) == 1 && reset >= 9 && reset < (length < 0 ? 262144 : length);
+    }
     private static boolean cybiko(byte[] h) { return BuildConfig.CYBIKO_PROBE && h.length >= 4 && h[0]=='C' && h[1]=='y'; }
     private static byte[] prefix(InputStream in,int size) throws IOException {
         byte[] bytes=new byte[size];int n=0;
@@ -263,7 +278,7 @@ public final class HandheldFormat {
         return Arrays.copyOf(bytes,n);
     }
     public static int indexedPlatform(String path) {
-        if (path != null && path.matches("pending_([5-9]|1[0-9]|2[0-6])_[a-f0-9]+"))
+        if (path != null && path.matches("pending_([5-9]|1[0-9]|2[0-7])_[a-f0-9]+"))
             return Integer.parseInt(path.substring(8, path.indexOf('_', 8)));
         return 0;
     }

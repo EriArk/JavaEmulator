@@ -14,6 +14,10 @@ attribute its results to the dated maintainer record below; do not infer a pass.
 
 The [platform issue index](PLATFORM_ISSUES.md) maps the 51 open platform-specific tasks to the maintainer roadmap, including the initial integration order and scope decisions.
 
+## Pokitto (2026-11-22, private Retroid build)
+
+The Pokitto tile opens a library for BIN, POP and ZIP packages. MicroCity saved and reopened a city from its virtual SD card. Galaxy Fighter imported its artwork and music from the author’s ZIP and reached first-stage combat with digital audio. The shared graphics and physical mapping settings persisted through relaunch. [Device results and launcher screenshot](checks/2026-11-22-pokitto.md).
+
 ## Gamebuino Classic (2026-11-22, private Retroid build)
 
 The combined build imports Classic HEX programs, ZIP packages and companion SD images. Bomber reached single-player gameplay with touch and controller input and recorded audio. The CHIP-8 player loaded BRIX from its writable game card. The adapter shares the library, graphics and controller profiles. A guest EEPROM write survived a cold launch. [Device checks](checks/2026-11-22-gamebuino.md).

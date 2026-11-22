@@ -1581,6 +1581,7 @@ public class AppsListFragment extends Fragment implements AppsListAdapter.Listen
 				: platform == 15 ? getString(R.string.library_gameking_import_hint)
 				: platform == 25 ? getString(R.string.library_arduboy_import_hint)
 				: platform == 26 ? getString(R.string.library_gamebuino_import_hint)
+				: platform == 27 ? getString(R.string.library_pokitto_import_hint)
 				: platform == 24 ? getString(R.string.library_iphone_import_hint)
 				: platform == 23 ? getString(R.string.library_gizmondo_import_hint)
 				: platform == 22 ? getString(R.string.library_pocketpc_import_hint)

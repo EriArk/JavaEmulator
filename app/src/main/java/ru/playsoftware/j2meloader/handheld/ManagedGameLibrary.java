@@ -46,6 +46,7 @@ public abstract class ManagedGameLibrary implements ExternalLibrary.PackageProvi
         }
     }
 
+    protected void mergePackage(File stage, File target) throws IOException {}
     protected void imported(Context context, String id, Properties info) throws IOException {}
 
     protected File root(Context c) { return new File(StoragePaths.library(c), engine + "/packages"); }
@@ -76,6 +77,7 @@ public abstract class ManagedGameLibrary implements ExternalLibrary.PackageProvi
             File dir = new File(root, id);
             File game = new File(dir, filename(info));
             if (game.isFile()) {
+                mergePackage(tmp, dir);
                 Properties existing = load(dir);
                 existing.setProperty("source",source);
                 store(dir,existing);

@@ -86,6 +86,10 @@ if (providers.gradleProperty('gamebuinoProbe').orNull == 'true') {
     include ':gamebuino-probe'
     project(':gamebuino-probe').projectDir = file('engines/gamebuino/bridge')
 }
+if (providers.gradleProperty('pokittoProbe').orNull == 'true') {
+    include ':pokitto-probe'
+    project(':pokitto-probe').projectDir = file('engines/pokitto/bridge')
+}
 if (providers.gradleProperty('iphoneProbe').orNull == 'true') {
     include ':iphone-probe'
     project(':iphone-probe').projectDir = file('engines/iphone/bridge')
