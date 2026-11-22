@@ -1,0 +1,87 @@
+diff --git a/ports/webassembly/Makefile b/ports/webassembly/Makefile
+index 43fc1b2..d74aad8 100644
+--- a/ports/webassembly/Makefile
++++ b/ports/webassembly/Makefile
+@@ -52 +52 @@ INC += -I$(VARIANT_DIR)
+-CFLAGS += -std=c99 -Werror -Wfloat-conversion
++CFLAGS += -std=gnu99 -O2 -Wfloat-conversion
+@@ -79 +79 @@ EXPORTED_RUNTIME_METHODS_EXTRA += ,\
+-	PATH_FS,\
++	PATH_FS,HEAPU16,HEAPF32,\
+@@ -104 +104 @@ JSFLAGS += --js-library library.js
+-JSFLAGS += -s SUPPORT_LONGJMP=emscripten -sEMULATE_FUNCTION_POINTER_CASTS
++JSFLAGS += -O2 -s SUPPORT_LONGJMP=emscripten -sEMULATE_FUNCTION_POINTER_CASTS
+diff --git a/ports/webassembly/api.js b/ports/webassembly/api.js
+index eb0a3d6..fa99c70 100644
+--- a/ports/webassembly/api.js
++++ b/ports/webassembly/api.js
+@@ -150 +150 @@ export async function loadMicroPython(options) {
+-        runPythonAsync(code) {
++        async runPythonAsync(code) {
+@@ -155 +155 @@ export async function loadMicroPython(options) {
+-            Module.ccall(
++            await Module.ccall(
+diff --git a/ports/webassembly/library.js b/ports/webassembly/library.js
+index 3f6c9cb..e93d4b1 100644
+--- a/ports/webassembly/library.js
++++ b/ports/webassembly/library.js
+@@ -31 +31 @@ mergeInto(LibraryManager.library, {
+-    mp_js_ticks_ms: () => Date.now() - MP_JS_EPOCH,
++    mp_js_ticks_ms: () => self.colorMillis(),
+diff --git a/ports/webassembly/mpconfigport.h b/ports/webassembly/mpconfigport.h
+index e26767c..8891ef6 100644
+--- a/ports/webassembly/mpconfigport.h
++++ b/ports/webassembly/mpconfigport.h
+@@ -100 +100 @@
+-#define MICROPY_VM_HOOK_COUNT (10)
++#define MICROPY_VM_HOOK_COUNT (128)
+diff --git a/py/compile.c b/py/compile.c
+index d2af6aa..9160f9e 100644
+--- a/py/compile.c
++++ b/py/compile.c
+@@ -850,0 +851,4 @@ static bool compile_built_in_decorator(compiler_t *comp, size_t name_len, mp_par
++    #elif defined(__EMSCRIPTEN__)
++    } else if (attr == MP_QSTR_native || attr == MP_QSTR_viper) {
++        // The web port executes portable function bodies in its bytecode VM.
++        *emit_options = MP_EMIT_OPT_BYTECODE;
+diff --git a/py/modbuiltins.c b/py/modbuiltins.c
+index 51cf313..2b8b352 100644
+--- a/py/modbuiltins.c
++++ b/py/modbuiltins.c
+@@ -602,0 +603,30 @@ MP_DEFINE_CONST_FUN_OBJ_1(mp_builtin_len_obj, mp_obj_len);
++#if defined(__EMSCRIPTEN__)
++#include "py/objarray.h"
++
++// Bounded aliases for the byte buffers used by guest Viper drawing routines.
++// Keep the allocation base visible to the GC when casting a sliced view.
++static mp_obj_t color_buffer_view(mp_obj_t value, char typecode, size_t stride) {
++    mp_buffer_info_t info;
++    mp_get_buffer_raise(value, &info, MP_BUFFER_READ);
++    void *base = info.buf;
++    size_t offset = 0;
++    if (mp_obj_is_type(value, &mp_type_memoryview)) {
++        base = ((mp_obj_array_t *)MP_OBJ_TO_PTR(value))->items;
++        offset = (uintptr_t)info.buf - (uintptr_t)base;
++    }
++    if ((uintptr_t)info.buf % stride || offset % stride) {
++        mp_raise_ValueError(MP_ERROR_TEXT("unaligned buffer view"));
++    }
++    mp_obj_array_t *view = MP_OBJ_TO_PTR(mp_obj_new_memoryview(typecode, info.len / stride, base));
++    view->free = offset / stride;
++    if (mp_get_buffer(value, &info, MP_BUFFER_RW)) view->typecode |= MP_OBJ_ARRAY_TYPECODE_FLAG_RW;
++    return MP_OBJ_FROM_PTR(view);
++}
++static mp_obj_t color_ptr8(mp_obj_t obj) { return color_buffer_view(obj, 'B', 1); }
++static mp_obj_t color_ptr16(mp_obj_t obj) { return color_buffer_view(obj, 'H', 2); }
++static mp_obj_t color_ptr32(mp_obj_t obj) { return color_buffer_view(obj, 'I', 4); }
++static MP_DEFINE_CONST_FUN_OBJ_1(color_ptr8_obj, color_ptr8);
++static MP_DEFINE_CONST_FUN_OBJ_1(color_ptr16_obj, color_ptr16);
++static MP_DEFINE_CONST_FUN_OBJ_1(color_ptr32_obj, color_ptr32);
++#endif
++
+@@ -637,0 +668,5 @@ static const mp_rom_map_elem_t mp_module_builtins_globals_table[] = {
++    #if defined(__EMSCRIPTEN__)
++    { MP_ROM_QSTR(MP_QSTR_ptr8), MP_ROM_PTR(&color_ptr8_obj) },
++    { MP_ROM_QSTR(MP_QSTR_ptr16), MP_ROM_PTR(&color_ptr16_obj) },
++    { MP_ROM_QSTR(MP_QSTR_ptr32), MP_ROM_PTR(&color_ptr32_obj) },
++    #endif

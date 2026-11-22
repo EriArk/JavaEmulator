@@ -10,6 +10,10 @@ stated otherwise. **Experimental** in older checkpoints means local/private
 combined builds; released experimental features are explicitly identified.
 **Released** means an actual GitHub release asset.
 
+## 2026-11-22 - Thumby Color
+
+**Unreleased source and private ARM64 build.** Added the Color launcher tile and game shelf, offline Tiny Game Engine, four-channel sound, Color button mapping and portable per-game saves. FroggyRoad and BustAThumb ran on Retroid. [Device results](docs/checks/2026-11-22-thumby-color.md).
+
 ## 2026-11-22 - Original Thumby
 
 **Unreleased source and private ARM64 build.** Added the Thumby shelf and device sticker, offline MicroPython runtime, script and ZIP import, arcade artwork, shared D-pad and B/A mapping, and per-game flash saves. Three catalog games ran on Retroid. [Device checks](docs/checks/2026-11-22-thumby.md).

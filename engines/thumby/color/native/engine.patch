@@ -1,0 +1,48 @@
+diff --git a/src/audio/engine_audio_module.c b/src/audio/engine_audio_module.c
+index 0382ecb..aad744d 100644
+--- a/src/audio/engine_audio_module.c
++++ b/src/audio/engine_audio_module.c
+@@ -44 +44 @@ float engine_audio_get_master_volume(){
+-    // Nothing to do
++    #include "abyss_color_mixer.inc"
+diff --git a/src/engine.c b/src/engine.c
+index 971ec7a..8d52847 100644
+--- a/src/engine.c
++++ b/src/engine.c
+@@ -40,3 +40,12 @@
+-    EM_JS(void, new_hook, (), {
+-        self.main_call();
+-    });
++    void new_hook(void) {
++        static double deadline;
++        double now = emscripten_get_now();
++        if (now < deadline) return;
++        int running = EM_ASM_INT({ return self.colorRunning === true; });
++        if (running) {
++            EM_ASM({ self.colorPump(); });
++            do { emscripten_sleep(1); }
++            while (EM_ASM_INT({ return self.colorPaused === true; }));
++        }
++        deadline = emscripten_get_now() + 8;
++    }
+@@ -255,0 +265,3 @@ TRACE_DECL(bool engine_tick, (),
++    #ifdef __EMSCRIPTEN__
++    new_hook();
++    #endif
+diff --git a/src/micropython.mk b/src/micropython.mk
+index f4b5bf2..8199eaa 100644
+--- a/src/micropython.mk
++++ b/src/micropython.mk
+@@ -92 +92 @@ LDFLAGS_USERMOD += -lstdc++
+-LDFLAGS_EXTRA += -lSDL2 -lpthread
++# Android WebView uses AbyssME display and audio callbacks.
+diff --git a/src/utility/engine_time.c b/src/utility/engine_time.c
+index 7732648..cb7166d 100644
+--- a/src/utility/engine_time.c
++++ b/src/utility/engine_time.c
+@@ -5,0 +6 @@
++    #include <emscripten.h>
+@@ -53,2 +54 @@ uint32_t millis_internal(){
+-        gettimeofday(&tv, NULL);
+-        return tv.tv_sec * 1000LL + tv.tv_usec / 1000;
++        return (uint32_t)EM_ASM_DOUBLE({ return self.colorMillis(); });

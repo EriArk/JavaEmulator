@@ -7,6 +7,7 @@ android {
 def stickers = tasks.register('prepareThumbyStickers', Sync) {
     from(rootProject.file('design-concepts/platform-stickers')) {
         include 'thumby.webp'
+        if (project.findProperty('thumbyColorProbe') == 'true') include 'thumby_color.webp'
         rename { name -> "sticker_" + name }
     }
     into layout.buildDirectory.dir('generated/deviceArt/drawable-nodpi')
@@ -19,5 +20,15 @@ tasks.named('preBuild').configure {
     doFirst {
         if (!rootProject.file('build/thumby/assets/thumby/emulator-firmware.uf2').isFile())
             throw new GradleException('Prepare the Thumby runtime with engines/thumby/prepare.py first')
+    }
+}
+
+if (project.findProperty('thumbyColorProbe') == 'true') {
+    android.sourceSets.main.assets.srcDirs rootProject.file('engines/thumby/color/assets'), rootProject.file('build/thumby-color/assets')
+    tasks.named('preBuild').configure {
+        doFirst {
+            if (!rootProject.file('build/thumby-color/assets/color/micropython.wasm').isFile())
+                throw new GradleException('Build the Color runtime with engines/thumby/color/build.sh first')
+        }
     }
 }

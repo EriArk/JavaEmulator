@@ -11,8 +11,16 @@ import java.util.zip.*;
 import ru.playsoftware.j2meloader.catalog.*;
 import ru.playsoftware.j2meloader.handheld.ManagedGameLibrary;
 
-public final class ThumbyLibrary extends ManagedGameLibrary {
-    public ThumbyLibrary() { super("thumby", ThumbyGameActivity.class); }
+public class ThumbyLibrary extends ManagedGameLibrary {
+    public static final class Color extends ThumbyLibrary {
+        public Color() { super(true); }
+    }
+    private final boolean color;
+    public ThumbyLibrary() { this(false); }
+    private ThumbyLibrary(boolean color) {
+        super(color ? "thumby_color" : "thumby", color ? ThumbyColorActivity.class : ThumbyGameActivity.class);
+        this.color = color;
+    }
 
     @Override protected String inspect(Context c, File file, String name, Properties info) throws IOException {
         if (name.toLowerCase(Locale.ROOT).endsWith(".py")) {
@@ -26,7 +34,8 @@ public final class ThumbyLibrary extends ManagedGameLibrary {
             Files.move(packed.toPath(), file.toPath(), StandardCopyOption.REPLACE_EXISTING);
         }
         try (ZipFile zip = new ZipFile(file)) {
-            ThumbyPackage game = ThumbyPackage.read(zip);
+            ThumbyPackage game = ThumbyPackage.read(zip, color, name.replaceFirst("(?i)\\.(zip|py)$", ""));
+            if (color) info.setProperty("directory", game.title);
             info.setProperty("title", game.title);
             // Identity is independent of ZIP compression, wrapper folders and optional arcade artwork.
             java.security.MessageDigest digest;
@@ -47,7 +56,9 @@ public final class ThumbyLibrary extends ManagedGameLibrary {
                     }
                 }
             }
-            if (game.movie != null) extractMovie(zip, game.movie, file.getParentFile());
+            if (game.cover != null) try (InputStream in = zip.getInputStream(game.cover)) {
+                Files.copy(in, new File(file.getParentFile(), "cover.png").toPath(), StandardCopyOption.REPLACE_EXISTING);
+            } else if (game.movie != null) extractMovie(zip, game.movie, file.getParentFile());
             StringBuilder hex = new StringBuilder();
             for (byte b : digest.digest()) hex.append(String.format(Locale.ROOT, "%02x", b));
             return hex.toString();
@@ -66,8 +77,8 @@ public final class ThumbyLibrary extends ManagedGameLibrary {
         finally { movie.delete(); }
     }
     @Override protected String filename(Properties p) { return "game.zip"; }
-    @Override protected int platformId(Properties p) { return 30; }
-    @Override protected String platformName(Properties p) { return "Thumby"; }
+    @Override protected int platformId(Properties p) { return color ? 31 : 30; }
+    @Override protected String platformName(Properties p) { return color ? "Thumby Color" : "Thumby"; }
     @Override protected String variant(Properties p) { return "MicroPython"; }
-    @Override protected int firstCardId() { return -1080000000; }
+    @Override protected int firstCardId() { return color ? -1070000000 : -1080000000; }
 }

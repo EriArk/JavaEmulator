@@ -98,6 +98,7 @@ public final class HandheldFormat {
                         B2gManifest web = B2gManifest.read(zip);
                         if (web != null) return web.platforms;
                     }
+                    if (BuildConfig.THUMBY_COLOR_PROBE && ThumbyPackage.colorArchive(zip)) return Collections.singleton(31);
                     if (BuildConfig.THUMBY_PROBE && ThumbyPackage.recognizes(zip)) return Collections.singleton(30);
                     boolean arduboyBundle = BuildConfig.ARDUBOY_PROBE && arduboyBundle(zip);
                     Set<String> paths=new HashSet<>(); boolean legacy=false, jar=false, ceProgram=false, gizmondoCard=false;
@@ -158,6 +159,10 @@ public final class HandheldFormat {
                     if (!result.isEmpty() && (legacy || jar&&!carrier)) result.add(0);
                 }
             } finally { if(tmp!=null)tmp.delete(); }
+        } else if (platform == 30 && BuildConfig.THUMBY_COLOR_PROBE) {
+            try (InputStream in = c.getContentResolver().openInputStream(uri)) {
+                result.add(in != null && ThumbyPackage.colorScript(in) ? 31 : 30);
+            }
         } else if (platform==6 || platform==12 || platform==22 || binaryFile(s) || s.endsWith(".exe")) {
             try (InputStream in=c.getContentResolver().openInputStream(uri)) {
                 if(in==null)throw new IOException("Could not open "+name);
@@ -305,7 +310,7 @@ public final class HandheldFormat {
         return Arrays.copyOf(bytes,n);
     }
     public static int indexedPlatform(String path) {
-        if (path != null && path.matches("pending_([5-9]|1[0-9]|2[0-9]|30)_[a-f0-9]+"))
+        if (path != null && path.matches("pending_([5-9]|1[0-9]|2[0-9]|3[01])_[a-f0-9]+"))
             return Integer.parseInt(path.substring(8, path.indexOf('_', 8)));
         return 0;
     }

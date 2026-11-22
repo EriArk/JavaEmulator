@@ -216,6 +216,30 @@ public class HandheldCycleTest {
         assertNotEquals(identity, provider.install(sandbox, Uri.fromFile(game)).getPath());
     }
 
+    @Test public void colorImportKeepsGameFolderAndRoutesEngineHelpers() throws Exception {
+        Assume.assumeTrue(ru.playsoftware.j2meloader.BuildConfig.THUMBY_COLOR_PROBE);
+        Context sandbox = isolated(new File(work, "color-library"));
+        File raw = new File(work, "Puzzle.py");
+        byte[] program = "import math, engine_io\n".getBytes("UTF-8");
+        Files.write(raw.toPath(), program);
+        assertEquals(Collections.singleton(31), HandheldFormat.detect(c, Uri.fromFile(raw), raw.getName()));
+        File archive = new File(work, "Puzzle.zip");
+        ExternalLibrary.PackageProvider provider = ExternalLibrary.packageProvider(31);
+        String identity = null;
+        for (String prefix : Arrays.asList("", "Arcade/Puzzle/")) {
+            try (ZipOutputStream out = new ZipOutputStream(new FileOutputStream(archive))) {
+                out.putNextEntry(new ZipEntry(prefix + "main.py"));
+                out.write("import helper\n".getBytes("UTF-8"));
+                out.putNextEntry(new ZipEntry(prefix + "helper.py"));
+                out.write(program);
+            }
+            assertEquals(Collections.singleton(31), HandheldFormat.detect(c, Uri.fromFile(archive), archive.getName()));
+            String installed = provider.install(sandbox, Uri.fromFile(archive)).getPath();
+            if (identity != null) assertEquals(identity, installed);
+            identity = installed;
+        }
+    }
+
     @Test public void epochRecognizesRenamedFirmwareAndCartridges() throws Exception {
         Assume.assumeTrue(ru.playsoftware.j2meloader.BuildConfig.GAMEKING_PROBE);
         File library = new File(work, "epoch-library");
@@ -368,6 +392,7 @@ public class HandheldCycleTest {
         if (ru.playsoftware.j2meloader.BuildConfig.GAMEBUINO_PROBE && new File(source,"gamebuino/packages").isDirectory()) ids.add(26);
         if (ru.playsoftware.j2meloader.BuildConfig.POKITTO_PROBE && new File(source,"pokitto/packages").isDirectory()) ids.add(27);
         if (ru.playsoftware.j2meloader.BuildConfig.THUMBY_PROBE && new File(source,"thumby/packages").isDirectory()) ids.add(30);
+        if (ru.playsoftware.j2meloader.BuildConfig.THUMBY_COLOR_PROBE && new File(source,"thumby_color/packages").isDirectory()) ids.add(31);
         if (ru.playsoftware.j2meloader.BuildConfig.GAMEKING_PROBE && new File(source,"hartung/packages").isDirectory()) ids.add(28);
         if (ru.playsoftware.j2meloader.BuildConfig.GAMEKING_PROBE && new File(source,"epoch/packages").isDirectory()) ids.add(29);
         if (ru.playsoftware.j2meloader.BuildConfig.IPHONE_PROBE && new File(source,"iphone/packages").isDirectory()) ids.add(24);

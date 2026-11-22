@@ -54,6 +54,8 @@ public final class PlatformControls {
             row(null,b(KEY_FIRE,"▶","Play"),null),
             row(b('2',"Home"),b('4',"Vol","Volume"),b('6',"Light","Brightness")),
             row(b('8',"Zone","Geofence"),b('0',"Power")));
+    private static final PlatformControls THUMBY_COLOR = new PlatformControls("thumby_color", true,
+            row(b('*', "LB"), b('#', "RB")), row(B, A), row(b('9', "Menu")));
     private static final PlatformControls THUMBY = new PlatformControls("thumby", true, row(B, A));
     private static final PlatformControls EPOCH = new PlatformControls("epoch", true,
             row(b(KEY_SOFT_LEFT, "1", "Button 1"), b('5', "2", "Button 2")),
@@ -103,6 +105,7 @@ public final class PlatformControls {
         if (engine == null) return null;
         switch (engine) {
             case "arduboy": return ARDUBOY;
+            case "thumby_color": return THUMBY_COLOR;
             case "thumby": return THUMBY;
             case "epoch": return EPOCH;
             case "pokitto": return POKITTO;
@@ -138,6 +141,9 @@ public final class PlatformControls {
     }
     public static android.util.SparseIntArray resolveMappings(PlatformControls platform, android.util.SparseIntArray overrides) {
         android.util.SparseIntArray map = javax.microedition.lcdui.keyboard.KeyMapper.resolveMappings(overrides);
+        if (platform == THUMBY_COLOR) {
+            putDefault(map, overrides, android.view.KeyEvent.KEYCODE_BUTTON_START, '9');
+        }
         if (platform == GIZMONDO) {
             // Match the face positions of a standard Android controller.
             putDefault(map, overrides, android.view.KeyEvent.KEYCODE_BUTTON_X, '*');

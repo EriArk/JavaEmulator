@@ -1583,6 +1583,7 @@ public class AppsListFragment extends Fragment implements AppsListAdapter.Listen
 				: platform == 26 ? getString(R.string.library_gamebuino_import_hint)
 				: platform == 27 ? getString(R.string.library_pokitto_import_hint)
 				: platform == 30 ? getString(R.string.library_thumby_import_hint)
+				: platform == 31 ? getString(R.string.library_thumby_color_import_hint)
 				: platform == 28 ? getString(R.string.library_hartung_import_hint)
 				: platform == 29 ? getString(R.string.library_epoch_import_hint)
 				: platform == 24 ? getString(R.string.library_iphone_import_hint)

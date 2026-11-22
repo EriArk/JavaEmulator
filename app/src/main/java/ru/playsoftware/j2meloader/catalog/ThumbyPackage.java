@@ -10,7 +10,26 @@ import java.util.zip.*;
 public final class ThumbyPackage {
     public final String title, main;
     public final SortedMap<String, ZipEntry> files = new TreeMap<>();
-    public ZipEntry movie;
+    public ZipEntry movie, cover;
+    private static final java.util.regex.Pattern COLOR_IMPORT = java.util.regex.Pattern.compile(
+            "(?m)^\\s*(?:from\\s+engine(?:_\\w+)?\\s+import|import\\s+(?:[\\w.]+\\s*,\\s*)*engine(?:_\\w+)?\\b)");
+
+    public static boolean colorScript(InputStream in) throws IOException {
+        try (BufferedReader reader = new BufferedReader(new InputStreamReader(in, StandardCharsets.UTF_8))) {
+            String line;
+            while ((line = reader.readLine()) != null) if (COLOR_IMPORT.matcher(line).find()) return true;
+        }
+        return false;
+    }
+
+    static boolean colorArchive(ZipFile zip) throws IOException {
+        ThumbyPackage game;
+        try { game = read(zip, true, "main"); } catch (IllegalArgumentException invalid) { return false; }
+        for (ZipEntry entry : game.files.values()) {
+            if (entry.getName().endsWith(".py") && colorScript(zip.getInputStream(entry))) return true;
+        }
+        return false;
+    }
 
     private ThumbyPackage(String title, String main) { this.title = title; this.main = main; }
 
@@ -29,6 +48,10 @@ public final class ThumbyPackage {
     }
 
     public static ThumbyPackage read(ZipFile zip) throws IOException {
+        return read(zip, false, "");
+    }
+
+    public static ThumbyPackage read(ZipFile zip, boolean color, String archiveTitle) throws IOException {
         List<String> python = new ArrayList<>(), named = new ArrayList<>();
         for (Enumeration<? extends ZipEntry> it = zip.entries(); it.hasMoreElements();) {
             String path = it.nextElement().getName();
@@ -38,6 +61,11 @@ public final class ThumbyPackage {
             String dir = path.substring(0, path.length() - filename.length());
             if (dir.endsWith("/" + filename.substring(0, filename.length()-3) + "/")
                     || dir.equals(filename.substring(0, filename.length()-3) + "/")) named.add(path);
+        }
+        if (color) {
+            List<String> mains = new ArrayList<>();
+            for (String path : python) if (path.equals("main.py") || path.endsWith("/main.py")) mains.add(path);
+            if (!mains.isEmpty()) named = mains;
         }
         if (named.isEmpty() && python.size() == 1) named.add(python.get(0));
         if (named.isEmpty()) for (String path : python) {
@@ -68,7 +96,8 @@ public final class ThumbyPackage {
             String folder = root.substring(0, root.length()-1);
             title = folder.substring(folder.lastIndexOf('/')+1);
         }
-        if (title.isEmpty() || title.equals(".") || title.equals("..") || title.contains("\\"))
+        if (color && root.isEmpty() && main.equals("main.py")) title = archiveTitle;
+        if (title.contains("/") || title.isEmpty() || title.equals(".") || title.equals("..") || title.contains("\\"))
             throw new IllegalArgumentException("Invalid game directory");
         ThumbyPackage game = new ThumbyPackage(title, main);
         long total = 0;
@@ -77,12 +106,13 @@ public final class ThumbyPackage {
             if (e.isDirectory() || !e.getName().startsWith(root)) continue;
             String name = e.getName().substring(root.length());
             if (name.startsWith("__MACOSX/") || name.equals("arcade_description.txt")) continue;
-            if (name.startsWith("arcade_") && name.endsWith(".webm")) { game.movie = e; continue; }
+            if (color && name.equals("arcade_title_image.png")) { game.cover = e; continue; }
+            if (name.startsWith("arcade_") && (name.endsWith(".webm") || color && name.endsWith(".mp4"))) { game.movie = e; continue; }
             if (name.contains("\\") || Arrays.stream(name.split("/", -1)).anyMatch(s -> s.isEmpty() || s.equals(".") || s.equals("..")))
                 throw new IllegalArgumentException("Invalid game file path");
             if (game.files.put(name, e) != null) throw new IllegalArgumentException("Duplicate game file");
             total += e.getSize();
-            if (e.getSize() < 0 || total > 0x160000) throw new IllegalArgumentException("Game exceeds Thumby flash capacity");
+            if (e.getSize() < 0 || (!color && total > 0x160000)) throw new IllegalArgumentException("Game exceeds Thumby flash capacity");
         }
         return game;
     }

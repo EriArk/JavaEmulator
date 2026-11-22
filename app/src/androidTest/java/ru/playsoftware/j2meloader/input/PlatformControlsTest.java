@@ -28,7 +28,7 @@ public class PlatformControlsTest {
     }
     @Test public void nativeButtonsAreReachableInBothOrientationsAndReleaseOnCancel() {
         InstrumentationRegistry.getInstrumentation().runOnMainSync(() -> {
-            for (String engine : Arrays.asList("dingoo","gp32","piece","supervision","megaduck","gamate","gameking","arduboy","gamebuino","pokitto","hartung","epoch","thumby",
+            for (String engine : Arrays.asList("dingoo","gp32","piece","supervision","megaduck","gamate","gameking","arduboy","gamebuino","pokitto","hartung","epoch","thumby","thumby_color",
                     "wipi","kaios","mre","gizmondo","cybiko","palm","palm-classic","portfolio","pocketpc","flash","webos","firefox")) {
                 ProfileModel p = new ProfileModel();
                 p.platformControls = PlatformControls.forEngine(engine);
@@ -104,5 +104,9 @@ public class PlatformControlsTest {
         assertEquals('3',PlatformControls.resolveMappings(p.platformControls,previous).get(KeyEvent.KEYCODE_BUTTON_X));
         assertEquals('*',PlatformControls.resolveMappings(p.platformControls,null).get(KeyEvent.KEYCODE_BUTTON_X));
         assertEquals("Forward",p.platformControls.binding('3').name);
+        PlatformControls color = PlatformControls.forEngine("thumby_color");
+        assertEquals('9', PlatformControls.resolveMappings(color, null).get(KeyEvent.KEYCODE_BUTTON_START));
+        previous.put(KeyEvent.KEYCODE_BUTTON_START, '#');
+        assertEquals('#', PlatformControls.resolveMappings(color, previous).get(KeyEvent.KEYCODE_BUTTON_START));
     }
 }

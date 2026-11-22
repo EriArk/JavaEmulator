@@ -78,6 +78,7 @@ android {
         buildConfigField 'boolean', 'GAMEBUINO_PROBE', (findProject(':gamebuino-probe') != null).toString()
         buildConfigField 'boolean', 'POKITTO_PROBE', (findProject(':pokitto-probe') != null).toString()
         buildConfigField 'boolean', 'THUMBY_PROBE', (findProject(':thumby-probe') != null).toString()
+        buildConfigField 'boolean', 'THUMBY_COLOR_PROBE', (findProject(':thumby-probe') != null && project.hasProperty('thumbyColorProbe') && project.property('thumbyColorProbe') == 'true').toString()
         buildConfigField 'boolean', 'IPHONE_PROBE', (findProject(':iphone-probe') != null).toString()
         buildConfigField 'boolean', 'GIZMONDO_PROBE', (findProject(':gizmondo-probe') != null).toString()
         buildConfigField 'boolean', 'POCKETPC_PROBE', (findProject(':pocketpc-probe') != null).toString()
