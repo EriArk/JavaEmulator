@@ -14,6 +14,10 @@ attribute its results to the dated maintainer record below; do not infer a pass.
 
 The [platform issue index](PLATFORM_ISSUES.md) maps the 51 open platform-specific tasks to the maintainer roadmap, including the initial integration order and scope decisions.
 
+## Platform distribution review (2026-11-22)
+
+The 32-platform build is private. The APK audit identified a CPU redistribution restriction, license-scope questions for linked cores, firmware provenance and source/notice work. [Component evidence and next decisions](checks/2026-11-22-platform-distribution.md).
+
 ## Platform launcher (2026-11-22, private Retroid build)
 
 The launcher shows platforms with games by default. Its **Show platforms without games** checkbox also reveals available empty platforms. Select a gray device to see its firmware requirements, open the system installer or add games. The preference survives restarts. [Launcher and import checks](checks/2026-11-22-empty-platforms.md).

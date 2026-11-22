@@ -10,6 +10,10 @@ stated otherwise. **Experimental** in older checkpoints means local/private
 combined builds; released experimental features are explicitly identified.
 **Released** means an actual GitHub release asset.
 
+## 2026-11-22 - Platform distribution review
+
+Reviewed components present in the private ARM64 APK for the 0.8.0 Beta 1 release decision. [Findings for the individual engines, bundled firmware and fonts](docs/checks/2026-11-22-platform-distribution.md).
+
 ## 2026-11-22 - Empty platform setup
 
 **Unreleased source and private ARM64 build.** Added a checkbox to reveal empty platforms and open their setup directly from the launcher. The setup lists model-specific system files and reuses the existing importers. The handheld document picker now accepts several files in one selection. [Retroid checks](docs/checks/2026-11-22-empty-platforms.md).
